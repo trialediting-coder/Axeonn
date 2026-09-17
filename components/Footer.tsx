@@ -87,7 +87,7 @@ export function Footer({ year }: FooterProps) {
                 </div>
                 <a
                   href="mailto:hayder.hatem@axeonstudio.co"
-                  className="text-xl sm:text-3xl font-black text-neutral-950 hover:text-blue-600 transition-colors font-display tracking-tight"
+                  className="text-lg sm:text-3xl font-black text-neutral-950 hover:text-blue-600 transition-colors font-display tracking-tight break-all sm:break-normal"
                 >
                   hayder.hatem@axeonstudio.co
                 </a>
@@ -233,7 +233,7 @@ export function Footer({ year }: FooterProps) {
                 <div className="font-mono text-xs uppercase tracking-wider text-neutral-400 font-semibold mb-3.5">
                   Headquarters
                 </div>
-                <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed">
+                <p className="text-[13px] sm:text-sm text-neutral-600 leading-relaxed">
                   West Des Moines, IA 50266<br />
                   Central Time Zone (CST)<br />
                   Serving clients nationwide
@@ -246,7 +246,7 @@ export function Footer({ year }: FooterProps) {
 
             {/* Bottom Statement in Right Column with Policy Links */}
             <div className="pt-8 lg:pt-14 flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-neutral-400">
-              <div className="flex items-center gap-4">
+              <div className="flex flex-wrap items-center gap-4">
                 <span>[ IOWA&apos;S ONE-STOP SHOP FOR GROWING BUSINESSES ]</span>
                 <span className="hidden sm:inline">•</span>
                 <Link href="/privacy" className="hover:text-neutral-900 underline transition-colors">

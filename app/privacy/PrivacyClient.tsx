@@ -33,8 +33,8 @@ export default function PrivacyClient() {
     <div className="relative min-h-screen w-full bg-[#FAFAFC] text-gray-900 font-sans selection:bg-[#2563EB] selection:text-white">
       {/* Sub-Header Legal Breadcrumbs Bar */}
       <div className="w-full bg-white/95 border-b border-gray-200/80 pt-20 sm:pt-24">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 min-h-16 py-3 sm:py-0 sm:h-16 flex flex-wrap sm:flex-nowrap items-center justify-between gap-y-2">
+          <div className="flex items-center gap-2 sm:gap-4">
             <button
               type="button"
               onClick={handleBackToHome}
@@ -47,9 +47,9 @@ export default function PrivacyClient() {
               <span>Back to Axeon</span>
             </button>
 
-            <span className="text-gray-300">/</span>
+            <span className="hidden sm:inline text-gray-300">/</span>
 
-            <span className="text-sm font-semibold text-gray-950 flex items-center gap-1.5">
+            <span className="hidden sm:flex text-sm font-semibold text-gray-950 items-center gap-1.5">
               <ShieldCheck size={16} className="text-[#2563EB]" />
               <span>Legal Center</span>
             </span>

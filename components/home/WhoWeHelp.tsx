@@ -99,7 +99,7 @@ export function WhoWeHelp() {
         </div>
 
         {/* Grand Video Canvas Card (Scaled 1.5x) */}
-        <div className="relative rounded-[36px] sm:rounded-[48px] overflow-hidden min-h-[920px] lg:min-h-[1040px] shadow-2xl bg-neutral-950 flex flex-col justify-center border border-black/5">
+        <div className="relative rounded-[36px] sm:rounded-[48px] overflow-hidden min-h-[680px] sm:min-h-[920px] lg:min-h-[1040px] shadow-2xl bg-neutral-950 flex flex-col justify-center border border-black/5">
           {/* Base / Idle Video Background */}
           <div
             aria-hidden="true"

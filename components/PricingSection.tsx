@@ -102,7 +102,7 @@ export function PricingSection() {
                 >
                   {tier.billingNote}
                 </p>
-                <div className="text-5xl sm:text-6xl font-black mb-3 tracking-tight">{tier.price}</div>
+                <div className="text-4xl sm:text-6xl font-black mb-3 tracking-tight whitespace-nowrap">{tier.price}</div>
                 <p
                   className={`text-base sm:text-lg ${isRetainer ? 'text-neutral-300 mb-6' : 'text-neutral-600 mb-8'}`}
                 >

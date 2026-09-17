@@ -95,7 +95,7 @@ export function RankClimbChart() {
 
         <motion.div
           className="absolute flex items-center gap-1 px-2 py-1 rounded-full bg-blue-600 text-white text-[10px] font-bold shadow-md whitespace-nowrap"
-          style={{ left: `${(axeonEndX / 300) * 100}%`, top: `${(axeonEndY / 150) * 100}%`, transform: 'translate(-50%, -160%)' }}
+          style={{ left: `${(axeonEndX / 300) * 100}%`, top: `${(axeonEndY / 150) * 100}%`, transform: 'translate(-88%, -160%)' }}
           initial={{ opacity: 0, y: 6 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}

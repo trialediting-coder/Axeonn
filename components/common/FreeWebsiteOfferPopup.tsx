@@ -180,7 +180,7 @@ export function FreeWebsiteOfferPopup() {
               type="button"
               onClick={dismiss}
               aria-label="Close"
-              className="absolute top-4 right-4 p-2 rounded-full bg-neutral-100 hover:bg-neutral-200 transition-colors cursor-pointer"
+              className="absolute top-4 right-4 p-3 sm:p-2 rounded-full bg-neutral-100 hover:bg-neutral-200 transition-colors cursor-pointer"
             >
               <X size={18} />
             </button>
@@ -200,7 +200,7 @@ export function FreeWebsiteOfferPopup() {
             <button
               type="button"
               onClick={dismiss}
-              className="w-full px-6 py-2 text-neutral-500 hover:text-neutral-700 text-sm font-medium transition-colors cursor-pointer"
+              className="w-full px-6 py-3 text-neutral-500 hover:text-neutral-700 text-sm font-medium transition-colors cursor-pointer"
             >
               No thanks, I&apos;ll pass
             </button>

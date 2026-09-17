@@ -59,7 +59,7 @@ function RevenueEngineVisual() {
 // Card 1: Technology (Scaled 1.5x)
 function TechnologyCard() {
   return (
-    <div className="relative rounded-[32px] bg-[#080c14] border border-neutral-800/90 overflow-hidden flex flex-col justify-end shadow-2xl min-h-[620px] sm:min-h-[700px] lg:min-h-[760px] group transition-all duration-300 hover:border-neutral-700">
+    <div className="relative rounded-[32px] bg-[#080c14] border border-neutral-800/90 overflow-hidden flex flex-col justify-end shadow-2xl min-h-[420px] sm:min-h-[520px] lg:min-h-[760px] group transition-all duration-300 hover:border-neutral-700">
       {/* Visual Content: dashboard screenshot has real text/data near every edge,
           so it's shown uncropped (object-contain) instead of edge-to-edge cover —
           cover was cutting off dashboard labels and numbers. */}
@@ -93,7 +93,7 @@ function TechnologyCard() {
 // Card 2: Marketing (Scaled 1.5x)
 function MarketingCard() {
   return (
-    <div className="relative rounded-[32px] bg-[#080c14] border border-neutral-800/90 overflow-hidden flex flex-col justify-end shadow-2xl min-h-[620px] sm:min-h-[700px] lg:min-h-[760px] group transition-all duration-300 hover:border-neutral-700">
+    <div className="relative rounded-[32px] bg-[#080c14] border border-neutral-800/90 overflow-hidden flex flex-col justify-end shadow-2xl min-h-[420px] sm:min-h-[520px] lg:min-h-[760px] group transition-all duration-300 hover:border-neutral-700">
       {/* TEMPORARY placeholder image — replace before launch, see public/temp-scorpion-refs.
           Pre-cropped to a portrait composition (see marketing-card.webp) so object-cover
           fills the card edge-to-edge without cutting off the SERP results content. */}
@@ -124,7 +124,7 @@ function MarketingCard() {
 // Card 3: AI (Scaled 1.5x)
 function AICard() {
   return (
-    <div className="relative rounded-[32px] bg-[#080c14] border border-neutral-800/90 overflow-hidden flex flex-col justify-between shadow-2xl min-h-[620px] sm:min-h-[700px] lg:min-h-[760px] group transition-all duration-300 hover:border-neutral-700">
+    <div className="relative rounded-[32px] bg-[#080c14] border border-neutral-800/90 overflow-hidden flex flex-col justify-between shadow-2xl min-h-[420px] sm:min-h-[520px] lg:min-h-[760px] group transition-all duration-300 hover:border-neutral-700">
       {/* Visual Content: the signature Axeon orb — press play to hear the real AI receptionist */}
       <div className="relative flex-1 p-6 sm:p-10 overflow-hidden bg-gradient-to-b from-[#0e1628]/60 to-transparent flex flex-col items-center justify-center">
         <div className="absolute inset-0 bg-radial from-blue-600/10 via-transparent to-transparent pointer-events-none" />

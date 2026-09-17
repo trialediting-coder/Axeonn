@@ -182,7 +182,7 @@ export default function LeadGenerationPage() {
                   backgroundSize: '18px 18px',
                 }}
               >
-                <div className="absolute inset-0 flex flex-wrap items-center justify-center content-center gap-6 sm:gap-8 p-8">
+                <div className="absolute inset-0 flex flex-wrap items-center justify-center content-center gap-4 sm:gap-8 p-5 sm:p-8">
                   {SCATTERED_SOURCES.map(({ icon: Icon, label }) => (
                     <div
                       key={label}

@@ -67,27 +67,27 @@ export function Comparison() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="mt-12 sm:mt-16 rounded-[32px] sm:rounded-[40px] border border-neutral-200 overflow-hidden bg-white shadow-md"
         >
-          <div className="grid grid-cols-[1fr_1.35fr_1.35fr] sm:grid-cols-[0.85fr_1.3fr_1.3fr] bg-neutral-50 border-b border-neutral-200 text-xs sm:text-base lg:text-lg font-bold uppercase tracking-wider">
-            <div className="p-5 sm:p-7 lg:p-8 text-neutral-500">&nbsp;</div>
-            <div className="p-5 sm:p-7 lg:p-8 text-neutral-500">Typical Agency</div>
-            <div className="p-5 sm:p-7 lg:p-8 text-blue-600 bg-blue-50/80">Axeon Studio</div>
+          <div className="grid grid-cols-[0.7fr_1.15fr_1.15fr] sm:grid-cols-[0.85fr_1.3fr_1.3fr] bg-neutral-50 border-b border-neutral-200 text-[13px] sm:text-base lg:text-lg font-bold uppercase tracking-wider">
+            <div className="p-3 sm:p-7 lg:p-8 text-neutral-500">&nbsp;</div>
+            <div className="p-3 sm:p-7 lg:p-8 text-neutral-500">Typical Agency</div>
+            <div className="p-3 sm:p-7 lg:p-8 text-blue-600 bg-blue-50/80">Axeon Studio</div>
           </div>
           {ROWS.map((row, idx) => (
             <div
               key={row.dimension}
-              className={`grid grid-cols-[1fr_1.35fr_1.35fr] sm:grid-cols-[0.85fr_1.3fr_1.3fr] text-xs sm:text-base lg:text-lg ${
+              className={`grid grid-cols-[0.7fr_1.15fr_1.15fr] sm:grid-cols-[0.85fr_1.3fr_1.3fr] text-[13px] sm:text-base lg:text-lg ${
                 idx !== ROWS.length - 1 ? 'border-b border-neutral-100' : ''
               }`}
             >
-              <div className="p-5 sm:p-7 lg:p-8 font-bold text-neutral-950 text-sm sm:text-xl lg:text-2xl">
+              <div className="p-3 sm:p-7 lg:p-8 font-bold text-neutral-950 text-sm sm:text-xl lg:text-2xl">
                 {row.dimension}
               </div>
-              <div className="p-5 sm:p-7 lg:p-8 text-neutral-600 leading-relaxed flex items-start gap-2.5 sm:gap-3.5">
-                <X size={20} className="text-neutral-400 shrink-0 mt-1" />
+              <div className="p-3 sm:p-7 lg:p-8 text-neutral-600 leading-relaxed flex items-start gap-1.5 sm:gap-3.5">
+                <X size={20} className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-neutral-400 shrink-0 mt-1" />
                 <span className="leading-relaxed">{row.typical}</span>
               </div>
-              <div className="p-5 sm:p-7 lg:p-8 text-neutral-900 font-medium leading-relaxed flex items-start gap-2.5 sm:gap-3.5 bg-blue-50/40">
-                <Check size={20} className="text-blue-600 shrink-0 mt-1" />
+              <div className="p-3 sm:p-7 lg:p-8 text-neutral-900 font-medium leading-relaxed flex items-start gap-1.5 sm:gap-3.5 bg-blue-50/40">
+                <Check size={20} className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-blue-600 shrink-0 mt-1" />
                 <span className="leading-relaxed">{row.axeon}</span>
               </div>
             </div>

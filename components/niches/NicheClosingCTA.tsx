@@ -30,13 +30,13 @@ export function NicheClosingCTA({ niche }: { niche: Niche }) {
         </div>
         <Link
           href="/why-axeon"
-          className="inline-block mt-8 text-sm text-neutral-400 hover:text-blue-400 underline underline-offset-4 transition-colors"
+          className="inline-block mt-8 py-3 text-sm text-neutral-400 hover:text-blue-400 underline underline-offset-4 transition-colors"
         >
           See exactly how we compare to a typical agency →
         </Link>
         <Link
           href="/solutions"
-          className="inline-block mt-8 text-sm text-neutral-400 hover:text-blue-400 underline underline-offset-4 transition-colors"
+          className="inline-block mt-8 py-3 text-sm text-neutral-400 hover:text-blue-400 underline underline-offset-4 transition-colors"
         >
           Not the right fit? Browse other industries →
         </Link>

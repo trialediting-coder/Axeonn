@@ -369,12 +369,15 @@ export function Header() {
         </div>
 
         <div className="flex md:hidden items-center gap-2.5">
-          <Link href="/book" className="px-4 py-1.5 rounded-full bg-blue-600 text-white text-xs font-semibold">
+          <Link
+            href="/book"
+            className="inline-flex items-center justify-center px-4 py-3 rounded-full bg-blue-600 text-white text-xs font-semibold"
+          >
             Book a Strategy Call
           </Link>
           <button
             onClick={() => setMobileMenuOpen((v) => !v)}
-            className={`p-2 transition-colors ${onDarkHero ? 'text-white' : 'text-neutral-800'}`}
+            className={`p-2.5 transition-colors ${onDarkHero ? 'text-white' : 'text-neutral-800'}`}
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}

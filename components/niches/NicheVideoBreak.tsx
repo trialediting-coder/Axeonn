@@ -13,7 +13,7 @@ export function NicheVideoBreak({
   const asset = nicheVideoMap[slug] || defaultNicheVideoAsset;
 
   return (
-    <section className="relative w-full h-screen overflow-hidden bg-neutral-950 flex items-center justify-center">
+    <section className="relative w-full h-screen h-[100dvh] overflow-hidden bg-neutral-950 flex items-center justify-center">
       <video
         autoPlay
         loop

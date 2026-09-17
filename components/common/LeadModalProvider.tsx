@@ -124,7 +124,7 @@ export function LeadModalProvider({ children }: { children: ReactNode }) {
                 type="button"
                 onClick={close}
                 aria-label="Close"
-                className="absolute top-4 right-4 z-10 p-2 rounded-full bg-neutral-100 hover:bg-neutral-200 transition-colors cursor-pointer"
+                className="absolute top-4 right-4 z-10 p-3 sm:p-2 rounded-full bg-neutral-100 hover:bg-neutral-200 transition-colors cursor-pointer"
               >
                 <X size={18} />
               </button>

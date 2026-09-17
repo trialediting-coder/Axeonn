@@ -109,7 +109,7 @@ export function WhyChooseUs() {
                 <div className="text-xs sm:text-sm text-neutral-300 font-semibold mb-2">
                   First AI-Powered Agency in Iowa
                 </div>
-                <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed font-normal">
+                <p className="text-[13px] sm:text-sm text-neutral-400 leading-relaxed font-normal">
                   We pair custom web design with practical automation so your business responds to new leads instantly and looks miles ahead of competitors.
                 </p>
               </div>
@@ -132,7 +132,7 @@ export function WhyChooseUs() {
                 <div className="text-xs sm:text-sm text-neutral-900 font-semibold mb-2">
                   Never Miss a Lead
                 </div>
-                <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed font-normal">
+                <p className="text-[13px] sm:text-sm text-neutral-600 leading-relaxed font-normal">
                   Every contact form, question, and inquiry gets routed straight to your phone so hot leads never slip through the cracks.
                 </p>
               </div>
@@ -153,7 +153,7 @@ export function WhyChooseUs() {
                       <div className="w-7 h-7 rounded-full bg-indigo-500 flex items-center justify-center shrink-0">
                         <Icon size={14} className="text-white" />
                       </div>
-                      <span className="text-xs sm:text-sm text-neutral-700 font-medium leading-snug">
+                      <span className="text-[13px] sm:text-sm text-neutral-700 font-medium leading-snug">
                         {step.text}
                       </span>
                     </motion.div>
@@ -186,7 +186,7 @@ export function WhyChooseUs() {
                 <h3 className="text-2xl sm:text-3xl font-bold font-display text-neutral-950 tracking-tight mb-3">
                   7&ndash;14 Day Delivery Timeline
                 </h3>
-                <p className="text-xs sm:text-sm lg:text-base text-neutral-600 leading-relaxed font-normal">
+                <p className="text-[13px] sm:text-sm lg:text-base text-neutral-600 leading-relaxed font-normal">
                   From first conversation to live launch in days, not months. We stay focused on your project instead of juggling dozens at once, so your new site can start paying for itself immediately.
                 </p>
               </div>
@@ -219,7 +219,7 @@ export function WhyChooseUs() {
                   <h3 className="text-2xl sm:text-3xl font-bold font-display text-neutral-950 tracking-tight mb-2">
                     Dependable Timelines
                   </h3>
-                  <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed font-normal">
+                  <p className="text-[13px] sm:text-sm text-neutral-600 leading-relaxed font-normal">
                     No runaway deadlines or surprise invoices. We give you a clear plan and launch date, then we hit it.
                   </p>
                 </div>
@@ -303,7 +303,7 @@ export function WhyChooseUs() {
                     Here in Iowa
                   </h3>
                 </div>
-                <p className="text-xs sm:text-sm lg:text-base text-neutral-200 max-w-sm leading-relaxed font-normal">
+                <p className="text-[13px] sm:text-sm lg:text-base text-neutral-200 max-w-sm leading-relaxed font-normal">
                   We are based right here in West Des Moines. We treat our clients like partners, communicate clearly, and take pride in work that stands out.
                 </p>
               </div>

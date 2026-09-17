@@ -69,7 +69,7 @@ export default function BookClient() {
                         <button
                           type="button"
                           onClick={handleCopyPhone}
-                          className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
+                          className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 hover:text-blue-800 cursor-pointer p-2 -m-2"
                           title="Copy phone number"
                         >
                           {copiedPhone ? (
@@ -153,7 +153,7 @@ export default function BookClient() {
             {/* RIGHT COLUMN (lg:col-span-7) — Embedded Calendar Frame */}
             {/* ========================================================= */}
             <div id="booking-calendar-container" className="lg:col-span-7 w-full mt-10 sm:mt-14 lg:mt-0 pt-8 sm:pt-10 lg:pt-0 border-t border-zinc-100 lg:border-t-0 lg:pl-8 xl:pl-16">
-              <div className="mb-3 sm:mb-4 flex items-center justify-between text-xs text-zinc-500 px-1">
+              <div className="mb-3 sm:mb-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs text-zinc-500 px-1">
                 <span className="font-mono uppercase tracking-wider font-semibold text-zinc-700">
                   Select Date &amp; Time
                 </span>
