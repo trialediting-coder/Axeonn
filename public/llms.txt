@@ -1,0 +1,51 @@
+# Axeon Studio
+> The one-stop shop for growing Iowa businesses — website, SEO/AEO/GEO, reviews, social media, and lead capture, built and run by one team. Based in West Des Moines, Iowa.
+
+Axeon Studio is a productized web studio and revenue-operations partner. We replace slow, disconnected websites with conversion-built storefronts wired directly into a tailor-made Custom CRM Pipeline — purpose-built intake, lead routing, and follow-up for each client's industry, not a generic template.
+
+**Core differentiators**: Direct partnership (you work with the actual builder, not an account manager), Transparent (published flat-rate pricing instead of custom quotes after multiple discovery calls), and real AI systems tailored to each client's actual lead-to-close workflow — not a generic, templated AI tool with a logo pasted on top.
+
+**Search visibility services**: Every Axeon Studio build includes Search Engine Optimization (SEO), Answer Engine Optimization (AEO), and Generative Engine Optimization (GEO) by default — technical SEO, structured data, and machine-readable content so a business is findable on Google as well as citable by AI answer engines like ChatGPT, Perplexity, Claude, and Gemini. These are not sold as separate add-ons.
+
+## Core Services & Pages
+- [Home](https://axeonstudio.co/): High-performance web infrastructure and Custom CRM Pipelines, built and run by one Iowa team.
+- [Industries Hub](https://axeonstudio.co/solutions): Purpose-built web + CRM Pipeline solutions for 10 high-ticket local service industries.
+- [Dental Practices](https://axeonstudio.co/solutions/dental): Same-day emergency triage, insurance verification, and hygiene recall workflows.
+- [Med Spas & Aesthetic Clinics](https://axeonstudio.co/solutions/med-spa): Treatment-interest intake and membership-retention pipelines.
+- [HVAC Companies](https://axeonstudio.co/solutions/hvac): Emergency dispatch routing separated from seasonal tune-up bookings.
+- [Roofing Contractors](https://axeonstudio.co/solutions/roofing): Storm-damage intake with insurance-claim vs. cash-buyer routing.
+- [Law Firms](https://axeonstudio.co/solutions/law-firms): Practice-area routing and case-evaluation-to-retainer tracking.
+- [Accounting & CPA Firms](https://axeonstudio.co/solutions/accounting): Tax-prep triage separated from CFO-level advisory leads.
+- [Home Remodeling & General Contractors](https://axeonstudio.co/solutions/home-remodeling): Budget and scope qualification before the site visit.
+- [Real Estate Agents & Teams](https://axeonstudio.co/solutions/real-estate): Buyer/seller routing, instant valuation, and showing scheduling.
+- [Landscaping Companies](https://axeonstudio.co/solutions/landscaping): Recurring maintenance intake separated from one-time hardscape and design bids.
+- [Auto Detailing Shops](https://axeonstudio.co/solutions/auto-detailing): Package selection and bay-scheduling built for repeat customers.
+- [Marketing Solutions Hub](https://axeonstudio.co/marketing-solutions): The individual services Axeon builds and runs — website, SEO, AI chat, lead generation, video/photography.
+- [Website](https://axeonstudio.co/marketing-solutions/website): Brand-driven website design and development, not a generic template.
+- [SEO, AEO & GEO](https://axeonstudio.co/marketing-solutions/seo): Search Engine, Answer Engine, and Generative Engine Optimization, included by default.
+- [AI Chat & Online Scheduling](https://axeonstudio.co/marketing-solutions/ai-chat-scheduling): A 24/7 AI receptionist that answers, qualifies, and books appointments.
+- [Lead Generation](https://axeonstudio.co/marketing-solutions/lead-generation): Every lead captured and followed up on automatically in one unified pipeline.
+- [Video & Photography](https://axeonstudio.co/marketing-solutions/video-photography): Professional video and photography for your website, ads, and social profiles.
+- [Why Axeon](https://axeonstudio.co/why-axeon): Direct comparison of a typical agency vs. Axeon Studio across web design, AI receptionist, data infrastructure, SEO/AEO/GEO, and automation.
+- [Pricing](https://axeonstudio.co/pricing): Flat-rate Core Web Build, Acquisition Engine build, and AxeonCORE — the monthly technology partnership.
+- [Work](https://axeonstudio.co/work): Concept builds and example layouts showing our approach — Axeon Studio is a new studio still building its client portfolio.
+- [Process](https://axeonstudio.co/process): The 7-to-14-day delivery framework used to design, build, and launch every project.
+- [FAQ](https://axeonstudio.co/faq): Answers to common questions about pricing, timelines, and how Axeon Studio works.
+- [Our Story](https://axeonstudio.co/about): Founder story and Iowa roots.
+- [Book a Strategy Session](https://axeonstudio.co/book): Direct 1-on-1 scheduling with founder Hayder Hatem.
+
+## Geographic Service Area
+- Headquarters: West Des Moines, IA 50266, United States
+- Latitude / Longitude: 41.5772° N, 93.7538° W
+- Metro Area: West Des Moines, Des Moines, Waukee, Urbandale, Clive, Johnston, Ankeny
+- Statewide Coverage: Iowa (Polk County, Dallas County, Story County, Johnson County, Linn County)
+- National & Remote: Available for clients across North America
+
+## Business & Contact Details
+- Business Entity: Axeon Studio
+- Founder & Systems Architect: Hayder Hatem
+- Email: hayder.hatem@axeonstudio.co
+- Phone: +1 (515) 493-8017
+- Hours: Monday - Friday, 8:00 AM - 6:00 PM CST
+- Turnaround: 7-14 Business Day delivery timeline (Core Web Build: 7 days, Acquisition Engine: 14 days)
+- Primary Stack: React, Next.js, TypeScript, Tailwind CSS, a Custom CRM Pipeline, Google Analytics 4
