@@ -1,0 +1,386 @@
+@import "tailwindcss";
+
+html {
+  scroll-behavior: smooth;
+}
+
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* Universal scrollbar removal across all browsers and devices */
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar,
+[class*="overflow-x-auto"]::-webkit-scrollbar,
+[class*="overflow-x-scroll"]::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  -webkit-appearance: none !important;
+}
+
+.no-scrollbar,
+.scrollbar-none,
+[class*="overflow-x-auto"],
+[class*="overflow-x-scroll"] {
+  -ms-overflow-style: none !important; /* IE and Edge */
+  scrollbar-width: none !important; /* Firefox */
+  -webkit-overflow-scrolling: touch;
+}
+
+@layer utilities {
+  .liquid-glass {
+    background: rgba(255, 255, 255, 0.01);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.2);
+    position: relative;
+  }
+
+  .liquid-glass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.4),
+      rgba(255, 255, 255, 0.05)
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .liquid-glass-strong {
+    background: rgba(255, 255, 255, 0.01);
+    backdrop-filter: blur(50px);
+    -webkit-backdrop-filter: blur(50px);
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.3);
+  }
+
+  .mask-gradient-x {
+    mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+  }
+
+  .mask-gradient-y {
+    mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+  }
+
+  .mask-gradient-feather-y {
+    mask-image: linear-gradient(to bottom, transparent 0%, black 16%, black 84%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 16%, black 84%, transparent 100%);
+  }
+}
+
+@keyframes marqueeLeft {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+@keyframes infiniteScrollLeft {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-100%, 0, 0); }
+}
+
+@keyframes marqueeRight {
+  0% { transform: translate3d(-50%, 0, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes slideUpInfinite {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(0, -50%, 0); }
+}
+
+@keyframes slideDownInfinite {
+  0% { transform: translate3d(0, -50%, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+.animate-infinite-marquee {
+  display: flex;
+  flex-shrink: 0;
+  animation: infiniteScrollLeft 40s linear infinite;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.group:hover .animate-infinite-marquee,
+.animate-infinite-marquee:hover {
+  animation-play-state: paused;
+}
+
+.animate-marquee-left {
+  display: flex;
+  width: max-content;
+  animation: marqueeLeft 50s linear infinite;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+}
+
+.animate-marquee-left:hover {
+  animation-play-state: paused;
+}
+
+.animate-slide-up-loop {
+  display: flex;
+  flex-direction: column;
+  animation: slideUpInfinite 32s linear infinite;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+}
+
+.animate-slide-up-loop:hover,
+.slide-col-wrapper:hover .animate-slide-up-loop {
+  animation-play-state: paused;
+}
+
+.animate-slide-down-loop {
+  display: flex;
+  flex-direction: column;
+  animation: slideDownInfinite 34s linear infinite;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+}
+
+.animate-slide-down-loop:hover,
+.slide-col-wrapper:hover .animate-slide-down-loop {
+  animation-play-state: paused;
+}
+
+@keyframes gradientFlowHorizontal {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes gradientFlowDiagonal {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes gradientFlowVertical {
+  0% {
+    background-position: 50% 0%;
+  }
+  50% {
+    background-position: 50% 100%;
+  }
+  100% {
+    background-position: 50% 0%;
+  }
+}
+
+@keyframes auroraMeshSpin {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.15);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+@keyframes hueCycleSlow {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  50% {
+    filter: hue-rotate(25deg);
+  }
+  100% {
+    filter: hue-rotate(0deg);
+  }
+}
+
+@keyframes gradientFlowContinuous {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes fluidOrbA {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  25% {
+    transform: translate3d(-10%, -12%, 0) scale(1.14);
+  }
+  50% {
+    transform: translate3d(-18%, -4%, 0) scale(0.95);
+  }
+  75% {
+    transform: translate3d(8%, -14%, 0) scale(1.12);
+  }
+}
+
+@keyframes fluidOrbB {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  30% {
+    transform: translate3d(14%, -15%, 0) scale(1.16);
+  }
+  65% {
+    transform: translate3d(-14%, -8%, 0) scale(0.92);
+  }
+  85% {
+    transform: translate3d(6%, -12%, 0) scale(1.08);
+  }
+}
+
+@keyframes fluidOrbC {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.65;
+  }
+  50% {
+    transform: translate3d(-14%, -16%, 0) scale(1.22);
+    opacity: 0.95;
+  }
+}
+
+.animate-fluid-orb-a {
+  animation: fluidOrbA 4.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-fluid-orb-b {
+  animation: fluidOrbB 5.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-fluid-orb-c {
+  animation: fluidOrbC 3.8s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.animate-gradient-flow-continuous {
+  background-size: 200% 200%;
+  animation: gradientFlowContinuous 6s linear infinite;
+}
+
+.animate-gradient-horizontal {
+  background-size: 250% 100%;
+  animation: gradientFlowHorizontal 8s ease-in-out infinite;
+}
+
+.animate-gradient-diagonal {
+  background-size: 250% 250%;
+  animation: gradientFlowDiagonal 10s ease-in-out infinite;
+}
+
+.animate-gradient-vertical {
+  background-size: 100% 250%;
+  animation: gradientFlowVertical 9s ease-in-out infinite;
+}
+
+.animate-aurora-spin {
+  animation: auroraMeshSpin 20s linear infinite;
+  will-change: transform;
+}
+
+.animate-hue-cycle {
+  animation: hueCycleSlow 12s ease-in-out infinite;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5.5rem;
+  color: #111827;
+  background-color: #FAF9F8;
+  transition: background-color 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body {
+  background-color: transparent;
+  color: #111827;
+  font-family: var(--font-plus-jakarta-sans), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 400;
+  overflow-x: hidden;
+  letter-spacing: -0.01em;
+  transition: background-color 0.6s cubic-bezier(0.16, 1, 0.3, 1), color 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html, #root {
+  font-family: var(--font-plus-jakarta-sans), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.font-sans {
+  font-family: var(--font-plus-jakarta-sans), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+.font-display {
+  font-family: var(--font-plus-jakarta-sans), system-ui, -apple-system, sans-serif !important;
+  letter-spacing: -0.03em;
+}
+
+.font-serif-italic {
+  font-family: var(--font-plus-jakarta-sans), system-ui, -apple-system, sans-serif;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.font-serif-normal {
+  font-family: var(--font-plus-jakarta-sans), system-ui, -apple-system, sans-serif;
+  font-weight: 600;
+}
+
+/* Hero section: completely remove default browser cursor so only the custom follower is visible */
+@media (hover: hover) and (pointer: fine) {
+  .hero-video-cursor,
+  .hero-video-cursor * {
+    cursor: none !important;
+  }
+
+  .hero-video-cursor button,
+  .hero-video-cursor a,
+  .hero-video-cursor [role="button"],
+  .hero-video-cursor input,
+  .hero-video-cursor textarea {
+    cursor: pointer !important;
+  }
+}
