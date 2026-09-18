@@ -12,8 +12,8 @@ function sanitizeNicheTags(tags: string[]): string[] {
 }
 
 // A post can only sit in `scheduled` with a real future publish time --
-// otherwise it's either stranded forever (null) or auto-published almost
-// immediately by the hourly cron (a past/near timestamp), bypassing the
+// otherwise it's either stranded forever (null) or auto-published on the
+// very next daily publish-check run (a past/near timestamp), bypassing the
 // 24h human-review window the whole safety design relies on.
 function resolveScheduledPublishAt(status: string, provided: string | null | undefined): string | null {
   // Only meaningful while a post is actually scheduled -- e.g. the publish-now

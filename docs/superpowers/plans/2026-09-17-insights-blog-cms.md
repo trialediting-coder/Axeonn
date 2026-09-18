@@ -4,7 +4,7 @@
 
 **Goal:** Add a real blog at `/insights` with a custom single-admin CMS, plus a fully autonomous weekly content pipeline (Anthropic API + web search) that researches and writes SEO/AEO-optimized posts under fail-safe anti-fabrication guardrails.
 
-**Architecture:** One `posts` table in Vercel Postgres, one shared creation/validation code path used by three front doors — the admin UI (human), a weekly Vercel Cron job (autonomous), and an authenticated API token (for Claude Code, on request). Auth.js (single credentials-based admin) protects `/insights/admin/*`. A second hourly cron flips `scheduled` posts to `published` after a 24h window.
+**Architecture:** One `posts` table in Vercel Postgres, one shared creation/validation code path used by three front doors — the admin UI (human), a weekly Vercel Cron job (autonomous), and an authenticated API token (for Claude Code, on request). Auth.js (single credentials-based admin) protects `/insights/admin/*`. A second cron (originally hourly; changed to daily post-deployment because Vercel's Hobby plan caps cron jobs at once/day) flips `scheduled` posts to `published` after a 24h window.
 
 **Tech Stack:** Next.js 15 App Router, React 19, TypeScript, Tailwind v4, `@vercel/postgres`, `next-auth` v5, `bcryptjs`, `react-markdown` + `remark-gfm`, `@anthropic-ai/sdk`, `resend`.
 
@@ -2303,7 +2303,7 @@ export async function POST(req: Request) {
 }
 ```
 
-The first runs weekly (Sundays 13:00 UTC); the second runs hourly to catch any post whose 24-hour scheduled window has passed.
+The first runs weekly (Sundays 13:00 UTC); the second runs daily at 13:00 UTC to catch any post whose 24-hour scheduled window has passed (changed from hourly post-deployment -- Vercel's Hobby plan only allows daily-or-less-frequent cron schedules).
 
 **Note for implementer:** Vercel Cron automatically sends `Authorization: Bearer $CRON_SECRET` using the project's `CRON_SECRET` env var — confirm this against current Vercel Cron docs, since Vercel occasionally changes whether this header is automatic or must be added manually in `vercel.json`'s cron config.
 

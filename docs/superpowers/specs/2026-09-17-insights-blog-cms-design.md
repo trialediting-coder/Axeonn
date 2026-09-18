@@ -180,7 +180,11 @@ $CRON_SECRET` header):
 
 ### Publish-scheduled flow
 
-A second, hourly Vercel Cron → `POST /api/cron/publish-scheduled`: finds
+A second, daily Vercel Cron (changed from the original hourly design after
+deployment — Vercel's Hobby plan caps cron jobs at once per day; this
+widens the worst-case delay from the 24h review window to as much as ~48h,
+which still satisfies the "never auto-published in under 24h" guarantee) →
+`POST /api/cron/publish-scheduled`: finds
 every post where `status = 'scheduled' AND scheduled_publish_at <= now()`,
 flips it to `status: 'published', published_at: now()`.
 
