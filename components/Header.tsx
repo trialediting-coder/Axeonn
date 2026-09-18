@@ -343,7 +343,7 @@ export function Header() {
               </div>
             )}
           </div>
-          <Link href="/faq" className={`${navHoverClass} transition-colors py-1`}>
+          <Link href="/insights" className={`${navHoverClass} transition-colors py-1`}>
             Insights
           </Link>
           <Link href="/pricing" className={`${navHoverClass} transition-colors py-1`}>
@@ -543,7 +543,7 @@ export function Header() {
             </div>
           </div>
 
-          <Link href="/faq" onClick={() => setMobileMenuOpen(false)} className="text-neutral-800 font-semibold pt-1">
+          <Link href="/insights" onClick={() => setMobileMenuOpen(false)} className="text-neutral-800 font-semibold pt-1">
             Insights
           </Link>
           <Link href="/pricing" onClick={() => setMobileMenuOpen(false)} className="text-neutral-800 font-semibold">
