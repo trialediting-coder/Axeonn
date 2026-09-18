@@ -108,7 +108,7 @@ async function handleGeneratePost(req: Request) {
     // curious"). Send the safety-net email instead.
     const message = error instanceof Error ? error.message : String(error);
     await notifySafely(() =>
-      sendFailedGenerationNotification([`Weekly generation threw an unhandled error: ${message}`])
+      sendFailedGenerationNotification([`Weekly generation threw an unhandled error: ${message}`], false)
     );
     return NextResponse.json({ error: 'Generation failed', message }, { status: 500 });
   }

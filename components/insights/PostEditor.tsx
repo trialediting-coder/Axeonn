@@ -21,8 +21,15 @@ export function PostEditor({ initialPost }: PostEditorProps) {
   const [metaTitle, setMetaTitle] = useState(initialPost?.metaTitle ?? '');
   const [metaDescription, setMetaDescription] = useState(initialPost?.metaDescription ?? '');
   const [nicheTags, setNicheTags] = useState<string[]>(initialPost?.nicheTags ?? []);
+  const [coverImageUrl, setCoverImageUrl] = useState(initialPost?.coverImageUrl ?? '');
+  const [coverImageAlt, setCoverImageAlt] = useState(initialPost?.coverImageAlt ?? '');
+  const [faqItems, setFaqItems] = useState<{ question: string; answer: string }[]>(initialPost?.faqItems ?? []);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function updateFaqItem(index: number, field: 'question' | 'answer', value: string) {
+    setFaqItems((prev) => prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)));
+  }
 
   function handleTitleChange(value: string) {
     setTitle(value);
@@ -46,9 +53,9 @@ export function PostEditor({ initialPost }: PostEditorProps) {
       nicheTags,
       metaTitle: metaTitle || null,
       metaDescription: metaDescription || null,
-      coverImageUrl: initialPost?.coverImageUrl ?? null,
-      coverImageAlt: initialPost?.coverImageAlt ?? null,
-      faqItems: initialPost?.faqItems ?? [],
+      coverImageUrl: coverImageUrl || null,
+      coverImageAlt: coverImageAlt || null,
+      faqItems: faqItems.filter((item) => item.question.trim() && item.answer.trim()),
       sources: initialPost?.sources ?? [],
       scheduledPublishAt,
       publishedAt: status === 'published' ? new Date().toISOString() : (initialPost?.publishedAt ?? null),
@@ -150,6 +157,65 @@ export function PostEditor({ initialPost }: PostEditorProps) {
                 </button>
               );
             })}
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-1">Cover image URL</label>
+            <input
+              value={coverImageUrl}
+              onChange={(e) => setCoverImageUrl(e.target.value)}
+              placeholder="https://..."
+              className="w-full px-3 py-2 rounded-lg border border-neutral-300 text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-1">Cover image alt text</label>
+            <input
+              value={coverImageAlt}
+              onChange={(e) => setCoverImageAlt(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg border border-neutral-300 text-sm"
+            />
+          </div>
+        </div>
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-sm font-medium text-neutral-700">FAQ items</label>
+            <button
+              type="button"
+              onClick={() => setFaqItems((prev) => [...prev, { question: '', answer: '' }])}
+              className="text-xs font-semibold text-blue-600 hover:underline cursor-pointer"
+            >
+              + Add question
+            </button>
+          </div>
+          <div className="flex flex-col gap-3">
+            {faqItems.map((item, i) => (
+              <div key={i} className="border border-neutral-200 rounded-lg p-3 flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    value={item.question}
+                    onChange={(e) => updateFaqItem(i, 'question', e.target.value)}
+                    placeholder="Question"
+                    className="flex-1 px-3 py-2 rounded-lg border border-neutral-300 text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setFaqItems((prev) => prev.filter((_, j) => j !== i))}
+                    className="text-xs text-red-600 hover:underline cursor-pointer shrink-0"
+                  >
+                    Remove
+                  </button>
+                </div>
+                <textarea
+                  value={item.answer}
+                  onChange={(e) => updateFaqItem(i, 'answer', e.target.value)}
+                  placeholder="Answer"
+                  rows={2}
+                  className="w-full px-3 py-2 rounded-lg border border-neutral-300 text-sm"
+                />
+              </div>
+            ))}
           </div>
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}

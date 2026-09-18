@@ -3,6 +3,8 @@
 // 2. Vercel automatically adds POSTGRES_URL and related env vars to the project.
 // 3. Pull them locally: `vercel env pull .env.local` (requires `vercel` CLI logged in).
 // 4. Then run: npm run db:init
+//    (the script is invoked with `node --env-file=.env.local` so POSTGRES_URL
+//    is actually loaded -- plain `node` does not read .env files on its own)
 
 import { sql } from '@vercel/postgres';
 

@@ -9,7 +9,8 @@
     "start": "next start -p 3000 -H 0.0.0.0",
     "lint": "tsc --noEmit",
     "verify": "tsx scripts/verify-build.mjs",
-    "db:init": "node scripts/init-db.mjs"
+    "db:init": "node --env-file=.env.local scripts/init-db.mjs",
+    "db:verify": "node --env-file=.env.local scripts/verify-db-schema.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.126.0",

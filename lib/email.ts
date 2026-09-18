@@ -2,6 +2,11 @@
 import { Resend } from 'resend';
 
 const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_EMAIL;
+// Resend rejects sends from a domain that hasn't been verified in the
+// Resend dashboard -- configurable so a real deploy can point at a verified
+// domain without a code change, and so this isn't silently hardcoded to a
+// domain that was never actually set up.
+const FROM_ADDRESS = process.env.RESEND_FROM_EMAIL || 'Axeon Insights <insights@axeonstudio.co>';
 
 function getClient(): Resend | null {
   if (!process.env.RESEND_API_KEY) return null;
@@ -25,7 +30,7 @@ export async function sendScheduledNotification(post: { title: string; slug: str
   if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
 
   await resend.emails.send({
-    from: 'Axeon Insights <insights@axeonstudio.co>',
+    from: FROM_ADDRESS,
     to: ADMIN_NOTIFICATION_EMAIL,
     subject: `New post scheduled: ${post.title}`,
     html: `
@@ -37,18 +42,31 @@ export async function sendScheduledNotification(post: { title: string; slug: str
   });
 }
 
-export async function sendFailedGenerationNotification(reasons: string[]): Promise<void> {
+// postWasCreated distinguishes "generated, checked, and saved as a draft
+// for review" from "the pipeline threw before any post existed" -- the cron
+// route's outer catch handles the latter and there is no draft to view.
+export async function sendFailedGenerationNotification(
+  reasons: string[],
+  postWasCreated: boolean = true
+): Promise<void> {
   const resend = getClient();
   if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
 
-  await resend.emails.send({
-    from: 'Axeon Insights <insights@axeonstudio.co>',
-    to: ADMIN_NOTIFICATION_EMAIL,
-    subject: 'Weekly post generation did not pass review',
-    html: `
+  const body = postWasCreated
+    ? `
       <p>This week's autonomous post generation failed validation and was saved as a draft — nothing was scheduled or published.</p>
       <ul>${reasons.map((r) => `<li>${escapeHtml(r)}</li>`).join('')}</ul>
       <p><a href="https://axeonstudio.co/insights/admin">View drafts</a></p>
-    `,
+    `
+    : `
+      <p>This week's autonomous post generation failed before a draft could be created — nothing was saved, scheduled, or published.</p>
+      <ul>${reasons.map((r) => `<li>${escapeHtml(r)}</li>`).join('')}</ul>
+    `;
+
+  await resend.emails.send({
+    from: FROM_ADDRESS,
+    to: ADMIN_NOTIFICATION_EMAIL,
+    subject: 'Weekly post generation did not pass review',
+    html: body,
   });
 }

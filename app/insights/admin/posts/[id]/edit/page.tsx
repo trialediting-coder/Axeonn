@@ -1,12 +1,18 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
+import { auth } from '@/lib/auth';
 import { getPostById } from '@/lib/posts';
 import { PostEditor } from '@/components/insights/PostEditor';
 
+// Defense in depth alongside middleware.ts -- this page should never render
+// unauthenticated even if the middleware matcher is ever misconfigured.
 export default async function EditPostPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const session = await auth();
+  if (!session) redirect('/insights/admin/login');
+
   const { id } = await params;
   const numId = Number(id);
   if (!Number.isInteger(numId)) notFound();

@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import { getPostById, updatePost } from '@/lib/posts';
 import { validatePost } from '@/lib/postValidation';
+import { critiquePost } from '@/lib/anthropic';
 import { requireAdmin } from '@/lib/adminAuth';
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -17,10 +18,27 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 
-  const result = validatePost({ title: post.title, content: post.content, sources: post.sources });
-  if (!result.passed) {
+  const structural = validatePost({ title: post.title, content: post.content, sources: post.sources });
+  if (!structural.passed) {
     return NextResponse.json(
-      { error: 'Post failed validation and cannot be published.', reasons: result.reasons },
+      { error: 'Post failed validation and cannot be published.', reasons: structural.reasons },
+      { status: 422 }
+    );
+  }
+  const critique = await critiquePost({
+    title: post.title,
+    slug: post.slug,
+    excerpt: post.excerpt,
+    content: post.content,
+    metaTitle: post.metaTitle ?? '',
+    metaDescription: post.metaDescription ?? '',
+    nicheTags: post.nicheTags,
+    faqItems: post.faqItems,
+    sources: post.sources,
+  });
+  if (!critique.passed) {
+    return NextResponse.json(
+      { error: 'Post failed compliance review and cannot be published.', reasons: critique.reasons },
       { status: 422 }
     );
   }

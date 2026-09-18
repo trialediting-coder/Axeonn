@@ -7,6 +7,19 @@ import { getPostBySlug, listPosts } from '@/lib/posts';
 import { niches } from '@/data/nichesData';
 import { buildMetadata } from '@/lib/metadata';
 
+// Matches /insights's own revalidate window -- without this the route has
+// no revalidate and no generateStaticParams, so it fully re-queries Postgres
+// on every single request, including every crawler hit.
+export const revalidate = 3600;
+
+// A literal "</script>" inside JSON.stringify output would break out of the
+// script tag. Content here can include fragments of web-search results
+// (see lib/anthropic.ts), not just the model's own synthesis, so this isn't
+// purely defensive boilerplate.
+function safeJsonLd(value: unknown): string {
+  return JSON.stringify(value).replace(/</g, '\\u003c');
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -70,9 +83,9 @@ export default async function InsightPostPage({
 
   return (
     <main className="w-full pt-32 pb-24 px-6 sm:px-10 lg:px-16 xl:px-24">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(articleJsonLd) }} />
       {faqJsonLd && (
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(faqJsonLd) }} />
       )}
       <article className="max-w-3xl mx-auto">
         <nav className="text-sm text-neutral-500 mb-6">
@@ -118,6 +131,22 @@ export default async function InsightPostPage({
                 </div>
               ))}
             </div>
+          </section>
+        )}
+
+        {post.sources.length > 0 && (
+          <section className="mt-16 pt-10 border-t border-neutral-200">
+            <h2 className="text-2xl font-bold text-neutral-950 mb-6">Sources</h2>
+            <ul className="flex flex-col gap-2 text-sm text-neutral-600">
+              {post.sources.map((source, i) => (
+                <li key={i}>
+                  {source.claim}{' '}
+                  <a href={source.url} target="_blank" rel="noreferrer nofollow" className="text-blue-600 hover:underline break-all">
+                    {source.url}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </section>
         )}
 

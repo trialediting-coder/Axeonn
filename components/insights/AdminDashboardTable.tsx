@@ -15,24 +15,38 @@ function statusBadge(status: Post['status']) {
 
 export function AdminDashboardTable({ initialPosts }: { initialPosts: Post[] }) {
   const [posts, setPosts] = useState(initialPosts);
+  const [error, setError] = useState<string | null>(null);
 
   async function handlePublishNow(id: number) {
+    setError(null);
     const res = await fetch(`/api/admin/posts/${id}/publish`, { method: 'POST' });
     if (res.ok) {
       setPosts((prev) => prev.map((p) => (p.id === id ? { ...p, status: 'published' as const } : p)));
+      return;
     }
+    const data = await res.json().catch(() => ({}));
+    const reasons = Array.isArray(data.reasons) ? `: ${data.reasons.join('; ')}` : '';
+    setError(`${data.error ?? 'Failed to publish post.'}${reasons}`);
   }
 
   async function handleDelete(id: number) {
     if (!confirm('Delete this post permanently?')) return;
+    setError(null);
     const res = await fetch(`/api/admin/posts/${id}`, { method: 'DELETE' });
     if (res.ok) {
       setPosts((prev) => prev.filter((p) => p.id !== id));
+      return;
     }
+    const data = await res.json().catch(() => ({}));
+    setError(data.error ?? 'Failed to delete post.');
   }
 
   return (
-    <table className="w-full text-sm">
+    <div>
+      {error && (
+        <p className="mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>
+      )}
+      <table className="w-full text-sm">
       <thead>
         <tr className="text-left text-neutral-500 border-b border-neutral-200">
           <th className="py-3 pr-4">Title</th>
@@ -68,5 +82,6 @@ export function AdminDashboardTable({ initialPosts }: { initialPosts: Post[] }) 
         ))}
       </tbody>
     </table>
+    </div>
   );
 }

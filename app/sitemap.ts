@@ -3,6 +3,12 @@ import { niches } from '@/data/nichesData';
 import { marketingSolutions } from '@/data/marketingSolutionsData';
 import { listPosts } from '@/lib/posts';
 
+// Without this, Next prerenders the sitemap once at build time and freezes
+// it -- a post published hours later by the weekly cron would never appear
+// in sitemap.xml until the next manual redeploy. Matches /insights's own
+// revalidate window.
+export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://axeonstudio.co';
   const staticRoutes = ['', '/solutions', '/marketing-solutions', '/pricing', '/why-axeon', '/work', '/process', '/about', '/faq', '/book', '/privacy', '/terms', '/insights'];

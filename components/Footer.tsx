@@ -51,8 +51,7 @@ export function Footer({ year }: FooterProps) {
                     width={56}
                     height={56}
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src =
-                        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=75&fm=webp';
+                      (e.target as HTMLImageElement).src = '/images/founder-avatar-fallback.webp';
                     }}
                     className="w-14 h-14 rounded-full object-cover border border-neutral-300 shadow-sm group-hover:scale-105 transition-transform"
                   />
@@ -109,6 +108,8 @@ export function Footer({ year }: FooterProps) {
                   <li><Link href="/work" className="hover:text-neutral-950 transition-colors">Work</Link></li>
                   <li><Link href="/process" className="hover:text-neutral-950 transition-colors">Process</Link></li>
                   <li><Link href="/pricing" className="hover:text-neutral-950 transition-colors">Pricing</Link></li>
+                  <li><Link href="/insights" className="hover:text-neutral-950 transition-colors">Insights</Link></li>
+                  <li><Link href="/faq" className="hover:text-neutral-950 transition-colors">FAQ</Link></li>
                   <li><Link href="/book" className="text-blue-600 font-semibold hover:text-blue-700 transition-colors">Book a Strategy Call</Link></li>
                 </ul>
               </div>

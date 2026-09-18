@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import { getPostById, updatePost, deletePost, type PostInput } from '@/lib/posts';
 import { validatePost } from '@/lib/postValidation';
+import { critiquePost } from '@/lib/anthropic';
 import { requireAdmin } from '@/lib/adminAuth';
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -23,10 +24,27 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const merged = { ...existing, ...body };
 
   if (merged.status === 'scheduled' || merged.status === 'published') {
-    const result = validatePost({ title: merged.title, content: merged.content, sources: merged.sources });
-    if (!result.passed) {
+    const structural = validatePost({ title: merged.title, content: merged.content, sources: merged.sources });
+    if (!structural.passed) {
       return NextResponse.json(
-        { error: 'Post failed validation and cannot be scheduled/published.', reasons: result.reasons },
+        { error: 'Post failed validation and cannot be scheduled/published.', reasons: structural.reasons },
+        { status: 422 }
+      );
+    }
+    const critique = await critiquePost({
+      title: merged.title,
+      slug: merged.slug,
+      excerpt: merged.excerpt,
+      content: merged.content,
+      metaTitle: merged.metaTitle ?? '',
+      metaDescription: merged.metaDescription ?? '',
+      nicheTags: merged.nicheTags,
+      faqItems: merged.faqItems,
+      sources: merged.sources,
+    });
+    if (!critique.passed) {
+      return NextResponse.json(
+        { error: 'Post failed compliance review and cannot be scheduled/published.', reasons: critique.reasons },
         { status: 422 }
       );
     }

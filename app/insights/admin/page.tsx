@@ -1,6 +1,7 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { listPosts } from '@/lib/posts';
-import { signOut } from '@/lib/auth';
+import { auth, signOut } from '@/lib/auth';
 import { AdminDashboardTable } from '@/components/insights/AdminDashboardTable';
 
 async function handleSignOut() {
@@ -14,6 +15,12 @@ async function handleSignOut() {
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
+  // Defense in depth alongside middleware.ts -- this page lists every draft
+  // (including failed-validation AI attempts) and should never render
+  // unauthenticated even if the middleware matcher is ever misconfigured.
+  const session = await auth();
+  if (!session) redirect('/insights/admin/login');
+
   const posts = await listPosts();
 
   return (
