@@ -1,8 +1,0 @@
-{
-  "name": "Axeon Studio",
-  "description": "The one-stop shop for growing Iowa businesses — website, SEO/AEO/GEO, reviews, social media, and lead capture, built and run by one team.",
-  "requestFramePermissions": [],
-  "majorCapabilities": [
-    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
-  ]
-}
