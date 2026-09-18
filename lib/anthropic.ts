@@ -64,6 +64,11 @@ const SUBMIT_POST_TOOL = {
     },
     required: ['title', 'slug', 'excerpt', 'content', 'metaTitle', 'metaDescription', 'nicheTags', 'faqItems', 'sources'],
   },
+  // Guarantees schema validation on the tool's input server-side, so a
+  // malformed submit_post call is rejected before it ever reaches this code
+  // as a `submitCall`, rather than silently propagating a bad shape past the
+  // `as GeneratedPost` compile-time-only cast below.
+  strict: true,
 };
 
 export async function generatePost(avoidTitles: string[]): Promise<GeneratedPost> {
@@ -158,7 +163,16 @@ export async function critiquePost(post: GeneratedPost): Promise<{ passed: boole
   if (!textBlock) return { passed: false, reasons: ['Critique call returned no text response.'] };
 
   try {
-    return JSON.parse(textBlock.text);
+    const parsed = JSON.parse(textBlock.text);
+    if (
+      typeof parsed !== 'object' ||
+      parsed === null ||
+      typeof parsed.passed !== 'boolean' ||
+      !Array.isArray(parsed.reasons)
+    ) {
+      return { passed: false, reasons: ['Critique response was valid JSON but had an unexpected shape — treating as failure per fail-safe default.'] };
+    }
+    return { passed: parsed.passed, reasons: parsed.reasons };
   } catch {
     return { passed: false, reasons: ['Critique response was not valid JSON — treating as failure per fail-safe default.'] };
   }
