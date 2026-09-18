@@ -1,0 +1,18 @@
+// middleware.ts
+import { NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+
+export default auth((req) => {
+  const { pathname } = req.nextUrl;
+  const isLoginPage = pathname === '/insights/admin/login';
+  const isAdminRoute = pathname.startsWith('/insights/admin');
+
+  if (isAdminRoute && !isLoginPage && !req.auth) {
+    const loginUrl = new URL('/insights/admin/login', req.url);
+    return NextResponse.redirect(loginUrl);
+  }
+});
+
+export const config = {
+  matcher: ['/insights/admin/:path*'],
+};
