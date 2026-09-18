@@ -8,7 +8,9 @@ export default async function EditPostPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const post = await getPostById(Number(id));
+  const numId = Number(id);
+  if (!Number.isInteger(numId)) notFound();
+  const post = await getPostById(numId);
   if (!post) notFound();
 
   return (
