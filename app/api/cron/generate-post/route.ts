@@ -4,6 +4,22 @@ import { generatePost, critiquePost } from '@/lib/anthropic';
 import { validatePost } from '@/lib/postValidation';
 import { createPost, listPosts, slugify } from '@/lib/posts';
 import { sendScheduledNotification, sendFailedGenerationNotification } from '@/lib/email';
+import { niches } from '@/data/nichesData';
+
+const VALID_NICHE_SLUGS = new Set(niches.map((n) => n.slug));
+
+// A notification failure must never look like the underlying post outcome —
+// e.g. a real scheduled post must not be followed by an email claiming
+// nothing was scheduled. Log and swallow instead of letting it fall into the
+// route's outer catch, which would send a misleading "draft" notification
+// over a post that already made it into the DB.
+async function notifySafely(send: () => Promise<void>): Promise<void> {
+  try {
+    await send();
+  } catch (error) {
+    console.error('generate-post: notification send failed', error);
+  }
+}
 
 export async function POST(req: Request) {
   const authHeader = req.headers.get('authorization');
@@ -31,6 +47,10 @@ export async function POST(req: Request) {
     const passed = structuralResult.passed && critiqueResult.passed;
 
     const slug = generated.slug || slugify(generated.title);
+    // The model is only instructed (not enforced) to use real niche slugs —
+    // filter out any hallucinated value before it reaches the DB and, from
+    // there, a public "Related industries" link that would 404.
+    const nicheTags = generated.nicheTags.filter((t) => VALID_NICHE_SLUGS.has(t));
 
     if (passed) {
       const post = await createPost({
@@ -40,7 +60,7 @@ export async function POST(req: Request) {
         content: generated.content,
         status: 'scheduled',
         author: 'ai',
-        nicheTags: generated.nicheTags,
+        nicheTags,
         metaTitle: generated.metaTitle,
         metaDescription: generated.metaDescription,
         coverImageUrl: null,
@@ -50,7 +70,7 @@ export async function POST(req: Request) {
         scheduledPublishAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
         publishedAt: null,
       });
-      await sendScheduledNotification({ title: post.title, slug: post.slug, id: post.id });
+      await notifySafely(() => sendScheduledNotification({ title: post.title, slug: post.slug, id: post.id }));
       return NextResponse.json({ status: 'scheduled', postId: post.id });
     }
 
@@ -62,7 +82,7 @@ export async function POST(req: Request) {
       content: generated.content,
       status: 'draft',
       author: 'ai',
-      nicheTags: generated.nicheTags,
+      nicheTags,
       metaTitle: generated.metaTitle,
       metaDescription: generated.metaDescription,
       coverImageUrl: null,
@@ -72,7 +92,7 @@ export async function POST(req: Request) {
       scheduledPublishAt: null,
       publishedAt: null,
     });
-    await sendFailedGenerationNotification(allReasons);
+    await notifySafely(() => sendFailedGenerationNotification(allReasons));
     return NextResponse.json({ status: 'draft', postId: post.id, reasons: allReasons });
   } catch (error) {
     // Fail-safe: if generatePost/critiquePost throws (model never submitted,
@@ -82,9 +102,9 @@ export async function POST(req: Request) {
     // ("nothing goes live unattended, but Hayder can look at it if
     // curious"). Send the safety-net email instead.
     const message = error instanceof Error ? error.message : String(error);
-    await sendFailedGenerationNotification([
-      `Weekly generation threw an unhandled error: ${message}`,
-    ]);
+    await notifySafely(() =>
+      sendFailedGenerationNotification([`Weekly generation threw an unhandled error: ${message}`])
+    );
     return NextResponse.json({ error: 'Generation failed', message }, { status: 500 });
   }
 }
