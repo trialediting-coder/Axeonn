@@ -1,6 +1,6 @@
 // app/api/admin/posts/[id]/route.ts
 import { NextResponse } from 'next/server';
-import { updatePost, deletePost, type PostInput } from '@/lib/posts';
+import { getPostById, updatePost, deletePost, type PostInput } from '@/lib/posts';
 import { validatePost } from '@/lib/postValidation';
 import { requireAdmin } from '@/lib/adminAuth';
 
@@ -12,10 +12,18 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (!Number.isInteger(Number(id))) {
     return NextResponse.json({ error: 'Invalid post id' }, { status: 400 });
   }
+  const numId = Number(id);
   const body = (await req.json()) as Partial<PostInput>;
 
-  if ((body.status === 'scheduled' || body.status === 'published') && body.title && body.content) {
-    const result = validatePost({ title: body.title, content: body.content, sources: body.sources ?? [] });
+  const existing = await getPostById(numId);
+  if (!existing) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
+  const merged = { ...existing, ...body };
+
+  if (merged.status === 'scheduled' || merged.status === 'published') {
+    const result = validatePost({ title: merged.title, content: merged.content, sources: merged.sources });
     if (!result.passed) {
       return NextResponse.json(
         { error: 'Post failed validation and cannot be scheduled/published.', reasons: result.reasons },
@@ -24,7 +32,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
   }
 
-  const post = await updatePost(Number(id), body);
+  const update: Partial<PostInput> = { ...body };
+  if (merged.status === 'published' && existing.status !== 'published' && !body.publishedAt) {
+    update.publishedAt = new Date().toISOString();
+  }
+
+  const post = await updatePost(numId, update);
   return NextResponse.json({ post });
 }
 
