@@ -1,9 +1,13 @@
 // lib/auth.ts
+// Full NextAuth config, Node-only (bcryptjs). Used by the API route handler
+// and server components — never imported by middleware.ts.
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
+import { authConfig } from '@/lib/auth.config';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   providers: [
     Credentials({
       credentials: {
@@ -23,6 +27,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
-  pages: { signIn: '/insights/admin/login' },
-  session: { strategy: 'jwt' },
 });
