@@ -1,5 +1,6 @@
 // app/api/admin/posts/[id]/route.ts
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getPostById, updatePost, deletePost, type PostInput } from '@/lib/posts';
 import { validatePost } from '@/lib/postValidation';
 import { critiquePost } from '@/lib/anthropic';
@@ -56,6 +57,17 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   }
 
   const post = await updatePost(numId, update);
+
+  // insights/[slug] has a 1h revalidate window -- revalidate both slugs
+  // (covers a slug change) whenever a published post was involved, so an
+  // edit or a stale cached 404 doesn't linger for up to an hour.
+  if (post.status === 'published' || existing.status === 'published') {
+    revalidatePath('/insights');
+    revalidatePath('/sitemap.xml');
+    revalidatePath(`/insights/${existing.slug}`);
+    revalidatePath(`/insights/${post.slug}`);
+  }
+
   return NextResponse.json({ post });
 }
 
@@ -67,6 +79,15 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
   if (!Number.isInteger(Number(id))) {
     return NextResponse.json({ error: 'Invalid post id' }, { status: 400 });
   }
-  await deletePost(Number(id));
+  const numId = Number(id);
+  const existing = await getPostById(numId);
+  await deletePost(numId);
+
+  if (existing?.status === 'published') {
+    revalidatePath('/insights');
+    revalidatePath('/sitemap.xml');
+    revalidatePath(`/insights/${existing.slug}`);
+  }
+
   return NextResponse.json({ ok: true });
 }

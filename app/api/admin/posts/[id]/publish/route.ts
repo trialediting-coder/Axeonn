@@ -1,5 +1,6 @@
 // app/api/admin/posts/[id]/publish/route.ts
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getPostById, updatePost } from '@/lib/posts';
 import { validatePost } from '@/lib/postValidation';
 import { critiquePost } from '@/lib/anthropic';
@@ -44,5 +45,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   }
 
   const updated = await updatePost(post.id, { status: 'published', publishedAt: new Date().toISOString() });
+
+  // insights/[slug] has a 1h revalidate window -- without this, a cached
+  // 404 from before this post was published would keep serving for up to
+  // an hour after it goes live.
+  revalidatePath('/insights');
+  revalidatePath('/sitemap.xml');
+  revalidatePath(`/insights/${updated.slug}`);
+
   return NextResponse.json({ post: updated });
 }

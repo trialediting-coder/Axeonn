@@ -1,5 +1,6 @@
 // app/api/admin/posts/route.ts
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { createPost, listPosts, slugify, type PostInput } from '@/lib/posts';
 import { validatePost } from '@/lib/postValidation';
 import { critiquePost } from '@/lib/anthropic';
@@ -52,5 +53,12 @@ export async function POST(req: Request) {
   }
 
   const post = await createPost({ ...body, slug });
+
+  if (post.status === 'published') {
+    revalidatePath('/insights');
+    revalidatePath('/sitemap.xml');
+    revalidatePath(`/insights/${post.slug}`);
+  }
+
   return NextResponse.json({ post }, { status: 201 });
 }

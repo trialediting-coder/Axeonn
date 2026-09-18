@@ -1,5 +1,6 @@
 // app/api/cron/publish-scheduled/route.ts
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { publishDuePosts } from '@/lib/posts';
 
 // Vercel Cron invokes the configured path with an HTTP GET request (see
@@ -14,8 +15,20 @@ async function handlePublishDue(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const publishedCount = await publishDuePosts();
-  return NextResponse.json({ published: publishedCount });
+  const published = await publishDuePosts();
+
+  // insights/[slug] has a 1h revalidate window -- without this, a newly
+  // published post's cached 404 (from a crawler/preview hitting it while
+  // still scheduled) would keep 404-ing for up to an hour after it goes live.
+  if (published.length > 0) {
+    revalidatePath('/insights');
+    revalidatePath('/sitemap.xml');
+    for (const post of published) {
+      revalidatePath(`/insights/${post.slug}`);
+    }
+  }
+
+  return NextResponse.json({ published: published.length });
 }
 
 export async function GET(req: Request) {

@@ -168,11 +168,12 @@ export async function deletePost(id: number): Promise<void> {
   await sql`DELETE FROM posts WHERE id = ${id}`;
 }
 
-export async function publishDuePosts(): Promise<number> {
-  const { rowCount } = await sql`
+export async function publishDuePosts(): Promise<Post[]> {
+  const { rows } = await sql`
     UPDATE posts
     SET status = 'published', published_at = now(), updated_at = now()
-    WHERE status = 'scheduled' AND scheduled_publish_at <= now();
+    WHERE status = 'scheduled' AND scheduled_publish_at <= now()
+    RETURNING *;
   `;
-  return rowCount ?? 0;
+  return rows.map(rowToPost);
 }
