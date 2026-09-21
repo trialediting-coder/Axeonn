@@ -7,7 +7,7 @@ export const metadata = buildMetadata({
   path: '/pricing',
   title: 'Website & Marketing Pricing | Axeon Studio',
   description:
-    'Flat-rate web builds, an Acquisition Engine build, and AxeonCORE, our monthly technology partnership — transparent pricing, no proposals.',
+    'Two flat-rate builds — a $2,800 Core Web Build and a $5,800 Acquisition Engine with custom on-site videography. One price, a fixed timeline, no proposals.',
 });
 
 export default function PricingPage() {

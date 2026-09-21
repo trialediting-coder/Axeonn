@@ -34,8 +34,8 @@ const organizationJsonLd = {
     addressCountry: 'US',
   },
   // Real published pricing floor/ceiling (Core Web Build $2,800 one-time to
-  // AxeonCORE $490/mo recurring) — never widen this to an unsourced range.
-  priceRange: '$490-$4800',
+  // Acquisition Engine $5,800 one-time) — never widen this to an unsourced range.
+  priceRange: '$2800-$5800',
   founder: {
     '@type': 'Person',
     name: 'Hayder Hatem',

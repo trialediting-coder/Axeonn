@@ -17,7 +17,9 @@ const MIN_WORD_COUNT = 800;
 // implies a bannable phrase, add it here too.
 const BANNED_PHRASE_PATTERNS: { pattern: RegExp; reason: string }[] = [
   { pattern: /\bsprint\b/i, reason: 'Uses "sprint" as a value proposition (banned terminology).' },
-  { pattern: /operations retainer/i, reason: 'References the retired "Operations Retainer" name instead of AxeonCORE.' },
+  { pattern: /operations retainer/i, reason: 'References the retired "Operations Retainer" plan — there is no published monthly plan.' },
+  { pattern: /axeoncore retainer/i, reason: 'References the retired "AxeonCORE retainer" plan — AxeonCORE is the platform, not a subscription.' },
+  { pattern: /\$\s?490|\b490\s*(\/|per|a)\s*mo/i, reason: 'References the retired $490/month plan — never state a monthly price.' },
   { pattern: /(run|manage|handle)s?\s+(your\s+)?(google|meta|facebook)\s+ads/i, reason: 'Implies Axeon manages paid ad accounts (not-live service).' },
   { pattern: /local services ads? management/i, reason: 'Implies Axeon offers Local Services Ads management (not-live service).' },
   { pattern: /chatgpt ads/i, reason: 'Implies Axeon offers ChatGPT Ads (not-live service).' },

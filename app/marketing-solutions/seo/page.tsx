@@ -27,7 +27,7 @@ const seoFaqItems = [
   },
   {
     question: 'Do I need a separate SEO contract?',
-    answer: "No — it's included in your website build and covered under AxeonCORE's monthly Core Web Vitals and SEO audits afterward.",
+    answer: "No — it's included in your website build, and ongoing Core Web Vitals and SEO audits are part of your monthly care plan afterward.",
   },
 ];
 

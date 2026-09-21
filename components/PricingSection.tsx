@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Check, ShieldCheck, ChevronDown, ChevronUp } from 'lucide-react';
+import { Check, ShieldCheck, ChevronDown, ChevronUp, Clapperboard, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { pricingTiers, addOns, retainerTagline, pricingFaqs, revisionGuarantee } from '@/data/pricingData';
+import { pricingTiers, addOns, hostingNote, pricingFaqs, revisionGuarantee } from '@/data/pricingData';
 
 const pricingFaqJsonLd = {
   '@context': 'https://schema.org',
@@ -15,18 +15,6 @@ const pricingFaqJsonLd = {
     acceptedAnswer: { '@type': 'Answer', text: faq.a },
   })),
 };
-
-// Conservative, low-end 2026 market rates for each retainer line item bought
-// separately — see market audit research behind the $490/mo retainer pricing.
-const retainerValueBreakdown = [
-  { label: 'Managed hosting, SSL & backups', value: 100 },
-  { label: 'CRM database & uptime monitoring', value: 200 },
-  { label: '4 hrs/mo design & CRO work', value: 300 },
-  { label: 'Monthly SEO & performance audit', value: 400 },
-  { label: 'Priority support channel', value: 200 },
-  { label: 'Ongoing conversion (CRO) tweaks', value: 300 },
-];
-const retainerValueTotal = retainerValueBreakdown.reduce((sum, item) => sum + item.value, 0);
 
 export function PricingSection() {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
@@ -46,11 +34,11 @@ export function PricingSection() {
           className="text-center max-w-4xl mx-auto mb-16 sm:mb-20"
         >
           <h2 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-neutral-950 mb-6 leading-[1.12]">
-            Transparent Build Tiers and a Real Operating Partnership
+            Two Flat-Rate Builds. Pick the One That Fits.
           </h2>
           <p className="text-xl sm:text-2xl text-neutral-600 leading-relaxed max-w-3xl mx-auto">
-            No 3-week proposals. Flat pricing, a fixed build timeline, and a retainer built to run your
-            digital operation on autopilot.
+            No 3-week proposals, no monthly plan to decode. One price, a fixed timeline,
+            and a site you own outright.
           </p>
           <div className="mt-6 inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-blue-50 border border-blue-100 text-base font-semibold text-blue-700">
             <ShieldCheck size={18} className="shrink-0" />
@@ -58,9 +46,10 @@ export function PricingSection() {
           </div>
         </motion.div>
 
-        <div className="grid lg:grid-cols-3 gap-8 lg:gap-10 items-stretch">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-10 items-stretch max-w-6xl 2xl:max-w-7xl mx-auto">
           {pricingTiers.map((tier, idx) => {
-            const isRetainer = tier.id === 'axeoncore';
+            const isDark = !tier.featured;
+            const highlights = new Set(tier.highlightFeatures ?? []);
             return (
               <motion.div
                 key={tier.id}
@@ -68,116 +57,131 @@ export function PricingSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.15 }}
                 transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                whileHover={{ y: isRetainer ? -16 : -4 }}
+                whileHover={{ y: -6 }}
                 className={`relative rounded-[32px] p-8 sm:p-10 lg:p-12 flex flex-col ${
-                  isRetainer
-                    ? 'bg-neutral-950 text-white border-2 border-blue-600 shadow-2xl lg:-translate-y-3'
-                    : 'bg-white text-neutral-950 border border-neutral-200 shadow-sm'
+                  isDark
+                    ? 'bg-neutral-950 text-white border border-neutral-800 shadow-2xl'
+                    : 'bg-white text-neutral-950 border-2 border-blue-600 shadow-xl shadow-blue-600/10'
                 }`}
               >
-                {tier.featured && (
+                {tier.badge && (
                   <motion.span
                     initial={{ opacity: 0, scale: 0.8 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.4, delay: 0.3 }}
-                    className="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full bg-blue-600 text-white text-xs sm:text-sm font-bold tracking-wide uppercase shadow-md"
+                    className={`absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold tracking-wide uppercase shadow-md whitespace-nowrap ${
+                      isDark ? 'bg-white text-neutral-950' : 'bg-blue-600 text-white'
+                    }`}
                   >
-                    Most Popular
+                    {tier.badge}
                   </motion.span>
                 )}
 
                 <h3 className="text-2xl sm:text-3xl font-bold mb-1.5">{tier.name}</h3>
                 <p
                   className={`text-sm sm:text-base font-semibold mb-4 uppercase tracking-wide ${
-                    isRetainer ? 'text-blue-400' : 'text-blue-600'
+                    isDark ? 'text-blue-400' : 'text-blue-600'
                   }`}
                 >
                   {tier.focus}
                 </p>
                 <p
                   className={`text-base sm:text-lg mb-6 leading-relaxed ${
-                    isRetainer ? 'text-neutral-300' : 'text-neutral-500'
+                    isDark ? 'text-neutral-300' : 'text-neutral-500'
                   }`}
                 >
                   {tier.billingNote}
                 </p>
                 <div className="text-4xl sm:text-6xl font-black mb-3 tracking-tight whitespace-nowrap">{tier.price}</div>
-                <p
-                  className={`text-base sm:text-lg ${isRetainer ? 'text-neutral-300 mb-6' : 'text-neutral-600 mb-8'}`}
-                >
+                <p className={`text-base sm:text-lg mb-8 ${isDark ? 'text-neutral-300' : 'text-neutral-600'}`}>
                   {tier.turnaround}
                 </p>
 
-                {isRetainer && (
-                  <div className="mb-8 p-5 sm:p-6 rounded-2xl bg-neutral-900 border border-neutral-700">
-                    <div className="text-xs sm:text-sm font-mono font-semibold tracking-widest text-neutral-400 uppercase mb-3">
-                      What $490/mo Actually Replaces
-                    </div>
-                    <ul className="space-y-2 text-sm sm:text-base text-neutral-300">
-                      {retainerValueBreakdown.map((item) => (
-                        <li key={item.label} className="flex justify-between gap-3">
-                          <span>{item.label}</span>
-                          <span className="font-semibold text-white shrink-0">${item.value}/mo</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="mt-4 pt-3.5 border-t border-neutral-700 flex justify-between items-baseline">
-                      <span className="text-sm sm:text-base text-neutral-400">Priced separately</span>
-                      <span className="text-base sm:text-lg font-bold text-neutral-400 line-through decoration-neutral-600">
-                        ${retainerValueTotal}+/mo
-                      </span>
-                    </div>
-                    <div className="mt-2 flex justify-between items-baseline">
-                      <span className="text-sm sm:text-base font-semibold text-blue-400">Your price, all-in</span>
-                      <span className="text-xl sm:text-2xl font-black text-blue-400">$490/mo</span>
-                    </div>
-                  </div>
+                {tier.inherits && (
+                  <p
+                    className={`text-sm sm:text-base font-bold uppercase tracking-wide mb-4 ${
+                      isDark ? 'text-neutral-400' : 'text-neutral-500'
+                    }`}
+                  >
+                    {tier.inherits}
+                  </p>
                 )}
 
                 <ul className="space-y-4 mb-8 flex-1">
-                  {tier.features.map((feature) => (
-                    <li key={feature} className="flex gap-3.5 text-base sm:text-lg leading-relaxed">
-                      <Check
-                        size={20}
-                        className={`shrink-0 mt-1 ${
-                          isRetainer ? 'text-blue-400' : 'text-blue-600'
-                        }`}
-                      />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
+                  {tier.features.map((feature) => {
+                    const isHighlight = highlights.has(feature);
+                    if (isHighlight) {
+                      return (
+                        <li
+                          key={feature}
+                          className={`flex gap-3.5 text-base sm:text-lg leading-relaxed rounded-2xl p-4 sm:p-5 -mx-1 ${
+                            isDark
+                              ? 'bg-blue-600/15 border border-blue-500/40 text-white'
+                              : 'bg-blue-50 border border-blue-100'
+                          }`}
+                        >
+                          <Clapperboard size={22} className="shrink-0 mt-0.5 text-blue-400" />
+                          <span className="font-semibold">{feature}</span>
+                        </li>
+                      );
+                    }
+                    return (
+                      <li key={feature} className="flex gap-3.5 text-base sm:text-lg leading-relaxed">
+                        <Check size={20} className={`shrink-0 mt-1 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                        <span>{feature}</span>
+                      </li>
+                    );
+                  })}
                 </ul>
 
-                {isRetainer && (
-                  <p className="text-base italic text-neutral-400 mb-6 leading-relaxed">
-                    &ldquo;{retainerTagline}&rdquo;
-                  </p>
+                {tier.stepUp && (
+                  <div className="mb-8 p-5 sm:p-6 rounded-2xl bg-neutral-900 border border-neutral-700">
+                    <div className="text-xs sm:text-sm font-mono font-semibold tracking-widest text-neutral-400 uppercase mb-3">
+                      {tier.stepUp.heading}
+                    </div>
+                    <ul className="space-y-2 text-sm sm:text-base text-neutral-300">
+                      {tier.stepUp.items.map((item) => (
+                        <li key={item.label} className="flex justify-between gap-3">
+                          <span>{item.label}</span>
+                          {item.note && <span className="text-neutral-500 shrink-0 text-right">{item.note}</span>}
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="mt-4 pt-3.5 border-t border-neutral-700 text-sm sm:text-base font-semibold text-blue-400">
+                      {tier.stepUp.footer}
+                    </p>
+                  </div>
                 )}
 
                 <Link
                   href="/book"
                   className={`text-center py-4 sm:py-4.5 rounded-full font-bold text-base sm:text-lg transition-colors shadow-sm ${
-                    isRetainer
-                      ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30'
-                      : 'bg-neutral-950 hover:bg-neutral-800 text-white'
+                    isDark
+                      ? 'bg-white hover:bg-neutral-200 text-neutral-950'
+                      : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30'
                   }`}
                 >
                   {tier.cta}
                 </Link>
-
-                {isRetainer && (
-                  <Link
-                    href="/why-axeon"
-                    className="text-center py-3.5 mt-2.5 rounded-full font-bold text-base border border-neutral-700 hover:border-neutral-500 text-neutral-300 hover:text-white transition-colors"
-                  >
-                    Explore Benefits
-                  </Link>
-                )}
               </motion.div>
             );
           })}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.6 }}
+          className="mt-10 max-w-6xl 2xl:max-w-7xl mx-auto flex gap-4 items-start rounded-2xl border border-neutral-200 bg-neutral-50 p-6 sm:p-7"
+        >
+          <Info size={22} className="shrink-0 mt-0.5 text-blue-600" />
+          <p className="text-base sm:text-lg text-neutral-600 leading-relaxed">
+            <span className="font-bold text-neutral-950">Hosting &amp; ongoing care. </span>
+            {hostingNote}
+          </p>
+        </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -190,7 +194,7 @@ export function PricingSection() {
             Need Something Different?
           </h3>
           <p className="text-base sm:text-lg lg:text-xl text-neutral-600 max-w-2xl mx-auto leading-relaxed mb-8">
-            Every business is a little different. If none of these tiers quite fit — a
+            Every business is a little different. If neither build quite fits — a
             bigger scope, a narrower one, or something these packages don&apos;t cover at
             all — tell us what you actually need and we&apos;ll scope it directly with you.
           </p>

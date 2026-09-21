@@ -5,9 +5,22 @@ export interface PricingTier {
   price: string;
   billingNote: string;
   turnaround: string;
+  /** Short badge rendered above the card (e.g. "Most Popular"). */
+  badge?: string;
+  /** Rendered as a lead-in above the feature list ("Everything in X, plus:"). */
+  inherits?: string;
   features: string[];
+  /** Feature strings that get the highlighted "headline" treatment in the card. */
+  highlightFeatures?: string[];
   cta: string;
+  /** The tier most buyers should land on — gets the primary visual treatment. */
   featured?: boolean;
+  /** Anchoring box: what the price step-up from the previous tier actually buys. */
+  stepUp?: {
+    heading: string;
+    items: { label: string; note?: string }[];
+    footer: string;
+  };
 }
 
 export interface AddOn {
@@ -15,66 +28,73 @@ export interface AddOn {
   price: string;
 }
 
+// Two flat-rate builds, no published monthly plan. Hosting & ongoing care is a
+// separate monthly arrangement quoted on the strategy call (see hostingNote) —
+// keep every monthly figure OFF this page. Numbers here must stay in sync with
+// content/brand-guardrails.md and the priceRange in app/layout.tsx.
 export const pricingTiers: PricingTier[] = [
   {
     id: 'core-web-build',
     name: 'Core Web Build',
-    focus: 'Pure frontend speed, conversion UI, lead capture',
+    focus: 'Get found. Look credible. Get the call.',
     price: '$2,800',
-    billingNote: 'One-time build',
+    billingNote: 'One-time build — no monthly plan bundled in',
     turnaround: '7 Business Day Turnaround',
+    badge: 'Most Popular',
+    featured: true,
     features: [
-      'Up to 4 custom responsive pages (Tailwind/modern frontend)',
+      'Up to 4 custom-designed, mobile-first pages built around how your business actually sells',
       'Sub-second load speeds & 100% Core Web Vitals pass',
-      'Technical SEO & foundational ADA accessibility standards',
-      'Direct inbox & webhook lead routing',
-      'First 30 days of AxeonCORE included',
+      'SEO, AEO & GEO built in — visible on Google and inside AI answers like ChatGPT',
+      'Instant lead alerts — every form and call request lands in your inbox and on your phone',
+      'Conversion tracking events configured so you know which pages produce calls',
+      'Foundational ADA accessibility standards',
+      'First 30 days of hosting & care included',
+      'You own 100% of the site, code, and design files',
     ],
     cta: 'Book Core Build',
   },
   {
     id: 'full-acquisition-engine',
     name: 'Acquisition Engine',
-    focus: 'Full conversion site + custom intake pipeline & SMS/email automations',
-    price: '$4,800',
-    billingNote: 'One-time build',
+    focus: 'Capture, qualify, and close — with real footage of your business',
+    price: '$5,800',
+    billingNote: 'One-time build — no monthly plan bundled in',
     turnaround: '14 Business Day Turnaround',
+    badge: 'Full Engine',
+    inherits: 'Everything in Core Web Build, plus:',
     features: [
-      'Complete 5–7 page custom conversion architecture',
-      'Built-in Custom CRM Pipeline tailored to your lead-to-close workflow (no per-seat monthly software fees)',
-      'Automated instant SMS & email lead notifications',
-      'Interactive multi-step intake questionnaire / scheduling engine',
-      'Conversion copy hierarchy & tracking events configured',
-      'First 30 days of AxeonCORE included',
+      'Custom on-site videography — a half-day shoot at your location: a hero film for your site, 3 vertical cuts for social & ads, and a photo set',
+      'Complete 5–7 page conversion architecture with conversion-copy hierarchy',
+      'Custom CRM Pipeline built around your lead-to-close workflow — no per-seat monthly software',
+      'AI chat & online scheduling so leads book themselves 24/7',
+      'Multi-step intake questionnaire that pre-qualifies leads before you ever call them',
+      'Automated SMS & email follow-up the second a lead comes in',
+      'First 30 days of hosting & care included',
     ],
+    highlightFeatures: [
+      'Custom on-site videography — a half-day shoot at your location: a hero film for your site, 3 vertical cuts for social & ads, and a photo set',
+    ],
+    stepUp: {
+      heading: 'What the extra $3,000 buys',
+      items: [
+        { label: 'Custom on-site videography', note: '$1,500 as an add-on' },
+        { label: 'Custom CRM Pipeline', note: 'no per-seat software' },
+        { label: 'AI chat & online scheduling' },
+        { label: 'Multi-step intake + SMS/email automations' },
+        { label: 'Up to 3 additional pages', note: '$450 each as an add-on' },
+      ],
+      footer: 'The video alone is half the step-up. The lead system comes with it.',
+    },
     cta: 'Book Acquisition Engine',
-  },
-  {
-    id: 'axeoncore',
-    name: 'AxeonCORE',
-    focus: 'Uptime, hosting, reviews, social media, and monthly design/intake tweaks',
-    price: '$490/month',
-    billingNote: 'Recurring partnership',
-    turnaround: 'Ongoing — an in-house technical web & pipeline director on demand',
-    featured: true,
-    features: [
-      'Enterprise managed hosting, SSL, and daily off-site backups',
-      'Dedicated Custom CRM Database maintenance, uptime checks, and API health monitoring',
-      'Up to 4 hours of dedicated custom design, page updates, or conversion testing per month',
-      'Monthly Core Web Vitals and SEO performance audit',
-      'Ongoing review generation and reputation management across Google and industry platforms',
-      'Social media content and posting management across your core channels',
-      'Priority 24-hour asynchronous support via dedicated Slack/Loom channel',
-      'Continuous CRO tweaks based on user traffic and intake completion rates',
-    ],
-    cta: 'Join AxeonCORE',
   },
 ];
 
-export const retainerTagline =
-  'Run your entire digital intake and web operation on autopilot for less than a part-time receptionist.';
+export const hostingNote =
+  'Both builds are a one-time price. Hosting, security, backups, and ongoing care run on a simple monthly care plan — your first 30 days are included, and we walk you through the exact number on your strategy call before you commit to anything. No contracts, no lock-in: you own the site and can take your files at any time.';
 
 export const addOns: AddOn[] = [
+  { name: 'Custom On-Site Videography (add to Core Web Build)', price: '+$1,500' },
   { name: 'Additional Custom Page Build', price: '+$450 / page' },
   { name: 'Advanced Database/Directory Integration', price: '+$850' },
   { name: 'Secondary Niche Landing Page Variant', price: '+$500' },
@@ -87,28 +107,32 @@ export interface PricingFaq {
 
 export const pricingFaqs: PricingFaq[] = [
   {
+    q: 'Which build should I pick?',
+    a: 'Core Web Build if you need a credible, fast site that produces calls — most local businesses start here and it\'s the right call. Acquisition Engine if leads already come in faster than you can follow up, you book appointments or consultations, or you want your business to look like the biggest operation in town — real footage of your team and your work does that in a way no template can.',
+  },
+  {
+    q: 'Is there a monthly fee?',
+    a: 'The build itself is a one-time price — nothing recurring is bundled into either number above. Hosting, security, backups, and ongoing care are handled separately as a simple monthly care plan: your first 30 days are included, and we walk you through the exact number on your strategy call so there are no surprises. There\'s no lock-in — you own the site and can take your files at any time.',
+  },
+  {
+    q: 'What does the on-site videography actually include?',
+    a: 'We come to your location for a half-day shoot — your team, your space, your work. You get a hero film cut for your website, three vertical cuts sized for social and ads, and a photo set for your site and profiles. Everything is shot for the placements it will actually run in, not a single generic video you have to re-purpose yourself.',
+  },
+  {
+    q: 'Can I add videography to the Core Web Build instead?',
+    a: 'Yes — it\'s a $1,500 add-on. Worth knowing before you do: at that point the Acquisition Engine is only $1,500 more and adds the Custom CRM Pipeline, AI chat & scheduling, the pre-qualifying intake, and automated follow-up. Most people who want the video end up going Engine for that reason.',
+  },
+  {
     q: 'Why flat pricing instead of hourly billing?',
     a: 'Hourly billing rewards slow work and makes budgeting a guessing game. A fixed price means you know the exact cost before we start, and we\'re incentivized to ship fast and move on to the next milestone, not pad the clock.',
   },
   {
-    q: 'Why is there a monthly retainer instead of just a one-time price?',
-    a: 'A website is never really "finished" — search algorithms shift, your CRM Pipeline needs monitoring, and a business that\'s growing needs its systems to keep up. We could hand you the files and disappear, but that\'s not the kind of company we\'re building. AxeonCORE is how we stay your long-term technology partner — the team you call for every web, intake, and IT need going forward — instead of a vendor you hire once and never hear from again. It\'s completely optional after your first 30 days free; most clients keep it because it\'s genuinely less hassle and less cost than managing hosting, updates, and CRM upkeep on their own.',
-  },
-  {
-    q: 'What happens after the first 30 days of included retainer?',
-    a: 'Both build tiers include your first 30 days of AxeonCORE at no extra cost, so your site has a dedicated owner from day one. After that, you can continue month-to-month at the standard rate or take the finished site and walk away with no lock-in.',
-  },
-  {
-    q: 'Can I start with a one-time build and add the retainer later?',
-    a: 'Yes. Most clients start with Core Web Build or Acquisition Engine, then move onto AxeonCORE once they see how much time it saves not managing hosting, updates, and CRM upkeep themselves.',
-  },
-  {
-    q: 'What if I need more than what a tier includes?',
-    a: 'That\'s what the add-ons above are for — additional pages, deeper database/directory integrations, and niche landing page variants can all be added to any tier without re-negotiating the whole engagement. Reviews and social media management are already included in AxeonCORE, not sold as separate add-ons.',
+    q: 'What if I need more than what a build includes?',
+    a: 'That\'s what the add-ons above are for — videography, additional pages, deeper database/directory integrations, and niche landing page variants can all be added to either build without re-negotiating the whole engagement.',
   },
   {
     q: 'What if I don\'t like the initial design?',
-    a: 'Every one-time build (Core Web Build and Acquisition Engine) includes 2 rounds of revisions before launch, at no extra cost. We don\'t consider a project finished until the design is one you\'re proud to put your name on.',
+    a: 'Every build includes 2 rounds of revisions before launch, at no extra cost. We don\'t consider a project finished until the design is one you\'re proud to put your name on.',
   },
 ];
 
