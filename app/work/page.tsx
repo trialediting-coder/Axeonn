@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Work } from '@/components/home/Work';
 import { Testimonials } from '@/components/home/Testimonials';
 import { buildMetadata } from '@/lib/metadata';
+import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/work',
@@ -12,7 +13,8 @@ export const metadata = buildMetadata({
 export default function WorkPage() {
   return (
     <main className="pt-24">
-      <h1 className="sr-only">Concept Builds</h1>
+      <BreadcrumbJsonLd items={[{ name: 'Work', path: '/work' }]} />
+      <h1 className="sr-only">Web Design Portfolio &amp; Concept Builds</h1>
       <Work />
       <Testimonials />
       <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">

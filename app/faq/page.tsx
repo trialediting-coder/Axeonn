@@ -2,11 +2,12 @@ import type { Metadata } from 'next';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
 import { faqItems } from '@/data/faqData';
 import { buildMetadata } from '@/lib/metadata';
+import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata: Metadata = buildMetadata({
   path: '/faq',
-  title: 'Insights & FAQ | Axeon Studio',
-  description: 'Answers to the questions Iowa business owners ask most before working with Axeon Studio.',
+  title: 'FAQ — Web Design & Marketing Questions | Axeon Studio',
+  description: 'Answers to the questions Des Moines and Iowa business owners ask most before working with Axeon Studio — timelines, ownership, contracts, analytics, and cost.',
 });
 
 export default function FaqPage() {
@@ -26,9 +27,10 @@ export default function FaqPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
+      <BreadcrumbJsonLd items={[{ name: 'FAQ', path: '/faq' }]} />
       <div className="max-w-3xl mx-auto">
         <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-neutral-950 mb-4">
-          Insights &amp; FAQ
+          Frequently Asked Questions
         </h1>
         <p className="text-lg text-neutral-600 mb-14">
           Straight answers to what business owners ask before working with us.

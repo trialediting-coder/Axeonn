@@ -1,6 +1,7 @@
 import { listPosts, type Post } from '@/lib/posts';
 import { PostCard } from '@/components/insights/PostCard';
 import { buildMetadata } from '@/lib/metadata';
+import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/insights',
@@ -24,6 +25,7 @@ export default async function InsightsPage() {
 
   return (
     <main className="w-full pt-32 pb-24 px-6 sm:px-10 lg:px-16 xl:px-24">
+      <BreadcrumbJsonLd items={[{ name: 'Insights', path: '/insights' }]} />
       <div className="max-w-6xl mx-auto">
         <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-neutral-950 mb-4">
           Axeon Studio Insights

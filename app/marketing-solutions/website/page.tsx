@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { buildMetadata } from '@/lib/metadata';
+import { providerRef, SERVICE_AREA } from '@/lib/seo';
+import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { TrustBadges } from '@/components/common/TrustBadges';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
 import { faqItems } from '@/data/faqData';
@@ -97,21 +99,8 @@ const websiteServiceJsonLd = {
   url: 'https://axeonstudio.co/marketing-solutions/website',
   description:
     'Websites that build trust, drive revenue, and make you the clear choice — a brand-driven system built for your industry, shipped in a fixed 7–14 day timeline, not a generic template.',
-  provider: {
-    '@type': 'Organization',
-    name: 'Axeon Studio',
-    logo: 'https://axeonstudio.co/icon.png',
-    telephone: '+1-515-493-8017',
-    email: 'hayder.hatem@axeonstudio.co',
-    address: {
-      '@type': 'PostalAddress',
-      addressLocality: 'West Des Moines',
-      addressRegion: 'IA',
-      postalCode: '50266',
-      addressCountry: 'US',
-    },
-  },
-  areaServed: 'United States',
+  provider: providerRef,
+  areaServed: SERVICE_AREA,
 };
 
 const websiteFaqItems = [
@@ -135,6 +124,12 @@ export default function WebsitePage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteServiceJsonLd) }}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Marketing Solutions', path: '/marketing-solutions' },
+          { name: 'Website Design & Development', path: '/marketing-solutions/website' },
+        ]}
       />
       {/* Hero */}
       <section className="relative w-full min-h-screen min-h-[100dvh] flex items-center px-6 sm:px-10 lg:px-16 xl:px-24 pt-24 pb-16 bg-neutral-950 text-white overflow-hidden">

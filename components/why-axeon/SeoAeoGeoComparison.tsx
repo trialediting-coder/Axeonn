@@ -5,29 +5,18 @@ import { BorderBeam } from './BorderBeam';
 import { RankClimbChart } from './RankClimbChart';
 import { AiPromptDemo } from './AiPromptDemo';
 import { AiEngineMarquee } from './AiEngineMarquee';
+import { providerRef, SERVICE_AREA } from '@/lib/seo';
 
 const seoAeoGeoServiceJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Service',
   serviceType: 'Search Engine Optimization, Answer Engine Optimization, and Generative Engine Optimization',
   name: 'SEO, AEO & GEO Services — Axeon Studio',
+  url: 'https://axeonstudio.co/marketing-solutions/seo',
   description:
     'Search Engine Optimization (SEO), Answer Engine Optimization (AEO), and Generative Engine Optimization (GEO) included by default in every Axeon Studio web build — structured data, machine-readable content, and technical optimization for traditional search engines and AI answer engines like ChatGPT, Perplexity, Claude, and Gemini.',
-  provider: {
-    '@type': 'Organization',
-    name: 'Axeon Studio',
-    logo: 'https://axeonstudio.co/icon.png',
-    telephone: '+1-515-493-8017',
-    email: 'hayder.hatem@axeonstudio.co',
-    address: {
-      '@type': 'PostalAddress',
-      addressLocality: 'West Des Moines',
-      addressRegion: 'IA',
-      postalCode: '50266',
-      addressCountry: 'US',
-    },
-  },
-  areaServed: 'United States',
+  provider: providerRef,
+  areaServed: SERVICE_AREA,
 };
 
 export default function SeoAeoGeoComparison() {

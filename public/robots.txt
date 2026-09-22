@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /api/
+Disallow: /insights/admin/
 
 # Explicit Search & AI Answer Engine Crawlers (AEO / GEO / Search)
 User-agent: Googlebot

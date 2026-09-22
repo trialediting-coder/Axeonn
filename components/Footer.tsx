@@ -105,6 +105,7 @@ export function Footer({ year }: FooterProps) {
                 <ul className="space-y-2.5 text-neutral-600">
                   <li><Link href="/" className="hover:text-neutral-950 transition-colors">Home</Link></li>
                   <li><Link href="/about" className="hover:text-neutral-950 transition-colors">Our Story</Link></li>
+                  <li><Link href="/des-moines-web-design" className="hover:text-neutral-950 transition-colors">Des Moines Web Design</Link></li>
                   <li><Link href="/work" className="hover:text-neutral-950 transition-colors">Work</Link></li>
                   <li><Link href="/process" className="hover:text-neutral-950 transition-colors">Process</Link></li>
                   <li><Link href="/pricing" className="hover:text-neutral-950 transition-colors">Pricing</Link></li>

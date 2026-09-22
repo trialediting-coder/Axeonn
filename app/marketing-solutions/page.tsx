@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { marketingSolutions } from '@/data/marketingSolutionsData';
 import { buildMetadata } from '@/lib/metadata';
+import { providerRef, SERVICE_AREA } from '@/lib/seo';
+import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export const metadata = buildMetadata({
@@ -22,21 +24,8 @@ const marketingSolutionsJsonLd = {
       name: item.title,
       description: item.description,
       url: `https://axeonstudio.co${item.href}`,
-      provider: {
-        '@type': 'Organization',
-        name: 'Axeon Studio',
-        logo: 'https://axeonstudio.co/icon.png',
-        telephone: '+1-515-493-8017',
-        email: 'hayder.hatem@axeonstudio.co',
-        address: {
-          '@type': 'PostalAddress',
-          addressLocality: 'West Des Moines',
-          addressRegion: 'IA',
-          postalCode: '50266',
-          addressCountry: 'US',
-        },
-      },
-      areaServed: 'United States',
+      provider: providerRef,
+      areaServed: SERVICE_AREA,
     },
   })),
 };
@@ -48,6 +37,7 @@ export default function MarketingSolutionsPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(marketingSolutionsJsonLd) }}
       />
+      <BreadcrumbJsonLd items={[{ name: 'Marketing Solutions', path: '/marketing-solutions' }]} />
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">

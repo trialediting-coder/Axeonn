@@ -27,7 +27,8 @@ Axeon Studio is a productized web studio and revenue-operations partner. We repl
 - [Lead Generation](https://axeonstudio.co/marketing-solutions/lead-generation): Every lead captured and followed up on automatically in one unified pipeline.
 - [Video & Photography](https://axeonstudio.co/marketing-solutions/video-photography): Professional video and photography for your website, ads, and social profiles.
 - [Why Axeon](https://axeonstudio.co/why-axeon): Direct comparison of a typical agency vs. Axeon Studio across web design, AI receptionist, data infrastructure, SEO/AEO/GEO, and automation.
-- [Pricing](https://axeonstudio.co/pricing): Flat-rate Core Web Build, Acquisition Engine build, and AxeonCORE — the monthly technology partnership.
+- [Pricing](https://axeonstudio.co/pricing): Two flat-rate builds — Core Web Build ($2,800, 7 business days) and Acquisition Engine ($5,800, 14 business days, includes custom on-site videography). No published monthly plan; hosting & care is a separate monthly arrangement quoted on the strategy call, first 30 days included.
+- [Des Moines Web Design](https://axeonstudio.co/des-moines-web-design): Local landing page for the Des Moines metro — service area, in-person meetings, on-site video, and industries served.
 - [Work](https://axeonstudio.co/work): Concept builds and example layouts showing our approach — Axeon Studio is a new studio still building its client portfolio.
 - [Process](https://axeonstudio.co/process): The 7-to-14-day delivery framework used to design, build, and launch every project.
 - [FAQ](https://axeonstudio.co/faq): Answers to common questions about pricing, timelines, and how Axeon Studio works.
@@ -37,7 +38,8 @@ Axeon Studio is a productized web studio and revenue-operations partner. We repl
 ## Geographic Service Area
 - Headquarters: West Des Moines, IA 50266, United States
 - Latitude / Longitude: 41.5772° N, 93.7538° W
-- Metro Area: West Des Moines, Des Moines, Waukee, Urbandale, Clive, Johnston, Ankeny
+- Metro Area: West Des Moines, Des Moines, Clive, Urbandale, Waukee, Johnston, Grimes, Ankeny, Altoona, Norwalk
+- Hours: Monday–Friday, 8:00 AM – 6:00 PM Central
 - Statewide Coverage: Iowa (Polk County, Dallas County, Story County, Johnson County, Linn County)
 - National & Remote: Available for clients across North America
 

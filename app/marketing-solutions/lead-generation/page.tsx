@@ -13,6 +13,8 @@ import {
   FileText,
 } from 'lucide-react';
 import { buildMetadata } from '@/lib/metadata';
+import { providerRef, SERVICE_AREA } from '@/lib/seo';
+import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { TrustBadges } from '@/components/common/TrustBadges';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
 import { faqItems } from '@/data/faqData';
@@ -85,21 +87,8 @@ const leadGenerationServiceJsonLd = {
   url: 'https://axeonstudio.co/marketing-solutions/lead-generation',
   description:
     'Every lead captured and followed up automatically. One unified pipeline replaces the disconnected apps and logins of a typical agency stack, so no inquiry falls through the cracks.',
-  provider: {
-    '@type': 'Organization',
-    name: 'Axeon Studio',
-    logo: 'https://axeonstudio.co/icon.png',
-    telephone: '+1-515-493-8017',
-    email: 'hayder.hatem@axeonstudio.co',
-    address: {
-      '@type': 'PostalAddress',
-      addressLocality: 'West Des Moines',
-      addressRegion: 'IA',
-      postalCode: '50266',
-      addressCountry: 'US',
-    },
-  },
-  areaServed: 'United States',
+  provider: providerRef,
+  areaServed: SERVICE_AREA,
 };
 
 export default function LeadGenerationPage() {
@@ -108,6 +97,12 @@ export default function LeadGenerationPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(leadGenerationServiceJsonLd) }}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Marketing Solutions', path: '/marketing-solutions' },
+          { name: 'Lead Generation', path: '/marketing-solutions/lead-generation' },
+        ]}
       />
       {/* Hero */}
       <section className="relative w-full min-h-screen min-h-[100dvh] flex items-center px-6 sm:px-10 lg:px-16 xl:px-24 pt-24 pb-16 bg-neutral-950 text-white overflow-hidden">

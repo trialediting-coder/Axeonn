@@ -1,35 +1,25 @@
 import type { Niche } from '@/data/nichesData';
+import { JsonLd, BreadcrumbJsonLd } from '@/components/common/JsonLd';
+import { serviceJsonLd } from '@/lib/seo';
 
 export function NicheSchema({ niche }: { niche: Niche }) {
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Service',
-    serviceType: `Web & CRM Infrastructure for ${niche.name}`,
-    category: niche.schemaType,
+  const jsonLd = serviceJsonLd({
+    path: `/solutions/${niche.slug}`,
+    serviceType: `Web Design, SEO & CRM Pipeline for ${niche.name}`,
     name: `Axeon Studio — ${niche.name}`,
-    url: `https://axeonstudio.co/solutions/${niche.slug}`,
     description: niche.subheadline,
-    provider: {
-      '@type': 'Organization',
-      name: 'Axeon Studio',
-      logo: 'https://axeonstudio.co/icon.png',
-      telephone: '+1-515-493-8017',
-      email: 'hayder.hatem@axeonstudio.co',
-      address: {
-        '@type': 'PostalAddress',
-        addressLocality: 'West Des Moines',
-        addressRegion: 'IA',
-        postalCode: '50266',
-        addressCountry: 'US',
-      },
-    },
-    areaServed: 'United States',
-  };
+    category: niche.schemaType,
+  });
 
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-    />
+    <>
+      <JsonLd data={jsonLd} />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Industries', path: '/solutions' },
+          { name: niche.name, path: `/solutions/${niche.slug}` },
+        ]}
+      />
+    </>
   );
 }

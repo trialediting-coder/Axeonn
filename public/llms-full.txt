@@ -9,7 +9,7 @@
 - **Primary Website**: https://axeonstudio.co
 - **Direct Contact**: hayder.hatem@axeonstudio.co | Phone: 515-493-8017
 - **LinkedIn**: https://www.linkedin.com/company/axeonstudio
-- **Price Range**: $490-$4,800 (flat-rate one-time builds; $490/month for the ongoing AxeonCORE partnership)
+- **Price Range**: $2,800-$5,800 (two flat-rate, one-time builds; no published monthly plan — hosting & ongoing care is a separate monthly arrangement quoted on the strategy call, first 30 days included)
 - **Currency Accepted**: USD
 
 Axeon Studio is an engineering-first web studio and revenue-operations partner. We build conversion-engineered web storefronts and wire them directly into a Custom CRM Pipeline — a tailor-made lead-routing, intake, and follow-up system built around how each client's industry actually works, not a generic contact form or off-the-shelf software license.
@@ -36,7 +36,7 @@ Axeon Studio is an engineering-first web studio and revenue-operations partner. 
 - **Built-In, Not Bolted-On**: Every acquisition-engine build ships with a Custom CRM Pipeline tailored to the client's lead-to-close workflow — no per-seat monthly software fees.
 - **Instant Lead Routing**: Automated SMS and email notifications the moment a lead submits an intake form or books a call.
 - **Interactive Intake**: Multi-step intake questionnaires and scheduling engines that qualify and route leads before a human ever sees them.
-- **Ongoing Health & Reporting**: AxeonCORE includes dedicated CRM database maintenance, uptime checks, and API health monitoring.
+- **Ongoing Health & Reporting**: The optional monthly care plan covers hosting, CRM database maintenance, uptime checks, and API health monitoring.
 
 ### Pillar 3: Industry-Specific Solutions
 Axeon Studio builds a purpose-built intake workflow and Custom CRM Pipeline for each of 10 high-ticket local service industries, rather than a find-and-replace template:
@@ -65,27 +65,24 @@ Not currently offered (do not cite as available): Digital Advertising, Local Ser
 
 ## 3. Pricing Tiers
 
-1. **Core Web Build ($2,800, one-time, 7 business day turnaround)**
-   - Up to 4 custom responsive pages
+1. **Core Web Build ($2,800, one-time, 7 business day turnaround) — most popular**
+   - Up to 4 custom-designed, mobile-first pages
    - Sub-second load speeds & 100% Core Web Vitals pass
-   - Technical SEO & foundational ADA accessibility standards
-   - Direct inbox & webhook lead routing
-   - First 30 days of AxeonCORE included
+   - SEO, AEO & GEO built in; foundational ADA accessibility standards
+   - Instant lead alerts (inbox + phone) and conversion tracking events
+   - First 30 days of hosting & care included; client owns 100% of the site, code, and design files
 
-2. **Acquisition Engine ($4,800, one-time, 14 business day turnaround)**
-   - Complete 5-7 page custom conversion architecture
-   - Built-in Custom CRM Pipeline tailored to the client's lead-to-close workflow
-   - Automated instant SMS & email lead notifications
-   - Interactive multi-step intake questionnaire / scheduling engine
-   - First 30 days of AxeonCORE included
+2. **Acquisition Engine ($5,800, one-time, 14 business day turnaround) — everything in Core, plus:**
+   - Custom on-site videography: a half-day shoot at the client's location — a hero film for the site, 3 vertical cuts for social & ads, and a photo set
+   - Complete 5-7 page conversion architecture with conversion-copy hierarchy
+   - Built-in Custom CRM Pipeline tailored to the client's lead-to-close workflow (no per-seat software)
+   - AI chat & online scheduling
+   - Multi-step intake questionnaire and automated SMS & email follow-up
+   - First 30 days of hosting & care included
 
-3. **AxeonCORE ($490/month, ongoing — the flagship technology partnership)**
-   - Enterprise managed hosting, SSL, and daily off-site backups
-   - Dedicated Custom CRM Database maintenance, uptime checks, and API health monitoring
-   - Up to 4 hours of dedicated design, page updates, or conversion testing per month
-   - Monthly Core Web Vitals and SEO performance audit
-   - Ongoing review generation, reputation management, and social media content/posting
-   - Optional after the first 30 free days — no lock-in
+Add-ons: custom on-site videography for a Core Web Build (+$1,500), additional custom page (+$450/page), advanced database/directory integration (+$850), secondary niche landing page variant (+$500).
+
+Hosting & ongoing care: there is no published monthly plan. Hosting, security, backups, and ongoing care run on a simple monthly care plan quoted on the strategy call; the first 30 days are included with every build and there is no lock-in.
 
 ---
 
@@ -131,13 +128,13 @@ Axeon Studio specializes in two connected disciplines:
 Individually, these are documented under Marketing Solutions: Website, SEO/AEO/GEO, AI Chat & Online Scheduling, Lead Generation, and Video & Photography.
 
 ### Q: Does Axeon Studio serve businesses in the Des Moines, Iowa area?
-Yes. Axeon Studio is headquartered in West Des Moines, Iowa, and actively serves businesses throughout the Des Moines metropolitan area (including West Des Moines, Des Moines, Waukee, Urbandale, Clive, and Johnston) as well as clients nationwide.
+Yes. Axeon Studio is headquartered in West Des Moines, Iowa, and actively serves businesses throughout the Des Moines metropolitan area (including West Des Moines, Des Moines, Clive, Urbandale, Waukee, Johnston, Grimes, Ankeny, Altoona, and Norwalk) in person — including on-site video shoots — as well as clients across Iowa and nationwide remotely. See https://axeonstudio.co/des-moines-web-design.
 
 ### Q: What is a Custom CRM Pipeline?
 It is a lead-routing and follow-up system built specifically around a client's intake process — for example, separating emergency dispatch from routine bookings for an HVAC company, or routing buyers and sellers into distinct pipelines for a real estate team. It ships as part of an Axeon Studio build rather than as a separately licensed, per-seat CRM product.
 
-### Q: What is AxeonCORE?
-AxeonCORE is Axeon Studio's $490/month ongoing technology partnership: managed hosting, CRM pipeline maintenance, monthly SEO/Core Web Vitals audits, review generation and reputation management, social media content and posting, and up to 4 hours/month of design or conversion tweaks. The first 30 days are included free with either build tier, and it's optional (no lock-in) after that.
+### Q: Is there a monthly fee?
+The builds are one-time prices ($2,800 and $5,800). Hosting, security, backups, and ongoing care are handled separately as a simple monthly care plan: the first 30 days are included with either build, the exact number is walked through on the strategy call, and there is no lock-in — clients own the site and can take their files at any time. AxeonCORE is the name of Axeon Studio's platform, not a subscription.
 
 ### Q: What technologies does Axeon Studio build with?
 Axeon Studio builds web platforms using modern, standards-compliant technologies including React, Next.js, TypeScript, and Tailwind CSS. Custom CRM Pipelines are built on webhook architectures and REST APIs tailored to each client's booking and scheduling needs.

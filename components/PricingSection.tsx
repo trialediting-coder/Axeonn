@@ -16,15 +16,26 @@ const pricingFaqJsonLd = {
   })),
 };
 
-export function PricingSection() {
+interface PricingSectionProps {
+  /**
+   * Emit the FAQPage JSON-LD. Only /pricing should — the homepage already
+   * carries its own FAQPage block from components/home/FAQ, and two on one
+   * URL is a structured-data error.
+   */
+  includeFaqSchema?: boolean;
+}
+
+export function PricingSection({ includeFaqSchema = false }: PricingSectionProps) {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   return (
     <section id="pricing" className="w-full py-24 sm:py-36 lg:py-44 px-6 sm:px-10 lg:px-16 xl:px-24">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(pricingFaqJsonLd) }}
-      />
+      {includeFaqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(pricingFaqJsonLd) }}
+        />
+      )}
       <div className="max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

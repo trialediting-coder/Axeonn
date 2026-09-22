@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { ArrowLeft, Search, Sparkles, Cpu } from 'lucide-react';
 import { buildMetadata } from '@/lib/metadata';
+import { serviceJsonLd } from '@/lib/seo';
+import { JsonLd, BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { TrustBadges } from '@/components/common/TrustBadges';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
 import { faqItems } from '@/data/faqData';
@@ -55,9 +57,24 @@ const pillars = [
   },
 ];
 
+const seoServiceJsonLd = serviceJsonLd({
+  path: '/marketing-solutions/seo',
+  serviceType: 'Local SEO, AEO & GEO',
+  name: 'Axeon Studio — SEO, AEO & GEO',
+  description:
+    'Search engine, answer engine, and generative engine optimization built into every Axeon Studio site — technical SEO, local structured data, and machine-readable content so Des Moines-area businesses are found on Google and cited by AI assistants.',
+});
+
 export default function SeoMarketingSolutionPage() {
   return (
     <main className="w-full bg-neutral-950 text-white">
+      <JsonLd data={seoServiceJsonLd} />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Marketing Solutions', path: '/marketing-solutions' },
+          { name: 'SEO, AEO & GEO', path: '/marketing-solutions/seo' },
+        ]}
+      />
       {/* Hero */}
       <section className="relative w-full min-h-screen min-h-[100dvh] flex items-center px-6 sm:px-10 lg:px-16 xl:px-24 pt-24 pb-16 bg-neutral-950 text-white overflow-hidden">
         {/* TEMPORARY placeholder background — replace before launch, see public/temp-scorpion-refs */}

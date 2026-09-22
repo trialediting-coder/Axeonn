@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { getPostBySlug, listPosts } from '@/lib/posts';
 import { niches } from '@/data/nichesData';
 import { buildMetadata } from '@/lib/metadata';
+import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
+import { FOUNDER, FOUNDER_ID, ORG_ID, SITE_URL } from '@/lib/seo';
 
 // Matches /insights's own revalidate window -- without this the route has
 // no revalidate and no generateStaticParams, so it fully re-queries Postgres
@@ -57,13 +59,24 @@ export default async function InsightPostPage({
     image: post.coverImageUrl ?? undefined,
     datePublished: post.publishedAt,
     dateModified: post.updatedAt,
-    author: { '@type': 'Organization', name: 'Axeon Studio' },
+    // A named human author (with a profile page and social proof) is an
+    // E-E-A-T signal; an anonymous "Organization" author is not.
+    author: {
+      '@type': 'Person',
+      '@id': FOUNDER_ID,
+      name: FOUNDER.name,
+      jobTitle: FOUNDER.jobTitle,
+      url: `${SITE_URL}/about`,
+      sameAs: FOUNDER.sameAs,
+    },
     publisher: {
+      '@id': ORG_ID,
       '@type': 'Organization',
       name: 'Axeon Studio',
-      logo: { '@type': 'ImageObject', url: 'https://axeonstudio.co/icon.png' },
+      logo: { '@type': 'ImageObject', url: `${SITE_URL}/icon.png` },
     },
-    mainEntityOfPage: `https://axeonstudio.co/insights/${post.slug}`,
+    mainEntityOfPage: `${SITE_URL}/insights/${post.slug}`,
+    inLanguage: 'en-US',
   };
 
   const faqJsonLd =
@@ -84,6 +97,12 @@ export default async function InsightPostPage({
   return (
     <main className="w-full pt-32 pb-24 px-6 sm:px-10 lg:px-16 xl:px-24">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(articleJsonLd) }} />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Insights', path: '/insights' },
+          { name: post.title, path: `/insights/${post.slug}` },
+        ]}
+      />
       {faqJsonLd && (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(faqJsonLd) }} />
       )}
@@ -97,7 +116,10 @@ export default async function InsightPostPage({
           {post.title}
         </h1>
         <p className="text-sm text-neutral-400 mb-8">
-          Axeon Studio Team
+          <Link href="/about" className="text-neutral-600 font-medium hover:text-blue-600">
+            {FOUNDER.name}
+          </Link>
+          {' · Founder, Axeon Studio'}
           {post.publishedAt && (
             <>
               {' · '}

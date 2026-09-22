@@ -1,5 +1,6 @@
 import BookClient from './BookClient';
 import { buildMetadata } from '@/lib/metadata';
+import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/book',
@@ -9,5 +10,10 @@ export const metadata = buildMetadata({
 });
 
 export default function BookPage() {
-  return <BookClient />;
+  return (
+    <>
+      <BreadcrumbJsonLd items={[{ name: 'Book a Strategy Call', path: '/book' }]} />
+      <BookClient />
+    </>
+  );
 }

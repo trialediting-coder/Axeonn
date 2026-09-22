@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { niches } from '@/data/nichesData';
 import { NicheCard } from '@/components/niches/NicheCard';
 import { buildMetadata } from '@/lib/metadata';
+import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/solutions',
@@ -13,6 +14,7 @@ export const metadata = buildMetadata({
 export default function SolutionsHubPage() {
   return (
     <main className="w-full pt-32 pb-24 px-6 sm:px-10 lg:px-16 xl:px-24">
+      <BreadcrumbJsonLd items={[{ name: 'Industries', path: '/solutions' }]} />
       <div className="max-w-6xl mx-auto">
         <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-neutral-950 mb-4">
           Built for Your Industry, Not a Template

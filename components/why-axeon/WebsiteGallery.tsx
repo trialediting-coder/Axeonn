@@ -107,7 +107,7 @@ export function WebsiteGallery({
                 : 'border-transparent opacity-45 hover:opacity-75'
             }`}
           >
-            <img src={img.src} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover object-top" />
+            <img src={img.src} alt={`${img.industry} website example — ${img.label}`} loading="lazy" decoding="async" className="w-full h-full object-cover object-top" />
           </button>
         ))}
       </div>

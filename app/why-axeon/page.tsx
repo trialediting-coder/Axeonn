@@ -1,5 +1,6 @@
 import WhyAxeonClient from './WhyAxeonClient';
 import { buildMetadata } from '@/lib/metadata';
+import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/why-axeon',
@@ -9,5 +10,10 @@ export const metadata = buildMetadata({
 });
 
 export default function WhyAxeonPage() {
-  return <WhyAxeonClient />;
+  return (
+    <>
+      <BreadcrumbJsonLd items={[{ name: 'Why Axeon', path: '/why-axeon' }]} />
+      <WhyAxeonClient />
+    </>
+  );
 }

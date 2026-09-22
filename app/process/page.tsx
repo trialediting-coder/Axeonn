@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Process } from '@/components/home/Process';
 import { Testimonials } from '@/components/home/Testimonials';
 import { buildMetadata } from '@/lib/metadata';
+import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/process',
@@ -13,7 +14,8 @@ export const metadata = buildMetadata({
 export default function ProcessPage() {
   return (
     <main className="pt-24">
-      <h1 className="sr-only">Our 7-14 Day Process</h1>
+      <BreadcrumbJsonLd items={[{ name: 'Process', path: '/process' }]} />
+      <h1 className="sr-only">Our 7–14 Day Website Design Process</h1>
       <Process />
       <Testimonials />
       <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">

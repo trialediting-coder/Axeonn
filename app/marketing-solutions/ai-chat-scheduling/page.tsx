@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, MessageCircle, CalendarCheck, Mic2 } from 'lucide-react';
 import { buildMetadata } from '@/lib/metadata';
+import { providerRef, SERVICE_AREA } from '@/lib/seo';
+import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { AudioOrbPlayer } from '@/components/why-axeon/AudioOrbPlayer';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
 import { faqItems } from '@/data/faqData';
@@ -59,21 +61,8 @@ const aiChatSchedulingServiceJsonLd = {
   url: 'https://axeonstudio.co/marketing-solutions/ai-chat-scheduling',
   description:
     'Never miss a lead — 24/7 AI chat that books, answers, and converts clicks to customers. Listen to a real recorded call from Axeon’s AI receptionist.',
-  provider: {
-    '@type': 'Organization',
-    name: 'Axeon Studio',
-    logo: 'https://axeonstudio.co/icon.png',
-    telephone: '+1-515-493-8017',
-    email: 'hayder.hatem@axeonstudio.co',
-    address: {
-      '@type': 'PostalAddress',
-      addressLocality: 'West Des Moines',
-      addressRegion: 'IA',
-      postalCode: '50266',
-      addressCountry: 'US',
-    },
-  },
-  areaServed: 'United States',
+  provider: providerRef,
+  areaServed: SERVICE_AREA,
 };
 
 export default function AIChatSchedulingPage() {
@@ -82,6 +71,12 @@ export default function AIChatSchedulingPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(aiChatSchedulingServiceJsonLd) }}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Marketing Solutions', path: '/marketing-solutions' },
+          { name: 'AI Chat & Online Scheduling', path: '/marketing-solutions/ai-chat-scheduling' },
+        ]}
       />
       {/* Hero */}
       <section className="relative w-full min-h-screen min-h-[100dvh] flex items-center px-6 sm:px-10 lg:px-16 xl:px-24 pt-24 pb-16 bg-neutral-950 text-white overflow-hidden">

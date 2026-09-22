@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { PricingSection } from '@/components/PricingSection';
 import { Testimonials } from '@/components/home/Testimonials';
 import { buildMetadata } from '@/lib/metadata';
+import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/pricing',
@@ -13,8 +14,9 @@ export const metadata = buildMetadata({
 export default function PricingPage() {
   return (
     <main className="pt-24">
-      <h1 className="sr-only">Web & CRM Pipeline Pricing</h1>
-      <PricingSection />
+      <BreadcrumbJsonLd items={[{ name: 'Pricing', path: '/pricing' }]} />
+      <h1 className="sr-only">Website Design &amp; Digital Marketing Pricing — Des Moines, Iowa</h1>
+      <PricingSection includeFaqSchema />
       <Testimonials />
       <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
         <div className="max-w-4xl mx-auto text-center">

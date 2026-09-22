@@ -10,6 +10,8 @@ import { LeadModalProvider } from '@/components/common/LeadModalProvider';
 import { SideTabCTA } from '@/components/common/SideTabCTA';
 import { FreeWebsiteOfferPopup } from '@/components/common/FreeWebsiteOfferPopup';
 import { buildMetadata } from '@/lib/metadata';
+import { JsonLd } from '@/components/common/JsonLd';
+import { siteGraphJsonLd } from '@/lib/seo';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -18,49 +20,32 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   display: 'swap',
 });
 
-const organizationJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: 'Axeon Studio',
-  url: 'https://axeonstudio.co',
-  logo: 'https://axeonstudio.co/icon.png',
-  telephone: '+1-515-493-8017',
-  email: 'hayder.hatem@axeonstudio.co',
-  address: {
-    '@type': 'PostalAddress',
-    addressLocality: 'West Des Moines',
-    addressRegion: 'IA',
-    postalCode: '50266',
-    addressCountry: 'US',
-  },
-  // Real published pricing floor/ceiling (Core Web Build $2,800 one-time to
-  // Acquisition Engine $5,800 one-time) — never widen this to an unsourced range.
-  priceRange: '$2800-$5800',
-  founder: {
-    '@type': 'Person',
-    name: 'Hayder Hatem',
-  },
-  sameAs: ['https://www.linkedin.com/company/axeonstudio'],
-};
+// Site-wide structured data (ProfessionalService + founder Person + WebSite)
+// lives in lib/seo.ts so every page's Service schema can reference the same
+// @id instead of re-inlining NAP.
+const siteGraph = siteGraphJsonLd();
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://axeonstudio.co'),
   ...buildMetadata({
     path: '/',
-    title: 'Axeon Studio | Digital Marketing Solutions for Small Businesses',
+    title: 'Web Design & Digital Marketing in Des Moines, IA | Axeon Studio',
     description:
-      'The one-stop shop for growing Iowa businesses — website, SEO/AEO/GEO, reviews, social media, and lead capture, built and run by one team. Deployed in 7–14 days.',
+      'Axeon Studio builds websites, SEO/AEO/GEO, AI scheduling, and lead pipelines for Des Moines-area businesses — flat pricing, live in 7–14 days, one Iowa team you can call.',
   }),
+  other: {
+    'geo.region': 'US-IA',
+    'geo.placename': 'West Des Moines',
+    'geo.position': '41.5772;-93.7538',
+    ICBM: '41.5772, -93.7538',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={plusJakartaSans.variable}>
+    <html lang="en-US" className={plusJakartaSans.variable}>
       <body>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
-        />
+        <JsonLd data={siteGraph} />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-2EDMD31CEP"
           strategy="afterInteractive"
