@@ -260,7 +260,7 @@ export function Hero() {
             <button
               type="button"
               id="hero-primary-cta"
-              onClick={openLeadModal}
+              onClick={() => openLeadModal('hero')}
               className="group inline-flex items-center gap-4 px-6 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base font-semibold transition-all duration-200 cursor-pointer shadow-md hover:scale-[1.02] active:scale-[0.98]"
             >
               <span>Show Me How</span>

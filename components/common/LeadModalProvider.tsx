@@ -13,13 +13,15 @@ import {
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BookingCalendar } from '@/components/booking/BookingCalendar';
+import { trackLeadModalOpened } from '@/components/providers/AnalyticsTracker';
 
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
 
 interface LeadModalContextValue {
   isOpen: boolean;
-  open: () => void;
+  /** `source` names the CTA that opened the modal, for GA4 attribution. */
+  open: (source?: string) => void;
   close: () => void;
 }
 
@@ -39,9 +41,12 @@ export function LeadModalProvider({ children }: { children: ReactNode }) {
   const triggerRef = useRef<HTMLElement | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
 
-  const open = useCallback(() => {
+  const open = useCallback((source?: string) => {
     triggerRef.current = document.activeElement as HTMLElement | null;
     setIsOpen(true);
+    // Callers may pass this straight to onClick, in which case `source` is a
+    // synthetic event rather than a string.
+    trackLeadModalOpened(typeof source === 'string' ? source : 'unknown');
   }, []);
   const close = useCallback(() => setIsOpen(false), []);
 

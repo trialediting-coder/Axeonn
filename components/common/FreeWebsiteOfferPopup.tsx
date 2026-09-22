@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLeadModal } from '@/components/common/LeadModalProvider';
+import { trackEvent, EVENTS } from '@/components/providers/AnalyticsTracker';
 
 const DISMISS_KEY = 'axeon-free-website-offer-dismissed-at';
 const COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
@@ -56,6 +57,7 @@ export function FreeWebsiteOfferPopup() {
       shownRef.current = true;
       triggerRef.current = document.activeElement as HTMLElement | null;
       setVisible(true);
+      trackEvent(EVENTS.popupShown, { popup: 'free_website_offer', page_path: window.location.pathname });
     };
 
     const isTouchDevice = window.matchMedia('(hover: none), (pointer: coarse)').matches;
@@ -85,14 +87,20 @@ export function FreeWebsiteOfferPopup() {
     };
   }, []);
 
-  const dismiss = () => {
+  const hide = () => {
     setVisible(false);
     writeDismissedAt(Date.now());
   };
 
+  const dismiss = () => {
+    hide();
+    trackEvent(EVENTS.popupDismissed, { popup: 'free_website_offer' });
+  };
+
   const claim = () => {
-    dismiss();
-    openLeadModal();
+    hide();
+    trackEvent(EVENTS.popupClaimed, { popup: 'free_website_offer' });
+    openLeadModal('free_website_popup');
   };
 
   // Trap Tab/Shift+Tab focus cycling within the dialog while it's open.

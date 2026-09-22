@@ -271,6 +271,7 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
                     type="button"
                     onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
                     aria-expanded={isOpen}
+                    aria-controls={`pricing-faq-${idx}`}
                     className="w-full p-6 sm:p-7 text-left flex items-center justify-between gap-4 cursor-pointer hover:bg-neutral-50/50 transition-colors"
                   >
                     <span className="font-bold text-lg sm:text-xl text-neutral-950">{faq.q}</span>
@@ -286,6 +287,7 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
                   <AnimatePresence initial={false}>
                     {isOpen && (
                       <motion.div
+                        id={`pricing-faq-${idx}`}
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
