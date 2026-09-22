@@ -369,19 +369,3 @@ html, #root {
   font-family: var(--font-plus-jakarta-sans), system-ui, -apple-system, sans-serif;
   font-weight: 600;
 }
-
-/* Hero section: completely remove default browser cursor so only the custom follower is visible */
-@media (hover: hover) and (pointer: fine) {
-  .hero-video-cursor,
-  .hero-video-cursor * {
-    cursor: none !important;
-  }
-
-  .hero-video-cursor button,
-  .hero-video-cursor a,
-  .hero-video-cursor [role="button"],
-  .hero-video-cursor input,
-  .hero-video-cursor textarea {
-    cursor: pointer !important;
-  }
-}

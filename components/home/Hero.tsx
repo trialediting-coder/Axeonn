@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { ArrowUpRight } from 'lucide-react';
-import { motion, useMotionValue, useSpring, AnimatePresence } from 'motion/react';
+import { ArrowUpRight, ArrowRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { TrustBadges } from '@/components/common/TrustBadges';
 import { useLeadModal } from '@/components/common/LeadModalProvider';
 
@@ -14,12 +13,8 @@ const ROTATING_WORDS = ['Revenue', 'Bookings', 'Business', 'Brand'];
 const ROTATE_INTERVAL_MS = 2200;
 
 export function Hero() {
-  const router = useRouter();
   const { open: openLeadModal } = useLeadModal();
-  const heroCardRef = useRef<HTMLDivElement>(null);
   const heroVideoRef = useRef<HTMLVideoElement>(null);
-  const [isHovered, setIsHovered] = useState(false);
-  const [isOverInteractive, setIsOverInteractive] = useState(false);
   const [wordIndex, setWordIndex] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
 
@@ -95,108 +90,18 @@ export function Hero() {
     };
   }, []);
 
-  const mouseX = useMotionValue(-500);
-  const mouseY = useMotionValue(-500);
-  const springConfig = { damping: 28, stiffness: 350, mass: 0.25 };
-  const smoothX = useSpring(mouseX, springConfig);
-  const smoothY = useSpring(mouseY, springConfig);
-
-  const handleMouseMove = (e: ReactMouseEvent<HTMLDivElement>) => {
-    mouseX.set(e.clientX);
-    mouseY.set(e.clientY);
-    if (!isHovered) setIsHovered(true);
-
-    const target = e.target as HTMLElement | null;
-    const isInteractive = Boolean(
-      target?.closest('button') ||
-        target?.closest('a') ||
-        target?.closest('input') ||
-        target?.closest('[role="button"]')
-    );
-    setIsOverInteractive(isInteractive);
-  };
-
-  const handleMouseEnter = (e: ReactMouseEvent<HTMLDivElement>) => {
-    if (mouseX.get() < -100) {
-      mouseX.set(e.clientX);
-      mouseY.set(e.clientY);
-      smoothX.jump(e.clientX);
-      smoothY.jump(e.clientY);
-    } else {
-      mouseX.set(e.clientX);
-      mouseY.set(e.clientY);
-    }
-    setIsHovered(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    setIsOverInteractive(false);
-  };
-
-  const isClickOnControl = (target: EventTarget | null) => {
-    const el = target as HTMLElement | null;
-    return Boolean(el?.closest('a') || el?.closest('button') || el?.closest('input'));
-  };
-
-  const handleHeroCardClick = (e: ReactMouseEvent<HTMLDivElement>) => {
-    if (isClickOnControl(e.target)) return;
-    router.push('/book');
-  };
-
-  const handleHeroCardKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (isClickOnControl(e.target)) return;
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      router.push('/book');
-    }
-  };
-
   return (
     <section
       id="hero-section"
-      className="hero-video-cursor relative z-10 w-full h-[100svh] sm:h-[100dvh] flex items-stretch justify-center"
+      className="relative z-10 w-full h-[100svh] sm:h-[100dvh] flex items-stretch justify-center"
     >
-      <motion.div
-        aria-hidden="true"
-        style={{
-          x: smoothX,
-          y: smoothY,
-          translateX: '-50%',
-          translateY: '-50%',
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          pointerEvents: 'none',
-          zIndex: 9999,
-        }}
-        initial={false}
-        animate={{
-          scale: isHovered && !isOverInteractive ? 1 : 0,
-          opacity: isHovered && !isOverInteractive ? 1 : 0,
-        }}
-        transition={{
-          scale: { type: 'spring', stiffness: 420, damping: 26 },
-          opacity: { duration: 0.15 },
-        }}
-        className="hidden sm:flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-neutral-950 border border-white/30 shadow-[0_20px_50px_rgba(0,0,0,0.85)] backdrop-blur-xs select-none"
-      >
-        <ArrowUpRight className="w-8 h-8 sm:w-10 sm:h-10 text-white" strokeWidth={2.5} />
-      </motion.div>
-
-      <div
-        ref={heroCardRef}
-        onMouseMove={handleMouseMove}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        onClick={handleHeroCardClick}
-        onKeyDown={handleHeroCardKeyDown}
-        tabIndex={0}
-        role="region"
-        aria-label="Axeon Studio Hero Section — click to book a strategy call"
-        title="Click to book a strategy call with Axeon Studio"
-        className="hero-video-cursor relative w-full h-full bg-neutral-950 text-white flex flex-col px-6 sm:px-10 lg:px-16 xl:px-20 pt-24 sm:pt-28 pb-8 sm:pb-10 select-none cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 overflow-hidden"
-      >
+      {/*
+        The hero is a plain region. It used to be one giant click target that
+        routed to /book (with a custom follow-the-mouse cursor advertising it),
+        which produced accidental navigations from stray taps and polluted the
+        click data. The two explicit CTAs below are the only actions now.
+      */}
+      <div className="relative w-full h-full bg-neutral-950 text-white flex flex-col px-6 sm:px-10 lg:px-16 xl:px-20 pt-24 sm:pt-28 pb-8 sm:pb-10 overflow-hidden">
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <video
             ref={heroVideoRef}
@@ -255,19 +160,32 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-8 flex flex-wrap items-center gap-4"
+            className="mt-8 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4"
           >
+            {/* Primary: the real ask, named as what it is */}
             <button
               type="button"
               id="hero-primary-cta"
               onClick={() => openLeadModal('hero')}
-              className="group inline-flex items-center gap-4 px-6 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm sm:text-base font-semibold transition-all duration-200 cursor-pointer shadow-md hover:scale-[1.02] active:scale-[0.98]"
+              className="group inline-flex items-center justify-center gap-3 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-base font-bold transition-all duration-200 cursor-pointer shadow-lg shadow-blue-600/25 hover:scale-[1.02] active:scale-[0.98]"
             >
-              <span>Show Me How</span>
+              <span>Book a Free Strategy Call</span>
               <div className="w-8 h-8 rounded-full bg-white/15 text-white flex items-center justify-center shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
                 <ArrowUpRight size={15} />
               </div>
             </button>
+
+            {/* Secondary: the lighter action, answers the #1 objection (price) */}
+            <Link
+              href="/pricing"
+              id="hero-secondary-cta"
+              data-track="cta_click"
+              data-track-cta="see_pricing"
+              className="group inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full border border-white/25 bg-white/[0.06] hover:bg-white/[0.12] hover:border-white/40 text-white text-base font-semibold backdrop-blur-sm transition-all duration-200 cursor-pointer"
+            >
+              <span>See Flat-Rate Pricing</span>
+              <ArrowRight size={16} className="text-blue-300 group-hover:translate-x-1 transition-transform" />
+            </Link>
           </motion.div>
 
           <motion.div
