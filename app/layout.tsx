@@ -50,22 +50,39 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           src="https://www.googletagmanager.com/gtag/js?id=G-2EDMD31CEP"
           strategy="afterInteractive"
         />
+        {/*
+          Privacy signals. We honor the Global Privacy Control header/JS signal
+          (required to be treated as an opt-out under CCPA/CPRA and several
+          other US state laws): when set, analytics cookies are denied, and the
+          session-replay and visitor-identification scripts below are skipped.
+          The privacy policy (Section 4) describes exactly this behavior, so keep
+          the two in sync.
+        */}
         <Script id="gtag-init" strategy="afterInteractive">
           {`
+            window.__axeonOptOut = navigator.globalPrivacyControl === true;
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
+            gtag('consent', 'default', {
+              ad_storage: 'denied',
+              ad_user_data: 'denied',
+              ad_personalization: 'denied',
+              analytics_storage: window.__axeonOptOut ? 'denied' : 'granted'
+            });
             gtag('js', new Date());
-            gtag('config', 'G-2EDMD31CEP', { send_page_view: false });
+            gtag('config', 'G-2EDMD31CEP', { send_page_view: false, allow_google_signals: false });
           `}
         </Script>
-        {/* Microsoft Clarity — heatmaps & session recordings */}
+        {/* Microsoft Clarity — heatmaps & session recordings (skipped under GPC) */}
         <Script id="clarity-init" strategy="afterInteractive">
           {`
-            (function(c,l,a,r,i,t,y){
-                c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-                t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-                y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-            })(window, document, "clarity", "script", "ymcb58hvrp");
+            if (navigator.globalPrivacyControl !== true) {
+              (function(c,l,a,r,i,t,y){
+                  c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+                  t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+                  y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+              })(window, document, "clarity", "script", "ymcb58hvrp");
+            }
           `}
         </Script>
         <Script src="https://link.msgsndr.com/js/form_embed.js" strategy="afterInteractive" />
@@ -85,7 +102,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: `function initApollo(){var n=Math.random().toString(36).substring(7),o=document.createElement("script");
 o.src="https://assets.apollo.io/micro/website-tracker/tracker.iife.js?nocache="+n,o.async=!0,o.defer=!0,
 o.onload=function(){window.trackingFunctions.onLoad({appId:"6aa40b35866f41001c1c9ae4"})},
-document.head.appendChild(o)}initApollo();`,
+document.head.appendChild(o)}if(navigator.globalPrivacyControl!==true){initApollo();}`,
           }}
         />
         <LeadModalProvider>
