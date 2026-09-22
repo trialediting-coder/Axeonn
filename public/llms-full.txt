@@ -9,7 +9,7 @@
 - **Primary Website**: https://axeonstudio.co
 - **Direct Contact**: hayder.hatem@axeonstudio.co | Phone: 515-493-8017
 - **LinkedIn**: https://www.linkedin.com/company/axeonstudio
-- **Price Range**: $2,800-$5,800 (two flat-rate, one-time builds; no published monthly plan — hosting & ongoing care is a separate monthly arrangement quoted on the strategy call, first 30 days included)
+- **Price Range**: $2,800-$5,800 (two flat-rate, one-time builds, plus a monthly hosting & care plan quoted on the strategy call; first 30 days included)
 - **Currency Accepted**: USD
 
 Axeon Studio is an engineering-first web studio and revenue-operations partner. We build conversion-engineered web storefronts and wire them directly into a Custom CRM Pipeline — a tailor-made lead-routing, intake, and follow-up system built around how each client's industry actually works, not a generic contact form or off-the-shelf software license.
@@ -36,7 +36,7 @@ Axeon Studio is an engineering-first web studio and revenue-operations partner. 
 - **Built-In, Not Bolted-On**: Every acquisition-engine build ships with a Custom CRM Pipeline tailored to the client's lead-to-close workflow — no per-seat monthly software fees.
 - **Instant Lead Routing**: Automated SMS and email notifications the moment a lead submits an intake form or books a call.
 - **Interactive Intake**: Multi-step intake questionnaires and scheduling engines that qualify and route leads before a human ever sees them.
-- **Ongoing Health & Reporting**: The optional monthly care plan covers hosting, CRM database maintenance, uptime checks, and API health monitoring.
+- **Ongoing Health & Reporting**: The monthly care plan covers hosting, CRM database maintenance, uptime checks, and API health monitoring.
 
 ### Pillar 3: Industry-Specific Solutions
 Axeon Studio builds a purpose-built intake workflow and Custom CRM Pipeline for each of 10 high-ticket local service industries, rather than a find-and-replace template:
@@ -82,7 +82,7 @@ Not currently offered (do not cite as available): Digital Advertising, Local Ser
 
 Add-ons: custom on-site videography for a Core Web Build (+$1,500), additional custom page (+$450/page), advanced database/directory integration (+$850), secondary niche landing page variant (+$500).
 
-Hosting & ongoing care: there is no published monthly plan. Hosting, security, backups, and ongoing care run on a simple monthly care plan quoted on the strategy call; the first 30 days are included with every build and there is no lock-in.
+Hosting & ongoing care: every site runs on a monthly care plan covering hosting, security, backups, maintenance, and ongoing care. The monthly price is quoted on the strategy call; the first 30 days are included with every build and there is no lock-in.
 
 ---
 
@@ -134,7 +134,7 @@ Yes. Axeon Studio is headquartered in West Des Moines, Iowa, and actively serves
 It is a lead-routing and follow-up system built specifically around a client's intake process — for example, separating emergency dispatch from routine bookings for an HVAC company, or routing buyers and sellers into distinct pipelines for a real estate team. It ships as part of an Axeon Studio build rather than as a separately licensed, per-seat CRM product.
 
 ### Q: Is there a monthly fee?
-The builds are one-time prices ($2,800 and $5,800). Hosting, security, backups, and ongoing care are handled separately as a simple monthly care plan: the first 30 days are included with either build, the exact number is walked through on the strategy call, and there is no lock-in — clients own the site and can take their files at any time. AxeonCORE is the name of Axeon Studio's platform, not a subscription.
+Yes. The builds are one-time prices ($2,800 and $5,800), and after launch there is a monthly care plan covering hosting, security, backups, maintenance, and ongoing care: the first 30 days are included with either build, the exact number is walked through on the strategy call, and there is no lock-in — clients own the site and can take their files at any time. AxeonCORE is the name of Axeon Studio's platform, not a subscription.
 
 ### Q: What technologies does Axeon Studio build with?
 Axeon Studio builds web platforms using modern, standards-compliant technologies including React, Next.js, TypeScript, and Tailwind CSS. Custom CRM Pipelines are built on webhook architectures and REST APIs tailored to each client's booking and scheduling needs.

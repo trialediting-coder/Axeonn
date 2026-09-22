@@ -28,8 +28,8 @@ export interface AddOn {
   price: string;
 }
 
-// Two flat-rate builds, no published monthly plan. Hosting & ongoing care is a
-// separate monthly arrangement quoted on the strategy call (see hostingNote) —
+// Two flat-rate builds, plus a monthly hosting & care plan after the first 30
+// days. The care plan price is quoted on the strategy call (see hostingNote) —
 // keep every monthly figure OFF this page. Numbers here must stay in sync with
 // content/brand-guardrails.md and the priceRange in app/layout.tsx.
 export const pricingTiers: PricingTier[] = [
@@ -38,7 +38,7 @@ export const pricingTiers: PricingTier[] = [
     name: 'Core Web Build',
     focus: 'Get found. Look credible. Get the call.',
     price: '$2,800',
-    billingNote: 'One-time build — no monthly plan bundled in',
+    billingNote: 'One-time build + monthly hosting & care plan',
     turnaround: '7 Business Day Turnaround',
     badge: 'Most Popular',
     featured: true,
@@ -59,7 +59,7 @@ export const pricingTiers: PricingTier[] = [
     name: 'Acquisition Engine',
     focus: 'Capture, qualify, and close — with real footage of your business',
     price: '$5,800',
-    billingNote: 'One-time build — no monthly plan bundled in',
+    billingNote: 'One-time build + monthly hosting & care plan',
     turnaround: '14 Business Day Turnaround',
     badge: 'Full Engine',
     inherits: 'Everything in Core Web Build, plus:',
@@ -91,7 +91,7 @@ export const pricingTiers: PricingTier[] = [
 ];
 
 export const hostingNote =
-  'Both builds are a one-time price. Hosting, security, backups, and ongoing care run on a simple monthly care plan — your first 30 days are included, and we walk you through the exact number on your strategy call before you commit to anything. No contracts, no lock-in: you own the site and can take your files at any time.';
+  'Both builds are a one-time build price, plus a monthly care plan that covers hosting, security, backups, maintenance, and ongoing care. Your first 30 days are included, and we walk you through the exact monthly number on your strategy call before you commit to anything. No contracts, no lock-in: you own the site and can take your files at any time.';
 
 export const addOns: AddOn[] = [
   { name: 'Custom On-Site Videography (add to Core Web Build)', price: '+$1,500' },
@@ -112,7 +112,7 @@ export const pricingFaqs: PricingFaq[] = [
   },
   {
     q: 'Is there a monthly fee?',
-    a: 'The build itself is a one-time price — nothing recurring is bundled into either number above. Hosting, security, backups, and ongoing care are handled separately as a simple monthly care plan: your first 30 days are included, and we walk you through the exact number on your strategy call so there are no surprises. There\'s no lock-in — you own the site and can take your files at any time.',
+    a: 'Yes. The build itself is a one-time price, and after launch there is a monthly care plan that covers hosting, security, backups, maintenance, and ongoing care. Your first 30 days are included, and we walk you through the exact number on your strategy call so there are no surprises. There\'s no lock-in — you own the site and can take your files at any time.',
   },
   {
     q: 'What does the on-site videography actually include?',

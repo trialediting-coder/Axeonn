@@ -11,8 +11,9 @@ local-only.
   on-site videography (half-day shoot: hero film, 3 vertical cuts, photo set).
 - Custom on-site videography as an add-on to Core Web Build: $1,500.
 - Every build includes the first 30 days of hosting & care.
-- There is NO published monthly plan. Hosting and ongoing care is a separate
-  monthly care plan quoted on the strategy call — never state a monthly price,
+- There IS a recurring monthly care plan (hosting, security, backups,
+  maintenance) after the first 30 days. Never claim there is no monthly fee.
+  The price is quoted on the strategy call — never state a monthly price,
   and never cite the retired "$490/month" figure.
 
 ## Real, currently-live services (safe to describe as offered)
@@ -33,8 +34,8 @@ local-only.
 - Do not use "fast" alone as the core value proposition of a post — pair
   speed claims with something concrete (a real timeline, a real number)
   or omit them.
-- Never refer to "Operations Retainer" or an "AxeonCORE retainer" — there is
-  no monthly plan to name. "AxeonCORE" is the platform, not a subscription.
+- Never refer to "Operations Retainer" or an "AxeonCORE retainer" — the only
+  recurring plan is the "monthly care plan". "AxeonCORE" is the platform, not a subscription.
 
 ## Never fabricate
 - No invented client results, case studies, testimonials, or before/after

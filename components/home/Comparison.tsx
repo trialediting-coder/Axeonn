@@ -13,7 +13,7 @@ const ROWS: ComparisonRow[] = [
   {
     dimension: 'Pricing',
     typical: '$5K–$30K+ for a comparable build, plus a separate CRM subscription and a monthly retainer',
-    axeon: '$2,800 or $5,800 flat — CRM Pipeline and on-site video included in the Engine, no per-seat software, no monthly plan bundled in',
+    axeon: '$2,800 or $5,800 flat — CRM Pipeline and on-site video included in the Engine, no per-seat software, plus one simple monthly care plan for hosting & upkeep',
   },
   {
     dimension: 'Timeline',
