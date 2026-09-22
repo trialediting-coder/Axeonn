@@ -36,7 +36,7 @@ const LOCAL_REASONS = [
     icon: Clapperboard,
     title: 'On-site video shot at your location',
     description:
-      'The Acquisition Engine includes a half-day shoot at your shop, office, or clinic anywhere in the metro — a hero film for the site, vertical cuts for social, and a photo set. No out-of-town crew, no travel fees.',
+      'The AxeonCORE includes a half-day shoot at your shop, office, or clinic anywhere in the metro — a hero film for the site, vertical cuts for social, and a photo set. No out-of-town crew, no travel fees.',
   },
   {
     icon: MapPin,
@@ -61,12 +61,12 @@ const LOCAL_FAQ = [
   {
     question: 'Can we meet in person?',
     answer:
-      'Yes. Strategy calls are usually a video call because it is faster for everyone, but if you are in the Des Moines metro and want to meet at your location, that is easy to arrange — and it happens anyway for the on-site videography included in the Acquisition Engine.',
+      'Yes. Strategy calls are usually a video call because it is faster for everyone, but if you are in the Des Moines metro and want to meet at your location, that is easy to arrange — and it happens anyway for the on-site videography included in the AxeonCORE.',
   },
   {
     question: 'How much does a website cost in Des Moines?',
     answer:
-      'Our pricing is published. The Core Web Build is $2,800 one-time and is our fastest build. The Acquisition Engine is $5,800 one-time and adds a Custom CRM Pipeline, AI chat & online scheduling, automated follow-up, and a half-day on-site video shoot.',
+      'Our pricing is published. The Core Web Build is $2,800 one-time and is our fastest build. The AxeonCORE is $5,800 one-time and adds a Custom CRM Pipeline, AI chat & online scheduling, automated follow-up, and a half-day on-site video shoot.',
   },
   {
     question: 'Will my business show up when people search on Google or ask ChatGPT?',
@@ -177,7 +177,7 @@ export default function DesMoinesWebDesignPage() {
             >
               <h3 className="text-lg font-bold mb-2">Flat-Rate Pricing</h3>
               <p className="text-neutral-300 text-sm leading-relaxed mb-4">
-                Core Web Build from $2,800. Acquisition Engine with on-site video from $5,800. No proposals.
+                Core Web Build from $2,800. AxeonCORE with on-site video from $5,800. No proposals.
               </p>
               <span className="inline-flex items-center gap-1 text-sm font-semibold text-blue-400">
                 See both builds <ArrowRight size={14} />

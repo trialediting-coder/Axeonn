@@ -65,7 +65,7 @@ export default function MarketingSolutionsPage() {
                     0{index + 1}
                   </span>
                   <span className="text-[11px] font-mono text-neutral-400 uppercase tracking-wider">
-                    Axeon Engine
+                    AxeonCORE
                   </span>
                 </div>
                 <h3 className="text-xl sm:text-2xl font-bold text-neutral-950 tracking-tight group-hover:text-blue-600 transition-colors">

@@ -54,13 +54,13 @@ export const pricingTiers: PricingTier[] = [
     cta: 'Book Core Build',
   },
   {
-    id: 'full-acquisition-engine',
-    name: 'Acquisition Engine',
+    id: 'axeoncore',
+    name: 'AxeonCORE',
     focus: 'Capture, qualify, and close — with real footage of your business',
     price: '$5,800',
     billingNote: 'Flat-rate build price',
     turnaround: 'Fast Turnaround',
-    badge: 'Full Engine',
+    badge: 'Premium Build',
     inherits: 'Everything in Core Web Build, plus:',
     features: [
       'Custom on-site videography — a half-day shoot at your location: a hero film for your site, 3 vertical cuts for social & ads, and a photo set',
@@ -84,7 +84,7 @@ export const pricingTiers: PricingTier[] = [
       ],
       footer: 'The video alone is half the step-up. The lead system comes with it.',
     },
-    cta: 'Book Acquisition Engine',
+    cta: 'Book AxeonCORE',
   },
 ];
 
@@ -103,7 +103,7 @@ export interface PricingFaq {
 export const pricingFaqs: PricingFaq[] = [
   {
     q: 'Which build should I pick?',
-    a: 'Core Web Build if you need a credible, fast site that produces calls — most local businesses start here and it\'s the right call. Acquisition Engine if leads already come in faster than you can follow up, you book appointments or consultations, or you want your business to look like the biggest operation in town — real footage of your team and your work does that in a way no template can.',
+    a: 'Core Web Build if you need a credible, fast site that produces calls — most local businesses start here and it\'s the right call. AxeonCORE if leads already come in faster than you can follow up, you book appointments or consultations, or you want your business to look like the biggest operation in town — real footage of your team and your work does that in a way no template can.',
   },
   {
     q: 'What does the on-site videography actually include?',
@@ -111,7 +111,7 @@ export const pricingFaqs: PricingFaq[] = [
   },
   {
     q: 'Can I add videography to the Core Web Build instead?',
-    a: 'Yes — it\'s a $1,500 add-on. Worth knowing before you do: at that point the Acquisition Engine is only $1,500 more and adds the Custom CRM Pipeline, AI chat & scheduling, the pre-qualifying intake, and automated follow-up. Most people who want the video end up going Engine for that reason.',
+    a: 'Yes — it\'s a $1,500 add-on. Worth knowing before you do: at that point AxeonCORE is only $1,500 more and adds the Custom CRM Pipeline, AI chat & scheduling, the pre-qualifying intake, and automated follow-up. Most people who want the video end up going AxeonCORE for that reason.',
   },
   {
     q: 'Why flat pricing instead of hourly billing?',

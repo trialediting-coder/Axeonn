@@ -7,7 +7,7 @@ local-only.
 
 ## Real pricing (never state a different number)
 - Core Web Build: $2,800, one-time. Our fastest build.
-- Acquisition Engine: $5,800, one-time. Includes custom
+- AxeonCORE: $5,800, one-time. Includes custom
   on-site videography (half-day shoot: hero film, 3 vertical cuts, photo set).
 - Custom on-site videography as an add-on to Core Web Build: $1,500.
 - Never mention a monthly plan, care plan, hosting fee, or monthly fee — and
@@ -33,7 +33,7 @@ local-only.
   days", etc.). Describe speed in relative terms instead — "fast turnaround",
   "a fraction of the time a typical agency takes", "not six months".
 - Never refer to "Operations Retainer" or an "AxeonCORE retainer" — those plans
-  are retired. "AxeonCORE" is the platform, not a subscription.
+  are retired. "AxeonCORE" is the name of the premium $5,800 build (and the platform it runs on) — a one-time build, never a subscription.
 
 ## Never fabricate
 - No invented client results, case studies, testimonials, or before/after

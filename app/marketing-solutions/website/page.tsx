@@ -37,7 +37,7 @@ const DIFFERENTIATORS = [
     icon: Workflow,
     title: 'A Built-In CRM Pipeline',
     description:
-      'The Acquisition Engine build includes a Custom CRM Pipeline tailored to your lead-to-close workflow — no per-seat monthly software fees stacked on top of your website.',
+      'The AxeonCORE build includes a Custom CRM Pipeline tailored to your lead-to-close workflow — no per-seat monthly software fees stacked on top of your website.',
   },
   {
     icon: Timer,
@@ -59,7 +59,7 @@ const PROCESS_STEPS = [
     step: '01',
     title: 'Strategy Call',
     description:
-      'We scope your build together, walk through the Core Web Build vs. Acquisition Engine tiers, and confirm exactly what you need — no pressure, no guessing on price.',
+      'We scope your build together, walk through the Core Web Build vs. AxeonCORE tiers, and confirm exactly what you need — no pressure, no guessing on price.',
   },
   {
     icon: Hammer,
