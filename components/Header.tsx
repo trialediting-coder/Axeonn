@@ -4,12 +4,64 @@ import { useState, useEffect, useRef, type MouseEvent } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { niches } from '@/data/nichesData';
 import { marketingSolutions } from '@/data/marketingSolutionsData';
 
 const homeServicesNiches = niches.filter((niche) => niche.category === 'Home & Trade Services');
 const healthNiches = niches.filter((niche) => niche.category === 'Healthcare');
 const proServicesNiches = niches.filter((niche) => niche.category === 'Professional Services');
+
+type MobileSection = 'about' | 'help' | 'marketing';
+
+const MOBILE_EASE = [0.22, 1, 0.36, 1] as const;
+
+/** One collapsible group inside the phone menu. */
+function MobileGroup({
+  label,
+  isOpen,
+  onToggle,
+  children,
+}: {
+  label: string;
+  isOpen: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
+  const id = `mobile-group-${label.toLowerCase().replace(/\s+/g, '-')}`;
+  return (
+    <div className="border-b border-neutral-100">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={isOpen}
+        aria-controls={id}
+        className="w-full min-h-[52px] flex items-center justify-between py-3 text-left text-[15px] font-semibold text-neutral-900 cursor-pointer"
+      >
+        <span>{label}</span>
+        <ChevronDown
+          size={18}
+          className={`shrink-0 text-neutral-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-blue-600' : ''}`}
+        />
+      </button>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            key="content"
+            id={id}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ height: { duration: 0.3, ease: MOBILE_EASE }, opacity: { duration: 0.2 } }}
+            className="overflow-hidden"
+          >
+            <div className="pb-4">{children}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 export function Header() {
   const pathname = usePathname();
@@ -28,11 +80,30 @@ export function Header() {
   const [marketingOpen, setMarketingOpen] = useState(false);
   const marketingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const [mobileSection, setMobileSection] = useState<MobileSection | null>(null);
+  const toggleMobileSection = (section: MobileSection) =>
+    setMobileSection((current) => (current === section ? null : section));
+
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Any navigation closes the phone menu (covers back/forward and hash links).
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
+  // Lock page scroll behind the open phone menu so the panel scrolls, not the page.
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [mobileMenuOpen]);
 
   const onDarkHero = (isNichePage || isHomePage || isDarkServicePage) && !isScrolled && !mobileMenuOpen;
   const navHoverClass = onDarkHero ? 'hover:text-blue-400 text-white' : 'hover:text-blue-600 text-neutral-800';
@@ -385,175 +456,156 @@ export function Header() {
         </div>
       </div>
 
-      {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-t border-neutral-200 px-6 py-5 flex flex-col gap-4 text-base font-medium max-h-[85vh] overflow-y-auto">
-          {/* About Us */}
-          <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">
-              About Us
-            </span>
-            <div className="pl-3 mt-2 flex flex-col gap-2">
-              <Link
-                href="/about"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-sm font-semibold text-neutral-900"
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            key="mobile-menu"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ height: { duration: 0.32, ease: MOBILE_EASE }, opacity: { duration: 0.2 } }}
+            className="md:hidden overflow-hidden bg-white border-t border-neutral-200"
+          >
+            <nav
+              aria-label="Mobile"
+              className="max-h-[calc(100dvh-80px)] overflow-y-auto overscroll-contain px-5 pt-1 pb-6 text-base font-medium"
+            >
+              <MobileGroup
+                label="About Us"
+                isOpen={mobileSection === 'about'}
+                onToggle={() => toggleMobileSection('about')}
               >
-                Our Story
-              </Link>
-              <Link
-                href="/why-axeon"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-sm text-neutral-600"
+                <div className="flex flex-col">
+                  <Link
+                    href="/about"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="px-3 py-2.5 rounded-xl active:bg-neutral-100 text-sm font-semibold text-neutral-900"
+                  >
+                    Our Story
+                  </Link>
+                  <Link
+                    href="/why-axeon"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="px-3 py-2.5 rounded-xl active:bg-neutral-100 text-sm text-neutral-600"
+                  >
+                    Why Axeon
+                  </Link>
+                  <Link
+                    href="/#platform"
+                    onClick={scrollToPlatform}
+                    className="px-3 py-2.5 rounded-xl active:bg-neutral-100 text-sm text-neutral-600"
+                  >
+                    What We Build
+                  </Link>
+                  <Link
+                    href="/work"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="px-3 py-2.5 rounded-xl active:bg-neutral-100 text-sm text-neutral-600"
+                  >
+                    Our Work
+                  </Link>
+                </div>
+              </MobileGroup>
+
+              <MobileGroup
+                label="Who We Help"
+                isOpen={mobileSection === 'help'}
+                onToggle={() => toggleMobileSection('help')}
               >
-                Why Axeon
-              </Link>
-              <Link
-                href="/#platform"
-                onClick={scrollToPlatform}
-                className="text-sm text-neutral-600"
-              >
-                What We Build
-              </Link>
-              <Link
-                href="/work"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-sm text-neutral-600"
-              >
-                Our Work
-              </Link>
-            </div>
-          </div>
-
-          {/* Who We Help */}
-          <div>
-            <div className="mb-2.5">
-              <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">
-                Who We Help
-              </span>
-            </div>
-
-            {/* Small Business on Mobile */}
-            <div className="mb-3.5">
-              <Link
-                href="/solutions#small-business"
-                onClick={() => setMobileMenuOpen(false)}
-                className="p-3.5 rounded-xl bg-neutral-50 hover:bg-blue-50/50 border border-neutral-200/80 block text-left transition-colors"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-bold text-neutral-900">Small Business</div>
-                  <span className="text-xs font-semibold text-blue-600">Custom Scope →</span>
-                </div>
-                <div className="text-xs text-neutral-500 mt-1 leading-snug">
-                  Tailored storefronts, intake triage, and Custom CRM Pipelines for any business.
-                </div>
-              </Link>
-            </div>
-
-            {/* Category Rows in Mobile Menu */}
-            <div className="space-y-4 pl-1">
-              <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 block mb-1.5">
-                  Home Services
-                </span>
-                <div className="flex flex-col gap-1.5 pl-2">
-                  {homeServicesNiches.map((niche) => (
-                    <Link
-                      key={niche.slug}
-                      href={`/solutions/${niche.slug}`}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="px-3 py-2 rounded-xl hover:bg-neutral-50 active:bg-neutral-100 transition-colors block text-left"
-                    >
-                      <div className="text-sm font-semibold text-neutral-900">{niche.name}</div>
-                      <div className="text-xs text-neutral-500 line-clamp-1 mt-0.5 leading-snug">
-                        {niche.tagline}
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 block mb-1.5">
-                  Healthcare & Medical
-                </span>
-                <div className="flex flex-col gap-1.5 pl-2">
-                  {healthNiches.map((niche) => (
-                    <Link
-                      key={niche.slug}
-                      href={`/solutions/${niche.slug}`}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="px-3 py-2 rounded-xl hover:bg-neutral-50 active:bg-neutral-100 transition-colors block text-left"
-                    >
-                      <div className="text-sm font-semibold text-neutral-900">{niche.name}</div>
-                      <div className="text-xs text-neutral-500 line-clamp-1 mt-0.5 leading-snug">
-                        {niche.tagline}
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 block mb-1.5">
-                  Professional Services
-                </span>
-                <div className="flex flex-col gap-1.5 pl-2">
-                  {proServicesNiches.map((niche) => (
-                    <Link
-                      key={niche.slug}
-                      href={`/solutions/${niche.slug}`}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="px-3 py-2 rounded-xl hover:bg-neutral-50 active:bg-neutral-100 transition-colors block text-left"
-                    >
-                      <div className="text-sm font-semibold text-neutral-900">{niche.name}</div>
-                      <div className="text-xs text-neutral-500 line-clamp-1 mt-0.5 leading-snug">
-                        {niche.tagline}
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Marketing Solutions */}
-          <div>
-            <div className="mb-2.5">
-              <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">
-                Marketing Solutions
-              </span>
-            </div>
-            <div className="pl-2 flex flex-col gap-2">
-              {marketingSolutions.map((item) => (
+                {/* Small Business on Mobile */}
                 <Link
-                  key={item.id}
-                  href={item.href}
-                  onClick={(e) => {
-                    setMobileMenuOpen(false);
-                    if (item.href === '/#platform') scrollToPlatform(e);
-                  }}
-                  className="px-3.5 py-2.5 rounded-xl hover:bg-neutral-50 active:bg-neutral-100 transition-colors block text-left"
+                  href="/solutions#small-business"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="mb-4 p-3.5 rounded-xl bg-neutral-50 active:bg-blue-50/60 border border-neutral-200/80 block text-left transition-colors"
                 >
-                  <div className="text-sm font-semibold text-neutral-900">{item.title}</div>
-                  <div className="text-xs text-neutral-500 line-clamp-1 mt-1 leading-snug">
-                    {item.description}
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-bold text-neutral-900">Small Business</div>
+                    <span className="text-xs font-semibold text-blue-600">Custom Scope →</span>
+                  </div>
+                  <div className="text-xs text-neutral-500 mt-1 leading-snug">
+                    Tailored storefronts, intake triage, and Custom CRM Pipelines for any business.
                   </div>
                 </Link>
-              ))}
-            </div>
-          </div>
 
-          <Link href="/insights" onClick={() => setMobileMenuOpen(false)} className="text-neutral-800 font-semibold pt-1">
-            Insights
-          </Link>
-          <Link href="/pricing" onClick={() => setMobileMenuOpen(false)} className="text-neutral-800 font-semibold">
-            Pricing
-          </Link>
-          <a href="tel:+15154938017" className="text-blue-600 font-semibold">
-            Call (515) 493-8017
-          </a>
-        </div>
-      )}
+                <div className="space-y-4">
+                  {[
+                    { title: 'Home Services', items: homeServicesNiches },
+                    { title: 'Healthcare & Medical', items: healthNiches },
+                    { title: 'Professional Services', items: proServicesNiches },
+                  ].map((group) => (
+                    <div key={group.title}>
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 block mb-1 px-1">
+                        {group.title}
+                      </span>
+                      <div className="flex flex-col">
+                        {group.items.map((niche) => (
+                          <Link
+                            key={niche.slug}
+                            href={`/solutions/${niche.slug}`}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="px-3 py-2.5 rounded-xl active:bg-neutral-100 transition-colors block text-left"
+                          >
+                            <div className="text-sm font-semibold text-neutral-900">{niche.name}</div>
+                            <div className="text-xs text-neutral-500 line-clamp-1 mt-0.5 leading-snug">
+                              {niche.tagline}
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </MobileGroup>
+
+              <MobileGroup
+                label="Marketing Solutions"
+                isOpen={mobileSection === 'marketing'}
+                onToggle={() => toggleMobileSection('marketing')}
+              >
+                <div className="flex flex-col">
+                  {marketingSolutions.map((item) => (
+                    <Link
+                      key={item.id}
+                      href={item.href}
+                      onClick={(e) => {
+                        setMobileMenuOpen(false);
+                        if (item.href === '/#platform') scrollToPlatform(e);
+                      }}
+                      className="px-3 py-2.5 rounded-xl active:bg-neutral-100 transition-colors block text-left"
+                    >
+                      <div className="text-sm font-semibold text-neutral-900">{item.title}</div>
+                      <div className="text-xs text-neutral-500 line-clamp-1 mt-0.5 leading-snug">
+                        {item.description}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </MobileGroup>
+
+              <Link
+                href="/insights"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center min-h-[52px] py-3 border-b border-neutral-100 text-[15px] font-semibold text-neutral-900"
+              >
+                Insights
+              </Link>
+              <Link
+                href="/pricing"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center min-h-[52px] py-3 border-b border-neutral-100 text-[15px] font-semibold text-neutral-900"
+              >
+                Pricing
+              </Link>
+              <a
+                href="tel:+15154938017"
+                className="flex items-center min-h-[52px] py-3 text-[15px] font-semibold text-blue-600"
+              >
+                Call (515) 493-8017
+              </a>
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
