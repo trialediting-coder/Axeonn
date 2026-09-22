@@ -78,9 +78,9 @@ const PROCESS_STEPS = [
   {
     icon: LifeBuoy,
     step: '04',
-    title: 'First 30 Days Included',
+    title: 'You Own It',
     description:
-      'Hosting, SSL, backups, and CRM monitoring are included for your first 30 days at no extra cost. After that, ongoing care runs on a simple monthly care plan we walk through on your call — or take your files and walk away. No lock-in.',
+      'Once your site launches, the site, code, and design files are 100% yours. No proprietary platforms, no lock-in.',
   },
 ];
 
@@ -110,7 +110,7 @@ const websiteFaqItems = [
   },
   {
     question: 'Do I own the website once it\'s built?',
-    answer: 'Yes. Your first 30 days of hosting and care are included; after that you can continue on a simple monthly care plan or take your files and walk away — no lock-in.',
+    answer: 'Yes. You own 100% of the site, code, and design files — no proprietary platforms, no lock-in.',
   },
   {
     question: "What if I don't like the design?",

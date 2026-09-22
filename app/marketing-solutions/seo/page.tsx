@@ -29,7 +29,7 @@ const seoFaqItems = [
   },
   {
     question: 'Do I need a separate SEO contract?',
-    answer: "No — it's included in your website build, and ongoing Core Web Vitals and SEO audits are part of your monthly care plan afterward.",
+    answer: "No — it's included in your website build.",
   },
 ];
 

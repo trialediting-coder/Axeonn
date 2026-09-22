@@ -17,7 +17,7 @@ export const faqItems: FaqItem[] = [
   {
     question: 'Is there a contract, and how long is it?',
     answer:
-      'We keep terms simple and transparent — no multi-year lock-in. Pricing and term length are laid out clearly on our Pricing page before you sign anything.',
+      'We keep terms simple and transparent — no multi-year lock-in. Build pricing is published on our Pricing page, and every term is laid out clearly before you sign anything.',
   },
   {
     question: 'Do I get access to my own analytics?',

@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Check, ShieldCheck, ChevronDown, ChevronUp, Clapperboard, Info } from 'lucide-react';
+import { Check, ShieldCheck, ChevronDown, ChevronUp, Clapperboard } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { pricingTiers, addOns, hostingNote, pricingFaqs, revisionGuarantee } from '@/data/pricingData';
+import { pricingTiers, addOns, pricingFaqs, revisionGuarantee } from '@/data/pricingData';
 
 const pricingFaqJsonLd = {
   '@context': 'https://schema.org',
@@ -48,8 +48,8 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
             Two Flat-Rate Builds. Pick the One That Fits.
           </h2>
           <p className="text-xl sm:text-2xl text-neutral-600 leading-relaxed max-w-3xl mx-auto">
-            No 3-week proposals, no hourly billing. One build price, a fixed timeline, a simple
-            monthly care plan for hosting & upkeep, and a site you own outright.
+            No 3-week proposals, no hourly billing. One price, a fixed timeline,
+            and a site you own outright.
           </p>
           <div className="mt-6 inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-blue-50 border border-blue-100 text-base font-semibold text-blue-700">
             <ShieldCheck size={18} className="shrink-0" />
@@ -179,20 +179,6 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
             );
           })}
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.6 }}
-          className="mt-10 max-w-6xl 2xl:max-w-7xl mx-auto flex gap-4 items-start rounded-2xl border border-neutral-200 bg-neutral-50 p-6 sm:p-7"
-        >
-          <Info size={22} className="shrink-0 mt-0.5 text-blue-600" />
-          <p className="text-base sm:text-lg text-neutral-600 leading-relaxed">
-            <span className="font-bold text-neutral-950">Hosting &amp; ongoing care. </span>
-            {hostingNote}
-          </p>
-        </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}

@@ -12,8 +12,8 @@ interface ComparisonRow {
 const ROWS: ComparisonRow[] = [
   {
     dimension: 'Pricing',
-    typical: '$5K–$30K+ for a comparable build, plus a separate CRM subscription and a monthly retainer',
-    axeon: '$2,800 or $5,800 flat — CRM Pipeline and on-site video included in the Engine, no per-seat software, plus one simple monthly care plan for hosting & upkeep',
+    typical: '$5K–$30K+ for a comparable build, plus a separate CRM subscription',
+    axeon: '$2,800 or $5,800 flat — CRM Pipeline and on-site video included in the Engine, no per-seat software',
   },
   {
     dimension: 'Timeline',
@@ -33,7 +33,7 @@ const ROWS: ComparisonRow[] = [
   {
     dimension: 'After Launch',
     typical: 'Hourly billing for small changes, slower turnaround',
-    axeon: 'A direct line to the person who built your system, plus a simple monthly care plan — no hourly billing',
+    axeon: 'A direct line to the person who built your system — no hourly billing',
   },
 ];
 

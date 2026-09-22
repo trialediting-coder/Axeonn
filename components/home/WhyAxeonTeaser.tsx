@@ -9,7 +9,7 @@ const CATEGORIES = [
   'AI Receptionist — listen to a real call, side by side',
   'Data & Infrastructure — a real data layer, included by default',
   'Reviews & Reputation — ongoing generation and management, not a one-time funnel',
-  'Social Media — content and posting handled for you as part of ongoing care',
+  'Social Media — content and posting handled for you',
   'Automation — one unified stack instead of a dozen subscriptions',
 ];
 

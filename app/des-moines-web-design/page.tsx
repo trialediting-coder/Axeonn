@@ -66,7 +66,7 @@ const LOCAL_FAQ = [
   {
     question: 'How much does a website cost in Des Moines?',
     answer:
-      'Our pricing is published. The Core Web Build is $2,800 one-time and launches in 7 business days. The Acquisition Engine is $5,800 one-time, launches in 14 business days, and adds a Custom CRM Pipeline, AI chat & online scheduling, automated follow-up, and a half-day on-site video shoot. Hosting and ongoing care is a separate monthly plan we walk through on your call — the first 30 days are included.',
+      'Our pricing is published. The Core Web Build is $2,800 one-time and launches in 7 business days. The Acquisition Engine is $5,800 one-time, launches in 14 business days, and adds a Custom CRM Pipeline, AI chat & online scheduling, automated follow-up, and a half-day on-site video shoot.',
   },
   {
     question: 'Will my business show up when people search on Google or ask ChatGPT?',

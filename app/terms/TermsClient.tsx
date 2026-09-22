@@ -133,7 +133,7 @@ export default function TermsClient() {
                 The Axeon Standard: 100% Total Client Ownership
               </h2>
               <p className="mt-2 text-xs sm:text-sm text-gray-700 leading-relaxed">
-                When project delivery is completed and invoiced balances are settled in full, the keys, code, bespoke design assets, and production infrastructure are <strong>entirely yours</strong>. We build with zero hostage software, zero mandatory monthly agency retainers, and zero proprietary lock-in dependencies.
+                When project delivery is completed and invoiced balances are settled in full, the keys, code, bespoke design assets, and production infrastructure are <strong>entirely yours</strong>. We build with zero hostage software and zero proprietary lock-in dependencies.
               </p>
             </div>
           </div>

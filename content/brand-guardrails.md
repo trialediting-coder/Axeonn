@@ -10,11 +10,9 @@ local-only.
 - Acquisition Engine: $5,800, one-time, up to 14 days. Includes custom
   on-site videography (half-day shoot: hero film, 3 vertical cuts, photo set).
 - Custom on-site videography as an add-on to Core Web Build: $1,500.
-- Every build includes the first 30 days of hosting & care.
-- There IS a recurring monthly care plan (hosting, security, backups,
-  maintenance) after the first 30 days. Never claim there is no monthly fee.
-  The price is quoted on the strategy call — never state a monthly price,
-  and never cite the retired "$490/month" figure.
+- Never mention a monthly plan, care plan, hosting fee, or monthly fee — and
+  never claim there ISN'T one. Ongoing arrangements are handled privately
+  with each client. Never cite the retired "$490/month" figure.
 
 ## Real, currently-live services (safe to describe as offered)
 - Custom website design and development.
@@ -34,8 +32,8 @@ local-only.
 - Do not use "fast" alone as the core value proposition of a post — pair
   speed claims with something concrete (a real timeline, a real number)
   or omit them.
-- Never refer to "Operations Retainer" or an "AxeonCORE retainer" — the only
-  recurring plan is the "monthly care plan". "AxeonCORE" is the platform, not a subscription.
+- Never refer to "Operations Retainer" or an "AxeonCORE retainer" — those plans
+  are retired. "AxeonCORE" is the platform, not a subscription.
 
 ## Never fabricate
 - No invented client results, case studies, testimonials, or before/after

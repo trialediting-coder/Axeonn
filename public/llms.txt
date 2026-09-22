@@ -27,7 +27,7 @@ Axeon Studio is a productized web studio and revenue-operations partner. We repl
 - [Lead Generation](https://axeonstudio.co/marketing-solutions/lead-generation): Every lead captured and followed up on automatically in one unified pipeline.
 - [Video & Photography](https://axeonstudio.co/marketing-solutions/video-photography): Professional video and photography for your website, ads, and social profiles.
 - [Why Axeon](https://axeonstudio.co/why-axeon): Direct comparison of a typical agency vs. Axeon Studio across web design, AI receptionist, data infrastructure, SEO/AEO/GEO, and automation.
-- [Pricing](https://axeonstudio.co/pricing): Two flat-rate builds — Core Web Build ($2,800, 7 business days) and Acquisition Engine ($5,800, 14 business days, includes custom on-site videography). Plus a monthly hosting & care plan (hosting, security, backups, maintenance), quoted on the strategy call; first 30 days included.
+- [Pricing](https://axeonstudio.co/pricing): Two flat-rate builds — Core Web Build ($2,800, 7 business days) and Acquisition Engine ($5,800, 14 business days, includes custom on-site videography).
 - [Des Moines Web Design](https://axeonstudio.co/des-moines-web-design): Local landing page for the Des Moines metro — service area, in-person meetings, on-site video, and industries served.
 - [Work](https://axeonstudio.co/work): Concept builds and example layouts showing our approach — Axeon Studio is a new studio still building its client portfolio.
 - [Process](https://axeonstudio.co/process): The 7-to-14-day delivery framework used to design, build, and launch every project.
