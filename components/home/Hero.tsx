@@ -43,16 +43,14 @@ export function Hero() {
   // because the video is still buffering on a slow connection when autoplay
   // fires, and nothing tells the browser to try again once it's ready. A
   // hard refresh "fixes" it only because the file is then warm in HTTP
-  // cache. Retry on every readiness milestone, on tab-visibility/bfcache
-  // resume, and on a short poll as an ultimate safety net.
+  // cache. Retry on every readiness/buffering milestone, on tab-visibility/
+  // bfcache resume, and on a poll that keeps going until playback starts.
+  // The mobile file is picked by a <source media> query in the markup, so the
+  // browser downloads the right file from the first byte instead of waiting
+  // for hydration to swap it in.
   useEffect(() => {
     const video = heroVideoRef.current;
     if (!video) return;
-
-    if (window.matchMedia('(max-width: 640px)').matches) {
-      video.src = '/videoplayback-mobile.mp4';
-      video.load();
-    }
 
     const tryPlay = () => {
       video.muted = true;
@@ -66,7 +64,7 @@ export function Hero() {
 
     tryPlay();
 
-    const readinessEvents = ['loadedmetadata', 'loadeddata', 'canplay', 'canplaythrough'];
+    const readinessEvents = ['loadedmetadata', 'loadeddata', 'canplay', 'canplaythrough', 'progress', 'suspend', 'stalled'];
     readinessEvents.forEach((evt) => video.addEventListener(evt, tryPlay));
     document.addEventListener('visibilitychange', tryPlay);
     window.addEventListener('pageshow', tryPlay);
@@ -74,14 +72,14 @@ export function Hero() {
     let attempts = 0;
     const intervalId = window.setInterval(() => {
       attempts += 1;
-      if (!video.paused || attempts >= 8) {
+      if (!video.paused || attempts >= 40) {
         window.clearInterval(intervalId);
         return;
       }
       tryPlay();
-    }, 750);
+    }, 500);
 
-    const gestureEvents = ['pointerdown', 'touchstart', 'keydown', 'wheel'] as const;
+    const gestureEvents = ['pointerdown', 'touchstart', 'keydown', 'wheel', 'scroll', 'mousemove'] as const;
     const onFirstGesture = () => {
       tryPlay();
       gestureEvents.forEach((evt) => window.removeEventListener(evt, onFirstGesture));
@@ -208,9 +206,11 @@ export function Hero() {
             playsInline
             preload="auto"
             poster="/hero-poster.webp"
-            src="/videoplayback.mp4"
             className="w-full h-full object-cover object-center opacity-70 scale-105"
-          />
+          >
+            <source src="/videoplayback-mobile.mp4" type="video/mp4" media="(max-width: 640px)" />
+            <source src="/videoplayback.mp4" type="video/mp4" />
+          </video>
           <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-neutral-950/95 via-neutral-950/60 to-transparent sm:from-neutral-950 sm:via-neutral-950/80 sm:to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-neutral-950/30" />
           <div className="absolute -top-40 -right-40 w-[550px] h-[550px] bg-[#2563EB]/25 rounded-full blur-3xl pointer-events-none" />
