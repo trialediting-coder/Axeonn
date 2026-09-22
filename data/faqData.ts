@@ -7,7 +7,7 @@ export const faqItems: FaqItem[] = [
   {
     question: 'How long does it take to launch?',
     answer:
-      'Most builds go live in 7–14 days from kickoff. The exact timeline depends on how quickly we get your content, brand assets, and any integration details (booking system, CRM, phone number) — the build itself moves efficiently because we work from a proven system, not a from-scratch design process.',
+      'Fast — most builds go live in a fraction of the time a typical agency takes. The exact timing depends on how quickly we get your content, brand assets, and any integration details (booking system, CRM, phone number) — the build itself moves efficiently because we work from a proven system, not a from-scratch design process.',
   },
   {
     question: 'Do I own my website?',

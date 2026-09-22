@@ -21,7 +21,7 @@ export function Process() {
       num: '01',
       title: 'Discovery',
       desc: 'We take the time to learn your business, understand your ideal customers, and figure out what challenges you are facing.',
-      duration: 'Days 1–2',
+      duration: 'Kicks off right away',
       deliverables: [
         'Intro & Goal Setting Session',
         'Audience & Competitor Review',
@@ -33,7 +33,7 @@ export function Process() {
       num: '02',
       title: 'Strategy',
       desc: 'We map out a simple, effective roadmap so every page and message has a clear purpose.',
-      duration: 'Days 3–5',
+      duration: 'Fast-tracked',
       deliverables: [
         'Site Structure & Content Outline',
         'Customer Journey & Lead Flow',
@@ -45,7 +45,7 @@ export function Process() {
       num: '03',
       title: 'Design',
       desc: 'We create clean, modern designs that look great on phones, tablets, and desktops alike.',
-      duration: 'Days 6–9',
+      duration: 'Rapid turnaround',
       deliverables: [
         'Interactive Clickable Mockups',
         'Easy-to-Read Fonts & Colors',
@@ -57,7 +57,7 @@ export function Process() {
       num: '04',
       title: 'Launch & Support',
       desc: 'We build, test, and launch your new site, then stay right beside you to keep things running smoothly.',
-      duration: 'Days 10–14',
+      duration: 'Live fast',
       deliverables: [
         'Fast & Secure Web Development',
         'Instant Lead Alerts & CRM Connection',
@@ -122,8 +122,8 @@ export function Process() {
                 <div className="text-[10px] font-mono uppercase tracking-wide text-neutral-500 mt-1">Phases</div>
               </div>
               <div className="p-3.5 rounded-2xl border border-neutral-200 bg-white text-center">
-                <div className="text-2xl font-black text-neutral-950 font-display">7–14</div>
-                <div className="text-[10px] font-mono uppercase tracking-wide text-neutral-500 mt-1">Business Days</div>
+                <div className="text-2xl font-black text-neutral-950 font-display">Fast</div>
+                <div className="text-[10px] font-mono uppercase tracking-wide text-neutral-500 mt-1">Turnaround</div>
               </div>
               <div className="p-3.5 rounded-2xl border border-neutral-200 bg-white text-center">
                 <div className="text-2xl font-black text-neutral-950 font-display">1</div>

@@ -39,11 +39,11 @@ export default function AboutClient() {
       num: '02',
       roman: 'PILLAR II',
       icon: Calendar,
-      title: '7-14 Day Delivery Timeline',
+      title: 'Rapid Delivery',
       sublabel: 'Focused Attention, Not a Queue',
       description:
-        'We take on only a handful of clients at a time so we can give your project undivided attention. From kickoff to a fully live, tested website takes 7-14 days—not six months.',
-      metric: '7-14 Days',
+        'We take on only a handful of clients at a time so we can give your project undivided attention. From kickoff to a fully live, tested website in a fraction of the time a typical agency takes—not six months.',
+      metric: 'Fast',
       metricLabel: 'Kickoff to live production launch',
     },
     {
@@ -189,17 +189,17 @@ export default function AboutClient() {
                 technologies: ['Direct Slack', 'Loom', 'GitHub PRs', 'Figma'],
               },
               {
-                title: '7-14 Day Delivery Timeline',
+                title: 'Rapid Delivery',
                 badge: 'PILLAR II // FOCUSED DELIVERY',
                 category: 'PRODUCTION LIFECYCLE',
                 image:
                   'https://images.unsplash.com/photo-1507925921958-8a62f3d1a50d?auto=format&fit=crop&w=1200&q=80&fm=webp',
-                imageAlt: '7-14 day dedicated delivery timeline',
+                imageAlt: 'Rapid, dedicated delivery',
                 summary:
-                  'From kickoff to fully live, tested production website in 7-14 days—not six months.',
+                  'From kickoff to a fully live, tested production website in a fraction of the time a typical agency takes—not six months.',
                 fullBreakdown: [
                   'We take on only a handful of clients at a time so we can give your project undivided attention.',
-                  'Strategic UX & design tokens first, then the Next.js build, then integrations, QA, and launch — Core Web Build wraps in as few as 7 business days, Acquisition Engine builds take up to 14.',
+                  'Strategic UX & design tokens first, then the Next.js build, then integrations, QA, and launch — all moving fast, with nothing sitting in a queue.',
                   'Ensures your marketing campaign launches when market demand is highest.',
                 ],
                 deliverables: [
@@ -208,8 +208,8 @@ export default function AboutClient() {
                   'Speed Optimization & SEO Audits',
                   'DNS Propagation & Production Launch',
                 ],
-                impactMetric: { value: '7-14 Days', label: 'Kickoff to Live Launch' },
-                turnaround: '7-14 Day Production',
+                impactMetric: { value: 'Fast', label: 'Kickoff to Live Launch' },
+                turnaround: 'Rapid Production',
                 technologies: ['Next.js', 'React', 'Tailwind CSS', 'Cloudflare DNS'],
               },
               {

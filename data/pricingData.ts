@@ -39,7 +39,7 @@ export const pricingTiers: PricingTier[] = [
     focus: 'Get found. Look credible. Get the call.',
     price: '$2,800',
     billingNote: 'Flat-rate build price',
-    turnaround: '7 Business Day Turnaround',
+    turnaround: 'Our Fastest Turnaround',
     badge: 'Most Popular',
     featured: true,
     features: [
@@ -59,7 +59,7 @@ export const pricingTiers: PricingTier[] = [
     focus: 'Capture, qualify, and close — with real footage of your business',
     price: '$5,800',
     billingNote: 'Flat-rate build price',
-    turnaround: '14 Business Day Turnaround',
+    turnaround: 'Fast Turnaround',
     badge: 'Full Engine',
     inherits: 'Everything in Core Web Build, plus:',
     features: [

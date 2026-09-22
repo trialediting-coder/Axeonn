@@ -48,7 +48,7 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
             Two Flat-Rate Builds. Pick the One That Fits.
           </h2>
           <p className="text-xl sm:text-2xl text-neutral-600 leading-relaxed max-w-3xl mx-auto">
-            No 3-week proposals, no hourly billing. One price, a fixed timeline,
+            No 3-week proposals, no hourly billing. One price, a fast turnaround,
             and a site you own outright.
           </p>
           <div className="mt-6 inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-blue-50 border border-blue-100 text-base font-semibold text-blue-700">

@@ -162,7 +162,7 @@ export function WhyChooseUs() {
               </div>
             </motion.div>
 
-            {/* Card 3: Right White Card with 7-14 Days Turnaround & Rapid Implementation */}
+            {/* Card 3: Right White Card with Fast Turnaround & Rapid Implementation */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -171,23 +171,23 @@ export function WhyChooseUs() {
               whileHover={{ y: -4 }}
               className="relative rounded-[28px] sm:rounded-[34px] bg-white p-7 sm:p-9 xl:p-10 flex flex-col justify-between overflow-hidden border border-neutral-200/90 shadow-xs hover:shadow-xl transition-all duration-300 min-h-[380px] sm:min-h-[420px]"
             >
-              {/* Top: 7-14 Days Metric & Label */}
+              {/* Top: Speed Metric & Label */}
               <div>
                 <div className="text-5xl sm:text-6xl xl:text-7xl font-bold font-display text-neutral-950 tracking-tight mb-1 whitespace-nowrap">
-                  <AnimatedCounter prefix="7–" target={14} suffix=" Days" duration={1.8} />
+                  Fast.
                 </div>
                 <div className="text-xs sm:text-sm text-neutral-900 font-semibold">
-                  Turnaround to Live Launch
+                  From Kickoff to Live Launch
                 </div>
               </div>
 
               {/* Bottom: Rapid Implementation Title & Description */}
               <div className="mt-8 pt-4">
                 <h3 className="text-2xl sm:text-3xl font-bold font-display text-neutral-950 tracking-tight mb-3">
-                  7&ndash;14 Day Delivery Timeline
+                  Rapid Delivery
                 </h3>
                 <p className="text-[13px] sm:text-sm lg:text-base text-neutral-600 leading-relaxed font-normal">
-                  From first conversation to live launch in days, not months. We stay focused on your project instead of juggling dozens at once, so your new site can start paying for itself immediately.
+                  From first conversation to live launch in a fraction of the time a typical agency takes. We stay focused on your project instead of juggling dozens at once, so your new site can start paying for itself immediately.
                 </p>
               </div>
             </motion.div>
@@ -220,7 +220,7 @@ export function WhyChooseUs() {
                     Dependable Timelines
                   </h3>
                   <p className="text-[13px] sm:text-sm text-neutral-600 leading-relaxed font-normal">
-                    No runaway deadlines or surprise invoices. We give you a clear plan and launch date, then we hit it.
+                    No runaway deadlines or surprise invoices. We give you a clear plan and move fast to get you live.
                   </p>
                 </div>
 

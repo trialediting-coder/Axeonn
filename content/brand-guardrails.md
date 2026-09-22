@@ -6,8 +6,8 @@ factual subset of the fuller internal marketing-context file, which stays
 local-only.
 
 ## Real pricing (never state a different number)
-- Core Web Build: $2,800, one-time, 7 business days.
-- Acquisition Engine: $5,800, one-time, up to 14 days. Includes custom
+- Core Web Build: $2,800, one-time. Our fastest build.
+- Acquisition Engine: $5,800, one-time. Includes custom
   on-site videography (half-day shoot: hero film, 3 vertical cuts, photo set).
 - Custom on-site videography as an add-on to Core Web Build: $1,500.
 - Never mention a monthly plan, care plan, hosting fee, or monthly fee — and
@@ -29,9 +29,9 @@ local-only.
 ## Banned / retired terminology
 - Do not call the $2,800 tier a "sprint" or otherwise use "sprint" as a
   headline value proposition.
-- Do not use "fast" alone as the core value proposition of a post — pair
-  speed claims with something concrete (a real timeline, a real number)
-  or omit them.
+- Never promise a specific build timeline (no "7 days", "14 days", "7–14
+  days", etc.). Describe speed in relative terms instead — "fast turnaround",
+  "a fraction of the time a typical agency takes", "not six months".
 - Never refer to "Operations Retainer" or an "AxeonCORE retainer" — those plans
   are retired. "AxeonCORE" is the platform, not a subscription.
 

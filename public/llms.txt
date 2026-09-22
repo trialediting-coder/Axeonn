@@ -27,10 +27,10 @@ Axeon Studio is a productized web studio and revenue-operations partner. We repl
 - [Lead Generation](https://axeonstudio.co/marketing-solutions/lead-generation): Every lead captured and followed up on automatically in one unified pipeline.
 - [Video & Photography](https://axeonstudio.co/marketing-solutions/video-photography): Professional video and photography for your website, ads, and social profiles.
 - [Why Axeon](https://axeonstudio.co/why-axeon): Direct comparison of a typical agency vs. Axeon Studio across web design, AI receptionist, data infrastructure, SEO/AEO/GEO, and automation.
-- [Pricing](https://axeonstudio.co/pricing): Two flat-rate builds — Core Web Build ($2,800, 7 business days) and Acquisition Engine ($5,800, 14 business days, includes custom on-site videography).
+- [Pricing](https://axeonstudio.co/pricing): Two flat-rate builds — Core Web Build ($2,800) and Acquisition Engine ($5,800, includes custom on-site videography).
 - [Des Moines Web Design](https://axeonstudio.co/des-moines-web-design): Local landing page for the Des Moines metro — service area, in-person meetings, on-site video, and industries served.
 - [Work](https://axeonstudio.co/work): Concept builds and example layouts showing our approach — Axeon Studio is a new studio still building its client portfolio.
-- [Process](https://axeonstudio.co/process): The 7-to-14-day delivery framework used to design, build, and launch every project.
+- [Process](https://axeonstudio.co/process): The fast, fixed-scope delivery framework used to design, build, and launch every project.
 - [FAQ](https://axeonstudio.co/faq): Answers to common questions about pricing, timelines, and how Axeon Studio works.
 - [Our Story](https://axeonstudio.co/about): Founder story and Iowa roots.
 - [Book a Strategy Session](https://axeonstudio.co/book): Direct 1-on-1 scheduling with founder Hayder Hatem.
@@ -49,5 +49,5 @@ Axeon Studio is a productized web studio and revenue-operations partner. We repl
 - Email: hayder.hatem@axeonstudio.co
 - Phone: +1 (515) 493-8017
 - Hours: Monday - Friday, 8:00 AM - 6:00 PM CST
-- Turnaround: 7-14 Business Day delivery timeline (Core Web Build: 7 days, Acquisition Engine: 14 days)
+- Turnaround: fast — builds go live in a fraction of the time a typical agency takes
 - Primary Stack: React, Next.js, TypeScript, Tailwind CSS, a Custom CRM Pipeline, Google Analytics 4

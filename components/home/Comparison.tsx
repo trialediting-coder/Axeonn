@@ -18,7 +18,7 @@ const ROWS: ComparisonRow[] = [
   {
     dimension: 'Timeline',
     typical: 'Weeks to months, scope often expands along the way',
-    axeon: '7–14 day fixed-scope timeline, no surprise invoices',
+    axeon: 'Fixed scope and a fast turnaround — live in a fraction of the usual time, no surprise invoices',
   },
   {
     dimension: 'AI & Automation',

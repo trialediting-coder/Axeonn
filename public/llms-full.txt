@@ -64,14 +64,14 @@ Not currently offered (do not cite as available): Digital Advertising, Local Ser
 
 ## 3. Pricing Tiers
 
-1. **Core Web Build ($2,800, one-time, 7 business day turnaround) — most popular**
+1. **Core Web Build ($2,800, one-time, fastest turnaround) — most popular**
    - Up to 4 custom-designed, mobile-first pages
    - Sub-second load speeds & 100% Core Web Vitals pass
    - SEO, AEO & GEO built in; foundational ADA accessibility standards
    - Instant lead alerts (inbox + phone) and conversion tracking events
    - Client owns 100% of the site, code, and design files
 
-2. **Acquisition Engine ($5,800, one-time, 14 business day turnaround) — everything in Core, plus:**
+2. **Acquisition Engine ($5,800, one-time, fast turnaround) — everything in Core, plus:**
    - Custom on-site videography: a half-day shoot at the client's location — a hero film for the site, 3 vertical cuts for social & ads, and a photo set
    - Complete 5-7 page conversion architecture with conversion-copy hierarchy
    - Built-in Custom CRM Pipeline tailored to the client's lead-to-close workflow (no per-seat software)

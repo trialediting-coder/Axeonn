@@ -8,14 +8,14 @@ export const metadata = buildMetadata({
   path: '/process',
   title: 'Our Process | Axeon Studio',
   description:
-    'The async 7-to-14-day framework we use to design, build, and launch every Axeon Studio project.',
+    'The fast, async framework we use to design, build, and launch every Axeon Studio project.',
 });
 
 export default function ProcessPage() {
   return (
     <main className="pt-24">
       <BreadcrumbJsonLd items={[{ name: 'Process', path: '/process' }]} />
-      <h1 className="sr-only">Our 7–14 Day Website Design Process</h1>
+      <h1 className="sr-only">Our Fast Website Design Process</h1>
       <Process />
       <Testimonials />
       <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
@@ -27,7 +27,7 @@ export default function ProcessPage() {
             Your Business. Your Partner.
           </h2>
           <p className="text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-10">
-            Book a strategy session and we'll map out exactly how your 7-14 day build would run.
+            Book a strategy session and we'll map out exactly how your build would run — and how fast we can get you live.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link

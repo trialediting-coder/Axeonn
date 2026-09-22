@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     path: '/',
     title: 'Web Design & Digital Marketing in Des Moines, IA | Axeon Studio',
     description:
-      'Axeon Studio builds websites, SEO/AEO/GEO, AI scheduling, and lead pipelines for Des Moines-area businesses — flat pricing, live in 7–14 days, one Iowa team you can call.',
+      'Axeon Studio builds websites, SEO/AEO/GEO, AI scheduling, and lead pipelines for Des Moines-area businesses — flat pricing, fast turnaround, one Iowa team you can call.',
   }),
   other: {
     'geo.region': 'US-IA',

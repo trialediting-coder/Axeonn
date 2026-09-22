@@ -12,7 +12,7 @@ export const metadata = buildMetadata({
   path: '/des-moines-web-design',
   title: 'Des Moines Web Design & Marketing Agency | Axeon Studio',
   description:
-    'Web design, SEO/AEO/GEO, AI scheduling, and lead pipelines for Des Moines-area businesses. Based in West Des Moines, flat pricing from $2,800, live in 7–14 days.',
+    'Web design, SEO/AEO/GEO, AI scheduling, and lead pipelines for Des Moines-area businesses. Based in West Des Moines, flat pricing from $2,800, live fast.',
 });
 
 const webDesignServiceJsonLd = serviceJsonLd({
@@ -46,9 +46,9 @@ const LOCAL_REASONS = [
   },
   {
     icon: Handshake,
-    title: 'Flat pricing, fixed timeline',
+    title: 'Flat pricing, fast turnaround',
     description:
-      'Two published builds — $2,800 and $5,800 — with a 7 or 14 business-day turnaround. No proposals, no hourly billing, no surprise invoices. You own the site, the code, and the design files.',
+      'Two published builds — $2,800 and $5,800 — built and launched in a fraction of the time a typical agency takes. No proposals, no hourly billing, no surprise invoices. You own the site, the code, and the design files.',
   },
 ];
 
@@ -66,7 +66,7 @@ const LOCAL_FAQ = [
   {
     question: 'How much does a website cost in Des Moines?',
     answer:
-      'Our pricing is published. The Core Web Build is $2,800 one-time and launches in 7 business days. The Acquisition Engine is $5,800 one-time, launches in 14 business days, and adds a Custom CRM Pipeline, AI chat & online scheduling, automated follow-up, and a half-day on-site video shoot.',
+      'Our pricing is published. The Core Web Build is $2,800 one-time and is our fastest build. The Acquisition Engine is $5,800 one-time and adds a Custom CRM Pipeline, AI chat & online scheduling, automated follow-up, and a half-day on-site video shoot.',
   },
   {
     question: 'Will my business show up when people search on Google or ask ChatGPT?',
@@ -101,7 +101,7 @@ export default function DesMoinesWebDesignPage() {
           <p className="text-lg sm:text-xl text-neutral-300 leading-relaxed max-w-3xl mb-10">
             Axeon Studio builds custom websites, local search visibility, AI scheduling, and lead pipelines for
             businesses across the Des Moines metro — from a studio in West Des Moines, at a flat price, live in
-            7–14 business days.
+            a fraction of the time a typical agency takes.
           </p>
           <div className="flex flex-wrap items-center gap-4">
             <Link

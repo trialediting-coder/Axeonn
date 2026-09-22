@@ -23,7 +23,7 @@ export const metadata = buildMetadata({
   path: '/marketing-solutions/website',
   title: 'Website Design & Development | Axeon Studio',
   description:
-    'Websites that build trust, drive revenue, and make you the clear choice — a brand-driven system built for your industry, shipped in a fixed 7–14 day timeline, not a generic template.',
+    'Websites that build trust, drive revenue, and make you the clear choice — a brand-driven system built for your industry, shipped fast, not a generic template.',
 });
 
 const DIFFERENTIATORS = [
@@ -41,9 +41,9 @@ const DIFFERENTIATORS = [
   },
   {
     icon: Timer,
-    title: 'Fixed 7–14 Day Timeline',
+    title: 'Fast, Fixed-Scope Delivery',
     description:
-      'Flat pricing and a fixed-scope timeline — 7 business days for a Core Web Build, 14 for a full Acquisition Engine. No scope creep, no surprise invoices along the way.',
+      'Flat pricing and a fixed scope, delivered in a fraction of the time a typical agency takes. No scope creep, no surprise invoices along the way.',
   },
   {
     icon: Users,
@@ -66,7 +66,7 @@ const PROCESS_STEPS = [
     step: '02',
     title: 'Design & Build',
     description:
-      'Your site is built on a fixed-scope timeline — 7 business days for a Core Web Build, 14 for an Acquisition Engine — with direct communication with the builder the whole way through.',
+      'Your site is built on a fixed scope and a fast turnaround, with direct communication with the builder the whole way through.',
   },
   {
     icon: Rocket,
@@ -98,7 +98,7 @@ const websiteServiceJsonLd = {
   name: 'Axeon Studio — Website Design & Development',
   url: 'https://axeonstudio.co/marketing-solutions/website',
   description:
-    'Websites that build trust, drive revenue, and make you the clear choice — a brand-driven system built for your industry, shipped in a fixed 7–14 day timeline, not a generic template.',
+    'Websites that build trust, drive revenue, and make you the clear choice — a brand-driven system built for your industry, shipped fast, not a generic template.',
   provider: providerRef,
   areaServed: SERVICE_AREA,
 };
@@ -106,7 +106,7 @@ const websiteServiceJsonLd = {
 const websiteFaqItems = [
   {
     question: 'How long does it take to get a new website?',
-    answer: 'Most builds run 7 business days for the Core Web Build tier or 14 for the Acquisition Engine — a fixed timeline agreed on the strategy call, not an open-ended estimate.',
+    answer: 'Fast. We work from a proven system, so builds go live in a fraction of the time a typical agency takes. We map out your schedule on the strategy call — the biggest factor is how quickly we get your content and brand assets.',
   },
   {
     question: 'Do I own the website once it\'s built?',
@@ -158,7 +158,7 @@ export default function WebsitePage() {
             </h1>
             <p className="text-lg sm:text-xl text-neutral-300 max-w-3xl mx-auto leading-relaxed mb-10">
               Designed to convert, built to grow. Every build is a brand-driven system shipped
-              on a fixed 7–14 day timeline — not a generic template with your logo dropped in.
+              and delivered fast — not a generic template with your logo dropped in.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4 mb-10">
               <Link
@@ -285,10 +285,10 @@ export default function WebsitePage() {
               How It Works
             </p>
             <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-neutral-950 mb-5 leading-[1.14]">
-              From Strategy Call to Launch in 7–14 Days
+              From Strategy Call to Launch, Fast
             </h2>
             <p className="text-base sm:text-lg text-neutral-600 leading-relaxed max-w-2xl mx-auto">
-              A fixed-scope timeline, not an open-ended engagement that drags on for months.
+              A fixed scope and a fast turnaround, not an open-ended engagement that drags on for months.
             </p>
           </div>
 
@@ -344,7 +344,7 @@ export default function WebsitePage() {
             Your Business. Your Partner.
           </h2>
           <p className="text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-10">
-            Book a strategy session and we&apos;ll walk through exactly how a 7–14 day build
+            Book a strategy session and we&apos;ll walk through exactly how a fast, fixed-scope build
             would work for your business — flat pricing, no surprise invoices.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
