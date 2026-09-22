@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Star, Bell, Smartphone, CheckCircle2 } from 'lucide-react';
+import Link from 'next/link';
+import { Star, Bell, Smartphone, CheckCircle2, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AnimatedCounter } from '@/components/common/AnimatedCounter';
 
@@ -308,6 +309,31 @@ export function WhyChooseUs() {
                 </p>
               </div>
             </motion.div>
+          </div>
+        </div>
+      </div>
+      {/* Closing path: this was the last content block before FAQ with no CTA at all */}
+      <div className="max-w-[1720px] 2xl:max-w-[1880px] mx-auto px-6 sm:px-10 lg:px-16 xl:px-24 mt-16 sm:mt-20">
+        <div className="rounded-[28px] bg-neutral-950 text-white p-8 sm:p-12 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div>
+            <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">See what we&apos;d build for your business.</h3>
+            <p className="mt-2 text-neutral-300 text-base sm:text-lg max-w-2xl">
+              A free 20-minute call. You leave with a clear scope and a flat price, whether or not you hire us.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+            <Link
+              href="/book"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-colors"
+            >
+              Book a Free Strategy Call <ArrowRight size={18} />
+            </Link>
+            <a
+              href="tel:+15154938017"
+              className="inline-flex items-center justify-center px-8 py-4 rounded-full border border-white/25 hover:bg-white/10 text-white font-semibold text-base transition-colors"
+            >
+              Call (515) 493-8017
+            </a>
           </div>
         </div>
       </div>

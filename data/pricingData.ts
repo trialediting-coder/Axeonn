@@ -10,6 +10,8 @@ export interface PricingTier {
   /** Rendered as a lead-in above the feature list ("Everything in X, plus:"). */
   inherits?: string;
   features: string[];
+  /** One-line "right for you if…" so the chooser question is answered on the card. */
+  bestFor?: string;
   /** Feature strings that get the highlighted "headline" treatment in the card. */
   highlightFeatures?: string[];
   cta: string;
@@ -42,6 +44,7 @@ export const pricingTiers: PricingTier[] = [
     turnaround: 'Our Fastest Turnaround',
     badge: 'Most Popular',
     featured: true,
+    bestFor: 'Right for you if you need a credible, fast site that makes the phone ring. Most local businesses start here.',
     features: [
       'Up to 4 custom-designed, mobile-first pages built around how your business actually sells',
       'Sub-second load speeds & 100% Core Web Vitals pass',
@@ -61,6 +64,7 @@ export const pricingTiers: PricingTier[] = [
     billingNote: 'Flat-rate build price',
     turnaround: 'Fast Turnaround',
     badge: 'Premium Build',
+    bestFor: 'Right for you if leads already come in and you need them captured, qualified, and followed up automatically, with real footage of your business.',
     inherits: 'Everything in Core Web Build, plus:',
     features: [
       'Custom on-site videography — a half-day shoot at your location: a hero film for your site, 3 vertical cuts for social & ads, and a photo set',

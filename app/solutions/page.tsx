@@ -49,7 +49,7 @@ export default function SolutionsHubPage() {
                 Book a Custom Small Business Strategy Call
               </Link>
               <Link
-                href="/#platform"
+                href="/#axeoncore"
                 className="inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 border border-neutral-200 font-semibold text-sm transition-all"
               >
                 Explore Platform Architecture →

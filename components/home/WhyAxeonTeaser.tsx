@@ -53,13 +53,21 @@ export function WhyAxeonTeaser() {
           ))}
         </div>
 
-        <Link
-          href="/why-axeon"
-          className="group inline-flex items-center gap-3 px-9 py-4.5 sm:px-10 sm:py-5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg font-bold shadow-xl shadow-blue-600/30 transition-all cursor-pointer"
-        >
-          <span>See The Full Comparison</span>
-          <ArrowUpRight size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-        </Link>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-5">
+          <Link
+            href="/book"
+            className="group inline-flex items-center gap-3 px-9 py-4.5 sm:px-10 sm:py-5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg font-bold shadow-xl shadow-blue-600/30 transition-all cursor-pointer"
+          >
+            <span>Book a Free Strategy Call</span>
+            <ArrowUpRight size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+          </Link>
+          <Link
+            href="/why-axeon"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-full border border-blue-700 hover:border-blue-500 hover:bg-blue-950/60 text-blue-100 text-base sm:text-lg font-semibold transition-colors"
+          >
+            See The Full Comparison
+          </Link>
+        </div>
       </motion.div>
     </section>
   );

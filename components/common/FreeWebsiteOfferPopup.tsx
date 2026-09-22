@@ -62,6 +62,9 @@ export function FreeWebsiteOfferPopup() {
 
   useEffect(() => {
     if (!foundingOffer.active || foundingOffer.spotsRemaining <= 0) return;
+    // Never on the pricing page: the "built free" headline would undercut the
+    // $2,800 anchor at the exact decision moment. /book has its own flow.
+    if (window.location.pathname === '/pricing' || window.location.pathname === '/book') return;
     if (readStorage(CLAIMED_KEY) === '1') return; // already on the calendar once
     const dismissedAt = Number(readStorage(DISMISS_KEY));
     if (dismissedAt && Date.now() - dismissedAt < COOLDOWN_MS) return;
@@ -164,7 +167,7 @@ export function FreeWebsiteOfferPopup() {
 
   // /book already has its own dedicated booking flow — don't stack a second
   // lead-capture overlay on top of it.
-  if (pathname === '/book') return null;
+  if (pathname === '/book' || pathname === '/pricing') return null;
 
   const sheet = isMobile === true;
   const spotsLeft = foundingOffer.spotsRemaining;

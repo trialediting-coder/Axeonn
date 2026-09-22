@@ -15,6 +15,8 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({
 }) => {
   const [iframeLoaded, setIframeLoaded] = useState(false);
   const [shouldLoad, setShouldLoad] = useState(false);
+  // True when the embed never came up (ad blocker, privacy extension, offline).
+  const [failed, setFailed] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Lazy-mount iframe and script only when scrolled within viewport
@@ -52,9 +54,18 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({
       script.src = scriptSrc;
       script.type = 'text/javascript';
       script.async = true;
+      script.onerror = () => setFailed(true);
       document.body.appendChild(script);
     }
   }, [shouldLoad]);
+
+  // If the calendar hasn't loaded within a few seconds, stop pretending and
+  // show a real way to reach us. A blocked iframe used to spin forever.
+  useEffect(() => {
+    if (!shouldLoad || iframeLoaded) return;
+    const timer = window.setTimeout(() => setFailed(true), 9000);
+    return () => window.clearTimeout(timer);
+  }, [shouldLoad, iframeLoaded]);
 
   const isLight = theme === 'light';
 
@@ -68,7 +79,7 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({
       } p-1 sm:p-2.5 ${className}`}
     >
       {/* Minimal CSS pulse skeleton that hides once the iframe mounts/loads */}
-      {!iframeLoaded && (
+      {!iframeLoaded && !failed && (
         <div
           aria-hidden="true"
           className={`absolute inset-0 z-10 m-1 sm:m-2.5 rounded-xl flex flex-col p-4 sm:p-6 animate-pulse space-y-4 pointer-events-none ${
@@ -159,6 +170,39 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({
               Loading real-time calendar...
             </span>
             <span>AxeonStudio</span>
+          </div>
+        </div>
+      )}
+
+      {/* Fallback when the embed is blocked or down */}
+      {failed && !iframeLoaded && (
+        <div
+          role="status"
+          className={`absolute inset-0 z-20 m-1 sm:m-2.5 rounded-xl flex flex-col items-center justify-center text-center p-6 sm:p-8 ${
+            isLight ? 'bg-white' : 'bg-zinc-950'
+          }`}
+        >
+          <p className={`text-lg sm:text-xl font-bold ${isLight ? 'text-neutral-950' : 'text-white'}`}>
+            The calendar didn&apos;t load.
+          </p>
+          <p className={`mt-2 text-sm sm:text-base max-w-sm ${isLight ? 'text-neutral-600' : 'text-zinc-300'}`}>
+            Ad blockers and some privacy settings block booking widgets. Reach us directly instead &mdash; same free call.
+          </p>
+          <div className="mt-6 flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <a
+              href="tel:+15154938017"
+              className="inline-flex items-center justify-center px-6 py-3.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-colors"
+            >
+              Call (515) 493-8017
+            </a>
+            <a
+              href="mailto:hello@axeonstudio.co?subject=Strategy%20call"
+              className={`inline-flex items-center justify-center px-6 py-3.5 rounded-full border font-semibold text-base transition-colors ${
+                isLight ? 'border-neutral-300 text-neutral-900 hover:bg-neutral-50' : 'border-zinc-700 text-white hover:bg-zinc-900'
+              }`}
+            >
+              Email hello@axeonstudio.co
+            </a>
           </div>
         </div>
       )}

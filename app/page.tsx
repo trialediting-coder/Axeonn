@@ -18,12 +18,12 @@ export default function HomePage() {
   return (
     <main>
       <Hero />
-      <Platform />
-      <PlatformShowcase />
       <WhoWeHelp />
-      <Comparison />
-      <WhyAxeonTeaser />
+      <PlatformShowcase />
       <PricingSection />
+      <Comparison />
+      <Platform />
+      <WhyAxeonTeaser />
       <WhyChooseUs />
       <FAQ />
       <Contact />

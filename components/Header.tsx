@@ -136,7 +136,7 @@ export function Header() {
     setMobileMenuOpen(false);
     if (!isHomePage) return;
     e.preventDefault();
-    const el = document.getElementById('platform');
+    const el = document.getElementById('axeoncore');
     const lenis = (window as any).__lenis;
     if (lenis && el) lenis.scrollTo(el, { offset: -70, duration: 1.2 });
     else el?.scrollIntoView({ behavior: 'smooth' });
@@ -208,7 +208,7 @@ export function Header() {
                     Why Axeon
                   </Link>
                   <Link
-                    href="/#platform"
+                    href="/#axeoncore"
                     onClick={(e) => {
                       setAboutOpen(false);
                       scrollToPlatform(e);
@@ -397,7 +397,7 @@ export function Header() {
                         href={item.href}
                         onClick={(e) => {
                           setMarketingOpen(false);
-                          if (item.href === '/#platform') scrollToPlatform(e);
+                          if (item.href === '/#axeoncore') scrollToPlatform(e);
                         }}
                         className="group flex flex-col justify-start p-3.5 sm:p-4 rounded-xl hover:bg-neutral-50 transition-colors border border-transparent hover:border-neutral-200/60 text-left"
                       >
@@ -425,7 +425,7 @@ export function Header() {
         <div className="hidden md:flex items-center gap-5">
           <a
             href="tel:+15154938017"
-            className={`hidden lg:inline-block text-[15px] font-semibold whitespace-nowrap transition-colors ${
+            className={`hidden md:inline-block text-[15px] font-semibold whitespace-nowrap transition-colors ${
               onDarkHero ? 'text-white hover:text-blue-400' : 'text-neutral-700 hover:text-neutral-950'
             }`}
           >
@@ -491,7 +491,7 @@ export function Header() {
                     Why Axeon
                   </Link>
                   <Link
-                    href="/#platform"
+                    href="/#axeoncore"
                     onClick={scrollToPlatform}
                     className="px-3 py-2.5 rounded-xl active:bg-neutral-100 text-sm text-neutral-600"
                   >
@@ -569,7 +569,7 @@ export function Header() {
                       href={item.href}
                       onClick={(e) => {
                         setMobileMenuOpen(false);
-                        if (item.href === '/#platform') scrollToPlatform(e);
+                        if (item.href === '/#axeoncore') scrollToPlatform(e);
                       }}
                       className="px-3 py-2.5 rounded-xl active:bg-neutral-100 transition-colors block text-left"
                     >

@@ -4,12 +4,14 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useLeadModal } from '@/components/common/LeadModalProvider';
 
 export interface PlatformProps {
   onBookCall?: () => void;
 }
 
 export function Platform({ onBookCall }: PlatformProps) {
+  const { open: openLeadModal } = useLeadModal();
   return (
     <section
       id="platform"
@@ -34,14 +36,22 @@ export function Platform({ onBookCall }: PlatformProps) {
               We are a lean digital team based right here in Iowa. We build websites that turn visitors into paying customers and set up automated follow-ups so you never lose a lead to slow response times.
             </p>
 
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+              <button
+                type="button"
+                id="platform-book-cta"
+                onClick={() => (onBookCall ? onBookCall() : openLeadModal('platform'))}
+                className="inline-flex items-center justify-center gap-3 px-9 py-4.5 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white font-semibold text-base sm:text-lg tracking-tight transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer group"
+              >
+                <span>Book a Free Strategy Call</span>
+                <ArrowRight size={20} className="text-blue-500 group-hover:translate-x-1 group-hover:text-blue-400 transition-all" />
+              </button>
               <Link
                 id="who-we-are-cta-btn"
                 href="/about"
-                className="inline-flex items-center gap-3 px-9 py-4.5 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white font-semibold text-base sm:text-lg tracking-tight transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer group"
+                className="inline-flex items-center gap-1.5 text-base sm:text-lg font-semibold text-neutral-700 hover:text-blue-600 transition-colors"
               >
-                <span>Get to know us</span>
-                <ArrowRight size={20} className="text-blue-500 group-hover:translate-x-1 group-hover:text-blue-400 transition-all" />
+                Get to know us <ArrowRight size={18} />
               </Link>
             </div>
           </motion.div>

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowRight, CheckCircle2, Clock, ShieldCheck } from 'lucide-react';
 
@@ -390,18 +391,14 @@ export function Process() {
                               </div>
                             </div>
 
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const el = document.getElementById('contact-section');
-                                if (el) el.scrollIntoView({ behavior: 'smooth' });
-                              }}
+                            <Link
+                              href="/book"
+                              onClick={(e) => e.stopPropagation()}
                               className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors"
                             >
                               <span>Discuss {step.title}</span>
                               <ArrowRight size={13} />
-                            </button>
+                            </Link>
                           </div>
                         </div>
                       </motion.div>

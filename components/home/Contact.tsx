@@ -193,11 +193,6 @@ export function Contact({ onBookAudit }: ContactProps) {
     mouseRef.current.active = false;
   };
 
-  const handleStartProjectClick = () => {
-    const el = document.getElementById('contact-card-container');
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  };
-
   return (
     <section
       ref={containerRef}
@@ -289,6 +284,14 @@ export function Contact({ onBookAudit }: ContactProps) {
                 </span>
               </div>
 
+              {/* On phones the calendar is two screens tall; give callers the fast path first */}
+              <a
+                href="tel:+15154938017"
+                className="sm:hidden flex items-center justify-center gap-2 w-full py-3.5 rounded-full border border-neutral-300 text-neutral-900 font-semibold text-base active:bg-neutral-50"
+              >
+                Prefer to call? (515) 493-8017
+              </a>
+
               {/* Real-time booking calendar embed */}
               <div className="rounded-2xl border border-neutral-200/80 bg-white overflow-hidden shadow-2xs">
                 <BookingCalendar theme="light" minHeight="720px" />
@@ -345,14 +348,13 @@ export function Contact({ onBookAudit }: ContactProps) {
 
             {/* Book a Strategy Call Pill Button */}
             <div className="mt-10">
-              <button
-                type="button"
-                onClick={handleStartProjectClick}
+              <a
+                href="tel:+15154938017"
                 className="inline-flex items-center gap-3 px-9 py-4.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base sm:text-lg transition-all cursor-pointer shadow-xl hover:shadow-blue-500/25 hover:scale-[1.03] active:scale-[0.98]"
               >
-                <span>Book a Strategy Call</span>
+                <span>Call (515) 493-8017</span>
                 <ArrowRight size={20} />
-              </button>
+              </a>
             </div>
           </motion.div>
         </div>

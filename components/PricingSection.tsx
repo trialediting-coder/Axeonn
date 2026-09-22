@@ -71,8 +71,8 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
                 whileHover={{ y: -6 }}
                 className={`relative rounded-[32px] p-8 sm:p-10 lg:p-12 flex flex-col ${
                   isDark
-                    ? 'bg-neutral-950 text-white border border-neutral-800 shadow-2xl'
-                    : 'bg-white text-neutral-950 border-2 border-blue-600 shadow-xl shadow-blue-600/10'
+                    ? 'bg-neutral-950 text-white border border-neutral-800 shadow-lg'
+                    : 'bg-white text-neutral-950 border-2 border-blue-600 shadow-2xl shadow-blue-600/20 ring-8 ring-blue-600/10 lg:scale-[1.03] z-10'
                 }`}
               >
                 {tier.badge && (
@@ -97,6 +97,15 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
                 >
                   {tier.focus}
                 </p>
+                {tier.bestFor && (
+                  <p
+                    className={`text-sm sm:text-base leading-relaxed mb-5 rounded-xl px-4 py-3 ${
+                      isDark ? 'bg-white/5 text-neutral-200' : 'bg-blue-50 text-blue-900'
+                    }`}
+                  >
+                    {tier.bestFor}
+                  </p>
+                )}
                 <p
                   className={`text-base sm:text-lg mb-6 leading-relaxed ${
                     isDark ? 'text-neutral-300' : 'text-neutral-500'
@@ -166,7 +175,7 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
                 )}
 
                 <Link
-                  href="/book"
+                  href={`/book?tier=${tier.id}`}
                   className={`text-center py-4 sm:py-4.5 rounded-full font-bold text-base sm:text-lg transition-colors shadow-sm ${
                     isDark
                       ? 'bg-white hover:bg-neutral-200 text-neutral-950'
@@ -175,6 +184,12 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
                 >
                   {tier.cta}
                 </Link>
+                <p className={`mt-3 text-center text-xs sm:text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
+                  Free 20-minute call, no obligation.{' '}
+                  <a href="tel:+15154938017" className="font-semibold underline underline-offset-2">
+                    Or call (515) 493-8017
+                  </a>
+                </p>
               </motion.div>
             );
           })}

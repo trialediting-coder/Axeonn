@@ -64,6 +64,16 @@ export function LeadModalProvider({ children }: { children: ReactNode }) {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, close]);
 
+  // Lock page scroll behind the dialog so the calendar scrolls, not the page.
+  useEffect(() => {
+    if (!isOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [isOpen]);
+
   // Move focus into the dialog on open, and back to the trigger on close.
   useEffect(() => {
     if (isOpen) {
@@ -116,7 +126,7 @@ export function LeadModalProvider({ children }: { children: ReactNode }) {
               exit={{ opacity: 0, y: 24, scale: 0.98 }}
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
               data-lenis-prevent
-              className="relative w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-3xl bg-white p-4 sm:p-6"
+              className="relative w-full max-w-2xl max-h-[92dvh] flex flex-col rounded-3xl bg-white overflow-hidden"
               onClick={(e) => e.stopPropagation()}
               onKeyDown={handleDialogKeyDown}
               ref={dialogRef}
@@ -124,16 +134,39 @@ export function LeadModalProvider({ children }: { children: ReactNode }) {
               aria-modal="true"
               aria-label="Book a strategy session"
             >
-              <button
-                ref={closeButtonRef}
-                type="button"
-                onClick={close}
-                aria-label="Close"
-                className="absolute top-4 right-4 z-10 p-3 sm:p-2 rounded-full bg-neutral-100 hover:bg-neutral-200 transition-colors cursor-pointer"
-              >
-                <X size={18} />
-              </button>
-              <BookingCalendar theme="light" minHeight="600px" />
+              <div className="flex items-start justify-between gap-4 px-5 sm:px-7 pt-5 sm:pt-6 pb-4 border-b border-neutral-100">
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-neutral-950">
+                    Book a free strategy call
+                  </h2>
+                  <p className="mt-1 text-sm sm:text-[15px] text-neutral-600 leading-snug">
+                    20&ndash;30 minutes on Google Meet or Zoom. No pitch deck &mdash; we look at your business and tell you exactly what we&apos;d build and what it costs.
+                  </p>
+                </div>
+                <button
+                  ref={closeButtonRef}
+                  type="button"
+                  onClick={close}
+                  aria-label="Close"
+                  className="shrink-0 p-3 sm:p-2 rounded-full bg-neutral-100 hover:bg-neutral-200 transition-colors cursor-pointer"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto overscroll-contain p-3 sm:p-5">
+                <BookingCalendar theme="light" minHeight="620px" />
+              </div>
+              <div className="px-5 sm:px-7 py-3 border-t border-neutral-100 text-center text-xs sm:text-sm text-neutral-500">
+                Rather talk now?{' '}
+                <a href="tel:+15154938017" className="font-semibold text-blue-600 hover:underline">
+                  Call (515) 493-8017
+                </a>{' '}
+                or{' '}
+                <a href="mailto:hello@axeonstudio.co" className="font-semibold text-blue-600 hover:underline">
+                  email us
+                </a>
+                .
+              </div>
             </motion.div>
           </motion.div>
         )}
