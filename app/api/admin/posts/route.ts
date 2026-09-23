@@ -5,6 +5,7 @@ import { createPost, listPosts, slugify, type PostInput } from '@/lib/posts';
 import { validatePost } from '@/lib/postValidation';
 import { critiquePost } from '@/lib/anthropic';
 import { requireAdmin } from '@/lib/adminAuth';
+import { ensureSchema } from '@/lib/db';
 
 export async function GET(req: Request) {
   if (!(await requireAdmin(req))) {
@@ -19,6 +20,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  await ensureSchema();
   const body = (await req.json()) as PostInput;
   const slug = body.slug || slugify(body.title);
 
