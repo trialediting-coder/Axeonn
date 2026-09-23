@@ -140,7 +140,7 @@ function AICard() {
       <div className="p-8 sm:p-10 lg:p-12 bg-gradient-to-t from-[#080c14] via-[#080c14]/95 to-transparent z-10">
         <h3 className="text-3xl sm:text-4xl font-bold text-white mb-3 tracking-tight">AI</h3>
         <p className="text-base sm:text-lg lg:text-xl text-neutral-400 leading-relaxed">
-          Integrate AI workflows and automation directly into your business.
+          The technology layer at work: an AI receptionist that answers, books, and follows up for you around the clock.
         </p>
       </div>
     </div>
