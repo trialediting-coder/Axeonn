@@ -24,6 +24,9 @@ export function PostEditor({ initialPost }: PostEditorProps) {
   const [coverImageUrl, setCoverImageUrl] = useState(initialPost?.coverImageUrl ?? '');
   const [coverImageAlt, setCoverImageAlt] = useState(initialPost?.coverImageAlt ?? '');
   const [faqItems, setFaqItems] = useState<{ question: string; answer: string }[]>(initialPost?.faqItems ?? []);
+  const [sources, setSources] = useState<{ claim: string; url: string }[]>(initialPost?.sources ?? []);
+  const updateSource = (i: number, key: 'claim' | 'url', value: string) =>
+    setSources((prev) => prev.map((row, j) => (j === i ? { ...row, [key]: value } : row)));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,7 +59,7 @@ export function PostEditor({ initialPost }: PostEditorProps) {
       coverImageUrl: coverImageUrl || null,
       coverImageAlt: coverImageAlt || null,
       faqItems: faqItems.filter((item) => item.question.trim() && item.answer.trim()),
-      sources: initialPost?.sources ?? [],
+      sources: sources.filter((row) => row.claim.trim() && row.url.trim()),
       scheduledPublishAt,
       publishedAt: status === 'published' ? new Date().toISOString() : (initialPost?.publishedAt ?? null),
     };
@@ -212,6 +215,45 @@ export function PostEditor({ initialPost }: PostEditorProps) {
                   onChange={(e) => updateFaqItem(i, 'answer', e.target.value)}
                   placeholder="Answer"
                   rows={2}
+                  className="w-full px-3 py-2 rounded-lg border border-neutral-300 text-sm"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-sm font-medium text-neutral-700">Sources (one per statistic or claim)</label>
+            <button
+              type="button"
+              onClick={() => setSources((prev) => [...prev, { claim: '', url: '' }])}
+              className="text-xs font-semibold text-blue-600 hover:underline cursor-pointer"
+            >
+              + Add source
+            </button>
+          </div>
+          <div className="flex flex-col gap-3">
+            {sources.map((row, i) => (
+              <div key={i} className="border border-neutral-200 rounded-lg p-3 flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    value={row.claim}
+                    onChange={(e) => updateSource(i, 'claim', e.target.value)}
+                    placeholder="Claim this source backs up"
+                    className="flex-1 px-3 py-2 rounded-lg border border-neutral-300 text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setSources((prev) => prev.filter((_, j) => j !== i))}
+                    className="text-xs text-red-600 hover:underline cursor-pointer shrink-0"
+                  >
+                    Remove
+                  </button>
+                </div>
+                <input
+                  value={row.url}
+                  onChange={(e) => updateSource(i, 'url', e.target.value)}
+                  placeholder="https://..."
                   className="w-full px-3 py-2 rounded-lg border border-neutral-300 text-sm"
                 />
               </div>

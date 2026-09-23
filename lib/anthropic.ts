@@ -149,6 +149,13 @@ Research a real, specific, current topic relevant to one of Axeon's niches or se
 }
 
 export async function critiquePost(post: GeneratedPost): Promise<{ passed: boolean; reasons: string[] }> {
+  // Without a key there is nothing to call. Human-authored posts from the
+  // admin still pass the structural validator; only the AI second opinion is
+  // skipped, and the reasons say so, so the log is honest about it.
+  if (!process.env.ANTHROPIC_API_KEY) {
+    console.warn('critiquePost: ANTHROPIC_API_KEY not set — skipping compliance critique, structural validation only.');
+    return { passed: true, reasons: ['Compliance critique skipped: ANTHROPIC_API_KEY is not set.'] };
+  }
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const guardrails = loadGuardrails();
 
