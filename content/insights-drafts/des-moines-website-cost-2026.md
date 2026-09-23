@@ -2,13 +2,13 @@
 
 If you run a business in the Des Moines metro and you've asked three web designers for a quote, you probably have three numbers that don't look anything alike. One said $900. One said $12,000. One wanted a "discovery call" before saying anything at all.
 
-This guide explains why the numbers are so far apart, what a local business actually needs to pay for, and what a website costs when the price is published instead of negotiated. We build websites for Iowa businesses, and our own prices are in here too, so you can compare us against the market directly.
+This guide explains what a website costs in Des Moines in 2026, why the quotes are so far apart, what a local business actually needs to pay for, and what the price looks like when it is published instead of negotiated. We build websites for Des Moines and Iowa businesses from [West Des Moines](/des-moines-web-design), and our own prices are in here too, so you can compare us against the market directly.
 
 ## The short answer
 
-For a professional custom website for a small business, most builds in 2026 land somewhere between $3,000 and $15,000, according to the small-business website cost breakdown published by Elementor. Freelancers tend to sit at the low end of that range, agencies at the high end, and template-based DIY builders below it entirely.
+For a professional custom website for a small business, most builds in 2026 land somewhere between $3,000 and $15,000, according to the [small-business website cost breakdown published by Elementor](https://elementor.com/blog/how-much-does-a-small-business-website-cost/). Freelancers tend to sit at the low end of that range, agencies at the high end, and template-based DIY builders below it entirely.
 
-In Des Moines the spread is the same. The price you're quoted has less to do with your business and more to do with who is building it, how they bill, and how much of the work is design versus systems that actually produce phone calls.
+The Des Moines web design cost spread is the same. The price you're quoted has less to do with your business and more to do with who is building it, how they bill, and how much of the work is design versus systems that actually produce phone calls.
 
 Our published pricing for comparison:
 
@@ -31,7 +31,7 @@ The cost breakdown from Elementor puts freelancer builds for a basic five-to-eig
 
 ### 2. Template or custom
 
-A template with your logo dropped in is cheap to produce and looks like every other template. A custom design is built around how your specific business earns money: what a roofing company needs on its homepage is not what a dental practice needs, and neither looks like a law firm.
+A template with your logo dropped in is cheap to produce and looks like every other template. A custom design is built around how your specific business earns money: what a [roofing company](/solutions/roofing) needs on its homepage is not what a [dental practice](/solutions/dental) needs, and neither looks like a [law firm](/solutions/law-firms).
 
 Custom does not have to mean expensive. It means the layout, the copy hierarchy, and the calls to action were decided for your business instead of inherited from a theme.
 
@@ -51,11 +51,11 @@ We publish flat prices because we would rather lose a project on price than win 
 
 Before you spend anything, be clear on the job the site has to do. For most local businesses in the metro, it is three things.
 
-**Get found locally.** Backlinko's compilation of local SEO statistics reports that 46 percent of Google searches have local intent, and that 76 percent of people who search for something "near me" visit a business within a day. If your site is not built to show up for "HVAC repair West Des Moines" or "dentist Ankeny," the design does not matter, because nobody sees it.
+**Get found locally.** [Backlinko's compilation of local SEO statistics](https://backlinko.com/local-seo-stats) reports that 46 percent of Google searches have local intent, and that 76 percent of people who search for something "near me" visit a business within a day. If your site is not built to show up for "HVAC repair West Des Moines" or "dentist Ankeny," the design does not matter, because nobody sees it. That is what [SEO, AEO and GEO built into the site](/marketing-solutions/seo) is for, and why we include it in every build rather than selling it separately.
 
-**Load fast on a phone.** Google's own research, published in its AdSense documentation, found that 53 percent of mobile visits are abandoned when a page takes longer than three seconds to load. Most of your visitors are on a phone, standing in a driveway or a waiting room. A slow site is an invisible site.
+**Load fast on a phone.** Google's own research, [published in its AdSense documentation](https://support.google.com/adsense/answer/7450973), found that 53 percent of mobile visits are abandoned when a page takes longer than three seconds to load. Most of your visitors are on a phone, standing in a driveway or a waiting room. A slow site is an invisible site.
 
-**Look credible next to your reviews.** BrightLocal's 2025 Local Consumer Review Survey found that 71 percent of consumers read online reviews regularly when browsing local businesses. Your reviews get them to your site. The site has to confirm what the reviews promised in the first few seconds.
+**Look credible next to your reviews.** [BrightLocal's 2025 Local Consumer Review Survey](https://www.brightlocal.com/research/local-consumer-review-survey-2025/) found that 71 percent of consumers read online reviews regularly when browsing local businesses. Your reviews get them to your site. The site has to confirm what the reviews promised in the first few seconds.
 
 Everything else is nice to have. A site that does those three things and puts a phone number and a booking button where a thumb can reach them will outperform a prettier site that does not.
 
@@ -82,6 +82,6 @@ Take these into any conversation with any web designer in Iowa, including us.
 
 ## The bottom line
 
-A website for a Des Moines business should cost what it costs to build a fast, custom, locally findable site with the systems behind it to turn visitors into booked work. In 2026 that is a few thousand dollars from a direct builder and several times that from a traditional agency, for a result that is often the same or worse.
+The website cost a Des Moines business should expect is whatever it costs to build a fast, custom, locally findable site with the systems behind it to turn visitors into booked work. In 2026 that is a few thousand dollars from a direct builder and several times that from a traditional agency, for a result that is often the same or worse.
 
 If you want to see exactly how the two builds compare, the [pricing page](/pricing) lays out every line item. If you want a number for your specific business, [book a free strategy call](/book). You leave with a clear scope and a flat price, whether or not you hire us.
