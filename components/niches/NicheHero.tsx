@@ -33,9 +33,11 @@ export function NicheHero({ niche }: { niche: Niche }) {
         </p>
 
         {/* Price anchor: the #1 objection, answered before the first scroll */}
-        <p className="inline-flex items-center gap-2 rounded-full bg-white/[0.07] border border-white/15 px-4 py-2 text-sm sm:text-base text-neutral-200 mb-8">
+        <p className="inline-flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 rounded-2xl sm:rounded-full bg-white/[0.07] border border-white/15 px-4 py-2 text-sm sm:text-base text-neutral-200 mb-8">
           <span className="font-bold text-white">Flat-rate builds from {corePrice}</span>
-          <span className="text-neutral-400">&middot; published pricing, no proposals</span>
+          <span className="text-neutral-400">
+            <span className="hidden sm:inline">&middot; </span>published pricing, no proposals
+          </span>
         </p>
 
         {/* One primary action, one fast path, one text link */}

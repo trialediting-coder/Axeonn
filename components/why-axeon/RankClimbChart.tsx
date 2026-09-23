@@ -33,7 +33,7 @@ export function RankClimbChart() {
       <div className="text-center text-[11px] font-mono uppercase tracking-wide text-neutral-400 mb-2">
         Google Search Ranking For Your Business
       </div>
-      <div className="relative">
+      <div className="relative overflow-hidden">
         <svg viewBox="0 0 300 150" className="w-full h-auto">
           <line x1="20" y1="20" x2="280" y2="20" stroke="#404040" strokeDasharray="3 4" strokeWidth="1" />
           <line x1="20" y1="118" x2="280" y2="118" stroke="#404040" strokeDasharray="3 4" strokeWidth="1" />
@@ -95,7 +95,7 @@ export function RankClimbChart() {
 
         <motion.div
           className="absolute flex items-center gap-1 px-2 py-1 rounded-full bg-blue-600 text-white text-[10px] font-bold shadow-md whitespace-nowrap"
-          style={{ left: `${(axeonEndX / 300) * 100}%`, top: `${(axeonEndY / 150) * 100}%`, transform: 'translate(-88%, -160%)' }}
+          style={{ left: `${(axeonEndX / 300) * 100}%`, top: `${(axeonEndY / 150) * 100}%`, transform: 'translate(-100%, -160%)' }}
           initial={{ opacity: 0, y: 6 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}

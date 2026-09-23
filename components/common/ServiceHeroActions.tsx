@@ -21,9 +21,14 @@ export function ServiceHeroActions({
 }: ServiceHeroActionsProps) {
   return (
     <div className="mb-10">
-      <p className="inline-flex flex-wrap items-center justify-center gap-x-2 rounded-full bg-white/[0.07] border border-white/15 px-4 py-2 text-sm sm:text-base text-neutral-200 mb-6">
+      <p className="inline-flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2 rounded-2xl sm:rounded-full bg-white/[0.07] border border-white/15 px-4 py-2 text-sm sm:text-base text-neutral-200 mb-6">
         <span className="font-bold text-white">{priceLine}</span>
-        {note && <span className="text-neutral-400">&middot; {note}</span>}
+        {note && (
+          <span className="text-neutral-400">
+            <span className="hidden sm:inline">&middot; </span>
+            {note}
+          </span>
+        )}
       </p>
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4">
         <Link
