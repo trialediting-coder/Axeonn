@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ServiceHeroActions } from '@/components/common/ServiceHeroActions';
 import { ArrowLeft, ArrowRight, Camera, Clapperboard, MonitorPlay, Sparkles } from 'lucide-react';
 import { buildMetadata } from '@/lib/metadata';
 import { providerRef, SERVICE_AREA } from '@/lib/seo';
@@ -126,20 +127,7 @@ export default function VideoPhotographyPage() {
             story — designed to work alongside your website, ads, and social presence, not sit
             separately from them.
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-4 mb-10">
-            <Link
-              href="/book"
-              className="px-7 py-3.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-colors"
-            >
-              Book a Strategy Call
-            </Link>
-            <Link
-              href="/pricing"
-              className="px-7 py-3.5 rounded-full border border-neutral-700 hover:border-neutral-500 text-white font-semibold text-sm transition-colors"
-            >
-              View Pricing
-            </Link>
-          </div>
+          <ServiceHeroActions priceLine="Included in AxeonCORE, or $1,500 added to a Core build" note="half-day on-site shoot" />
           <div className="flex justify-center">
             <TrustBadges variant="dark" />
           </div>

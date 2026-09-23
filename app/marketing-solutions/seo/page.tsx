@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ServiceHeroActions } from '@/components/common/ServiceHeroActions';
 import { ArrowLeft, Search, Sparkles, Cpu } from 'lucide-react';
 import { buildMetadata } from '@/lib/metadata';
 import { serviceJsonLd } from '@/lib/seo';
@@ -118,20 +119,7 @@ export default function SeoMarketingSolutionPage() {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 mb-10">
-            <Link
-              href="/book"
-              className="px-7 py-3.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-colors"
-            >
-              Book a Strategy Call
-            </Link>
-            <Link
-              href="/pricing"
-              className="px-7 py-3.5 rounded-full border border-neutral-700 hover:border-neutral-500 text-white font-semibold text-sm transition-colors"
-            >
-              View Pricing
-            </Link>
-          </div>
+          <ServiceHeroActions priceLine="SEO, AEO & GEO built into every site from $2,800" note="built in, not bolted on" />
 
           <div className="flex justify-center">
             <TrustBadges variant="dark" />

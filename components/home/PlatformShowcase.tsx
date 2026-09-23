@@ -27,13 +27,12 @@ function RevenueEngineVisual() {
         }}
       />
 
-      <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] min-h-[580px] sm:min-h-[720px] lg:min-h-[860px] xl:min-h-[960px] flex items-center justify-center overflow-hidden">
+      <div className="relative w-full aspect-[4/3] sm:aspect-[16/9] min-h-[360px] sm:min-h-[480px] lg:min-h-[600px] xl:min-h-[680px] flex items-center justify-center overflow-hidden">
         {/* Multi-Device Platform Showcase Image */}
         <Image
           src="/Hero-min.jpg"
           alt="AxeonCORE Multi-Device Platform Showcase"
           fill
-          priority
           sizes="(max-width: 768px) 100vw, (max-width: 1400px) 95vw, 1720px"
           className="object-cover object-center"
           referrerPolicy="no-referrer"
@@ -59,7 +58,7 @@ function RevenueEngineVisual() {
 // Card 1: Technology (Scaled 1.5x)
 function TechnologyCard() {
   return (
-    <div className="relative rounded-[32px] bg-[#080c14] border border-neutral-800/90 overflow-hidden flex flex-col justify-end shadow-2xl min-h-[420px] sm:min-h-[520px] lg:min-h-[760px] group transition-all duration-300 hover:border-neutral-700">
+    <div className="relative rounded-[32px] bg-[#080c14] border border-neutral-800/90 overflow-hidden flex flex-col justify-end shadow-2xl min-h-[360px] sm:min-h-[440px] lg:min-h-[560px] group transition-all duration-300 hover:border-neutral-700">
       {/* Visual Content: dashboard screenshot has real text/data near every edge,
           so it's shown uncropped (object-contain) instead of edge-to-edge cover —
           cover was cutting off dashboard labels and numbers. */}
@@ -70,7 +69,6 @@ function TechnologyCard() {
           fill
           sizes="(max-width: 768px) 100vw, 33vw"
           className="object-contain object-center p-4 group-hover:scale-105 transition-transform duration-700"
-          priority
           referrerPolicy="no-referrer"
         />
         {/* Gradient overlay so bottom text is clear and readable */}
@@ -93,7 +91,7 @@ function TechnologyCard() {
 // Card 2: Marketing (Scaled 1.5x)
 function MarketingCard() {
   return (
-    <div className="relative rounded-[32px] bg-[#080c14] border border-neutral-800/90 overflow-hidden flex flex-col justify-end shadow-2xl min-h-[420px] sm:min-h-[520px] lg:min-h-[760px] group transition-all duration-300 hover:border-neutral-700">
+    <div className="relative rounded-[32px] bg-[#080c14] border border-neutral-800/90 overflow-hidden flex flex-col justify-end shadow-2xl min-h-[360px] sm:min-h-[440px] lg:min-h-[560px] group transition-all duration-300 hover:border-neutral-700">
       {/* TEMPORARY placeholder image — replace before launch, see public/temp-scorpion-refs.
           Pre-cropped to a portrait composition (see marketing-card.webp) so object-cover
           fills the card edge-to-edge without cutting off the SERP results content. */}
@@ -104,7 +102,6 @@ function MarketingCard() {
           fill
           sizes="(max-width: 768px) 100vw, 33vw"
           className="object-cover object-top group-hover:scale-105 transition-transform duration-700"
-          priority
         />
         {/* Gradient overlay so bottom text is clear and readable */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#080c14] via-[#080c14]/40 to-transparent pointer-events-none" />
@@ -124,7 +121,7 @@ function MarketingCard() {
 // Card 3: AI (Scaled 1.5x)
 function AICard() {
   return (
-    <div className="relative rounded-[32px] bg-[#080c14] border border-neutral-800/90 overflow-hidden flex flex-col justify-between shadow-2xl min-h-[420px] sm:min-h-[520px] lg:min-h-[760px] group transition-all duration-300 hover:border-neutral-700">
+    <div className="relative rounded-[32px] bg-[#080c14] border border-neutral-800/90 overflow-hidden flex flex-col justify-between shadow-2xl min-h-[360px] sm:min-h-[440px] lg:min-h-[560px] group transition-all duration-300 hover:border-neutral-700">
       {/* Visual Content: the signature Axeon orb — press play to hear the real AI receptionist */}
       <div className="relative flex-1 p-6 sm:p-10 overflow-hidden bg-gradient-to-b from-[#0e1628]/60 to-transparent flex flex-col items-center justify-center">
         <div className="absolute inset-0 bg-radial from-blue-600/10 via-transparent to-transparent pointer-events-none" />

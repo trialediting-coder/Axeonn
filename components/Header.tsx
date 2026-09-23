@@ -90,6 +90,19 @@ export function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Escape closes whichever desktop panel is open.
+  useEffect(() => {
+    if (!aboutOpen && !solutionsOpen && !marketingOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      setAboutOpen(false);
+      setSolutionsOpen(false);
+      setMarketingOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [aboutOpen, solutionsOpen, marketingOpen]);
+
   // Any navigation closes the phone menu (covers back/forward and hash links).
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -150,7 +163,7 @@ export function Header() {
           : 'bg-transparent py-6'
       }`}
     >
-      <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-14 flex items-center justify-between">
+      <div className="relative w-full max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-14 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 group" aria-label="Axeon Home">
           <svg width="30" height="25" viewBox="0 0 24 20" fill="currentColor" className="text-blue-600 group-hover:scale-105 transition-transform">
             <polygon points="6,0 2,20 6,20 10,0" />
@@ -167,6 +180,14 @@ export function Header() {
         </Link>
 
         <nav
+          onBlur={(e) => {
+            // Keyboard users: tabbing out of the nav closes any open panel.
+            if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+              setAboutOpen(false);
+              setSolutionsOpen(false);
+              setMarketingOpen(false);
+            }
+          }}
           className={`hidden md:flex items-center gap-5 lg:gap-7 xl:gap-8 text-[15px] lg:text-base font-semibold transition-colors ${
             onDarkHero ? 'text-white' : 'text-neutral-800'
           }`}
@@ -181,6 +202,7 @@ export function Header() {
               type="button"
               onClick={() => setAboutOpen((v) => !v)}
               className={`flex items-center gap-1.5 ${navHoverClass} transition-colors cursor-pointer py-1`}
+              aria-haspopup="true"
               aria-expanded={aboutOpen}
             >
               <span>About Us</span>
@@ -230,7 +252,7 @@ export function Header() {
           </div>
 
           <div
-            className="relative"
+            className="static"
             onMouseEnter={openSolutions}
             onMouseLeave={closeSolutionsDelayed}
           >
@@ -238,6 +260,7 @@ export function Header() {
               type="button"
               onClick={() => setSolutionsOpen((v) => !v)}
               className={`flex items-center gap-1.5 ${navHoverClass} transition-colors cursor-pointer py-1`}
+              aria-haspopup="true"
               aria-expanded={solutionsOpen}
             >
               <span>Who We Help</span>
@@ -245,7 +268,7 @@ export function Header() {
             </button>
             {solutionsOpen && (
               <div
-                className="absolute top-full -left-28 sm:-left-36 lg:-left-48 xl:-left-56 pt-4 z-50 w-[880px] lg:w-[980px] xl:w-[1040px] max-w-[95vw]"
+                className="absolute top-full left-1/2 -translate-x-1/2 pt-4 z-50 w-[min(1040px,calc(100vw-2rem))]"
                 onMouseEnter={openSolutions}
                 onMouseLeave={closeSolutionsDelayed}
               >
@@ -370,7 +393,7 @@ export function Header() {
 
           {/* Marketing Solutions Dropdown */}
           <div
-            className="relative"
+            className="static"
             onMouseEnter={openMarketing}
             onMouseLeave={closeMarketingDelayed}
           >
@@ -378,6 +401,7 @@ export function Header() {
               type="button"
               onClick={() => setMarketingOpen((v) => !v)}
               className={`flex items-center gap-1.5 ${navHoverClass} transition-colors cursor-pointer py-1`}
+              aria-haspopup="true"
               aria-expanded={marketingOpen}
             >
               <span>Marketing Solutions</span>
@@ -385,7 +409,7 @@ export function Header() {
             </button>
             {marketingOpen && (
               <div
-                className="absolute top-full -left-36 lg:-left-48 xl:-left-60 pt-4 z-50 w-[820px] lg:w-[920px] max-w-[94vw]"
+                className="absolute top-full left-1/2 -translate-x-1/2 pt-4 z-50 w-[min(920px,calc(100vw-2rem))]"
                 onMouseEnter={openMarketing}
                 onMouseLeave={closeMarketingDelayed}
               >

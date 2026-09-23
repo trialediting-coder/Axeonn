@@ -18,7 +18,7 @@ export function WhyChooseUs() {
   return (
     <section
       id="why-choose-us"
-      className="w-full min-h-screen py-20 lg:py-28 px-4 sm:px-8 lg:px-14 xl:px-20 bg-transparent flex flex-col justify-center overflow-hidden"
+      className="w-full py-20 lg:py-28 px-4 sm:px-8 lg:px-14 xl:px-20 bg-transparent flex flex-col justify-center overflow-hidden"
     >
       <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
         {/* Section Tag */}

@@ -28,7 +28,7 @@ export function Footer({ year }: FooterProps) {
   };
 
   return (
-    <footer className="w-full bg-white text-neutral-950 min-h-screen lg:h-screen lg:min-h-[740px] py-12 lg:py-0 px-4 sm:px-8 lg:px-14 xl:px-20 border-t border-neutral-200 overflow-hidden flex flex-col justify-center">
+    <footer className="w-full bg-white text-neutral-950 py-12 lg:py-16 px-4 sm:px-8 lg:px-14 xl:px-20 border-t border-neutral-200 overflow-hidden flex flex-col justify-center">
       <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto h-full flex flex-col justify-between py-6 lg:py-10">
         {/* Top Split Section */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 xl:gap-24 pb-8 lg:pb-12 border-b border-neutral-200">
@@ -264,6 +264,30 @@ export function Footer({ year }: FooterProps) {
           </div>
         </div>
 
+        {/* Last thing every visitor sees: a way to act, not just the logo */}
+        <div className="mt-10 sm:mt-12 rounded-[28px] bg-neutral-950 text-white p-7 sm:p-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div>
+            <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Ready when you are.</h3>
+            <p className="mt-2 text-neutral-300 text-base sm:text-lg max-w-2xl">
+              A free 20-minute call. You leave with a clear scope and a flat price, whether or not you hire us.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+            <Link
+              href="/book"
+              className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-colors"
+            >
+              Book a Free Strategy Call
+            </Link>
+            <a
+              href="tel:+15154938017"
+              className="inline-flex items-center justify-center px-8 py-4 rounded-full border border-white/25 hover:bg-white/10 text-white font-semibold text-base transition-colors"
+            >
+              Call (515) 493-8017
+            </a>
+          </div>
+        </div>
+
         {/* Giant Bottom Brand Wordmark & Axeon Logo (Significantly Enlarged) */}
         <div className="mt-8 sm:mt-12 relative flex items-center overflow-hidden">
           <div
@@ -276,7 +300,7 @@ export function Footer({ year }: FooterProps) {
             <div className="shrink-0 text-blue-600 group-hover:scale-105 transition-transform duration-300">
               <svg
                 viewBox="0 0 24 20"
-                className="w-14 h-11 xs:w-20 xs:h-16 sm:w-28 sm:h-23 md:w-36 md:h-30 lg:w-[13.5vw] lg:h-[11.2vw] drop-shadow-md"
+                className="w-14 h-11 xs:w-20 xs:h-16 sm:w-28 sm:h-23 md:w-36 md:h-30 lg:w-[8vw] lg:h-[6.6vw] drop-shadow-md"
               >
                 <defs>
                   <linearGradient id="axeonFooterGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -290,7 +314,7 @@ export function Footer({ year }: FooterProps) {
                 <circle cx="21" cy="18" r="2" fill="#1D4ED8" />
               </svg>
             </div>
-            <span className="text-[13vw] sm:text-[14vw] lg:text-[15vw] font-black tracking-[-0.07em] leading-none text-neutral-950 font-display">
+            <span className="text-[12vw] sm:text-[11vw] lg:text-[9vw] font-black tracking-[-0.07em] leading-none text-neutral-950 font-display">
               AXEON
             </span>
           </div>

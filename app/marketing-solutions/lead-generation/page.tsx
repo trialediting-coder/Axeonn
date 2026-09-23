@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ServiceHeroActions } from '@/components/common/ServiceHeroActions';
 import {
   ArrowLeft,
   ArrowRight,
@@ -132,20 +133,7 @@ export default function LeadGenerationPage() {
             them. We built one pipeline that catches every call, form, and chat the moment it
             comes in, and follows up automatically before the lead has time to go cold.
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-4 mb-10">
-            <Link
-              href="/book"
-              className="px-7 py-3.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-colors"
-            >
-              Book a Strategy Call
-            </Link>
-            <Link
-              href="/pricing"
-              className="px-7 py-3.5 rounded-full border border-neutral-700 hover:border-neutral-500 text-white font-semibold text-sm transition-colors"
-            >
-              View Pricing
-            </Link>
-          </div>
+          <ServiceHeroActions priceLine="Included in AxeonCORE, $5,800 flat" note="a Custom CRM Pipeline built around your workflow" />
           <div className="flex justify-center">
             <TrustBadges variant="dark" />
           </div>

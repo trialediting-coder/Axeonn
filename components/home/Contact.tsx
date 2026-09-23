@@ -22,6 +22,8 @@ export function Contact({ onBookAudit }: ContactProps) {
     if (!ctx) return;
 
     let animationFrameId: number;
+    let running = false;
+    let visibility: IntersectionObserver | null = null;
     let width = 0;
     let height = 0;
 
@@ -168,13 +170,37 @@ export function Contact({ onBookAudit }: ContactProps) {
         ctx.fill();
       }
 
-      animationFrameId = requestAnimationFrame(render);
+      if (running) animationFrameId = requestAnimationFrame(render);
     };
 
-    render();
+    const start = () => {
+      if (running) return;
+      running = true;
+      animationFrameId = requestAnimationFrame(render);
+    };
+    const stop = () => {
+      running = false;
+      cancelAnimationFrame(animationFrameId);
+    };
+
+    // One static frame for reduced-motion users; otherwise only animate while
+    // the section is actually on screen (the neighbour loop is O(n²) per frame).
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      render();
+    } else if (typeof IntersectionObserver !== 'undefined' && containerRef.current) {
+      visibility = new IntersectionObserver(
+        ([entry]) => (entry.isIntersecting ? start() : stop()),
+        { threshold: 0.05 }
+      );
+      visibility.observe(containerRef.current);
+    } else {
+      start();
+    }
 
     return () => {
+      running = false;
       cancelAnimationFrame(animationFrameId);
+      visibility?.disconnect();
       window.removeEventListener('resize', handleResize);
     };
   }, []);
@@ -199,7 +225,7 @@ export function Contact({ onBookAudit }: ContactProps) {
       id="contact-section"
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="w-full min-h-screen py-16 sm:py-20 lg:py-24 px-0 bg-[#07090E] relative flex flex-col justify-center overflow-hidden rounded-none border-y border-neutral-800/60 select-none"
+      className="w-full py-16 sm:py-20 lg:py-24 px-0 bg-[#07090E] relative flex flex-col justify-center overflow-hidden rounded-none border-y border-neutral-800/60 select-none"
     >
       {/* Dynamic Animated Canvas Layer */}
       <canvas

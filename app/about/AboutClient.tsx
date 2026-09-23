@@ -73,7 +73,7 @@ export default function AboutClient() {
   return (
     <div className="min-h-screen bg-[#FAF9F8] text-neutral-950 font-sans selection:bg-blue-600 selection:text-white">
       {/* SECTION 1: Hero Section (100vh) */}
-      <section className="min-h-screen flex flex-col justify-center px-4 sm:px-8 lg:px-14 xl:px-20 border-b border-neutral-200/80 relative pt-24 sm:pt-28 pb-12">
+      <section className="min-h-[70vh] flex flex-col justify-center px-4 sm:px-8 lg:px-14 xl:px-20 border-b border-neutral-200/80 relative pt-24 sm:pt-28 pb-12">
         <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
           {/* Breadcrumb Tag */}
           <motion.div
@@ -160,7 +160,7 @@ export default function AboutClient() {
       </section>
 
       {/* SECTION: The Four Pillars Detailed Solution Slider (100vh) */}
-      <section className="min-h-screen lg:h-screen lg:min-h-[740px] flex flex-col justify-center px-4 sm:px-8 lg:px-14 xl:px-20 border-b border-neutral-200/80 bg-neutral-50/70 py-12 lg:py-0 overflow-hidden">
+      <section className="lg:min-h-[640px] flex flex-col justify-center px-4 sm:px-8 lg:px-14 xl:px-20 border-b border-neutral-200/80 bg-neutral-50/70 py-12 lg:py-0 overflow-hidden">
         <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
           <SolutionSlider
             solutions={[
@@ -269,7 +269,7 @@ export default function AboutClient() {
       </section>
 
       {/* SECTION 2: The Four Pillars (Modern Architectural Monoliths with 4-Second Rising Animation) (100vh) */}
-      <section className="min-h-screen flex flex-col justify-center px-4 sm:px-8 lg:px-14 xl:px-20 border-b border-neutral-200/80 py-12 lg:py-16 relative bg-[#F7F6F3]">
+      <section className="flex flex-col justify-center px-4 sm:px-8 lg:px-14 xl:px-20 border-b border-neutral-200/80 py-12 lg:py-16 relative bg-[#F7F6F3]">
         <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
           {/* Section Header */}
           <div className="max-w-3xl mb-10 sm:mb-14">
@@ -354,7 +354,7 @@ export default function AboutClient() {
       </section>
 
       {/* SECTION 3: Founder Story & Personal Note From Hayder (Switched after Pillars) (100vh) */}
-      <section className="min-h-screen flex flex-col justify-center px-4 sm:px-8 lg:px-14 xl:px-20 border-b border-neutral-200/80 py-12 lg:py-16 relative bg-[#FAF9F8]">
+      <section className="flex flex-col justify-center px-4 sm:px-8 lg:px-14 xl:px-20 border-b border-neutral-200/80 py-12 lg:py-16 relative bg-[#FAF9F8]">
         <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
             {/* Left Column: Portrait & Direct Contact */}
@@ -483,7 +483,7 @@ export default function AboutClient() {
       </section>
 
       {/* SECTION 4: Midwest Roots & Studio HQ Image (100vh) */}
-      <section className="min-h-screen flex flex-col justify-center px-4 sm:px-8 lg:px-14 xl:px-20 border-b border-neutral-200/80 py-12 lg:py-16 relative">
+      <section className="flex flex-col justify-center px-4 sm:px-8 lg:px-14 xl:px-20 border-b border-neutral-200/80 py-12 lg:py-16 relative">
         <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
             {/* Left Column: Clean Sincere Midwest Story */}

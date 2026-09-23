@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ServiceHeroActions } from '@/components/common/ServiceHeroActions';
 import Image from 'next/image';
 import { buildMetadata } from '@/lib/metadata';
 import { providerRef, SERVICE_AREA } from '@/lib/seo';
@@ -160,20 +161,7 @@ export default function WebsitePage() {
               Designed to convert, built to grow. Every build is a brand-driven system shipped
               and delivered fast — not a generic template with your logo dropped in.
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-4 mb-10">
-              <Link
-                href="/book"
-                className="px-7 py-3.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-colors"
-              >
-                Book a Strategy Call
-              </Link>
-              <Link
-                href="/pricing"
-                className="px-7 py-3.5 rounded-full border border-neutral-700 hover:border-neutral-500 text-white font-semibold text-sm transition-colors"
-              >
-                View Pricing
-              </Link>
-            </div>
+            <ServiceHeroActions priceLine="Websites from $2,800 flat" note="published pricing, no proposals" />
             <div className="flex justify-center">
               <TrustBadges variant="dark" />
             </div>

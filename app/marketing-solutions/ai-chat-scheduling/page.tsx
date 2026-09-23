@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ServiceHeroActions } from '@/components/common/ServiceHeroActions';
 import { ArrowLeft, ArrowRight, MessageCircle, CalendarCheck, Mic2 } from 'lucide-react';
 import { buildMetadata } from '@/lib/metadata';
 import { providerRef, SERVICE_AREA } from '@/lib/seo';
@@ -106,20 +107,7 @@ export default function AIChatSchedulingPage() {
             24/7 AI chat that books, answers, and converts clicks to customers — so every website visitor and
             missed call turns into a real conversation instead of a lost opportunity.
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link
-              href="/book"
-              className="px-7 py-3.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-colors"
-            >
-              Book a Strategy Call
-            </Link>
-            <Link
-              href="/pricing"
-              className="px-7 py-3.5 rounded-full border border-neutral-700 hover:border-neutral-500 text-white font-semibold text-sm transition-colors"
-            >
-              View Pricing
-            </Link>
-          </div>
+          <ServiceHeroActions priceLine="Included in AxeonCORE, $5,800 flat" note="AI chat, scheduling and follow-up in one build" />
         </div>
       </section>
 
