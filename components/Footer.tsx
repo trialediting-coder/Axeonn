@@ -109,6 +109,7 @@ export function Footer({ year }: FooterProps) {
                   <li><Link href="/work" className="hover:text-neutral-950 transition-colors">Work</Link></li>
                   <li><Link href="/process" className="hover:text-neutral-950 transition-colors">Process</Link></li>
                   <li><Link href="/pricing" className="hover:text-neutral-950 transition-colors">Pricing</Link></li>
+                  <li><Link href="/pay" className="hover:text-neutral-950 transition-colors">Make a Payment</Link></li>
                   <li><Link href="/insights" className="hover:text-neutral-950 transition-colors">Insights</Link></li>
                   <li><Link href="/faq" className="hover:text-neutral-950 transition-colors">FAQ</Link></li>
                   <li><Link href="/book" className="text-blue-600 font-semibold hover:text-blue-700 transition-colors">Book a Strategy Call</Link></li>

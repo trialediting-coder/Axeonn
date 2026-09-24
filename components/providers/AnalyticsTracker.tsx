@@ -37,6 +37,7 @@ export const EVENTS = {
   faqOpened: 'faq_opened',
   sectionViewed: 'section_viewed',
   pricingViewed: 'pricing_viewed',
+  checkoutStarted: 'checkout_started',
 } as const;
 
 /** Global GA4 event dispatcher (no-op until gtag has loaded). */

@@ -10,7 +10,10 @@
     "lint": "tsc --noEmit",
     "verify": "tsx scripts/verify-build.mjs",
     "db:init": "node --env-file=.env.local scripts/init-db.mjs",
-    "db:verify": "node --env-file=.env.local scripts/verify-db-schema.mjs"
+    "db:verify": "node --env-file=.env.local scripts/verify-db-schema.mjs",
+    "stripe:seed": "node --env-file=.env.local scripts/stripe-seed.mjs",
+    "test:billing": "tsx --test lib/billingMath.test.ts",
+    "test:paylinks": "tsx --test lib/payLinks.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.126.0",
@@ -26,7 +29,8 @@
     "react-icons": "^5.7.0",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
-    "resend": "^6.28.1"
+    "resend": "^6.28.1",
+    "stripe": "^22.6.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",

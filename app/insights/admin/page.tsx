@@ -57,6 +57,12 @@ export default async function AdminDashboardPage() {
           <h1 className="text-2xl font-bold text-neutral-950">Insights Admin</h1>
           <div className="flex items-center gap-3">
             <Link
+              href="/insights/admin/billing"
+              className="px-4 py-2 rounded-full border border-neutral-300 hover:bg-neutral-100 text-neutral-700 text-sm font-semibold transition-colors"
+            >
+              Billing
+            </Link>
+            <Link
               href="/insights/admin/posts/new"
               className="px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors"
             >

@@ -70,3 +70,27 @@ export async function sendFailedGenerationNotification(
     html: body,
   });
 }
+
+// Billing alerts fired from app/api/stripe/webhook/route.ts after signature
+// verification. Customer names and emails are customer-typed strings, so they
+// go through escapeHtml like everything else.
+export async function sendBillingNotification(input: {
+  subject: string;
+  lines: string[];
+  link?: { label: string; href: string };
+}): Promise<void> {
+  const resend = getClient();
+  if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
+
+  const items = input.lines.map((line) => `<li>${escapeHtml(line)}</li>`).join('');
+  const link = input.link
+    ? `<p><a href="${escapeHtml(input.link.href)}">${escapeHtml(input.link.label)}</a></p>`
+    : '';
+
+  await resend.emails.send({
+    from: FROM_ADDRESS,
+    to: ADMIN_NOTIFICATION_EMAIL,
+    subject: input.subject,
+    html: `<ul>${items}</ul>${link}`,
+  });
+}

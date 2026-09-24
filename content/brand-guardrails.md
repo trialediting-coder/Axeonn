@@ -10,9 +10,14 @@ local-only.
 - AxeonCORE: $5,800, one-time. Includes custom
   on-site videography (half-day shoot: hero film, 3 vertical cuts, photo set).
 - Custom on-site videography as an add-on to Core Web Build: $1,500.
-- Never mention a monthly plan, care plan, hosting fee, or monthly fee — and
-  never claim there ISN'T one. Ongoing arrangements are handled privately
-  with each client. Never cite the retired "$490/month" figure.
+- Monthly plans (owner decision 2026-09-23): the build price is a one-time
+  setup payment; each build is followed by a monthly plan that starts after
+  launch and is set up with the client then. Core Web Build Monthly Plan:
+  $284/month. AxeonCORE Monthly Plan: $574/month. State only these two
+  amounts, never a different monthly figure, and never describe the plan as
+  required to keep the site (it covers hosting, care, and ongoing support).
+  The $49/month basics arrangement for existing clients is private: never
+  mention it. Never cite the retired "$490/month" figure.
 
 ## Real, currently-live services (safe to describe as offered)
 - Custom website design and development.

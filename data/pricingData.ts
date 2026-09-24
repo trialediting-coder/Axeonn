@@ -30,10 +30,11 @@ export interface AddOn {
   price: string;
 }
 
-// Two flat-rate builds. Ongoing hosting/care arrangements are handled privately
-// with each client — never mention a monthly plan, care plan, or monthly fee
-// (or claim there isn't one) anywhere on the site. Numbers here must stay in sync with
-// content/brand-guardrails.md and the priceRange in app/layout.tsx.
+// Two flat-rate builds (one-time setup payments). Each is followed by a monthly
+// plan that starts after launch: Core $284/mo, AxeonCORE $574/mo (see PLANS in
+// lib/billing.ts). The plans are shown on /pay; this pricing page does not list
+// them yet. Numbers here must stay in sync with content/brand-guardrails.md and
+// the priceRange in app/layout.tsx.
 export const pricingTiers: PricingTier[] = [
   {
     id: 'core-web-build',
