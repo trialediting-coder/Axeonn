@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { depositPercent, planForTier } from '@/lib/billing';
 import { computeSplit, formatCents } from '@/lib/billingMath';
-import { getPayLink, payLinkState } from '@/lib/payLinks';
+import { DEFAULT_CUSTOM_PLAN_NAME, getPayLink, payLinkState } from '@/lib/payLinks';
 import { getPublicCatalog } from '@/lib/publicCatalog';
 import { isStripeConfigured } from '@/lib/stripe';
 import { PersonalizedPayment, type PersonalizedPaymentProps } from '@/components/pay/PersonalizedPayment';
@@ -60,7 +60,11 @@ async function buildProps(rawToken: string): Promise<PersonalizedPaymentProps> {
   };
 
   if (link.kind === 'plan') {
-    const plan = link.planKey ? catalog.plans[link.planKey] : null;
+    const plan = link.planKey
+      ? catalog.plans[link.planKey]
+      : link.monthlyAmountCents
+        ? { label: link.planName ?? DEFAULT_CUSTOM_PLAN_NAME, amountCents: link.monthlyAmountCents }
+        : null;
     if (!plan) return INVALID;
     return {
       ...base,

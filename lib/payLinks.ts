@@ -10,7 +10,7 @@ import { randomInt } from 'node:crypto';
 import { sql, ensureSchema, isDatabaseConfigured } from '@/lib/db';
 import { SITE_URL } from '@/lib/seo';
 import { ADDON_KEYS, TIER_KEYS, isCatalogKey, isPlanKey, type CatalogKey, type PlanKey } from '@/lib/billing';
-import { isPaymentKind, type PaymentKind } from '@/lib/billingMath';
+import { dollarsToCents, isPaymentKind, type PaymentKind } from '@/lib/billingMath';
 
 export type PayLinkKind = PaymentKind | 'plan';
 export type PayLinkStatus = 'open' | 'paid' | 'disabled';
@@ -24,8 +24,12 @@ export interface PayLinkInput {
   /** Required unless kind is 'plan'. */
   tier?: CatalogKey;
   addOns?: CatalogKey[];
-  /** Required when kind is 'plan'. */
+  /** A seeded plan. For kind 'plan', either this or monthlyAmountCents is set. */
   planKey?: PlanKey;
+  /** Custom monthly amount (maintenance-only clients, no build cost). */
+  monthlyAmountCents?: number;
+  /** Name shown to the client and on Stripe for a custom plan. */
+  planName?: string;
   /** Short note shown to the client on the page ("Deposit for the Smith Roofing site"). */
   note?: string;
   expiresInDays?: number;
@@ -40,6 +44,8 @@ export interface PayLink {
   tier: CatalogKey | null;
   addOns: CatalogKey[];
   planKey: PlanKey | null;
+  monthlyAmountCents: number | null;
+  planName: string | null;
   note: string | null;
   status: PayLinkStatus;
   checkoutSessionId: string | null;
@@ -57,6 +63,8 @@ interface PayLinkRow {
   tier: string | null;
   add_ons: string[] | null;
   plan_key: string | null;
+  monthly_amount_cents: number | null;
+  plan_name: string | null;
   note: string | null;
   status: PayLinkStatus;
   checkout_session_id: string | null;
@@ -71,6 +79,8 @@ const TOKEN_LENGTH = 8;
 const DEFAULT_EXPIRY_DAYS = 30;
 const MAX_EXPIRY_DAYS = 180;
 const MAX_NOTE_LENGTH = 200;
+const MAX_PLAN_NAME_LENGTH = 80;
+export const DEFAULT_CUSTOM_PLAN_NAME = 'Website Care & Maintenance';
 
 export function generateToken(): string {
   let out = '';
@@ -101,6 +111,8 @@ function rowToLink(row: PayLinkRow): PayLink {
     tier: isCatalogKey(row.tier) ? row.tier : null,
     addOns: (row.add_ons ?? []).filter(isCatalogKey),
     planKey: isPlanKey(row.plan_key) ? row.plan_key : null,
+    monthlyAmountCents: row.monthly_amount_cents ?? null,
+    planName: row.plan_name,
     note: row.note,
     status: row.status,
     checkoutSessionId: row.checkout_session_id,
@@ -130,6 +142,27 @@ export function validatePayLinkInput(raw: Record<string, unknown>): PayLinkInput
   }
 
   if (kind === 'plan') {
+    if (raw.planKey === 'custom') {
+      let monthlyAmountCents: number;
+      try {
+        monthlyAmountCents = dollarsToCents(raw.monthlyAmount);
+      } catch {
+        throw new Error('Enter the monthly amount in dollars, for example 150');
+      }
+      const rawName = typeof raw.planName === 'string' ? raw.planName.trim() : '';
+      if (rawName.length > MAX_PLAN_NAME_LENGTH) {
+        throw new Error(`Plan name must be ${MAX_PLAN_NAME_LENGTH} characters or fewer`);
+      }
+      return {
+        clientEmail: email,
+        clientName,
+        kind,
+        monthlyAmountCents,
+        planName: rawName || DEFAULT_CUSTOM_PLAN_NAME,
+        note,
+        expiresInDays: days,
+      };
+    }
     if (!isPlanKey(raw.planKey)) throw new Error('Choose a monthly plan');
     return { clientEmail: email, clientName, kind, planKey: raw.planKey, note, expiresInDays: days };
   }
@@ -161,10 +194,14 @@ export async function createPayLink(input: PayLinkInput): Promise<PayLink> {
   for (let attempt = 0; attempt < 5; attempt += 1) {
     const token = generateToken();
     const res = await sql<PayLinkRow>`
-      INSERT INTO pay_links (token, client_email, client_name, tier, add_ons, kind, plan_key, note, expires_at)
+      INSERT INTO pay_links (
+        token, client_email, client_name, tier, add_ons, kind, plan_key,
+        monthly_amount_cents, plan_name, note, expires_at
+      )
       VALUES (
         ${token}, ${input.clientEmail}, ${input.clientName ?? null}, ${input.tier ?? null},
-        ${addOns as unknown as string}::text[], ${input.kind}, ${input.planKey ?? null}, ${input.note ?? null},
+        ${addOns as unknown as string}::text[], ${input.kind}, ${input.planKey ?? null},
+        ${input.monthlyAmountCents ?? null}, ${input.planName ?? null}, ${input.note ?? null},
         ${expiresAt}
       )
       ON CONFLICT (token) DO NOTHING

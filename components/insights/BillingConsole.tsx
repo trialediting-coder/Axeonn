@@ -26,6 +26,8 @@ export interface PayLinkItem {
   tier: string | null;
   addOns: string[];
   planKey: string | null;
+  monthlyAmountCents: number | null;
+  planName: string | null;
   note: string | null;
   expiresAt: string;
   createdAt: string;
@@ -177,7 +179,9 @@ function PayLinkForm({
   const { state, run } = useApi();
   const [kind, setKind] = useState<PayLinkItem['kind']>('deposit');
   const [addOns, setAddOns] = useState<string[]>([]);
+  const [planChoice, setPlanChoice] = useState<string>('custom');
   const isPlan = kind === 'plan';
+  const isCustomPlan = isPlan && planChoice === 'custom';
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -188,7 +192,9 @@ function PayLinkForm({
       kind,
       tier: isPlan ? undefined : form.get('tier'),
       addOns: isPlan ? [] : addOns,
-      planKey: isPlan ? form.get('planKey') : undefined,
+      planKey: isPlan ? planChoice : undefined,
+      monthlyAmount: isCustomPlan ? form.get('monthlyAmount') : undefined,
+      planName: isCustomPlan ? form.get('planName') : undefined,
       note: form.get('note'),
       expiresInDays: form.get('expiresInDays'),
     });
@@ -223,12 +229,18 @@ function PayLinkForm({
             <option value="deposit">Setup: deposit ({depositPercent}%)</option>
             <option value="balance">Setup: final balance</option>
             <option value="full">Setup: full amount</option>
-            <option value="plan">Start a monthly plan</option>
+            <option value="plan">Monthly plan only (no build cost)</option>
           </select>
         </Field>
         {isPlan ? (
           <Field label="Monthly plan">
-            <select name="planKey" className={inputClass} defaultValue={plans[0]?.key}>
+            <select
+              name="planKey"
+              value={planChoice}
+              onChange={(e) => setPlanChoice(e.target.value)}
+              className={inputClass}
+            >
+              <option value="custom">Custom monthly amount</option>
               {plans.map((p) => (
                 <option key={p.key} value={p.key}>
                   {p.label} ({formatCents(p.amountCents)}/mo)
@@ -246,6 +258,29 @@ function PayLinkForm({
               ))}
             </select>
           </Field>
+        )}
+        {isCustomPlan && (
+          <>
+            <Field label="Monthly amount ($)">
+              <input
+                name="monthlyAmount"
+                type="text"
+                inputMode="decimal"
+                required
+                placeholder="150"
+                className={inputClass}
+              />
+            </Field>
+            <Field label="Plan name (shown to client)">
+              <input
+                name="planName"
+                type="text"
+                maxLength={80}
+                placeholder="Website Care & Maintenance"
+                className={inputClass}
+              />
+            </Field>
+          </>
         )}
         {!isPlan && (
           <div className="sm:col-span-2">
@@ -324,6 +359,9 @@ function PayLinksTable({ links, databaseConfigured }: { links: PayLinkItem[]; da
                     {KIND_LABELS[l.kind]}
                     {l.tier ? ` / ${l.tier}` : ''}
                     {l.planKey ? ` / ${l.planKey}` : ''}
+                    {!l.planKey && l.monthlyAmountCents
+                      ? ` / ${l.planName ?? 'Custom plan'} ${formatCents(l.monthlyAmountCents)}/mo`
+                      : ''}
                     {l.addOns.length > 0 ? ` + ${l.addOns.length} add-on${l.addOns.length > 1 ? 's' : ''}` : ''}
                     {l.note && <div className="text-xs text-neutral-500">{l.note}</div>}
                   </td>

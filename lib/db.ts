@@ -95,6 +95,10 @@ export function ensureSchema(): Promise<void> {
         );
       `;
       await sql`CREATE INDEX IF NOT EXISTS pay_links_created_idx ON pay_links (created_at DESC);`;
+      // Custom monthly plans (maintenance-only clients). Added 2026-09-24; nullable, so
+      // existing rows and seeded-plan links are unaffected.
+      await sql`ALTER TABLE pay_links ADD COLUMN IF NOT EXISTS monthly_amount_cents INTEGER;`;
+      await sql`ALTER TABLE pay_links ADD COLUMN IF NOT EXISTS plan_name TEXT;`;
     })().catch((err) => {
       schemaReady = null; // let the next request retry
       throw err;

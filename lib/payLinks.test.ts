@@ -51,6 +51,30 @@ test('validatePayLinkInput accepts a plan link without a tier', () => {
   assert.equal(input.expiresInDays, 7);
 });
 
+test('validatePayLinkInput accepts a custom maintenance-only plan', () => {
+  const input = validatePayLinkInput({
+    clientEmail: 'owner@example.com',
+    kind: 'plan',
+    planKey: 'custom',
+    monthlyAmount: '$150',
+    planName: '  Hosting & Updates  ',
+  });
+  assert.equal(input.kind, 'plan');
+  assert.equal(input.planKey, undefined);
+  assert.equal(input.monthlyAmountCents, 15000);
+  assert.equal(input.planName, 'Hosting & Updates');
+  assert.equal(input.tier, undefined);
+});
+
+test('custom plan defaults its name and rejects a missing amount', () => {
+  const named = validatePayLinkInput({ clientEmail: 'a@b.co', kind: 'plan', planKey: 'custom', monthlyAmount: 99 });
+  assert.equal(named.planName, 'Website Care & Maintenance');
+  assert.throws(
+    () => validatePayLinkInput({ clientEmail: 'a@b.co', kind: 'plan', planKey: 'custom', monthlyAmount: '' }),
+    /monthly amount/
+  );
+});
+
 test('validatePayLinkInput rejects bad input with readable messages', () => {
   assert.throws(() => validatePayLinkInput({ clientEmail: 'nope', kind: 'deposit', tier: 'axeoncore' }), /email/);
   assert.throws(() => validatePayLinkInput({ clientEmail: 'a@b.co', kind: 'later', tier: 'axeoncore' }), /kind/);

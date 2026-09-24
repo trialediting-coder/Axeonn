@@ -33,6 +33,8 @@ export default async function BillingAdminPage() {
         tier: l.tier,
         addOns: l.addOns,
         planKey: l.planKey,
+        monthlyAmountCents: l.monthlyAmountCents,
+        planName: l.planName,
         note: l.note,
         expiresAt: l.expiresAt,
         createdAt: l.createdAt,

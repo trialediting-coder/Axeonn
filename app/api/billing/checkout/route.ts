@@ -126,8 +126,15 @@ function checkoutForLink(link: PayLink): Promise<CheckoutResult> {
     payLinkToken: link.token,
   };
   if (link.kind === 'plan') {
-    if (!link.planKey) throw new Error(`Pay link ${link.token} is a plan link without a plan_key`);
-    return createCarePlanCheckout({ ...common, planKey: link.planKey });
+    if (link.planKey) return createCarePlanCheckout({ ...common, planKey: link.planKey });
+    if (link.monthlyAmountCents) {
+      return createCarePlanCheckout({
+        ...common,
+        monthlyAmountCents: link.monthlyAmountCents,
+        planName: link.planName ?? undefined,
+      });
+    }
+    throw new Error(`Pay link ${link.token} is a plan link without a plan or amount`);
   }
   if (!link.tier) throw new Error(`Pay link ${link.token} has no tier`);
   return createProjectCheckout({ ...common, tier: link.tier, kind: link.kind, addOns: link.addOns });
