@@ -12,12 +12,14 @@ import { useLeadModal } from '@/components/common/LeadModalProvider';
 const ROTATING_WORDS = ['Revenue', 'Bookings', 'Business', 'Brand'];
 const ROTATE_INTERVAL_MS = 2200;
 
+// Matches Tailwind's `sm` breakpoint: below it the hero shows the AVIF loop.
+const MOBILE_QUERY = '(max-width: 639px)';
+
 export function Hero() {
   const { open: openLeadModal } = useLeadModal();
   const heroVideoRef = useRef<HTMLVideoElement>(null);
   const [wordIndex, setWordIndex] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
-  const [debugLines, setDebugLines] = useState<string[]>([]);
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -35,42 +37,26 @@ export function Hero() {
     return () => window.clearInterval(id);
   }, [reducedMotion]);
 
-  // Browsers can silently drop the very first autoplay attempt — most often
-  // because the video is still buffering on a slow connection when autoplay
-  // fires, and nothing tells the browser to try again once it's ready. A
-  // hard refresh "fixes" it only because the file is then warm in HTTP
-  // cache. Retry on every readiness/buffering milestone, on tab-visibility/
-  // bfcache resume, and on a poll that keeps going until playback starts.
-  // The mobile file is picked by a <source media> query in the markup, so the
-  // browser downloads the right file from the first byte instead of waiting
-  // for hydration to swap it in.
+  // Desktop/tablet only: phones get the animated AVIF below instead, because
+  // iOS (Safari and Chrome alike) often refuses to autoplay even a muted
+  // video until the first scroll, and no retry from script gets around it.
+  // Browsers can also silently drop the very first autoplay attempt when the
+  // file is still buffering, so retry on readiness milestones, on tab
+  // visibility/bfcache resume, and on a short poll until playback starts.
   useEffect(() => {
     const video = heroVideoRef.current;
-    if (!video) return;
+    if (!video || window.matchMedia(MOBILE_QUERY).matches) return;
 
-    // `?videodebug` prints each play() attempt and its result on screen, so
-    // autoplay can be diagnosed on a phone with no dev tools attached.
-    const debug = new URLSearchParams(window.location.search).has('videodebug');
-    const t0 = performance.now();
-    const log = (msg: string) => {
-      if (!debug) return;
-      const line = `${((performance.now() - t0) / 1000).toFixed(1)}s ${msg}`;
-      setDebugLines((lines) => [...lines.slice(-14), line]);
-    };
-
-    const tryPlay = (e?: Event | string) => {
+    const tryPlay = () => {
       video.muted = true;
       video.defaultMuted = true;
       if (video.paused) {
-        const source = typeof e === 'string' ? e : e?.type ?? 'init';
-        video.play().then(
-          () => log(`play() ok via ${source}`),
-          (err: DOMException) => log(`play() ${err.name} via ${source} (readyState ${video.readyState})`),
-        );
+        video.play().catch(() => {
+          // Will retry on the next readiness event or poll tick below.
+        });
       }
     };
 
-    log(`mount: paused=${video.paused} readyState=${video.readyState} src=${video.currentSrc.split('/').pop() || 'none'}`);
     tryPlay();
 
     const readinessEvents = ['loadedmetadata', 'loadeddata', 'canplay', 'canplaythrough', 'progress', 'suspend', 'stalled'];
@@ -85,46 +71,25 @@ export function Hero() {
         window.clearInterval(intervalId);
         return;
       }
-      tryPlay('poll');
+      tryPlay();
     }, 500);
 
-    // iOS Safari only lets a muted video autoplay once WebKit considers it
-    // visible in the viewport, and it re-evaluates that on layout/scroll —
-    // which is why the hero sometimes sat on Safari's play glyph until the
-    // first scroll. Retry whenever the video is reported on-screen and when
-    // the visual viewport settles (the URL bar resizing it on load).
-    const io = new IntersectionObserver((entries) => {
-      if (entries.some((entry) => entry.isIntersecting)) tryPlay('in-view');
-    });
-    io.observe(video);
-    window.visualViewport?.addEventListener('resize', tryPlay);
-    window.addEventListener('load', tryPlay);
-
-    // When the browser refuses autoplay outright (iOS Low Power Mode or Low
-    // Data Mode, Android Data Saver), only a user interaction unlocks play().
-    // iOS treats touchstart as one, desktop needs pointerup/click/keydown.
+    // If the browser still refuses, the first interaction unlocks play().
     // Keep listening until the video is actually playing rather than giving
     // up after the first event, which may not have counted as a gesture.
-    const gestureEvents = ['touchstart', 'touchend', 'pointerdown', 'pointerup', 'click', 'keydown', 'scroll'] as const;
+    const gestureEvents = ['pointerdown', 'pointerup', 'click', 'keydown', 'wheel', 'scroll'] as const;
     const removeGestureListeners = () => {
       gestureEvents.forEach((evt) => window.removeEventListener(evt, tryPlay));
     };
     gestureEvents.forEach((evt) => window.addEventListener(evt, tryPlay, { passive: true }));
-    const onPlaying = () => {
-      log('playing');
-      removeGestureListeners();
-    };
-    video.addEventListener('playing', onPlaying);
+    video.addEventListener('playing', removeGestureListeners);
 
     return () => {
       readinessEvents.forEach((evt) => video.removeEventListener(evt, tryPlay));
       document.removeEventListener('visibilitychange', tryPlay);
       window.removeEventListener('pageshow', tryPlay);
       window.clearInterval(intervalId);
-      io.disconnect();
-      window.visualViewport?.removeEventListener('resize', tryPlay);
-      window.removeEventListener('load', tryPlay);
-      video.removeEventListener('playing', onPlaying);
+      video.removeEventListener('playing', removeGestureListeners);
       removeGestureListeners();
     };
   }, []);
@@ -150,16 +115,27 @@ export function Hero() {
             playsInline
             preload="auto"
             poster="/hero-poster.webp"
-            className="w-full h-full object-cover object-center opacity-70 scale-105"
+            className="hidden sm:block w-full h-full object-cover object-center opacity-70 scale-105"
           >
-            <source src="/videoplayback-mobile.mp4" type="video/mp4" media="(max-width: 640px)" />
-            <source src="/videoplayback.mp4" type="video/mp4" />
+            {/* No source matches on phones, so they never download the video. */}
+            <source src="/videoplayback.mp4" type="video/mp4" media="(min-width: 640px)" />
           </video>
-          {debugLines.length > 0 && (
-            <pre className="fixed top-20 left-2 right-2 z-[200] max-h-64 overflow-hidden rounded bg-black/85 p-2 text-[10px] leading-tight text-lime-300 whitespace-pre-wrap">
-              {debugLines.join('\n')}
-            </pre>
-          )}
+          {/*
+            Phones get the same 30s clip as an animated AVIF: images aren't
+            subject to autoplay policy, so it moves on load even where iOS
+            holds a muted video on its play glyph (or Low Power Mode blocks it).
+            Browsers without animated AVIF fall back to the still poster.
+          */}
+          <picture className="block w-full h-full sm:hidden">
+            <source srcSet="/hero-loop.avif" type="image/avif" media="(max-width: 639px)" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/hero-poster.webp"
+              alt=""
+              fetchPriority="high"
+              className="w-full h-full object-cover object-center opacity-70 scale-105"
+            />
+          </picture>
           <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-neutral-950/95 via-neutral-950/60 to-transparent sm:from-neutral-950 sm:via-neutral-950/80 sm:to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-neutral-950/30" />
           <div className="absolute -top-40 -right-40 w-[550px] h-[550px] bg-[#2563EB]/25 rounded-full blur-3xl pointer-events-none" />
