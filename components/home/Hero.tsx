@@ -172,8 +172,8 @@ export function Hero() {
             transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
             className="mt-6 text-base sm:text-lg lg:text-xl text-neutral-300 font-normal leading-relaxed max-w-xl"
           >
-            Websites, SEO, and automated intake — built and run by one Iowa team you can
-            actually call.
+            We build and run websites that turn local searches into phone calls, with
+            flat-rate pricing and a team you can actually reach.
           </motion.p>
 
           <motion.div
