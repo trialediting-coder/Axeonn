@@ -17,6 +17,7 @@ export function Hero() {
   const heroVideoRef = useRef<HTMLVideoElement>(null);
   const [wordIndex, setWordIndex] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [debugLines, setDebugLines] = useState<string[]>([]);
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -47,16 +48,29 @@ export function Hero() {
     const video = heroVideoRef.current;
     if (!video) return;
 
-    const tryPlay = () => {
+    // `?videodebug` prints each play() attempt and its result on screen, so
+    // autoplay can be diagnosed on a phone with no dev tools attached.
+    const debug = new URLSearchParams(window.location.search).has('videodebug');
+    const t0 = performance.now();
+    const log = (msg: string) => {
+      if (!debug) return;
+      const line = `${((performance.now() - t0) / 1000).toFixed(1)}s ${msg}`;
+      setDebugLines((lines) => [...lines.slice(-14), line]);
+    };
+
+    const tryPlay = (e?: Event | string) => {
       video.muted = true;
       video.defaultMuted = true;
       if (video.paused) {
-        video.play().catch(() => {
-          // Will retry on the next readiness event or poll tick below.
-        });
+        const source = typeof e === 'string' ? e : e?.type ?? 'init';
+        video.play().then(
+          () => log(`play() ok via ${source}`),
+          (err: DOMException) => log(`play() ${err.name} via ${source} (readyState ${video.readyState})`),
+        );
       }
     };
 
+    log(`mount: paused=${video.paused} readyState=${video.readyState} src=${video.currentSrc.split('/').pop() || 'none'}`);
     tryPlay();
 
     const readinessEvents = ['loadedmetadata', 'loadeddata', 'canplay', 'canplaythrough', 'progress', 'suspend', 'stalled'];
@@ -71,22 +85,47 @@ export function Hero() {
         window.clearInterval(intervalId);
         return;
       }
-      tryPlay();
+      tryPlay('poll');
     }, 500);
 
-    const gestureEvents = ['pointerdown', 'touchstart', 'keydown', 'wheel', 'scroll', 'mousemove'] as const;
-    const onFirstGesture = () => {
-      tryPlay();
-      gestureEvents.forEach((evt) => window.removeEventListener(evt, onFirstGesture));
+    // iOS Safari only lets a muted video autoplay once WebKit considers it
+    // visible in the viewport, and it re-evaluates that on layout/scroll —
+    // which is why the hero sometimes sat on Safari's play glyph until the
+    // first scroll. Retry whenever the video is reported on-screen and when
+    // the visual viewport settles (the URL bar resizing it on load).
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) tryPlay('in-view');
+    });
+    io.observe(video);
+    window.visualViewport?.addEventListener('resize', tryPlay);
+    window.addEventListener('load', tryPlay);
+
+    // When the browser refuses autoplay outright (iOS Low Power Mode or Low
+    // Data Mode, Android Data Saver), only a user interaction unlocks play().
+    // iOS treats touchstart as one, desktop needs pointerup/click/keydown.
+    // Keep listening until the video is actually playing rather than giving
+    // up after the first event, which may not have counted as a gesture.
+    const gestureEvents = ['touchstart', 'touchend', 'pointerdown', 'pointerup', 'click', 'keydown', 'scroll'] as const;
+    const removeGestureListeners = () => {
+      gestureEvents.forEach((evt) => window.removeEventListener(evt, tryPlay));
     };
-    gestureEvents.forEach((evt) => window.addEventListener(evt, onFirstGesture, { once: true, passive: true }));
+    gestureEvents.forEach((evt) => window.addEventListener(evt, tryPlay, { passive: true }));
+    const onPlaying = () => {
+      log('playing');
+      removeGestureListeners();
+    };
+    video.addEventListener('playing', onPlaying);
 
     return () => {
       readinessEvents.forEach((evt) => video.removeEventListener(evt, tryPlay));
       document.removeEventListener('visibilitychange', tryPlay);
       window.removeEventListener('pageshow', tryPlay);
       window.clearInterval(intervalId);
-      gestureEvents.forEach((evt) => window.removeEventListener(evt, onFirstGesture));
+      io.disconnect();
+      window.visualViewport?.removeEventListener('resize', tryPlay);
+      window.removeEventListener('load', tryPlay);
+      video.removeEventListener('playing', onPlaying);
+      removeGestureListeners();
     };
   }, []);
 
@@ -116,6 +155,11 @@ export function Hero() {
             <source src="/videoplayback-mobile.mp4" type="video/mp4" media="(max-width: 640px)" />
             <source src="/videoplayback.mp4" type="video/mp4" />
           </video>
+          {debugLines.length > 0 && (
+            <pre className="fixed top-20 left-2 right-2 z-[200] max-h-64 overflow-hidden rounded bg-black/85 p-2 text-[10px] leading-tight text-lime-300 whitespace-pre-wrap">
+              {debugLines.join('\n')}
+            </pre>
+          )}
           <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-neutral-950/95 via-neutral-950/60 to-transparent sm:from-neutral-950 sm:via-neutral-950/80 sm:to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-neutral-950/30" />
           <div className="absolute -top-40 -right-40 w-[550px] h-[550px] bg-[#2563EB]/25 rounded-full blur-3xl pointer-events-none" />
