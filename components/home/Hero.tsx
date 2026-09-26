@@ -121,10 +121,12 @@ export function Hero() {
             <source src="/videoplayback.mp4" type="video/mp4" media="(min-width: 640px)" />
           </video>
           {/*
-            Phones get the same 30s clip as an animated AVIF: images aren't
-            subject to autoplay policy, so it moves on load even where iOS
-            holds a muted video on its play glyph (or Low Power Mode blocks it).
-            Browsers without animated AVIF fall back to the still poster.
+            Phones get the same 30s clip as an animated AVIF (15fps, ~420 KB):
+            images aren't subject to autoplay policy, so it moves on load even
+            where iOS holds a muted video on its play glyph (or Low Power Mode
+            blocks it). Browsers without animated AVIF fall back to the poster.
+            An animated image only paints once fully downloaded, unlike a
+            video, so the (preloaded) poster is its background until then.
           */}
           <picture className="block w-full h-full sm:hidden">
             <source srcSet="/hero-loop.avif" type="image/avif" media="(max-width: 639px)" />
@@ -133,7 +135,8 @@ export function Hero() {
               src="/hero-poster.webp"
               alt=""
               fetchPriority="high"
-              className="w-full h-full object-cover object-center opacity-70 scale-105"
+              style={{ backgroundImage: 'url(/hero-poster.webp)' }}
+              className="w-full h-full object-cover object-center bg-cover bg-center opacity-70 scale-105"
             />
           </picture>
           <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-neutral-950/95 via-neutral-950/60 to-transparent sm:from-neutral-950 sm:via-neutral-950/80 sm:to-transparent" />
