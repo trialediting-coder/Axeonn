@@ -5,6 +5,12 @@
   ],
   "redirects": [
     {
+      "source": "/",
+      "has": [{ "type": "host", "value": "www.axeonstudio.co" }],
+      "destination": "https://axeonstudio.co/",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
       "has": [{ "type": "host", "value": "www.axeonstudio.co" }],
       "destination": "https://axeonstudio.co/:path*",
