@@ -2,5 +2,13 @@
   "crons": [
     { "path": "/api/cron/generate-post", "schedule": "0 13 * * 0" },
     { "path": "/api/cron/publish-scheduled", "schedule": "0 13 * * *" }
+  ],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.axeonstudio.co" }],
+      "destination": "https://axeonstudio.co/:path*",
+      "permanent": true
+    }
   ]
 }
