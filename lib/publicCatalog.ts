@@ -58,7 +58,7 @@ const DESCRIPTIONS: Record<CatalogKey, string> = {
   'core-web-build':
     'Up to 4 custom, mobile-first pages with SEO, AEO and GEO built in, instant lead alerts, and conversion tracking.',
   axeoncore:
-    'Everything in Core Web Build plus custom on-site videography, a 5–7 page conversion architecture, a Custom CRM Pipeline, AI chat and scheduling, and automated follow-up.',
+    'Everything in Essentials plus custom on-site videography, a 5–7 page conversion architecture, a Custom CRM Pipeline, AI chat and scheduling, and automated follow-up.',
   'addon-videography': 'Half-day shoot at your location: a hero film, 3 vertical cuts, and a photo set.',
   'addon-extra-page': 'One additional custom-designed page.',
   'addon-directory-integration': 'A database-backed directory or listing integration.',

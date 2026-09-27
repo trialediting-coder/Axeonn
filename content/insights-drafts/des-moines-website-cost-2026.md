@@ -14,7 +14,7 @@ Our published pricing for comparison:
 
 | Build | Price | What it is |
 |---|---|---|
-| Core Web Build | $2,800 flat | Up to four custom pages, mobile-first, SEO built in, lead alerts to your phone |
+| Essentials | $2,800 flat | Up to four custom pages, mobile-first, SEO built in, lead alerts to your phone |
 | AxeonCORE | $5,800 flat | Everything in Core plus a Custom CRM Pipeline, AI chat and scheduling, automated follow-up, and a half-day on-site video shoot |
 
 Both are one-time build prices, and you own the site, the code, and the design files when it launches. Full details are on our [pricing page](/pricing).
@@ -63,7 +63,7 @@ Everything else is nice to have. A site that does those three things and puts a 
 
 Because our prices are public, it is fair to show what they buy.
 
-The Core Web Build at $2,800 is for a business that needs a credible, fast site that makes the phone ring. It includes up to four custom-designed, mobile-first pages, search and AI-answer-engine optimization built in rather than bolted on, instant lead alerts to your inbox and phone, and conversion tracking so you know which pages produce calls. Most local businesses start here.
+Essentials at $2,800 is for a business that needs a credible, fast site that makes the phone ring. It includes up to four custom-designed, mobile-first pages, search and AI-answer-engine optimization built in rather than bolted on, instant lead alerts to your inbox and phone, and conversion tracking so you know which pages produce calls. It brings in leads, but it won't follow up on them for you; that is what AxeonCORE adds.
 
 AxeonCORE at $5,800 is for a business that already gets leads and needs them captured, qualified, and followed up automatically. It adds a Custom CRM Pipeline built around your lead-to-close workflow, AI chat and online scheduling so leads book themselves, a multi-step intake form that pre-qualifies inquiries before you call, automated text and email follow-up the moment a lead comes in, and a half-day video and photo shoot at your location.
 

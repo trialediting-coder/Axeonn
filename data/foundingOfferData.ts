@@ -22,9 +22,9 @@ export const foundingOffer = {
   headline: 'One of our first 5 websites, built free',
   subhead:
     'We are launching with five Iowa businesses. Their custom site gets built at no build cost, in exchange for honest feedback and a review we can show the next client.',
-  /** Real anchor: the published Core Web Build price. */
+  /** Real anchor: the published Essentials build price. */
   anchorPrice: '$2,800',
-  anchorLabel: 'Core Web Build value',
+  anchorLabel: 'Essentials build value',
   totalSpots: 5,
   /** Update as founding clients sign. Never display a number higher than reality. */
   spotsRemaining: 5,

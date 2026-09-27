@@ -60,7 +60,7 @@ const PROCESS_STEPS = [
     step: '01',
     title: 'Strategy Call',
     description:
-      'We scope your build together, walk through the Core Web Build vs. AxeonCORE tiers, and confirm exactly what you need — no pressure, no guessing on price.',
+      'We scope your build together, walk through the Essentials vs. AxeonCORE tiers, and confirm exactly what you need — no pressure, no guessing on price.',
   },
   {
     icon: Hammer,

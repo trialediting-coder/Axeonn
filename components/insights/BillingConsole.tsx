@@ -525,7 +525,7 @@ function InvoiceForm({ catalog }: { catalog: Props['catalog'] }) {
           <input name="daysUntilDue" type="number" min={1} max={90} defaultValue={14} className={inputClass} />
         </Field>
         <Field label="Memo (shown on invoice)">
-          <input name="memo" type="text" className={inputClass} placeholder="Deposit for Core Web Build" />
+          <input name="memo" type="text" className={inputClass} placeholder="Deposit for Essentials" />
         </Field>
         <div className="sm:col-span-2 space-y-3">
           <span className={labelClass}>Line items</span>

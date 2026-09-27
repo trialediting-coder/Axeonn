@@ -59,7 +59,10 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
 
         <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-8 lg:gap-10 xl:gap-8 items-stretch max-w-6xl xl:max-w-[1500px] 2xl:max-w-[1600px] mx-auto">
           {pricingTiers.map((tier, idx) => {
-            const isDark = !tier.featured;
+            // The entry tier is deliberately the plain card and the featured
+            // (recommended) tier the loud one, so the eye lands on the tier we
+            // want to sell. The step-up box stays dark.
+            const isPlain = !tier.featured;
             const highlights = new Set(tier.highlightFeatures ?? []);
             return (
               <motion.div
@@ -70,8 +73,8 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
                 transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
                 whileHover={{ y: -6 }}
                 className={`relative rounded-[32px] p-8 sm:p-10 lg:p-12 xl:p-10 2xl:p-12 flex flex-col ${
-                  isDark
-                    ? 'bg-neutral-950 text-white border border-neutral-800 shadow-lg'
+                  isPlain
+                    ? 'bg-neutral-50 text-neutral-900 border border-neutral-200 shadow-sm'
                     : 'bg-white text-neutral-950 border-2 border-blue-600 shadow-2xl shadow-blue-600/20 ring-8 ring-blue-600/10 lg:scale-[1.03] z-10'
                 }`}
               >
@@ -82,7 +85,7 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
                     viewport={{ once: true }}
                     transition={{ duration: 0.4, delay: 0.3 }}
                     className={`absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold tracking-wide uppercase shadow-md whitespace-nowrap ${
-                      isDark ? 'bg-white text-neutral-950' : 'bg-blue-600 text-white'
+                      'bg-blue-600 text-white'
                     }`}
                   >
                     {tier.badge}
@@ -92,7 +95,7 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
                 <h3 className="text-2xl sm:text-3xl font-bold mb-1.5">{tier.name}</h3>
                 <p
                   className={`text-sm sm:text-base font-semibold mb-4 uppercase tracking-wide ${
-                    isDark ? 'text-blue-400' : 'text-blue-600'
+                    isPlain ? 'text-neutral-500' : 'text-blue-600'
                   }`}
                 >
                   {tier.focus}
@@ -100,7 +103,7 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
                 {tier.bestFor && (
                   <p
                     className={`text-sm sm:text-base leading-relaxed mb-5 rounded-xl px-4 py-3 ${
-                      isDark ? 'bg-white/5 text-neutral-200' : 'bg-blue-50 text-blue-900'
+                      isPlain ? 'bg-white border border-neutral-200 text-neutral-700' : 'bg-blue-50 text-blue-900'
                     }`}
                   >
                     {tier.bestFor}
@@ -108,20 +111,20 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
                 )}
                 <p
                   className={`text-base sm:text-lg mb-6 leading-relaxed ${
-                    isDark ? 'text-neutral-300' : 'text-neutral-500'
+                    'text-neutral-500'
                   }`}
                 >
                   {tier.billingNote}
                 </p>
                 <div className="text-4xl sm:text-6xl font-black mb-3 tracking-tight whitespace-nowrap">{tier.price}</div>
-                <p className={`text-base sm:text-lg mb-8 ${isDark ? 'text-neutral-300' : 'text-neutral-600'}`}>
+                <p className={`text-base sm:text-lg mb-8 ${'text-neutral-600'}`}>
                   {tier.turnaround}
                 </p>
 
                 {tier.inherits && (
                   <p
                     className={`text-sm sm:text-base font-bold uppercase tracking-wide mb-4 ${
-                      isDark ? 'text-neutral-400' : 'text-neutral-500'
+                      'text-neutral-500'
                     }`}
                   >
                     {tier.inherits}
@@ -135,11 +138,7 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
                       return (
                         <li
                           key={feature}
-                          className={`flex gap-3.5 text-base sm:text-lg leading-relaxed rounded-2xl p-4 sm:p-5 -mx-1 ${
-                            isDark
-                              ? 'bg-blue-600/15 border border-blue-500/40 text-white'
-                              : 'bg-blue-50 border border-blue-100'
-                          }`}
+                          className="flex gap-3.5 text-base sm:text-lg leading-relaxed rounded-2xl p-4 sm:p-5 -mx-1 bg-blue-50 border border-blue-100"
                         >
                           <Clapperboard size={22} className="shrink-0 mt-0.5 text-blue-400" />
                           <span className="font-semibold">{feature}</span>
@@ -148,7 +147,7 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
                     }
                     return (
                       <li key={feature} className="flex gap-3.5 text-base sm:text-lg leading-relaxed">
-                        <Check size={20} className={`shrink-0 mt-1 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
+                        <Check size={20} className={`shrink-0 mt-1 ${isPlain ? 'text-neutral-400' : 'text-blue-600'}`} />
                         <span>{feature}</span>
                       </li>
                     );
@@ -177,14 +176,14 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
                 <Link
                   href={`/book?tier=${tier.id}`}
                   className={`text-center py-4 sm:py-4.5 rounded-full font-bold text-base sm:text-lg transition-colors shadow-sm ${
-                    isDark
-                      ? 'bg-white hover:bg-neutral-200 text-neutral-950'
+                    isPlain
+                      ? 'bg-white hover:bg-neutral-100 text-neutral-900 border border-neutral-300'
                       : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30'
                   }`}
                 >
                   {tier.cta}
                 </Link>
-                <p className={`mt-3 text-center text-xs sm:text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-500'}`}>
+                <p className={`mt-3 text-center text-xs sm:text-sm ${'text-neutral-500'}`}>
                   Free 20-minute call, no obligation.{' '}
                   <a href="tel:+15154938017" className="font-semibold underline underline-offset-2">
                     Or call (515) 493-8017

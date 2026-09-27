@@ -21,7 +21,7 @@ import { SITE_URL } from '@/lib/seo';
 import { computeSplit, type PaymentKind } from '@/lib/billingMath';
 
 export const CATALOG = {
-  'core-web-build': { label: 'Core Web Build', kind: 'tier' },
+  'core-web-build': { label: 'Essentials', kind: 'tier' },
   axeoncore: { label: 'AxeonCORE', kind: 'tier' },
   'addon-videography': { label: 'Custom On-Site Videography', kind: 'addon' },
   'addon-extra-page': { label: 'Additional Custom Page Build', kind: 'addon' },
@@ -51,7 +51,7 @@ export const STANDARD_CARE_AMOUNT_CENTS = 4900;
 // private preset for existing clients and is never shown on the site.
 export const PLANS = {
   'core-web-build-monthly': {
-    label: 'Core Web Build Monthly Plan',
+    label: 'Essentials Monthly Plan',
     amountCents: 28400,
     tier: 'core-web-build',
     public: true,

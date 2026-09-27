@@ -6,13 +6,14 @@ factual subset of the fuller internal marketing-context file, which stays
 local-only.
 
 ## Real pricing (never state a different number)
-- Core Web Build: $2,800, one-time. Our fastest build.
+- Essentials (renamed from "Core Web Build" on 2026-09-27): $2,800, one-time. Our fastest build.
+  The entry tier; AxeonCORE is the recommended, featured tier.
 - AxeonCORE: $5,800, one-time. Includes custom
   on-site videography (half-day shoot: hero film, 3 vertical cuts, photo set).
-- Custom on-site videography as an add-on to Core Web Build: $1,500.
+- Custom on-site videography as an add-on to Essentials: $1,500.
 - Monthly plans (owner decision 2026-09-23): the build price is a one-time
   setup payment; each build is followed by a monthly plan that starts after
-  launch and is set up with the client then. Core Web Build Monthly Plan:
+  launch and is set up with the client then. Essentials Monthly Plan:
   $284/month. AxeonCORE Monthly Plan: $574/month. State only these two
   amounts, never a different monthly figure, and never describe the plan as
   required to keep the site (it covers hosting, care, and ongoing support).

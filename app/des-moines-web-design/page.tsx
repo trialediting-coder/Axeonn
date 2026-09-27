@@ -66,7 +66,7 @@ const LOCAL_FAQ = [
   {
     question: 'How much does a website cost in Des Moines?',
     answer:
-      'Our pricing is published. The Core Web Build is $2,800 one-time and is our fastest build. The AxeonCORE is $5,800 one-time and adds a Custom CRM Pipeline, AI chat & online scheduling, automated follow-up, and a half-day on-site video shoot.',
+      'Our pricing is published. Essentials is $2,800 one-time and is our fastest build. The AxeonCORE is $5,800 one-time and adds a Custom CRM Pipeline, AI chat & online scheduling, automated follow-up, and a half-day on-site video shoot.',
   },
   {
     question: 'Will my business show up when people search on Google or ask ChatGPT?',
@@ -177,7 +177,7 @@ export default function DesMoinesWebDesignPage() {
             >
               <h3 className="text-lg font-bold mb-2">Flat-Rate Pricing</h3>
               <p className="text-neutral-300 text-sm leading-relaxed mb-4">
-                Core Web Build from $2,800. AxeonCORE with on-site video from $5,800. No proposals.
+                Essentials from $2,800. AxeonCORE with on-site video from $5,800. No proposals.
               </p>
               <span className="inline-flex items-center gap-1 text-sm font-semibold text-blue-400">
                 See both builds <ArrowRight size={14} />

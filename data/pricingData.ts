@@ -5,7 +5,7 @@ export interface PricingTier {
   price: string;
   billingNote: string;
   turnaround: string;
-  /** Short badge rendered above the card (e.g. "Most Popular"). */
+  /** Short badge rendered above the card (e.g. "Recommended"). */
   badge?: string;
   /** Rendered as a lead-in above the feature list ("Everything in X, plus:"). */
   inherits?: string;
@@ -38,14 +38,12 @@ export interface AddOn {
 export const pricingTiers: PricingTier[] = [
   {
     id: 'core-web-build',
-    name: 'Core Web Build',
-    focus: 'Get found. Look credible. Get the call.',
+    name: 'Essentials',
+    focus: 'A clean, fast site that gets you found.',
     price: '$2,800',
     billingNote: 'Flat-rate build price',
     turnaround: 'Our Fastest Turnaround',
-    badge: 'Most Popular',
-    featured: true,
-    bestFor: 'Right for you if you need a credible, fast site that makes the phone ring. Most local businesses start here.',
+    bestFor: 'Right for you if you just need a credible, fast site that shows up on Google. It brings in leads; it won\'t capture, qualify, or follow up on them for you.',
     features: [
       'Up to 4 custom-designed, mobile-first pages built around how your business actually sells',
       'Sub-second load speeds & 100% Core Web Vitals pass',
@@ -55,7 +53,7 @@ export const pricingTiers: PricingTier[] = [
       'Foundational ADA accessibility standards',
       'You own 100% of the site, code, and design files',
     ],
-    cta: 'Book Core Build',
+    cta: 'Book Essentials',
   },
   {
     id: 'axeoncore',
@@ -64,9 +62,10 @@ export const pricingTiers: PricingTier[] = [
     price: '$5,800',
     billingNote: 'Flat-rate build price',
     turnaround: 'Fast Turnaround',
-    badge: 'Premium Build',
-    bestFor: 'Right for you if leads already come in and you need them captured, qualified, and followed up automatically, with real footage of your business.',
-    inherits: 'Everything in Core Web Build, plus:',
+    badge: 'Recommended',
+    featured: true,
+    bestFor: 'The build we recommend: a site that captures, qualifies, and follows up on every lead automatically, with real footage of your business doing the selling.',
+    inherits: 'Everything in Essentials, plus:',
     features: [
       'Custom on-site videography — a half-day shoot at your location: a hero film for your site, 3 vertical cuts for social & ads, and a photo set',
       'Complete 5–7 page conversion architecture with conversion-copy hierarchy',
@@ -94,7 +93,7 @@ export const pricingTiers: PricingTier[] = [
 ];
 
 export const addOns: AddOn[] = [
-  { name: 'Custom On-Site Videography (add to Core Web Build)', price: '+$1,500' },
+  { name: 'Custom On-Site Videography (add to Essentials)', price: '+$1,500' },
   { name: 'Additional Custom Page Build', price: '+$450 / page' },
   { name: 'Advanced Database/Directory Integration', price: '+$850' },
   { name: 'Secondary Niche Landing Page Variant', price: '+$500' },
@@ -108,14 +107,14 @@ export interface PricingFaq {
 export const pricingFaqs: PricingFaq[] = [
   {
     q: 'Which build should I pick?',
-    a: 'Core Web Build if you need a credible, fast site that produces calls — most local businesses start here and it\'s the right call. AxeonCORE if leads already come in faster than you can follow up, you book appointments or consultations, or you want your business to look like the biggest operation in town — real footage of your team and your work does that in a way no template can.',
+    a: 'Essentials if you just need a credible, fast site online and you\'re happy to chase every lead yourself. AxeonCORE if you want the site to do the selling for you: it captures, qualifies, and follows up on leads automatically, and real footage of your team and your work makes you look like the biggest operation in town in a way no template can. It\'s the build we recommend.',
   },
   {
     q: 'What does the on-site videography actually include?',
     a: 'We come to your location for a half-day shoot — your team, your space, your work. You get a hero film cut for your website, three vertical cuts sized for social and ads, and a photo set for your site and profiles. Everything is shot for the placements it will actually run in, not a single generic video you have to re-purpose yourself.',
   },
   {
-    q: 'Can I add videography to the Core Web Build instead?',
+    q: 'Can I add videography to Essentials instead?',
     a: 'Yes — it\'s a $1,500 add-on. Worth knowing before you do: at that point AxeonCORE is only $1,500 more and adds the Custom CRM Pipeline, AI chat & scheduling, the pre-qualifying intake, and automated follow-up. Most people who want the video end up going AxeonCORE for that reason.',
   },
   {

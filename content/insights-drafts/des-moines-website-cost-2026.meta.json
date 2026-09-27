@@ -15,7 +15,7 @@
   "faqItems": [
     {
       "question": "How much does a small business website cost in Des Moines?",
-      "answer": "Most professional custom builds in 2026 land between $3,000 and $15,000 depending on who builds it and what is included. Axeon Studio publishes two flat prices: the Core Web Build at $2,800 and AxeonCORE at $5,800, both one-time build prices with full ownership of the site."
+      "answer": "Most professional custom builds in 2026 land between $3,000 and $15,000 depending on who builds it and what is included. Axeon Studio publishes two flat prices: Essentials at $2,800 and AxeonCORE at $5,800, both one-time build prices with full ownership of the site."
     },
     {
       "question": "Why do web design quotes vary so much?",
@@ -26,8 +26,8 @@
       "answer": "With Axeon Studio, yes. You own 100 percent of the site, the code, and the design files. Ask any builder this question before you sign; if the answer is anything other than yes, you are renting."
     },
     {
-      "question": "What is the difference between the Core Web Build and AxeonCORE?",
-      "answer": "Core Web Build ($2,800) is up to four custom, mobile-first pages with SEO built in and instant lead alerts. AxeonCORE ($5,800) adds a Custom CRM Pipeline, AI chat and online scheduling, automated text and email follow-up, a pre-qualifying intake form, and a half-day on-site video and photo shoot."
+      "question": "What is the difference between Essentials and AxeonCORE?",
+      "answer": "Essentials ($2,800) is up to four custom, mobile-first pages with SEO built in and instant lead alerts. AxeonCORE ($5,800) adds a Custom CRM Pipeline, AI chat and online scheduling, automated text and email follow-up, a pre-qualifying intake form, and a half-day on-site video and photo shoot."
     }
   ],
   "sources": [
