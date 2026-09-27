@@ -144,7 +144,7 @@ export function Hero() {
             Phones get the same 30s clip as an animated AVIF: images aren't
             subject to autoplay policy, so it moves even where iOS holds a
             muted video on its play glyph (or Low Power Mode blocks it).
-            It is a portrait center crop at 540x960 / 18fps (~1 MB); the old
+            It is a portrait center crop at 540x960 / 24fps, the source rate (~1 MB); the old
             480x270 landscape file was upscaled ~9x by object-cover on a tall
             screen, which is what made it blurry. The <source> is added after
             page load (see loopReady); until then, and in browsers without
