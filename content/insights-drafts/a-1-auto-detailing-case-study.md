@@ -14,7 +14,21 @@ Pages like that used to help. Today Google treats them as low value, and AI assi
 
 The goal was simple to say: make the website as good as the work.
 
-## Step 1: A site built around how detailing customers decide
+![Before and after: A-1 Auto Detailing's old homepage compared with the new one Axeon built](/images/case-studies/a1/homepage-before-after.jpg)
+
+*Same business, same phone number. Very different first impression.*
+
+## Step 1: A new logo that works everywhere
+
+A-1's old logo was a small blue-and-black card with the business name and phone number printed right on it. It looked fine on a magnet. Shrunk down to a website header, a browser tab, or a Google profile photo, it turned into an unreadable blue smudge.
+
+So we designed Levi a new mark: a dual-action polisher, the tool behind every paint correction, inside a clean blue ring, with a little sparkle for the finish. No text, no phone number, nothing to go out of date. It reads as clearly on a shop sign as it does as a 16-pixel favicon.
+
+![A-1 Auto Detailing's old business-card logo next to the new polisher logo Axeon designed, shown at four sizes](/images/case-studies/a1/logo-before-after.jpg)
+
+*The phone number lives on the website now, where you can tap it.*
+
+## Step 2: A site built around how detailing customers decide
 
 Someone choosing a detailer wants three answers fast. What does it cost, is this guy any good, and how do I book? The new site answers all three above the fold, then backs them up.
 
@@ -25,7 +39,11 @@ Someone choosing a detailer wants three answers fast. What does it cost, is this
 
 We also positioned A-1 the way Levi actually works: premium detailing by appointment at his Pleasant Hill location. Every line of copy, schema, and metadata says the same thing, because inconsistent descriptions confuse both customers and search engines.
 
-## Step 2: SEO that doesn't throw away what already ranked
+![The new before-and-after page on A-1 Auto Detailing's website, with a drag slider comparing a dirty and a cleaned Honda Pilot cabin](/images/case-studies/a1/before-after-slider.jpg)
+
+*Nothing sells detailing like a dirty floor mat turning into a clean one. Every photo is a real customer's car.*
+
+## Step 3: SEO that doesn't throw away what already ranked
 
 A redesign is the most common way small businesses lose their Google rankings. Old URLs die, the links pointing at them break, and years of search history vanish overnight.
 
@@ -41,7 +59,7 @@ On top of that foundation:
 
 Instead of 56 thin pages, the site now has 18 pages that each have a real reason to exist.
 
-## Step 3: A booking flow that turns visits into appointments
+## Step 4: A booking flow that turns visits into appointments
 
 Traffic only matters if it becomes appointments. We built the site so booking is never more than one tap away.
 
@@ -52,7 +70,7 @@ Traffic only matters if it becomes appointments. We built the site so booking is
 
 No account to create, no long intake form, and the same few fields on every device.
 
-## Step 4: Setting A-1 up to be recommended by AI
+## Step 5: Setting A-1 up to be recommended by AI
 
 This is the part most local businesses don't know about yet.
 

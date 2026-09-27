@@ -45,7 +45,7 @@ local-only.
   numbers for Axeon's own work. Axeon has exactly one published client
   case study: A-1 Auto Detailing (Levi Rench, Pleasant Hill, Iowa),
   at /insights/a-1-auto-detailing-website-case-study. Its approved facts:
-  site rebuilt by Axeon; about 56 old URLs 301-redirected; 18 pages
+  site and new logo (a polisher inside a blue ring) designed by Axeon; about 56 old URLs 301-redirected; 18 pages
   (6 service pages, 4 guides); published starting prices from Levi's own
   price list; 5.0 Google rating from 178 reviews; 25 years of detailing
   experience; quote/booking form with service pre-select and tap-to-call;
