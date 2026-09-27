@@ -60,14 +60,20 @@ export function Hero() {
       video.defaultMuted = true;
       if (video.paused) video.play().catch(() => {});
     };
-    const onPlaying = () => setMobilePlaying(true);
+    // `paused` flips to false as soon as play() is called, even while the
+    // file is still buffering, so track real playback via `playing`.
+    let started = false;
+    const onPlaying = () => {
+      started = true;
+      setMobilePlaying(true);
+    };
     const onError = () => setAvifFallback(true);
 
     video.addEventListener('playing', onPlaying);
     video.addEventListener('error', onError);
     tryPlay();
     const fallbackId = window.setTimeout(() => {
-      if (video.paused) setAvifFallback(true);
+      if (!started) setAvifFallback(true);
     }, 3000);
 
     const gestureEvents = ['touchstart', 'pointerdown', 'click', 'scroll'] as const;
@@ -185,10 +191,14 @@ export function Hero() {
             a tall screen, which is what made it blurry. Layers, bottom up:
             portrait poster (paints with the HTML) -> AVIF loop (only if the
             video can't start, see avifFallback) -> H.264 video (faded in once
-            it is actually playing).
+            it is actually playing). Once the video plays, the poster/AVIF
+            layer is faded out and the AVIF dropped; both sit at opacity-70
+            with the dark background, so leaving it would ghost through.
           */}
-          <picture className="block w-full h-full sm:hidden">
-            {avifFallback && <source srcSet="/hero-loop.avif" type="image/avif" media="(max-width: 639px)" />}
+          <picture
+            className={`block w-full h-full sm:hidden transition-opacity duration-700 ${mobilePlaying ? 'opacity-0' : 'opacity-100'}`}
+          >
+            {avifFallback && !mobilePlaying && <source srcSet="/hero-loop.avif" type="image/avif" media="(max-width: 639px)" />}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/hero-poster-mobile.webp"
