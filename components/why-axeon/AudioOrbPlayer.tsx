@@ -50,7 +50,7 @@ export function AudioOrbPlayer({ src, variant, label, size = 'default', minimal 
       <audio
         ref={audioRef}
         src={src}
-        preload="auto"
+        preload="metadata"
         onPlay={() => {
           setIsPlaying(true);
           setHasError(false);

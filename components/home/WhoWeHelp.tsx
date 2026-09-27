@@ -152,7 +152,7 @@ export function WhoWeHelp() {
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={whoWeHelpHeroImage}
+                src="/who-we-help/hero-mobile.webp"
                 alt=""
                 loading="lazy"
                 decoding="async"

@@ -20,6 +20,26 @@ export function Hero() {
   const heroVideoRef = useRef<HTMLVideoElement>(null);
   const [wordIndex, setWordIndex] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [loopReady, setLoopReady] = useState(false);
+
+  // Phones: the ~1 MB animated AVIF only paints once fully downloaded, so
+  // fetch it after the page has loaded instead of letting it compete with
+  // the copy, CSS and JS. The static portrait poster covers the gap.
+  useEffect(() => {
+    if (!window.matchMedia(MOBILE_QUERY).matches) return;
+    let idleId: number | undefined;
+    const start = () => {
+      const ric = window.requestIdleCallback;
+      if (ric) idleId = ric(() => setLoopReady(true), { timeout: 1500 });
+      else setLoopReady(true);
+    };
+    if (document.readyState === 'complete') start();
+    else window.addEventListener('load', start, { once: true });
+    return () => {
+      window.removeEventListener('load', start);
+      if (idleId !== undefined) window.cancelIdleCallback?.(idleId);
+    };
+  }, []);
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -121,21 +141,23 @@ export function Hero() {
             <source src="/videoplayback.mp4" type="video/mp4" media="(min-width: 640px)" />
           </video>
           {/*
-            Phones get the same 30s clip as an animated AVIF (15fps, ~420 KB):
-            images aren't subject to autoplay policy, so it moves on load even
-            where iOS holds a muted video on its play glyph (or Low Power Mode
-            blocks it). Browsers without animated AVIF fall back to the poster.
-            An animated image only paints once fully downloaded, unlike a
-            video, so the (preloaded) poster is its background until then.
+            Phones get the same 30s clip as an animated AVIF: images aren't
+            subject to autoplay policy, so it moves even where iOS holds a
+            muted video on its play glyph (or Low Power Mode blocks it).
+            It is a portrait center crop at 540x960 / 18fps (~1 MB); the old
+            480x270 landscape file was upscaled ~9x by object-cover on a tall
+            screen, which is what made it blurry. The <source> is added after
+            page load (see loopReady); until then, and in browsers without
+            animated AVIF, the matching portrait poster shows.
           */}
           <picture className="block w-full h-full sm:hidden">
-            <source srcSet="/hero-loop.avif" type="image/avif" media="(max-width: 639px)" />
+            {loopReady && <source srcSet="/hero-loop.avif" type="image/avif" media="(max-width: 639px)" />}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/hero-poster.webp"
+              src="/hero-poster-mobile.webp"
               alt=""
               fetchPriority="high"
-              style={{ backgroundImage: 'url(/hero-poster.webp)' }}
+              style={{ backgroundImage: 'url(/hero-poster-mobile.webp)' }}
               className="w-full h-full object-cover object-center bg-cover bg-center opacity-70 scale-105"
             />
           </picture>
@@ -146,15 +168,10 @@ export function Hero() {
         </div>
 
         <div className="relative z-10 w-full max-w-3xl flex-1 flex flex-col justify-center sm:ml-16 lg:ml-24 xl:ml-32">
-          <motion.h1
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-black tracking-[-0.03em] leading-[1.05] font-display text-white"
-          >
+          <h1 className="hero-rise text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-black tracking-[-0.03em] leading-[1.05] font-display text-white">
             Grow Your Local{' '}
             <span className="inline-grid">
-              <AnimatePresence mode="wait">
+              <AnimatePresence mode="wait" initial={false}>
                 <motion.span
                   key={reducedMotion ? 'static' : ROTATING_WORDS[wordIndex]}
                   initial={{ opacity: 0, y: 16 }}
@@ -167,23 +184,19 @@ export function Hero() {
                 </motion.span>
               </AnimatePresence>
             </span>
-          </motion.h1>
+          </h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-6 text-base sm:text-lg lg:text-xl text-neutral-300 font-normal leading-relaxed max-w-xl"
+          <p
+            style={{ animationDelay: '0.15s' }}
+            className="hero-rise mt-6 text-base sm:text-lg lg:text-xl text-neutral-300 font-normal leading-relaxed max-w-xl"
           >
             We build and run websites that turn local searches into phone calls, with
             flat-rate pricing and a team you can actually reach.
-          </motion.p>
+          </p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-8 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4"
+          <div
+            style={{ animationDelay: '0.25s' }}
+            className="hero-rise mt-8 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4"
           >
             {/* Primary: the real ask, named as what it is */}
             <button
@@ -209,16 +222,14 @@ export function Hero() {
               <span>See Flat-Rate Pricing</span>
               <ArrowRight size={16} className="text-blue-300 group-hover:translate-x-1 transition-transform" />
             </Link>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-6"
+          <div
+            style={{ animationDelay: '0.35s' }}
+            className="hero-rise mt-6"
           >
             <TrustBadges variant="dark" />
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>
