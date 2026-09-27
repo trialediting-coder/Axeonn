@@ -1,0 +1,40 @@
+{
+  "title": "How We Rebuilt A-1 Auto Detailing's Website for Google and AI Search",
+  "slug": "a-1-auto-detailing-website-case-study",
+  "excerpt": "A-1 Auto Detailing in Pleasant Hill had a 5.0 rating from 178 Google reviews and a website that hid it. Here's how we rebuilt it for SEO, booking, and AI search.",
+  "metaTitle": "A-1 Auto Detailing Case Study: SEO, Booking & AI | Axeon",
+  "metaDescription": "How we rebuilt A-1 Auto Detailing's site in Pleasant Hill, Iowa: 301-mapped every old URL, added a one-tap booking flow, and built it for ChatGPT and AI search.",
+  "nicheTags": [
+    "auto-detailing"
+  ],
+  "coverImageUrl": "https://www.a-1autodetailing.net/img/og-card.jpg",
+  "coverImageAlt": "A-1 Auto Detailing website preview card: premium auto detailing in Pleasant Hill, Iowa",
+  "faqItems": [
+    {
+      "question": "How do you redesign a website without losing Google rankings?",
+      "answer": "Map every old URL before launch and set a permanent 301 redirect from each one to the most relevant new page. For A-1 Auto Detailing we redirected about 56 old URLs, so bookmarks, backlinks, and Google's existing index all land on a live page."
+    },
+    {
+      "question": "How do you get a local business recommended by ChatGPT?",
+      "answer": "Allow AI search crawlers such as OpenAI's OAI-SearchBot in robots.txt, put a plain direct answer (price, time, what's included) at the top of each page, use FAQ and local business schema, and keep the business name, address, and services consistent across Google, Yelp, Facebook, BBB, and other listings."
+    },
+    {
+      "question": "Are thin city pages still good for local SEO?",
+      "answer": "Not when they reuse the same copy with a different town name. Google treats them as low value and AI tools have nothing unique to quote. A town page is worth building when it has its own photos, reviews, and details from that area."
+    },
+    {
+      "question": "What does Axeon Studio build for auto detailing businesses?",
+      "answer": "Custom, fast websites with published starting prices, before-and-after galleries, service pages, a short booking or quote flow, local SEO, and the structure AI assistants need to read and recommend the business. Core Web Build is $2,800 and AxeonCORE is $5,800, both one-time build prices."
+    }
+  ],
+  "sources": [
+    {
+      "claim": "45% of consumers use ChatGPT or other generative AI tools for local business recommendations, up from 6% the previous year.",
+      "url": "https://www.brightlocal.com/research/local-consumer-review-survey/"
+    },
+    {
+      "claim": "Sites opted out of OAI-SearchBot will not be shown in ChatGPT search answers; OpenAI recommends allowing it in robots.txt.",
+      "url": "https://developers.openai.com/api/docs/bots"
+    }
+  ]
+}

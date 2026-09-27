@@ -42,8 +42,17 @@ local-only.
 
 ## Never fabricate
 - No invented client results, case studies, testimonials, or before/after
-  numbers for Axeon's own work. Axeon does not yet have published client
-  case studies — do not imply otherwise.
+  numbers for Axeon's own work. Axeon has exactly one published client
+  case study: A-1 Auto Detailing (Levi Rench, Pleasant Hill, Iowa),
+  at /insights/a-1-auto-detailing-website-case-study. Its approved facts:
+  site rebuilt by Axeon; about 56 old URLs 301-redirected; 18 pages
+  (6 service pages, 4 guides); published starting prices from Levi's own
+  price list; 5.0 Google rating from 178 reviews; 25 years of detailing
+  experience; quote/booking form with service pre-select and tap-to-call;
+  AI search crawlers allowed in robots.txt, llms.txt, FAQ and local
+  business schema, IndexNow; a perfect 100/100 SEO audit score; page load
+  of roughly 0.3-0.8 seconds. Never state traffic, ranking, lead, or
+  revenue results for A-1, and never imply any other client case study.
 - No unverifiable superlatives beyond these two pre-approved claims:
   "Certified Partner" and "5.0 Client Rating". "First AI-Powered Agency in
   Iowa" / "Iowa's First AI-Forward Digital Agency" is also pre-approved

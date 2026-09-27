@@ -1,0 +1,65 @@
+{
+  "title": "How to Get Your Business Recommended by ChatGPT and Google's AI (2026 Guide)",
+  "slug": "how-to-get-your-business-recommended-by-chatgpt",
+  "excerpt": "45% of consumers now ask AI tools for local business recommendations. Here's how ChatGPT and Google's AI Overviews pick which businesses to name, and 7 steps to be one of them.",
+  "metaTitle": "How to Get Recommended by ChatGPT (2026 Guide) | Axeon",
+  "metaDescription": "How ChatGPT and Google AI Overviews choose which local businesses to recommend, and 7 practical steps to get your business named. A guide for Iowa businesses.",
+  "nicheTags": [
+    "hvac",
+    "roofing",
+    "dental",
+    "auto-detailing",
+    "home-remodeling",
+    "landscaping"
+  ],
+  "coverImageUrl": "",
+  "coverImageAlt": "",
+  "faqItems": [
+    {
+      "question": "How do I get my business recommended by ChatGPT?",
+      "answer": "Allow OpenAI's search crawler (OAI-SearchBot) in your robots.txt, put a plain direct answer with prices and what's included at the top of each page, add FAQ and local business schema, and build consistent reviews and mentions on sites beyond Google, such as Yelp, Facebook, directories, and local forums."
+    },
+    {
+      "question": "Do I need special code or an llms.txt file to appear in Google AI Overviews?",
+      "answer": "No. Google's guidance says there are no special requirements or AI-only markup needed to appear in AI Overviews. The same SEO fundamentals apply: crawlable pages, helpful content, and accurate structured data."
+    },
+    {
+      "question": "How many people use AI to find local businesses?",
+      "answer": "BrightLocal's 2026 Local Consumer Review Survey found 45% of consumers use ChatGPT or other AI tools for local business recommendations, up from 6% the year before."
+    },
+    {
+      "question": "Do Google reviews help me show up in ChatGPT?",
+      "answer": "They help, but they aren't enough on their own. BrightLocal notes that ChatGPT and other AI tools can't see inside Google's review system, so reviews on other platforms like Yelp and Facebook matter for AI recommendations."
+    },
+    {
+      "question": "How can I check whether AI recommends my business?",
+      "answer": "Ask ChatGPT, Perplexity, and Google the questions your customers ask, such as 'best [service] in [city]'. Note whether you're named, whether the details are correct, and which websites the AI cites. Those cited sites show where you need to be listed."
+    }
+  ],
+  "sources": [
+    {
+      "claim": "45% of consumers use ChatGPT or other generative AI tools for local business recommendations, up from 6% the previous year.",
+      "url": "https://www.brightlocal.com/research/local-consumer-review-survey/"
+    },
+    {
+      "claim": "ChatGPT was used by 31% of consumers for business recommendations in the last 12 months; AI tools can't see inside Google's review system.",
+      "url": "https://www.brightlocal.com/research/lcrs-ai-trust/"
+    },
+    {
+      "claim": "When an AI Overview is present, the top-ranking page's average clickthrough rate is about 58% lower (300,000 keywords, December 2025 data).",
+      "url": "https://ahrefs.com/blog/ai-overviews-reduce-clicks-update/"
+    },
+    {
+      "claim": "Users clicked a traditional search result on 8% of visits with an AI summary versus 15% without one.",
+      "url": "https://www.pewresearch.org/short-reads/2025/07/22/google-users-are-less-likely-to-click-on-links-when-an-ai-summary-appears-in-the-results/"
+    },
+    {
+      "claim": "There are no special requirements or AI-specific markup needed to appear in Google's AI features; SEO fundamentals apply.",
+      "url": "https://developers.google.com/search/docs/appearance/ai-features"
+    },
+    {
+      "claim": "Sites opted out of OAI-SearchBot will not be shown in ChatGPT search answers.",
+      "url": "https://developers.openai.com/api/docs/bots"
+    }
+  ]
+}
