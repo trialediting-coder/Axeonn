@@ -9,6 +9,7 @@ import { Footer } from '@/components/Footer';
 import { LeadModalProvider } from '@/components/common/LeadModalProvider';
 import { SideTabCTA } from '@/components/common/SideTabCTA';
 import { FreeWebsiteOfferPopup } from '@/components/common/FreeWebsiteOfferPopup';
+import { CaseStudyBadge } from '@/components/common/CaseStudyBadge';
 import { buildMetadata } from '@/lib/metadata';
 import { JsonLd } from '@/components/common/JsonLd';
 import { siteGraphJsonLd } from '@/lib/seo';
@@ -116,6 +117,7 @@ document.head.appendChild(o)}if(navigator.globalPrivacyControl!==true){initApoll
           </SmoothScrollProvider>
           <SideTabCTA />
           <FreeWebsiteOfferPopup />
+          <CaseStudyBadge />
         </LeadModalProvider>
       </body>
     </html>
