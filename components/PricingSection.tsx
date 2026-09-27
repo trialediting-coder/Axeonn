@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Check, ShieldCheck, ChevronDown, ChevronUp, Clapperboard, MessagesSquare } from 'lucide-react';
+import { Check, ShieldCheck, ChevronDown, ChevronUp, Clapperboard, MessagesSquare, LayoutTemplate, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { pricingTiers, addOns, pricingFaqs, revisionGuarantee } from '@/data/pricingData';
 
@@ -45,7 +45,7 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
           className="text-center max-w-4xl mx-auto mb-16 sm:mb-20"
         >
           <h2 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-neutral-950 mb-6 leading-[1.12]">
-            Two Flat-Rate Builds. Or Start With a Free Consultation.
+            Two Flat-Rate Builds. Or See Your New Site Free First.
           </h2>
           <p className="text-xl sm:text-2xl text-neutral-600 leading-relaxed max-w-3xl mx-auto">
             No 3-week proposals, no hourly billing. One price, a fast turnaround,
@@ -290,18 +290,30 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
 }
 
 /**
- * Third card beside the two builds: the free consultation is the entry point
- * for anyone undecided, and for custom scopes neither build covers (this
- * replaced the old "Need Something Different?" box under the grid).
+ * Third card beside the two builds. A free call alone is table stakes, so
+ * booking one comes with two things prepared for that business before the
+ * call: a custom homepage mockup and an AI visibility report. The call is
+ * where we walk them through both. Also covers custom scopes neither build
+ * fits (this replaced the old "Need Something Different?" box).
  * Spans the full row at lg (two columns) and sits third at xl.
  */
 function FreeConsultationCard() {
+  const bonuses = [
+    {
+      icon: LayoutTemplate,
+      title: 'Your new homepage, designed for you',
+      body: 'A custom mockup of your homepage with your business, your services, and your brand. See your new site before you spend a dollar.',
+    },
+    {
+      icon: Sparkles,
+      title: 'Your AI visibility report',
+      body: 'Where you show up on Google, ChatGPT, and Perplexity for the searches that matter, and who gets recommended instead of you.',
+    },
+  ];
   const points = [
     'One-on-one call with our team, not a sales script',
-    'We look at your current site, your Google presence, and how customers find you today',
     'A straight recommendation on which build fits, or a custom scope if neither does',
-    'Bigger, narrower, or one-off projects scoped directly with you',
-    'You leave with a clear plan, whether or not you hire us',
+    'Both are yours to keep, whether or not you hire us',
   ];
 
   return (
@@ -317,17 +329,35 @@ function FreeConsultationCard() {
         100% Free
       </span>
 
-      <h3 className="text-2xl sm:text-3xl font-bold mb-1.5">Free Custom Consultation</h3>
+      <h3 className="text-2xl sm:text-3xl font-bold mb-1.5">Free Consultation</h3>
       <p className="text-sm sm:text-base font-semibold mb-4 uppercase tracking-wide text-emerald-700">
-        Not sure yet? Start here.
+        Book a call. Get your new homepage.
       </p>
       <p className="text-sm sm:text-base leading-relaxed mb-5 rounded-xl px-4 py-3 bg-emerald-100/70 text-emerald-950">
-        Right for you if you want a straight answer on what your business actually
-        needs before spending a dollar, or if neither build quite fits.
+        Right for you if you want to see exactly what you&apos;d get before spending a
+        dollar, or if neither build quite fits.
       </p>
       <p className="text-base sm:text-lg mb-6 leading-relaxed text-neutral-500">No cost, no obligation</p>
       <div className="text-4xl sm:text-6xl font-black mb-3 tracking-tight whitespace-nowrap">$0</div>
-      <p className="text-base sm:text-lg mb-8 text-neutral-600">Custom to your business</p>
+      <p className="text-base sm:text-lg mb-8 text-neutral-600">Prepared for your business</p>
+
+      <p className="text-sm sm:text-base font-bold uppercase tracking-wide mb-4 text-neutral-500">
+        Every consultation includes:
+      </p>
+      <div className="space-y-3 mb-6">
+        {bonuses.map(({ icon: Icon, title, body }) => (
+          <div
+            key={title}
+            className="flex gap-3.5 rounded-2xl p-4 sm:p-5 -mx-1 bg-white border border-emerald-200 shadow-sm"
+          >
+            <Icon size={22} className="shrink-0 mt-0.5 text-emerald-600" />
+            <div>
+              <div className="font-bold text-base sm:text-lg leading-snug">{title}</div>
+              <p className="mt-1 text-sm sm:text-base text-neutral-600 leading-relaxed">{body}</p>
+            </div>
+          </div>
+        ))}
+      </div>
 
       <ul className="space-y-4 mb-8 flex-1">
         {points.map((point) => (
