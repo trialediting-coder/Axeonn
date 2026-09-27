@@ -12,7 +12,7 @@ import { useLeadModal } from '@/components/common/LeadModalProvider';
 const ROTATING_WORDS = ['Revenue', 'Bookings', 'Business', 'Brand'];
 const ROTATE_INTERVAL_MS = 2200;
 
-// Matches Tailwind's `sm` breakpoint: below it the hero shows the AVIF loop.
+// Matches Tailwind's `sm` breakpoint: below it the hero uses the portrait phone media.
 const MOBILE_QUERY = '(max-width: 639px)';
 
 export function Hero() {
@@ -20,11 +20,14 @@ export function Hero() {
   const heroVideoRef = useRef<HTMLVideoElement>(null);
   const [wordIndex, setWordIndex] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const mobileVideoRef = useRef<HTMLVideoElement>(null);
   const [loopReady, setLoopReady] = useState(false);
+  const [mobilePlaying, setMobilePlaying] = useState(false);
+  const [avifFallback, setAvifFallback] = useState(false);
 
-  // Phones: the ~1 MB animated AVIF only paints once fully downloaded, so
-  // fetch it after the page has loaded instead of letting it compete with
-  // the copy, CSS and JS. The static portrait poster covers the gap.
+  // Phones: nothing moving is fetched until the page has loaded, so the
+  // copy, CSS and JS get the bandwidth first. The portrait poster covers
+  // the gap.
   useEffect(() => {
     if (!window.matchMedia(MOBILE_QUERY).matches) return;
     let idleId: number | undefined;
@@ -40,6 +43,43 @@ export function Hero() {
       if (idleId !== undefined) window.cancelIdleCallback?.(idleId);
     };
   }, []);
+
+  // Phones play a real H.264 video (hardware-decoded, smooth). The animated
+  // AVIF is decoded in software by WebKit on phones without AV1 hardware
+  // (e.g. iPhone 15), which made it visibly choppy. iOS can still refuse to
+  // autoplay (Low Power Mode, or until the first scroll), so the video stays
+  // invisible, play glyph included, until frames are actually moving; if it
+  // hasn't started within 3s the AVIF loop plays underneath as a fallback.
+  // Any later touch/scroll retries play() and the video fades in over it.
+  useEffect(() => {
+    const video = mobileVideoRef.current;
+    if (!loopReady || !video) return;
+
+    const tryPlay = () => {
+      video.muted = true;
+      video.defaultMuted = true;
+      if (video.paused) video.play().catch(() => {});
+    };
+    const onPlaying = () => setMobilePlaying(true);
+    const onError = () => setAvifFallback(true);
+
+    video.addEventListener('playing', onPlaying);
+    video.addEventListener('error', onError);
+    tryPlay();
+    const fallbackId = window.setTimeout(() => {
+      if (video.paused) setAvifFallback(true);
+    }, 3000);
+
+    const gestureEvents = ['touchstart', 'pointerdown', 'click', 'scroll'] as const;
+    gestureEvents.forEach((evt) => window.addEventListener(evt, tryPlay, { passive: true }));
+
+    return () => {
+      window.clearTimeout(fallbackId);
+      video.removeEventListener('playing', onPlaying);
+      video.removeEventListener('error', onError);
+      gestureEvents.forEach((evt) => window.removeEventListener(evt, tryPlay));
+    };
+  }, [loopReady]);
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -57,9 +97,8 @@ export function Hero() {
     return () => window.clearInterval(id);
   }, [reducedMotion]);
 
-  // Desktop/tablet only: phones get the animated AVIF below instead, because
-  // iOS (Safari and Chrome alike) often refuses to autoplay even a muted
-  // video until the first scroll, and no retry from script gets around it.
+  // Desktop/tablet only: phones get their own portrait video (with an AVIF
+  // fallback for when iOS blocks autoplay), handled in the effect above.
   // Browsers can also silently drop the very first autoplay attempt when the
   // file is still buffering, so retry on readiness milestones, on tab
   // visibility/bfcache resume, and on a short poll until playback starts.
@@ -141,17 +180,15 @@ export function Hero() {
             <source src="/videoplayback.mp4" type="video/mp4" media="(min-width: 640px)" />
           </video>
           {/*
-            Phones get the same 30s clip as an animated AVIF: images aren't
-            subject to autoplay policy, so it moves even where iOS holds a
-            muted video on its play glyph (or Low Power Mode blocks it).
-            It is a portrait center crop at 540x960 / 24fps, the source rate (~1 MB); the old
-            480x270 landscape file was upscaled ~9x by object-cover on a tall
-            screen, which is what made it blurry. The <source> is added after
-            page load (see loopReady); until then, and in browsers without
-            animated AVIF, the matching portrait poster shows.
+            Phones: portrait center crop of the same 30s clip (540x960, 24fps).
+            The old 480x270 landscape file was upscaled ~9x by object-cover on
+            a tall screen, which is what made it blurry. Layers, bottom up:
+            portrait poster (paints with the HTML) -> AVIF loop (only if the
+            video can't start, see avifFallback) -> H.264 video (faded in once
+            it is actually playing).
           */}
           <picture className="block w-full h-full sm:hidden">
-            {loopReady && <source srcSet="/hero-loop.avif" type="image/avif" media="(max-width: 639px)" />}
+            {avifFallback && <source srcSet="/hero-loop.avif" type="image/avif" media="(max-width: 639px)" />}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/hero-poster-mobile.webp"
@@ -161,6 +198,18 @@ export function Hero() {
               className="w-full h-full object-cover object-center bg-cover bg-center opacity-70 scale-105"
             />
           </picture>
+          {loopReady && (
+            <video
+              ref={mobileVideoRef}
+              src="/hero-mobile.mp4"
+              loop
+              muted
+              playsInline
+              preload="auto"
+              aria-hidden="true"
+              className={`sm:hidden absolute inset-0 w-full h-full object-cover object-center scale-105 transition-opacity duration-700 ${mobilePlaying ? 'opacity-70' : 'opacity-0'}`}
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-neutral-950/95 via-neutral-950/60 to-transparent sm:from-neutral-950 sm:via-neutral-950/80 sm:to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-neutral-950/30" />
           <div className="absolute -top-40 -right-40 w-[550px] h-[550px] bg-[#2563EB]/25 rounded-full blur-3xl pointer-events-none" />
