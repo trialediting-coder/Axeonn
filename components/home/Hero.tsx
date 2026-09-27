@@ -24,6 +24,36 @@ export function Hero() {
   const [loopReady, setLoopReady] = useState(false);
   const [mobilePlaying, setMobilePlaying] = useState(false);
   const [avifFallback, setAvifFallback] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+  // Read by the play/retry handlers below so scroll-triggered retries never
+  // restart a video the viewer has scrolled past.
+  const heroInViewRef = useRef(true);
+  const [heroInView, setHeroInView] = useState(true);
+
+  // Pause the hero media while it is off screen, resume when it comes back.
+  // Saves decode work and battery on phones while the rest of the page is
+  // being scrolled; the AVIF fallback (software-decoded) is swapped for the
+  // static poster, since an animated image can't be paused.
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(([entry]) => {
+      const visible = entry.isIntersecting;
+      heroInViewRef.current = visible;
+      setHeroInView(visible);
+      const isMobile = window.matchMedia(MOBILE_QUERY).matches;
+      const video = isMobile ? mobileVideoRef.current : heroVideoRef.current;
+      if (!video) return;
+      if (!visible) {
+        video.pause();
+      } else if (video.paused) {
+        video.muted = true;
+        video.play().catch(() => {});
+      }
+    });
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
 
   // Phones: nothing moving is fetched until the page has loaded, so the
   // copy, CSS and JS get the bandwidth first. The portrait poster covers
@@ -56,6 +86,7 @@ export function Hero() {
     if (!loopReady || !video) return;
 
     const tryPlay = () => {
+      if (!heroInViewRef.current) return;
       video.muted = true;
       video.defaultMuted = true;
       if (video.paused) video.play().catch(() => {});
@@ -113,6 +144,7 @@ export function Hero() {
     if (!video || window.matchMedia(MOBILE_QUERY).matches) return;
 
     const tryPlay = () => {
+      if (!heroInViewRef.current) return;
       video.muted = true;
       video.defaultMuted = true;
       if (video.paused) {
@@ -161,6 +193,7 @@ export function Hero() {
 
   return (
     <section
+      ref={sectionRef}
       id="hero-section"
       className="relative z-10 w-full h-[100svh] sm:h-[100dvh] flex items-stretch justify-center"
     >
@@ -198,7 +231,7 @@ export function Hero() {
           <picture
             className={`block w-full h-full sm:hidden transition-opacity duration-700 ${mobilePlaying ? 'opacity-0' : 'opacity-100'}`}
           >
-            {avifFallback && !mobilePlaying && <source srcSet="/hero-loop.avif" type="image/avif" media="(max-width: 639px)" />}
+            {avifFallback && !mobilePlaying && heroInView && <source srcSet="/hero-loop.avif" type="image/avif" media="(max-width: 639px)" />}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/hero-poster-mobile.webp"
