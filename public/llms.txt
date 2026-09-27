@@ -35,6 +35,11 @@ Axeon Studio is a productized web studio and revenue-operations partner. We repl
 - [Our Story](https://axeonstudio.co/about): Founder story and Iowa roots.
 - [Book a Strategy Session](https://axeonstudio.co/book): Direct 1-on-1 scheduling with founder Hayder Hatem.
 
+## Insights & Client Stories
+- [Insights](https://axeonstudio.co/insights): Guides for Iowa business owners on websites, local SEO, and AI search.
+- [A-1 Auto Detailing case study](https://axeonstudio.co/insights/a-1-auto-detailing-website-case-study): How Axeon rebuilt a Pleasant Hill detailer's website (5.0 rating, 178 Google reviews) for local SEO, one-tap booking, and AI search; about 56 old URLs 301-redirected, 100/100 SEO audit.
+- [How to get recommended by ChatGPT](https://axeonstudio.co/insights/how-to-get-your-business-recommended-by-chatgpt): 7 steps for local businesses to be named by ChatGPT and Google AI Overviews, with sourced 2025-2026 data.
+
 ## Geographic Service Area
 - Headquarters: West Des Moines, IA 50266, United States
 - Latitude / Longitude: 41.5772° N, 93.7538° W
