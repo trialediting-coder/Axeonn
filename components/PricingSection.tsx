@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Check, ShieldCheck, ChevronDown, ChevronUp, Clapperboard } from 'lucide-react';
+import { Check, ShieldCheck, ChevronDown, ChevronUp, Clapperboard, MessagesSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { pricingTiers, addOns, pricingFaqs, revisionGuarantee } from '@/data/pricingData';
 
@@ -45,7 +45,7 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
           className="text-center max-w-4xl mx-auto mb-16 sm:mb-20"
         >
           <h2 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-neutral-950 mb-6 leading-[1.12]">
-            Two Flat-Rate Builds. Pick the One That Fits.
+            Two Flat-Rate Builds. Or Start With a Free Consultation.
           </h2>
           <p className="text-xl sm:text-2xl text-neutral-600 leading-relaxed max-w-3xl mx-auto">
             No 3-week proposals, no hourly billing. One price, a fast turnaround,
@@ -57,7 +57,7 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
           </div>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-10 items-stretch max-w-6xl 2xl:max-w-7xl mx-auto">
+        <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-8 lg:gap-10 xl:gap-8 items-stretch max-w-6xl xl:max-w-[1500px] 2xl:max-w-[1600px] mx-auto">
           {pricingTiers.map((tier, idx) => {
             const isDark = !tier.featured;
             const highlights = new Set(tier.highlightFeatures ?? []);
@@ -69,7 +69,7 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
                 viewport={{ once: true, amount: 0.15 }}
                 transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
                 whileHover={{ y: -6 }}
-                className={`relative rounded-[32px] p-8 sm:p-10 lg:p-12 flex flex-col ${
+                className={`relative rounded-[32px] p-8 sm:p-10 lg:p-12 xl:p-10 2xl:p-12 flex flex-col ${
                   isDark
                     ? 'bg-neutral-950 text-white border border-neutral-800 shadow-lg'
                     : 'bg-white text-neutral-950 border-2 border-blue-600 shadow-2xl shadow-blue-600/20 ring-8 ring-blue-600/10 lg:scale-[1.03] z-10'
@@ -162,9 +162,9 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
                     </div>
                     <ul className="space-y-2 text-sm sm:text-base text-neutral-300">
                       {tier.stepUp.items.map((item) => (
-                        <li key={item.label} className="flex justify-between gap-3">
+                        <li key={item.label} className="flex flex-wrap justify-between gap-x-3">
                           <span>{item.label}</span>
-                          {item.note && <span className="text-neutral-500 shrink-0 text-right">{item.note}</span>}
+                          {item.note && <span className="text-neutral-500 ml-auto text-right">{item.note}</span>}
                         </li>
                       ))}
                     </ul>
@@ -193,30 +193,9 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
               </motion.div>
             );
           })}
-        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.6 }}
-          className="mt-14 rounded-[32px] border border-dashed border-neutral-300 bg-neutral-50 p-10 sm:p-14 text-center"
-        >
-          <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-neutral-950 mb-3">
-            Need Something Different?
-          </h3>
-          <p className="text-base sm:text-lg lg:text-xl text-neutral-600 max-w-2xl mx-auto leading-relaxed mb-8">
-            Every business is a little different. If neither build quite fits — a
-            bigger scope, a narrower one, or something these packages don&apos;t cover at
-            all — tell us what you actually need and we&apos;ll scope it directly with you.
-          </p>
-          <Link
-            href="/book"
-            className="inline-flex items-center justify-center px-9 py-4.5 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-base sm:text-lg transition-colors shadow-md"
-          >
-            Talk to Us About Custom Work
-          </Link>
-        </motion.div>
+          <FreeConsultationCard />
+        </div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -308,5 +287,72 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
         </motion.div>
       </div>
     </section>
+  );
+}
+
+/**
+ * Third card beside the two builds: the free consultation is the entry point
+ * for anyone undecided, and for custom scopes neither build covers (this
+ * replaced the old "Need Something Different?" box under the grid).
+ * Spans the full row at lg (two columns) and sits third at xl.
+ */
+function FreeConsultationCard() {
+  const points = [
+    'One-on-one call with our team, not a sales script',
+    'We look at your current site, your Google presence, and how customers find you today',
+    'A straight recommendation on which build fits, or a custom scope if neither does',
+    'Bigger, narrower, or one-off projects scoped directly with you',
+    'You leave with a clear plan, whether or not you hire us',
+  ];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+      whileHover={{ y: -6 }}
+      className="relative rounded-[32px] p-8 sm:p-10 lg:p-12 xl:p-10 2xl:p-12 flex flex-col lg:col-span-2 xl:col-span-1 bg-gradient-to-b from-emerald-50 to-white text-neutral-950 border-2 border-emerald-500 shadow-xl shadow-emerald-600/10"
+    >
+      <span className="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold tracking-wide uppercase shadow-md whitespace-nowrap bg-emerald-600 text-white">
+        100% Free
+      </span>
+
+      <h3 className="text-2xl sm:text-3xl font-bold mb-1.5">Free Custom Consultation</h3>
+      <p className="text-sm sm:text-base font-semibold mb-4 uppercase tracking-wide text-emerald-700">
+        Not sure yet? Start here.
+      </p>
+      <p className="text-sm sm:text-base leading-relaxed mb-5 rounded-xl px-4 py-3 bg-emerald-100/70 text-emerald-950">
+        Right for you if you want a straight answer on what your business actually
+        needs before spending a dollar, or if neither build quite fits.
+      </p>
+      <p className="text-base sm:text-lg mb-6 leading-relaxed text-neutral-500">No cost, no obligation</p>
+      <div className="text-4xl sm:text-6xl font-black mb-3 tracking-tight whitespace-nowrap">$0</div>
+      <p className="text-base sm:text-lg mb-8 text-neutral-600">Custom to your business</p>
+
+      <ul className="space-y-4 mb-8 flex-1">
+        {points.map((point) => (
+          <li key={point} className="flex gap-3.5 text-base sm:text-lg leading-relaxed">
+            <MessagesSquare size={20} className="shrink-0 mt-1 text-emerald-600" />
+            <span>{point}</span>
+          </li>
+        ))}
+      </ul>
+
+      <Link
+        href="/book"
+        data-track="cta_click"
+        data-track-cta="free_consultation_card"
+        className="text-center py-4 sm:py-4.5 rounded-full font-bold text-base sm:text-lg transition-colors shadow-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30"
+      >
+        Book My Free Consultation
+      </Link>
+      <p className="mt-3 text-center text-xs sm:text-sm text-neutral-500">
+        Free 20-minute call, no obligation.{' '}
+        <a href="tel:+15154938017" className="font-semibold underline underline-offset-2">
+          Or call (515) 493-8017
+        </a>
+      </p>
+    </motion.div>
   );
 }
