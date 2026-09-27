@@ -69,7 +69,7 @@ The cited sources are your roadmap. They show you exactly where the AI is gettin
 
 ## What this looks like in practice
 
-We rebuilt the website for A-1 Auto Detailing in Pleasant Hill with every step above: AI crawlers allowed, direct answers at the top of every page, published starting prices, FAQ and local business schema, and links to every profile where A-1 is reviewed. You can read the full story in [our A-1 Auto Detailing case study](/insights/a-1-auto-detailing-website-case-study).
+We rebuilt the website for A-1 Auto Detailing in Pleasant Hill with every on-site step above: AI crawlers allowed, direct answers at the top of every page, published starting prices, FAQ and local business schema, and links to every profile where A-1 is reviewed. You can read the full story in [our A-1 Auto Detailing case study](/insights/a-1-auto-detailing-website-case-study).
 
 ## Want help?
 

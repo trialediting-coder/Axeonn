@@ -74,7 +74,7 @@ The finished site scored a perfect 100/100 on its SEO audit, with every major se
 The rebuild is the foundation. What comes next:
 
 - **Town-specific pages, done properly.** Instead of cloning copy across 42 city pages like the old site did, we'll add pages for the towns A-1 serves once each one has its own real photos and reviews to back it up.
-- **Video.** Short walkthroughs of real jobs on the service pages, the biggest remaining gap in the audit.
+- **Video.** Short walkthroughs of real jobs on the service pages.
 - **Measurement.** We'll track rankings, calls, and quote requests, and update this post with real numbers once there's enough data to be honest about.
 
 ## What this means for your business
