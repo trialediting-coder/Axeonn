@@ -124,11 +124,7 @@ export function CaseStudyBadge() {
                 className="w-20 sm:w-24 shrink-0 rounded-xl object-cover bg-neutral-100"
               />
               <span className="flex flex-col justify-center min-w-0">
-                <span className="flex items-center gap-1.5 text-[10px] font-bold tracking-[0.18em] uppercase text-blue-600">
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className="absolute inline-flex h-full w-full rounded-full bg-blue-500 opacity-75 motion-safe:animate-ping" />
-                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-blue-600" />
-                  </span>
+                <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-blue-600">
                   Client story
                 </span>
                 <span className="mt-1 text-sm font-extrabold leading-snug tracking-tight">
