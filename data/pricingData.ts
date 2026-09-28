@@ -73,6 +73,10 @@ export const pricingTiers: PricingTier[] = [
       'AI chat & online scheduling so leads book themselves 24/7',
       'Multi-step intake questionnaire that pre-qualifies leads before you ever call them',
       'Automated SMS & email follow-up the second a lead comes in',
+      'Speed-to-lead call connect — when a form comes in, your phone rings and connects you to that lead while they\'re still on your site',
+      'Missed-call text-back — anyone who calls and can\'t reach you gets an instant text, so they don\'t move on to the next company',
+      'Exit-intent offers — visitors about to leave see an offer matched to the service they were looking at',
+      'Call tracking numbers that show which pages and listings actually make your phone ring',
     ],
     highlightFeatures: [
       'Custom on-site videography — a half-day shoot at your location: a hero film for your site, 3 vertical cuts for social & ads, and a photo set',
@@ -84,6 +88,8 @@ export const pricingTiers: PricingTier[] = [
         { label: 'Custom CRM Pipeline', note: 'no per-seat software' },
         { label: 'AI chat & online scheduling' },
         { label: 'Multi-step intake + SMS/email automations' },
+        { label: 'Speed-to-lead call connect + missed-call text-back' },
+        { label: 'Exit-intent offers + call tracking' },
         { label: 'Up to 3 additional pages', note: '$450 each as an add-on' },
       ],
       footer: 'The video alone is half the step-up. The lead system comes with it.',
@@ -115,7 +121,11 @@ export const pricingFaqs: PricingFaq[] = [
   },
   {
     q: 'Can I add videography to Essentials instead?',
-    a: 'Yes — it\'s a $1,500 add-on. Worth knowing before you do: at that point AxeonCORE is only $1,500 more and adds the Custom CRM Pipeline, AI chat & scheduling, the pre-qualifying intake, and automated follow-up. Most people who want the video end up going AxeonCORE for that reason.',
+    a: 'Yes — it\'s a $1,500 add-on. Worth knowing before you do: at that point AxeonCORE is only $1,500 more and adds the Custom CRM Pipeline, AI chat & scheduling, the pre-qualifying intake, automated follow-up, speed-to-lead call connect, missed-call text-back, exit-intent offers, and call tracking. Most people who want the video end up going AxeonCORE for that reason.',
+  },
+  {
+    q: 'What does the AxeonCORE lead system actually do?',
+    a: 'It makes sure a lead never sits waiting. When someone fills out a form, your phone rings and connects you to them while they\'re still on your site. If someone calls and you can\'t pick up, they get a text back right away instead of calling your competitor. Visitors about to leave see an offer tied to the service they were looking at. Every lead lands in your CRM pipeline with automated text and email follow-up, and call tracking shows which pages and listings are making your phone ring.',
   },
   {
     q: 'Why flat pricing instead of hourly billing?',

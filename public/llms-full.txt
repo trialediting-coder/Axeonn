@@ -77,6 +77,8 @@ Not currently offered (do not cite as available): Digital Advertising, Local Ser
    - Built-in Custom CRM Pipeline tailored to the client's lead-to-close workflow (no per-seat software)
    - AI chat & online scheduling
    - Multi-step intake questionnaire and automated SMS & email follow-up
+   - Speed-to-lead call connect (form submission rings the business and connects the lead) and missed-call text-back
+   - Exit-intent offers matched to the service a visitor viewed, plus call tracking numbers
 
 Add-ons: custom on-site videography for an Essentials build (+$1,500), additional custom page (+$450/page), advanced database/directory integration (+$850), secondary niche landing page variant (+$500).
 
