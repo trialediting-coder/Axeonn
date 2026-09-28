@@ -359,11 +359,11 @@ export function Header() {
                     </div>
 
                     {/* Right Side: Clean Minimalist Small Business to the side */}
-                    <div className="w-full lg:w-[240px] xl:w-[260px] shrink-0 flex flex-col justify-between pt-5 lg:pt-0 border-t lg:border-t-0 lg:border-l border-neutral-100 lg:pl-6">
+                    <div className="w-full lg:w-[240px] xl:w-[260px] shrink-0 flex flex-col gap-3 pt-5 lg:pt-0 border-t lg:border-t-0 lg:border-l border-neutral-100 lg:pl-6">
                       <Link
                         href="/solutions#small-business"
                         onClick={() => setSolutionsOpen(false)}
-                        className="group h-full flex flex-col justify-between rounded-2xl bg-neutral-50 hover:bg-blue-50/50 p-5 border border-neutral-200/80 hover:border-blue-200 transition-all text-left"
+                        className="group flex-1 flex flex-col justify-between rounded-2xl bg-neutral-50 hover:bg-blue-50/50 p-5 border border-neutral-200/80 hover:border-blue-200 transition-all text-left"
                       >
                         <div>
                           <div className="flex items-center justify-between">
@@ -383,6 +383,24 @@ export function Header() {
                           <span>Custom Scope</span>
                           <span>Explore →</span>
                         </div>
+                      </Link>
+
+                      <Link
+                        href="/nonprofits"
+                        onClick={() => setSolutionsOpen(false)}
+                        className="group flex flex-col rounded-2xl bg-blue-50/60 hover:bg-blue-50 p-5 border border-blue-100 hover:border-blue-200 transition-all text-left"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-[15px] text-neutral-900 group-hover:text-blue-600 transition-colors">
+                            Iowa Nonprofits
+                          </span>
+                          <span className="text-xs font-semibold text-blue-600 group-hover:translate-x-0.5 transition-transform">
+                            →
+                          </span>
+                        </div>
+                        <p className="text-[12px] text-neutral-500 group-hover:text-neutral-700 mt-2 leading-relaxed">
+                          A free website and search setup for Iowa nonprofits. You only cover basic hosting.
+                        </p>
                       </Link>
                     </div>
                   </div>
@@ -548,6 +566,20 @@ export function Header() {
                   </div>
                   <div className="text-xs text-neutral-500 mt-1 leading-snug">
                     Tailored storefronts, intake triage, and Custom CRM Pipelines for any business.
+                  </div>
+                </Link>
+
+                <Link
+                  href="/nonprofits"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="mb-4 p-3.5 rounded-xl bg-blue-50/60 active:bg-blue-50 border border-blue-100 block text-left transition-colors"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-bold text-neutral-900">Iowa Nonprofits</div>
+                    <span className="text-xs font-semibold text-blue-600">Free →</span>
+                  </div>
+                  <div className="text-xs text-neutral-500 mt-1 leading-snug">
+                    A free website and search setup. You only cover basic hosting.
                   </div>
                 </Link>
 
