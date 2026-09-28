@@ -8,16 +8,22 @@ import { TrustBadges } from '@/components/common/TrustBadges';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
 import { faqItems } from '@/data/faqData';
 import {
+  ProblemSection,
+  DeliverablesSection,
+  TimelineSection,
+  ComparisonSection,
+  CaseStudyProof,
+  IndustriesSection,
+  ServiceFaqJsonLd,
+} from '@/components/marketing-solutions/SolutionSections';
+import { websiteDetail } from '@/data/solutionDetails';
+import {
   ArrowLeft,
   ArrowRight,
   Layers,
   Workflow,
   Timer,
   Users,
-  PhoneCall,
-  Hammer,
-  Rocket,
-  LifeBuoy,
 } from 'lucide-react';
 
 export const metadata = buildMetadata({
@@ -54,37 +60,6 @@ const DIFFERENTIATORS = [
   },
 ];
 
-const PROCESS_STEPS = [
-  {
-    icon: PhoneCall,
-    step: '01',
-    title: 'Strategy Call',
-    description:
-      'We scope your build together, walk through the Essentials vs. AxeonCORE tiers, and confirm exactly what you need — no pressure, no guessing on price.',
-  },
-  {
-    icon: Hammer,
-    step: '02',
-    title: 'Design & Build',
-    description:
-      'Your site is built on a fixed scope and a fast turnaround, with direct communication with the builder the whole way through.',
-  },
-  {
-    icon: Rocket,
-    step: '03',
-    title: 'Launch, Revisions Covered',
-    description:
-      'Every build includes a 2-round revision guarantee before launch. We don’t consider it finished until it’s a site you’re proud to put your name on.',
-  },
-  {
-    icon: LifeBuoy,
-    step: '04',
-    title: 'You Own It',
-    description:
-      'Once your site launches, the site, code, and design files are 100% yours. No proprietary platforms, no lock-in.',
-  },
-];
-
 const REAL_BUILDS = [
   { src: '/why-axeon/axeon-hvac.webp', industry: 'HVAC & Plumbing' },
   { src: '/why-axeon/axeon-ecommerce.webp', industry: 'E-Commerce' },
@@ -104,21 +79,6 @@ const websiteServiceJsonLd = {
   areaServed: SERVICE_AREA,
 };
 
-const websiteFaqItems = [
-  {
-    question: 'How long does it take to get a new website?',
-    answer: 'Fast. We work from a proven system, so builds go live in a fraction of the time a typical agency takes. We map out your schedule on the strategy call — the biggest factor is how quickly we get your content and brand assets.',
-  },
-  {
-    question: 'Do I own the website once it\'s built?',
-    answer: 'Yes. You own 100% of the site, code, and design files — no proprietary platforms, no lock-in.',
-  },
-  {
-    question: "What if I don't like the design?",
-    answer: "Every build includes a 2-round revision guarantee before launch — we don't consider it finished until it's a site you're proud to put your name on.",
-  },
-];
-
 export default function WebsitePage() {
   return (
     <main className="w-full bg-white text-neutral-950">
@@ -132,6 +92,7 @@ export default function WebsitePage() {
           { name: 'Website Design & Development', path: '/marketing-solutions/website' },
         ]}
       />
+      <ServiceFaqJsonLd items={websiteDetail.faqs} />
       {/* Hero */}
       <section className="relative w-full min-h-screen min-h-[100dvh] flex items-center px-6 sm:px-10 lg:px-16 xl:px-24 pt-24 pb-16 bg-neutral-950 text-white overflow-hidden">
         {/* TEMPORARY placeholder background — replace before launch, see public/temp-scorpion-refs */}
@@ -168,6 +129,8 @@ export default function WebsitePage() {
           </div>
         </div>
       </section>
+
+      <ProblemSection data={websiteDetail.problem} />
 
       {/* What Makes It Different */}
       <section className="w-full py-20 sm:py-32 px-4 sm:px-8 lg:px-14 xl:px-20">
@@ -265,47 +228,11 @@ export default function WebsitePage() {
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="w-full py-20 sm:py-32 px-4 sm:px-8 lg:px-14 xl:px-20">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-16">
-            <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-[#2563eb] uppercase mb-3">
-              How It Works
-            </p>
-            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-neutral-950 mb-5 leading-[1.14]">
-              From Strategy Call to Launch, Fast
-            </h2>
-            <p className="text-base sm:text-lg text-neutral-600 leading-relaxed max-w-2xl mx-auto">
-              A fixed scope and a fast turnaround, not an open-ended engagement that drags on for months.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-7">
-            {PROCESS_STEPS.map((item) => {
-              const Icon = item.icon;
-              return (
-                <div
-                  key={item.step}
-                  className="relative bg-white rounded-2xl border border-neutral-200/80 p-7 sm:p-8 shadow-sm"
-                >
-                  <span className="absolute top-6 right-7 font-mono text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">
-                    {item.step}
-                  </span>
-                  <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center mb-5">
-                    <Icon size={22} className="text-blue-600" strokeWidth={2.2} />
-                  </div>
-                  <h3 className="text-lg sm:text-xl font-bold text-neutral-950 tracking-tight mb-3">
-                    {item.title}
-                  </h3>
-                  <p className="text-sm text-neutral-600 leading-relaxed">
-                    {item.description}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+      <DeliverablesSection data={websiteDetail.deliverables} />
+      <TimelineSection data={websiteDetail.timeline} />
+      <ComparisonSection data={websiteDetail.comparison} />
+      {websiteDetail.proof && <CaseStudyProof data={websiteDetail.proof} />}
+      <IndustriesSection serviceName="a website" />
 
       {/* FAQ */}
       <section className="w-full py-20 sm:py-32 px-4 sm:px-8 lg:px-14 xl:px-20 bg-neutral-50/70">
@@ -318,7 +245,7 @@ export default function WebsitePage() {
               Common Questions About Your Website
             </h2>
           </div>
-          <FAQAccordion items={[...websiteFaqItems, ...faqItems]} size="large" />
+          <FAQAccordion items={[...websiteDetail.faqs, ...faqItems]} size="large" />
         </div>
       </section>
 

@@ -7,6 +7,15 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { TrustBadges } from '@/components/common/TrustBadges';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
 import { faqItems } from '@/data/faqData';
+import {
+  ProblemSection,
+  DeliverablesSection,
+  TimelineSection,
+  ComparisonSection,
+  IndustriesSection,
+  ServiceFaqJsonLd,
+} from '@/components/marketing-solutions/SolutionSections';
+import { videoDetail } from '@/data/solutionDetails';
 
 export const metadata = buildMetadata({
   path: '/marketing-solutions/video-photography',
@@ -42,21 +51,6 @@ const FEATURES = [
   },
 ];
 
-const videoFaqItems = [
-  {
-    question: 'Can I see examples of your work?',
-    answer: "Axeon Studio is a newer team still building its client portfolio — book a strategy call and we'll talk through exactly what a shoot would look like for your business.",
-  },
-  {
-    question: 'Is this a separate contract from my website?',
-    answer: 'No — it can be bundled directly onto a website or marketing build instead of hiring a separate vendor and managing another handoff.',
-  },
-  {
-    question: 'What do you actually deliver — just photos, or video too?',
-    answer: 'Both — content sized and cut for your website, paid ads, and social profiles, not just a single format.',
-  },
-];
-
 const videoPhotographyServiceJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Service',
@@ -82,6 +76,7 @@ export default function VideoPhotographyPage() {
           { name: 'Video & Photography', path: '/marketing-solutions/video-photography' },
         ]}
       />
+      <ServiceFaqJsonLd items={videoDetail.faqs} />
       {/* Hero */}
       <section className="relative w-full min-h-screen min-h-[100dvh] flex items-center px-6 sm:px-10 lg:px-16 xl:px-24 pt-24 pb-16 bg-neutral-950 text-white overflow-hidden">
         {/* TEMPORARY placeholder background — replace before launch, see public/temp-scorpion-refs */}
@@ -127,12 +122,14 @@ export default function VideoPhotographyPage() {
             story — designed to work alongside your website, ads, and social presence, not sit
             separately from them.
           </p>
-          <ServiceHeroActions priceLine="Included in AxeonCORE, or $1,500 added to a Core build" note="half-day on-site shoot" />
+          <ServiceHeroActions priceLine="Included in AxeonCORE, or $1,500 added to Essentials" note="half-day on-site shoot" />
           <div className="flex justify-center">
             <TrustBadges variant="dark" />
           </div>
         </div>
       </section>
+
+      <ProblemSection data={videoDetail.problem} />
 
       {/* Feature Grid */}
       <section className="w-full py-20 sm:py-32 px-4 sm:px-8 lg:px-12 xl:px-16 bg-white text-neutral-950">
@@ -170,6 +167,10 @@ export default function VideoPhotographyPage() {
         </div>
       </section>
 
+      <DeliverablesSection alt data={videoDetail.deliverables} />
+      <TimelineSection alt={false} data={videoDetail.timeline} />
+      <ComparisonSection alt data={videoDetail.comparison} />
+
       {/* Mid-page CTA */}
       <div className="text-center py-12 sm:py-16 bg-white">
         <p className="text-neutral-600 mb-4">Let&apos;s talk through what this would look like for your business.</p>
@@ -177,6 +178,8 @@ export default function VideoPhotographyPage() {
           Book a Strategy Call
         </Link>
       </div>
+
+      <IndustriesSection serviceName="a shoot" />
 
       {/* FAQ */}
       <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50/70">
@@ -189,7 +192,7 @@ export default function VideoPhotographyPage() {
               Frequently Asked Questions
             </h2>
           </div>
-          <FAQAccordion items={[...videoFaqItems, ...faqItems]} />
+          <FAQAccordion items={[...videoDetail.faqs, ...faqItems]} />
         </div>
       </section>
 

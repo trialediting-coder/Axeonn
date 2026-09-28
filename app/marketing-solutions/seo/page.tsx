@@ -11,6 +11,16 @@ import { BorderBeam } from '@/components/why-axeon/BorderBeam';
 import { RankClimbChart } from '@/components/why-axeon/RankClimbChart';
 import { AiEngineMarquee } from '@/components/why-axeon/AiEngineMarquee';
 import { AiPromptDemo } from '@/components/why-axeon/AiPromptDemo';
+import {
+  ProblemSection,
+  DeliverablesSection,
+  TimelineSection,
+  ComparisonSection,
+  CaseStudyProof,
+  IndustriesSection,
+  ServiceFaqJsonLd,
+} from '@/components/marketing-solutions/SolutionSections';
+import { seoDetail } from '@/data/solutionDetails';
 
 export const metadata = buildMetadata({
   path: '/marketing-solutions/seo',
@@ -18,21 +28,6 @@ export const metadata = buildMetadata({
   description:
     'SEO, AEO, and GEO built into every Axeon Studio site as one service, not sold separately — helping local businesses get found on Google and cited by AI.',
 });
-
-const seoFaqItems = [
-  {
-    question: 'Will my SEO get a specific ranking date or guarantee?',
-    answer: "No — search rankings take real time and vary by market, so we won't promise a date. Every build is optimized to compete for the top spot, but we're upfront that timelines vary by industry and market.",
-  },
-  {
-    question: 'Is AEO/GEO an extra cost on top of SEO?',
-    answer: 'No. SEO, AEO, and GEO are bundled into every Axeon Studio build by default — not sold as separate add-ons.',
-  },
-  {
-    question: 'Do I need a separate SEO contract?',
-    answer: "No — it's included in your website build.",
-  },
-];
 
 const pillars = [
   {
@@ -70,6 +65,7 @@ export default function SeoMarketingSolutionPage() {
   return (
     <main className="w-full bg-neutral-950 text-white">
       <JsonLd data={seoServiceJsonLd} />
+      <ServiceFaqJsonLd items={seoDetail.faqs} />
       <BreadcrumbJsonLd
         items={[
           { name: 'Marketing Solutions', path: '/marketing-solutions' },
@@ -127,6 +123,8 @@ export default function SeoMarketingSolutionPage() {
         </div>
       </section>
 
+      <ProblemSection tone="dark" data={seoDetail.problem} />
+
       {/* Pillar grid: SEO / AEO / GEO explained individually */}
       <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white border-t border-neutral-900">
         <div className="max-w-6xl mx-auto">
@@ -178,6 +176,8 @@ export default function SeoMarketingSolutionPage() {
           </p>
         </div>
       </section>
+
+      <DeliverablesSection tone="dark" alt data={seoDetail.deliverables} />
 
       {/* Rank trajectory + the honest, no-timeline-promise paragraph */}
       <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white border-t border-neutral-900">
@@ -238,6 +238,11 @@ export default function SeoMarketingSolutionPage() {
         </div>
       </section>
 
+      <TimelineSection tone="dark" data={seoDetail.timeline} />
+      <ComparisonSection tone="dark" alt data={seoDetail.comparison} />
+      {seoDetail.proof && <CaseStudyProof tone="dark" data={seoDetail.proof} />}
+      <IndustriesSection tone="dark" alt serviceName="search visibility" />
+
       {/* FAQ */}
       <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-white text-neutral-950">
         <div className="max-w-3xl mx-auto">
@@ -249,7 +254,7 @@ export default function SeoMarketingSolutionPage() {
               Frequently Asked Questions
             </h2>
           </div>
-          <FAQAccordion items={[...seoFaqItems, ...faqItems]} />
+          <FAQAccordion items={[...seoDetail.faqs, ...faqItems]} />
         </div>
       </section>
 

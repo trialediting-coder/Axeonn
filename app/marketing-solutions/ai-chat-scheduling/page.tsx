@@ -7,6 +7,15 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { AudioOrbPlayer } from '@/components/why-axeon/AudioOrbPlayer';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
 import { faqItems } from '@/data/faqData';
+import {
+  ProblemSection,
+  DeliverablesSection,
+  TimelineSection,
+  ComparisonSection,
+  IndustriesSection,
+  ServiceFaqJsonLd,
+} from '@/components/marketing-solutions/SolutionSections';
+import { aiChatDetail } from '@/data/solutionDetails';
 
 export const metadata = buildMetadata({
   path: '/marketing-solutions/ai-chat-scheduling',
@@ -36,24 +45,6 @@ const FEATURES = [
   },
 ];
 
-const aiChatFaqItems = [
-  {
-    question: 'Will it sound like a robot?',
-    answer:
-      "Listen for yourself above — that's a real recorded call from Axeon's AI receptionist next to a typical agency's, so you can judge the difference directly instead of taking our word for it.",
-  },
-  {
-    question: 'Can it actually book appointments, or just answer questions?',
-    answer:
-      "It checks your real calendar and books qualified leads directly onto it — it's not just a chatbot that collects an email and passes it along.",
-  },
-  {
-    question: 'Does this replace my front desk?',
-    answer:
-      "It's built to catch what would otherwise go to voicemail or a missed chat — most clients use it as always-on backup and after-hours coverage, not a full front-desk replacement.",
-  },
-];
-
 const aiChatSchedulingServiceJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Service',
@@ -79,6 +70,7 @@ export default function AIChatSchedulingPage() {
           { name: 'AI Chat & Online Scheduling', path: '/marketing-solutions/ai-chat-scheduling' },
         ]}
       />
+      <ServiceFaqJsonLd items={aiChatDetail.faqs} />
       {/* Hero */}
       <section className="relative w-full min-h-screen min-h-[100dvh] flex items-center px-6 sm:px-10 lg:px-16 xl:px-24 pt-24 pb-16 bg-neutral-950 text-white overflow-hidden">
         {/* TEMPORARY placeholder background — replace before launch, see public/temp-scorpion-refs */}
@@ -110,6 +102,8 @@ export default function AIChatSchedulingPage() {
           <ServiceHeroActions priceLine="Included in AxeonCORE, $5,800 flat" note="AI chat, scheduling and follow-up in one build" />
         </div>
       </section>
+
+      <ProblemSection tone="dark" data={aiChatDetail.problem} />
 
       {/* Real Audio Comparison */}
       <section className="relative w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white overflow-hidden border-t border-neutral-900">
@@ -191,13 +185,18 @@ export default function AIChatSchedulingPage() {
         </div>
       </section>
 
+      <DeliverablesSection alt data={aiChatDetail.deliverables} />
+      <TimelineSection alt={false} data={aiChatDetail.timeline} />
+      <ComparisonSection alt data={aiChatDetail.comparison} />
+      <IndustriesSection serviceName="AI chat and scheduling" />
+
       {/* FAQ */}
-      <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-white text-neutral-950">
+      <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50/70 text-neutral-950">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-950 mb-10">
             Common Questions
           </h2>
-          <FAQAccordion items={[...aiChatFaqItems, ...faqItems]} />
+          <FAQAccordion items={[...aiChatDetail.faqs, ...faqItems]} />
         </div>
       </section>
 

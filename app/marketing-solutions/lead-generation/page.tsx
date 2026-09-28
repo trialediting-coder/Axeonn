@@ -19,6 +19,16 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { TrustBadges } from '@/components/common/TrustBadges';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
 import { faqItems } from '@/data/faqData';
+import {
+  ProblemSection,
+  DeliverablesSection,
+  TimelineSection,
+  ComparisonSection,
+  CaseStudyProof,
+  IndustriesSection,
+  ServiceFaqJsonLd,
+} from '@/components/marketing-solutions/SolutionSections';
+import { leadGenDetail } from '@/data/solutionDetails';
 
 export const metadata = buildMetadata({
   path: '/marketing-solutions/lead-generation',
@@ -62,24 +72,6 @@ const SCATTERED_SOURCES = [
   { icon: FileText, label: 'Forms' },
 ];
 
-const leadGenFaqItems = [
-  {
-    question: 'Does this replace my existing CRM?',
-    answer:
-      "It replaces the need for a separate per-seat CRM subscription — your Custom CRM Pipeline is built into your site and run by us, so you're not paying for and managing another piece of software.",
-  },
-  {
-    question: "What counts as a 'lead' in this system?",
-    answer:
-      'Every call, form fill, chat, and text — anything that comes in through your site or listed number funnels into the same pipeline instead of being scattered across different tools.',
-  },
-  {
-    question: 'Do I still have to check it manually?',
-    answer:
-      'No — follow-up starts automatically the moment someone reaches out, so nothing waits on you to notice it.',
-  },
-];
-
 const leadGenerationServiceJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Service',
@@ -105,6 +97,7 @@ export default function LeadGenerationPage() {
           { name: 'Lead Generation', path: '/marketing-solutions/lead-generation' },
         ]}
       />
+      <ServiceFaqJsonLd items={leadGenDetail.faqs} />
       {/* Hero */}
       <section className="relative w-full min-h-screen min-h-[100dvh] flex items-center px-6 sm:px-10 lg:px-16 xl:px-24 pt-24 pb-16 bg-neutral-950 text-white overflow-hidden">
         {/* TEMPORARY placeholder background — replace before launch, see public/temp-scorpion-refs */}
@@ -139,6 +132,8 @@ export default function LeadGenerationPage() {
           </div>
         </div>
       </section>
+
+      <ProblemSection data={leadGenDetail.problem} />
 
       {/* Scattered tools vs. unified pipeline visual */}
       <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
@@ -295,13 +290,19 @@ export default function LeadGenerationPage() {
         </div>
       </section>
 
+      <DeliverablesSection data={leadGenDetail.deliverables} />
+      <TimelineSection data={leadGenDetail.timeline} />
+      <ComparisonSection data={leadGenDetail.comparison} />
+      {leadGenDetail.proof && <CaseStudyProof data={leadGenDetail.proof} />}
+      <IndustriesSection serviceName="a lead pipeline" />
+
       {/* FAQ */}
-      <section id="faq" className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
+      <section id="faq" className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50/70">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-neutral-950 mb-12 sm:mb-14 text-center">
             Common Questions
           </h2>
-          <FAQAccordion items={[...leadGenFaqItems, ...faqItems]} defaultOpenCount={1} />
+          <FAQAccordion items={[...leadGenDetail.faqs, ...faqItems]} defaultOpenCount={1} />
         </div>
       </section>
 
