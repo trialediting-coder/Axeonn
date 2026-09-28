@@ -148,6 +148,8 @@ export const websiteDetail: SolutionDetail = {
           'AI chat & online scheduling so leads book themselves 24/7',
           'Multi-step intake questionnaire that pre-qualifies leads',
           'Automated SMS & email follow-up the second a lead comes in',
+          'Speed-to-lead call connect and missed-call text-back',
+          'Exit-intent offers and call tracking numbers',
         ],
       },
       {
@@ -505,6 +507,7 @@ export const aiChatDetail: SolutionDetail = {
         title: 'Follows up',
         items: [
           'Automated SMS & email follow-up the second a lead comes in',
+          'Missed-call text-back, so a caller who can’t reach you gets a text right away',
           'Instant alerts to your inbox and phone',
         ],
       },
@@ -659,6 +662,8 @@ export const leadGenDetail: SolutionDetail = {
         items: [
           'Automated SMS & email follow-up the second a lead comes in',
           'Messages written in your voice for your services',
+          'Speed-to-lead call connect: when a form comes in, your phone rings and connects you to that lead while they’re still on your site',
+          'Missed-call text-back: anyone who calls and can’t reach you gets an instant text',
         ],
       },
       {
@@ -673,6 +678,8 @@ export const leadGenDetail: SolutionDetail = {
           'Custom CRM Pipeline built around your lead-to-close workflow',
           'Every call, form, chat, and booking in one place',
           'Stages that match how you actually sell, from new lead to booked to won',
+          'Call tracking numbers that show which pages and listings make your phone ring',
+          'Exit-intent offers matched to the service a visitor was looking at',
         ],
       },
       {
@@ -716,7 +723,8 @@ export const leadGenDetail: SolutionDetail = {
     heading: 'One Pipeline vs. a Vendor Stack',
     rows: [
       { label: 'Where leads live', typical: 'Spread across several apps and inboxes', axeon: 'One Custom CRM Pipeline' },
-      { label: 'First response', typical: 'Whenever someone checks', axeon: 'Automatic SMS and email the second a lead arrives' },
+      { label: 'First response', typical: 'Whenever someone checks', axeon: 'Your phone rings and connects you to the lead, plus automatic SMS and email' },
+      { label: 'Missed calls', typical: 'Voicemail, and the caller moves on', axeon: 'An instant text back to every missed caller' },
       { label: 'Qualification', typical: 'A phone call to find out', axeon: 'A multi-step intake before you ever call' },
       { label: 'Software cost', typical: 'Per-seat subscriptions for each tool', axeon: 'No per-seat CRM software' },
       { label: 'Setup', typical: 'Off-the-shelf stages that don’t fit', axeon: 'Built around your workflow' },
@@ -756,7 +764,7 @@ export const leadGenDetail: SolutionDetail = {
     {
       question: 'What’s included in Essentials vs. AxeonCORE?',
       answer:
-        'Essentials includes instant lead alerts to your inbox and phone, plus conversion tracking. AxeonCORE adds the full system: the Custom CRM Pipeline, the pre-qualifying intake, AI chat and scheduling, and automated SMS and email follow-up.',
+        'Essentials includes instant lead alerts to your inbox and phone, plus conversion tracking. AxeonCORE adds the full system: the Custom CRM Pipeline, the pre-qualifying intake, AI chat and scheduling, automated SMS and email follow-up, speed-to-lead call connect, missed-call text-back, exit-intent offers, and call tracking.',
     },
     {
       question: 'Can the pipeline match how my business already works?',
