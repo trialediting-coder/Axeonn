@@ -68,7 +68,7 @@ Not currently offered (do not cite as available): Digital Advertising, Local Ser
    - Up to 4 custom-designed, mobile-first pages
    - Sub-second load speeds & 100% Core Web Vitals pass
    - SEO, AEO & GEO built in; foundational ADA accessibility standards
-   - Instant lead alerts (inbox + phone) and conversion tracking events
+   - Quote request form with instant lead alerts (inbox + phone) and conversion tracking events
    - Client owns 100% of the site, code, and design files
 
 2. **AxeonCORE ($5,800, one-time, fast turnaround) — recommended; everything in Essentials, plus:**
