@@ -35,7 +35,7 @@ function palette(tone: Tone, alt = false) {
     };
   }
   return {
-    section: `${alt ? 'bg-neutral-50/70' : 'bg-white'} text-neutral-950`,
+    section: `${alt ? 'bg-neutral-50' : 'bg-white'} text-neutral-950`,
     eyebrow: 'text-[#2563eb]',
     heading: 'text-neutral-950',
     body: 'text-neutral-600',

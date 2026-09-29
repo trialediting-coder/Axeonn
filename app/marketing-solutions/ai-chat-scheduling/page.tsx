@@ -191,7 +191,7 @@ export default function AIChatSchedulingPage() {
       <IndustriesSection serviceName="AI chat and scheduling" />
 
       {/* FAQ */}
-      <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50/70 text-neutral-950">
+      <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50 text-neutral-950">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-950 mb-10">
             Common Questions
