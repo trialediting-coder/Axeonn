@@ -144,9 +144,13 @@ html.lenis, html.lenis body {
   backface-visibility: hidden;
 }
 
-.group:hover .animate-infinite-marquee,
-.animate-infinite-marquee:hover {
-  animation-play-state: paused;
+/* Only pause on real hover: touch devices keep :hover "stuck" after a tap,
+   which would freeze the marquee until the user taps elsewhere. */
+@media (hover: hover) and (pointer: fine) {
+  .group:hover .animate-infinite-marquee,
+  .animate-infinite-marquee:hover {
+    animation-play-state: paused;
+  }
 }
 
 .animate-marquee-left {
