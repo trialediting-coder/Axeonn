@@ -1,7 +1,7 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import {
   ArrowRight,
-  Handshake,
   Send,
   Puzzle,
   Calculator,
@@ -10,6 +10,10 @@ import {
   Landmark,
   Server,
   ShieldCheck,
+  UserRound,
+  Hammer,
+  Rocket,
+  Gift,
 } from 'lucide-react';
 import { buildMetadata } from '@/lib/metadata';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
@@ -36,33 +40,29 @@ const APPLY_BODY = [
 ].join('\n\n');
 const APPLY_HREF = `mailto:${BUSINESS.email}?subject=${encodeURIComponent(APPLY_SUBJECT)}&body=${encodeURIComponent(APPLY_BODY)}`;
 
-const TRACKS = [
-  {
-    icon: Send,
-    name: 'Referral Partner',
-    tagline: 'You know a business that needs a better website.',
-    description:
-      'Introduce us to a business owner who needs a new site, better search visibility, or a real lead system. We handle the call, the scope, and the build. When they sign, you earn a referral reward.',
-    points: [
-      'A simple way to introduce clients, plus your own referral link',
-      'A referral reward on every client who signs',
-      'We keep you in the loop from first call to launch',
-      'Your client gets the same care as anyone who finds us directly',
-    ],
-  },
-  {
-    icon: Puzzle,
-    name: 'Collaboration Partner',
-    tagline: 'You serve the same owners we do.',
-    description:
-      'For software and tool vendors and service businesses whose work fits next to ours. We recommend each other, hand over work that is a better fit for the other, and build integrations or joint offers when it makes sense.',
-    points: [
-      'Handoffs both ways when a client needs what the other does',
-      'Integrations set up properly on the sites we build',
-      'Joint offers, guides, or workshops for shared customers',
-      'A listing on this page once we are working together',
-    ],
-  },
+const BUTTON =
+  'inline-flex items-center gap-2 px-7 py-4 rounded-full font-bold text-base transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4';
+
+// The referral loop shown in the hero: who does what, in order.
+const LOOP = [
+  { icon: UserRound, who: 'You', what: 'Introduce a business that needs a better website' },
+  { icon: Hammer, who: 'Axeon', what: 'Runs the call, scopes it, and builds the site' },
+  { icon: Rocket, who: 'Your client', what: 'Launches a site that brings in leads' },
+  { icon: Gift, who: 'Back to you', what: 'A referral reward once they pay their first invoice' },
+];
+
+const REFERRAL_POINTS = [
+  'Your own referral link and a simple way to make intros',
+  'A referral reward on every client who signs',
+  'Updates from first call to launch',
+  'Your client gets the same care as anyone who finds us directly',
+];
+
+const COLLAB_POINTS = [
+  'Handoffs both ways when a client needs what the other does',
+  'Your tool set up properly on the sites we build',
+  'Joint offers, guides, or workshops for shared customers',
+  'A listing on this page once we are working together',
 ];
 
 const FITS = [
@@ -101,15 +101,14 @@ const FITS = [
 const STEPS = [
   { title: 'Apply', description: 'Tell us who you are, who you serve, and how you picture working together.' },
   { title: 'Intro call', description: 'A short call to see if we are a good fit and pick the right track.' },
-  { title: 'Partner agreement', description: 'A short, plain-English agreement with the terms in writing.' },
+  { title: 'Sign the agreement', description: 'A short, plain-English agreement with the terms in writing.' },
   { title: 'Start sending', description: 'You get your referral link and a partner kit, and we get to work.' },
 ];
 
 const PROMISES = [
-  'We only take partners whose clients we are confident we can help',
-  'Every referral gets a fast, personal reply from the founder',
-  'We never go around you to sell to your clients',
-  'Referral rewards are paid once the client pays their first invoice',
+  'We only take partners whose clients we are confident we can help.',
+  'Every referral gets a fast, personal reply from the founder.',
+  'Referral rewards are paid once the client pays their first invoice.',
 ];
 
 const PARTNER_FAQ = [
@@ -145,121 +144,119 @@ const PARTNER_FAQ = [
   },
 ];
 
+function ReferralLoop() {
+  const last = LOOP.length - 1;
+  return (
+    <ol className="relative rounded-3xl bg-white text-neutral-950 p-5 sm:p-6 shadow-2xl shadow-black/40 space-y-4">
+      {/* Connector running through the step icons */}
+      <span aria-hidden className="absolute left-[42px] sm:left-[46px] top-10 bottom-10 w-px bg-neutral-200" />
+      {LOOP.map(({ icon: Icon, who, what }, i) => (
+        <li key={who} className="relative flex gap-4 items-center">
+          <span
+            className={`relative z-10 flex-none w-10 h-10 rounded-full flex items-center justify-center ring-4 ring-white ${
+              i === last ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600'
+            }`}
+          >
+            <Icon size={18} />
+          </span>
+          <div>
+            <p className="font-bold leading-tight">{who}</p>
+            <p className="text-sm text-neutral-500 leading-snug">{what}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 export default function PartnersPage() {
   return (
     <main className="w-full bg-white text-neutral-950">
       <BreadcrumbJsonLd items={[{ name: 'Partners', path: '/partners' }]} />
 
-      {/* Hero */}
-      <section className="relative w-full px-6 sm:px-10 lg:px-16 xl:px-24 pt-36 pb-20 sm:pt-44 sm:pb-28 bg-neutral-950 text-white overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-[520px] h-[520px] bg-blue-600/25 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 max-w-5xl mx-auto">
-          <p className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-4 inline-flex items-center gap-2">
-            <Handshake size={15} /> Axeon Partner Program
-          </p>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight leading-[1.05] font-display mb-6">
-            Grow Alongside Us
-          </h1>
-          <p className="text-lg sm:text-xl text-neutral-300 leading-relaxed max-w-3xl mb-10">
-            You already work with small business owners who need a better website, more visibility, and more
-            leads. Send them our way, or build something with us for the customers we share.
-          </p>
-          <div className="flex flex-wrap items-center gap-4">
-            <a
-              href={APPLY_HREF}
-              className="inline-flex items-center gap-2 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
-            >
-              Apply to Partner <ArrowRight size={18} />
-            </a>
-            <Link
-              href="/book"
-              className="inline-flex items-center gap-2 px-7 py-4 rounded-full border border-neutral-700 hover:border-neutral-500 text-white font-bold text-base transition-colors"
-            >
-              Book an Intro Call
-            </Link>
+      {/* Hero: the pitch on the left; the business being referred on the right, with the loop over it */}
+      <section className="w-full px-6 sm:px-10 lg:px-16 xl:px-24 pt-36 pb-20 sm:pt-44 sm:pb-28 bg-neutral-950 text-white">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+          <div className="lg:col-span-6">
+            <p className="text-blue-400 font-semibold mb-5">The Axeon Partner Program</p>
+            <h1 className="text-5xl sm:text-6xl xl:text-7xl font-black tracking-[-0.04em] leading-[0.98] font-display mb-7">
+              Send us a business.
+              <br />
+              <span className="text-neutral-500">We&apos;ll take it from there.</span>
+            </h1>
+            <p className="text-lg text-neutral-300 leading-relaxed max-w-xl mb-10">
+              You already work with small business owners who need a better website, more visibility, and more
+              leads. Introduce them to us and earn a reward, or team up with us to serve the customers we share.
+            </p>
+            <div className="flex flex-wrap items-center gap-4">
+              <a
+                href={APPLY_HREF}
+                className={`${BUTTON} bg-blue-600 hover:bg-blue-500 text-white focus-visible:outline-blue-400`}
+              >
+                Apply to partner <ArrowRight size={18} />
+              </a>
+              <Link
+                href="/book"
+                className={`${BUTTON} border border-neutral-700 hover:border-neutral-400 text-white focus-visible:outline-blue-400`}
+              >
+                Book an intro call
+              </Link>
+            </div>
+          </div>
+          <div className="lg:col-span-6 relative lg:pb-16">
+            <div className="relative aspect-[4/3] lg:aspect-[5/6] rounded-[28px] overflow-hidden">
+              <Image
+                src="/who-we-help/small-business.jpg"
+                alt="A local cafe owner reviewing paperwork at her counter"
+                fill
+                priority
+                sizes="(min-width: 1024px) 40vw, 100vw"
+                className="object-cover object-[65%_center]"
+              />
+            </div>
+            <div className="relative -mt-16 mx-4 sm:mx-8 lg:mx-0 lg:mt-0 lg:absolute lg:-left-10 lg:bottom-0 lg:w-[78%]">
+              <ReferralLoop />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Tracks */}
+      {/* Tracks: two deliberately different panels */}
       <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight mb-4">Two Ways to Partner</h2>
-          <p className="text-lg text-neutral-600 max-w-3xl mb-12 leading-relaxed">
-            Pick the one that fits how you work. Not sure? Apply anyway and we will figure it out together.
-          </p>
-          <div className="grid md:grid-cols-2 gap-6">
-            {TRACKS.map(({ icon: Icon, name, tagline, description, points }) => (
-              <div key={name} className="rounded-3xl border-2 border-blue-600/20 bg-blue-50/40 p-8 sm:p-10 flex flex-col">
-                <div className="w-11 h-11 rounded-xl bg-blue-600 text-white flex items-center justify-center mb-5">
-                  <Icon size={22} />
-                </div>
-                <h3 className="text-2xl font-bold mb-1">{name}</h3>
-                <p className="text-blue-600 font-semibold mb-4">{tagline}</p>
-                <p className="text-neutral-600 leading-relaxed mb-6">{description}</p>
-                <ul className="space-y-3 mt-auto">
-                  {points.map((point) => (
-                    <li key={point} className="flex gap-3 text-neutral-800 leading-relaxed">
-                      <span className="mt-2 flex-none w-1.5 h-1.5 rounded-full bg-blue-600" />
-                      {point}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+          <div className="max-w-2xl mb-12">
+            <h2 className="text-4xl sm:text-5xl font-black tracking-[-0.03em] font-display mb-4">Two ways to partner</h2>
+            <p className="text-lg text-neutral-600 leading-relaxed">
+              Pick the one that fits how you work. Not sure? Apply anyway and we will figure it out together.
+            </p>
           </div>
-        </div>
-      </section>
-
-      {/* Who fits */}
-      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50 border-y border-neutral-200">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight mb-4">Who We Partner With</h2>
-          <p className="text-lg text-neutral-600 max-w-3xl mb-12 leading-relaxed">
-            The best partners are the people business owners already trust. If your customers ever ask who
-            should build their website, this is for you.
-          </p>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {FITS.map(({ icon: Icon, title, description }) => (
-              <div key={title} className="rounded-3xl border border-neutral-200 bg-white p-8 shadow-sm">
-                <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-5">
-                  <Icon size={22} />
-                </div>
-                <h3 className="text-xl font-bold mb-2">{title}</h3>
-                <p className="text-neutral-600 leading-relaxed">{description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How it works + promises */}
-      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
-        <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-12">
-          <div className="lg:col-span-7">
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-10">How It Works</h2>
-            <ol className="space-y-6">
-              {STEPS.map((step, i) => (
-                <li key={step.title} className="flex gap-5">
-                  <span className="flex-none w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center">
-                    {i + 1}
-                  </span>
-                  <div>
-                    <h3 className="text-lg font-bold">{step.title}</h3>
-                    <p className="text-neutral-300 leading-relaxed">{step.description}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </div>
-          <div className="lg:col-span-5">
-            <div className="rounded-3xl border border-neutral-700 p-8">
-              <h3 className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-5">Our Promise to Partners</h3>
-              <ul className="space-y-4">
-                {PROMISES.map((item) => (
-                  <li key={item} className="flex gap-3 text-neutral-200 leading-relaxed">
-                    <span className="mt-2 flex-none w-1.5 h-1.5 rounded-full bg-blue-400" />
-                    {item}
+          <div className="grid lg:grid-cols-2 gap-6">
+            <div className="rounded-[32px] bg-blue-600 text-white p-8 sm:p-12 flex flex-col">
+              <Send size={28} className="mb-8 text-blue-200" />
+              <h3 className="text-3xl font-black tracking-tight font-display mb-2">Referral Partner</h3>
+              <p className="text-blue-100 text-lg mb-8 leading-relaxed">
+                You know a business that needs a better website. Make the intro, we handle everything else, and you
+                earn a reward when they sign.
+              </p>
+              <ul className="mt-auto divide-y divide-white/15 border-t border-white/15">
+                {REFERRAL_POINTS.map((point) => (
+                  <li key={point} className="py-3.5 text-white/95">
+                    {point}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="rounded-[32px] border-2 border-neutral-200 p-8 sm:p-12 flex flex-col">
+              <Puzzle size={28} className="mb-8 text-blue-600" />
+              <h3 className="text-3xl font-black tracking-tight font-display mb-2">Collaboration Partner</h3>
+              <p className="text-neutral-600 text-lg mb-8 leading-relaxed">
+                You serve the same owners we do, with software or a service that fits next to ours. We recommend
+                each other and build things together when it makes sense.
+              </p>
+              <ul className="mt-auto divide-y divide-neutral-200 border-t border-neutral-200">
+                {COLLAB_POINTS.map((point) => (
+                  <li key={point} className="py-3.5 text-neutral-800">
+                    {point}
                   </li>
                 ))}
               </ul>
@@ -268,36 +265,97 @@ export default function PartnersPage() {
         </div>
       </section>
 
+      {/* Who fits: a quiet divided list */}
+      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50 border-y border-neutral-200">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-12">
+          <div className="lg:col-span-4">
+            <h2 className="text-4xl sm:text-5xl font-black tracking-[-0.03em] font-display mb-4">Who we partner with</h2>
+            <p className="text-lg text-neutral-600 leading-relaxed">
+              The people business owners already trust. If your customers ever ask who should build their website,
+              this is for you.
+            </p>
+          </div>
+          <ul className="lg:col-span-8 grid sm:grid-cols-2 gap-x-10 border-t border-neutral-300">
+            {FITS.map(({ icon: Icon, title, description }) => (
+              <li key={title} className="flex gap-4 py-6 border-b border-neutral-300">
+                <Icon size={22} className="flex-none mt-0.5 text-blue-600" />
+                <div>
+                  <h3 className="font-bold text-lg mb-1">{title}</h3>
+                  <p className="text-neutral-600 leading-relaxed">{description}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* How it works: a real sequence, so it gets numbers */}
+      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl sm:text-5xl font-black tracking-[-0.03em] font-display mb-14">How it works</h2>
+          <ol className="relative grid sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
+            <span aria-hidden className="hidden lg:block absolute top-6 left-6 right-[calc(25%-3rem)] h-px bg-neutral-200" />
+            {STEPS.map((step, i) => (
+              <li key={step.title} className="relative">
+                <span className="relative z-10 flex w-12 h-12 rounded-full bg-neutral-950 text-white font-black text-lg items-center justify-center ring-8 ring-white mb-6">
+                  {i + 1}
+                </span>
+                <h3 className="text-xl font-bold mb-2">{step.title}</h3>
+                <p className="text-neutral-600 leading-relaxed">{step.description}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* Promise: one statement carries the section */}
+      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-12 items-end">
+          <div className="lg:col-span-7">
+            <p className="text-blue-400 font-semibold mb-5">Our promise to partners</p>
+            <p className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-[-0.04em] leading-[1.02] font-display">
+              We never go around you to sell to your clients.
+            </p>
+          </div>
+          <ul className="lg:col-span-5 space-y-5 border-l border-neutral-800 pl-8">
+            {PROMISES.map((item) => (
+              <li key={item} className="text-neutral-300 leading-relaxed">
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
       {/* FAQ */}
       <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-10">Questions Partners Ask</h2>
+          <h2 className="text-4xl sm:text-5xl font-black tracking-[-0.03em] font-display mb-10">Questions partners ask</h2>
           <FAQAccordion items={PARTNER_FAQ} defaultOpenCount={1} />
         </div>
       </section>
 
       {/* CTA */}
-      <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-4">Built in Iowa</p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight mb-6">
-            Let&apos;s Help More Businesses Get Found
-          </h2>
-          <p className="text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-10">
-            Apply in a few minutes. We reply to every application.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
+      <section className="w-full pb-20 sm:pb-28 px-6 sm:px-10 lg:px-16 xl:px-24">
+        <div className="max-w-6xl mx-auto rounded-[32px] bg-blue-600 text-white px-8 py-14 sm:px-14 sm:py-16 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+          <div className="max-w-xl">
+            <h2 className="text-3xl sm:text-4xl font-black tracking-[-0.03em] font-display mb-3">
+              Know a business that needs us?
+            </h2>
+            <p className="text-lg text-blue-100 leading-relaxed">Apply in a few minutes. We reply to every application.</p>
+          </div>
+          <div className="flex flex-wrap gap-3 shrink-0">
             <a
               href={APPLY_HREF}
-              className="px-7 py-3.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-colors"
+              className={`${BUTTON} bg-white text-blue-700 hover:bg-blue-50 focus-visible:outline-white`}
             >
-              Apply to Partner
+              Apply to partner
             </a>
             <Link
               href="/book"
-              className="px-7 py-3.5 rounded-full border border-neutral-700 hover:border-neutral-500 text-white font-semibold text-sm transition-colors"
+              className={`${BUTTON} border border-white/40 hover:bg-white/10 text-white focus-visible:outline-white`}
             >
-              Book an Intro Call
+              Book an intro call
             </Link>
           </div>
         </div>
