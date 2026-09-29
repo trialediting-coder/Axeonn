@@ -239,13 +239,6 @@ export function Header() {
                   >
                     What We Build
                   </Link>
-                  <Link
-                    href="/work"
-                    onClick={() => setAboutOpen(false)}
-                    className="block px-3.5 py-2.5 rounded-xl text-[13.5px] text-neutral-600 hover:text-neutral-950 hover:bg-neutral-50 transition-colors"
-                  >
-                    Our Work
-                  </Link>
                 </div>
               </div>
             )}
@@ -539,13 +532,6 @@ export function Header() {
                     className="px-3 py-2.5 rounded-xl active:bg-neutral-100 text-sm text-neutral-600"
                   >
                     What We Build
-                  </Link>
-                  <Link
-                    href="/work"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="px-3 py-2.5 rounded-xl active:bg-neutral-100 text-sm text-neutral-600"
-                  >
-                    Our Work
                   </Link>
                 </div>
               </MobileGroup>

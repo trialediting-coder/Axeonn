@@ -122,7 +122,7 @@ export default function AboutClient() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => router.push('/work')}
+                  onClick={() => router.push('/marketing-solutions')}
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white hover:bg-neutral-100 text-neutral-800 border border-neutral-300 font-semibold text-sm tracking-tight transition-all duration-200 cursor-pointer"
                 >
                   <span>See What We Build</span>
