@@ -174,17 +174,32 @@ export default function PartnersPage() {
     <main className="w-full bg-white text-neutral-950">
       <BreadcrumbJsonLd items={[{ name: 'Partners', path: '/partners' }]} />
 
-      {/* Hero: the pitch on the left; the business being referred on the right, with the loop over it */}
-      <section className="w-full px-6 sm:px-10 lg:px-16 xl:px-24 pt-36 pb-20 sm:pt-44 sm:pb-28 bg-neutral-950 text-white">
+      {/* Hero: Iowa Capitol behind the pitch, with the referral loop alongside */}
+      <section className="relative isolate w-full overflow-hidden px-6 sm:px-10 lg:px-16 xl:px-24 pt-36 pb-20 sm:pt-44 sm:pb-28 bg-neutral-950 text-white">
+        <Image
+          src="/iowa_state_capitol_wide.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="-z-20 object-cover object-[center_30%]"
+        />
+        {/* Darken the photo enough for the headline, heaviest behind the text */}
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 bg-gradient-to-r from-neutral-950 via-neutral-950/85 to-neutral-950/50"
+        />
+        <div aria-hidden className="absolute inset-x-0 bottom-0 h-32 -z-10 bg-gradient-to-t from-neutral-950 to-transparent" />
+
         <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-          <div className="lg:col-span-6">
+          <div className="lg:col-span-7">
             <p className="text-blue-400 font-semibold mb-5">The Axeon Partner Program</p>
             <h1 className="text-5xl sm:text-6xl xl:text-7xl font-black tracking-[-0.04em] leading-[0.98] font-display mb-7">
               Send us a business.
               <br />
-              <span className="text-neutral-500">We&apos;ll take it from there.</span>
+              <span className="text-neutral-400">We&apos;ll take it from there.</span>
             </h1>
-            <p className="text-lg text-neutral-300 leading-relaxed max-w-xl mb-10">
+            <p className="text-lg text-neutral-200 leading-relaxed max-w-xl mb-10">
               You already work with small business owners who need a better website, more visibility, and more
               leads. Introduce them to us and earn a reward, or team up with us to serve the customers we share.
             </p>
@@ -197,26 +212,14 @@ export default function PartnersPage() {
               </a>
               <Link
                 href="/book"
-                className={`${BUTTON} border border-neutral-700 hover:border-neutral-400 text-white focus-visible:outline-blue-400`}
+                className={`${BUTTON} border border-white/30 hover:border-white/60 bg-neutral-950/30 text-white focus-visible:outline-blue-400`}
               >
                 Book an intro call
               </Link>
             </div>
           </div>
-          <div className="lg:col-span-6 relative lg:pb-16">
-            <div className="relative aspect-[4/3] lg:aspect-[5/6] rounded-[28px] overflow-hidden">
-              <Image
-                src="/who-we-help/small-business.jpg"
-                alt="A local cafe owner reviewing paperwork at her counter"
-                fill
-                priority
-                sizes="(min-width: 1024px) 40vw, 100vw"
-                className="object-cover object-[65%_center]"
-              />
-            </div>
-            <div className="relative -mt-16 mx-4 sm:mx-8 lg:mx-0 lg:mt-0 lg:absolute lg:-left-10 lg:bottom-0 lg:w-[78%]">
-              <ReferralLoop />
-            </div>
+          <div className="lg:col-span-5 w-full max-w-md lg:ml-auto">
+            <ReferralLoop />
           </div>
         </div>
       </section>
