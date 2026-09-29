@@ -290,9 +290,9 @@ export function Hero() {
             style={{ animationDelay: '0.25s' }}
             className="hero-rise mt-8 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4"
           >
-            {/* Primary: jumps to the intake form embedded in the contact section */}
+            {/* Primary: the dedicated intake page (same form as the contact section) */}
             <Link
-              href="#contact-section"
+              href="/get-started"
               id="hero-primary-cta"
               data-track="cta_click"
               data-track-cta="get_started_hero"

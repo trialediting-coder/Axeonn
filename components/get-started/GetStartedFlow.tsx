@@ -173,7 +173,15 @@ async function postLead(payload: unknown) {
   }
 }
 
-export function GetStartedFlow({ embedded = false }: { embedded?: boolean }) {
+export function GetStartedFlow({
+  embedded = false,
+  source = embedded ? 'home_get_started' : 'get_started',
+}: {
+  /** Render without the flow's own card/width (the parent supplies the card). */
+  embedded?: boolean;
+  /** Analytics source for the generate_lead event. */
+  source?: string;
+}) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<GetStartedAnswers>(EMPTY_ANSWERS);
   const [contact, setContact] = useState<ContactInfo>(EMPTY_CONTACT);
@@ -287,7 +295,7 @@ export function GetStartedFlow({ embedded = false }: { embedded?: boolean }) {
     const pkg = recommendPackage(answers);
     const payload = buildLeadPayload(answers, contact, pkg, honeypot);
     await postLead(payload);
-    trackEvent('generate_lead', { source: embedded ? 'home_get_started' : 'get_started', package_id: pkg.id, value: pkg.price, currency: 'USD' });
+    trackEvent('generate_lead', { source, package_id: pkg.id, value: pkg.price, currency: 'USD' });
 
     hasInteracted.current = true;
     setResult({ pkg, email: payload.email });
@@ -303,11 +311,9 @@ export function GetStartedFlow({ embedded = false }: { embedded?: boolean }) {
     goTo(0);
   }
 
-  const fade = `transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`;
-
   if (result) {
     return (
-      <div ref={topRef} className={`scroll-mt-28 ${fade}`}>
+      <div ref={topRef} className="scroll-mt-28">
         <ResultCard pkg={result.pkg} headingRef={headingRef} onStartOver={startOver} embedded={embedded} />
       </div>
     );
@@ -317,7 +323,7 @@ export function GetStartedFlow({ embedded = false }: { embedded?: boolean }) {
   const errorId = 'gs-step-error';
 
   return (
-    <div ref={topRef} className={`scroll-mt-28 ${embedded ? '' : 'max-w-2xl'} ${fade}`} aria-busy={!loaded}>
+    <div ref={topRef} className={`scroll-mt-28 ${embedded ? '' : 'max-w-2xl'}`}>
       <div
         role="progressbar"
         aria-label="Form progress"
