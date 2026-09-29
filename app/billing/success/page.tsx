@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { isStripeConfigured } from '@/lib/stripe';
 import { getCheckoutSummary, type CheckoutSummary } from '@/lib/billing';
 import { formatCents } from '@/lib/billingMath';
+import PurchaseTracker from '@/components/pay/PurchaseTracker';
 
 // Display only. Fulfillment and notifications run from the Stripe webhook
 // (app/api/stripe/webhook/route.ts); this page may never be reached.
@@ -40,6 +41,13 @@ export default async function BillingSuccessPage({
         <p className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-4">Axeon Studio</p>
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight mb-6">{headline}</h1>
         {amount && <p className="text-lg text-neutral-200 mb-4">{amount}</p>}
+        {paid && sessionId && summary?.amountTotalCents != null && (
+          <PurchaseTracker
+            transactionId={sessionId}
+            valueCents={summary.amountTotalCents}
+            currency={summary.currency ?? 'usd'}
+          />
+        )}
         <p className="text-neutral-300 leading-relaxed">
           {paid &&
             'Your payment to Axeon Studio went through. A receipt is on its way to the email you entered at checkout.'}
