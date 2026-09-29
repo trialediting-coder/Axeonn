@@ -57,8 +57,9 @@ Beyond full builds, Axeon Studio also sells and documents these services individ
 - **AI Chat & Online Scheduling** (https://axeonstudio.co/marketing-solutions/ai-chat-scheduling) — a 24/7 AI receptionist that answers, qualifies, and books appointments.
 - **Lead Generation** (https://axeonstudio.co/marketing-solutions/lead-generation) — every lead captured, triaged, and followed up on automatically in one pipeline.
 - **Video & Photography** (https://axeonstudio.co/marketing-solutions/video-photography) — professional video and photography for a client's website, ads, and social profiles.
+- **Advertising** (https://axeonstudio.co/marketing-solutions/advertising) — Google Ads (Search) and Meta Ads (Facebook & Instagram) campaign management, with service-specific landing pages and call/form/booking conversion tracking. Scoped and quoted on a strategy call.
 
-Not currently offered (do not cite as available): Digital Advertising, Local Services Ads management, and ChatGPT Ads. These are in development and not yet live.
+Not currently offered (do not cite as available): Local Services Ads management and ChatGPT Ads. These are in development and not yet live.
 
 ---
 

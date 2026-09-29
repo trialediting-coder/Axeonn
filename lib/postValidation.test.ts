@@ -40,7 +40,7 @@ describe('validatePost', () => {
     const longBody = 'word '.repeat(900);
     const result = validatePost({
       title: 'Ads Post',
-      content: `# Title\n\n## One\n\n## Two\n\n${longBody} We also run your Google Ads campaigns for you.`,
+      content: `# Title\n\n## One\n\n## Two\n\n${longBody} We also handle Local Services Ads management for you.`,
       sources: [],
     });
     assert.strictEqual(result.passed, false);

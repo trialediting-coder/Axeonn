@@ -23,7 +23,6 @@ const BANNED_PHRASE_PATTERNS: { pattern: RegExp; reason: string }[] = [
   { pattern: /no (recurring |monthly |ongoing )+(fees?|costs?|plan)|no monthly plan bundled/i, reason: 'Claims there is no recurring fee — never make claims about ongoing fees either way.' },
   { pattern: /\b(7|14|seven|fourteen)[\s-]*(to|–|-)?[\s-]*(14|fourteen)?[\s-]*(business[\s-]*)?days?\b/i, reason: 'Promises a specific build timeline — describe speed in relative terms instead.' },
   { pattern: /care plan|monthly (plan|fee)/i, reason: 'Mentions a monthly/care plan — ongoing arrangements are handled privately with each client.' },
-  { pattern: /(run|manage|handle)s?\s+(your\s+)?(google|meta|facebook)\s+ads/i, reason: 'Implies Axeon manages paid ad accounts (not-live service).' },
   { pattern: /local services ads? management/i, reason: 'Implies Axeon offers Local Services Ads management (not-live service).' },
   { pattern: /chatgpt ads/i, reason: 'Implies Axeon offers ChatGPT Ads (not-live service).' },
 ];

@@ -745,7 +745,7 @@ export const leadGenDetail: SolutionDetail = {
     {
       question: 'Do you run Google or Facebook ads?',
       answer:
-        'No. This service is about capturing, qualifying, and following up on the leads your website, phone, and listings already bring in, so fewer of them slip away.',
+        'Yes, as a separate service. This service is about capturing, qualifying, and following up on every lead, including the ones your ads bring in, so fewer of them slip away. See our Advertising page for Google Ads and Meta Ads.',
     },
     {
       question: 'Does this replace my existing CRM?',
@@ -904,6 +904,170 @@ export const videoDetail: SolutionDetail = {
       question: 'Do I need to prepare anything?',
       answer:
         'Just tidy the space you want on camera and let the people who will appear know ahead of time. We plan the shot list with you beforehand, so you’ll know what we’re capturing.',
+    },
+  ],
+};
+
+// ---------------------------------------------------------------------------
+// Advertising (Google Ads + Meta Ads)
+// ---------------------------------------------------------------------------
+
+export const advertisingDetail: SolutionDetail = {
+  problem: {
+    eyebrow: 'Where Ad Budgets Leak',
+    heading: 'Most Local Ad Spend Is Wasted Before Anyone Clicks',
+    intro: 'Ads aren’t the hard part. Running them so every dollar can be traced to a call or a booking is.',
+    items: [
+      {
+        title: 'Boosted posts instead of campaigns',
+        body: 'Hitting “Boost” reaches people who like pictures, not people who need your service this week.',
+      },
+      {
+        title: 'Broad keywords burning the budget',
+        body: 'Without negative keywords and tight targeting, you pay for clicks from job seekers, DIYers, and people three states away.',
+      },
+      {
+        title: 'Clicks sent to the homepage',
+        body: 'Someone searches for one specific service and lands on a generic page. They hit back and call the next ad.',
+      },
+      {
+        title: 'No conversion tracking',
+        body: 'The dashboard shows clicks and impressions, but nobody can tell you which ads produced calls, forms, or booked jobs.',
+      },
+      {
+        title: 'Leads that nobody answers',
+        body: 'You paid for the click, the form comes in, and it sits until the end of the day. By then they’ve booked someone else.',
+      },
+      {
+        title: 'Set it and forget it',
+        body: 'Campaigns launched once and never touched again. Costs creep up while the same tired ads keep running.',
+      },
+    ],
+  },
+  deliverables: {
+    eyebrow: 'What’s Included',
+    heading: 'Google and Meta, Run Like a System',
+    intro:
+      'Ads work best when they send people to a site built to convert and a pipeline that follows up instantly. That’s the part most ad agencies can’t offer.',
+    groups: [
+      {
+        title: 'Google Ads',
+        items: [
+          'Search campaigns built around the services you actually want more of',
+          'Keyword research, negative keywords, and service-area targeting',
+          'Ad copy written for high-intent local searches',
+          'Call assets so mobile searchers can tap to call straight from the ad',
+        ],
+      },
+      {
+        title: 'Meta Ads',
+        items: [
+          'Facebook and Instagram campaigns aimed at your service area',
+          'Audience setup, including retargeting people who already visited your site',
+          'Lead forms and offers matched to each service',
+          'Creative cut for Reels, Stories, and the feed',
+        ],
+      },
+      {
+        title: 'Landing pages',
+        items: [
+          'Every ad points to a page about that specific service, not your homepage',
+          'Fast, mobile-first pages with one clear next step',
+          'Forms, tap-to-call, and booking placed where people decide',
+        ],
+      },
+      {
+        title: 'Tracking',
+        items: [
+          'Conversion tracking for calls, forms, chats, and bookings',
+          'Call tracking numbers that show which campaigns make your phone ring',
+          'Reporting in plain English: what you spent and what it produced',
+        ],
+      },
+      {
+        title: 'Creative',
+        items: [
+          'Ad copy and static creative for every campaign',
+          'Video from an Axeon shoot, cut into vertical formats sized for ads',
+        ],
+      },
+      {
+        title: 'Optimization',
+        items: [
+          'Ongoing bid, budget, and keyword adjustments based on real conversions',
+          'New ad variations tested against what’s already working',
+          'Budget moved toward the campaigns that produce booked work',
+        ],
+      },
+    ],
+    footnote:
+      'Pair ads with AxeonCORE and every paid lead lands in your Custom CRM Pipeline with instant follow-up, speed-to-lead call connect, and missed-call text-back.',
+  },
+  timeline: {
+    eyebrow: 'How It Works',
+    heading: 'How We Launch Your Campaigns',
+    steps: [
+      CONSULTATION_STEP,
+      {
+        title: 'Audit & strategy',
+        body: 'If you’ve run ads before, we audit the accounts. Then we pick the services, service area, and channels worth paying for, and set a budget that fits.',
+      },
+      {
+        title: 'Tracking first',
+        body: 'Conversion tracking and call tracking go in before a single dollar is spent, so every result can be traced to a campaign.',
+      },
+      {
+        title: 'Build campaigns & pages',
+        body: 'We build the campaigns, write the ads, and make sure each one points to a landing page about that specific service.',
+      },
+      {
+        title: 'Launch',
+        body: 'Campaigns go live, and every lead flows into the same place as the rest of your leads.',
+      },
+      {
+        title: 'Optimize & report',
+        body: 'We keep adjusting targeting, keywords, and creative based on what produces calls and bookings, and report back in plain English.',
+      },
+    ],
+  },
+  comparison: {
+    eyebrow: 'Side by Side',
+    heading: 'Axeon vs. a Typical Ad Agency',
+    rows: [
+      { label: 'Where clicks go', typical: 'Your homepage', axeon: 'A landing page for that exact service' },
+      { label: 'Tracking', typical: 'Clicks and impressions', axeon: 'Calls, forms, chats, and bookings' },
+      { label: 'Lead follow-up', typical: 'Not their problem', axeon: 'Instant follow-up through your pipeline with AxeonCORE' },
+      { label: 'Channels', typical: 'Google or Meta, rarely both', axeon: 'Google and Meta under one team' },
+      { label: 'Creative', typical: 'Stock photos', axeon: 'Your own video and photos' },
+      { label: 'Reporting', typical: 'A PDF full of jargon', axeon: 'Spend in, results out, in plain English' },
+      { label: 'Website & ads', typical: 'Two vendors blaming each other', axeon: 'One team that owns both' },
+    ],
+  },
+  faqs: [
+    {
+      question: 'Do you manage both Google Ads and Meta Ads?',
+      answer:
+        'Yes. We run Google Search campaigns and Facebook and Instagram campaigns, and we recommend the mix based on how your customers actually look for you.',
+    },
+    {
+      question: 'Do I need a new website to run ads with you?',
+      answer:
+        'Not necessarily. Ads work best when they point to fast, service-specific landing pages, so we’ll look at your current site on the strategy call and tell you honestly whether it can convert paid traffic.',
+    },
+    {
+      question: 'How much should I spend on ads?',
+      answer:
+        'It depends on your market, your services, and how much work you can take on. We’ll recommend a starting budget on your strategy call, based on your goals rather than a one-size-fits-all number.',
+    },
+    {
+      question: 'How do I know the ads are working?',
+      answer:
+        'Conversion tracking and call tracking go in before launch, so you’ll see which campaigns produced calls, forms, and bookings, not just clicks.',
+    },
+    {
+      question: 'Do you run Local Services Ads?',
+      answer:
+        'Not at this time. We focus on Google Search campaigns and Meta (Facebook and Instagram) campaigns.',
     },
   ],
 };

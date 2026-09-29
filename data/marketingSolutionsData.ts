@@ -36,6 +36,13 @@ export const marketingSolutions: MarketingSolution[] = [
     href: '/marketing-solutions/lead-generation',
   },
   {
+    id: 'advertising',
+    title: 'Advertising',
+    description:
+      'Google Ads and Meta Ads that send ready-to-buy customers to pages built to convert, with every call and booking tracked.',
+    href: '/marketing-solutions/advertising',
+  },
+  {
     id: 'video-photography',
     title: 'Video & Photography',
     description:

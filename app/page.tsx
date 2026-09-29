@@ -1,5 +1,6 @@
 import { preload } from 'react-dom';
 import { Hero } from '@/components/home/Hero';
+import { IowaClientsMarquee } from '@/components/home/IowaClientsMarquee';
 import { WhoWeHelp } from '@/components/home/WhoWeHelp';
 import { ThreePillars } from '@/components/home/ThreePillars';
 import { Platform } from '@/components/home/Platform';
@@ -19,6 +20,7 @@ export default function HomePage() {
   return (
     <main>
       <Hero />
+      <IowaClientsMarquee />
       <WhoWeHelp />
       <ThreePillars />
       <PlatformShowcase />

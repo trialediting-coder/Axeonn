@@ -30,9 +30,11 @@ local-only.
 - AI chat & online scheduling.
 - Lead generation / Custom CRM Pipeline.
 - Video & photography.
+- Advertising: Google Ads (Search) and Meta Ads (Facebook & Instagram)
+  management (live since 2026-09-28). No published price; it is scoped on a
+  strategy call. Never promise ROAS, cost-per-lead, or lift numbers.
 
 ## NOT currently live — never imply these are offered
-- Paid digital advertising / Google Ads / Meta Ads management.
 - Local Services Ads management.
 - ChatGPT Ads or any other paid AI-platform advertising product.
 

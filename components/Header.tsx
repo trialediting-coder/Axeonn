@@ -456,8 +456,9 @@ export function Header() {
               </div>
             )}
           </div>
-          <Link href="/insights" className={`${navHoverClass} transition-colors py-1`}>
+          <Link href="/insights" className={`${navHoverClass} transition-colors py-1 inline-flex items-center`}>
             Insights
+            <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-bold uppercase tracking-wider leading-none align-middle">New</span>
           </Link>
           <Link href="/pricing" className={`${navHoverClass} transition-colors py-1`}>
             Pricing
@@ -644,6 +645,7 @@ export function Header() {
                 className="flex items-center min-h-[52px] py-3 border-b border-neutral-100 text-[15px] font-semibold text-neutral-900"
               >
                 Insights
+                <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-bold uppercase tracking-wider leading-none align-middle">New</span>
               </Link>
               <Link
                 href="/pricing"
