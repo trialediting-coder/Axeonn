@@ -461,7 +461,7 @@ export function Header() {
         <div className="hidden md:flex items-center gap-5">
           <a
             href="tel:+15154938017"
-            className={`hidden md:inline-block text-[15px] font-semibold whitespace-nowrap transition-colors ${
+            className={`hidden xl:inline-block text-[15px] font-semibold whitespace-nowrap transition-colors ${
               onDarkHero ? 'text-white hover:text-blue-400' : 'text-neutral-700 hover:text-neutral-950'
             }`}
           >
@@ -469,18 +469,32 @@ export function Header() {
           </a>
           <Link
             href="/book"
-            className="px-7 py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold shadow-sm hover:shadow-md transition-all"
+            className={`hidden lg:inline-flex px-6 py-3 rounded-full border text-base font-semibold whitespace-nowrap transition-all ${
+              onDarkHero
+                ? 'border-white/30 text-white hover:bg-white/10'
+                : 'border-neutral-300 text-neutral-900 hover:border-neutral-400 hover:bg-neutral-50'
+            }`}
           >
             Book a Strategy Call
+          </Link>
+          <Link
+            href="/get-started"
+            data-track="cta_click"
+            data-track-cta="get_started_nav"
+            className="px-7 py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold whitespace-nowrap shadow-sm hover:shadow-md transition-all"
+          >
+            Get Started
           </Link>
         </div>
 
         <div className="flex md:hidden items-center gap-2.5">
           <Link
-            href="/book"
+            href="/get-started"
+            data-track="cta_click"
+            data-track-cta="get_started_nav"
             className="inline-flex items-center justify-center px-4 py-3 rounded-full bg-blue-600 text-white text-xs font-semibold"
           >
-            Book a Strategy Call
+            Get Started
           </Link>
           <button
             onClick={() => setMobileMenuOpen((v) => !v)}
@@ -639,6 +653,13 @@ export function Header() {
                 className="flex items-center min-h-[52px] py-3 border-b border-neutral-100 text-[15px] font-semibold text-neutral-900"
               >
                 Pricing
+              </Link>
+              <Link
+                href="/book"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center min-h-[52px] py-3 border-b border-neutral-100 text-[15px] font-semibold text-neutral-900"
+              >
+                Book a Strategy Call
               </Link>
               <a
                 href="tel:+15154938017"

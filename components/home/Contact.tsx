@@ -3,7 +3,7 @@
 import React, { useRef, useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
-import { BookingCalendar } from '@/components/booking/BookingCalendar';
+import { GetStartedFlow } from '@/components/get-started/GetStartedFlow';
 
 export interface ContactProps {
   onBookAudit?: () => void;
@@ -286,42 +286,26 @@ export function Contact({ onBookAudit }: ContactProps) {
       {/* Content Container (Spans full screen without outer card radius) */}
       <div className="relative z-10 w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto px-4 sm:px-8 lg:px-14 xl:px-20 py-8 lg:py-12 select-text">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 xl:gap-16 items-start lg:items-center">
-          {/* Left Column: Clean White Card with Embedded Booking Calendar */}
+          {/* Left Column: Clean White Card with the Get Started intake form */}
           <motion.div
             id="contact-card-container"
             initial={{ opacity: 0, y: 25, scale: 0.98 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: false, amount: 0.2 }}
+            viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="lg:col-span-7 xl:col-span-7 bg-white text-neutral-950 rounded-[32px] sm:rounded-[36px] p-6 sm:p-8 lg:p-10 shadow-2xl border border-neutral-100 max-w-3xl w-full mx-auto lg:mx-0"
           >
-            <div className="space-y-5">
-              <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2 pb-1">
-                <div>
-                  <h3 className="text-2xl sm:text-3xl font-bold font-display tracking-tight text-neutral-950 leading-tight">
-                    Let&apos;s Talk About Your Project
-                  </h3>
-                  <p className="text-sm sm:text-base text-neutral-600 mt-1.5">
-                    Pick a day and time that works for you. We&apos;ll hop on a quick call to chat about your goals.
-                  </p>
-                </div>
-                <span className="text-xs font-mono font-semibold text-neutral-500 bg-neutral-100 px-3 py-1.5 rounded-full w-fit">
-                  Central Time (US)
-                </span>
+            <div className="space-y-6">
+              <div className="pb-1">
+                <h3 className="text-2xl sm:text-3xl font-bold font-display tracking-tight text-neutral-950 leading-tight">
+                  Let&apos;s Talk About Your Project
+                </h3>
+                <p className="text-sm sm:text-base text-neutral-600 mt-1.5">
+                  Answer a few quick questions and get a recommended plan. Takes about a minute.
+                </p>
               </div>
 
-              {/* On phones the calendar is two screens tall; give callers the fast path first */}
-              <a
-                href="tel:+15154938017"
-                className="sm:hidden flex items-center justify-center gap-2 w-full py-3.5 rounded-full border border-neutral-300 text-neutral-900 font-semibold text-base active:bg-neutral-50"
-              >
-                Prefer to call? (515) 493-8017
-              </a>
-
-              {/* Real-time booking calendar embed */}
-              <div className="rounded-2xl border border-neutral-200/80 bg-white overflow-hidden shadow-2xs">
-                <BookingCalendar theme="light" minHeight="720px" />
-              </div>
+              <GetStartedFlow embedded />
             </div>
           </motion.div>
 

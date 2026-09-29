@@ -13,7 +13,8 @@
     "db:verify": "node --env-file=.env.local scripts/verify-db-schema.mjs",
     "stripe:seed": "node --env-file=.env.local scripts/stripe-seed.mjs",
     "test:billing": "tsx --test lib/billingMath.test.ts",
-    "test:paylinks": "tsx --test lib/payLinks.test.ts"
+    "test:paylinks": "tsx --test lib/payLinks.test.ts",
+    "test:get-started": "tsx --test lib/getStarted.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.126.0",

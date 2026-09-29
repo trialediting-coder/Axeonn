@@ -290,29 +290,39 @@ export function Hero() {
             style={{ animationDelay: '0.25s' }}
             className="hero-rise mt-8 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4"
           >
-            {/* Primary: the real ask, named as what it is */}
-            <button
-              type="button"
+            {/* Primary: jumps to the intake form embedded in the contact section */}
+            <Link
+              href="#contact-section"
               id="hero-primary-cta"
-              onClick={() => openLeadModal('hero')}
+              data-track="cta_click"
+              data-track-cta="get_started_hero"
               className="group inline-flex items-center justify-center gap-3 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-base font-bold transition-all duration-200 cursor-pointer shadow-lg shadow-blue-600/25 hover:scale-[1.02] active:scale-[0.98]"
             >
-              <span>Book a Free Strategy Call</span>
+              <span>Get Started</span>
               <div className="w-8 h-8 rounded-full bg-white/15 text-white flex items-center justify-center shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
                 <ArrowUpRight size={15} />
               </div>
-            </button>
+            </Link>
 
-            {/* Secondary: the lighter action, answers the #1 objection (price) */}
-            <Link
-              href="/pricing"
+            {/* Secondary: for visitors who want a human first */}
+            <button
+              type="button"
               id="hero-secondary-cta"
-              data-track="cta_click"
-              data-track-cta="see_pricing"
+              onClick={() => openLeadModal('hero')}
               className="group inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full border border-white/25 bg-white/[0.06] hover:bg-white/[0.12] hover:border-white/40 text-white text-base font-semibold backdrop-blur-sm transition-all duration-200 cursor-pointer"
             >
-              <span>See Flat-Rate Pricing</span>
+              <span>Book a Free Strategy Call</span>
               <ArrowRight size={16} className="text-blue-300 group-hover:translate-x-1 transition-transform" />
+            </button>
+
+            {/* Tertiary: answers the #1 objection (price) */}
+            <Link
+              href="/pricing"
+              data-track="cta_click"
+              data-track-cta="see_pricing"
+              className="inline-flex items-center justify-center py-2 sm:py-4 text-base font-semibold text-white/80 hover:text-white underline underline-offset-4 decoration-white/30 hover:decoration-white transition-colors"
+            >
+              See flat-rate pricing
             </Link>
           </div>
 
