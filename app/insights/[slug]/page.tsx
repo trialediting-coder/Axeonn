@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import Link from 'next/link';
+import { ArrowUpRight } from 'lucide-react';
 import { getPostBySlug, listPosts } from '@/lib/posts';
 import { niches } from '@/data/nichesData';
 import { buildMetadata } from '@/lib/metadata';
@@ -13,6 +14,13 @@ import { FOUNDER, FOUNDER_ID, ORG_ID, SITE_URL } from '@/lib/seo';
 // no revalidate and no generateStaticParams, so it fully re-queries Postgres
 // on every single request, including every crawler hit.
 export const revalidate = 3600;
+
+// Case-study posts whose cover is a screenshot of the client's site. Readers
+// click that cover expecting to reach the real thing (Clarity logged it as a
+// dead click), so it links out.
+const CASE_STUDY_LIVE_SITES: Record<string, { name: string; url: string }> = {
+  'a-1-auto-detailing-website-case-study': { name: 'A-1 Auto Detailing', url: 'https://www.a-1autodetailing.net/' },
+};
 
 // A literal "</script>" inside JSON.stringify output would break out of the
 // script tag. Content here can include fragments of web-search results
@@ -93,6 +101,7 @@ export default async function InsightPostPage({
       : null;
 
   const nicheLookup = new Map(niches.map((n) => [n.slug, n.name]));
+  const liveSite = CASE_STUDY_LIVE_SITES[post.slug];
 
   return (
     <main className="w-full pt-32 pb-24 px-6 sm:px-10 lg:px-16 xl:px-24">
@@ -129,7 +138,29 @@ export default async function InsightPostPage({
             </>
           )}
         </p>
-        {post.coverImageUrl && (
+        {post.coverImageUrl && liveSite && (
+          <a
+            href={liveSite.url}
+            target="_blank"
+            rel="noopener"
+            data-track="case_study_live_site_click"
+            data-track-client={liveSite.name}
+            className="group block mb-10"
+          >
+            <img
+              src={post.coverImageUrl}
+              alt={post.coverImageAlt ?? ''}
+              loading="eager"
+              decoding="async"
+              className="w-full rounded-2xl aspect-[16/9] object-cover transition-shadow group-hover:shadow-xl"
+            />
+            <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-blue-600 group-hover:underline">
+              See the live {liveSite.name} site
+              <ArrowUpRight size={16} aria-hidden="true" />
+            </span>
+          </a>
+        )}
+        {post.coverImageUrl && !liveSite && (
           <img
             src={post.coverImageUrl}
             alt={post.coverImageAlt ?? ''}
@@ -141,6 +172,34 @@ export default async function InsightPostPage({
         <div className="prose prose-neutral max-w-none prose-headings:font-display prose-headings:tracking-tight prose-a:text-blue-600">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content}</ReactMarkdown>
         </div>
+
+        {/* Readers who finish a post had nowhere to go next (Clarity, 2026-09-28:
+            a 3.5-minute read ended in an exit). Same offer as the pricing
+            page's Free Consultation card. */}
+        <section
+          data-track-location="insight_post_cta"
+          className="mt-16 rounded-3xl p-8 sm:p-10 bg-gradient-to-b from-emerald-50 to-white border-2 border-emerald-500"
+        >
+          <h2 className="text-2xl sm:text-3xl font-bold text-neutral-950 mb-3">
+            {liveSite ? `Want what ${liveSite.name} got?` : 'Want this for your business?'}
+          </h2>
+          <p className="text-neutral-600 leading-relaxed mb-6">
+            Book a free consultation. Before the call we design a custom mockup of your homepage and
+            pull an AI visibility report showing where you show up on Google, ChatGPT, and Perplexity.
+            Both are yours to keep, whether or not you hire us.
+          </p>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <Link
+              href="/book"
+              className="text-center px-8 py-4 rounded-full font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm shadow-emerald-600/30 transition-colors"
+            >
+              Book My Free Consultation
+            </Link>
+            <a href="tel:+15154938017" className="text-center text-sm font-semibold text-neutral-600 underline underline-offset-2">
+              Or call (515) 493-8017
+            </a>
+          </div>
+        </section>
 
         {post.faqItems.length > 0 && (
           <section className="mt-16 pt-10 border-t border-neutral-200">
