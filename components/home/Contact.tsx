@@ -2,7 +2,8 @@
 
 import React, { useRef, useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, useInView } from 'motion/react';
+import { loopWhile, AT_REST } from '@/lib/loopWhile';
 import { GetStartedFlow } from '@/components/get-started/GetStartedFlow';
 
 export interface ContactProps {
@@ -13,6 +14,9 @@ export function Contact({ onBookAudit }: ContactProps) {
   const containerRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mouseRef = useRef<{ x: number; y: number; active: boolean }>({ x: -1000, y: -1000, active: false });
+  // The glow blobs loop forever via JS, restyling every frame; only run them
+  // while the section is on screen.
+  const inView = useInView(containerRef);
 
   // Interactive High-Performance Clean Wave / Constellation Canvas Animation
   useEffect(() => {
@@ -235,44 +239,44 @@ export function Contact({ onBookAudit }: ContactProps) {
 
       {/* Modern Gradient Ambient Glow Blobs */}
       <motion.div
-        animate={{
+        animate={loopWhile(inView, {
           x: [0, 60, -40, 0],
           y: [0, -40, 30, 0],
           scale: [1, 1.15, 0.95, 1],
-        }}
-        transition={{
+        })}
+        transition={inView ? {
           duration: 18,
           repeat: Infinity,
           ease: 'easeInOut',
-        }}
+        } : AT_REST}
         className="absolute -top-24 -left-24 w-[600px] sm:w-[750px] h-[600px] sm:h-[750px] rounded-full bg-blue-600/15 blur-[140px] pointer-events-none z-0"
       />
 
       <motion.div
-        animate={{
+        animate={loopWhile(inView, {
           x: [0, -50, 50, 0],
           y: [0, 50, -30, 0],
           scale: [0.95, 1.1, 1, 0.95],
-        }}
-        transition={{
+        })}
+        transition={inView ? {
           duration: 22,
           repeat: Infinity,
           ease: 'easeInOut',
           delay: 1.5,
-        }}
+        } : AT_REST}
         className="absolute -bottom-32 -right-32 w-[650px] sm:w-[800px] h-[650px] sm:h-[800px] rounded-full bg-indigo-600/12 blur-[150px] pointer-events-none z-0"
       />
 
       <motion.div
-        animate={{
+        animate={loopWhile(inView, {
           opacity: [0.15, 0.35, 0.15],
           scale: [0.9, 1.05, 0.9],
-        }}
-        transition={{
+        })}
+        transition={inView ? {
           duration: 12,
           repeat: Infinity,
           ease: 'easeInOut',
-        }}
+        } : AT_REST}
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[850px] h-[450px] rounded-full bg-cyan-600/8 blur-[160px] pointer-events-none z-0"
       />
 

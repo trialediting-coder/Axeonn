@@ -2,7 +2,8 @@
 
 import { useRef, useState } from 'react';
 import { Play, Pause, AlertCircle } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, useInView } from 'motion/react';
+import { loopWhile, AT_REST } from '@/lib/loopWhile';
 
 interface AudioOrbPlayerProps {
   src: string;
@@ -29,6 +30,11 @@ export function AudioOrbPlayer({ src, variant, label, size = 'default', minimal 
   const [elapsed, setElapsed] = useState(0);
   const [duration, setDuration] = useState(0);
   const [hasError, setHasError] = useState(false);
+  // The orb's "breathing" loops are JS-driven, so they restyle every frame;
+  // only run them while the orb is on screen (or playing).
+  const orbRef = useRef<HTMLButtonElement>(null);
+  const orbInView = useInView(orbRef);
+  const loop = isPlaying || orbInView;
 
   const toggle = () => {
     const audio = audioRef.current;
@@ -67,6 +73,7 @@ export function AudioOrbPlayer({ src, variant, label, size = 'default', minimal 
 
       {isOrb ? (
         <button
+          ref={orbRef}
           type="button"
           onClick={toggle}
           aria-label={isPlaying ? `Pause ${label}` : `Play ${label}`}
@@ -79,11 +86,11 @@ export function AudioOrbPlayer({ src, variant, label, size = 'default', minimal 
             aria-hidden="true"
             className="absolute -inset-4 rounded-full blur-2xl"
             style={{ background: 'radial-gradient(circle, #3B82F6, transparent 70%)' }}
-            animate={{
+            animate={loopWhile(loop, {
               opacity: isPlaying ? [0.5, 0.85, 0.5] : [0.3, 0.45, 0.3],
               scale: isPlaying ? [1, 1.15, 1] : [1, 1.05, 1],
-            }}
-            transition={{ duration: isPlaying ? 1.4 : 3.5, repeat: Infinity, ease: 'easeInOut' }}
+            })}
+            transition={loop ? { duration: isPlaying ? 1.4 : 3.5, repeat: Infinity, ease: 'easeInOut' } : AT_REST}
           />
 
           {/*
@@ -102,8 +109,8 @@ export function AudioOrbPlayer({ src, variant, label, size = 'default', minimal 
           >
           <motion.div
             className="absolute inset-0"
-            animate={{ scale: isPlaying ? [1, 1.06, 1] : [1, 1.015, 1] }}
-            transition={{ duration: isPlaying ? 1.4 : 3.5, repeat: Infinity, ease: 'easeInOut' }}
+            animate={loopWhile(loop, { scale: isPlaying ? [1, 1.06, 1] : [1, 1.015, 1] })}
+            transition={loop ? { duration: isPlaying ? 1.4 : 3.5, repeat: Infinity, ease: 'easeInOut' } : AT_REST}
           >
             {/* Liquid blobs, blended additively for a glowing plasma feel */}
             <motion.span
@@ -116,12 +123,12 @@ export function AudioOrbPlayer({ src, variant, label, size = 'default', minimal 
                 mixBlendMode: 'screen',
                 filter: 'blur(6px)',
               }}
-              animate={{
+              animate={loopWhile(loop, {
                 x: isPlaying ? [0, 14, -8, 0] : [0, 6, 0],
                 y: isPlaying ? [0, -10, 8, 0] : [0, 4, 0],
                 scale: isPlaying ? [1, 1.2, 0.9, 1] : [1, 1.05, 1],
-              }}
-              transition={{ duration: isPlaying ? 2.6 : 6, repeat: Infinity, ease: 'easeInOut' }}
+              })}
+              transition={loop ? { duration: isPlaying ? 2.6 : 6, repeat: Infinity, ease: 'easeInOut' } : AT_REST}
             />
             <motion.span
               aria-hidden="true"
@@ -133,12 +140,12 @@ export function AudioOrbPlayer({ src, variant, label, size = 'default', minimal 
                 mixBlendMode: 'screen',
                 filter: 'blur(8px)',
               }}
-              animate={{
+              animate={loopWhile(loop, {
                 x: isPlaying ? [0, -12, 10, 0] : [0, -5, 0],
                 y: isPlaying ? [0, 10, -6, 0] : [0, -4, 0],
                 scale: isPlaying ? [1, 0.85, 1.15, 1] : [1, 1.03, 1],
-              }}
-              transition={{ duration: isPlaying ? 3.1 : 7, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
+              })}
+              transition={loop ? { duration: isPlaying ? 3.1 : 7, repeat: Infinity, ease: 'easeInOut', delay: 0.3 } : AT_REST}
             />
             <motion.span
               aria-hidden="true"
@@ -150,11 +157,11 @@ export function AudioOrbPlayer({ src, variant, label, size = 'default', minimal 
                 mixBlendMode: 'screen',
                 filter: 'blur(5px)',
               }}
-              animate={{
+              animate={loopWhile(loop, {
                 x: isPlaying ? [0, 10, -14, 0] : [0, -4, 0],
                 y: isPlaying ? [0, -8, 6, 0] : [0, 3, 0],
-              }}
-              transition={{ duration: isPlaying ? 2.2 : 5.5, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }}
+              })}
+              transition={loop ? { duration: isPlaying ? 2.2 : 5.5, repeat: Infinity, ease: 'easeInOut', delay: 0.6 } : AT_REST}
             />
 
             {/* Glossy specular highlight for dimensionality */}

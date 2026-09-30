@@ -255,8 +255,10 @@ export function Hero() {
           )}
           <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-neutral-950/95 via-neutral-950/60 to-transparent sm:from-neutral-950 sm:via-neutral-950/80 sm:to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-neutral-950/30" />
-          <div className="absolute -top-40 -right-40 w-[550px] h-[550px] bg-[#2563EB]/25 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-rose-500/15 rounded-full blur-3xl pointer-events-none" />
+          {/* Soft glows as radial gradients: same look as a blurred disc, without a
+              64px blur filter that phones have to rasterize over the video. */}
+          <div className="absolute -top-[13rem] -right-[13rem] w-[678px] h-[678px] rounded-full bg-[radial-gradient(closest-side,rgb(37_99_235/0.25)_62%,transparent)] pointer-events-none" />
+          <div className="absolute -bottom-16 right-[calc(25%-4rem)] w-[528px] h-[528px] rounded-full bg-[radial-gradient(closest-side,rgb(244_63_94/0.15)_52%,transparent)] pointer-events-none" />
         </div>
 
         <div className="relative z-10 w-full max-w-3xl flex-1 flex flex-col justify-center sm:ml-16 lg:ml-24 xl:ml-32">
