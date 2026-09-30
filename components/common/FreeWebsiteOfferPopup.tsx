@@ -14,16 +14,30 @@ const VARIANT = 'v2_value_stack';
 
 const DISMISS_KEY = 'axeon-founding-offer-dismissed-at';
 const CLAIMED_KEY = 'axeon-founding-offer-claimed';
-const COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000; // 7 days after a dismiss
+const MINIMIZED_KEY = 'axeon-founding-offer-minimized';
+const SITE_ENTERED_KEY = 'axeon-site-entered-at'; // sessionStorage
+const COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000; // 7 days after closing the side tab
 
-// Desktop: exit intent only — it never interrupts reading.
-// Phone: no exit-intent event exists, so show once the visitor has proven
-// interest (deep scroll) or spent real time, whichever comes first. The old
-// 50% / 38s triggers fired mid-way through the industry selector.
-const MOBILE_SCROLL_DEPTH = 0.65;
-const MOBILE_FALLBACK_DELAY_MS = 45_000;
-// Never fire in the first seconds on any device (bounce traffic, bots).
-const MIN_DWELL_MS = 8_000;
+// Time-only trigger (owner decision 2026-09-29): opens once the visitor has
+// spent this long on the site this session, counted across page loads. No
+// scroll or exit-intent triggers.
+const OPEN_AFTER_MS = 20_000;
+// Pages where the visitor is already converting or deciding on price.
+const EXCLUDED_PATHS = ['/pricing', '/book', '/get-started', '/get-started/success'];
+
+type OfferState = 'hidden' | 'open' | 'minimized';
+
+function siteEnteredAt(): number {
+  try {
+    const saved = Number(window.sessionStorage.getItem(SITE_ENTERED_KEY));
+    if (saved) return saved;
+    const now = Date.now();
+    window.sessionStorage.setItem(SITE_ENTERED_KEY, String(now));
+    return now;
+  } catch {
+    return Date.now();
+  }
+}
 
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
@@ -45,14 +59,24 @@ function writeStorage(key: string, value: string): void {
   }
 }
 
+function removeStorage(key: string): void {
+  try {
+    window.localStorage.removeItem(key);
+  } catch {
+    // ignore
+  }
+}
+
 export function FreeWebsiteOfferPopup() {
   const { isOpen: isLeadModalOpen, open: openLeadModal } = useLeadModal();
   const isMobile = useIsMobile();
-  const [visible, setVisible] = useState(false);
+  const [state, setState] = useState<OfferState>('hidden');
+  const visible = state === 'open';
   const shownRef = useRef(false);
   const leadModalOpenRef = useRef(isLeadModalOpen);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
+  const tabRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
@@ -60,23 +84,35 @@ export function FreeWebsiteOfferPopup() {
     leadModalOpenRef.current = isLeadModalOpen;
   }, [isLeadModalOpen]);
 
+  // Re-evaluated on every page change: restores the side tab, or schedules the
+  // first open for when the visitor reaches OPEN_AFTER_MS of time on site.
   useEffect(() => {
     if (!foundingOffer.active || foundingOffer.spotsRemaining <= 0) return;
     // Never on the pricing page: the "built free" headline would undercut the
-    // $2,800 anchor at the exact decision moment. /book has its own flow.
-    if (window.location.pathname === '/pricing' || window.location.pathname === '/book') return;
+    // $2,800 anchor at the exact decision moment. /book and /get-started are
+    // already conversion flows; the popup would only interrupt them.
+    if (EXCLUDED_PATHS.includes(pathname)) return;
     if (readStorage(CLAIMED_KEY) === '1') return; // already on the calendar once
     const dismissedAt = Number(readStorage(DISMISS_KEY));
     if (dismissedAt && Date.now() - dismissedAt < COOLDOWN_MS) return;
 
-    const mountedAt = Date.now();
+    if (readStorage(MINIMIZED_KEY) === '1') {
+      shownRef.current = true;
+      setState((s) => (s === 'open' ? s : 'minimized'));
+      return;
+    }
 
     const show = () => {
-      if (shownRef.current || leadModalOpenRef.current) return;
-      if (Date.now() - mountedAt < MIN_DWELL_MS) return;
+      if (shownRef.current) return;
+      // Don't stack on top of the booking modal; try again shortly.
+      if (leadModalOpenRef.current) {
+        retryId = window.setTimeout(show, 5_000);
+        return;
+      }
+      if (EXCLUDED_PATHS.includes(window.location.pathname)) return;
       shownRef.current = true;
       triggerRef.current = document.activeElement as HTMLElement | null;
-      setVisible(true);
+      setState('open');
       trackEvent(EVENTS.popupShown, {
         popup: POPUP_ID,
         variant: VARIANT,
@@ -84,42 +120,39 @@ export function FreeWebsiteOfferPopup() {
       });
     };
 
-    const isTouchDevice = window.matchMedia('(hover: none), (pointer: coarse)').matches;
-
-    if (!isTouchDevice) {
-      const onMouseLeave = (e: MouseEvent) => {
-        if (e.clientY <= 0) show();
-      };
-      document.addEventListener('mouseleave', onMouseLeave);
-      return () => document.removeEventListener('mouseleave', onMouseLeave);
-    }
-
-    const onScroll = () => {
-      const scrolledFraction =
-        window.scrollY / (document.documentElement.scrollHeight - window.innerHeight || 1);
-      if (scrolledFraction >= MOBILE_SCROLL_DEPTH) show();
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    const timeoutId = window.setTimeout(show, MOBILE_FALLBACK_DELAY_MS);
-
+    let retryId: number | undefined;
+    const remaining = Math.max(0, siteEnteredAt() + OPEN_AFTER_MS - Date.now());
+    const timeoutId = window.setTimeout(show, remaining);
     return () => {
-      window.removeEventListener('scroll', onScroll);
       window.clearTimeout(timeoutId);
+      window.clearTimeout(retryId);
     };
-  }, []);
+  }, [pathname]);
 
-  const hide = () => {
-    setVisible(false);
-    writeStorage(DISMISS_KEY, String(Date.now()));
+  /** Closing the popup shrinks it into the side tab instead of losing it. */
+  const minimize = (method: 'button' | 'backdrop' | 'escape' | 'decline') => {
+    setState('minimized');
+    writeStorage(MINIMIZED_KEY, '1');
+    trackEvent(EVENTS.popupDismissed, { popup: POPUP_ID, variant: VARIANT, method, result: 'minimized' });
   };
 
-  const dismiss = (method: 'button' | 'backdrop' | 'escape' | 'decline') => {
-    hide();
-    trackEvent(EVENTS.popupDismissed, { popup: POPUP_ID, variant: VARIANT, method });
+  const reopen = () => {
+    triggerRef.current = tabRef.current;
+    setState('open');
+    trackEvent(EVENTS.popupReopened, { popup: POPUP_ID, variant: VARIANT, page_path: window.location.pathname });
+  };
+
+  /** The × on the side tab: gone for the cooldown period. */
+  const closeTab = () => {
+    setState('hidden');
+    removeStorage(MINIMIZED_KEY);
+    writeStorage(DISMISS_KEY, String(Date.now()));
+    trackEvent(EVENTS.popupDismissed, { popup: POPUP_ID, variant: VARIANT, method: 'side_tab_close' });
   };
 
   const claim = () => {
-    hide();
+    setState('hidden');
+    removeStorage(MINIMIZED_KEY);
     writeStorage(CLAIMED_KEY, '1');
     trackEvent(EVENTS.popupClaimed, { popup: POPUP_ID, variant: VARIANT });
     openLeadModal('founding_offer_popup');
@@ -149,31 +182,68 @@ export function FreeWebsiteOfferPopup() {
   useEffect(() => {
     if (!visible) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') dismiss('escape');
+      if (e.key === 'Escape') minimize('escape');
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
-  // Move focus into the dialog on open, and back to the trigger on close.
+  // Move focus into the dialog on open; on close, to the side tab (so keyboard
+  // users land on the way back in) or to whatever opened it. Only on an
+  // open → closed transition, never on a page load that restores the tab.
+  const wasVisibleRef = useRef(false);
   useEffect(() => {
     if (visible) closeButtonRef.current?.focus();
-    else triggerRef.current?.focus();
+    else if (wasVisibleRef.current) (tabRef.current ?? triggerRef.current)?.focus();
+    wasVisibleRef.current = visible;
   }, [visible]);
 
   const prefersReducedMotion =
     typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // /book already has its own dedicated booking flow — don't stack a second
-  // lead-capture overlay on top of it.
-  if (pathname === '/book' || pathname === '/pricing') return null;
+  // Conversion/pricing pages never show the popup or its side tab.
+  if (EXCLUDED_PATHS.includes(pathname)) return null;
 
   const sheet = isMobile === true;
   const spotsLeft = foundingOffer.spotsRemaining;
   const spotsTaken = foundingOffer.totalSpots - spotsLeft;
 
   return (
+    <>
+    <AnimatePresence>
+      {state === 'minimized' && (
+        <motion.div
+          key="founding-offer-tab"
+          initial={prefersReducedMotion ? false : { x: -40, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={prefersReducedMotion ? { opacity: 0 } : { x: -40, opacity: 0 }}
+          transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 380, damping: 34 }}
+          className="fixed left-0 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center"
+        >
+          <button
+            ref={tabRef}
+            type="button"
+            onClick={reopen}
+            aria-label={`${foundingOffer.eyebrow}: ${spotsLeft} of ${foundingOffer.totalSpots} spots open. Open the offer.`}
+            className="group flex flex-col items-center gap-2 rounded-r-2xl bg-neutral-950 hover:bg-neutral-900 text-white pl-2 pr-2.5 py-3.5 sm:py-4 shadow-xl shadow-neutral-950/30 cursor-pointer transition-colors"
+          >
+            <Sparkles size={15} className="text-blue-400 shrink-0" />
+            <span className="[writing-mode:vertical-rl] rotate-180 text-xs sm:text-[13px] font-bold tracking-wide whitespace-nowrap">
+              Free website · {spotsLeft} left
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={closeTab}
+            aria-label="Hide the free website offer"
+            className="mt-1.5 ml-1 w-6 h-6 rounded-full bg-white border border-neutral-200 text-neutral-500 hover:text-neutral-900 shadow-sm flex items-center justify-center cursor-pointer"
+          >
+            <X size={12} />
+          </button>
+        </motion.div>
+      )}
+    </AnimatePresence>
     <AnimatePresence>
       {visible && (
         <motion.div
@@ -184,7 +254,7 @@ export function FreeWebsiteOfferPopup() {
           className={`fixed inset-0 z-[110] bg-neutral-950/70 backdrop-blur-sm flex p-0 sm:p-6 ${
             sheet ? 'items-end justify-center' : 'items-center justify-center'
           }`}
-          onClick={() => dismiss('backdrop')}
+          onClick={() => minimize('backdrop')}
           role="presentation"
         >
           <motion.div
@@ -220,7 +290,7 @@ export function FreeWebsiteOfferPopup() {
             <button
               ref={closeButtonRef}
               type="button"
-              onClick={() => dismiss('button')}
+              onClick={() => minimize('button')}
               aria-label="Close"
               className="absolute top-4 right-4 z-10 p-3 sm:p-2 rounded-full bg-white/80 hover:bg-neutral-100 text-neutral-700 transition-colors cursor-pointer"
             >
@@ -306,7 +376,7 @@ export function FreeWebsiteOfferPopup() {
 
               <button
                 type="button"
-                onClick={() => dismiss('decline')}
+                onClick={() => minimize('decline')}
                 className="mt-3 w-full py-2 text-sm font-medium text-neutral-400 hover:text-neutral-700 transition-colors cursor-pointer"
               >
                 {foundingOffer.decline}
@@ -323,5 +393,6 @@ export function FreeWebsiteOfferPopup() {
         </motion.div>
       )}
     </AnimatePresence>
+    </>
   );
 }

@@ -33,6 +33,7 @@ export const EVENTS = {
   popupShown: 'popup_shown',
   popupClaimed: 'popup_claimed',
   popupDismissed: 'popup_dismissed',
+  popupReopened: 'popup_reopened',
   industrySelected: 'industry_selected',
   faqOpened: 'faq_opened',
   sectionViewed: 'section_viewed',

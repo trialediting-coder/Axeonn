@@ -295,7 +295,7 @@ export function GetStartedFlow({
     const pkg = recommendPackage(answers);
     const payload = buildLeadPayload(answers, contact, pkg, honeypot);
     await postLead(payload);
-    trackEvent('generate_lead', { source, package_id: pkg.id, value: pkg.price, currency: 'USD' });
+    trackEvent('generate_lead', { source, lead_type: 'get_started_form', package_id: pkg.id, value: pkg.price, currency: 'USD' });
 
     hasInteracted.current = true;
     setResult({ pkg, email: payload.email });
