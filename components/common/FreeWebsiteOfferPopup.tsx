@@ -215,21 +215,25 @@ export function FreeWebsiteOfferPopup() {
       {state === 'minimized' && (
         <motion.div
           key="founding-offer-tab"
-          initial={prefersReducedMotion ? false : { x: -40, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          exit={prefersReducedMotion ? { opacity: 0 } : { x: -40, opacity: 0 }}
-          transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 380, damping: 34 }}
-          className="fixed left-0 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center"
+          initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9 }}
+          transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 380, damping: 30 }}
+          // Phone: a compact pill in the bottom-right corner, clear of the page
+          // copy (the case-study card owns bottom-left). Desktop: a slim tab on
+          // the left edge, mirroring the "Book a Call" tab on the right. Blue
+          // with a light ring so it reads on both the dark hero and white sections.
+          className="fixed z-40 right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] sm:right-auto sm:bottom-auto sm:left-0 sm:top-1/2 sm:-translate-y-1/2 flex items-center sm:flex-col rounded-full sm:rounded-none sm:rounded-r-xl bg-blue-600 text-white ring-1 ring-white/25 shadow-lg shadow-blue-950/30 overflow-hidden"
         >
           <button
             ref={tabRef}
             type="button"
             onClick={reopen}
             aria-label={`${foundingOffer.eyebrow}: ${spotsLeft} of ${foundingOffer.totalSpots} spots open. Open the offer.`}
-            className="group flex flex-col items-center gap-2 rounded-r-2xl bg-neutral-950 hover:bg-neutral-900 text-white pl-2 pr-2.5 py-3.5 sm:py-4 shadow-xl shadow-neutral-950/30 cursor-pointer transition-colors"
+            className="sm:order-2 flex items-center sm:flex-col gap-2 pl-3.5 pr-2 py-2.5 sm:px-2.5 sm:pt-3 sm:pb-3.5 hover:bg-blue-700 transition-colors cursor-pointer"
           >
-            <Sparkles size={15} className="text-blue-400 shrink-0" />
-            <span className="[writing-mode:vertical-rl] rotate-180 text-xs sm:text-[13px] font-bold tracking-wide whitespace-nowrap">
+            <Sparkles size={14} className="text-blue-100 shrink-0" />
+            <span className="sm:[writing-mode:vertical-rl] sm:rotate-180 text-[13px] font-semibold tracking-wide whitespace-nowrap">
               Free website · {spotsLeft} left
             </span>
           </button>
@@ -237,9 +241,9 @@ export function FreeWebsiteOfferPopup() {
             type="button"
             onClick={closeTab}
             aria-label="Hide the free website offer"
-            className="mt-1.5 ml-1 w-6 h-6 rounded-full bg-white border border-neutral-200 text-neutral-500 hover:text-neutral-900 shadow-sm flex items-center justify-center cursor-pointer"
+            className="sm:order-1 self-stretch sm:self-auto flex items-center justify-center pl-1.5 pr-3 sm:px-0 sm:w-full sm:h-8 border-l sm:border-l-0 sm:border-b border-white/20 text-blue-100 hover:text-white hover:bg-blue-700 transition-colors cursor-pointer"
           >
-            <X size={12} />
+            <X size={14} />
           </button>
         </motion.div>
       )}
