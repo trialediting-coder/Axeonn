@@ -18,14 +18,14 @@ export function Platform({ onBookCall }: PlatformProps) {
       className="w-full py-24 sm:py-36 lg:py-44 px-6 sm:px-10 lg:px-16 xl:px-24 relative"
     >
       <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 sm:gap-20 lg:gap-24 xl:gap-32 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[5fr_7fr] gap-16 sm:gap-20 lg:gap-24 xl:gap-32 items-start">
           {/* Left Column: Headline, Summary & CTA (Scaled 1.5x) */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
-            className="lg:col-span-5 flex flex-col justify-start"
+            className="flex flex-col justify-start"
           >
             <h2 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-neutral-950 font-display tracking-tight leading-[1.12] mb-8 sm:mb-10">
               You need a <span className="text-blue-600">Partner</span>.
@@ -62,7 +62,7 @@ export function Platform({ onBookCall }: PlatformProps) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
-            className="lg:col-span-7 flex flex-col space-y-12 sm:space-y-16 pt-2 lg:pt-3"
+            className="flex flex-col space-y-12 sm:space-y-16 pt-2 lg:pt-3"
           >
             {/* Block 1 */}
             <div className="space-y-4 sm:space-y-5 pb-12 sm:pb-14 border-b border-neutral-200/80">

@@ -188,7 +188,7 @@ export function Header() {
               setMarketingOpen(false);
             }
           }}
-          className={`hidden md:flex items-center gap-5 lg:gap-7 xl:gap-8 text-[15px] lg:text-base font-semibold transition-colors ${
+          className={`hidden xl:flex items-center gap-7 2xl:gap-8 text-base whitespace-nowrap font-semibold transition-colors ${
             onDarkHero ? 'text-white' : 'text-neutral-800'
           }`}
         >
@@ -458,10 +458,10 @@ export function Header() {
           </Link>
         </nav>
 
-        <div className="hidden md:flex items-center gap-5">
+        <div className="hidden xl:flex items-center gap-5">
           <a
             href="tel:+15154938017"
-            className={`hidden xl:inline-block text-[15px] font-semibold whitespace-nowrap transition-colors ${
+            className={`hidden 2xl:inline-block text-[15px] font-semibold whitespace-nowrap transition-colors ${
               onDarkHero ? 'text-white hover:text-blue-400' : 'text-neutral-700 hover:text-neutral-950'
             }`}
           >
@@ -487,12 +487,12 @@ export function Header() {
           </Link>
         </div>
 
-        <div className="flex md:hidden items-center gap-2.5">
+        <div className="flex xl:hidden items-center gap-2.5">
           <Link
             href="/get-started"
             data-track="cta_click"
             data-track-cta="get_started_nav"
-            className="inline-flex items-center justify-center px-4 py-3 rounded-full bg-blue-600 text-white text-xs font-semibold"
+            className="inline-flex items-center justify-center px-4 py-3 md:px-6 rounded-full bg-blue-600 text-white text-xs md:text-sm font-semibold"
           >
             Get Started
           </Link>
@@ -514,7 +514,7 @@ export function Header() {
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ height: { duration: 0.32, ease: MOBILE_EASE }, opacity: { duration: 0.2 } }}
-            className="md:hidden overflow-hidden bg-white border-t border-neutral-200"
+            className="xl:hidden overflow-hidden bg-white border-t border-neutral-200"
           >
             <nav
               aria-label="Mobile"
