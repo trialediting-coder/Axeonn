@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { X } from 'lucide-react';
+import { foundingOffer } from '@/data/foundingOfferData';
 
 const STORAGE_KEY = 'axeon-promo-founding-5-dismissed';
 const BANNER_HEIGHT = '44px';
@@ -36,8 +37,9 @@ export function PromoBanner() {
       <div className="flex items-center gap-1.5 sm:gap-3 text-[11px] sm:text-sm font-medium text-center min-w-0 pr-8 sm:pr-0">
         <span className="truncate sm:whitespace-normal">
           <strong className="font-bold hidden sm:inline">Founding Client Offer: </strong>
-          <span className="hidden sm:inline">We're building our first </span>
-          5 free websites<span className="hidden sm:inline"> at no cost</span> — spots limited.
+          <span className="hidden sm:inline">{foundingOffer.totalSpots} free websites for Iowa businesses</span>
+          <span className="sm:hidden">Free website</span> — only {foundingOffer.spotsRemaining}{' '}
+          {foundingOffer.spotsRemaining === 1 ? 'spot' : 'spots'} left.
         </span>
         <Link
           href="/book"

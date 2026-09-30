@@ -53,6 +53,28 @@ export function CaseStudyBadge() {
   const shownRef = useRef(false);
 
   const hiddenHere = HIDDEN_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  const shown = visible && !hiddenHere && !isLeadModalOpen;
+  const cardRef = useRef<HTMLElement>(null);
+
+  // Publish the card's footprint (height plus a 12px gap) so other
+  // bottom-pinned UI, like the minimized free-website pill on phones, can sit
+  // above it instead of underneath.
+  useEffect(() => {
+    const root = document.documentElement;
+    const card = cardRef.current;
+    if (!shown || !card) {
+      root.style.setProperty('--case-study-card-h', '0px');
+      return;
+    }
+    const update = () => root.style.setProperty('--case-study-card-h', `${card.offsetHeight + 12}px`);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(card);
+    return () => {
+      observer.disconnect();
+      root.style.setProperty('--case-study-card-h', '0px');
+    };
+  }, [shown]);
 
   useEffect(() => {
     if (hiddenHere || shownRef.current) return;
@@ -95,8 +117,9 @@ export function CaseStudyBadge() {
 
   return (
     <AnimatePresence>
-      {visible && !hiddenHere && !isLeadModalOpen && (
+      {shown && (
         <motion.aside
+          ref={cardRef}
           initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, x: -24, y: 12 }}
           animate={{ opacity: 1, x: 0, y: 0 }}
           exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, x: -24 }}

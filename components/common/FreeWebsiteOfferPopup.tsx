@@ -220,10 +220,11 @@ export function FreeWebsiteOfferPopup() {
           exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9 }}
           transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 380, damping: 30 }}
           // Phone: a compact pill in the bottom-right corner, clear of the page
-          // copy (the case-study card owns bottom-left). Desktop: a slim tab on
+          // copy; while the case-study card is up (it spans the bottom on
+          // phones) the pill rides just above it. Desktop: a slim tab on
           // the left edge, mirroring the "Book a Call" tab on the right. Blue
           // with a light ring so it reads on both the dark hero and white sections.
-          className="fixed z-40 right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] sm:right-auto sm:bottom-auto sm:left-0 sm:top-1/2 sm:-translate-y-1/2 flex items-center sm:flex-col rounded-full sm:rounded-none sm:rounded-r-xl bg-blue-600 text-white ring-1 ring-white/25 shadow-lg shadow-blue-950/30 overflow-hidden"
+          className="fixed z-40 right-4 bottom-[calc(max(1rem,env(safe-area-inset-bottom))_+_var(--case-study-card-h,0px))] transition-[bottom] duration-300 sm:right-auto sm:bottom-auto sm:left-0 sm:top-1/2 sm:-translate-y-1/2 flex items-center sm:flex-col rounded-full sm:rounded-none sm:rounded-r-xl bg-blue-600 text-white ring-1 ring-white/25 shadow-lg shadow-blue-950/30 overflow-hidden"
         >
           <button
             ref={tabRef}
