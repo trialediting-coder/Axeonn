@@ -27,7 +27,7 @@ export const foundingOffer = {
   anchorLabel: 'Essentials build value',
   totalSpots: 5,
   /** Update as founding clients sign. Never display a number higher than reality. */
-  spotsRemaining: 5,
+  spotsRemaining: 1,
   includes: [
     'Custom-designed, mobile-first site built around how you sell',
     'SEO, AEO & GEO built in — found on Google and inside AI answers',
