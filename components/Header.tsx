@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, type MouseEvent } from 'react';
+import { useState, useEffect, useRef, type MouseEvent, type PointerEvent as ReactPointerEvent } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, ChevronDown } from 'lucide-react';
@@ -145,6 +145,25 @@ export function Header() {
     marketingTimeoutRef.current = setTimeout(() => setMarketingOpen(false), 200);
   };
 
+  // Hover opens the desktop panels, so a mouse click on an already-open trigger
+  // must not toggle it shut (that made the menus look dead to anyone who points,
+  // then clicks). Touch "hover" is ignored, so taps and keyboard simply toggle.
+  const lastPointerType = useRef<string | null>(null);
+  const mouseOnly = (fn: () => void) => (e: ReactPointerEvent) => {
+    if (e.pointerType === 'mouse') fn();
+  };
+  const triggerProps = (open: () => void, setOpen: (update: (v: boolean) => boolean) => void) => ({
+    onPointerDown: (e: ReactPointerEvent) => {
+      lastPointerType.current = e.pointerType;
+    },
+    onClick: () => {
+      const byMouse = lastPointerType.current === 'mouse';
+      lastPointerType.current = null;
+      if (byMouse) open();
+      else setOpen((v) => !v);
+    },
+  });
+
   const scrollToPlatform = (e: MouseEvent<HTMLAnchorElement>) => {
     setMobileMenuOpen(false);
     if (!isHomePage) return;
@@ -195,12 +214,12 @@ export function Header() {
           {/* About Us Dropdown */}
           <div
             className="relative"
-            onMouseEnter={openAbout}
-            onMouseLeave={closeAboutDelayed}
+            onPointerEnter={mouseOnly(openAbout)}
+            onPointerLeave={mouseOnly(closeAboutDelayed)}
           >
             <button
               type="button"
-              onClick={() => setAboutOpen((v) => !v)}
+              {...triggerProps(openAbout, setAboutOpen)}
               className={`flex items-center gap-1.5 ${navHoverClass} transition-colors cursor-pointer py-1`}
               aria-haspopup="true"
               aria-expanded={aboutOpen}
@@ -210,9 +229,9 @@ export function Header() {
             </button>
             {aboutOpen && (
               <div
-                className="absolute top-full left-0 pt-2 z-50"
-                onMouseEnter={openAbout}
-                onMouseLeave={closeAboutDelayed}
+                className="absolute top-full whitespace-normal left-0 pt-2 z-50"
+                onPointerEnter={mouseOnly(openAbout)}
+                onPointerLeave={mouseOnly(closeAboutDelayed)}
               >
                 <div className="w-60 bg-white rounded-2xl border border-neutral-200 shadow-2xl p-2.5">
                   <Link
@@ -246,12 +265,12 @@ export function Header() {
 
           <div
             className="static"
-            onMouseEnter={openSolutions}
-            onMouseLeave={closeSolutionsDelayed}
+            onPointerEnter={mouseOnly(openSolutions)}
+            onPointerLeave={mouseOnly(closeSolutionsDelayed)}
           >
             <button
               type="button"
-              onClick={() => setSolutionsOpen((v) => !v)}
+              {...triggerProps(openSolutions, setSolutionsOpen)}
               className={`flex items-center gap-1.5 ${navHoverClass} transition-colors cursor-pointer py-1`}
               aria-haspopup="true"
               aria-expanded={solutionsOpen}
@@ -261,9 +280,9 @@ export function Header() {
             </button>
             {solutionsOpen && (
               <div
-                className="absolute top-full left-1/2 -translate-x-1/2 pt-4 z-50 w-[min(1040px,calc(100vw-2rem))]"
-                onMouseEnter={openSolutions}
-                onMouseLeave={closeSolutionsDelayed}
+                className="absolute top-full whitespace-normal left-1/2 -translate-x-1/2 pt-4 z-50 w-[min(1040px,calc(100vw-2rem))]"
+                onPointerEnter={mouseOnly(openSolutions)}
+                onPointerLeave={mouseOnly(closeSolutionsDelayed)}
               >
                 <div className="bg-white rounded-2xl border border-neutral-200/90 shadow-2xl shadow-neutral-900/10 p-6 sm:p-7 backdrop-blur-md">
                   <div className="flex flex-col lg:flex-row gap-6 lg:gap-7 items-stretch">
@@ -405,12 +424,12 @@ export function Header() {
           {/* Marketing Solutions Dropdown */}
           <div
             className="static"
-            onMouseEnter={openMarketing}
-            onMouseLeave={closeMarketingDelayed}
+            onPointerEnter={mouseOnly(openMarketing)}
+            onPointerLeave={mouseOnly(closeMarketingDelayed)}
           >
             <button
               type="button"
-              onClick={() => setMarketingOpen((v) => !v)}
+              {...triggerProps(openMarketing, setMarketingOpen)}
               className={`flex items-center gap-1.5 ${navHoverClass} transition-colors cursor-pointer py-1`}
               aria-haspopup="true"
               aria-expanded={marketingOpen}
@@ -420,9 +439,9 @@ export function Header() {
             </button>
             {marketingOpen && (
               <div
-                className="absolute top-full left-1/2 -translate-x-1/2 pt-4 z-50 w-[min(920px,calc(100vw-2rem))]"
-                onMouseEnter={openMarketing}
-                onMouseLeave={closeMarketingDelayed}
+                className="absolute top-full whitespace-normal left-1/2 -translate-x-1/2 pt-4 z-50 w-[min(920px,calc(100vw-2rem))]"
+                onPointerEnter={mouseOnly(openMarketing)}
+                onPointerLeave={mouseOnly(closeMarketingDelayed)}
               >
                 <div className="bg-white rounded-2xl border border-neutral-200/90 shadow-2xl shadow-neutral-900/10 p-6 sm:p-8 backdrop-blur-md">
                   <div className="grid grid-cols-3 gap-x-6 gap-y-5 lg:gap-x-8 lg:gap-y-6">
