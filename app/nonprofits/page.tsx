@@ -16,27 +16,22 @@ import { FAQAccordion } from '@/components/common/FAQAccordion';
 import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { BUSINESS } from '@/lib/seo';
 
-// Working name until the program name is final — change it here only.
-const PROGRAM_NAME = 'Axeon for Iowa Nonprofits';
+const PROGRAM_NAME = 'Axeon Groundwork Grant';
+// Current seasonal group. Update both when a group closes (next: winter).
+const GROUP_NAME = 'fall';
+const GROUP_DEADLINE = 'October 31';
 
 export const metadata = buildMetadata({
   path: '/nonprofits',
-  title: 'Free Websites for Iowa Nonprofits | Axeon Studio',
+  title: 'Axeon Groundwork Grant: Free Websites for Iowa Nonprofits | Axeon Studio',
   description:
-    'Axeon Studio builds a full digital presence for Iowa nonprofits for free: website, Google and AI search visibility, Google Business Profile, and donate and volunteer pages. You only cover basic hosting.',
+    'The Axeon Groundwork Grant gives Iowa nonprofits a full digital presence for free: website, Google and AI search visibility, Google Business Profile, and donate and volunteer pages. You only cover basic hosting.',
 });
 
-const APPLY_SUBJECT = `${PROGRAM_NAME} application`;
-const APPLY_BODY = [
-  'Nonprofit name:',
-  'City:',
-  'Website (if any):',
-  '501(c)(3) or fiscally sponsored?',
-  'Who you serve and what you do:',
-  'Your name and role:',
-  'Best phone number:',
-].join('\n\n');
-const APPLY_HREF = `mailto:${BUSINESS.email}?subject=${encodeURIComponent(APPLY_SUBJECT)}&body=${encodeURIComponent(APPLY_BODY)}`;
+// No application form: an email or a call is all it takes.
+const CONTACT_SUBJECT = `${PROGRAM_NAME}: our nonprofit`;
+const CONTACT_BODY = ['Nonprofit name:', 'City:', 'Website (if any):'].join('\n\n');
+const CONTACT_HREF = `mailto:${BUSINESS.email}?subject=${encodeURIComponent(CONTACT_SUBJECT)}&body=${encodeURIComponent(CONTACT_BODY)}`;
 
 const INCLUDED = [
   {
@@ -95,7 +90,7 @@ const CAUSES = [
 ];
 
 const STEPS = [
-  { title: 'Apply', description: 'Tell us who you are and who you serve. It takes a few minutes.' },
+  { title: 'Reach out', description: 'Email us or book a call. No application, no forms.' },
   { title: 'Fit call', description: 'A short call to learn what you need and answer your questions.' },
   { title: 'Kickoff', description: 'You send your content and photos. We handle the rest.' },
   { title: 'Build and review', description: 'We build it, you review it, and we make your edits.' },
@@ -116,14 +111,18 @@ const NONPROFIT_FAQ = [
       'Yes. There is no charge for the design, the build, search setup, or your Google Business Profile. The only cost is basic hosting to keep your site online, passed through at cost with no markup.',
   },
   {
-    question: 'Which nonprofits can apply?',
+    question: 'Which nonprofits qualify?',
     answer:
-      'Any nonprofit based in Iowa or mainly serving Iowans, as long as you are a registered 501(c)(3) or have a fiscal sponsor. Immigrant and refugee, environment, and health organizations move up the waitlist when spots are tight, but everyone is welcome to apply.',
+      'Any nonprofit based in Iowa or mainly serving Iowans, as long as you are a registered 501(c)(3) or have a fiscal sponsor. Immigrant and refugee, environment, and health organizations go to the front of each group, but everyone is welcome.',
   },
   {
-    question: 'Why is there a waitlist?',
+    question: 'Do we need to apply?',
     answer:
-      'We take a small number of nonprofits each month so every site gets the same care as paid work. If there is no open spot when you apply, you are added to the waitlist and we reach out when one opens.',
+      'No. Send us an email or book a call and tell us about your organization. That is it.',
+  },
+  {
+    question: 'When would our site be built?',
+    answer: `We build in seasonal groups so every site gets the same care as paid work. The ${GROUP_NAME} group closes ${GROUP_DEADLINE}. If you reach out after that, you join the next group.`,
   },
   {
     question: 'Who owns the website?',
@@ -157,16 +156,19 @@ export default function NonprofitsPage() {
           <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight leading-[1.05] font-display mb-6">
             A Free Digital Presence for Iowa Nonprofits
           </h1>
-          <p className="text-lg sm:text-xl text-neutral-300 leading-relaxed max-w-3xl mb-10">
+          <p className="text-lg sm:text-xl text-neutral-300 leading-relaxed max-w-3xl mb-5">
             We build your website, get you found on Google and in AI search, and set up your Google Business
             Profile, for free. Seriously. The only thing you cover is basic hosting.
           </p>
+          <p className="text-sm font-semibold text-blue-300 mb-8">
+            The {GROUP_NAME} group closes {GROUP_DEADLINE}. No application needed.
+          </p>
           <div className="flex flex-wrap items-center gap-4">
             <a
-              href={APPLY_HREF}
+              href={CONTACT_HREF}
               className="inline-flex items-center gap-2 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
             >
-              Apply for Your Nonprofit <ArrowRight size={18} />
+              Email Us About Your Nonprofit <ArrowRight size={18} />
             </a>
             <Link
               href="/book"
@@ -232,8 +234,8 @@ export default function NonprofitsPage() {
             Open to Every Iowa Nonprofit
           </h2>
           <p className="text-lg text-neutral-600 max-w-3xl mb-12 leading-relaxed">
-            Any Iowa nonprofit can apply. These three causes are personal to us, so they move up the waitlist
-            when spots are tight.
+            Any Iowa nonprofit is welcome. These three causes are personal to us, so they go to the front of
+            each group.
           </p>
           <div className="grid md:grid-cols-3 gap-6">
             {CAUSES.map(({ icon: Icon, title, description }) => (
@@ -300,14 +302,14 @@ export default function NonprofitsPage() {
             Help the People You Serve Find You
           </h2>
           <p className="text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-10">
-            Apply in a few minutes. We will reply to every application, even when there is a waitlist.
+            Reach out by {GROUP_DEADLINE} to join the {GROUP_NAME} group. We reply to everyone.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <a
-              href={APPLY_HREF}
+              href={CONTACT_HREF}
               className="px-7 py-3.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-colors"
             >
-              Apply for Your Nonprofit
+              Email Us About Your Nonprofit
             </a>
             <Link
               href="/book"
