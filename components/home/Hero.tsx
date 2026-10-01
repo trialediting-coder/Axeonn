@@ -263,8 +263,9 @@ export function Hero() {
 
         <div className="relative z-10 w-full max-w-3xl flex-1 flex flex-col justify-center sm:ml-16 lg:ml-24 xl:ml-32">
           <h1 className="hero-rise text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-black tracking-[-0.03em] leading-[1.05] font-display text-white">
-            Grow Your{' '}
-            <span className="inline-grid">
+            Grow Your
+            {/* The rotating word always sits on its own line. */}
+            <span className="grid">
               <AnimatePresence mode="wait" initial={false}>
                 <motion.span
                   key={reducedMotion ? 'static' : ROTATING_WORDS[wordIndex]}

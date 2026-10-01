@@ -198,6 +198,9 @@ export function GetStartedFlow({
   const headingRef = useRef<HTMLHeadingElement>(null);
   const hasInteracted = useRef(false);
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Set by an arrow keypress inside a radio group; the click the browser then
+  // fires on the newly selected radio should select without advancing.
+  const arrowNav = useRef(false);
 
   useEffect(() => () => {
     if (advanceTimer.current) clearTimeout(advanceTimer.current);
@@ -268,8 +271,11 @@ export function GetStartedFlow({
   /**
    * Pick a single-choice answer and move on. Runs on click (not change) so
    * re-clicking an existing answer after Back still advances. Arrow-key
-   * navigation also fires click, but with detail 0 — those only select, so
-   * keyboard users can browse options and press Enter to advance.
+   * navigation also fires click; those only select (see arrowNav), so
+   * keyboard users can browse options and press Enter to advance. This used
+   * to key off `event.detail > 0`, but a tap or click on the label reaches
+   * the hidden radio as a forwarded click with detail 0 in Chrome and on
+   * phones, so taps never advanced.
    */
   function chooseSingle(key: SingleKey, value: string, advance: boolean) {
     setSingle(key, value);
@@ -409,11 +415,26 @@ export function GetStartedFlow({
                       value={option}
                       checked={checked}
                       onChange={() => (multi ? toggleService(option as Service) : setSingle(current.key as SingleKey, option))}
-                      onClick={multi ? undefined : (e) => chooseSingle(current.key as SingleKey, option, e.detail > 0)}
+                      onClick={
+                        multi
+                          ? undefined
+                          : () => {
+                              const fromArrowKey = arrowNav.current;
+                              arrowNav.current = false;
+                              chooseSingle(current.key as SingleKey, option, !fromArrowKey);
+                            }
+                      }
                       onKeyDown={
                         multi
                           ? undefined
                           : (e) => {
+                              if (e.key.startsWith('Arrow')) {
+                                // The resulting click fires right after this keydown;
+                                // reset afterwards so a stray flag can't block a tap.
+                                arrowNav.current = true;
+                                setTimeout(() => (arrowNav.current = false), 0);
+                                return;
+                              }
                               if (e.key !== 'Enter') return;
                               e.preventDefault();
                               e.currentTarget.form?.requestSubmit();
