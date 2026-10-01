@@ -1,5 +1,6 @@
 'use client';
 
+import { useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'motion/react';
@@ -147,6 +148,71 @@ function AICard() {
   );
 }
 
+const PILLARS = [
+  { name: 'Technology', Card: TechnologyCard },
+  { name: 'Marketing', Card: MarketingCard },
+  { name: 'AI', Card: AICard },
+];
+
+// Desktop: three columns. Phones/small tablets: stacked, the three tall cards
+// filled ~3 screens, so they become a swipeable row (scroll-snap, one card in
+// view with the next one peeking) with dots that track and jump between them.
+function PillarCards() {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+
+  const onScroll = () => {
+    const track = trackRef.current;
+    if (!track) return;
+    const first = track.children[0] as HTMLElement | undefined;
+    const second = track.children[1] as HTMLElement | undefined;
+    if (!first || !second) return;
+    const step = second.offsetLeft - first.offsetLeft;
+    setActive(Math.min(PILLARS.length - 1, Math.max(0, Math.round(track.scrollLeft / step))));
+  };
+
+  const goTo = (i: number) => {
+    const track = trackRef.current;
+    const card = track?.children[i] as HTMLElement | undefined;
+    if (!track || !card) return;
+    const first = track.children[0] as HTMLElement;
+    track.scrollTo({ left: card.offsetLeft - first.offsetLeft, behavior: 'smooth' });
+  };
+
+  return (
+    <div className="mt-10 sm:mt-14">
+      <div
+        ref={trackRef}
+        onScroll={onScroll}
+        aria-label="What AxeonCORE includes"
+        className="-mx-4 sm:-mx-8 px-4 sm:px-8 md:mx-0 md:px-0 flex md:grid md:grid-cols-3 gap-4 md:gap-8 lg:gap-10 overflow-x-auto md:overflow-visible snap-x snap-mandatory scroll-px-4 sm:scroll-px-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {PILLARS.map(({ name, Card }) => (
+          <div key={name} className="snap-start shrink-0 w-[85%] sm:w-[70%] md:w-auto [&>*]:h-full">
+            <Card />
+          </div>
+        ))}
+      </div>
+
+      <div className="md:hidden mt-5 flex justify-center gap-2" role="tablist" aria-label="Choose a card">
+        {PILLARS.map(({ name }, i) => (
+          <button
+            key={name}
+            type="button"
+            role="tab"
+            aria-selected={active === i}
+            aria-label={`Show ${name}`}
+            onClick={() => goTo(i)}
+            className={`h-2 rounded-full transition-all cursor-pointer ${
+              active === i ? 'w-6 bg-[#0080FF]' : 'w-2 bg-neutral-600 hover:bg-neutral-400'
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function PlatformShowcase() {
   return (
     <section id="axeoncore" className="w-full py-24 sm:py-36 lg:py-44 px-4 sm:px-8 lg:px-12 xl:px-16 bg-black text-white relative overflow-hidden">
@@ -181,11 +247,7 @@ export function PlatformShowcase() {
         <RevenueEngineVisual />
 
         {/* 3 Pillar Cards: Technology, Marketing, AI (Scaled 1.5x) */}
-        <div className="mt-10 sm:mt-14 grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
-          <TechnologyCard />
-          <MarketingCard />
-          <AICard />
-        </div>
+        <PillarCards />
 
         {/* Bottom CTA Button on the bottom-left */}
         <div className="mt-10 sm:mt-12 flex justify-start">

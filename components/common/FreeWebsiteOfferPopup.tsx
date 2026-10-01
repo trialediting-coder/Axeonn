@@ -18,10 +18,11 @@ const MINIMIZED_KEY = 'axeon-founding-offer-minimized';
 const SITE_ENTERED_KEY = 'axeon-site-entered-at'; // sessionStorage
 const COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000; // 7 days after closing the side tab
 
-// Time-only trigger (owner decision 2026-09-29): opens once the visitor has
-// spent this long on the site this session, counted across page loads. No
-// scroll or exit-intent triggers.
-const OPEN_AFTER_MS = 20_000;
+// Time-only trigger (owner decision 2026-09-29; shortened to a few seconds
+// after landing 2026-10-01): opens once the visitor has spent this long on
+// the site this session, counted across page loads. No scroll or exit-intent
+// triggers.
+const OPEN_AFTER_MS = 5_000;
 // Pages where the visitor is already converting or deciding on price.
 // /nonprofits has its own free program (Groundwork Grant); a second free offer there confuses it.
 const EXCLUDED_PATHS = ['/pricing', '/book', '/get-started', '/get-started/success', '/nonprofits'];

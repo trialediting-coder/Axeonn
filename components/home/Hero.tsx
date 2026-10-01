@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { TrustBadges } from '@/components/common/TrustBadges';
 import { useLeadModal } from '@/components/common/LeadModalProvider';
 
-// One word cycles in the otherwise-fixed 4-word headline "Grow Your Local ___",
+// One word cycles in the otherwise-fixed headline "Grow Your ___",
 // mirroring Scorpion's "MAXIMIZE Your ___" rotating-word pattern.
 const ROTATING_WORDS = ['Revenue', 'Bookings', 'Business', 'Brand'];
 const ROTATE_INTERVAL_MS = 2200;
@@ -263,7 +263,7 @@ export function Hero() {
 
         <div className="relative z-10 w-full max-w-3xl flex-1 flex flex-col justify-center sm:ml-16 lg:ml-24 xl:ml-32">
           <h1 className="hero-rise text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-black tracking-[-0.03em] leading-[1.05] font-display text-white">
-            Grow Your Local{' '}
+            Grow Your{' '}
             <span className="inline-grid">
               <AnimatePresence mode="wait" initial={false}>
                 <motion.span
