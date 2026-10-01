@@ -36,7 +36,8 @@ export const BUSINESS = {
   // Real published pricing floor/ceiling — never widen to an unsourced range.
   priceRange: '$2800-$5800',
   sameAs: [
-    'https://www.linkedin.com/company/axeonstudio',
+    'https://www.linkedin.com/company/axeon-studio',
+    'https://www.facebook.com/profile.php?id=61593868815413',
     'https://x.com/HayderHatemm',
     'https://www.instagram.com/hayderhatemm/',
   ],
