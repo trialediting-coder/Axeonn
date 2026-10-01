@@ -23,7 +23,8 @@ const COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000; // 7 days after closing the side ta
 // scroll or exit-intent triggers.
 const OPEN_AFTER_MS = 20_000;
 // Pages where the visitor is already converting or deciding on price.
-const EXCLUDED_PATHS = ['/pricing', '/book', '/get-started', '/get-started/success'];
+// /nonprofits has its own free program (Groundwork Grant); a second free offer there confuses it.
+const EXCLUDED_PATHS = ['/pricing', '/book', '/get-started', '/get-started/success', '/nonprofits'];
 
 type OfferState = 'hidden' | 'open' | 'minimized';
 

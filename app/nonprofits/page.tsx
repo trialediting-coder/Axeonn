@@ -15,11 +15,21 @@ import { buildMetadata } from '@/lib/metadata';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
 import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { BUSINESS } from '@/lib/seo';
+import { HeroYouTube } from '@/components/nonprofits/HeroYouTube';
 
 const PROGRAM_NAME = 'Axeon Groundwork Grant';
 // Current seasonal group. Update both when a group closes (next: winter).
 const GROUP_NAME = 'fall';
 const GROUP_DEADLINE = 'October 31';
+// Food Bank of Iowa's public BackPack Program b-roll; credited in the hero.
+const HERO_VIDEO_ID = 'HiscjGeuNxc';
+
+const GLANCE = [
+  { label: 'Design and build', value: '$0' },
+  { label: 'You cover', value: 'Basic hosting only' },
+  { label: 'Ownership', value: 'Yours, 100%' },
+  { label: `${GROUP_NAME[0].toUpperCase()}${GROUP_NAME.slice(1)} group closes`, value: GROUP_DEADLINE },
+];
 
 export const metadata = buildMetadata({
   path: '/nonprofits',
@@ -147,9 +157,23 @@ export default function NonprofitsPage() {
       <BreadcrumbJsonLd items={[{ name: 'Nonprofits', path: '/nonprofits' }]} />
 
       {/* Hero */}
-      <section className="relative w-full px-6 sm:px-10 lg:px-16 xl:px-24 pt-36 pb-20 sm:pt-44 sm:pb-28 bg-neutral-950 text-white overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-[520px] h-[520px] bg-blue-600/25 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 max-w-5xl mx-auto">
+      <section className="relative w-full min-h-[100dvh] flex items-center px-6 sm:px-10 lg:px-16 xl:px-24 pt-32 pb-24 bg-neutral-950 text-white overflow-hidden">
+        {/* Background video: Food Bank of Iowa's public b-roll, embedded from YouTube (not rehosted). */}
+        <HeroYouTube
+          videoId={HERO_VIDEO_ID}
+          title="Food Bank of Iowa volunteers packing BackPack Program food"
+        />
+        <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-neutral-950/95 via-neutral-950/80 to-neutral-950/40" />
+        <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-neutral-950 to-transparent" />
+        <a
+          href={`https://www.youtube.com/watch?v=${HERO_VIDEO_ID}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="absolute bottom-4 right-6 z-10 text-[11px] text-neutral-400 hover:text-neutral-200 transition-colors"
+        >
+          Video: Food Bank of Iowa
+        </a>
+        <div className="relative z-10 max-w-5xl mx-auto w-full">
           <p className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-4 inline-flex items-center gap-2">
             <HeartHandshake size={15} /> {PROGRAM_NAME}
           </p>
@@ -180,30 +204,67 @@ export default function NonprofitsPage() {
         </div>
       </section>
 
-      {/* Why */}
-      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight mb-8">Why We Do This</h2>
-          <div className="space-y-5 text-lg text-neutral-700 leading-relaxed">
-            <p>
-              I volunteered in a hospital and was part of several health clubs in school. I have seen how much a
-              clinic or health group depends on people finding it at the right moment.
-            </p>
-            <p>
-              I love hiking, and I care about keeping the places I hike clean. The groups that protect Iowa’s
-              land and rivers do that work on tiny budgets.
-            </p>
-            <p>
-              And I am an immigrant myself. I know what it is like to search for help in a new place, often in a
-              second language.
-            </p>
-            <p>
-              Most small nonprofits cannot pay agency rates, so they end up with an outdated site or none at all,
-              and the people they serve cannot find them. We can fix that.
-            </p>
-            <p className="font-semibold text-neutral-950">Hayder Hatem, Founder, Axeon Studio</p>
+      {/* At a glance */}
+      <section className="w-full border-b border-neutral-200 bg-white px-6 sm:px-10 lg:px-16 xl:px-24">
+        <dl className="max-w-6xl mx-auto grid grid-cols-2 lg:grid-cols-4 divide-neutral-200 lg:divide-x">
+          {GLANCE.map(({ label, value }) => (
+            <div key={label} className="py-7 lg:px-8 first:lg:pl-0">
+              <dt className="text-xs font-mono uppercase tracking-wider text-neutral-500 mb-1">{label}</dt>
+              <dd className="text-lg sm:text-xl font-bold text-neutral-950">{value}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      {/* Why: founder quote */}
+      <section className="w-full lg:min-h-[100dvh] flex items-center py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
+        <figure className="max-w-6xl mx-auto w-full grid lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+          <div className="lg:col-span-5">
+            <div className="relative mx-auto max-w-sm lg:max-w-none">
+              <div aria-hidden="true" className="absolute -inset-3 rounded-[2rem] bg-blue-600/10 rotate-2" />
+              <picture>
+                <source srcSet="/hayder_hatem.webp" type="image/webp" />
+                <img
+                  src="/hayder_hatem.png"
+                  alt="Hayder Hatem, founder of Axeon Studio"
+                  loading="lazy"
+                  decoding="async"
+                  width={600}
+                  height={750}
+                  className="relative w-full aspect-[4/5] object-cover object-top rounded-[1.75rem] shadow-xl"
+                />
+              </picture>
+            </div>
           </div>
-        </div>
+          <div className="lg:col-span-7">
+            <p className="text-sm font-mono uppercase tracking-wider text-blue-600 mb-6">Why we do this</p>
+            <span aria-hidden="true" className="block font-display text-8xl leading-none text-blue-600/25 -mb-6">
+              &ldquo;
+            </span>
+            <blockquote className="space-y-6">
+              <p className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-snug text-neutral-950">
+                When someone needs help, the hardest part should not be finding it.
+              </p>
+              <p className="text-lg text-neutral-700 leading-relaxed">
+                I volunteered in a hospital and joined health clubs in school, so I have seen how much a clinic
+                depends on people finding it at the right moment. I love hiking, and the groups keeping Iowa’s land
+                and rivers clean do it on tiny budgets. And I am an immigrant myself. I know what it is like to
+                search for help in a new place, often in a second language.
+              </p>
+              <p className="text-lg text-neutral-700 leading-relaxed">
+                Most small nonprofits cannot pay agency rates, so they end up with an outdated site or none at
+                all, and the people they serve cannot find them. We can fix that, so we are doing it for free.
+              </p>
+            </blockquote>
+            <figcaption className="mt-8 flex items-center gap-4">
+              <span aria-hidden="true" className="h-px w-10 bg-blue-600" />
+              <span>
+                <span className="block font-bold text-neutral-950">Hayder Hatem</span>
+                <span className="block text-sm text-neutral-500">Founder, Axeon Studio · West Des Moines</span>
+              </span>
+            </figcaption>
+          </div>
+        </figure>
       </section>
 
       {/* What's included */}

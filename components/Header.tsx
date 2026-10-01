@@ -70,6 +70,8 @@ export function Header() {
   // The 5 individual marketing-solutions service pages (not the /marketing-solutions
   // hub itself, which has a light background) each have a full-bleed dark hero.
   const isDarkServicePage = pathname.startsWith('/marketing-solutions/');
+  // Standalone pages that also open on a full-bleed dark hero.
+  const isOtherDarkHeroPage = ['/nonprofits', '/partners', '/des-moines-web-design'].includes(pathname);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -118,7 +120,8 @@ export function Header() {
     };
   }, [mobileMenuOpen]);
 
-  const onDarkHero = (isNichePage || isHomePage || isDarkServicePage) && !isScrolled && !mobileMenuOpen;
+  const onDarkHero =
+    (isNichePage || isHomePage || isDarkServicePage || isOtherDarkHeroPage) && !isScrolled && !mobileMenuOpen;
   const navHoverClass = onDarkHero ? 'hover:text-blue-400 text-white' : 'hover:text-blue-600 text-neutral-800';
 
   const openAbout = () => {
