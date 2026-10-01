@@ -40,6 +40,8 @@ import {
 import { trackEvent } from '@/components/providers/AnalyticsTracker';
 
 const LEAD_TIMEOUT_MS = 10000;
+// Single-choice steps advance on their own; this pause lets the checkmark register first.
+const AUTO_ADVANCE_MS = 280;
 const STORAGE_KEY = 'axeon:get-started:v1';
 
 const inputClass =
@@ -195,6 +197,11 @@ export function GetStartedFlow({
   const topRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const hasInteracted = useRef(false);
+  const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => {
+    if (advanceTimer.current) clearTimeout(advanceTimer.current);
+  }, []);
 
   // Restore after mount (localStorage doesn't exist during SSR).
   useEffect(() => {
@@ -228,6 +235,8 @@ export function GetStartedFlow({
 
   const isContactStep = step === CHOICE_STEPS.length;
   const current = CHOICE_STEPS[step];
+  // Single-choice steps move on as soon as an option is picked, so they get no Continue button.
+  const autoAdvances = !isContactStep && current.kind === 'single';
 
   function stepIsValid(i: number): boolean {
     const s = CHOICE_STEPS[i];
@@ -236,6 +245,8 @@ export function GetStartedFlow({
   }
 
   function goTo(next: number) {
+    if (advanceTimer.current) clearTimeout(advanceTimer.current);
+    advanceTimer.current = null;
     hasInteracted.current = true;
     setStepError('');
     setStep(next);
@@ -252,6 +263,20 @@ export function GetStartedFlow({
   function setSingle(key: SingleKey, value: string) {
     setStepError('');
     setAnswers((a) => ({ ...a, [key]: value }));
+  }
+
+  /**
+   * Pick a single-choice answer and move on. Runs on click (not change) so
+   * re-clicking an existing answer after Back still advances. Arrow-key
+   * navigation also fires click, but with detail 0 — those only select, so
+   * keyboard users can browse options and press Enter to advance.
+   */
+  function chooseSingle(key: SingleKey, value: string, advance: boolean) {
+    setSingle(key, value);
+    if (!advance) return;
+    if (advanceTimer.current) clearTimeout(advanceTimer.current);
+    const from = step;
+    advanceTimer.current = setTimeout(() => goTo(from + 1), AUTO_ADVANCE_MS);
   }
 
   function updateContact(key: keyof ContactInfo, value: string) {
@@ -384,6 +409,16 @@ export function GetStartedFlow({
                       value={option}
                       checked={checked}
                       onChange={() => (multi ? toggleService(option as Service) : setSingle(current.key as SingleKey, option))}
+                      onClick={multi ? undefined : (e) => chooseSingle(current.key as SingleKey, option, e.detail > 0)}
+                      onKeyDown={
+                        multi
+                          ? undefined
+                          : (e) => {
+                              if (e.key !== 'Enter') return;
+                              e.preventDefault();
+                              e.currentTarget.form?.requestSubmit();
+                            }
+                      }
                       className="sr-only"
                     />
                     <span
@@ -496,6 +531,7 @@ export function GetStartedFlow({
           ) : (
             <span className="hidden sm:block" />
           )}
+          {autoAdvances ? null : (
           <button
             type="submit"
             disabled={submitting}
@@ -515,6 +551,7 @@ export function GetStartedFlow({
               </>
             )}
           </button>
+          )}
         </div>
       </form>
     </div>
