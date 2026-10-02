@@ -15,6 +15,7 @@ interface FooterLink {
 
 const COMPANY_LINKS: FooterLink[] = [
   { label: 'Our Story', href: '/about' },
+  { label: 'Our Work', href: '/work' },
   { label: 'Process', href: '/process' },
   { label: 'Pricing', href: '/pricing' },
   { label: 'Insights', href: '/insights' },
