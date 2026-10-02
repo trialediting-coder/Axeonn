@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
+import { WORK_PROJECTS } from '@/data/workProjects';
+import { WorkCard, ConceptDisclaimer } from '@/components/work/WorkCard';
 import { buildMetadata } from '@/lib/metadata';
 import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
@@ -10,71 +12,8 @@ export const metadata = buildMetadata({
     'Websites designed and built by Axeon Studio for local businesses in Iowa and beyond: auto detailing, remodeling, family dentistry and more.',
 });
 
-interface Project {
-  name: string;
-  industry: string;
-  location: string;
-  summary: string;
-  image: string;
-  url: string;
-  // Self-initiated redesigns, not paid engagements.
-  concept?: boolean;
-}
-
-const PROJECTS: Project[] = [
-  {
-    name: 'A-1 Auto Detailing',
-    industry: 'Auto Detailing',
-    location: 'Pleasant Hill, IA',
-    summary:
-      'A full rebuild with service pages, before-and-after galleries, live Google reviews and tap-to-call quoting, plus 301s for every old URL so nothing was lost in search.',
-    image: '/images/work/a1.webp',
-    url: 'https://a1-auto-detailing-six.vercel.app/',
-  },
-  {
-    name: 'Kaufman Construction',
-    industry: 'Design-Build Remodeling',
-    location: 'West Des Moines, IA',
-    summary:
-      'An editorial homepage for a design-build remodeler, with a "Which path fits your project?" selector that sorts visitors into the right service tier before they ever fill out a form.',
-    image: '/images/work/kaufman.webp',
-    url: 'https://kaufman-construction.vercel.app/',
-    concept: true,
-  },
-  {
-    name: 'Hintz Family Dentistry',
-    industry: 'Family Dentistry',
-    location: 'Ankeny, IA',
-    summary:
-      'A warm, family-first site with a full Spanish version and an insurance checker that answers the Medicaid and Hawk-I question in one tap.',
-    image: '/images/work/hintz.webp',
-    url: 'https://hintz-family-dentistry.vercel.app/',
-    concept: true,
-  },
-  {
-    name: 'Select Construction & Remodeling',
-    industry: 'Home Remodeling',
-    location: 'Des Moines, IA & Boise, ID',
-    summary:
-      'A clean, gallery-style site for a two-state remodeler, with an office switcher that swaps the phone number and quote form between Des Moines and Boise.',
-    image: '/images/work/select.webp',
-    url: 'https://select-construction.vercel.app/',
-    concept: true,
-  },
-  {
-    name: 'Stumptown Detailing',
-    industry: 'Luxury Auto Detailing',
-    location: 'Whitefish, MT',
-    summary:
-      'A cinematic, video-led site for a high-end detailer, with an animated logo intro and a mobile hero cut from the shop’s own footage.',
-    image: '/images/work/stumptown.webp',
-    url: 'https://stumptown-detailing.vercel.app/',
-    concept: true,
-  },
-];
-
 export default function WorkPage() {
-  const hasConcepts = PROJECTS.some((p) => p.concept);
+  const hasConcepts = WORK_PROJECTS.some((p) => p.concept);
 
   return (
     <>
@@ -94,45 +33,8 @@ export default function WorkPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-12 xl:gap-16">
-            {PROJECTS.map((project) => (
-              <a
-                key={project.name}
-                href={project.url}
-                target="_blank"
-                rel="noopener"
-                className="group flex flex-col"
-              >
-                <div className="relative aspect-[1440/1000] w-full rounded-[24px] sm:rounded-[32px] overflow-hidden bg-neutral-100 border border-neutral-200/80 shadow-sm group-hover:shadow-xl transition-all duration-500">
-                  <img
-                    src={project.image}
-                    alt={`${project.name} website homepage`}
-                    loading="lazy"
-                    decoding="async"
-                    width={1200}
-                    height={833}
-                    className="w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-700 ease-out"
-                  />
-                </div>
-                <div className="flex items-start justify-between gap-4 pt-4 sm:pt-5 px-1">
-                  <div>
-                    <h2 className="text-xl sm:text-2xl lg:text-[26px] font-bold text-neutral-950 font-display tracking-tight group-hover:text-blue-600 transition-colors inline-flex items-center gap-1.5">
-                      {project.name}
-                      <ArrowUpRight className="w-5 h-5 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-                    </h2>
-                    <p className="text-xs sm:text-sm text-neutral-500 font-medium mt-1">
-                      {project.industry} &middot; {project.location}
-                    </p>
-                    <p className="text-sm sm:text-[15px] text-neutral-600 leading-relaxed mt-3 max-w-xl">
-                      {project.summary}
-                    </p>
-                  </div>
-                  {project.concept && (
-                    <span className="shrink-0 text-[11px] font-mono font-medium text-neutral-400 bg-neutral-100 px-2.5 py-1 rounded-full border border-neutral-200/60">
-                      Concept
-                    </span>
-                  )}
-                </div>
-              </a>
+            {WORK_PROJECTS.map((project) => (
+              <WorkCard key={project.name} project={project} />
             ))}
           </div>
 
@@ -155,9 +57,7 @@ export default function WorkPage() {
           </div>
 
           {hasConcepts && (
-            <p className="mt-10 text-[11px] text-neutral-400 leading-relaxed">
-              Projects marked &ldquo;Concept&rdquo; are self-initiated designs by Axeon Studio and are not affiliated with or endorsed by the businesses shown.
-            </p>
+            <ConceptDisclaimer className="mt-10" />
           )}
         </div>
       </main>

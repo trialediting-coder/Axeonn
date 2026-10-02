@@ -12,7 +12,7 @@ export const WEBSITE_ID = `${SITE_URL}/#website`;
 // Bump when static page content materially changes. Used as the sitemap
 // <lastmod> for static routes so we don't tell Google "everything changed"
 // on every request.
-export const CONTENT_LAST_UPDATED = new Date('2026-09-22T00:00:00Z');
+export const CONTENT_LAST_UPDATED = new Date('2026-10-01T00:00:00Z');
 
 export const BUSINESS = {
   name: 'Axeon Studio',

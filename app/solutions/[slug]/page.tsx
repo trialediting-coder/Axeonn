@@ -6,6 +6,7 @@ import { NicheHero } from '@/components/niches/NicheHero';
 import { NichePainPoints } from '@/components/niches/NichePainPoints';
 import { NicheServices } from '@/components/niches/NicheServices';
 import { NicheWorkflow } from '@/components/niches/NicheWorkflow';
+import { NicheWork } from '@/components/niches/NicheWork';
 import { NicheClosingCTA } from '@/components/niches/NicheClosingCTA';
 import { NicheVideoBreak } from '@/components/niches/NicheVideoBreak';
 import { NichePlatformsMarquee } from '@/components/niches/NichePlatformsMarquee';
@@ -69,6 +70,7 @@ export default async function NichePage({
       <NicheServices niche={niche} />
       <NicheVideoBreak slug={niche.slug} headline={niche.tagline} ctaLabel={niche.primaryCTA} />
       <NicheWorkflow niche={niche} />
+      <NicheWork niche={niche} />
       <Testimonials />
       <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-3xl mx-auto">

@@ -1,0 +1,71 @@
+export interface WorkProject {
+  name: string;
+  industry: string;
+  location: string;
+  summary: string;
+  image: string;
+  url: string;
+  // Matches a slug in data/nichesData.ts so the project also shows on that industry page.
+  niche: string;
+  // Self-initiated redesigns, not paid engagements.
+  concept?: boolean;
+}
+
+export const WORK_PROJECTS: WorkProject[] = [
+  {
+    name: 'A-1 Auto Detailing',
+    niche: 'auto-detailing',
+    industry: 'Auto Detailing',
+    location: 'Pleasant Hill, IA',
+    summary:
+      'A full rebuild with service pages, before-and-after galleries, live Google reviews and tap-to-call quoting, plus 301s for every old URL so nothing was lost in search.',
+    image: '/images/work/a1.webp',
+    url: 'https://a1-auto-detailing-six.vercel.app/',
+  },
+  {
+    name: 'Kaufman Construction',
+    niche: 'home-remodeling',
+    industry: 'Design-Build Remodeling',
+    location: 'West Des Moines, IA',
+    summary:
+      'An editorial homepage for a design-build remodeler, with a "Which path fits your project?" selector that sorts visitors into the right service tier before they ever fill out a form.',
+    image: '/images/work/kaufman.webp',
+    url: 'https://kaufman-construction.vercel.app/',
+    concept: true,
+  },
+  {
+    name: 'Hintz Family Dentistry',
+    niche: 'dental',
+    industry: 'Family Dentistry',
+    location: 'Ankeny, IA',
+    summary:
+      'A warm, family-first site with a full Spanish version and an insurance checker that answers the Medicaid and Hawk-I question in one tap.',
+    image: '/images/work/hintz.webp',
+    url: 'https://hintz-family-dentistry.vercel.app/',
+    concept: true,
+  },
+  {
+    name: 'Select Construction & Remodeling',
+    niche: 'home-remodeling',
+    industry: 'Home Remodeling',
+    location: 'Des Moines, IA & Boise, ID',
+    summary:
+      'A clean, gallery-style site for a two-state remodeler, with an office switcher that swaps the phone number and quote form between Des Moines and Boise.',
+    image: '/images/work/select.webp',
+    url: 'https://select-construction.vercel.app/',
+    concept: true,
+  },
+  {
+    name: 'Stumptown Detailing',
+    niche: 'auto-detailing',
+    industry: 'Luxury Auto Detailing',
+    location: 'Whitefish, MT',
+    summary:
+      'A cinematic, video-led site for a high-end detailer, with an animated logo intro and a mobile hero cut from the shop’s own footage.',
+    image: '/images/work/stumptown.webp',
+    url: 'https://stumptown-detailing.vercel.app/',
+    concept: true,
+  },
+];
+
+export const projectsForNiche = (slug: string) => WORK_PROJECTS.filter((p) => p.niche === slug);
