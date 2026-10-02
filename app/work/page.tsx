@@ -52,6 +52,16 @@ const PROJECTS: Project[] = [
     concept: true,
   },
   {
+    name: 'Select Construction & Remodeling',
+    industry: 'Home Remodeling',
+    location: 'Des Moines, IA & Boise, ID',
+    summary:
+      'A clean, gallery-style site for a two-state remodeler, with an office switcher that swaps the phone number and quote form between Des Moines and Boise.',
+    image: '/images/work/select.webp',
+    url: 'https://select-construction.vercel.app/',
+    concept: true,
+  },
+  {
     name: 'Stumptown Detailing',
     industry: 'Luxury Auto Detailing',
     location: 'Whitefish, MT',
