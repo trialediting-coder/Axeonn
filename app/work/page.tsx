@@ -34,7 +34,7 @@ export default function WorkPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-12 xl:gap-16">
             {WORK_PROJECTS.map((project) => (
-              <WorkCard key={project.name} project={project} />
+              <WorkCard key={project.name} project={project} showConcept />
             ))}
           </div>
 
@@ -57,7 +57,7 @@ export default function WorkPage() {
           </div>
 
           {hasConcepts && (
-            <ConceptDisclaimer className="mt-10" />
+            <ConceptDisclaimer tagged className="mt-10" />
           )}
         </div>
       </main>

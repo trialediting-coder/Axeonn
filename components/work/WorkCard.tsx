@@ -1,7 +1,7 @@
 import { ArrowUpRight } from 'lucide-react';
 import type { WorkProject } from '@/data/workProjects';
 
-export function WorkCard({ project }: { project: WorkProject }) {
+export function WorkCard({ project, showConcept = false }: { project: WorkProject; showConcept?: boolean }) {
   return (
     <a
       href={project.url}
@@ -27,16 +27,18 @@ export function WorkCard({ project }: { project: WorkProject }) {
             <ArrowUpRight className="w-5 h-5 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
           </h2>
           <p className="text-xs sm:text-sm text-neutral-500 font-medium mt-1">
-            {project.industry} &middot; {project.location}
+            {project.industry} &middot; {project.location} &middot; {project.date}
           </p>
           <p className="text-sm sm:text-[15px] text-neutral-600 leading-relaxed mt-3 max-w-xl">
             {project.summary}
           </p>
         </div>
         {project.concept ? (
+          showConcept && (
           <span className="shrink-0 text-[11px] font-mono font-medium text-neutral-400 bg-neutral-100 px-2.5 py-1 rounded-full border border-neutral-200/60">
             Concept
           </span>
+          )
         ) : (
           <span className="shrink-0 text-[11px] font-mono font-semibold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">
             Client
@@ -47,10 +49,12 @@ export function WorkCard({ project }: { project: WorkProject }) {
   );
 }
 
-export function ConceptDisclaimer({ className = '' }: { className?: string }) {
+export function ConceptDisclaimer({ className = '', tagged = false }: { className?: string; tagged?: boolean }) {
   return (
     <p className={`text-[11px] text-neutral-400 leading-relaxed ${className}`}>
-      Projects marked &ldquo;Concept&rdquo; are self-initiated designs by Axeon Studio and are not affiliated with or endorsed by the businesses shown.
+      {tagged
+        ? <>Projects marked &ldquo;Concept&rdquo; are self-initiated designs by Axeon Studio and are not affiliated with or endorsed by the businesses shown.</>
+        : <>Some projects shown are self-initiated designs by Axeon Studio and are not affiliated with or endorsed by the businesses shown.</>}
     </p>
   );
 }

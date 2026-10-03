@@ -24,11 +24,7 @@ const NewPill = () => (
 );
 
 function WorkTag({ concept }: { concept?: boolean }) {
-  return concept ? (
-    <span className="text-[10px] font-mono font-medium text-neutral-400 bg-neutral-100 px-2 py-0.5 rounded-full border border-neutral-200/60">
-      Concept
-    </span>
-  ) : (
+  return concept ? null : (
     <span className="text-[10px] font-mono font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
       Client
     </span>
@@ -287,7 +283,7 @@ export function Header() {
                             <WorkTag concept={project.concept} />
                           </div>
                           <span className="text-[12px] text-neutral-500 mt-0.5">
-                            {project.industry} &middot; {project.location}
+                            {project.industry} &middot; {project.location} &middot; {project.date}
                           </span>
                         </Link>
                       ))}
@@ -306,7 +302,7 @@ export function Header() {
                         onClick={() => setWorkOpen(false)}
                         className="mt-6 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-neutral-950 hover:bg-blue-600 text-white text-sm font-semibold transition-colors"
                       >
-                        See all {WORK_PROJECTS.length} projects <ArrowRight size={15} />
+                        See all projects <ArrowRight size={15} />
                       </Link>
                     </div>
                   </div>
@@ -670,7 +666,7 @@ export function Header() {
                           <span className="text-sm font-semibold text-neutral-900 truncate">{project.name}</span>
                           <WorkTag concept={project.concept} />
                         </span>
-                        <span className="block text-xs text-neutral-500 mt-0.5 truncate">{project.industry}</span>
+                        <span className="block text-xs text-neutral-500 mt-0.5 truncate">{project.industry} &middot; {project.date}</span>
                       </span>
                     </Link>
                   ))}
@@ -679,7 +675,7 @@ export function Header() {
                     onClick={() => setMobileMenuOpen(false)}
                     className="mt-1 px-3 py-2.5 rounded-xl active:bg-neutral-100 text-sm font-semibold text-blue-600"
                   >
-                    See all {WORK_PROJECTS.length} projects →
+                    See all projects →
                   </Link>
                 </div>
               </MobileGroup>

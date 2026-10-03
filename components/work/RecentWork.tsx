@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { WORK_PROJECTS } from '@/data/workProjects';
-import { WorkCard } from '@/components/work/WorkCard';
+import { WorkCard, ConceptDisclaimer } from '@/components/work/WorkCard';
 
 interface RecentWorkProps {
   eyebrow?: string;
@@ -38,7 +38,7 @@ export function RecentWork({
             href="/work"
             className="shrink-0 inline-flex items-center gap-2 px-6 py-3 rounded-full border border-neutral-300 text-neutral-900 font-semibold hover:border-neutral-400 hover:bg-white transition-colors"
           >
-            See all {WORK_PROJECTS.length} projects <ArrowRight size={16} />
+            See all projects <ArrowRight size={16} />
           </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12 lg:gap-x-8">
@@ -46,10 +46,7 @@ export function RecentWork({
             <WorkCard key={project.name} project={project} />
           ))}
         </div>
-        <p className="mt-10 text-xs text-neutral-400">
-          Projects tagged Concept are redesigns we built on our own to show what&apos;s possible; those businesses
-          aren&apos;t clients and didn&apos;t endorse Axeon.
-        </p>
+        {projects.some((p) => p.concept) && <ConceptDisclaimer className="mt-10" />}
       </div>
     </section>
   );

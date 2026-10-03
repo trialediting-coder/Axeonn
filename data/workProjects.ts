@@ -9,11 +9,14 @@ export interface WorkProject {
   niche: string;
   // Self-initiated redesigns, not paid engagements.
   concept?: boolean;
+  // Month the site was built, shown on every card.
+  date: string;
 }
 
 export const WORK_PROJECTS: WorkProject[] = [
   {
     name: 'A-1 Auto Detailing',
+    date: 'Sep 2026',
     niche: 'auto-detailing',
     industry: 'Auto Detailing',
     location: 'Pleasant Hill, IA',
@@ -24,6 +27,7 @@ export const WORK_PROJECTS: WorkProject[] = [
   },
   {
     name: 'Kaufman Construction',
+    date: 'Sep 2026',
     niche: 'home-remodeling',
     industry: 'Design-Build Remodeling',
     location: 'West Des Moines, IA',
@@ -35,6 +39,7 @@ export const WORK_PROJECTS: WorkProject[] = [
   },
   {
     name: 'Hintz Family Dentistry',
+    date: 'Sep 2026',
     niche: 'dental',
     industry: 'Family Dentistry',
     location: 'Ankeny, IA',
@@ -46,6 +51,7 @@ export const WORK_PROJECTS: WorkProject[] = [
   },
   {
     name: 'Select Construction & Remodeling',
+    date: 'Sep 2026',
     niche: 'home-remodeling',
     industry: 'Home Remodeling',
     location: 'Des Moines, IA & Boise, ID',
@@ -57,6 +63,7 @@ export const WORK_PROJECTS: WorkProject[] = [
   },
   {
     name: 'Stumptown Detailing',
+    date: 'Oct 2026',
     niche: 'auto-detailing',
     industry: 'Luxury Auto Detailing',
     location: 'Whitefish, MT',
