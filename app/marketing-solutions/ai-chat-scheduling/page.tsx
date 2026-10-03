@@ -6,7 +6,7 @@ import { providerRef, SERVICE_AREA } from '@/lib/seo';
 import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { AudioOrbPlayer } from '@/components/why-axeon/AudioOrbPlayer';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
-import { faqItems } from '@/data/faqData';
+import { withGeneralFaqs } from '@/data/faqData';
 import {
   ProblemSection,
   DeliverablesSection,
@@ -196,7 +196,7 @@ export default function AIChatSchedulingPage() {
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-950 mb-10">
             Common Questions
           </h2>
-          <FAQAccordion items={[...aiChatDetail.faqs, ...faqItems]} />
+          <FAQAccordion items={withGeneralFaqs(aiChatDetail.faqs)} />
         </div>
       </section>
 

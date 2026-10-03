@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { motion } from 'motion/react';
 import { Check, X } from 'lucide-react';
 
@@ -146,6 +147,21 @@ export function Comparison() {
           every client. We build a system tailored to how your business actually captures and closes
           leads, with a person checking the work — not a one-size-fits-all tool with your logo on it.
         </motion.p>
+
+        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <Link
+            href="/book"
+            className="w-full sm:w-auto text-center px-8 py-3.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors"
+          >
+            Book a Free Strategy Call
+          </Link>
+          <Link
+            href="/why-axeon"
+            className="w-full sm:w-auto text-center px-8 py-3.5 rounded-full border border-neutral-300 text-neutral-900 font-semibold hover:bg-neutral-50 transition-colors"
+          >
+            See the full comparison
+          </Link>
+        </div>
       </div>
     </section>
   );

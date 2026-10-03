@@ -1,18 +1,41 @@
 'use client';
 
-import { useState, useEffect, useRef, type MouseEvent, type PointerEvent as ReactPointerEvent } from 'react';
+import { useState, useEffect, useRef, type PointerEvent as ReactPointerEvent } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X, ChevronDown, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { niches } from '@/data/nichesData';
 import { marketingSolutions } from '@/data/marketingSolutionsData';
+import { WORK_PROJECTS } from '@/data/workProjects';
+import { LEVI_QUOTE } from '@/components/common/ClientQuote';
 
 const homeServicesNiches = niches.filter((niche) => niche.category === 'Home & Trade Services');
 const healthNiches = niches.filter((niche) => niche.category === 'Healthcare');
 const proServicesNiches = niches.filter((niche) => niche.category === 'Professional Services');
 
-type MobileSection = 'about' | 'help' | 'marketing';
+// The Our Work menu previews the first three projects (real clients are listed first).
+const featuredWork = WORK_PROJECTS.slice(0, 3);
+
+const NewPill = () => (
+  <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-bold uppercase tracking-wider leading-none align-middle">
+    New
+  </span>
+);
+
+function WorkTag({ concept }: { concept?: boolean }) {
+  return concept ? (
+    <span className="text-[10px] font-mono font-medium text-neutral-400 bg-neutral-100 px-2 py-0.5 rounded-full border border-neutral-200/60">
+      Concept
+    </span>
+  ) : (
+    <span className="text-[10px] font-mono font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+      Client
+    </span>
+  );
+}
+
+type MobileSection = 'work' | 'about' | 'help' | 'marketing';
 
 const MOBILE_EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -81,6 +104,8 @@ export function Header() {
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [marketingOpen, setMarketingOpen] = useState(false);
   const marketingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [workOpen, setWorkOpen] = useState(false);
+  const workTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [mobileSection, setMobileSection] = useState<MobileSection | null>(null);
   const toggleMobileSection = (section: MobileSection) =>
@@ -94,16 +119,17 @@ export function Header() {
 
   // Escape closes whichever desktop panel is open.
   useEffect(() => {
-    if (!aboutOpen && !solutionsOpen && !marketingOpen) return;
+    if (!aboutOpen && !solutionsOpen && !marketingOpen && !workOpen) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return;
       setAboutOpen(false);
       setSolutionsOpen(false);
       setMarketingOpen(false);
+      setWorkOpen(false);
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [aboutOpen, solutionsOpen, marketingOpen]);
+  }, [aboutOpen, solutionsOpen, marketingOpen, workOpen]);
 
   // Any navigation closes the phone menu (covers back/forward and hash links).
   useEffect(() => {
@@ -148,6 +174,14 @@ export function Header() {
     marketingTimeoutRef.current = setTimeout(() => setMarketingOpen(false), 200);
   };
 
+  const openWork = () => {
+    if (workTimeoutRef.current) clearTimeout(workTimeoutRef.current);
+    setWorkOpen(true);
+  };
+  const closeWorkDelayed = () => {
+    workTimeoutRef.current = setTimeout(() => setWorkOpen(false), 200);
+  };
+
   // Hover opens the desktop panels, so a mouse click on an already-open trigger
   // must not toggle it shut (that made the menus look dead to anyone who points,
   // then clicks). Touch "hover" is ignored, so taps and keyboard simply toggle.
@@ -166,16 +200,6 @@ export function Header() {
       else setOpen((v) => !v);
     },
   });
-
-  const scrollToPlatform = (e: MouseEvent<HTMLAnchorElement>) => {
-    setMobileMenuOpen(false);
-    if (!isHomePage) return;
-    e.preventDefault();
-    const el = document.getElementById('axeoncore');
-    const lenis = (window as any).__lenis;
-    if (lenis && el) lenis.scrollTo(el, { offset: -70, duration: 1.2 });
-    else el?.scrollIntoView({ behavior: 'smooth' });
-  };
 
   return (
     <header
@@ -208,66 +232,84 @@ export function Header() {
               setAboutOpen(false);
               setSolutionsOpen(false);
               setMarketingOpen(false);
+              setWorkOpen(false);
             }
           }}
           className={`hidden xl:flex items-center gap-7 2xl:gap-8 text-base whitespace-nowrap font-semibold transition-colors ${
             onDarkHero ? 'text-white' : 'text-neutral-800'
           }`}
         >
-          {/* About Us Dropdown */}
+          {/* Our Work Dropdown: a visual preview of real projects */}
           <div
-            className="relative"
-            onPointerEnter={mouseOnly(openAbout)}
-            onPointerLeave={mouseOnly(closeAboutDelayed)}
+            className="static"
+            onPointerEnter={mouseOnly(openWork)}
+            onPointerLeave={mouseOnly(closeWorkDelayed)}
           >
             <button
               type="button"
-              {...triggerProps(openAbout, setAboutOpen)}
+              {...triggerProps(openWork, setWorkOpen)}
               className={`flex items-center gap-1.5 ${navHoverClass} transition-colors cursor-pointer py-1`}
               aria-haspopup="true"
-              aria-expanded={aboutOpen}
+              aria-expanded={workOpen}
             >
-              <span>About Us</span>
-              <ChevronDown size={16} className={`transition-transform ${aboutOpen ? 'rotate-180' : ''}`} />
+              <span>Our Work</span>
+              <ChevronDown size={16} className={`transition-transform ${workOpen ? 'rotate-180' : ''}`} />
             </button>
-            {aboutOpen && (
+            {workOpen && (
               <div
-                className="absolute top-full whitespace-normal left-0 pt-2 z-50"
-                onPointerEnter={mouseOnly(openAbout)}
-                onPointerLeave={mouseOnly(closeAboutDelayed)}
+                className="absolute top-full whitespace-normal left-1/2 -translate-x-1/2 pt-4 z-50 w-[min(1080px,calc(100vw-2rem))]"
+                onPointerEnter={mouseOnly(openWork)}
+                onPointerLeave={mouseOnly(closeWorkDelayed)}
               >
-                <div className="w-60 bg-white rounded-2xl border border-neutral-200 shadow-2xl p-2.5">
-                  <Link
-                    href="/about"
-                    onClick={() => setAboutOpen(false)}
-                    className="block px-3.5 py-2.5 rounded-xl text-[13.5px] font-semibold text-neutral-900 hover:text-blue-600 hover:bg-neutral-50 transition-colors"
-                  >
-                    Our Story
-                  </Link>
-                  <Link
-                    href="/why-axeon"
-                    onClick={() => setAboutOpen(false)}
-                    className="block px-3.5 py-2.5 rounded-xl text-[13.5px] text-neutral-600 hover:text-neutral-950 hover:bg-neutral-50 transition-colors"
-                  >
-                    Why Axeon
-                  </Link>
-                  <Link
-                    href="/#axeoncore"
-                    onClick={(e) => {
-                      setAboutOpen(false);
-                      scrollToPlatform(e);
-                    }}
-                    className="block px-3.5 py-2.5 rounded-xl text-[13.5px] text-neutral-600 hover:text-neutral-950 hover:bg-neutral-50 transition-colors"
-                  >
-                    What We Build
-                  </Link>
-                  <Link
-                    href="/work"
-                    onClick={() => setAboutOpen(false)}
-                    className="block px-3.5 py-2.5 rounded-xl text-[13.5px] text-neutral-600 hover:text-neutral-950 hover:bg-neutral-50 transition-colors"
-                  >
-                    Our Work
-                  </Link>
+                <div className="bg-white rounded-2xl border border-neutral-200/90 shadow-2xl shadow-neutral-900/10 p-6 sm:p-7">
+                  <div className="flex gap-7 items-stretch">
+                    <div className="flex-1 grid grid-cols-3 gap-5 min-w-0">
+                      {featuredWork.map((project) => (
+                        <Link
+                          key={project.name}
+                          href="/work"
+                          onClick={() => setWorkOpen(false)}
+                          className="group flex flex-col text-left"
+                        >
+                          <div className="aspect-[1440/1000] w-full rounded-xl overflow-hidden bg-neutral-100 border border-neutral-200/80">
+                            <img
+                              src={project.image}
+                              alt=""
+                              loading="lazy"
+                              decoding="async"
+                              className="w-full h-full object-cover object-top group-hover:scale-[1.04] transition-transform duration-500"
+                            />
+                          </div>
+                          <div className="flex items-center justify-between gap-2 mt-3">
+                            <span className="font-bold text-[14px] text-neutral-900 group-hover:text-blue-600 transition-colors truncate">
+                              {project.name}
+                            </span>
+                            <WorkTag concept={project.concept} />
+                          </div>
+                          <span className="text-[12px] text-neutral-500 mt-0.5">
+                            {project.industry} &middot; {project.location}
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+                    <div className="w-[250px] shrink-0 flex flex-col justify-between border-l border-neutral-100 pl-7">
+                      <figure>
+                        <blockquote className="text-[15px] font-semibold text-neutral-900 leading-snug">
+                          &ldquo;{LEVI_QUOTE.text}&rdquo;
+                        </blockquote>
+                        <figcaption className="text-[12px] text-neutral-500 mt-2">
+                          {LEVI_QUOTE.name}, {LEVI_QUOTE.role}
+                        </figcaption>
+                      </figure>
+                      <Link
+                        href="/work"
+                        onClick={() => setWorkOpen(false)}
+                        className="mt-6 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-neutral-950 hover:bg-blue-600 text-white text-sm font-semibold transition-colors"
+                      >
+                        See all {WORK_PROJECTS.length} projects <ArrowRight size={15} />
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -444,7 +486,7 @@ export function Header() {
               aria-haspopup="true"
               aria-expanded={marketingOpen}
             >
-              <span>Marketing Solutions</span>
+              <span>Services</span>
               <ChevronDown size={16} className={`transition-transform ${marketingOpen ? 'rotate-180' : ''}`} />
             </button>
             {marketingOpen && (
@@ -454,19 +496,34 @@ export function Header() {
                 onPointerLeave={mouseOnly(closeMarketingDelayed)}
               >
                 <div className="bg-white rounded-2xl border border-neutral-200/90 shadow-2xl shadow-neutral-900/10 p-6 sm:p-8 backdrop-blur-md">
+                  <Link
+                    href="/marketing-solutions"
+                    onClick={() => setMarketingOpen(false)}
+                    className="group mb-5 flex items-center justify-between gap-6 rounded-xl bg-[#080b12] px-5 py-4 text-left"
+                  >
+                    <span>
+                      <span className="block text-[11px] font-bold uppercase tracking-[0.2em] text-blue-400">
+                        AxeonCORE
+                      </span>
+                      <span className="block text-[15px] font-bold text-white mt-1">
+                        The growth engine: how every service works together
+                      </span>
+                    </span>
+                    <ArrowRight size={18} className="shrink-0 text-blue-400 group-hover:translate-x-1 transition-transform" />
+                  </Link>
                   <div className="grid grid-cols-3 gap-x-6 gap-y-5 lg:gap-x-8 lg:gap-y-6">
                     {marketingSolutions.map((item) => (
                       <Link
                         key={item.id}
                         href={item.href}
-                        onClick={(e) => {
-                          setMarketingOpen(false);
-                          if (item.href === '/#axeoncore') scrollToPlatform(e);
-                        }}
+                        onClick={() => setMarketingOpen(false)}
                         className="group flex flex-col justify-start p-3.5 sm:p-4 rounded-xl hover:bg-neutral-50 transition-colors border border-transparent hover:border-neutral-200/60 text-left"
                       >
                         <span className="font-bold text-[14.5px] text-neutral-900 group-hover:text-blue-600 transition-colors">
                           {item.title}
+                        </span>
+                        <span className="text-[10.5px] font-mono uppercase tracking-wider text-neutral-400 mt-1">
+                          {item.included}
                         </span>
                         <p className="text-[12.5px] text-neutral-500 group-hover:text-neutral-700 mt-2 leading-relaxed line-clamp-2">
                           {item.description}
@@ -478,13 +535,53 @@ export function Header() {
               </div>
             )}
           </div>
-          <Link href="/insights" className={`${navHoverClass} transition-colors py-1 inline-flex items-center`}>
-            Insights
-            <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-bold uppercase tracking-wider leading-none align-middle">New</span>
-          </Link>
           <Link href="/pricing" className={`${navHoverClass} transition-colors py-1`}>
             Pricing
           </Link>
+
+          {/* About Dropdown */}
+          <div
+            className="relative"
+            onPointerEnter={mouseOnly(openAbout)}
+            onPointerLeave={mouseOnly(closeAboutDelayed)}
+          >
+            <button
+              type="button"
+              {...triggerProps(openAbout, setAboutOpen)}
+              className={`flex items-center gap-1.5 ${navHoverClass} transition-colors cursor-pointer py-1`}
+              aria-haspopup="true"
+              aria-expanded={aboutOpen}
+            >
+              <span>About</span>
+              <ChevronDown size={16} className={`transition-transform ${aboutOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {aboutOpen && (
+              <div
+                className="absolute top-full whitespace-normal right-0 pt-2 z-50"
+                onPointerEnter={mouseOnly(openAbout)}
+                onPointerLeave={mouseOnly(closeAboutDelayed)}
+              >
+                <div className="w-60 bg-white rounded-2xl border border-neutral-200 shadow-2xl p-2.5">
+                  {[
+                    { href: '/about', label: 'Our Story' },
+                    { href: '/why-axeon', label: 'Why Axeon' },
+                    { href: '/insights', label: 'Insights', isNew: true },
+                    { href: '/partners', label: 'Partner With Us' },
+                  ].map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setAboutOpen(false)}
+                      className="flex items-center px-3.5 py-2.5 rounded-xl text-[13.5px] font-semibold text-neutral-800 hover:text-blue-600 hover:bg-neutral-50 transition-colors"
+                    >
+                      {link.label}
+                      {link.isNew && <NewPill />}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </nav>
 
         <div className="hidden xl:flex items-center gap-5">
@@ -550,38 +647,39 @@ export function Header() {
               className="max-h-[calc(100dvh-80px)] overflow-y-auto overscroll-contain px-5 pt-1 pb-6 text-base font-medium"
             >
               <MobileGroup
-                label="About Us"
-                isOpen={mobileSection === 'about'}
-                onToggle={() => toggleMobileSection('about')}
+                label="Our Work"
+                isOpen={mobileSection === 'work'}
+                onToggle={() => toggleMobileSection('work')}
               >
-                <div className="flex flex-col">
-                  <Link
-                    href="/about"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="px-3 py-2.5 rounded-xl active:bg-neutral-100 text-sm font-semibold text-neutral-900"
-                  >
-                    Our Story
-                  </Link>
-                  <Link
-                    href="/why-axeon"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="px-3 py-2.5 rounded-xl active:bg-neutral-100 text-sm text-neutral-600"
-                  >
-                    Why Axeon
-                  </Link>
-                  <Link
-                    href="/#axeoncore"
-                    onClick={scrollToPlatform}
-                    className="px-3 py-2.5 rounded-xl active:bg-neutral-100 text-sm text-neutral-600"
-                  >
-                    What We Build
-                  </Link>
+                <div className="flex flex-col gap-1">
+                  {featuredWork.map((project) => (
+                    <Link
+                      key={project.name}
+                      href="/work"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-2 py-2 rounded-xl active:bg-neutral-100"
+                    >
+                      <img
+                        src={project.image}
+                        alt=""
+                        loading="lazy"
+                        className="w-20 aspect-[1440/1000] rounded-lg object-cover object-top border border-neutral-200/80 shrink-0"
+                      />
+                      <span className="min-w-0">
+                        <span className="flex items-center gap-2">
+                          <span className="text-sm font-semibold text-neutral-900 truncate">{project.name}</span>
+                          <WorkTag concept={project.concept} />
+                        </span>
+                        <span className="block text-xs text-neutral-500 mt-0.5 truncate">{project.industry}</span>
+                      </span>
+                    </Link>
+                  ))}
                   <Link
                     href="/work"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="px-3 py-2.5 rounded-xl active:bg-neutral-100 text-sm text-neutral-600"
+                    className="mt-1 px-3 py-2.5 rounded-xl active:bg-neutral-100 text-sm font-semibold text-blue-600"
                   >
-                    Our Work
+                    See all {WORK_PROJECTS.length} projects →
                   </Link>
                 </div>
               </MobileGroup>
@@ -651,19 +749,24 @@ export function Header() {
               </MobileGroup>
 
               <MobileGroup
-                label="Marketing Solutions"
+                label="Services"
                 isOpen={mobileSection === 'marketing'}
                 onToggle={() => toggleMobileSection('marketing')}
               >
                 <div className="flex flex-col">
+                  <Link
+                    href="/marketing-solutions"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="mb-2 px-3.5 py-3 rounded-xl bg-[#080b12] text-left block"
+                  >
+                    <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400">AxeonCORE</div>
+                    <div className="text-sm font-semibold text-white mt-0.5">The growth engine →</div>
+                  </Link>
                   {marketingSolutions.map((item) => (
                     <Link
                       key={item.id}
                       href={item.href}
-                      onClick={(e) => {
-                        setMobileMenuOpen(false);
-                        if (item.href === '/#axeoncore') scrollToPlatform(e);
-                      }}
+                      onClick={() => setMobileMenuOpen(false)}
                       className="px-3 py-2.5 rounded-xl active:bg-neutral-100 transition-colors block text-left"
                     >
                       <div className="text-sm font-semibold text-neutral-900">{item.title}</div>
@@ -676,20 +779,36 @@ export function Header() {
               </MobileGroup>
 
               <Link
-                href="/insights"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center min-h-[52px] py-3 border-b border-neutral-100 text-[15px] font-semibold text-neutral-900"
-              >
-                Insights
-                <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-bold uppercase tracking-wider leading-none align-middle">New</span>
-              </Link>
-              <Link
                 href="/pricing"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center min-h-[52px] py-3 border-b border-neutral-100 text-[15px] font-semibold text-neutral-900"
               >
                 Pricing
               </Link>
+              <MobileGroup
+                label="About"
+                isOpen={mobileSection === 'about'}
+                onToggle={() => toggleMobileSection('about')}
+              >
+                <div className="flex flex-col">
+                  {[
+                    { href: '/about', label: 'Our Story' },
+                    { href: '/why-axeon', label: 'Why Axeon' },
+                    { href: '/insights', label: 'Insights', isNew: true },
+                    { href: '/partners', label: 'Partner With Us' },
+                  ].map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center px-3 py-2.5 rounded-xl active:bg-neutral-100 text-sm font-semibold text-neutral-900"
+                    >
+                      {link.label}
+                      {link.isNew && <NewPill />}
+                    </Link>
+                  ))}
+                </div>
+              </MobileGroup>
               <Link
                 href="/book"
                 onClick={() => setMobileMenuOpen(false)}

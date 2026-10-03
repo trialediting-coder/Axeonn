@@ -35,3 +35,17 @@ export const faqItems: FaqItem[] = [
       'It depends on your package and goals — see the Pricing page for exact numbers. We\'d rather be upfront about cost than make you book a call just to find out.',
   },
 ];
+
+// Service pages already answer timing, ownership, and price in their own FAQs, so they
+// only append the general questions they don't cover.
+const SERVICE_PAGE_GENERAL = [
+  'Is there a contract, and how long is it?',
+  'Do I get access to my own analytics?',
+  'What if I already have a website?',
+];
+export function withGeneralFaqs(own: FaqItem[], skip: string[] = []): FaqItem[] {
+  const extra = faqItems.filter(
+    (f) => SERVICE_PAGE_GENERAL.includes(f.question) && !skip.includes(f.question),
+  );
+  return [...own, ...extra];
+}

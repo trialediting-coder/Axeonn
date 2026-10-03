@@ -3,6 +3,8 @@ export interface MarketingSolution {
   title: string;
   description: string;
   badge?: string;
+  /** What gets you this service, shown on the hub card. */
+  included: string;
   href: string;
 }
 
@@ -13,6 +15,7 @@ export const marketingSolutions: MarketingSolution[] = [
     description:
       'Websites that build trust, drive revenue, and make you the clear choice—designed to convert, built to grow',
     href: '/marketing-solutions/website',
+    included: 'In every build',
   },
   {
     id: 'seo',
@@ -20,6 +23,7 @@ export const marketingSolutions: MarketingSolution[] = [
     description:
       'Rank higher on search engines, reach the customers you want most, and turn online searches into new revenue',
     href: '/marketing-solutions/seo',
+    included: 'In every build',
   },
   {
     id: 'ai-chat-scheduling',
@@ -27,13 +31,15 @@ export const marketingSolutions: MarketingSolution[] = [
     description:
       'Never miss a lead—24/7 AI chat that books, answers, and converts clicks to customers.',
     href: '/marketing-solutions/ai-chat-scheduling',
+    included: 'AxeonCORE Build',
   },
   {
     id: 'lead-generation',
-    title: 'Lead Generation',
+    title: 'Lead Capture & Follow-Up',
     description:
       'Every lead captured and followed up on automatically—one unified pipeline instead of a dozen disconnected tools.',
     href: '/marketing-solutions/lead-generation',
+    included: 'AxeonCORE Build',
   },
   {
     id: 'advertising',
@@ -41,6 +47,7 @@ export const marketingSolutions: MarketingSolution[] = [
     description:
       'Google Ads and Meta Ads that send ready-to-buy customers to pages built to convert, with every call and booking tracked.',
     href: '/marketing-solutions/advertising',
+    included: 'Growth engine add-on',
   },
   {
     id: 'video-photography',
@@ -48,5 +55,6 @@ export const marketingSolutions: MarketingSolution[] = [
     description:
       'Professional video and photography that helps your business stand out and tell its story.',
     href: '/marketing-solutions/video-photography',
+    included: 'AxeonCORE Build',
   },
 ];

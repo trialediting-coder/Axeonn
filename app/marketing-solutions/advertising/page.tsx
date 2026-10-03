@@ -6,7 +6,7 @@ import { serviceJsonLd } from '@/lib/seo';
 import { JsonLd, BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { TrustBadges } from '@/components/common/TrustBadges';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
-import { faqItems } from '@/data/faqData';
+import { withGeneralFaqs } from '@/data/faqData';
 import {
   ProblemSection,
   DeliverablesSection,
@@ -101,7 +101,7 @@ export default function AdvertisingMarketingSolutionPage() {
             </div>
           </div>
 
-          <ServiceHeroActions priceLine="Campaigns scoped to your market and goals" note="quoted on a free strategy call" />
+          <ServiceHeroActions priceLine="Campaigns scoped to your market and goals" note="quoted on a free strategy call" showPricingLink={false} />
 
           <div className="flex justify-center">
             <TrustBadges variant="dark" />
@@ -179,7 +179,7 @@ export default function AdvertisingMarketingSolutionPage() {
               Frequently Asked Questions
             </h2>
           </div>
-          <FAQAccordion items={[...advertisingDetail.faqs, ...faqItems]} />
+          <FAQAccordion items={withGeneralFaqs(advertisingDetail.faqs)} />
         </div>
       </section>
 

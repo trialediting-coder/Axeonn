@@ -6,7 +6,7 @@ import { providerRef, SERVICE_AREA } from '@/lib/seo';
 import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { TrustBadges } from '@/components/common/TrustBadges';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
-import { faqItems } from '@/data/faqData';
+import { withGeneralFaqs } from '@/data/faqData';
 import {
   ProblemSection,
   DeliverablesSection,
@@ -192,7 +192,7 @@ export default function VideoPhotographyPage() {
               Frequently Asked Questions
             </h2>
           </div>
-          <FAQAccordion items={[...videoDetail.faqs, ...faqItems]} />
+          <FAQAccordion items={withGeneralFaqs(videoDetail.faqs)} />
         </div>
       </section>
 

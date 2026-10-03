@@ -7,6 +7,8 @@ interface ServiceHeroActionsProps {
   /** Optional muted qualifier after the price line. */
   note?: string;
   primaryLabel?: string;
+  /** Hide the "See both builds" link on services that aren't sold as a build. */
+  showPricingLink?: boolean;
 }
 
 /**
@@ -18,6 +20,7 @@ export function ServiceHeroActions({
   priceLine,
   note,
   primaryLabel = 'Book a Free Strategy Call',
+  showPricingLink = true,
 }: ServiceHeroActionsProps) {
   return (
     <div className="mb-10">
@@ -44,12 +47,14 @@ export function ServiceHeroActions({
           <Phone size={17} /> Call (515) 493-8017
         </a>
       </div>
-      <Link
-        href="/pricing"
-        className="inline-block mt-5 text-sm sm:text-base text-neutral-300 hover:text-white underline underline-offset-4"
-      >
-        See both builds and what each includes
-      </Link>
+      {showPricingLink && (
+        <Link
+          href="/pricing"
+          className="inline-block mt-5 text-sm sm:text-base text-neutral-300 hover:text-white underline underline-offset-4"
+        >
+          See both builds and what each includes
+        </Link>
+      )}
     </div>
   );
 }

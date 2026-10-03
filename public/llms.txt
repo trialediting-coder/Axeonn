@@ -23,11 +23,11 @@ Axeon Studio is a productized web studio and revenue-operations partner. We repl
 - [Marketing Solutions Hub](https://axeonstudio.co/marketing-solutions): The individual services Axeon builds and runs — website, SEO, AI chat, lead generation, video/photography.
 - [Website](https://axeonstudio.co/marketing-solutions/website): Brand-driven website design and development, not a generic template.
 - [SEO, AEO & GEO](https://axeonstudio.co/marketing-solutions/seo): Search Engine, Answer Engine, and Generative Engine Optimization, included by default.
-- [AI Chat & Online Scheduling](https://axeonstudio.co/marketing-solutions/ai-chat-scheduling): A 24/7 AI receptionist that answers, qualifies, and books appointments.
-- [Lead Generation](https://axeonstudio.co/marketing-solutions/lead-generation): Every lead captured and followed up on automatically in one unified pipeline.
+- [AI Chat & Online Scheduling](https://axeonstudio.co/marketing-solutions/ai-chat-scheduling): 24/7 AI chat that answers, qualifies, and books appointments; an AI phone receptionist is available as an AxeonCORE add-on.
+- [Lead Capture & Follow-Up](https://axeonstudio.co/marketing-solutions/lead-generation): Every lead captured and followed up on automatically in one unified pipeline.
 - [Video & Photography](https://axeonstudio.co/marketing-solutions/video-photography): Professional video and photography for your website, ads, and social profiles.
 - [Why Axeon](https://axeonstudio.co/why-axeon): Direct comparison of a typical agency vs. Axeon Studio across web design, AI receptionist, data infrastructure, SEO/AEO/GEO, and automation.
-- [Pricing](https://axeonstudio.co/pricing): Two flat-rate builds — Essentials ($2,800) and AxeonCORE ($5,800, includes custom on-site videography).
+- [Pricing](https://axeonstudio.co/pricing): Two flat-rate builds — Essentials ($2,800) and the AxeonCORE Build ($5,800, includes custom on-site videography). AxeonCORE is Axeon's growth engine; add-ons (AI receptionist, Google & Meta Ads, ongoing SEO & content, reviews & social) are scoped on a strategy call.
 - [Des Moines Web Design](https://axeonstudio.co/des-moines-web-design): Local landing page for the Des Moines metro — service area, in-person meetings, on-site video, and industries served.
 - [Work](https://axeonstudio.co/work): Websites Axeon Studio has designed and built, including the A-1 Auto Detailing client site plus self-initiated concept redesigns for local remodelers, a family dentist and a detailer (concepts are labeled and not client engagements).
 - [Process](https://axeonstudio.co/process): The fast, fixed-scope delivery framework used to design, build, and launch every project.

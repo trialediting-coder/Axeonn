@@ -8,7 +8,8 @@ local-only.
 ## Real pricing (never state a different number)
 - Essentials (renamed from "Core Web Build" on 2026-09-27): $2,800, one-time. Our fastest build.
   The entry tier; AxeonCORE is the recommended, featured tier.
-- AxeonCORE: $5,800, one-time. Includes custom
+- AxeonCORE Build: $5,800, one-time setup (owner decision 2026-10-03: AxeonCORE
+  is Axeon's growth engine, and the AxeonCORE Build is its setup). Includes custom
   on-site videography (half-day shoot: hero film, 3 vertical cuts, photo set)
   and the lead system: Custom CRM Pipeline, AI chat & scheduling, multi-step
   intake, automated SMS/email follow-up, speed-to-lead call connect,
@@ -33,6 +34,11 @@ local-only.
 - Advertising: Google Ads (Search) and Meta Ads (Facebook & Instagram)
   management (live since 2026-09-28). No published price; it is scoped on a
   strategy call. Never promise ROAS, cost-per-lead, or lift numbers.
+- AxeonCORE growth add-ons (owner decision 2026-10-03), all scoped on a
+  strategy call with no published price: AI phone receptionist, Google & Meta
+  Ads, ongoing SEO & content, reviews & social. The AI phone receptionist is
+  NOT included in either build; only AI chat & scheduling is (AxeonCORE Build).
+  Never state an add-on price or call any of them "monthly" on the site.
 
 ## NOT currently live — never imply these are offered
 - Local Services Ads management.
@@ -45,7 +51,7 @@ local-only.
   days", etc.). Describe speed in relative terms instead — "fast turnaround",
   "a fraction of the time a typical agency takes", "not six months".
 - Never refer to "Operations Retainer" or an "AxeonCORE retainer" — those plans
-  are retired. "AxeonCORE" is the name of the premium $5,800 build (and the platform it runs on) — a one-time build, never a subscription.
+  are retired. "AxeonCORE" is Axeon's growth engine; the premium $5,800 tier is the "AxeonCORE Build", a one-time setup, never a subscription.
 
 ## Never fabricate
 - No invented client results, case studies, testimonials, or before/after
@@ -60,6 +66,11 @@ local-only.
   business schema, IndexNow; a perfect 100/100 SEO audit score; page load
   of roughly 0.3-0.8 seconds. Never state traffic, ranking, lead, or
   revenue results for A-1, and never imply any other client case study.
+- Exactly one approved client testimonial, quoted verbatim and attributed to
+  Levi Rench, Owner, A-1 Auto Detailing, Pleasant Hill, Iowa:
+  "…Whatever you have been doing, it's working. Getting lots of leads."
+  Use it only as a quote. Never paraphrase it into a number, a lead count, or
+  a lift claim.
 - No unverifiable superlatives beyond these two pre-approved claims:
   "Certified Partner" and "5.0 Client Rating". "First AI-Powered Agency in
   Iowa" / "Iowa's First AI-Forward Digital Agency" is also pre-approved

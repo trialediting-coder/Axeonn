@@ -17,8 +17,9 @@ import { buildMetadata } from '@/lib/metadata';
 import { providerRef, SERVICE_AREA } from '@/lib/seo';
 import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { TrustBadges } from '@/components/common/TrustBadges';
+import { ClientQuote } from '@/components/common/ClientQuote';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
-import { faqItems } from '@/data/faqData';
+import { withGeneralFaqs } from '@/data/faqData';
 import {
   ProblemSection,
   DeliverablesSection,
@@ -32,7 +33,7 @@ import { leadGenDetail } from '@/data/solutionDetails';
 
 export const metadata = buildMetadata({
   path: '/marketing-solutions/lead-generation',
-  title: 'Lead Generation & Follow-Up Automation | Axeon Studio',
+  title: 'Lead Capture & Follow-Up Automation | Axeon Studio',
   description:
     'Every lead captured and followed up automatically. One unified pipeline replaces the disconnected apps and logins of a typical agency stack, so no inquiry falls through the cracks.',
 });
@@ -75,8 +76,8 @@ const SCATTERED_SOURCES = [
 const leadGenerationServiceJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Service',
-  serviceType: 'Lead Generation & Follow-Up Automation',
-  name: 'Axeon Studio — Lead Generation & Follow-Up Automation',
+  serviceType: 'Lead Capture & Follow-Up Automation',
+  name: 'Axeon Studio — Lead Capture & Follow-Up Automation',
   url: 'https://axeonstudio.co/marketing-solutions/lead-generation',
   description:
     'Every lead captured and followed up automatically. One unified pipeline replaces the disconnected apps and logins of a typical agency stack, so no inquiry falls through the cracks.',
@@ -94,7 +95,7 @@ export default function LeadGenerationPage() {
       <BreadcrumbJsonLd
         items={[
           { name: 'Marketing Solutions', path: '/marketing-solutions' },
-          { name: 'Lead Generation', path: '/marketing-solutions/lead-generation' },
+          { name: 'Lead Capture & Follow-Up', path: '/marketing-solutions/lead-generation' },
         ]}
       />
       <ServiceFaqJsonLd items={leadGenDetail.faqs} />
@@ -116,7 +117,7 @@ export default function LeadGenerationPage() {
             Back to Marketing Solutions
           </Link>
           <p className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-4">
-            Lead Generation
+            Lead Capture & Follow-Up
           </p>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight mb-6">
             Every lead captured. Every lead followed up. Automatically.
@@ -278,7 +279,7 @@ export default function LeadGenerationPage() {
           </div>
 
           <p className="text-center text-sm text-neutral-500 mt-10">
-            Every call your AI receptionist answers flows into this same pipeline —{' '}
+            Add the AI receptionist and every call it answers flows into this same pipeline —{' '}
             <Link
               href="/marketing-solutions/ai-chat-scheduling"
               className="text-blue-600 hover:text-blue-700 underline underline-offset-2 font-semibold"
@@ -293,6 +294,7 @@ export default function LeadGenerationPage() {
       <DeliverablesSection data={leadGenDetail.deliverables} />
       <TimelineSection data={leadGenDetail.timeline} />
       <ComparisonSection data={leadGenDetail.comparison} />
+      <ClientQuote />
       {leadGenDetail.proof && <CaseStudyProof data={leadGenDetail.proof} />}
       <IndustriesSection serviceName="a lead pipeline" />
 
@@ -302,7 +304,7 @@ export default function LeadGenerationPage() {
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-neutral-950 mb-12 sm:mb-14 text-center">
             Common Questions
           </h2>
-          <FAQAccordion items={[...leadGenDetail.faqs, ...faqItems]} defaultOpenCount={1} />
+          <FAQAccordion items={withGeneralFaqs(leadGenDetail.faqs)} defaultOpenCount={1} />
         </div>
       </section>
 

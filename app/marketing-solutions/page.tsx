@@ -3,13 +3,14 @@ import { marketingSolutions } from '@/data/marketingSolutionsData';
 import { buildMetadata } from '@/lib/metadata';
 import { providerRef, SERVICE_AREA } from '@/lib/seo';
 import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
-import { ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import { GrowthEngine } from '@/components/common/GrowthEngine';
 
 export const metadata = buildMetadata({
   path: '/marketing-solutions',
   title: 'Marketing Solutions | Axeon Studio',
   description:
-    'Website design, SEO/AEO/GEO, AI chat & online scheduling, lead generation, and video & photography solutions for local business revenue growth.',
+    'Website design, SEO/AEO/GEO, AI chat & online scheduling, lead generation, Google & Meta advertising, and video & photography, all part of AxeonCORE, the growth engine for local businesses.',
 });
 
 const marketingSolutionsJsonLd = {
@@ -65,7 +66,7 @@ export default function MarketingSolutionsPage() {
                     0{index + 1}
                   </span>
                   <span className="text-[11px] font-mono text-neutral-400 uppercase tracking-wider">
-                    AxeonCORE
+                    {item.included}
                   </span>
                 </div>
                 <h3 className="text-xl sm:text-2xl font-bold text-neutral-950 tracking-tight group-hover:text-blue-600 transition-colors">
@@ -89,32 +90,7 @@ export default function MarketingSolutionsPage() {
           ))}
         </div>
 
-        {/* Bottom Strategy Call Banner */}
-        <div className="rounded-3xl bg-neutral-950 text-white p-8 sm:p-14 text-center max-w-4xl mx-auto shadow-2xl">
-          <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-blue-400 uppercase mb-3">
-            Unified Architecture
-          </p>
-          <h2 className="text-2xl sm:text-4xl font-black text-white mb-4 tracking-tight">
-            Ready to deploy an integrated revenue system?
-          </h2>
-          <p className="text-neutral-300 text-sm sm:text-base max-w-xl mx-auto mb-8 leading-relaxed">
-            Stop stitching together 5 disconnected marketing vendors. Get a complete web, AI, and lead-generation engine custom-built for your business.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/book"
-              className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
-            >
-              Book a Strategy Call
-            </Link>
-            <Link
-              href="/solutions"
-              className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-white/10 hover:bg-white/15 text-white font-semibold text-base transition-colors border border-white/20"
-            >
-              Browse By Industry
-            </Link>
-          </div>
-        </div>
+        <GrowthEngine variant="card" />
       </div>
     </main>
   );

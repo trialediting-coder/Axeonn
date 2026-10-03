@@ -477,7 +477,7 @@ export const aiChatDetail: SolutionDetail = {
   deliverables: {
     eyebrow: 'What’s Included',
     heading: 'What the AI Actually Does for You',
-    intro: 'AI chat and online scheduling are included in the AxeonCORE build ($5,800), set up around your business.',
+    intro: 'AI chat and online scheduling are included in the AxeonCORE Build ($5,800), set up around your business. An AI receptionist that picks up your phone calls around the clock is an AxeonCORE add-on, scoped on your strategy call.',
     groups: [
       {
         title: 'Answers questions',
@@ -485,7 +485,6 @@ export const aiChatDetail: SolutionDetail = {
           '24/7 chat on your website',
           'Set up with your real services, prices, hours, and service area',
           'Holds a natural conversation instead of a button menu',
-          'AI receptionist that picks up calls around the clock',
         ],
       },
       {

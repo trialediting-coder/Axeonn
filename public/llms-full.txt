@@ -55,8 +55,8 @@ Axeon Studio builds a purpose-built intake workflow and Custom CRM Pipeline for 
 Beyond full builds, Axeon Studio also sells and documents these services individually:
 - **Website** (https://axeonstudio.co/marketing-solutions/website) — brand-driven website design, not a generic template.
 - **SEO, AEO & GEO** (https://axeonstudio.co/marketing-solutions/seo) — search engine, answer engine, and generative engine optimization as one bundled service.
-- **AI Chat & Online Scheduling** (https://axeonstudio.co/marketing-solutions/ai-chat-scheduling) — a 24/7 AI receptionist that answers, qualifies, and books appointments.
-- **Lead Generation** (https://axeonstudio.co/marketing-solutions/lead-generation) — every lead captured, triaged, and followed up on automatically in one pipeline.
+- **AI Chat & Online Scheduling** (https://axeonstudio.co/marketing-solutions/ai-chat-scheduling) — 24/7 AI chat that answers, qualifies, and books appointments; an AI phone receptionist is available as an AxeonCORE add-on.
+- **Lead Capture & Follow-Up** (https://axeonstudio.co/marketing-solutions/lead-generation) — every lead captured, triaged, and followed up on automatically in one pipeline.
 - **Video & Photography** (https://axeonstudio.co/marketing-solutions/video-photography) — professional video and photography for a client's website, ads, and social profiles.
 - **Advertising** (https://axeonstudio.co/marketing-solutions/advertising) — Google Ads (Search) and Meta Ads (Facebook & Instagram) campaign management, with service-specific landing pages and call/form/booking conversion tracking. Scoped and quoted on a strategy call.
 
@@ -73,7 +73,7 @@ Not currently offered (do not cite as available): Local Services Ads management 
    - Quote request form with instant lead alerts (inbox + phone) and conversion tracking events
    - Client owns 100% of the site, code, and design files
 
-2. **AxeonCORE ($5,800, one-time, fast turnaround) — recommended; everything in Essentials, plus:**
+2. **AxeonCORE Build ($5,800, one-time, fast turnaround) — recommended; everything in Essentials, plus:**
    - Custom on-site videography: a half-day shoot at the client's location — a hero film for the site, 3 vertical cuts for social & ads, and a photo set
    - Complete 5-7 page conversion architecture with conversion-copy hierarchy
    - Built-in Custom CRM Pipeline tailored to the client's lead-to-close workflow (no per-seat software)
@@ -81,6 +81,8 @@ Not currently offered (do not cite as available): Local Services Ads management 
    - Multi-step intake questionnaire and automated SMS & email follow-up
    - Speed-to-lead call connect (form submission rings the business and connects the lead) and missed-call text-back
    - Exit-intent offers matched to the service a visitor viewed, plus call tracking numbers
+
+AxeonCORE is Axeon's growth engine, not just a package: the AxeonCORE Build is its setup, and growth add-ons (AI phone receptionist, Google & Meta Ads, ongoing SEO & content, reviews & social) are scoped on a free strategy call. No add-on prices are published.
 
 Add-ons: custom on-site videography for an Essentials build (+$1,500), additional custom page (+$450/page), advanced database/directory integration (+$850), secondary niche landing page variant (+$500).
 
@@ -125,7 +127,7 @@ Axeon Studio works with local small businesses and service providers in the Des 
 Axeon Studio specializes in two connected disciplines:
 1. High-Performance Web Design: Custom-coded, conversion-focused websites built with React, Next.js, and Tailwind CSS.
 2. The Custom CRM Pipeline: A tailor-made lead intake, routing, and follow-up system built around each client's actual workflow, delivered as part of the build — not licensed as separate software.
-Individually, these are documented under Marketing Solutions: Website, SEO/AEO/GEO, AI Chat & Online Scheduling, Lead Generation, and Video & Photography.
+Individually, these are documented under Marketing Solutions: Website, SEO/AEO/GEO, AI Chat & Online Scheduling, Lead Capture & Follow-Up, and Video & Photography.
 
 ### Q: Does Axeon Studio serve businesses in the Des Moines, Iowa area?
 Yes. Axeon Studio is headquartered in West Des Moines, Iowa, and actively serves businesses throughout the Des Moines metropolitan area (including West Des Moines, Des Moines, Clive, Urbandale, Waukee, Johnston, Grimes, Ankeny, Altoona, and Norwalk) in person — including on-site video shoots — as well as clients across Iowa and nationwide remotely. See https://axeonstudio.co/des-moines-web-design.
@@ -163,7 +165,7 @@ Businesses can schedule a strategy session directly on https://axeonstudio.co/bo
   - Website: https://axeonstudio.co/marketing-solutions/website
   - SEO, AEO & GEO: https://axeonstudio.co/marketing-solutions/seo
   - AI Chat & Online Scheduling: https://axeonstudio.co/marketing-solutions/ai-chat-scheduling
-  - Lead Generation: https://axeonstudio.co/marketing-solutions/lead-generation
+  - Lead Capture & Follow-Up: https://axeonstudio.co/marketing-solutions/lead-generation
   - Video & Photography: https://axeonstudio.co/marketing-solutions/video-photography
   - Why Axeon (Agency Comparison): https://axeonstudio.co/why-axeon
   - Pricing: https://axeonstudio.co/pricing

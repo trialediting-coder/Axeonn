@@ -6,7 +6,7 @@ import { serviceJsonLd } from '@/lib/seo';
 import { JsonLd, BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { TrustBadges } from '@/components/common/TrustBadges';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
-import { faqItems } from '@/data/faqData';
+import { withGeneralFaqs } from '@/data/faqData';
 import { BorderBeam } from '@/components/why-axeon/BorderBeam';
 import { RankClimbChart } from '@/components/why-axeon/RankClimbChart';
 import { AiEngineMarquee } from '@/components/why-axeon/AiEngineMarquee';
@@ -179,30 +179,6 @@ export default function SeoMarketingSolutionPage() {
 
       <DeliverablesSection tone="dark" alt data={seoDetail.deliverables} />
 
-      {/* Rank trajectory + the honest, no-timeline-promise paragraph */}
-      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white border-t border-neutral-900">
-        <div className="max-w-3xl mx-auto text-center">
-          <p className="text-xs font-mono font-semibold tracking-widest text-blue-400 uppercase mb-4">
-            The Trajectory
-          </p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.1] mb-10">
-            Built to Compete for the Top Spot
-          </h2>
-
-          <BorderBeam rounded="rounded-3xl" className="max-w-2xl mx-auto">
-            <div className="rounded-3xl bg-neutral-900/60 p-6 sm:p-8">
-              <RankClimbChart />
-            </div>
-          </BorderBeam>
-
-          <p className="text-sm text-neutral-500 leading-relaxed text-center max-w-xl mx-auto mt-10">
-            Most agencies get you a small bump and stop there. We build every site to compete for
-            the top spot — search rankings take real time and vary by market, so we won&apos;t
-            promise a date, but this is the trajectory every build is optimized for.
-          </p>
-        </div>
-      </section>
-
       {/* AI answer engine visibility */}
       <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white border-t border-neutral-900">
         <div className="max-w-3xl mx-auto text-center">
@@ -221,10 +197,6 @@ export default function SeoMarketingSolutionPage() {
             <AiPromptDemo />
           </div>
 
-          <p className="text-sm text-neutral-500 leading-relaxed text-center max-w-xl mx-auto mt-8">
-            Structured data and machine-readable content on every page, so search engines,
-            ChatGPT, Perplexity, and Gemini can all actually cite you.
-          </p>
 
           <div className="text-center mt-12 sm:mt-14">
             <p className="text-neutral-400 mb-4">Want to know what this would look like for your industry?</p>
@@ -254,7 +226,7 @@ export default function SeoMarketingSolutionPage() {
               Frequently Asked Questions
             </h2>
           </div>
-          <FAQAccordion items={[...seoDetail.faqs, ...faqItems]} />
+          <FAQAccordion items={withGeneralFaqs(seoDetail.faqs)} />
         </div>
       </section>
 

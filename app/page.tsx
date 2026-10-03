@@ -3,12 +3,11 @@ import { Hero } from '@/components/home/Hero';
 import { IowaClientsMarquee } from '@/components/home/IowaClientsMarquee';
 import { WhoWeHelp } from '@/components/home/WhoWeHelp';
 import { ThreePillars } from '@/components/home/ThreePillars';
-import { Platform } from '@/components/home/Platform';
-import { PlatformShowcase } from '@/components/home/PlatformShowcase';
+import { RecentWork } from '@/components/work/RecentWork';
+import { ClientQuote } from '@/components/common/ClientQuote';
+import { GrowthEngine } from '@/components/common/GrowthEngine';
 import { Comparison } from '@/components/home/Comparison';
-import { WhyAxeonTeaser } from '@/components/home/WhyAxeonTeaser';
 import { PricingSection } from '@/components/PricingSection';
-import { WhyChooseUs } from '@/components/home/WhyChooseUs';
 import { FAQ } from '@/components/home/FAQ';
 import { Contact } from '@/components/home/Contact';
 
@@ -23,12 +22,11 @@ export default function HomePage() {
       <IowaClientsMarquee />
       <WhoWeHelp />
       <ThreePillars />
-      <PlatformShowcase />
+      <RecentWork />
       <PricingSection />
+      <ClientQuote />
+      <GrowthEngine showBuilds={false} />
       <Comparison />
-      <Platform />
-      <WhyAxeonTeaser />
-      <WhyChooseUs />
       <FAQ />
       <Contact />
     </main>

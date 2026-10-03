@@ -1,12 +1,11 @@
 import Link from 'next/link';
 import { ServiceHeroActions } from '@/components/common/ServiceHeroActions';
-import Image from 'next/image';
 import { buildMetadata } from '@/lib/metadata';
 import { providerRef, SERVICE_AREA } from '@/lib/seo';
 import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { TrustBadges } from '@/components/common/TrustBadges';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
-import { faqItems } from '@/data/faqData';
+import { withGeneralFaqs } from '@/data/faqData';
 import {
   ProblemSection,
   DeliverablesSection,
@@ -17,14 +16,8 @@ import {
   ServiceFaqJsonLd,
 } from '@/components/marketing-solutions/SolutionSections';
 import { websiteDetail } from '@/data/solutionDetails';
-import {
-  ArrowLeft,
-  ArrowRight,
-  Layers,
-  Workflow,
-  Timer,
-  Users,
-} from 'lucide-react';
+import { RecentWork } from '@/components/work/RecentWork';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 export const metadata = buildMetadata({
   path: '/marketing-solutions/website',
@@ -32,40 +25,6 @@ export const metadata = buildMetadata({
   description:
     'Websites that build trust, drive revenue, and make you the clear choice — a brand-driven system built for your industry, shipped fast, not a generic template.',
 });
-
-const DIFFERENTIATORS = [
-  {
-    icon: Layers,
-    title: 'Systems, Not Templates',
-    description:
-      'Most agencies ship the same interchangeable layout across every industry and swap the logo. We build a brand-driven system designed around how your specific business actually sells.',
-  },
-  {
-    icon: Workflow,
-    title: 'A Built-In CRM Pipeline',
-    description:
-      'The AxeonCORE build includes a Custom CRM Pipeline tailored to your lead-to-close workflow — no per-seat monthly software fees stacked on top of your website.',
-  },
-  {
-    icon: Timer,
-    title: 'Fast, Fixed-Scope Delivery',
-    description:
-      'Flat pricing and a fixed scope, delivered in a fraction of the time a typical agency takes. No scope creep, no surprise invoices along the way.',
-  },
-  {
-    icon: Users,
-    title: 'Direct Access to Your Builder',
-    description:
-      'No account managers or handoffs before you reach the person actually building your site. You talk directly to the team doing the work, start to finish.',
-  },
-];
-
-const REAL_BUILDS = [
-  { src: '/why-axeon/axeon-hvac.webp', industry: 'HVAC & Plumbing' },
-  { src: '/why-axeon/axeon-ecommerce.webp', industry: 'E-Commerce' },
-  { src: '/why-axeon/axeon-realestate.webp', industry: 'Real Estate' },
-  { src: '/why-axeon/axeon-auto-repair.webp', industry: 'Auto Repair' },
-];
 
 const websiteServiceJsonLd = {
   '@context': 'https://schema.org',
@@ -132,101 +91,12 @@ export default function WebsitePage() {
 
       <ProblemSection data={websiteDetail.problem} />
 
-      {/* What Makes It Different */}
-      <section className="w-full py-20 sm:py-32 px-4 sm:px-8 lg:px-14 xl:px-20">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-16">
-            <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-[#2563eb] uppercase mb-3">
-              What Makes It Different
-            </p>
-            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-neutral-950 mb-5 leading-[1.14]">
-              Most Agencies Ship Templates. We Ship Systems.
-            </h2>
-            <p className="text-base sm:text-lg text-neutral-600 leading-relaxed max-w-2xl mx-auto">
-              A website is only as good as the business logic built underneath it. Here&apos;s
-              what&apos;s actually different about how we build.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-7">
-            {DIFFERENTIATORS.map((item) => {
-              const Icon = item.icon;
-              return (
-                <div
-                  key={item.title}
-                  className="bg-white rounded-2xl border border-neutral-200/80 p-7 sm:p-8 shadow-sm hover:shadow-xl hover:border-blue-400/80 transition-all duration-200"
-                >
-                  <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center mb-5">
-                    <Icon size={22} className="text-blue-600" strokeWidth={2.2} />
-                  </div>
-                  <h3 className="text-xl sm:text-2xl font-bold text-neutral-950 tracking-tight mb-3">
-                    {item.title}
-                  </h3>
-                  <p className="text-sm sm:text-[15px] text-neutral-600 leading-relaxed">
-                    {item.description}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-
-          <p className="text-center text-neutral-600 mt-10 sm:mt-12">
-            Every build also includes SEO, AEO, and GEO by default —{' '}
-            <Link href="/marketing-solutions/seo" className="text-blue-600 hover:text-blue-700 font-semibold underline underline-offset-4">
-              see how that works
-            </Link>
-            .
-          </p>
-        </div>
-      </section>
-
-      {/* Real Builds Gallery */}
-      <section className="w-full py-20 sm:py-32 px-4 sm:px-8 lg:px-14 xl:px-20 bg-neutral-50/70">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-16">
-            <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-[#2563eb] uppercase mb-3">
-              Real Builds
-            </p>
-            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-neutral-950 mb-5 leading-[1.14]">
-              Four Industries, Four Genuinely Different Layouts
-            </h2>
-            <p className="text-base sm:text-lg text-neutral-600 leading-relaxed max-w-2xl mx-auto">
-              Each one built around how that specific business actually sells — not a shared
-              theme with the colors changed.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-7">
-            {REAL_BUILDS.map((build) => (
-              <div
-                key={build.src}
-                className="relative rounded-2xl overflow-hidden border border-neutral-200 shadow-sm aspect-[16/10] bg-neutral-100"
-              >
-                <Image
-                  src={build.src}
-                  alt={`${build.industry} website built by Axeon Studio`}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-cover object-top"
-                />
-                <div className="absolute bottom-3 left-3 px-3 py-1.5 rounded-full text-[11px] font-mono font-semibold uppercase tracking-wide bg-blue-600/90 text-white backdrop-blur-sm">
-                  {build.industry}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center mt-12 sm:mt-14">
-            <p className="text-neutral-600 mb-4">Want to see what this would look like for your business?</p>
-            <Link
-              href="/book"
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-colors"
-            >
-              Book a Strategy Call
-            </Link>
-          </div>
-        </div>
-      </section>
+      <RecentWork
+        tone="muted"
+        eyebrow="Our Work"
+        heading="Real Sites, Built Around How Each Business Sells"
+        intro="A real client build and concept redesigns for Iowa businesses. Each one starts from how that business wins work."
+      />
 
       <DeliverablesSection data={websiteDetail.deliverables} />
       <TimelineSection data={websiteDetail.timeline} />
@@ -245,7 +115,7 @@ export default function WebsitePage() {
               Common Questions About Your Website
             </h2>
           </div>
-          <FAQAccordion items={[...websiteDetail.faqs, ...faqItems]} size="large" />
+          <FAQAccordion items={withGeneralFaqs(websiteDetail.faqs, ['What if I already have a website?'])} size="large" />
         </div>
       </section>
 

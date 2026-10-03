@@ -33,9 +33,13 @@ export function WorkCard({ project }: { project: WorkProject }) {
             {project.summary}
           </p>
         </div>
-        {project.concept && (
+        {project.concept ? (
           <span className="shrink-0 text-[11px] font-mono font-medium text-neutral-400 bg-neutral-100 px-2.5 py-1 rounded-full border border-neutral-200/60">
             Concept
+          </span>
+        ) : (
+          <span className="shrink-0 text-[11px] font-mono font-semibold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">
+            Client
           </span>
         )}
       </div>

@@ -57,7 +57,7 @@ export const pricingTiers: PricingTier[] = [
   },
   {
     id: 'axeoncore',
-    name: 'AxeonCORE',
+    name: 'AxeonCORE Build',
     focus: 'Capture, qualify, and close — with real footage of your business',
     price: '$5,800',
     billingNote: 'Flat-rate build price',
@@ -94,7 +94,7 @@ export const pricingTiers: PricingTier[] = [
       ],
       footer: 'The video alone is half the step-up. The lead system comes with it.',
     },
-    cta: 'Book AxeonCORE',
+    cta: 'Book AxeonCORE Build',
   },
 ];
 
