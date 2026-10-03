@@ -49,12 +49,11 @@ export function WorkCard({ project, showConcept = false }: { project: WorkProjec
   );
 }
 
-export function ConceptDisclaimer({ className = '', tagged = false }: { className?: string; tagged?: boolean }) {
+// Only the /work page shows Concept tags, so only it carries this note.
+export function ConceptDisclaimer({ className = '' }: { className?: string }) {
   return (
     <p className={`text-[11px] text-neutral-400 leading-relaxed ${className}`}>
-      {tagged
-        ? <>Projects marked &ldquo;Concept&rdquo; are self-initiated designs by Axeon Studio and are not affiliated with or endorsed by the businesses shown.</>
-        : <>Some projects shown are self-initiated designs by Axeon Studio and are not affiliated with or endorsed by the businesses shown.</>}
+      Projects marked &ldquo;Concept&rdquo; are self-initiated designs by Axeon Studio and are not affiliated with or endorsed by the businesses shown.
     </p>
   );
 }

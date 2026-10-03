@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import type { Niche } from '@/data/nichesData';
 import { projectsForNiche } from '@/data/workProjects';
-import { WorkCard, ConceptDisclaimer } from '@/components/work/WorkCard';
+import { WorkCard } from '@/components/work/WorkCard';
 
 // Shows any /work projects tagged with this niche; renders nothing for niches without one.
 export function NicheWork({ niche }: { niche: Niche }) {
@@ -31,7 +31,6 @@ export function NicheWork({ niche }: { niche: Niche }) {
             <WorkCard key={project.name} project={project} />
           ))}
         </div>
-        {projects.some((p) => p.concept) && <ConceptDisclaimer className="mt-8" />}
       </div>
     </section>
   );

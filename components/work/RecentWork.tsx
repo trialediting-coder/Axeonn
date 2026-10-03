@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { WORK_PROJECTS } from '@/data/workProjects';
-import { WorkCard, ConceptDisclaimer } from '@/components/work/WorkCard';
+import { WorkCard } from '@/components/work/WorkCard';
 
 interface RecentWorkProps {
   eyebrow?: string;
@@ -46,7 +46,6 @@ export function RecentWork({
             <WorkCard key={project.name} project={project} />
           ))}
         </div>
-        {projects.some((p) => p.concept) && <ConceptDisclaimer className="mt-10" />}
       </div>
     </section>
   );

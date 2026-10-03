@@ -57,7 +57,7 @@ export default function WorkPage() {
           </div>
 
           {hasConcepts && (
-            <ConceptDisclaimer tagged className="mt-10" />
+            <ConceptDisclaimer className="mt-10" />
           )}
         </div>
       </main>
