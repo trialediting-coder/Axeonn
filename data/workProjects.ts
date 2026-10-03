@@ -11,9 +11,23 @@ export interface WorkProject {
   concept?: boolean;
   // Month the site was built, shown on every card.
   date: string;
+  // Pinned projects always lead the list (owner rule: MSH is always first).
+  pinned?: boolean;
 }
 
-export const WORK_PROJECTS: WorkProject[] = [
+const PROJECTS: WorkProject[] = [
+  {
+    name: 'MSH Realty Group',
+    date: 'Oct 2026',
+    pinned: true,
+    niche: 'real-estate',
+    industry: 'Real Estate Investment',
+    location: 'Iowa',
+    summary:
+      'The site for our own Iowa real estate investment group: a cinematic aerial hero, an editorial serif design, and an animated walkthrough of its AI underwriting engine.',
+    image: '/images/work/msh.webp',
+    url: 'https://msh-realty-group.vercel.app/',
+  },
   {
     name: 'A-1 Auto Detailing',
     date: 'Sep 2026',
@@ -73,6 +87,12 @@ export const WORK_PROJECTS: WorkProject[] = [
     url: 'https://stumptown-detailing.vercel.app/',
     concept: true,
   },
+];
+
+// Stable sort: pinned first, everything else keeps its order.
+export const WORK_PROJECTS: WorkProject[] = [
+  ...PROJECTS.filter((p) => p.pinned),
+  ...PROJECTS.filter((p) => !p.pinned),
 ];
 
 export const projectsForNiche = (slug: string) => WORK_PROJECTS.filter((p) => p.niche === slug);
