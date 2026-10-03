@@ -23,14 +23,6 @@ const NewPill = () => (
   </span>
 );
 
-function WorkTag({ concept }: { concept?: boolean }) {
-  return concept ? null : (
-    <span className="text-[10px] font-mono font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
-      Client
-    </span>
-  );
-}
-
 type MobileSection = 'work' | 'about' | 'help' | 'marketing';
 
 const MOBILE_EASE = [0.22, 1, 0.36, 1] as const;
@@ -280,7 +272,6 @@ export function Header() {
                             <span className="font-bold text-[14px] text-neutral-900 group-hover:text-blue-600 transition-colors truncate">
                               {project.name}
                             </span>
-                            <WorkTag concept={project.concept} />
                           </div>
                           <span className="text-[12px] text-neutral-500 mt-0.5">
                             {project.industry} &middot; {project.location} &middot; {project.date}
@@ -664,7 +655,6 @@ export function Header() {
                       <span className="min-w-0">
                         <span className="flex items-center gap-2">
                           <span className="text-sm font-semibold text-neutral-900 truncate">{project.name}</span>
-                          <WorkTag concept={project.concept} />
                         </span>
                         <span className="block text-xs text-neutral-500 mt-0.5 truncate">{project.industry} &middot; {project.date}</span>
                       </span>
