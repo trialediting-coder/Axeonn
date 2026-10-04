@@ -68,7 +68,7 @@ export function FunnelBooking({ slug, industryName }: FunnelBookingProps) {
           <h2 className="mt-2 text-2xl sm:text-3xl font-extrabold font-display tracking-tight leading-tight">
             Claim your free website
           </h2>
-          <p className="mt-2 text-neutral-600">$0 setup with a monthly plan from $284/mo. Takes 20 seconds, then pick a time for your free call.</p>
+          <p className="mt-2 text-neutral-600">Takes 20 seconds. Then pick a time for your free call.</p>
           <div className="mt-6 flex flex-col gap-3">
             <label className="sr-only" htmlFor="fb-name">Your name</label>
             <input id="fb-name" className={input} placeholder="Your name" autoComplete="name" value={form.contactName} onChange={set('contactName')} />

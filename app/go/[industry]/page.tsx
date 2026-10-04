@@ -9,6 +9,7 @@ import { LEVI_QUOTE } from '@/components/common/ClientQuote';
 import { FunnelBooking } from '@/components/funnel/FunnelBooking';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
 import { WORK_PROJECTS } from '@/data/workProjects';
+import { TrustBadges } from '@/components/common/TrustBadges';
 
 // Paid-ad landing pages. Not linked from the site, not in the sitemap, noindexed.
 export const dynamicParams = false;
@@ -113,15 +114,15 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
           <div className="lg:col-span-7 lg:pt-6">
             <p className="text-sm font-bold tracking-[0.18em] uppercase text-blue-400">For {funnel.audience}</p>
             <h1 className="mt-4 text-4xl sm:text-5xl lg:text-6xl font-black font-display tracking-tight leading-[1.05] text-balance">
-              Get a Free Website for Your {funnel.business.replace(/^\w/, (c) => c.toUpperCase())}
+              Get a Free Website for Your {funnel.business.replace(/\b\w/g, (c) => c.toUpperCase())}
             </h1>
             <p className="mt-5 text-lg sm:text-xl text-neutral-300 leading-relaxed max-w-xl">
-              $0 setup. Your $2,800 website build is free when you start a monthly plan from $284/mo. {funnel.result}
+              {funnel.result}
             </p>
             <ul className="mt-8 flex flex-col gap-3 text-base sm:text-lg">
               {[
                 `A custom website built to get you more ${funnel.customers}`,
-                '$0 setup: the $2,800 build fee is waived',
+                'Found on Google, on the map, and in AI answers',
                 'Free homepage mockup and AI visibility report on your call',
               ].map((item) => (
                 <li key={item} className="flex items-start gap-3">
@@ -130,7 +131,21 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
                 </li>
               ))}
             </ul>
-            <p className="mt-6 text-neutral-400">Monthly plan from $284/mo covers hosting, security, and your monthly calls &amp; leads report. Backed by our 90-day customer guarantee.</p>
+            <div className="mt-8 grid grid-cols-3 max-w-lg rounded-2xl border border-white/15 divide-x divide-white/15 text-center">
+              {[
+                { v: '$0', l: 'setup (save $2,800)' },
+                { v: 'from $284', l: 'per month' },
+                { v: '90-day', l: 'customer guarantee' },
+              ].map((o) => (
+                <div key={o.l} className="px-3 py-4">
+                  <p className="text-2xl sm:text-3xl font-black font-display tracking-tight">{o.v}</p>
+                  <p className="mt-1 text-xs sm:text-sm text-neutral-400 leading-snug">{o.l}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6">
+              <TrustBadges variant="dark" />
+            </div>
           </div>
           <div className="lg:col-span-5">
             <FunnelBooking slug={niche.slug} industryName={niche.name} />
