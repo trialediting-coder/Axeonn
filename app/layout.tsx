@@ -8,6 +8,7 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { LeadModalProvider } from '@/components/common/LeadModalProvider';
 import { SideTabCTA } from '@/components/common/SideTabCTA';
+import { HideOnAdFunnel } from '@/components/common/HideOnAdFunnel';
 import { FreeWebsiteOfferPopup } from '@/components/common/FreeWebsiteOfferPopup';
 import { CaseStudyBadge } from '@/components/common/CaseStudyBadge';
 import { buildMetadata } from '@/lib/metadata';
@@ -109,15 +110,22 @@ document.head.appendChild(o)}if(navigator.globalPrivacyControl!==true){initApoll
         <LeadModalProvider>
           <SmoothScrollProvider>
             <AnalyticsTracker />
-            <Header />
+            {/* Ad landing pages (/go/*) show none of the site chrome: one page, one action. */}
+            <HideOnAdFunnel>
+              <Header />
+            </HideOnAdFunnel>
             <div>
               {children}
-              <Footer year={new Date().getFullYear()} />
+              <HideOnAdFunnel>
+                <Footer year={new Date().getFullYear()} />
+              </HideOnAdFunnel>
             </div>
           </SmoothScrollProvider>
-          <SideTabCTA />
-          <FreeWebsiteOfferPopup />
-          <CaseStudyBadge />
+          <HideOnAdFunnel>
+            <SideTabCTA />
+            <FreeWebsiteOfferPopup />
+            <CaseStudyBadge />
+          </HideOnAdFunnel>
         </LeadModalProvider>
       </body>
     </html>
