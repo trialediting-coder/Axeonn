@@ -21,12 +21,6 @@ export interface PricingTier {
   cta: string;
   /** The tier most buyers should land on — gets the primary visual treatment. */
   featured?: boolean;
-  /** Anchoring box: what the price step-up from the previous tier actually buys. */
-  stepUp?: {
-    heading: string;
-    items: { label: string; note?: string }[];
-    footer: string;
-  };
 }
 
 export interface AddOn {
@@ -52,10 +46,10 @@ export const pricingTiers: PricingTier[] = [
     features: [
       'SEO, AEO & GEO built in — visible on Google and inside AI answers like ChatGPT',
       'Up to 4 custom-designed, mobile-first pages built around how your business actually sells',
-      'Sub-second load speeds & 100% Core Web Vitals pass',
+      'Fast-loading on every phone',
       'Quote request form with instant lead alerts — every request lands in your inbox and on your phone',
-      'Conversion tracking events configured so you know which pages produce calls',
-      'Foundational ADA accessibility standards',
+      'See which pages make your phone ring',
+      'Built so every customer can use it',
       'You own 100% of the site, code, and design files',
     ],
     cta: 'Get Essentials',
@@ -75,7 +69,7 @@ export const pricingTiers: PricingTier[] = [
     inherits: 'Everything in Essentials, plus:',
     features: [
       'Custom on-site videography — a half-day shoot at your location: a hero film for your site, 3 vertical cuts for social & ads, and a photo set',
-      'Complete 5–7 page conversion architecture with conversion-copy hierarchy',
+      '5–7 pages written to turn visitors into calls',
       'Custom CRM Pipeline built around your lead-to-close workflow — no per-seat monthly software',
       'AI chat & online scheduling so leads book themselves 24/7',
       'Multi-step intake questionnaire that pre-qualifies leads before you ever call them',
@@ -88,19 +82,6 @@ export const pricingTiers: PricingTier[] = [
     highlightFeatures: [
       'Custom on-site videography — a half-day shoot at your location: a hero film for your site, 3 vertical cuts for social & ads, and a photo set',
     ],
-    stepUp: {
-      heading: 'What the extra $3,000 setup buys',
-      items: [
-        { label: 'Custom on-site videography', note: '$1,500 as an add-on' },
-        { label: 'Custom CRM Pipeline', note: 'no per-seat software' },
-        { label: 'AI chat & online scheduling' },
-        { label: 'Multi-step intake + SMS/email automations' },
-        { label: 'Speed-to-lead call connect + missed-call text-back' },
-        { label: 'Exit-intent offers + call tracking' },
-        { label: 'Up to 3 additional pages', note: '$450 each as an add-on' },
-      ],
-      footer: 'The video alone is half the step-up. The system that turns leads into customers comes with it.',
-    },
     cta: 'Get AxeonCORE',
   },
 ];
@@ -120,7 +101,7 @@ export interface PricingFaq {
 export const pricingFaqs: PricingFaq[] = [
   {
     q: 'What is the 90-day customer guarantee?',
-    a: 'If you\'re not getting more calls and leads in your first 90 days after launch than you were getting before, we keep working for free until you are. We set your starting baseline together on the kickoff call and track every call and form from day one, so the comparison is real. The guarantee applies while you\'re on your monthly plan and answering new leads within one business day, because we can bring the customers to you but you have to pick up the phone.',
+    a: 'More calls and leads in your first 90 days than you were getting before, or we keep working for free until you do. We set your starting baseline together on the kickoff call and track every call and form from day one, so the comparison is real. The guarantee applies while you\'re on your monthly plan and answering new leads within one business day, because we can bring the customers to you but you have to pick up the phone.',
   },
   {
     q: 'How does the monthly plan work, and what does it cost?',
@@ -128,7 +109,7 @@ export const pricingFaqs: PricingFaq[] = [
   },
   {
     q: 'Which plan should I pick?',
-    a: 'Essentials if you mainly need more people to find you and you\'re happy to chase every lead yourself. AxeonCORE if you want the site to do the selling for you: it captures, qualifies, and follows up on leads automatically, and real footage of your team and your work makes you look like the biggest operation in town in a way no template can. It\'s the build we recommend.',
+    a: 'Essentials if you mainly need more people to find you and you\'re happy to chase every lead yourself. AxeonCORE if you want the site to do the selling for you: it captures, qualifies, and follows up on leads automatically, and real footage of your team and your work makes you look like the biggest operation in town in a way no template can. It\'s the plan we recommend.',
   },
   {
     q: 'What does the on-site videography actually include?',
@@ -156,5 +137,5 @@ export const pricingFaqs: PricingFaq[] = [
   },
 ];
 
-export const customerGuarantee = '90-Day Customer Guarantee: more calls and leads, or we work free until you get them';
+export const customerGuarantee = '90-Day Customer Guarantee: More calls and leads in your first 90 days than you were getting before, or we keep working for free until you do.';
 export const revisionGuarantee = '2-Round Revision Guarantee — included with every build';

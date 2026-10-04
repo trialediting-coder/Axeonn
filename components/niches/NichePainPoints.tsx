@@ -8,8 +8,9 @@ export function NichePainPoints({ niche }: { niche: Niche }) {
   return (
     <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24">
       <div className="max-w-5xl mx-auto">
-        <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-950 mb-10">
-          What&apos;s actually costing {niche.name.toLowerCase()} revenue
+        <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ THE LEAKS ]</p>
+        <h2 className="text-3xl sm:text-4xl font-extrabold font-display tracking-tight text-neutral-950 mb-10">
+          Where {niche.customerNoun} slip away
         </h2>
         <div className="grid sm:grid-cols-2 gap-6">
           {niche.painPoints.map((point, index) => (

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { niches } from '@/data/nichesData';
+import { niches, type NicheCategory } from '@/data/nichesData';
 import { NicheCard } from '@/components/niches/NicheCard';
 import { buildMetadata } from '@/lib/metadata';
 import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
@@ -11,48 +11,73 @@ export const metadata = buildMetadata({
     'Websites, local SEO, and lead follow-up set up for 10 local service industries, from dental and HVAC to roofing and law firms, to get you more customers.',
 });
 
+const GROUPS: { category: NicheCategory; label: string }[] = [
+  { category: 'Home & Trade Services', label: '[ HOME & TRADE ]' },
+  { category: 'Professional Services', label: '[ PROFESSIONAL ]' },
+  { category: 'Healthcare', label: '[ HEALTHCARE ]' },
+];
+
+const EYEBROW = 'text-xs font-mono font-bold tracking-widest text-blue-600 uppercase';
+
 export default function SolutionsHubPage() {
   return (
-    <main className="w-full pt-32 pb-24 px-6 sm:px-10 lg:px-16 xl:px-24">
+    <main className="w-full pt-36 sm:pt-40 pb-24 px-6 sm:px-10 lg:px-16 xl:px-24">
       <BreadcrumbJsonLd items={[{ name: 'Industries', path: '/solutions' }]} />
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-neutral-950 mb-4">
+        <p className={`${EYEBROW} mb-3`}>[ WHO WE HELP ]</p>
+        <h1 className="text-4xl sm:text-5xl font-extrabold font-display tracking-tight text-neutral-950 mb-4">
           More Customers for Your Industry
         </h1>
         <p className="text-lg text-neutral-600 max-w-2xl mb-14">
-          Every industry below gets a purpose-built intake workflow and Custom CRM Pipeline — not a
-          find-and-replace template.
+          Pick your industry. See how we get you found, chosen, and booked, backed by our 90-Day Customer Guarantee.
         </p>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {niches.map((niche) => (
-            <NicheCard key={niche.slug} niche={niche} />
-          ))}
+
+        <div className="flex flex-col gap-14">
+          {GROUPS.map(({ category, label }) => {
+            const group = niches.filter((n) => n.category === category);
+            if (group.length === 0) return null;
+            return (
+              <section key={category} aria-label={category}>
+                <p className={`${EYEBROW} mb-5`}>{label}</p>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {group.map((niche) => (
+                    <NicheCard key={niche.slug} niche={niche} />
+                  ))}
+                </div>
+              </section>
+            );
+          })}
         </div>
 
         {/* Small Business Section */}
         <div
           id="small-business"
-          className="mt-16 rounded-3xl bg-neutral-50 p-8 sm:p-12 border border-neutral-200/80 relative overflow-hidden"
+          className="mt-16 rounded-3xl bg-neutral-950 text-white p-8 sm:p-12 relative overflow-hidden"
         >
+          <div
+            aria-hidden="true"
+            className="absolute -top-40 -right-40 w-[560px] h-[560px] rounded-full bg-[radial-gradient(closest-side,rgb(37_99_235/0.28),transparent)]"
+          />
           <div className="relative z-10 max-w-3xl">
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-950 mb-4">
+            <h2 className="text-3xl sm:text-4xl font-extrabold font-display tracking-tight mb-4">
               Don&apos;t See Your Industry? We Get Any Local Business More Customers.
             </h2>
-            <p className="text-base sm:text-lg text-neutral-600 leading-relaxed mb-8">
-              Whether you run a specialty clinic, a regional distributor, or a niche local service, the same system works: get found on Google, get chosen over the competition, and answer every lead in seconds. We set it up around how your customers actually buy.
+            <p className="text-base sm:text-lg text-neutral-300 leading-relaxed mb-8">
+              The same system works for any local business: get found on Google, get chosen over the competition, and
+              get booked. We set it up around how your customers actually buy.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link
                 href="/book"
-                className="inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg shadow-blue-600/25 transition-all"
+                className="inline-flex items-center justify-center px-6 py-3.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg shadow-blue-600/25 transition-all"
               >
-                Book a Custom Small Business Strategy Call
+                Book a Free Strategy Call
               </Link>
               <Link
                 href="/#axeoncore"
-                className="inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 border border-neutral-200 font-semibold text-sm transition-all"
+                className="inline-flex items-center justify-center px-6 py-3.5 rounded-full border border-white/25 bg-white/[0.06] hover:bg-white/[0.12] text-white font-semibold text-sm transition-all"
               >
-                See how it works →
+                See how it works &rarr;
               </Link>
             </div>
           </div>

@@ -24,7 +24,7 @@ export const metadata = buildMetadata({
   path: '/partners',
   title: 'Partner Program | Axeon Studio',
   description:
-    'Partner with Axeon Studio. Refer Iowa businesses that need a better website and earn referral rewards, or collaborate with us as a software vendor or service business that serves the same owners.',
+    'Partner with Axeon Studio. Refer Iowa owners who want more calls and customers and earn a reward when they pay their first invoice, or collaborate with us as a software vendor or service business that serves the same owners.',
 });
 
 const APPLY_SUBJECT = 'Axeon partner application';
@@ -45,17 +45,17 @@ const BUTTON =
 
 // The referral loop shown in the hero: who does what, in order.
 const LOOP = [
-  { icon: UserRound, who: 'You', what: 'Introduce a business that needs a better website' },
+  { icon: UserRound, who: 'You', what: 'Introduce an owner who wants more customers' },
   { icon: Hammer, who: 'Axeon', what: 'Runs the call, scopes it, and builds the site' },
-  { icon: Rocket, who: 'Your client', what: 'Launches a site that brings in leads' },
-  { icon: Gift, who: 'Back to you', what: 'A referral reward once they pay their first invoice' },
+  { icon: Rocket, who: 'Your client', what: 'Gets more calls and customers' },
+  { icon: Gift, who: 'Back to you', what: 'A referral reward when they pay their first invoice' },
 ];
 
 const REFERRAL_POINTS = [
   'Your own referral link and a simple way to make intros',
-  'A referral reward on every client who signs',
+  'A referral reward when they pay their first invoice',
   'Updates from first call to launch',
-  'Your client gets the same care as anyone who finds us directly',
+  'Your clients get a 90-Day Customer Guarantee.',
 ];
 
 const COLLAB_POINTS = [
@@ -108,19 +108,19 @@ const STEPS = [
 const PROMISES = [
   'We only take partners whose clients we are confident we can help.',
   'Every referral gets a fast, personal reply from the founder.',
-  'Referral rewards are paid once the client pays their first invoice.',
+  'Referral rewards are paid when they pay their first invoice.',
 ];
 
 const PARTNER_FAQ = [
   {
     question: 'How much do referral partners earn?',
     answer:
-      'Every client you refer who signs earns you a referral reward. The exact terms depend on the track and are spelled out in your partner agreement, so we share them on the intro call after you apply.',
+      'Every client you refer earns you a referral reward when they pay their first invoice. The exact terms depend on the track and are spelled out in your partner agreement, so we share them on the intro call after you apply.',
   },
   {
     question: 'Who can apply?',
     answer:
-      'Businesses and software vendors that work with small business owners, especially in Iowa. If your customers ever ask you who should build their website, you are a good fit.',
+      'Businesses and software vendors that work with small business owners, especially in Iowa. If your customers ever ask how to get more calls and customers, you are a good fit.',
   },
   {
     question: 'Why do you review applications?',
@@ -193,15 +193,15 @@ export default function PartnersPage() {
 
         <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           <div className="lg:col-span-7">
-            <p className="text-blue-400 font-semibold mb-5">The Axeon Partner Program</p>
+            <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-5">[ The Axeon Partner Program ]</p>
             <h1 className="text-5xl sm:text-6xl xl:text-7xl font-black tracking-[-0.04em] leading-[0.98] font-display mb-7">
               Send us a business.
               <br />
               <span className="text-neutral-400">We&apos;ll take it from there.</span>
             </h1>
             <p className="text-lg text-neutral-200 leading-relaxed max-w-xl mb-10">
-              You already work with small business owners who need a better website, more visibility, and more
-              leads. Introduce them to us and earn a reward, or team up with us to serve the customers we share.
+              You already work with owners who want more calls and customers. Introduce them to us and earn a
+              reward, or team up with us to serve the customers we share.
             </p>
             <div className="flex flex-wrap items-center gap-4">
               <a
@@ -238,8 +238,8 @@ export default function PartnersPage() {
               <Send size={28} className="mb-8 text-blue-200" />
               <h3 className="text-3xl font-black tracking-tight font-display mb-2">Referral Partner</h3>
               <p className="text-blue-100 text-lg mb-8 leading-relaxed">
-                You know a business that needs a better website. Make the intro, we handle everything else, and you
-                earn a reward when they sign.
+                You know an owner who wants more customers. Make the intro, we handle everything else, and you
+                earn a reward when they pay their first invoice.
               </p>
               <ul className="mt-auto divide-y divide-white/15 border-t border-white/15">
                 {REFERRAL_POINTS.map((point) => (
@@ -274,8 +274,8 @@ export default function PartnersPage() {
           <div className="lg:col-span-4">
             <h2 className="text-4xl sm:text-5xl font-black tracking-[-0.03em] font-display mb-4">Who we partner with</h2>
             <p className="text-lg text-neutral-600 leading-relaxed">
-              The people business owners already trust. If your customers ever ask who should build their website,
-              this is for you.
+              The people business owners already trust. If your customers ever ask how to get more calls and
+              customers, this is for you.
             </p>
           </div>
           <ul className="lg:col-span-8 grid sm:grid-cols-2 gap-x-10 border-t border-neutral-300">
@@ -315,7 +315,7 @@ export default function PartnersPage() {
       <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
         <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-12 items-end">
           <div className="lg:col-span-7">
-            <p className="text-blue-400 font-semibold mb-5">Our promise to partners</p>
+            <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-5">[ Our promise to partners ]</p>
             <p className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-[-0.04em] leading-[1.02] font-display">
               We never go around you to sell to your clients.
             </p>
@@ -340,23 +340,23 @@ export default function PartnersPage() {
 
       {/* CTA */}
       <section className="w-full pb-20 sm:pb-28 px-6 sm:px-10 lg:px-16 xl:px-24">
-        <div className="max-w-6xl mx-auto rounded-[32px] bg-blue-600 text-white px-8 py-14 sm:px-14 sm:py-16 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+        <div className="max-w-6xl mx-auto rounded-[32px] bg-neutral-950 text-white px-8 py-14 sm:px-14 sm:py-16 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
           <div className="max-w-xl">
             <h2 className="text-3xl sm:text-4xl font-black tracking-[-0.03em] font-display mb-3">
-              Know a business that needs us?
+              Know an owner who wants more customers?
             </h2>
-            <p className="text-lg text-blue-100 leading-relaxed">Apply in a few minutes. We reply to every application.</p>
+            <p className="text-lg text-neutral-300 leading-relaxed">Apply in a few minutes. We reply to every application.</p>
           </div>
           <div className="flex flex-wrap gap-3 shrink-0">
             <a
               href={APPLY_HREF}
-              className={`${BUTTON} bg-white text-blue-700 hover:bg-blue-50 focus-visible:outline-white`}
+              className={`${BUTTON} bg-blue-600 hover:bg-blue-500 text-white focus-visible:outline-blue-400`}
             >
               Apply to partner
             </a>
             <Link
               href="/book"
-              className={`${BUTTON} border border-white/40 hover:bg-white/10 text-white focus-visible:outline-white`}
+              className={`${BUTTON} border border-white/30 hover:bg-white/10 text-white focus-visible:outline-blue-400`}
             >
               Book an intro call
             </Link>

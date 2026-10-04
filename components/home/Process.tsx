@@ -21,50 +21,50 @@ export function Process() {
     {
       num: '01',
       title: 'Discovery',
-      desc: 'We take the time to learn your business, understand your ideal customers, and figure out what challenges you are facing.',
+      desc: 'We look at how customers find you today, where they slip away, and set your baseline: the calls and leads you get now.',
       duration: 'Kicks off right away',
       deliverables: [
-        'Intro & Goal Setting Session',
-        'Audience & Competitor Review',
-        'Website & Systems Walkthrough',
+        'Goals & baseline set together',
+        'Search & competitor review',
+        'Walkthrough of your site & lead flow',
       ],
-      outcome: 'A clear plan of action tailored to your business goals.',
+      outcome: 'You know exactly where customers are slipping away.',
     },
     {
       num: '02',
       title: 'Strategy',
-      desc: 'We map out a simple, effective roadmap so every page and message has a clear purpose.',
+      desc: 'We plan how you get found on Google, chosen over the competition, and booked without chasing.',
       duration: 'Fast-tracked',
       deliverables: [
-        'Site Structure & Content Outline',
-        'Customer Journey & Lead Flow',
-        'Automated Follow-Up Plan',
+        'Pages & message plan',
+        'Lead flow from first click to booked job',
+        'Follow-up plan so no lead goes cold',
       ],
-      outcome: 'A strategy you understand and feel confident about.',
+      outcome: 'A plan built around more customers, not more pages.',
     },
     {
       num: '03',
-      title: 'Design',
-      desc: 'We create clean, modern designs that look great on phones, tablets, and desktops alike.',
+      title: 'Design & Build',
+      desc: 'We design and build a site that makes customers pick you, on every phone.',
       duration: 'Rapid turnaround',
       deliverables: [
-        'Interactive Clickable Mockups',
-        'Easy-to-Read Fonts & Colors',
-        'Mobile-Friendly Page Layouts',
+        'Clickable mockups you review',
+        'Pages written to turn visitors into calls',
+        'Instant lead alerts set up',
       ],
-      outcome: 'Designs you love, reviewed and approved with your feedback.',
+      outcome: 'A site you are proud of, approved with your feedback.',
     },
     {
       num: '04',
-      title: 'Launch & Support',
-      desc: 'We build, test, and launch your new site, then stay right beside you to keep things running smoothly.',
-      duration: 'Live fast',
+      title: 'Launch & 90 Days',
+      desc: "We launch, track every call and lead from day one, and keep improving until you're getting more than before.",
+      duration: 'Your first 90 days',
       deliverables: [
-        'Fast & Secure Web Development',
-        'Instant Lead Alerts & CRM Connection',
-        'Search Engine Setup & Launch Review',
+        'Launch & search setup',
+        'Every call and lead tracked',
+        'Monthly calls & leads report',
       ],
-      outcome: 'A live site with every call and lead tracked from day one, and your 90-day customer guarantee running.',
+      outcome: 'More calls and leads in your first 90 days than you were getting before, or we keep working for free until you do.',
     },
   ];
 
@@ -83,7 +83,7 @@ export function Process() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: false, amount: 0.2 }}
               transition={{ duration: 0.5 }}
-              className="text-xs font-mono font-semibold tracking-widest text-neutral-800 uppercase mb-4"
+              className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-4"
             >
               [ OUR PROCESS ]
             </motion.div>
@@ -96,8 +96,8 @@ export function Process() {
               transition={{ duration: 0.6 }}
               className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-neutral-950 font-display tracking-tight leading-[1.08] mb-6"
             >
-              A Clear Working <br className="hidden sm:inline" />
-              Process
+              From First Call to <br className="hidden sm:inline" />
+              More Customers
             </motion.h2>
 
             {/* Subtitle */}
@@ -108,29 +108,9 @@ export function Process() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-base sm:text-lg text-neutral-600 leading-relaxed max-w-lg"
             >
-              We keep things transparent from day one. You'll always know what we're working on, why we're doing it, and what comes next.
+              Four steps, one goal: more calls, more booked jobs, more customers. You always know what we're doing and why.
             </motion.p>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: false, amount: 0.2 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="mt-8 grid grid-cols-3 gap-4 max-w-md"
-            >
-              <div className="p-3.5 rounded-2xl border border-neutral-200 bg-white text-center">
-                <div className="text-2xl font-black text-neutral-950 font-display">4</div>
-                <div className="text-[10px] font-mono uppercase tracking-wide text-neutral-500 mt-1">Phases</div>
-              </div>
-              <div className="p-3.5 rounded-2xl border border-neutral-200 bg-white text-center">
-                <div className="text-2xl font-black text-neutral-950 font-display">Fast</div>
-                <div className="text-[10px] font-mono uppercase tracking-wide text-neutral-500 mt-1">Turnaround</div>
-              </div>
-              <div className="p-3.5 rounded-2xl border border-neutral-200 bg-white text-center">
-                <div className="text-2xl font-black text-neutral-950 font-display">1</div>
-                <div className="text-[10px] font-mono uppercase tracking-wide text-neutral-500 mt-1">Point of Contact</div>
-              </div>
-            </motion.div>
           </div>
 
           {/* Right Column: 4 Vertical Stacked Cards Matching the Concept Image */}
@@ -361,7 +341,7 @@ export function Process() {
                           <div className="sm:col-span-8 space-y-2">
                             <div className="flex items-center gap-2 text-xs font-mono font-bold text-neutral-500 uppercase tracking-wider">
                               <ShieldCheck size={14} className="text-blue-600" />
-                              <span>Phase Deliverables</span>
+                              <span>What You Get</span>
                             </div>
                             <ul className="space-y-1.5 pt-1">
                               {step.deliverables.map((item, dIdx) => (
@@ -413,7 +393,7 @@ export function Process() {
                           isSelected ? 'bg-blue-600' : 'bg-neutral-300'
                         }`}
                       />
-                      {isSelected ? 'Click to collapse details' : 'Click to inspect deliverables'}
+                      {isSelected ? 'Tap to hide' : 'Tap to see what you get'}
                     </span>
                     <span className="text-neutral-400 font-medium">
                       {isSelected ? '▲ Hide' : '▼ Expand'}

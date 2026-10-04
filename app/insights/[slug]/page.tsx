@@ -178,12 +178,12 @@ export default async function InsightPostPage({
             page's Free Consultation card. */}
         <section
           data-track-location="insight_post_cta"
-          className="mt-16 rounded-3xl p-8 sm:p-10 bg-gradient-to-b from-emerald-50 to-white border-2 border-emerald-500"
+          className="mt-16 rounded-[28px] p-8 sm:p-10 bg-neutral-950 text-white"
         >
-          <h2 className="text-2xl sm:text-3xl font-bold text-neutral-950 mb-3">
+          <h2 className="text-2xl sm:text-3xl font-extrabold font-display tracking-tight text-white mb-3">
             {liveSite ? `Want what ${liveSite.name} got?` : 'Want this for your business?'}
           </h2>
-          <p className="text-neutral-600 leading-relaxed mb-6">
+          <p className="text-neutral-300 leading-relaxed mb-6">
             Book a free consultation. Before the call we design a custom mockup of your homepage and
             pull an AI visibility report showing where you show up on Google, ChatGPT, and Perplexity.
             Both are yours to keep, whether or not you hire us.
@@ -191,11 +191,11 @@ export default async function InsightPostPage({
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <Link
               href="/book"
-              className="text-center px-8 py-4 rounded-full font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm shadow-emerald-600/30 transition-colors"
+              className="text-center px-8 py-4 rounded-full font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/30 transition-colors"
             >
               Book My Free Consultation
             </Link>
-            <a href="tel:+15154938017" className="text-center text-sm font-semibold text-neutral-600 underline underline-offset-2">
+            <a href="tel:+15154938017" className="text-center text-sm font-semibold text-neutral-300 hover:text-white underline underline-offset-2">
               Or call (515) 493-8017
             </a>
           </div>

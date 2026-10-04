@@ -64,7 +64,7 @@ export function Testimonials() {
 
         <div className="mt-16 rounded-3xl bg-neutral-950 text-white p-8 sm:p-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
           <div>
-            <p className="text-sm font-bold tracking-wide uppercase text-blue-300">How we make sure you answer first</p>
+            <p className="text-sm font-bold tracking-wide uppercase text-blue-300">How AxeonCORE makes sure you answer first</p>
             <ul className="mt-4 flex flex-col sm:flex-row sm:flex-wrap gap-x-8 gap-y-2 text-lg text-neutral-100">
               {FIXES.map((f) => (
                 <li key={f} className="flex items-center gap-2.5">

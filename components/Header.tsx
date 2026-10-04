@@ -426,7 +426,7 @@ export function Header() {
                             </span>
                           </div>
                           <p className="text-[12px] text-neutral-500 group-hover:text-neutral-700 mt-2 leading-relaxed">
-                            Don&apos;t see your specific field? We build custom storefronts, intake triage, and Custom CRM Pipelines for any business.
+                            Don&apos;t see your field? We get any local business found, chosen, and booked.
                           </p>
                         </div>
 
@@ -686,7 +686,7 @@ export function Header() {
                     <span className="text-xs font-semibold text-blue-600">Custom Scope →</span>
                   </div>
                   <div className="text-xs text-neutral-500 mt-1 leading-snug">
-                    Tailored storefronts, intake triage, and Custom CRM Pipelines for any business.
+                    Any local business: found, chosen, and booked.
                   </div>
                 </Link>
 

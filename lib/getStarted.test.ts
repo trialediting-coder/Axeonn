@@ -7,6 +7,7 @@ import {
   buildPaymentUrl,
   isPaymentLinkReady,
   isValidEmail,
+  matchPackage,
   recommendPackage,
   type ContactInfo,
   type GetStartedAnswers,
@@ -45,13 +46,13 @@ function answersFor(pkg: Package): GetStartedAnswers {
 
 for (const pkg of PACKAGES) {
   test(`recommends "${pkg.id}" for its full service set`, () => {
-    assert.equal(recommendPackage(answersFor(pkg)).id, pkg.id);
+    assert.equal(matchPackage(answersFor(pkg)).id, pkg.id);
   });
 
   test(`recommends "${pkg.id}" for each single service it covers`, () => {
     for (const service of pkg.match!.services) {
       const answers = { ...answersFor(pkg), services: [service] };
-      const got = recommendPackage(answers);
+      const got = matchPackage(answers);
       // A tighter package may own a single service; it must still never be custom.
       assert.notEqual(got.id, CUSTOM_PACKAGE.id, `${pkg.id} / ${service}`);
       assert.ok(got.match!.services.includes(service));
@@ -60,7 +61,7 @@ for (const pkg of PACKAGES) {
 
   test(`"${pkg.id}" is excluded by budgets it does not allow (hard filter)`, () => {
     for (const budget of BUDGETS.filter((b) => !pkg.match!.budgets.includes(b))) {
-      assert.notEqual(recommendPackage({ ...answersFor(pkg), budget }).id, pkg.id, budget);
+      assert.notEqual(matchPackage({ ...answersFor(pkg), budget }).id, pkg.id, budget);
     }
   });
 
@@ -70,38 +71,38 @@ for (const pkg of PACKAGES) {
 }
 
 test('spot checks against the shipped config', () => {
-  assert.equal(recommendPackage({ ...base, services: ['Website'], budget: 'Under $1,000' }).id, 'website');
-  assert.equal(recommendPackage({ ...base, services: ['Meta Ads'] }).id, 'ads');
-  assert.equal(recommendPackage({ ...base, services: ['Google Ads', 'Meta Ads'] }).id, 'ads');
-  assert.equal(recommendPackage({ ...base, services: ['SEO', 'Content'] }).id, 'seo-content');
-  assert.equal(recommendPackage({ ...base, services: ['AI Automation'] }).id, 'ai-automation');
+  assert.equal(matchPackage({ ...base, services: ['Website'], budget: 'Under $1,000' }).id, 'website');
+  assert.equal(matchPackage({ ...base, services: ['Meta Ads'] }).id, 'ads');
+  assert.equal(matchPackage({ ...base, services: ['Google Ads', 'Meta Ads'] }).id, 'ads');
+  assert.equal(matchPackage({ ...base, services: ['SEO', 'Content'] }).id, 'seo-content');
+  assert.equal(matchPackage({ ...base, services: ['AI Automation'] }).id, 'ai-automation');
 });
 
 // ---- custom fallback -------------------------------------------------------
 
 test('custom: 3+ services', () => {
-  assert.equal(recommendPackage({ ...base, services: ['Website', 'SEO', 'Content'] }).id, 'custom');
-  assert.equal(recommendPackage({ ...base, services: [...SERVICES] }).id, 'custom');
+  assert.equal(matchPackage({ ...base, services: ['Website', 'SEO', 'Content'] }).id, 'custom');
+  assert.equal(matchPackage({ ...base, services: [...SERVICES] }).id, 'custom');
 });
 
 test('custom: $3k+ budget, even for a single service', () => {
   for (const pkg of PACKAGES) {
-    assert.equal(recommendPackage({ ...answersFor(pkg), budget: '$3,000+' }).id, 'custom', pkg.id);
+    assert.equal(matchPackage({ ...answersFor(pkg), budget: '$3,000+' }).id, 'custom', pkg.id);
   }
 });
 
 test('custom: no good match', () => {
   // Two services no single package covers.
-  assert.equal(recommendPackage({ ...base, services: ['Website', 'Meta Ads'] }).id, 'custom');
+  assert.equal(matchPackage({ ...base, services: ['Website', 'Meta Ads'] }).id, 'custom');
   // Ads with no site to land on.
-  assert.equal(recommendPackage({ ...base, services: ['Meta Ads'], hasWebsite: 'No' }).id, 'custom');
+  assert.equal(matchPackage({ ...base, services: ['Meta Ads'], hasWebsite: 'No' }).id, 'custom');
   // Budget too small for anything but a website.
-  assert.equal(recommendPackage({ ...base, services: ['AI Automation'], budget: 'Under $1,000' }).id, 'custom');
+  assert.equal(matchPackage({ ...base, services: ['AI Automation'], budget: 'Under $1,000' }).id, 'custom');
 });
 
 test('custom: empty services or missing budget', () => {
-  assert.equal(recommendPackage({ ...base, services: [] }).id, 'custom');
-  assert.equal(recommendPackage({ ...base, services: ['Website'], budget: '' }).id, 'custom');
+  assert.equal(matchPackage({ ...base, services: [] }).id, 'custom');
+  assert.equal(matchPackage({ ...base, services: ['Website'], budget: '' }).id, 'custom');
 });
 
 test('custom has no payment link', () => {
@@ -111,8 +112,19 @@ test('custom has no payment link', () => {
 
 test('deterministic: duplicate services and repeat calls give the same answer', () => {
   const a = { ...base, services: ['SEO', 'SEO'] as GetStartedAnswers['services'] };
-  assert.equal(recommendPackage(a).id, recommendPackage(a).id);
-  assert.equal(recommendPackage(a).id, 'seo-content');
+  assert.equal(matchPackage(a).id, matchPackage(a).id);
+  assert.equal(matchPackage(a).id, 'seo-content');
+});
+
+// ---- placeholder guard -----------------------------------------------------
+
+test('recommendPackage never shows a TODO placeholder package', () => {
+  for (const pkg of PACKAGES) {
+    const got = recommendPackage(answersFor(pkg));
+    assert.ok(!got.name.trim().startsWith('TODO'), pkg.id);
+    if (pkg.name.trim().startsWith('TODO')) assert.equal(got.id, CUSTOM_PACKAGE.id, pkg.id);
+    else assert.equal(got.id, pkg.id);
+  }
 });
 
 // ---- payload + payment URL -------------------------------------------------

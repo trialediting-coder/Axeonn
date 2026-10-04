@@ -5,6 +5,8 @@
 
 export interface AdFunnel {
   slug: string;
+  /** Short label after the offer in the <title>: "... | Iowa HVAC". */
+  titleLabel: string;
   /** Who the ad targets, used in the eyebrow: "For Iowa HVAC companies". */
   audience: string;
   /** Singular business noun: "your HVAC business". */
@@ -18,13 +20,18 @@ export interface AdFunnel {
    * already have real proof in this industry (A-1 for auto detailing).
    */
   proofPlaceholder: string | null;
-  /** WORK_PROJECTS name whose screenshot shows "what your site could look like". */
+  /**
+   * WORK_PROJECTS name whose screenshot we show. When its niche isn't this
+   * funnel's industry, the page labels it "A recent site we designed" instead
+   * of implying it's an example from their industry.
+   */
   example: string;
 }
 
 export const adFunnels: AdFunnel[] = [
   {
     slug: 'dental',
+    titleLabel: 'Iowa Dental',
     example: 'Hintz Family Dentistry',
     audience: 'Iowa dental practices',
     business: 'practice',
@@ -34,6 +41,7 @@ export const adFunnels: AdFunnel[] = [
   },
   {
     slug: 'med-spa',
+    titleLabel: 'Iowa Med Spas',
     example: 'Hintz Family Dentistry',
     audience: 'Iowa med spas',
     business: 'med spa',
@@ -43,6 +51,7 @@ export const adFunnels: AdFunnel[] = [
   },
   {
     slug: 'hvac',
+    titleLabel: 'Iowa HVAC',
     example: 'Kaufman Construction',
     audience: 'Iowa HVAC companies',
     business: 'HVAC business',
@@ -52,6 +61,7 @@ export const adFunnels: AdFunnel[] = [
   },
   {
     slug: 'roofing',
+    titleLabel: 'Iowa Roofing',
     example: 'Kaufman Construction',
     audience: 'Iowa roofing companies',
     business: 'roofing company',
@@ -61,6 +71,7 @@ export const adFunnels: AdFunnel[] = [
   },
   {
     slug: 'law-firms',
+    titleLabel: 'Iowa Law Firms',
     example: 'MSH Realty Group',
     audience: 'Iowa law firms',
     business: 'firm',
@@ -70,6 +81,7 @@ export const adFunnels: AdFunnel[] = [
   },
   {
     slug: 'accounting',
+    titleLabel: 'Iowa Accounting Firms',
     example: 'MSH Realty Group',
     audience: 'Iowa accounting firms',
     business: 'firm',
@@ -79,6 +91,7 @@ export const adFunnels: AdFunnel[] = [
   },
   {
     slug: 'home-remodeling',
+    titleLabel: 'Iowa Remodelers',
     example: 'Kaufman Construction',
     audience: 'Iowa remodelers and builders',
     business: 'remodeling business',
@@ -88,6 +101,7 @@ export const adFunnels: AdFunnel[] = [
   },
   {
     slug: 'real-estate',
+    titleLabel: 'Iowa Real Estate',
     example: 'MSH Realty Group',
     audience: 'Iowa real estate agents',
     business: 'real estate business',
@@ -97,6 +111,7 @@ export const adFunnels: AdFunnel[] = [
   },
   {
     slug: 'landscaping',
+    titleLabel: 'Iowa Landscaping',
     example: 'Kaufman Construction',
     audience: 'Iowa landscapers',
     business: 'landscaping business',
@@ -106,6 +121,7 @@ export const adFunnels: AdFunnel[] = [
   },
   {
     slug: 'auto-detailing',
+    titleLabel: 'Iowa Auto Detailing',
     example: 'A-1 Auto Detailing',
     audience: 'Iowa auto detailers',
     business: 'detailing business',

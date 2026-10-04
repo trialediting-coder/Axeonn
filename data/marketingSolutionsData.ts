@@ -37,7 +37,7 @@ export const marketingSolutions: MarketingSolution[] = [
     id: 'lead-generation',
     title: 'Lead Capture & Follow-Up',
     description:
-      'Every lead captured and followed up on automatically—one unified pipeline instead of a dozen disconnected tools.',
+      'Every call, form, and chat captured and followed up automatically, so no lead goes cold.',
     href: '/marketing-solutions/lead-generation',
     included: 'In AxeonCORE',
   },
@@ -53,7 +53,7 @@ export const marketingSolutions: MarketingSolution[] = [
     id: 'video-photography',
     title: 'Video & Photography',
     description:
-      'Professional video and photography that helps your business stand out and tell its story.',
+      'Real footage of your team and your work, so customers pick you over the stock-photo site next to you.',
     href: '/marketing-solutions/video-photography',
     included: 'In AxeonCORE',
   },

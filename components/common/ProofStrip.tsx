@@ -3,9 +3,9 @@ import Link from 'next/link';
 // Real, client-confirmed proof only (see content/brand-guardrails.md). One row,
 // four facts, so a page can show proof without a whole section.
 const PROOF = [
-  { value: '#1', label: 'on Google for A-1 Auto Detailing, up from page 2' },
-  { value: '180+', label: 'five-star reviews now front and center' },
-  { value: '5.0', label: 'client rating' },
+  { value: '#1', label: 'on Google for "Pleasant Hill auto detailing," up from page 2' },
+  { value: '5.0', label: 'Google rating from 180+ reviews' },
+  { value: '100/100', label: 'SEO audit score' },
   { value: '90-day', label: 'customer guarantee' },
 ];
 

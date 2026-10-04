@@ -69,7 +69,8 @@ const MAX_SERVICES_FOR_PACKAGE = 2;
  *     didn't ask for), then config order.
  *  5. Nothing left → custom.
  */
-export function recommendPackage(answers: GetStartedAnswers, packages: Package[] = PACKAGES): Package {
+/** Pure matching on the package criteria. Visitors should get recommendPackage(), which hides placeholders. */
+export function matchPackage(answers: GetStartedAnswers, packages: Package[] = PACKAGES): Package {
   const selected = [...new Set(answers.services)];
   if (selected.length === 0 || selected.length > MAX_SERVICES_FOR_PACKAGE) return CUSTOM_PACKAGE;
   if (!answers.budget || answers.budget === CUSTOM_BUDGET) return CUSTOM_PACKAGE;
@@ -86,6 +87,14 @@ export function recommendPackage(answers: GetStartedAnswers, packages: Package[]
     if (!best || extra < best.extra) best = { pkg, extra };
   }
   return best?.pkg ?? CUSTOM_PACKAGE;
+}
+
+/** A package whose copy is still a TODO placeholder must never be shown to a visitor. */
+export const isPlaceholderPackage = (pkg: Package) => pkg.name.trim().startsWith('TODO');
+
+export function recommendPackage(answers: GetStartedAnswers, packages: Package[] = PACKAGES): Package {
+  const pkg = matchPackage(answers, packages);
+  return isPlaceholderPackage(pkg) ? CUSTOM_PACKAGE : pkg;
 }
 
 export const isCustomPackage = (pkg: Package) => pkg.id === CUSTOM_PACKAGE.id;

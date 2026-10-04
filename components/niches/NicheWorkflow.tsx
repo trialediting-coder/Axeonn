@@ -1,15 +1,16 @@
 import type { Niche } from '@/data/nichesData';
 
+const withArticle = (noun: string) => `${/^[aeiou]/i.test(noun) ? 'an' : 'a'} ${noun}`;
+
 export function NicheWorkflow({ niche }: { niche: Niche }) {
   return (
-    <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50">
+    <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24">
       <div className="max-w-5xl mx-auto">
-        <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-950 mb-4">
-          The intake workflow we build for you
+        <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ HOW IT WORKS ]</p>
+        <h2 className="text-3xl sm:text-4xl font-extrabold font-display tracking-tight text-neutral-950 mb-4">
+          How {withArticle(niche.leadNoun)} becomes a booking
         </h2>
-        <p className="text-neutral-600 mb-10 max-w-2xl">
-          Every step below runs automatically once your Custom CRM Pipeline is live.
-        </p>
+        <p className="text-neutral-600 mb-10 max-w-2xl">On AxeonCORE, these run automatically.</p>
         <ol className="space-y-5">
           {niche.intakeWorkflowSteps.map((step, i) => (
             <li key={step} className="flex gap-5 items-start">
@@ -20,16 +21,6 @@ export function NicheWorkflow({ niche }: { niche: Niche }) {
             </li>
           ))}
         </ol>
-        <div className="mt-12 flex flex-wrap gap-2">
-          {niche.industryTerms.map((term) => (
-            <span
-              key={term}
-              className="px-3.5 py-1.5 rounded-full bg-white border border-neutral-200 text-xs font-mono uppercase tracking-wide text-neutral-500"
-            >
-              {term}
-            </span>
-          ))}
-        </div>
       </div>
     </section>
   );

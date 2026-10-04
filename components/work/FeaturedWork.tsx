@@ -16,7 +16,7 @@ const A1_STORY = [
   {
     label: 'The problem',
     tone: 'text-rose-600',
-    text: 'Stuck on page 2 of Google. 180+ five-star reviews, buried. A business-card logo and dozens of copy-paste town pages Google ignored.',
+    text: 'Stuck on page 2 of Google. A 5.0 rating from 180+ reviews, buried. A business-card logo and dozens of copy-paste town pages Google ignored.',
   },
   {
     label: 'What we built',
@@ -27,7 +27,7 @@ const A1_STORY = [
 
 const A1_RESULTS = [
   { value: '#1', label: 'on Google for “Pleasant Hill auto detailing,” up from page 2' },
-  { value: '180+', label: 'five-star Google reviews, now front and center' },
+  { value: '180+', label: 'Google reviews at a 5.0 rating, now front and center' },
   { value: '~56', label: 'old URLs redirected, so no search traffic was lost' },
 ];
 

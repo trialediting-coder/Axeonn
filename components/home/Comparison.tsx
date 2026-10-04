@@ -18,7 +18,7 @@ const ROWS: ComparisonRow[] = [
   },
   {
     dimension: 'Pricing',
-    typical: '$5K–$30K+ up front for a comparable build, plus separate CRM and marketing retainers',
+    typical: 'A large up-front build fee, plus separate CRM and marketing retainers.',
     axeon: '$2,800 or $5,800 setup, then from $284/mo, with the CRM pipeline, on-site video, and follow-up included in AxeonCORE',
   },
   {
@@ -135,11 +135,6 @@ export function Comparison() {
             ))}
           </div>
         </motion.div>
-
-        <p className="mt-5 text-sm sm:text-base text-neutral-400 text-center">
-          Typical-agency pricing reflects general 2026 market data for a comparable custom website and CRM
-          build, not a specific competitor&apos;s quote.
-        </p>
 
         <motion.p
           initial={{ opacity: 0, y: 15 }}

@@ -174,8 +174,8 @@ export default function NonprofitsPage() {
           Video: Food Bank of Iowa
         </a>
         <div className="relative z-10 max-w-5xl mx-auto w-full">
-          <p className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-4 inline-flex items-center gap-2">
-            <HeartHandshake size={15} /> {PROGRAM_NAME}
+          <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-4">
+            [ {PROGRAM_NAME} ]
           </p>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight leading-[1.05] font-display mb-6">
             A Free Digital Presence for Iowa Nonprofits
@@ -237,7 +237,7 @@ export default function NonprofitsPage() {
             </div>
           </div>
           <div className="lg:col-span-7">
-            <p className="text-sm font-mono uppercase tracking-wider text-blue-600 mb-6">Why we do this</p>
+            <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-6">[ WHY WE DO THIS ]</p>
             <span aria-hidden="true" className="block font-display text-8xl leading-none text-blue-600/25 -mb-6">
               &ldquo;
             </span>
@@ -282,9 +282,10 @@ export default function NonprofitsPage() {
       {/* What's included */}
       <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50 border-y border-neutral-200">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight mb-4">What You Get</h2>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight font-display mb-4">What You Get</h2>
           <p className="text-lg text-neutral-600 max-w-3xl mb-12 leading-relaxed">
-            The same build our paying clients get. You own your domain, your content, and your accounts.
+            So donors, volunteers and the people you serve find you first. It is the same build our paying
+            clients get, and you own your domain, your content, and your accounts.
           </p>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {INCLUDED.map(({ icon: Icon, title, description }) => (
@@ -345,7 +346,7 @@ export default function NonprofitsPage() {
           </div>
           <div className="lg:col-span-5">
             <div className="rounded-3xl border border-neutral-700 p-8">
-              <h3 className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-5">Who Qualifies</h3>
+              <h3 className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-5">[ WHO QUALIFIES ]</h3>
               <ul className="space-y-4">
                 {REQUIREMENTS.map((item) => (
                   <li key={item} className="flex gap-3 text-neutral-200 leading-relaxed">
@@ -370,7 +371,7 @@ export default function NonprofitsPage() {
       {/* CTA */}
       <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-4">Built for Iowa</p>
+          <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-4">[ BUILT FOR IOWA ]</p>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight mb-6">
             Help the People You Serve Find You
           </h2>

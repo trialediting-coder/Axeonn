@@ -12,7 +12,7 @@ export function NicheWork({ niche }: { niche: Niche }) {
   return (
     <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24">
       <div className="max-w-6xl mx-auto">
-        <p className="text-xs font-mono font-semibold tracking-widest text-neutral-800 uppercase mb-3">
+        <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">
           [ RECENT WORK ]
         </p>
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">

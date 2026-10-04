@@ -35,7 +35,7 @@ const PROJECTS: WorkProject[] = [
     industry: 'Auto Detailing',
     location: 'Pleasant Hill, IA',
     summary:
-      'A full rebuild with service pages, before-and-after galleries, live Google reviews and tap-to-call quoting, plus 301s for every old URL so nothing was lost in search.',
+      "A full rebuild with service pages, live Google reviews and tap-to-call quoting, plus 301s for every old URL. Now #1 on Google for 'Pleasant Hill auto detailing,' up from page 2.",
     image: '/images/work/a1.webp',
     url: 'https://a1-auto-detailing-six.vercel.app/',
   },

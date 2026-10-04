@@ -13,7 +13,6 @@ import {
   ShieldCheck,
   MapPin,
   Calendar,
-  Mail,
   Quote,
   Check,
 } from 'lucide-react';
@@ -24,9 +23,9 @@ const CASE_STUDY = '/insights/a-1-auto-detailing-website-case-study';
 // Approved facts only (content/brand-guardrails.md): A-1 is the one published
 // client, and every outside stat links to its source.
 const HERO_PROOF = [
-  { value: '#1', label: 'on Google for A-1 Auto Detailing, up from page 2' },
-  { value: '180+', label: 'five-star reviews, now front and center' },
-  { value: '5.0', label: 'client rating' },
+  { value: '#1', label: 'on Google for "Pleasant Hill auto detailing," up from page 2' },
+  { value: '5.0', label: 'Google rating from 180+ reviews' },
+  { value: '0.3–0.8s', label: 'page loads on the new site' },
 ];
 
 const PILLARS = [
@@ -237,13 +236,6 @@ export default function AboutClient() {
                     <span>West Des Moines, Iowa</span>
                   </div>
                   <div className="text-2xl sm:text-3xl font-extrabold font-display leading-tight">Hayder Hatem</div>
-                  <a
-                    href="mailto:hayder.hatem@axeonstudio.co"
-                    className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-blue-300 hover:text-white font-mono font-medium transition-colors mt-1"
-                  >
-                    <Mail size={13} />
-                    <span>hayder.hatem@axeonstudio.co</span>
-                  </a>
                   <div className="text-xs text-neutral-300 mt-1 font-medium">Founder, Axeon Studio</div>
                 </div>
               </div>

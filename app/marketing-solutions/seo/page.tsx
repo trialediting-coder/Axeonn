@@ -1,267 +1,60 @@
-import Link from 'next/link';
-import { ServiceHeroActions } from '@/components/common/ServiceHeroActions';
-import { ArrowLeft, Search, Sparkles, Cpu } from 'lucide-react';
 import { buildMetadata } from '@/lib/metadata';
 import { serviceJsonLd } from '@/lib/seo';
 import { JsonLd, BreadcrumbJsonLd } from '@/components/common/JsonLd';
-import { TrustBadges } from '@/components/common/TrustBadges';
-import { FAQAccordion } from '@/components/common/FAQAccordion';
-import { withGeneralFaqs } from '@/data/faqData';
-import { BorderBeam } from '@/components/why-axeon/BorderBeam';
-import { RankClimbChart } from '@/components/why-axeon/RankClimbChart';
-import { AiEngineMarquee } from '@/components/why-axeon/AiEngineMarquee';
-import { AiPromptDemo } from '@/components/why-axeon/AiPromptDemo';
 import {
+  ServiceHero,
   ProblemSection,
   DeliverablesSection,
+  WhereItFits,
   TimelineSection,
-  ComparisonSection,
   CaseStudyProof,
+  ServiceFaqSection,
   ServiceFaqJsonLd,
 } from '@/components/marketing-solutions/SolutionSections';
-import { seoDetail } from '@/data/solutionDetails';
+import { ServiceClosingCta } from '@/components/marketing-solutions/ServiceClosingCta';
+import { seoDetail as d } from '@/data/solutionDetails';
 
 export const metadata = buildMetadata({
   path: '/marketing-solutions/seo',
   title: 'SEO, AEO & GEO Services | Axeon Studio',
   description:
-    'SEO, AEO, and GEO built into every Axeon Studio site as one service, not sold separately — helping local businesses get found on Google and cited by AI.',
+    'Get found on Google and cited by AI. SEO, AEO, and GEO built into every Axeon Studio site, not sold separately, backed by a 90-day customer guarantee.',
 });
 
-const pillars = [
-  {
-    tag: 'SEO',
-    icon: Search,
-    title: 'Search Engine Optimization',
-    description:
-      'Technical SEO, on-page optimization, and local search signals built into every page — so your business shows up when someone nearby searches for what you do.',
-  },
-  {
-    tag: 'AEO',
-    icon: Sparkles,
-    title: 'Answer Engine Optimization',
-    description:
-      "When someone asks an AI assistant for a recommendation, your business is structured to be part of the answer — not just another link buried on page two.",
-  },
-  {
-    tag: 'GEO',
-    icon: Cpu,
-    title: 'Generative Engine Optimization',
-    description:
-      'Structured data and machine-readable content on every page, so search engines, ChatGPT, Perplexity, and Gemini can all actually cite you.',
-  },
-];
-
-const seoServiceJsonLd = serviceJsonLd({
+const jsonLd = serviceJsonLd({
   path: '/marketing-solutions/seo',
   serviceType: 'Local SEO, AEO & GEO',
   name: 'Axeon Studio — SEO, AEO & GEO',
   description:
-    'Search engine, answer engine, and generative engine optimization built into every Axeon Studio site — technical SEO, local structured data, and machine-readable content so Des Moines-area businesses are found on Google and cited by AI assistants.',
+    'Search, answer engine, and generative engine optimization built into every Axeon Studio site, so Des Moines-area businesses are found on Google and cited by AI assistants.',
 });
 
 export default function SeoMarketingSolutionPage() {
   return (
-    <main className="w-full bg-neutral-950 text-white">
-      <JsonLd data={seoServiceJsonLd} />
-      <ServiceFaqJsonLd items={seoDetail.faqs} />
+    <main className="w-full bg-white text-neutral-950">
+      <JsonLd data={jsonLd} />
+      <ServiceFaqJsonLd items={d.faqs} />
       <BreadcrumbJsonLd
         items={[
-          { name: 'Marketing Solutions', path: '/marketing-solutions' },
+          { name: 'Services', path: '/marketing-solutions' },
           { name: 'SEO, AEO & GEO', path: '/marketing-solutions/seo' },
         ]}
       />
-      {/* Hero */}
-      <section className="relative w-full min-h-screen min-h-[100dvh] flex items-center px-6 sm:px-10 lg:px-16 xl:px-24 pt-24 pb-16 bg-neutral-950 text-white overflow-hidden">
-        {/* TEMPORARY placeholder background — replace before launch, see public/temp-scorpion-refs */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0"
-          style={{ backgroundImage: 'url(/temp-scorpion-refs/seo-hero.webp)', backgroundSize: 'cover', backgroundPosition: 'center' }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/85 to-neutral-950/50" />
-        <div className="relative z-10 max-w-5xl mx-auto text-center">
-          <Link
-            href="/marketing-solutions"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-400 hover:text-blue-400 transition-colors mb-8"
-          >
-            <ArrowLeft size={15} />
-            Back to Marketing Solutions
-          </Link>
 
-          <p className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-4">
-            Marketing Solutions — SEO / AEO / GEO
-          </p>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight mb-6">
-            Get Found by Search Engines. Get Cited by AI.
-          </h1>
-          <p className="text-lg sm:text-xl text-neutral-300 max-w-3xl mx-auto leading-relaxed mb-8">
-            Search Engine Optimization (SEO), Answer Engine Optimization (AEO), and Generative Engine
-            Optimization (GEO) — the three ways people and AI actually find a business today, built into
-            every Axeon Studio site as one service, not sold separately.
-          </p>
-
-          <div className="flex justify-center mb-10">
-            <div className="inline-flex flex-wrap items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-blue-950/60 border border-blue-800">
-              {['SEO', 'AEO', 'GEO'].map((tag) => (
-                <span key={tag} className="px-2.5 py-1 rounded-full bg-blue-600 text-white text-[11px] font-bold">
-                  {tag}
-                </span>
-              ))}
-              <span className="text-xs text-blue-300 font-medium ml-1">
-                All included in every build — zero add-ons
-              </span>
-            </div>
-          </div>
-
-          <ServiceHeroActions priceLine="SEO, AEO & GEO built into every site from $2,800" note="built in, not bolted on" />
-
-          <div className="flex justify-center">
-            <TrustBadges variant="dark" />
-          </div>
-        </div>
-      </section>
-
-      <ProblemSection tone="dark" data={seoDetail.problem} />
-
-      {/* Pillar grid: SEO / AEO / GEO explained individually */}
-      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white border-t border-neutral-900">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <p className="text-xs font-mono font-semibold tracking-widest text-blue-400 uppercase mb-4">
-              How It Works
-            </p>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.1]">
-              We Don&apos;t Just Optimize For Google.
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-            {pillars.map((pillar) => {
-              const Icon = pillar.icon;
-              return (
-                <div
-                  key={pillar.tag}
-                  className="rounded-[32px] bg-neutral-900/60 border border-neutral-800 p-8 sm:p-10 flex flex-col hover:border-neutral-700 transition-colors"
-                >
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-11 h-11 rounded-xl bg-blue-600/15 text-blue-400 flex items-center justify-center">
-                      <Icon size={22} />
-                    </div>
-                    <span className="px-2.5 py-1 rounded-full bg-blue-600 text-white text-[11px] font-bold">
-                      {pillar.tag}
-                    </span>
-                  </div>
-                  <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight mb-3">
-                    {pillar.title}
-                  </h3>
-                  <p className="text-sm sm:text-base text-neutral-400 leading-relaxed">
-                    {pillar.description}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-
-          <p className="text-center text-sm text-neutral-500 mt-10">
-            SEO, AEO, and GEO come built into every website we build —{' '}
-            <Link
-              href="/marketing-solutions/website"
-              className="text-blue-400 hover:text-blue-300 underline underline-offset-4"
-            >
-              see what a build includes
-            </Link>
-            .
-          </p>
-        </div>
-      </section>
-
-      <DeliverablesSection tone="dark" alt data={seoDetail.deliverables} />
-
-      {/* AI answer engine visibility */}
-      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white border-t border-neutral-900">
-        <div className="max-w-3xl mx-auto text-center">
-          <p className="text-xs font-mono font-semibold tracking-widest text-blue-400 uppercase mb-4">
-            Optimized For Every Major AI Answer Engine
-          </p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.1] mb-10">
-            Search Is No Longer Just a Search Bar
-          </h2>
-
-          <div className="mb-10">
-            <AiEngineMarquee />
-          </div>
-
-          <div className="flex justify-center">
-            <AiPromptDemo />
-          </div>
-
-
-          <div className="text-center mt-12 sm:mt-14">
-            <p className="text-neutral-400 mb-4">Want to know what this would look like for your industry?</p>
-            <Link
-              href="/book"
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-colors"
-            >
-              Book a Strategy Call
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <TimelineSection tone="dark" data={seoDetail.timeline} />
-      <ComparisonSection tone="dark" alt data={seoDetail.comparison} />
-      {seoDetail.proof && <CaseStudyProof tone="dark" data={seoDetail.proof} />}
-
-      {/* FAQ */}
-      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-white text-neutral-950">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-12">
-            <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-blue-600 uppercase mb-3">
-              Questions
-            </p>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-neutral-950">
-              Frequently Asked Questions
-            </h2>
-          </div>
-          <FAQAccordion items={withGeneralFaqs(seoDetail.faqs)} />
-        </div>
-      </section>
-
-      {/* Closing CTA */}
-      <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white border-t border-neutral-900">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-4">
-            Ready to rank higher and get cited by AI?
-          </p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight mb-6">
-            More calls and leads in 90 days, or we keep working free.
-          </h2>
-          <p className="text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-10">
-            Book a free strategy call. You walk away with a custom homepage mockup and an AI visibility report for your business, whether or not you hire us.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link
-              href="/book"
-              className="px-7 py-3.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-colors"
-            >
-              Book a Strategy Call
-            </Link>
-            <Link
-              href="/pricing"
-              className="px-7 py-3.5 rounded-full border border-neutral-700 hover:border-neutral-500 text-white font-semibold text-sm transition-colors"
-            >
-              View Pricing
-            </Link>
-          </div>
-          <Link
-            href="/why-axeon"
-            className="inline-block mt-8 text-sm text-neutral-400 hover:text-blue-400 underline underline-offset-4 transition-colors"
-          >
-            See exactly how we compare to a typical agency →
-          </Link>
-        </div>
-      </section>
+      <ServiceHero
+        eyebrow="Services · SEO / AEO / GEO"
+        title="Get Found on Google. Get Cited by AI."
+        subtitle="Show up when people nearby search for what you do: on Google, on the map, and inside AI answers. Built into every site we build, not sold separately."
+        priceLine="Built into every site, from $2,800 setup"
+        note="not bolted on"
+      />
+      <ProblemSection data={d.problem} />
+      <DeliverablesSection data={d.deliverables} />
+      <WhereItFits data={d.fit} />
+      <TimelineSection data={d.timeline} />
+      {d.proof && <CaseStudyProof data={d.proof} />}
+      <ServiceFaqSection heading="Common Questions About SEO" faqs={d.faqs} />
+      <ServiceClosingCta trackId="service_seo" />
     </main>
   );
 }

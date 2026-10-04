@@ -18,8 +18,8 @@ const engineModules: EngineModule[] = [
     icon: PhoneCall,
     title: 'AI Receptionist',
     body: 'Picks up every call around the clock, answers questions, books the job, and texts back anyone who hangs up.',
-    href: '/marketing-solutions/ai-chat-scheduling',
-    cta: 'Hear a real call',
+    href: '/book',
+    cta: 'Ask on your call',
   },
   {
     icon: Megaphone,
@@ -114,7 +114,7 @@ export function GrowthEngine({ showBuilds = true, variant = 'section' }: GrowthE
                   href="/pricing"
                   className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors"
                 >
-                  Compare both builds <ArrowRight size={15} />
+                  Compare both plans <ArrowRight size={15} />
                 </Link>
               </div>
             </div>

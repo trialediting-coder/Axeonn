@@ -5,11 +5,10 @@ import { motion } from 'motion/react';
 import { smoothScrollTo } from '@/components/providers/SmoothScrollProvider';
 
 const SECTIONS = [
-  { id: 'web-design', label: 'Web Design' },
-  { id: 'ai-agent', label: 'AI Receptionist' },
-  { id: 'data-infra', label: 'Data & Infrastructure' },
-  { id: 'seo-aeo-geo', label: 'SEO / AEO / GEO' },
-  { id: 'automation', label: 'Automation' },
+  { id: 'get-found', label: 'Get Found' },
+  { id: 'get-chosen', label: 'Get Chosen' },
+  { id: 'get-booked', label: 'Get Booked' },
+  { id: 'guarantee', label: 'The Guarantee' },
 ];
 
 export function WhyAxeonSectionNav() {

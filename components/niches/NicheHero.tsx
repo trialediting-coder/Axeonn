@@ -1,31 +1,39 @@
 import Link from 'next/link';
 import { ArrowRight, Phone } from 'lucide-react';
 import type { Niche } from '@/data/nichesData';
-import { TrustBadges } from '@/components/common/TrustBadges';
 import { nicheHeroTempImages, defaultNicheHeroTempImage } from '@/data/nicheHeroTempImages';
 import { pricingTiers } from '@/data/pricingData';
 
 const corePrice = pricingTiers.find((t) => t.id === 'core-web-build')?.price ?? '$2,800';
 
 export function NicheHero({ niche }: { niche: Niche }) {
-  const heroImage = nicheHeroTempImages[niche.slug] || defaultNicheHeroTempImage;
+  const heroImage = nicheHeroTempImages[niche.slug] ?? defaultNicheHeroTempImage;
 
   return (
     <section className="relative w-full min-h-[92svh] sm:min-h-screen flex items-center px-6 sm:px-10 lg:px-16 xl:px-24 pt-28 pb-16 bg-neutral-950 text-white overflow-hidden">
-      {/* TEMPORARY placeholder background — see data/nicheHeroTempImages.ts */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0"
-        style={{ backgroundImage: `url(${heroImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/85 to-neutral-950/50" />
+      {heroImage ? (
+        <>
+          <div
+            aria-hidden="true"
+            className="absolute inset-0"
+            style={{ backgroundImage: `url(${heroImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/85 to-neutral-950/50" />
+        </>
+      ) : (
+        // No-photo treatment: brand glow on a dark gradient, never a borrowed image.
+        <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-b from-neutral-900 via-neutral-950 to-neutral-950">
+          <div className="absolute -top-48 left-1/2 -translate-x-1/2 w-[900px] h-[900px] rounded-full bg-[radial-gradient(closest-side,rgb(37_99_235/0.30),transparent)]" />
+          <div className="absolute -bottom-40 -right-40 w-[600px] h-[600px] rounded-full bg-[radial-gradient(closest-side,rgb(37_99_235/0.16),transparent)]" />
+        </div>
+      )}
 
       <div className="relative z-10 w-full max-w-5xl mx-auto text-center">
         {/* Geo + service line: the message-match a paid click needs to see first */}
         <p className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-4">
-          More customers for {niche.name} &middot; Des Moines metro &amp; Iowa
+          More {niche.customerNoun} for {niche.name} &middot; Des Moines metro &amp; Iowa
         </p>
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight mb-6">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-tight mb-6">
           {niche.headline}
         </h1>
         <p className="text-lg sm:text-xl text-neutral-300 max-w-3xl mx-auto leading-relaxed mb-8">
@@ -36,7 +44,7 @@ export function NicheHero({ niche }: { niche: Niche }) {
         <p className="inline-flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 rounded-2xl sm:rounded-full bg-white/[0.07] border border-white/15 px-4 py-2 text-sm sm:text-base text-neutral-200 mb-8">
           <span className="font-bold text-white">Plans from {corePrice} setup</span>
           <span className="text-neutral-400">
-            <span className="hidden sm:inline">&middot; </span>backed by a 90-day customer guarantee
+            <span className="hidden sm:inline">&middot; </span>backed by our 90-Day Customer Guarantee
           </span>
         </p>
 
@@ -57,14 +65,10 @@ export function NicheHero({ niche }: { niche: Niche }) {
         </div>
         <Link
           href="/pricing"
-          className="inline-block text-sm sm:text-base text-neutral-300 hover:text-white underline underline-offset-4 mb-10"
+          className="inline-block text-sm sm:text-base text-neutral-300 hover:text-white underline underline-offset-4"
         >
           See both plans and what each includes
         </Link>
-
-        <div className="flex justify-center">
-          <TrustBadges variant="dark" />
-        </div>
       </div>
     </section>
   );

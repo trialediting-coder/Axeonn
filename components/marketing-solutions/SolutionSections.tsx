@@ -1,105 +1,113 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Check, X, ExternalLink } from 'lucide-react';
-import { niches } from '@/data/nichesData';
-import { benefitHeadlinesBySlug } from '@/data/nicheBenefitHeadlines';
+import { ArrowLeft, ArrowRight, Check, ExternalLink } from 'lucide-react';
 import { JsonLd } from '@/components/common/JsonLd';
-import type { FaqItem } from '@/data/faqData';
+import { FAQAccordion } from '@/components/common/FAQAccordion';
+import { ServiceHeroActions } from '@/components/common/ServiceHeroActions';
+import { LEVI_QUOTE } from '@/components/common/ClientQuote';
+import { withGeneralFaqs, type FaqItem } from '@/data/faqData';
 import type {
+  FunnelStep,
   SolutionProblem,
   SolutionDeliverables,
   SolutionTimeline,
-  SolutionComparison,
+  SolutionFit,
   SolutionProof,
 } from '@/data/solutionDetails';
 
-// Shared long-form sections for the /marketing-solutions/* pages. Content lives
-// in data/solutionDetails.ts; these components only handle layout. `tone`
-// matches the page they sit in (the SEO page is dark, the rest are light).
+// Shared sections for the six /marketing-solutions/* service pages. Content
+// lives in data/solutionDetails.ts; these components only handle layout.
+// Page order: hero → problem → what you get → where it fits → how it works →
+// proof → FAQ → closing CTA (components/marketing-solutions/ServiceClosingCta).
 
-type Tone = 'light' | 'dark';
+const SECTION_PAD = 'w-full py-16 sm:py-24 px-4 sm:px-8 lg:px-16';
 
-const SECTION_PAD = 'w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24';
-
-function palette(tone: Tone, alt = false) {
-  if (tone === 'dark') {
-    return {
-      section: `${alt ? 'bg-neutral-900/40' : 'bg-neutral-950'} text-white border-t border-neutral-900`,
-      eyebrow: 'text-blue-400',
-      heading: 'text-white',
-      body: 'text-neutral-400',
-      strong: 'text-white',
-      card: 'bg-neutral-900/60 border border-neutral-800',
-      divider: 'border-neutral-800',
-      chip: 'bg-blue-600/15 text-blue-400',
-      muted: 'text-neutral-500',
-    };
-  }
-  return {
-    section: `${alt ? 'bg-neutral-50' : 'bg-white'} text-neutral-950`,
-    eyebrow: 'text-[#2563eb]',
-    heading: 'text-neutral-950',
-    body: 'text-neutral-600',
-    strong: 'text-neutral-950',
-    card: 'bg-white border border-neutral-200/80 shadow-sm',
-    divider: 'border-neutral-200',
-    chip: 'bg-blue-50 text-blue-600',
-    muted: 'text-neutral-500',
-  };
+/** Site-wide eyebrow: mono, bracketed, blue. `onDark` lifts the blue for dark backgrounds. */
+export function Eyebrow({ label, onDark = false, className = '' }: { label: string; onDark?: boolean; className?: string }) {
+  return (
+    <p
+      className={`text-xs font-mono font-bold tracking-widest uppercase ${onDark ? 'text-blue-400' : 'text-blue-600'} ${className}`}
+    >
+      [ {label} ]
+    </p>
+  );
 }
 
-function SectionHeader({
-  tone,
-  eyebrow,
-  heading,
-  intro,
-}: {
-  tone: Tone;
-  eyebrow: string;
-  heading: string;
-  intro?: string;
-}) {
-  const p = palette(tone);
+function SectionHeader({ eyebrow, heading, intro }: { eyebrow: string; heading: string; intro?: string }) {
   return (
-    <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-      <p className={`text-xs sm:text-sm font-bold tracking-[0.22em] uppercase mb-3 ${p.eyebrow}`}>{eyebrow}</p>
-      <h2 className={`text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-[1.12] mb-5 ${p.heading}`}>
+    <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
+      <Eyebrow label={eyebrow} className="mb-4" />
+      <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black font-display tracking-tight leading-[1.1] text-neutral-950 text-balance">
         {heading}
       </h2>
-      {intro && <p className={`text-base sm:text-lg leading-relaxed ${p.body}`}>{intro}</p>}
+      {intro && <p className="mt-5 text-base sm:text-lg leading-relaxed text-neutral-600">{intro}</p>}
     </div>
   );
 }
 
-export function ProblemSection({ tone = 'light', data, alt }: { tone?: Tone; data: SolutionProblem; alt?: boolean }) {
-  const p = palette(tone, alt ?? true);
+/** Dark hero with a CSS brand glow (no photography), shared by every service page. */
+export function ServiceHero({
+  eyebrow,
+  title,
+  subtitle,
+  priceLine,
+  note,
+  showPricingLink,
+}: {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  priceLine: string;
+  note?: string;
+  showPricingLink?: boolean;
+}) {
   return (
-    <section className={`${SECTION_PAD} ${p.section}`}>
+    <section className="relative w-full px-4 sm:px-8 lg:px-16 pt-32 sm:pt-40 pb-16 sm:pb-24 bg-neutral-950 text-white overflow-hidden">
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none"
+        style={{ backgroundImage: 'radial-gradient(ellipse 70% 55% at 50% 35%, rgba(37,99,235,0.28), transparent 70%)' }}
+      />
+      <div className="relative z-10 max-w-4xl mx-auto text-center">
+        <Link
+          href="/marketing-solutions"
+          className="inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-400 hover:text-blue-400 transition-colors mb-8"
+        >
+          <ArrowLeft size={15} />
+          Back to Services
+        </Link>
+        <Eyebrow label={eyebrow} onDark className="mb-5" />
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black font-display tracking-tight leading-[1.05] text-balance mb-6">
+          {title}
+        </h1>
+        <p className="text-lg sm:text-xl text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-10">{subtitle}</p>
+        <ServiceHeroActions priceLine={priceLine} note={note} showPricingLink={showPricingLink} />
+      </div>
+    </section>
+  );
+}
+
+export function ProblemSection({ data }: { data: SolutionProblem }) {
+  return (
+    <section className={`${SECTION_PAD} bg-white text-neutral-950`}>
       <div className="max-w-6xl mx-auto">
-        <SectionHeader tone={tone} eyebrow={data.eyebrow} heading={data.heading} intro={data.intro} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
-          {data.items.slice(0, 4).map((item, i) => (
-            <div key={item.title} className={`rounded-2xl p-6 sm:p-8 ${p.card}`}>
-              <div className="flex items-start gap-4">
-                <span className={`shrink-0 font-mono text-xs font-bold px-2.5 py-1 rounded-md ${p.chip}`}>
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <div>
-                  <h3 className={`text-lg sm:text-xl font-bold tracking-tight mb-2 ${p.strong}`}>{item.title}</h3>
-                  <p className={`text-sm sm:text-[15px] leading-relaxed ${p.body}`}>{item.body}</p>
-                </div>
-              </div>
+        <SectionHeader eyebrow={data.eyebrow} heading={data.heading} intro={data.intro} />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-8">
+          {data.items.slice(0, 3).map((item) => (
+            <div key={item.title} className="border-t-2 border-neutral-950 pt-5">
+              <h3 className="text-lg sm:text-xl font-bold tracking-tight mb-2">{item.title}</h3>
+              <p className="text-[15px] leading-relaxed text-neutral-600">{item.body}</p>
             </div>
           ))}
         </div>
         {data.stat && (
-          <div className={`mt-8 sm:mt-10 rounded-2xl p-6 sm:p-8 text-center ${p.card}`}>
-            <p className={`text-lg sm:text-xl font-semibold leading-snug max-w-3xl mx-auto ${p.strong}`}>{data.stat.text}</p>
+          <div className="mt-12 rounded-2xl bg-neutral-50 border border-neutral-200 p-6 sm:p-8 text-center">
+            <p className="text-lg sm:text-xl font-semibold leading-snug max-w-3xl mx-auto">{data.stat.text}</p>
             <a
               href={data.stat.sourceUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className={`inline-flex items-center gap-1.5 mt-3 text-xs underline underline-offset-4 ${p.muted}`}
+              className="inline-flex items-center gap-1.5 mt-3 text-xs text-neutral-500 hover:text-neutral-700 underline underline-offset-4"
             >
               Source: {data.stat.sourceLabel}
               <ExternalLink size={12} />
@@ -111,21 +119,19 @@ export function ProblemSection({ tone = 'light', data, alt }: { tone?: Tone; dat
   );
 }
 
-export function DeliverablesSection({ tone = 'light', data, alt }: { tone?: Tone; data: SolutionDeliverables; alt?: boolean }) {
-  const p = palette(tone, alt ?? false);
+export function DeliverablesSection({ data }: { data: SolutionDeliverables }) {
   return (
-    <section className={`${SECTION_PAD} ${p.section}`}>
+    <section className={`${SECTION_PAD} bg-neutral-50 text-neutral-950`}>
       <div className="max-w-6xl mx-auto">
-        <SectionHeader tone={tone} eyebrow={data.eyebrow} heading={data.heading} intro={data.intro} />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-          {data.groups.map((group) => (
-            <div key={group.title} className={`rounded-2xl p-6 sm:p-8 ${p.card}`}>
-              <h3 className={`text-lg font-bold tracking-tight mb-1 ${p.strong}`}>{group.title}</h3>
-              {group.note && <p className={`text-xs font-mono uppercase tracking-wide mb-4 ${p.eyebrow}`}>{group.note}</p>}
-              <ul className={`space-y-3 ${group.note ? '' : 'mt-4'}`}>
+        <SectionHeader eyebrow={data.eyebrow} heading={data.heading} intro={data.intro} />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
+          {data.groups.slice(0, 3).map((group) => (
+            <div key={group.title} className="rounded-2xl bg-white border border-neutral-200/80 shadow-sm p-6 sm:p-8">
+              <h3 className="text-xl font-bold font-display tracking-tight">{group.title}</h3>
+              <ul className="mt-4 space-y-3">
                 {group.items.map((item) => (
-                  <li key={item} className={`flex items-start gap-2.5 text-sm leading-relaxed ${p.body}`}>
-                    <Check size={16} strokeWidth={2.6} className="text-blue-500 shrink-0 mt-0.5" />
+                  <li key={item} className="flex items-start gap-2.5 text-[15px] leading-relaxed text-neutral-600">
+                    <Check size={16} strokeWidth={2.6} className="text-blue-600 shrink-0 mt-1" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -133,84 +139,75 @@ export function DeliverablesSection({ tone = 'light', data, alt }: { tone?: Tone
             </div>
           ))}
         </div>
-        {data.footnote && <p className={`text-center text-sm mt-10 max-w-2xl mx-auto ${p.muted}`}>{data.footnote}</p>}
       </div>
     </section>
   );
 }
 
-export function TimelineSection({ tone = 'light', data, alt }: { tone?: Tone; data: SolutionTimeline; alt?: boolean }) {
-  const p = palette(tone, alt ?? true);
+const FUNNEL: { id: FunnelStep; label: string }[] = [
+  { id: 'found', label: 'Get Found' },
+  { id: 'chosen', label: 'Get Chosen' },
+  { id: 'booked', label: 'Get Booked' },
+];
+
+/** Compact strip: where this service sits in Found → Chosen → Booked, and how it's priced. */
+export function WhereItFits({ data }: { data: SolutionFit }) {
+  const [lead, ...rest] = data.lines;
   return (
-    <section className={`${SECTION_PAD} ${p.section}`}>
-      <div className="max-w-4xl mx-auto">
-        <SectionHeader tone={tone} eyebrow={data.eyebrow} heading={data.heading} intro={data.intro} />
-        <ol className="relative">
-          {data.steps.map((step, i) => (
-            <li key={step.title} className="relative flex gap-5 sm:gap-7 pb-10 last:pb-0">
-              {i < data.steps.length - 1 && (
-                <span aria-hidden="true" className={`absolute left-5 top-11 bottom-0 border-l-2 border-dashed ${p.divider}`} />
-              )}
-              <span className="relative z-10 shrink-0 w-10 h-10 rounded-full bg-blue-600 text-white font-mono text-sm font-bold flex items-center justify-center">
+    <section className="w-full px-4 sm:px-8 lg:px-16 py-12 sm:py-16 bg-white text-neutral-950">
+      <div className="max-w-5xl mx-auto rounded-3xl border border-neutral-200 p-6 sm:p-10">
+        <Eyebrow label="Where This Fits" className="mb-5" />
+        <ol className="flex flex-wrap items-center gap-2 sm:gap-3">
+          {FUNNEL.map((step, i) => {
+            const active = step.id === data.step;
+            return (
+              <li key={step.id} className="flex items-center gap-2 sm:gap-3">
+                <span
+                  aria-current={active ? 'step' : undefined}
+                  className={`px-4 py-2 rounded-full text-sm font-bold ${
+                    active ? 'bg-blue-600 text-white' : 'bg-neutral-100 text-neutral-500'
+                  }`}
+                >
+                  {step.label}
+                </span>
+                {i < FUNNEL.length - 1 && <ArrowRight size={16} className="text-neutral-300" aria-hidden="true" />}
+              </li>
+            );
+          })}
+        </ol>
+        <p className="mt-6 text-base sm:text-lg font-semibold leading-relaxed">{lead}</p>
+        {rest.map((line) => (
+          <p key={line} className="mt-2 text-sm sm:text-[15px] text-neutral-600 leading-relaxed">
+            {line}
+          </p>
+        ))}
+        <Link
+          href="/pricing"
+          className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+        >
+          Compare plans <ArrowRight size={14} />
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+export function TimelineSection({ data }: { data: SolutionTimeline }) {
+  return (
+    <section className={`${SECTION_PAD} bg-neutral-50 text-neutral-950`}>
+      <div className="max-w-6xl mx-auto">
+        <SectionHeader eyebrow={data.eyebrow} heading={data.heading} intro={data.intro} />
+        <ol className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-8">
+          {data.steps.slice(0, 3).map((step, i) => (
+            <li key={step.title}>
+              <span className="w-10 h-10 rounded-full bg-blue-600 text-white font-mono text-sm font-bold flex items-center justify-center">
                 {i + 1}
               </span>
-              <div className="pt-1.5">
-                <h3 className={`text-lg sm:text-xl font-bold tracking-tight mb-2 ${p.strong}`}>{step.title}</h3>
-                <p className={`text-sm sm:text-[15px] leading-relaxed ${p.body}`}>{step.body}</p>
-              </div>
+              <h3 className="mt-4 text-lg sm:text-xl font-bold tracking-tight">{step.title}</h3>
+              <p className="mt-2 text-[15px] leading-relaxed text-neutral-600">{step.body}</p>
             </li>
           ))}
         </ol>
-        {data.footnote && <p className={`text-center text-sm mt-12 max-w-2xl mx-auto ${p.muted}`}>{data.footnote}</p>}
-      </div>
-    </section>
-  );
-}
-
-export function ComparisonSection({ tone = 'light', data, alt }: { tone?: Tone; data: SolutionComparison; alt?: boolean }) {
-  const p = palette(tone, alt ?? false);
-  return (
-    <section className={`${SECTION_PAD} ${p.section}`}>
-      <div className="max-w-5xl mx-auto">
-        <SectionHeader tone={tone} eyebrow={data.eyebrow} heading={data.heading} intro={data.intro} />
-        <div className={`rounded-2xl overflow-hidden ${p.card}`}>
-          <div className={`hidden sm:grid grid-cols-[1fr_1.2fr_1.2fr] text-xs font-mono font-bold uppercase tracking-wide border-b ${p.divider}`}>
-            <div className={`p-5 ${p.muted}`}>&nbsp;</div>
-            <div className={`p-5 ${p.muted}`}>Typical agency</div>
-            <div className="p-5 text-blue-500">Axeon Studio</div>
-          </div>
-          {data.rows.map((row) => (
-            <div
-              key={row.label}
-              className={`grid grid-cols-1 sm:grid-cols-[1fr_1.2fr_1.2fr] border-b last:border-b-0 ${p.divider}`}
-            >
-              <div className={`px-5 pt-5 sm:p-5 text-sm font-bold ${p.strong}`}>{row.label}</div>
-              <div className={`px-5 pt-2 sm:p-5 flex items-start gap-2 text-sm leading-relaxed ${p.body}`}>
-                <X size={16} className="text-neutral-400 shrink-0 mt-0.5" />
-                <span>
-                  <span className="sm:hidden font-semibold">Typical: </span>
-                  {row.typical}
-                </span>
-              </div>
-              <div className={`px-5 pt-2 pb-5 sm:p-5 flex items-start gap-2 text-sm leading-relaxed ${p.strong}`}>
-                <Check size={16} strokeWidth={2.6} className="text-blue-500 shrink-0 mt-0.5" />
-                <span>
-                  <span className="sm:hidden font-semibold">Axeon: </span>
-                  {row.axeon}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="text-center mt-8">
-          <Link
-            href="/why-axeon"
-            className={`inline-flex items-center gap-1.5 text-sm font-semibold underline underline-offset-4 ${p.eyebrow}`}
-          >
-            See the full comparison
-            <ArrowRight size={14} />
-          </Link>
-        </div>
       </div>
     </section>
   );
@@ -218,34 +215,44 @@ export function ComparisonSection({ tone = 'light', data, alt }: { tone?: Tone; 
 
 const CASE_STUDY_PATH = '/insights/a-1-auto-detailing-website-case-study';
 
-export function CaseStudyProof({ tone = 'light', data, alt }: { tone?: Tone; data: SolutionProof; alt?: boolean }) {
-  const p = palette(tone, alt ?? true);
+export function CaseStudyProof({ data }: { data: SolutionProof }) {
   return (
-    <section className={`${SECTION_PAD} ${p.section}`}>
+    <section className={`${SECTION_PAD} bg-white text-neutral-950`}>
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
         <div>
-          <p className={`text-xs sm:text-sm font-bold tracking-[0.22em] uppercase mb-3 ${p.eyebrow}`}>
-            Client Spotlight: A-1 Auto Detailing, Pleasant Hill, Iowa
-          </p>
-          <h2 className={`text-3xl sm:text-4xl font-black tracking-tight leading-[1.12] mb-5 ${p.heading}`}>{data.heading}</h2>
-          <p className={`text-base leading-relaxed mb-6 ${p.body}`}>{data.body}</p>
-          <ul className="space-y-3 mb-8">
-            {data.facts.map((fact) => (
-              <li key={fact} className={`flex items-start gap-2.5 text-sm leading-relaxed ${p.body}`}>
-                <Check size={16} strokeWidth={2.6} className="text-blue-500 shrink-0 mt-0.5" />
-                <span>{fact}</span>
-              </li>
-            ))}
-          </ul>
+          <Eyebrow label="Client Spotlight · A-1 Auto Detailing" className="mb-4" />
+          <h2 className="text-3xl sm:text-4xl font-black font-display tracking-tight leading-[1.1] text-balance mb-5">
+            {data.heading}
+          </h2>
+          <p className="text-base sm:text-lg leading-relaxed text-neutral-600">{data.body}</p>
+          {data.quote && (
+            <figure className="mt-6 border-l-4 border-blue-600 pl-5">
+              <blockquote className="text-xl sm:text-2xl font-bold font-display tracking-tight leading-snug">
+                &ldquo;{LEVI_QUOTE.text}&rdquo;
+              </blockquote>
+              <figcaption className="mt-2 text-sm text-neutral-500">
+                {LEVI_QUOTE.name}, {LEVI_QUOTE.role}, {LEVI_QUOTE.place}
+              </figcaption>
+            </figure>
+          )}
+          {data.facts.length > 0 && (
+            <ul className="mt-6 space-y-3">
+              {data.facts.map((fact) => (
+                <li key={fact} className="flex items-start gap-2.5 text-[15px] leading-relaxed text-neutral-700">
+                  <Check size={16} strokeWidth={2.6} className="text-blue-600 shrink-0 mt-1" />
+                  <span>{fact}</span>
+                </li>
+              ))}
+            </ul>
+          )}
           <Link
             href={CASE_STUDY_PATH}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-colors"
+            className="mt-8 inline-flex items-center gap-2 font-semibold text-blue-600 hover:text-blue-700 transition-colors"
           >
-            Read the full case study
-            <ArrowRight size={16} />
+            Read the full case study <ArrowRight size={16} />
           </Link>
         </div>
-        <Link href={CASE_STUDY_PATH} className={`block rounded-2xl overflow-hidden ${p.card}`}>
+        <Link href={CASE_STUDY_PATH} className="block rounded-2xl overflow-hidden border border-neutral-200/80 shadow-sm">
           <Image
             src="/images/case-studies/a1/after-hero.webp"
             alt="A-1 Auto Detailing's homepage, built by Axeon Studio"
@@ -260,34 +267,20 @@ export function CaseStudyProof({ tone = 'light', data, alt }: { tone?: Tone; dat
   );
 }
 
-export function IndustriesSection({ tone = 'light', serviceName, alt }: { tone?: Tone; serviceName: string; alt?: boolean }) {
-  const p = palette(tone, alt ?? false);
+const CONTRACT_QUESTION = 'Is there a contract, and how long is it?';
+
+/** A page's own questions (max 4) plus the shared contract question: 5 at most. */
+export function serviceFaqs(own: FaqItem[]): FaqItem[] {
+  const contract = withGeneralFaqs([]).filter((f) => f.question === CONTRACT_QUESTION);
+  return [...own.slice(0, 4), ...contract];
+}
+
+export function ServiceFaqSection({ heading, faqs }: { heading: string; faqs: FaqItem[] }) {
   return (
-    <section className={`${SECTION_PAD} ${p.section}`}>
-      <div className="max-w-6xl mx-auto">
-        <SectionHeader
-          tone={tone}
-          eyebrow="Who We Help"
-          heading="More Customers, Set Up for Your Industry"
-          intro={`A dental office and a roofing company don't win customers the same way, so ${serviceName} isn't set up the same way either. Here's what it fixes in yours.`}
-        />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
-          {niches.map((niche) => (
-            <Link
-              key={niche.slug}
-              href={`/solutions/${niche.slug}`}
-              className={`group rounded-xl px-4 py-4 flex items-center justify-between gap-2 text-sm font-semibold transition-colors hover:border-blue-500 ${p.card} ${p.strong}`}
-            >
-              <span className="flex flex-col gap-1">
-                <span>{niche.name}</span>
-                {benefitHeadlinesBySlug[niche.slug]?.[0] && (
-                  <span className="text-xs font-normal opacity-70">{benefitHeadlinesBySlug[niche.slug][0]}</span>
-                )}
-              </span>
-              <ArrowRight size={14} className="shrink-0 text-blue-500 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-          ))}
-        </div>
+    <section className={`${SECTION_PAD} bg-neutral-50 text-neutral-950`}>
+      <div className="max-w-3xl mx-auto">
+        <SectionHeader eyebrow="FAQ" heading={heading} />
+        <FAQAccordion items={serviceFaqs(faqs)} />
       </div>
     </section>
   );
@@ -300,7 +293,7 @@ export function ServiceFaqJsonLd({ items }: { items: FaqItem[] }) {
       data={{
         '@context': 'https://schema.org',
         '@type': 'FAQPage',
-        mainEntity: items.map((item) => ({
+        mainEntity: items.slice(0, 4).map((item) => ({
           '@type': 'Question',
           name: item.question,
           acceptedAnswer: { '@type': 'Answer', text: item.answer },

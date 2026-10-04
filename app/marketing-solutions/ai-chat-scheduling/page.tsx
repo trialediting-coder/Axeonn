@@ -1,191 +1,80 @@
-import Link from 'next/link';
-import { ServiceHeroActions } from '@/components/common/ServiceHeroActions';
-import { ArrowLeft, ArrowRight, MessageCircle, CalendarCheck, Mic2 } from 'lucide-react';
 import { buildMetadata } from '@/lib/metadata';
-import { providerRef, SERVICE_AREA } from '@/lib/seo';
-import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
+import { serviceJsonLd } from '@/lib/seo';
+import { JsonLd, BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { AudioOrbPlayer } from '@/components/why-axeon/AudioOrbPlayer';
-import { FAQAccordion } from '@/components/common/FAQAccordion';
-import { withGeneralFaqs } from '@/data/faqData';
 import {
+  Eyebrow,
+  ServiceHero,
   ProblemSection,
   DeliverablesSection,
+  WhereItFits,
   TimelineSection,
-  ComparisonSection,
+  ServiceFaqSection,
   ServiceFaqJsonLd,
 } from '@/components/marketing-solutions/SolutionSections';
-import { aiChatDetail } from '@/data/solutionDetails';
+import { ServiceClosingCta } from '@/components/marketing-solutions/ServiceClosingCta';
+import { aiChatDetail as d } from '@/data/solutionDetails';
+
+const DESCRIPTION =
+  'AI chat and online scheduling that answers visitors 24/7 and books qualified leads onto your calendar. Included in AxeonCORE.';
 
 export const metadata = buildMetadata({
   path: '/marketing-solutions/ai-chat-scheduling',
   title: 'AI Chat & Online Scheduling | Axeon Studio',
-  description:
-    'Never miss a lead — 24/7 AI chat that books, answers, and converts clicks to customers. Listen to a real recorded call from Axeon’s AI receptionist.',
+  description: DESCRIPTION,
 });
 
-const FEATURES = [
-  {
-    icon: MessageCircle,
-    title: 'Answers Instantly',
-    description:
-      'Every call and chat gets picked up around the clock, so a lead never sits waiting on a callback that comes too late.',
-  },
-  {
-    icon: CalendarCheck,
-    title: 'Books Real Appointments',
-    description:
-      'The AI checks your calendar and puts qualified leads directly on your schedule — no back-and-forth texts to lock in a time.',
-  },
-  {
-    icon: Mic2,
-    title: 'Sounds Natural',
-    description:
-      'Built to hold an actual conversation instead of reading a script, so callers stay on the line long enough to get booked.',
-  },
-];
-
-const aiChatSchedulingServiceJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'Service',
+const jsonLd = serviceJsonLd({
+  path: '/marketing-solutions/ai-chat-scheduling',
   serviceType: 'AI Chat & Online Scheduling',
   name: 'Axeon Studio — AI Chat & Online Scheduling',
-  url: 'https://axeonstudio.co/marketing-solutions/ai-chat-scheduling',
-  description:
-    'Never miss a lead — 24/7 AI chat that books, answers, and converts clicks to customers. Listen to a real recorded call from Axeon’s AI receptionist.',
-  provider: providerRef,
-  areaServed: SERVICE_AREA,
-};
+  description: DESCRIPTION,
+});
 
 export default function AIChatSchedulingPage() {
   return (
-    <main className="w-full bg-neutral-950 text-white">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(aiChatSchedulingServiceJsonLd) }}
-      />
+    <main className="w-full bg-white text-neutral-950">
+      <JsonLd data={jsonLd} />
       <BreadcrumbJsonLd
         items={[
-          { name: 'Marketing Solutions', path: '/marketing-solutions' },
+          { name: 'Services', path: '/marketing-solutions' },
           { name: 'AI Chat & Online Scheduling', path: '/marketing-solutions/ai-chat-scheduling' },
         ]}
       />
-      <ServiceFaqJsonLd items={aiChatDetail.faqs} />
-      {/* Hero */}
-      <section className="relative w-full min-h-screen min-h-[100dvh] flex items-center px-6 sm:px-10 lg:px-16 xl:px-24 pt-24 pb-16 bg-neutral-950 text-white overflow-hidden">
-        {/* TEMPORARY placeholder background — replace before launch, see public/temp-scorpion-refs */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0"
-          style={{ backgroundImage: 'url(/temp-scorpion-refs/ai-chat-hero.webp)', backgroundSize: 'cover', backgroundPosition: 'center' }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/85 to-neutral-950/50" />
-        <div className="relative z-10 max-w-5xl mx-auto text-center">
-          <Link
-            href="/marketing-solutions"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-neutral-400 hover:text-blue-400 transition-colors mb-8"
-          >
-            <ArrowLeft size={16} />
-            Back to Marketing Solutions
-          </Link>
+      <ServiceFaqJsonLd items={d.faqs} />
 
-          <p className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-4">
-            AI Chat &amp; Online Scheduling
-          </p>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight mb-6">
-            Never miss a lead, even after hours.
-          </h1>
-          <p className="text-lg sm:text-xl text-neutral-300 max-w-3xl mx-auto leading-relaxed mb-10">
-            24/7 AI chat that books, answers, and converts clicks to customers — so every website visitor and
-            missed call turns into a real conversation instead of a lost opportunity.
-          </p>
-          <ServiceHeroActions priceLine="Included in AxeonCORE, from $5,800 setup" note="AI chat, scheduling and follow-up in one build" />
-        </div>
-      </section>
+      <ServiceHero
+        eyebrow="Services · AI Chat & Scheduling"
+        title="Never miss a lead, even after hours."
+        subtitle="Answers questions and books appointments on your site 24/7, so after-hours visitors don't go to whoever answers first."
+        priceLine="Included in AxeonCORE, from $5,800 setup"
+        note="AI chat, scheduling and follow-up in one build"
+      />
+      <ProblemSection data={d.problem} />
+      <DeliverablesSection data={d.deliverables} />
+      <WhereItFits data={d.fit} />
 
-      <ProblemSection tone="dark" data={aiChatDetail.problem} />
-
-      {/* Real Audio Comparison */}
-      <section className="relative w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white overflow-hidden border-t border-neutral-900">
-        <div className="max-w-4xl mx-auto text-center relative">
-          <div className="text-xs font-mono font-semibold tracking-widest text-blue-400 uppercase mb-4">
-            Same Job. Listen To The Difference.
-          </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight font-display leading-[1.1] mb-5">
-            Real recorded calls, not scripted demos.
+      {/* Add-on, not part of either plan: kept below the core offer on purpose. */}
+      <section className="w-full px-4 sm:px-8 lg:px-16 pb-16 sm:pb-24 bg-white text-neutral-950">
+        <div className="max-w-5xl mx-auto rounded-3xl bg-neutral-950 text-white px-6 py-12 sm:px-12 sm:py-14 text-center">
+          <Eyebrow label="Add-on" onDark className="mb-4" />
+          <h2 className="text-2xl sm:text-4xl font-black font-display tracking-tight leading-[1.15] text-balance">
+            Add-on: AI phone receptionist, scoped on your call
           </h2>
-          <p className="text-lg text-neutral-400 leading-relaxed max-w-2xl mx-auto">
-            Press play on each to hear how a typical agency&apos;s AI handles a call versus Axeon&apos;s AI
-            receptionist — same job, two very different experiences for the caller.
+          <p className="mt-4 text-neutral-400 leading-relaxed max-w-2xl mx-auto">
+            Want your phone answered the same way? Hear a real recorded call from Axeon&apos;s AI receptionist next to a
+            typical agency&apos;s, and judge the difference yourself.
           </p>
-
-          <div className="mt-14 grid sm:grid-cols-2 gap-10 sm:gap-16 justify-items-center items-center bg-neutral-900/60 rounded-3xl border border-neutral-800 py-14 px-6 sm:px-8">
-            <AudioOrbPlayer
-              variant="flat"
-              src="/audio/competitor-ai-call.mp3"
-              label="Typical Agency AI"
-            />
+          <div className="mt-10 grid sm:grid-cols-2 gap-10 sm:gap-16 justify-items-center items-center">
+            <AudioOrbPlayer variant="flat" src="/audio/competitor-ai-call.mp3" label="Typical Agency AI" />
             <AudioOrbPlayer variant="orb" src="/audio/axeon-ai-call.mp3" label="Axeon's AI" />
           </div>
         </div>
       </section>
 
-      {/* Mid-Page CTA */}
-      <div className="text-center py-12 sm:py-16 bg-neutral-950 border-t border-neutral-900">
-        <p className="text-neutral-400 mb-4">Ready to hear it answering calls for your business?</p>
-        <Link href="/book" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-colors">
-          Book a Strategy Call
-        </Link>
-      </div>
-
-      <DeliverablesSection alt data={aiChatDetail.deliverables} />
-      <TimelineSection alt={false} data={aiChatDetail.timeline} />
-      <ComparisonSection alt data={aiChatDetail.comparison} />
-
-      {/* FAQ */}
-      <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50 text-neutral-950">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-950 mb-10">
-            Common Questions
-          </h2>
-          <FAQAccordion items={withGeneralFaqs(aiChatDetail.faqs)} />
-        </div>
-      </section>
-
-      {/* Closing CTA */}
-      <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-4">
-            Ready to stop missing leads?
-          </p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight mb-6">
-            More calls and leads in 90 days, or we keep working free.
-          </h2>
-          <p className="text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-10">
-            Book a free strategy call. You walk away with a custom homepage mockup and an AI visibility report for your business, whether or not you hire us.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link
-              href="/book"
-              className="px-7 py-3.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-colors"
-            >
-              Book a Strategy Call
-            </Link>
-            <Link
-              href="/pricing"
-              className="px-7 py-3.5 rounded-full border border-neutral-700 hover:border-neutral-500 text-white font-semibold text-sm transition-colors"
-            >
-              View Pricing
-            </Link>
-          </div>
-          <Link
-            href="/why-axeon"
-            className="inline-flex items-center gap-1.5 mt-8 text-sm text-neutral-400 hover:text-blue-400 underline underline-offset-4 transition-colors"
-          >
-            See exactly how we compare to a typical agency
-            <ArrowRight size={14} />
-          </Link>
-        </div>
-      </section>
+      <TimelineSection data={d.timeline} />
+      <ServiceFaqSection heading="Common Questions About AI Chat" faqs={d.faqs} />
+      <ServiceClosingCta trackId="service_ai_chat" />
     </main>
   );
 }

@@ -1,10 +1,12 @@
 import Link from 'next/link';
-import { ArrowRight, ArrowUpRight, ShieldCheck } from 'lucide-react';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { marketingSolutions } from '@/data/marketingSolutionsData';
 import { buildMetadata } from '@/lib/metadata';
 import { providerRef, SERVICE_AREA } from '@/lib/seo';
 import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { LEVI_QUOTE } from '@/components/common/ClientQuote';
+import { Eyebrow } from '@/components/marketing-solutions/SolutionSections';
+import { ServiceClosingCta } from '@/components/marketing-solutions/ServiceClosingCta';
 
 export const metadata = buildMetadata({
   path: '/marketing-solutions',
@@ -31,13 +33,8 @@ const marketingSolutionsJsonLd = {
   })),
 };
 
-// Real, client-confirmed proof only (see content/brand-guardrails.md).
-const PROOF = [
-  { value: '#1', label: 'on Google for A-1 Auto Detailing, up from page 2' },
-  { value: '180+', label: 'five-star reviews shown front and center' },
-  { value: '5.0', label: 'client rating' },
-  { value: '90 days', label: 'customer guarantee' },
-];
+// Hero teaser of the three steps below (the A-1 numbers live in the Client Spotlight).
+const FUNNEL = ['Get found', 'Get chosen', 'Get booked'];
 
 // Every stat needs a real, checkable source (guardrails rule).
 const LEAKS = [
@@ -103,12 +100,12 @@ export default function MarketingSolutionsPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(marketingSolutionsJsonLd) }}
       />
-      <BreadcrumbJsonLd items={[{ name: 'AxeonCORE', path: '/marketing-solutions' }]} />
+      <BreadcrumbJsonLd items={[{ name: 'Services', path: '/marketing-solutions' }]} />
 
       {/* 1. The promise + proof */}
       <section className="bg-neutral-950 text-white pt-36 sm:pt-44 pb-20 sm:pb-28 px-4 sm:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-blue-400 uppercase">AxeonCORE · The Customer Engine</p>
+          <Eyebrow label="AxeonCORE · The Customer Engine" onDark />
           <h1 className="mt-5 text-4xl sm:text-6xl lg:text-7xl font-black font-display tracking-tight leading-[1.05] text-balance">
             One System That Turns Searches Into Booked Jobs
           </h1>
@@ -117,33 +114,33 @@ export default function MarketingSolutionsPage() {
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-5">
             <Link
-              href="/get-started"
+              href="/book"
               data-track="cta_click"
               data-track-cta="axeoncore_hero"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors shadow-lg shadow-blue-600/30"
             >
-              Get More Customers <ArrowUpRight size={16} />
+              Book a Free Strategy Call <ArrowUpRight size={16} />
             </Link>
             <Link href="/pricing" className="inline-flex items-center gap-2 font-semibold text-white/80 hover:text-white transition-colors">
               See pricing <ArrowRight size={16} />
             </Link>
           </div>
         </div>
-        <div className="mt-16 sm:mt-20 max-w-5xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-px bg-white/10 rounded-2xl overflow-hidden">
-          {PROOF.map((p) => (
-            <div key={p.label} className="bg-neutral-950 px-5 py-7 text-center">
-              <p className="text-3xl sm:text-4xl font-black font-display tracking-tight">{p.value}</p>
-              <p className="mt-1.5 text-sm text-neutral-400 leading-snug">{p.label}</p>
-            </div>
+        <ol className="mt-14 sm:mt-16 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+          {FUNNEL.map((label, i) => (
+            <li key={label} className="flex items-center gap-2 sm:gap-3">
+              <span className="px-4 py-2 rounded-full border border-white/15 bg-white/[0.06] text-sm sm:text-base font-bold">{label}</span>
+              {i < FUNNEL.length - 1 && <ArrowRight size={16} className="text-blue-400" aria-hidden="true" />}
+            </li>
           ))}
-        </div>
+        </ol>
       </section>
 
       {/* 2. The problem, with sourced numbers */}
       <section className="py-24 sm:py-32 px-4 sm:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="max-w-2xl">
-            <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-rose-600 uppercase">The problem</p>
+            <Eyebrow label="The Problem" />
             <h2 className="mt-4 text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1]">
               Most businesses don&apos;t need more traffic. They&apos;re leaking customers.
             </h2>
@@ -167,7 +164,7 @@ export default function MarketingSolutionsPage() {
       <section className="py-24 sm:py-32 px-4 sm:px-8 bg-neutral-50">
         <div className="max-w-5xl mx-auto">
           <div className="max-w-2xl">
-            <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-blue-600 uppercase">The fix</p>
+            <Eyebrow label="The Fix" />
             <h2 className="mt-4 text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1]">
               Three steps. One team runs all of them.
             </h2>
@@ -206,7 +203,7 @@ export default function MarketingSolutionsPage() {
       {/* 4. What happens when a lead comes in */}
       <section className="py-24 sm:py-32 px-4 sm:px-8 bg-neutral-950 text-white">
         <div className="max-w-4xl mx-auto">
-          <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-blue-400 uppercase">How it works</p>
+          <Eyebrow label="How It Works" onDark />
           <h2 className="mt-4 text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1]">
             What happens the moment someone reaches out
           </h2>
@@ -225,12 +222,12 @@ export default function MarketingSolutionsPage() {
       {/* 5. Proof from a real client */}
       <section className="py-24 sm:py-32 px-4 sm:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-emerald-600 uppercase">Client spotlight</p>
+          <Eyebrow label="Client Spotlight" />
           <h2 className="mt-4 text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1] text-balance">
             A-1 Auto Detailing went from page 2 to #1 on Google
           </h2>
           <p className="mt-5 text-lg text-neutral-600 leading-relaxed max-w-2xl mx-auto">
-            For &ldquo;Pleasant Hill auto detailing,&rdquo; with 180+ five-star reviews finally front and center.
+            For &ldquo;Pleasant Hill auto detailing,&rdquo; with its 5.0 rating from 180+ Google reviews finally front and center.
           </p>
           <figure className="mt-12">
             <blockquote className="text-2xl sm:text-4xl font-extrabold font-display tracking-tight leading-[1.2]">
@@ -249,11 +246,11 @@ export default function MarketingSolutionsPage() {
         </div>
       </section>
 
-      {/* 6. Price + guarantee */}
+      {/* 6. Price (the guarantee lives in the closing CTA) */}
       <section className="pb-24 sm:pb-32 px-4 sm:px-8">
         <div className="max-w-5xl mx-auto rounded-[32px] bg-neutral-50 border border-neutral-200 p-8 sm:p-14">
           <div className="max-w-2xl">
-            <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-blue-600 uppercase">Pricing</p>
+            <Eyebrow label="Pricing" />
             <h2 className="mt-4 text-3xl sm:text-4xl font-extrabold font-display tracking-tight leading-[1.1]">
               Start with the plan that fits
             </h2>
@@ -272,28 +269,15 @@ export default function MarketingSolutionsPage() {
               <p className="mt-1 font-semibold">then from $574/mo</p>
             </div>
           </div>
-          <p className="mt-8 flex items-start gap-3 text-neutral-700 leading-relaxed">
-            <ShieldCheck size={22} className="text-emerald-600 shrink-0 mt-0.5" />
-            <span>
-              <strong>90-Day Customer Guarantee:</strong> more calls and leads in your first 90 days than you were getting
-              before, or we keep working for free until you do.
-            </span>
-          </p>
           <div className="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <Link
-              href="/get-started"
-              data-track="cta_click"
-              data-track-cta="axeoncore_pricing"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors"
-            >
-              Get More Customers <ArrowUpRight size={16} />
-            </Link>
             <Link href="/pricing" className="inline-flex items-center gap-2 font-semibold text-neutral-700 hover:text-blue-600 transition-colors">
               Compare plans in detail <ArrowRight size={16} />
             </Link>
           </div>
         </div>
       </section>
+
+      <ServiceClosingCta trackId="axeoncore" />
     </main>
   );
 }

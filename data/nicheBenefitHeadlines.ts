@@ -56,7 +56,7 @@ export const benefitHeadlinesBySlug: Record<string, string[]> = {
     'Auto-rebook every season',
   ],
   'auto-detailing': [
-    'Clarify package selection upfront',
+    'Customers pick the right package before they arrive',
     'End double-booked bays',
     'Route mobile and in-shop cleanly',
     'Bring repeat customers back',

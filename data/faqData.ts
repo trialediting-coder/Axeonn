@@ -7,12 +7,17 @@ export const faqItems: FaqItem[] = [
   {
     question: 'Do you guarantee results?',
     answer:
-      'Yes. Our 90-Day Customer Guarantee: if you\'re not getting more calls and leads in your first 90 days after launch than you were getting before, we keep working for free until you are. We set your baseline together on the kickoff call and track every call and form from day one. It applies while you\'re on your monthly plan and answering new leads within one business day.',
+      'Yes. Our 90-Day Customer Guarantee: More calls and leads in your first 90 days than you were getting before, or we keep working for free until you do. We set your baseline together on the kickoff call and track every call and form from day one. It applies while you\'re on your monthly plan and answering new leads within one business day.',
+  },
+  {
+    question: "What if I'm too busy to answer every lead?",
+    answer:
+      'That\'s what AxeonCORE is built for. Speed-to-lead call connect rings your phone the moment a form comes in, missed-call text-back replies to anyone you can\'t pick up for, and automated follow-up keeps every lead warm until you can get to them. The guarantee does ask that new leads get a reply within one business day, and the system makes that easy.',
   },
   {
     question: 'How long does it take to launch?',
     answer:
-      'Fast — most builds go live in a fraction of the time a typical agency takes. The exact timing depends on how quickly we get your content, brand assets, and any integration details (booking system, CRM, phone number) — the build itself moves efficiently because we work from a proven system, not a from-scratch design process.',
+      'Fast — a fraction of the time a typical agency takes. Timing mostly depends on how quickly we get your content.',
   },
   {
     question: 'Do I own my website?',
@@ -32,12 +37,17 @@ export const faqItems: FaqItem[] = [
   {
     question: 'What if I already have a website?',
     answer:
-      'We can rebuild it from scratch on our infrastructure, or in some cases migrate your existing content into a cleaner, better-converting layout. We\'ll tell you honestly which approach fits your situation during your strategy call.',
+      'We\'ll tell you on the call whether to rebuild or improve what you have; either way the goal is more calls.',
   },
   {
     question: 'How much does it cost to work with Axeon?',
     answer:
       'A one-time setup of $2,800 (Essentials) or $5,800 (AxeonCORE), then a monthly plan starting at $284 or $574. The final monthly amount depends on your market and what you want us to run, and we set it with you before you commit. We\'d rather be upfront about cost than make you book a call just to find out.',
+  },
+  {
+    question: 'Which plan should I pick?',
+    answer:
+      'Essentials ($2,800 setup, then from $284/mo) gets you found and chosen: a site built to turn visitors into calls, plus Google and AI search visibility. AxeonCORE ($5,800 setup, then from $574/mo) adds the full lead system that gets you booked: CRM pipeline, AI chat & scheduling, automated follow-up, and on-site video. Not sure? We\'ll recommend one on the call.',
   },
 ];
 

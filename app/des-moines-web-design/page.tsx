@@ -2,10 +2,8 @@ import Link from 'next/link';
 import { ArrowRight, MapPin, PhoneCall, Clapperboard, Handshake } from 'lucide-react';
 import { buildMetadata } from '@/lib/metadata';
 import { niches } from '@/data/nichesData';
-import { marketingSolutions } from '@/data/marketingSolutionsData';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
 import { Testimonials } from '@/components/home/Testimonials';
-import { ProofStrip } from '@/components/common/ProofStrip';
 import { JsonLd, BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { BUSINESS, METRO_CITIES, serviceJsonLd } from '@/lib/seo';
 
@@ -26,6 +24,31 @@ const webDesignServiceJsonLd = serviceJsonLd({
 
 const TEL_HREF = `tel:${BUSINESS.telephone.replace(/-/g, '')}`;
 
+// One system, three jobs. Lead-system pieces are AxeonCORE; ads are an add-on scoped on a call.
+const SYSTEM = [
+  {
+    step: 'Get found',
+    title: 'SEO & Ads',
+    description:
+      'Show up on Google, the map, and AI answers when people across the metro search for what you do. Google & Meta Ads are an add-on, scoped on your call.',
+    href: '/marketing-solutions/seo',
+  },
+  {
+    step: 'Get chosen',
+    title: 'Website & Video',
+    description:
+      'A fast, custom site with your reviews up front, plus on-site video with AxeonCORE, so you look like the obvious pick.',
+    href: '/marketing-solutions/website',
+  },
+  {
+    step: 'Get booked',
+    title: 'AI Chat & Lead Capture',
+    description:
+      'Tap-to-call and a quote form on every page. On AxeonCORE, AI chat and automatic follow-up answer every lead in seconds.',
+    href: '/marketing-solutions/ai-chat-scheduling',
+  },
+];
+
 const LOCAL_REASONS = [
   {
     icon: PhoneCall,
@@ -37,7 +60,7 @@ const LOCAL_REASONS = [
     icon: Clapperboard,
     title: 'On-site video shot at your location',
     description:
-      'The AxeonCORE includes a half-day shoot at your shop, office, or clinic anywhere in the metro — a hero film for the site, vertical cuts for social, and a photo set. No out-of-town crew, no travel fees.',
+      'AxeonCORE includes a half-day shoot at your shop, office, or clinic anywhere in the metro — a hero film for the site, vertical cuts for social, and a photo set. No out-of-town crew, no travel fees.',
   },
   {
     icon: MapPin,
@@ -62,7 +85,7 @@ const LOCAL_FAQ = [
   {
     question: 'Can we meet in person?',
     answer:
-      'Yes. Strategy calls are usually a video call because it is faster for everyone, but if you are in the Des Moines metro and want to meet at your location, that is easy to arrange — and it happens anyway for the on-site videography included in the AxeonCORE.',
+      'Yes. Strategy calls are usually a video call because it is faster for everyone, but if you are in the Des Moines metro and want to meet at your location, that is easy to arrange — and it happens anyway for the on-site videography included in AxeonCORE.',
   },
   {
     question: 'How much does a website cost in Des Moines?',
@@ -81,12 +104,23 @@ const LOCAL_FAQ = [
   },
 ];
 
+const localFaqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: LOCAL_FAQ.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: { '@type': 'Answer', text: item.answer },
+  })),
+};
+
 export default function DesMoinesWebDesignPage() {
   const cityList = METRO_CITIES.join(', ');
 
   return (
     <main className="w-full bg-white text-neutral-950">
       <JsonLd data={webDesignServiceJsonLd} />
+      <JsonLd data={localFaqJsonLd} />
       <BreadcrumbJsonLd items={[{ name: 'Des Moines Web Design', path: '/des-moines-web-design' }]} />
 
       {/* Hero */}
@@ -97,19 +131,19 @@ export default function DesMoinesWebDesignPage() {
             <MapPin size={15} /> West Des Moines, Iowa · Serving the Des Moines Metro
           </p>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight leading-[1.05] font-display mb-6">
-            Web Design &amp; Digital Marketing for Des Moines Businesses
+            Des Moines Web Design That Gets You More Customers
           </h1>
           <p className="text-lg sm:text-xl text-neutral-300 leading-relaxed max-w-3xl mb-10">
             Axeon Studio gets businesses across the Des Moines metro more customers: found on Google, chosen
-            over the competition, and booked with instant follow-up. One West Des Moines team runs it all,
-            backed by our 90-day customer guarantee.
+            over the competition, and booked. One West Des Moines team runs it all, backed by our 90-Day Customer
+            Guarantee.
           </p>
           <div className="flex flex-wrap items-center gap-4">
             <Link
               href="/book"
               className="inline-flex items-center gap-2 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
             >
-              Book a Strategy Call <ArrowRight size={18} />
+              Book a Free Strategy Call <ArrowRight size={18} />
             </Link>
             <a
               href={TEL_HREF}
@@ -122,11 +156,10 @@ export default function DesMoinesWebDesignPage() {
       </section>
 
       {/* Why local */}
-      <ProofStrip />
-
       <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight mb-4">
+          <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ WHY LOCAL ]</p>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight mb-4">
             Why Des Moines Businesses Get More Customers With a Local Team
           </h2>
           <p className="text-lg text-neutral-600 max-w-3xl mb-12 leading-relaxed">
@@ -150,54 +183,44 @@ export default function DesMoinesWebDesignPage() {
       {/* What we build */}
       <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50 border-y border-neutral-200">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight mb-4">
+          <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ THE SYSTEM ]</p>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight mb-4">
             How We Get Metro Businesses More Customers
           </h2>
           <p className="text-lg text-neutral-600 max-w-3xl mb-12 leading-relaxed">
-            One team handles the whole stack, so there is no handoff between a designer, an SEO vendor, and
-            whoever set up your booking tool.
+            One team runs the whole system, so nothing gets lost between a designer, an SEO vendor, and a booking tool.
           </p>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {marketingSolutions.map((solution) => (
+          <div className="grid md:grid-cols-3 gap-5">
+            {SYSTEM.map((item) => (
               <Link
-                key={solution.id}
-                href={solution.href}
+                key={item.step}
+                href={item.href}
                 className="group rounded-2xl border border-neutral-200 bg-white p-7 hover:border-blue-400 hover:shadow-lg transition-all"
               >
-                <h3 className="text-lg font-bold mb-2 group-hover:text-blue-600 transition-colors">
-                  {solution.title}
-                  {solution.id === 'seo' ? ' / AEO / GEO' : ''}
-                </h3>
-                <p className="text-neutral-600 text-sm leading-relaxed mb-4">{solution.description}</p>
-                <span className="inline-flex items-center gap-1 text-sm font-semibold text-blue-600">
-                  Learn more <ArrowRight size={14} />
-                </span>
+                <p className="text-sm font-semibold text-blue-600">{item.step}</p>
+                <h3 className="mt-1 text-2xl font-black font-display tracking-tight mb-3">{item.title}</h3>
+                <p className="text-neutral-600 leading-relaxed">{item.description}</p>
               </Link>
             ))}
-            <Link
-              href="/pricing"
-              className="group rounded-2xl border-2 border-blue-600 bg-neutral-950 text-white p-7 hover:bg-neutral-900 transition-all"
-            >
-              <h3 className="text-lg font-bold mb-2">Plans &amp; Pricing</h3>
-              <p className="text-neutral-300 text-sm leading-relaxed mb-4">
-                Essentials from $2,800 setup. AxeonCORE with on-site video from $5,800 setup. Backed by a 90-day guarantee.
-              </p>
-              <span className="inline-flex items-center gap-1 text-sm font-semibold text-blue-400">
-                See both plans <ArrowRight size={14} />
-              </span>
-            </Link>
           </div>
+          <p className="mt-8 text-neutral-700">
+            Essentials: $2,800 setup, then from $284/mo. AxeonCORE: $5,800 setup, then from $574/mo.{' '}
+            <Link href="/pricing" className="font-semibold text-blue-600 hover:underline">
+              See both plans &rarr;
+            </Link>
+          </p>
         </div>
       </section>
 
       {/* Industries */}
       <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight mb-4">
+          <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ WHO WE HELP ]</p>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight mb-4">
             Industries We Serve Across Des Moines
           </h2>
           <p className="text-lg text-neutral-600 max-w-3xl mb-10 leading-relaxed">
-            Each of these gets a purpose-built intake workflow and Custom CRM Pipeline — not a find-and-replace
+            Pick yours to see how we get it found, chosen, and booked. Built around how your customers buy, not a
             template with your logo on it.
           </p>
           <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -272,7 +295,8 @@ export default function DesMoinesWebDesignPage() {
       {/* FAQ */}
       <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-10">
+          <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ FAQ ]</p>
+          <h2 className="text-3xl sm:text-4xl font-extrabold font-display tracking-tight mb-10">
             Questions Des Moines Business Owners Ask
           </h2>
           <FAQAccordion items={LOCAL_FAQ} defaultOpenCount={1} />
@@ -282,27 +306,34 @@ export default function DesMoinesWebDesignPage() {
       {/* CTA */}
       <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-4">Ready when you are</p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight mb-6">
-            More calls and leads in 90 days, or we keep working free.
+          <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-4">
+            [ 90-DAY CUSTOMER GUARANTEE ]
+          </p>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-tight mb-6">
+            Ready for more customers?
           </h2>
           <p className="text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-10">
-            Book a free strategy call. You walk away with a custom homepage mockup and an AI visibility report for your business, whether or not you hire us.
+            More calls and leads in your first 90 days than you were getting before, or we keep working for free until
+            you do.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/book"
-              className="px-7 py-3.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm transition-colors"
+              className="inline-flex items-center gap-2 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
             >
-              Book a Strategy Call
+              Book a Free Strategy Call <ArrowRight size={18} />
             </Link>
-            <Link
-              href="/pricing"
-              className="px-7 py-3.5 rounded-full border border-neutral-700 hover:border-neutral-500 text-white font-semibold text-sm transition-colors"
+            <a
+              href={TEL_HREF}
+              className="inline-flex items-center gap-2 px-7 py-4 rounded-full border border-neutral-700 hover:border-neutral-500 text-white font-bold text-base transition-colors"
             >
-              See Pricing
-            </Link>
+              <PhoneCall size={18} /> {BUSINESS.telephoneDisplay}
+            </a>
           </div>
+          <p className="mt-6 text-xs text-neutral-500 max-w-xl mx-auto leading-relaxed">
+            Baseline set together on your kickoff call. Applies while you&apos;re on a monthly plan and answering new
+            leads within one business day.
+          </p>
         </div>
       </section>
     </main>

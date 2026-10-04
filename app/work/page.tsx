@@ -20,15 +20,22 @@ export default function WorkPage() {
       <BreadcrumbJsonLd items={[{ name: 'Our Work', path: '/work' }]} />
       <main className="pt-28 sm:pt-32 pb-20 lg:pb-28 px-4 sm:px-8 lg:px-14">
         <div className="w-full max-w-[1720px] mx-auto">
-          <div className="text-xs font-mono font-semibold tracking-widest text-neutral-800 uppercase mb-3 sm:mb-4">
+          <div className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3 sm:mb-4">
             [ OUR WORK ]
           </div>
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10 sm:mb-14">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-neutral-950 font-display tracking-tight leading-[1.08]">
-              Our work
+              Sites built to bring in customers.
             </h1>
             <p className="text-sm sm:text-base lg:text-lg text-neutral-600 max-w-xl leading-relaxed lg:text-right">
-              Every site is designed around how that business actually gets customers. Click any project to see the live build.
+              Every site is designed around how that business actually gets customers. Click any project to see the live build, or{' '}
+              <Link
+                href="/insights/a-1-auto-detailing-website-case-study"
+                className="font-semibold text-blue-600 hover:text-blue-700 underline underline-offset-4"
+              >
+                read how A-1 went from page 2 to #1
+              </Link>
+              .
             </p>
           </div>
 

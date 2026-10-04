@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ industry:
   const funnel = adFunnelFor(industry);
   if (!funnel) return {};
   return {
-    title: `Free Website for ${funnel.audience} | Axeon Studio`,
+    title: `Free Website With a Plan From $284/mo | ${funnel.titleLabel}`,
     description: `Get a free website for your ${funnel.business}: $0 setup with a monthly plan from $284/mo, built to get you more ${funnel.customers}.`,
     robots: { index: false, follow: false },
   };
@@ -32,9 +32,14 @@ export async function generateMetadata({ params }: { params: Promise<{ industry:
 const PHONE = '(515) 493-8017';
 const PHONE_HREF = 'tel:+15154938017';
 
-// Placeholders for industry proof we don't have yet: visible on local and
-// preview builds so the owner can see what's missing, hidden on the live site.
-const SHOW_PLACEHOLDERS = process.env.VERCEL_ENV !== 'production';
+// Placeholders for industry proof we don't have yet: visible on Vercel preview
+// deploys and local dev so the owner can see what's missing. Opt-in, so a
+// production build anywhere (Vercel or not) never renders them.
+const SHOW_PLACEHOLDERS = process.env.VERCEL_ENV === 'preview' || process.env.NODE_ENV === 'development';
+
+const GUARANTEE = 'More calls and leads in your first 90 days than you were getting before, or we keep working for free until you do.';
+const GUARANTEE_TERMS =
+  "Baseline set together on your kickoff call. Applies while you're on a monthly plan and answering new leads within one business day.";
 
 function CTA({ label = 'Book My Free Call', dark = false }: { label?: string; dark?: boolean }) {
   return (
@@ -69,6 +74,8 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
 
   const benefits = benefitHeadlinesBySlug[niche.slug] ?? [];
   const example = WORK_PROJECTS.find((p) => p.name === funnel.example);
+  const exampleSameIndustry = example?.niche === niche.slug;
+  const sameIndustryProof = niche.slug === 'auto-detailing';
   const faqs = [
     {
       question: 'Is the website really free?',
@@ -88,7 +95,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
     {
       question: 'What if it doesn’t work?',
       answer:
-        'Our 90-Day Customer Guarantee: if you’re not getting more calls and leads in your first 90 days after launch than you were before, we keep working for free until you are.',
+        `Our 90-Day Customer Guarantee: ${GUARANTEE} ${GUARANTEE_TERMS}`,
     },
     ...(nicheFaqData[niche.slug] ?? []),
   ];
@@ -121,7 +128,10 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
             <h1 className="mt-4 text-4xl sm:text-5xl lg:text-6xl font-black font-display tracking-tight leading-[1.05] text-balance">
               Get a Free Website for Your {funnel.business.replace(/\b\w/g, (c) => c.toUpperCase())}
             </h1>
-            <p className="mt-5 text-lg sm:text-xl text-neutral-300 leading-relaxed max-w-xl">
+            <p className="mt-4 text-base sm:text-lg font-semibold text-white">
+              $0 setup (the $2,800 Essentials fee waived) when you start a monthly plan from $284/mo.
+            </p>
+            <p className="mt-4 text-lg sm:text-xl text-neutral-300 leading-relaxed max-w-xl">
               {funnel.result}
             </p>
             <ul className="mt-8 flex flex-col gap-3 text-base sm:text-lg">
@@ -158,25 +168,40 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
         </div>
       </section>
 
-      {/* 2. Proof, right under the offer */}
-      <section className="px-4 sm:px-8 py-14 sm:py-16 border-b border-neutral-200">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-px rounded-2xl overflow-hidden bg-neutral-200">
-            {[
-              { v: '#1', l: 'on Google for A-1 Auto Detailing, up from page 2' },
-              { v: '180+', l: 'five-star reviews now front and center' },
-              { v: '5.0', l: 'client rating' },
-              { v: '90-day', l: 'customer guarantee' },
-            ].map((p) => (
-              <div key={p.l} className="bg-white px-5 py-7 text-center">
-                <p className="text-3xl sm:text-4xl font-black font-display tracking-tight">{p.v}</p>
-                <p className="mt-1.5 text-sm text-neutral-500 leading-snug">{p.l}</p>
-              </div>
-            ))}
-          </div>
+
+      {/* 2. Real result, right under the offer */}
+      <section className="px-4 sm:px-8 py-20 sm:py-24 border-b border-neutral-200">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">
+            {sameIndustryProof ? '[ CLIENT SPOTLIGHT ]' : '[ OUR PUBLISHED CASE STUDY: A-1 AUTO DETAILING ]'}
+          </p>
+          <h2 className="mt-4 text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1] text-balance">
+            A-1 Auto Detailing went from page 2 to #1 on Google
+          </h2>
+          <p className="mt-5 text-lg text-neutral-600 leading-relaxed max-w-2xl mx-auto">
+            For &ldquo;Pleasant Hill auto detailing,&rdquo; with a 5.0 Google rating from 180+ reviews front and center.
+          </p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/case-studies/a1/after-hero.webp"
+            alt="A-1 Auto Detailing's new homepage, built by Axeon Studio"
+            width={1424}
+            height={882}
+            loading="lazy"
+            className="mt-10 w-full h-auto rounded-2xl shadow-xl ring-1 ring-neutral-200"
+          />
+          <figure className="mt-10">
+            <blockquote className="text-2xl sm:text-3xl font-extrabold font-display tracking-tight leading-snug">
+              &ldquo;{LEVI_QUOTE.text}&rdquo;
+            </blockquote>
+            <figcaption className="mt-3 text-neutral-500">
+              {LEVI_QUOTE.name}, {LEVI_QUOTE.role}
+            </figcaption>
+          </figure>
           {funnel.proofPlaceholder && (
-            <div className="mt-6">
+            <div className="mt-10 text-left flex flex-col gap-4">
               <Placeholder label={funnel.proofPlaceholder} />
+              <Placeholder label={`Client testimonial from this industry (${niche.name})`} />
             </div>
           )}
         </div>
@@ -188,7 +213,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
           <div className="max-w-5xl mx-auto">
             <div className="max-w-2xl">
               <h2 className="text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1]">
-                What your free website could look like
+                {exampleSameIndustry ? 'What your website could look like' : 'A recent site we designed'}
               </h2>
               <p className="mt-4 text-lg text-neutral-600 leading-relaxed">
                 Custom-designed for your business, fast on phones, and built to turn visitors into calls.
@@ -244,7 +269,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
             {[
               { step: 'Step 1', t: 'Get found', d: 'Show up on Google, on the map, and in AI answers when people nearby search for what you do.' },
               { step: 'Step 2', t: 'Get chosen', d: 'A fast site with your reviews up front that makes you the obvious pick.' },
-              { step: 'Step 3', t: 'Get booked', d: 'Every call and form answered in seconds, with automatic follow-up until they book.' },
+              { step: 'Step 3', t: 'Get booked', d: 'Tap-to-call and a quote form on every page. On AxeonCORE, AI chat and automatic follow-up answer every lead in seconds.' },
             ].map((s) => (
               <div key={s.t} className="rounded-2xl bg-white border border-neutral-200 p-7">
                 <p className="text-sm font-semibold text-neutral-400">{s.step}</p>
@@ -259,40 +284,6 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
         </div>
       </section>
 
-      {/* 5. Real result */}
-      <section className="px-4 sm:px-8 py-20 sm:py-24">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-sm font-bold tracking-[0.18em] uppercase text-emerald-600">Client spotlight</p>
-          <h2 className="mt-4 text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1] text-balance">
-            A-1 Auto Detailing went from page 2 to #1 on Google
-          </h2>
-          <p className="mt-5 text-lg text-neutral-600 leading-relaxed max-w-2xl mx-auto">
-            For &ldquo;Pleasant Hill auto detailing,&rdquo; with 180+ five-star reviews finally front and center.
-          </p>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/images/case-studies/a1/after-hero.webp"
-            alt="A-1 Auto Detailing's new homepage, built by Axeon Studio"
-            width={1424}
-            height={882}
-            loading="lazy"
-            className="mt-10 w-full h-auto rounded-2xl shadow-xl ring-1 ring-neutral-200"
-          />
-          <figure className="mt-10">
-            <blockquote className="text-2xl sm:text-3xl font-extrabold font-display tracking-tight leading-snug">
-              &ldquo;{LEVI_QUOTE.text}&rdquo;
-            </blockquote>
-            <figcaption className="mt-3 text-neutral-500">
-              {LEVI_QUOTE.name}, {LEVI_QUOTE.role}
-            </figcaption>
-          </figure>
-          {funnel.proofPlaceholder && (
-            <div className="mt-10 text-left">
-              <Placeholder label={`Client testimonial from this industry (${niche.name})`} />
-            </div>
-          )}
-        </div>
-      </section>
 
       {/* 6. What happens on the call (lowers the fear of booking) */}
       <section className="px-4 sm:px-8 py-20 sm:py-24 bg-neutral-950 text-white">
@@ -325,10 +316,8 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
           <div className="rounded-3xl border-2 border-emerald-500 p-7 sm:p-9">
             <ShieldCheck size={32} className="text-emerald-600" />
             <h2 className="mt-4 text-2xl sm:text-3xl font-extrabold font-display tracking-tight">90-Day Customer Guarantee</h2>
-            <p className="mt-3 text-lg text-neutral-700 leading-relaxed">
-              More calls and leads in your first 90 days than you were getting before, or we keep working for free until
-              you do.
-            </p>
+            <p className="mt-3 text-lg text-neutral-700 leading-relaxed">{GUARANTEE}</p>
+            <p className="mt-3 text-sm text-neutral-500 leading-relaxed">{GUARANTEE_TERMS}</p>
           </div>
         </div>
       </section>

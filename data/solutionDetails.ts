@@ -1,12 +1,17 @@
 import type { FaqItem } from '@/data/faqData';
 
-// Long-form content for the /marketing-solutions/* pages, rendered by
+// Content for the /marketing-solutions/* service pages, rendered by
 // components/marketing-solutions/SolutionSections.tsx.
 //
 // Every claim here must stay inside content/brand-guardrails.md: real prices
-// only, no build timelines, no monthly-fee mentions, no invented results. The
-// only client proof is A-1 Auto Detailing, using its approved facts. Any
-// external statistic needs a real source URL.
+// only ("from $284/mo" / "from $574/mo"), no build timelines, no invented
+// results. The only client proof is A-1 Auto Detailing, using its approved
+// facts, one angle per page. At most one sourced statistic per page, always
+// with its real source URL.
+//
+// Keep it short: 3 problems, 3 outcome groups, 3 steps, max 4 own FAQs.
+
+export type FunnelStep = 'found' | 'chosen' | 'booked';
 
 export interface SolutionProblem {
   eyebrow: string;
@@ -20,8 +25,7 @@ export interface SolutionDeliverables {
   eyebrow: string;
   heading: string;
   intro?: string;
-  groups: { title: string; note?: string; items: string[] }[];
-  footnote?: string;
+  groups: { title: string; items: string[] }[];
 }
 
 export interface SolutionTimeline {
@@ -29,34 +33,46 @@ export interface SolutionTimeline {
   heading: string;
   intro?: string;
   steps: { title: string; body: string }[];
-  footnote?: string;
 }
 
-export interface SolutionComparison {
-  eyebrow: string;
-  heading: string;
-  intro?: string;
-  rows: { label: string; typical: string; axeon: string }[];
+/** Where the service sits in Found → Chosen → Booked, and how it's bought. First line is the headline. */
+export interface SolutionFit {
+  step: FunnelStep;
+  lines: string[];
 }
 
 export interface SolutionProof {
   heading: string;
   body: string;
   facts: string[];
+  /** Show Levi Rench's approved quote, verbatim. */
+  quote?: boolean;
 }
 
 export interface SolutionDetail {
   problem: SolutionProblem;
   deliverables: SolutionDeliverables;
+  fit: SolutionFit;
   timeline: SolutionTimeline;
-  comparison: SolutionComparison;
   proof?: SolutionProof;
   faqs: FaqItem[];
 }
 
-const CONSULTATION_STEP = {
-  title: 'Free consultation',
-  body: 'We learn how your business actually wins work. Every booked consultation comes with a custom homepage mockup and an AI visibility report showing how you show up on Google, ChatGPT, and Perplexity today. Both are yours to keep, whether you hire us or not.',
+const BOTH_PLANS =
+  'AxeonCORE: $5,800 setup, then from $574/mo · Essentials: $2,800 setup, then from $284/mo';
+const CORE_PLAN = 'Part of AxeonCORE: $5,800 setup, then from $574/mo';
+
+const STAT_62 = {
+  sourceLabel: '411 Locals call study',
+  sourceUrl: 'https://411locals.us/small-business-owners-dont-answer-62-of-phone-calls/',
+};
+const STAT_21X = {
+  sourceLabel: 'MIT / InsideSales lead response study',
+  sourceUrl: 'https://25649.fs1.hubspotusercontent-na2.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf',
+};
+const STAT_97 = {
+  sourceLabel: 'BrightLocal Local Consumer Review Survey',
+  sourceUrl: 'https://www.brightlocal.com/research/local-consumer-review-survey/',
 };
 
 // ---------------------------------------------------------------------------
@@ -67,154 +83,80 @@ export const websiteDetail: SolutionDetail = {
   problem: {
     eyebrow: 'The Problem',
     heading: 'Why Most Small-Business Websites Don’t Bring In Work',
-    intro:
-      'Most local business sites aren’t bad because they’re ugly. They’re bad because nobody decided what the site is supposed to do for the business.',
     items: [
       {
-        title: 'Built like a brochure, not a salesperson',
-        body: 'A home page, an about page, a services list, and a contact form at the very bottom. Nothing tells a visitor why to pick you over the next result, or what to do next.',
+        title: 'Built like a brochure',
+        body: 'Nothing tells a visitor why to pick you over the next result, or what to do next. So they go back and compare.',
       },
       {
         title: 'Slow and clumsy on a phone',
-        body: 'Most people find a local business on their phone. Heavy page builders and oversized images make a visitor wait, and people who are waiting go back to the search results.',
+        body: 'Most people find a local business on their phone. Make them wait and they go back to the search results.',
       },
       {
         title: 'Leads land in an inbox nobody watches',
-        body: 'A form fill at 2 p.m. gets seen at 9 p.m. By then the customer has already called someone else who picked up.',
-      },
-      {
-        title: 'Invisible to Google’s AI and ChatGPT',
-        body: 'No structured data, AI crawlers blocked, and answers buried in paragraphs. Search engines and AI assistants can’t tell what you do, where, or for how much, so they recommend someone else.',
-      },
-      {
-        title: 'Rented, not owned',
-        body: 'Plenty of agency sites live on a platform you can’t take with you. Leave the agency and you start over from nothing.',
-      },
-      {
-        title: 'Same template as your competitor',
-        body: 'Swap the logo and the colors and it’s the same site the agency sold to the business down the road. Customers notice, even if they can’t say why.',
+        body: 'A form fill at 2 p.m. gets seen at 9 p.m. By then the customer has called someone who picked up.',
       },
     ],
   },
   deliverables: {
-    eyebrow: 'What’s Included',
-    heading: 'Everything That Turns Visitors Into Calls',
-    intro:
-      'Two plans. Essentials is $2,800 to set up, then from $284/mo. AxeonCORE is $5,800 to set up, then from $574/mo, and is the one we recommend. Here’s exactly what you get.',
+    eyebrow: 'What You Get',
+    heading: 'A Site That Turns Visitors Into Calls',
     groups: [
       {
-        title: 'Design & build',
+        title: 'Built to win the comparison',
         items: [
-          'Custom-designed, mobile-first pages built around how your business sells: up to 4 on Essentials, 5–7 on AxeonCORE',
-          'Your logo, colors, and type applied consistently across every page',
-          'Service pages, pricing blocks, galleries, and reviews where they help you sell',
-          'Conversion-copy hierarchy on AxeonCORE, so every page leads to one clear next step',
-          '2 rounds of revisions before launch, included',
-        ],
-      },
-      {
-        title: 'Speed & quality',
-        items: [
-          'Sub-second load speeds',
-          '100% Core Web Vitals pass',
-          'Images compressed and sized for phones and desktops',
-          'Foundational ADA accessibility standards',
+          'Custom pages designed around how you sell',
+          'Your reviews, prices, and real work up front',
+          'Fast on every phone',
+          'You own the site and every file',
         ],
       },
       {
         title: 'Found on Google & AI',
         items: [
-          'SEO, AEO, and GEO built into every page, not sold separately',
-          'Local business and FAQ structured data',
-          'XML sitemap, robots.txt, and llms.txt set up for search engines and AI crawlers',
-          'Every old URL mapped and 301-redirected when we replace an existing site',
+          'Search and AI-answer visibility built into every page',
+          'Business details that match your Google profile',
+          'Old pages redirected, so you keep what you’ve earned',
         ],
       },
       {
-        title: 'Lead capture',
-        note: 'Every build',
+        title: 'Every lead reaches you',
         items: [
-          'Quote or contact form placed where visitors actually decide',
-          'Tap-to-call on mobile',
-          'Instant lead alerts: every form and call request lands in your inbox and on your phone',
-          'Conversion tracking so you know which pages produce calls',
-        ],
-      },
-      {
-        title: 'Lead system',
-        note: 'AxeonCORE',
-        items: [
-          'Custom CRM Pipeline built around your lead-to-close workflow, with no per-seat software',
-          'AI chat & online scheduling so leads book themselves 24/7',
-          'Multi-step intake questionnaire that pre-qualifies leads',
-          'Automated SMS & email follow-up the second a lead comes in',
-          'Speed-to-lead call connect and missed-call text-back',
-          'Exit-intent offers and call tracking numbers',
-        ],
-      },
-      {
-        title: 'Video & ownership',
-        items: [
-          'AxeonCORE includes a half-day on-site shoot: a hero film, 3 vertical cuts, and a photo set',
-          'Add the shoot to Essentials for $1,500',
-          'You own 100% of the site, code, and design files',
-          'No proprietary platform and no lock-in',
+          'Quote forms and tap-to-call where people decide',
+          'Instant alerts to your inbox and phone',
+          'On AxeonCORE: a CRM pipeline, AI chat, and automatic follow-up',
         ],
       },
     ],
-    footnote:
-      'Need more? Extra pages are $450 each, a secondary niche landing page is $500, and advanced database or directory integration is $850.',
+  },
+  fit: {
+    step: 'chosen',
+    lines: [`Part of ${BOTH_PLANS}`, 'Every plan starts with the website. AxeonCORE adds the lead system and a half-day video shoot.'],
   },
   timeline: {
     eyebrow: 'How It Works',
-    heading: 'From First Call to Your First 90 Days',
-    intro: 'A fixed scope and a fast turnaround, not an open-ended project that drags on for months.',
+    heading: 'From Kickoff to Launch',
     steps: [
-      CONSULTATION_STEP,
       {
         title: 'Scope & content',
-        body: 'We agree on the pages, the tier, and the price, all in writing. Then we collect what makes your business yours: your services, prices, photos, reviews, and service area. How quickly we get this is the biggest factor in how fast you launch.',
+        body: 'We agree on the pages and the price in writing, then gather your services, prices, photos, and reviews.',
       },
       {
-        title: 'Design & build',
-        body: 'We design and build the site on a fixed scope. You talk directly to the person building it. There are no account managers passing notes back and forth.',
-      },
-      {
-        title: 'Review & revisions',
-        body: 'You review the site on a live preview link. Two rounds of revisions are included, and we aren’t done until it’s a site you’re proud to put your name on.',
+        title: 'Design, build & review',
+        body: 'You talk directly to the person building your site, and review it on a live link. Two rounds of revisions are included.',
       },
       {
         title: 'Launch',
-        body: 'We go live with the launch checklist done: redirects in place, sitemap submitted, search engines notified, structured data validated, and lead alerts and tracking tested with real submissions.',
+        body: 'Redirects in place, search engines notified, and lead alerts tested with real submissions before we call it done.',
       },
-      {
-        title: 'It’s yours',
-        body: 'You own the site, code, and design files outright. Nothing is held hostage on a platform you can’t leave.',
-      },
-    ],
-  },
-  comparison: {
-    eyebrow: 'Side by Side',
-    heading: 'How We Get You More Calls vs. a Typical Agency',
-    rows: [
-      { label: 'Pricing', typical: 'A custom quote after several sales calls', axeon: 'Published pricing: $2,800 or $5,800 setup, then from $284/mo' },
-      { label: 'Design', typical: 'A shared theme with your logo swapped in', axeon: 'Built around how your business sells' },
-      { label: 'Speed', typical: 'Heavy page builder, slow on phones', axeon: 'Sub-second loads, Core Web Vitals pass' },
-      { label: 'AI search', typical: 'Rarely addressed', axeon: 'SEO, AEO, and GEO in every build' },
-      { label: 'Leads', typical: 'A contact form that emails someone', axeon: 'Instant alerts; AxeonCORE adds CRM, AI chat, and auto follow-up' },
-      { label: 'Ownership', typical: 'Often tied to the agency’s platform', axeon: 'You own the code and files' },
-      { label: 'Who you talk to', typical: 'An account manager', axeon: 'The person building your site' },
     ],
   },
   proof: {
-    heading: 'From Page 2 to #1 on Google',
-    body: 'A-1 Auto Detailing had 25 years of experience and 180+ five-star Google reviews, but sat on page 2 of Google and the old website hid most of that. We rebuilt it from the logo up, and A-1 now ranks #1 for “Pleasant Hill auto detailing.”',
+    heading: 'A New Brand and a Site Built to Sell',
+    body: 'A-1 Auto Detailing had 25 years of experience and an old site that hid it. We redesigned it from the logo up.',
     facts: [
-      'New logo and a custom site designed by Axeon',
+      'New logo and a custom site, designed by Axeon',
       '18 pages, including 6 service pages and 4 guides',
-      'Published starting prices from the owner’s own price list',
-      'Quote and booking form with service pre-select, plus tap-to-call',
-      'About 56 old URLs 301-redirected so nothing was lost',
       'Page loads of roughly 0.3–0.8 seconds',
     ],
   },
@@ -222,36 +164,21 @@ export const websiteDetail: SolutionDetail = {
     {
       question: 'How long does it take to get a new website?',
       answer:
-        'Fast. We work from a proven system, so builds go live in a fraction of the time a typical agency takes. We map out your schedule on the strategy call. The biggest factor is how quickly we get your content and brand assets.',
+        'Fast. We work from a proven system, so builds go live in a fraction of the time a typical agency takes. We map out your schedule on the strategy call. The biggest factor is how quickly we get your content.',
     },
     {
       question: 'What’s the difference between Essentials and AxeonCORE?',
       answer:
-        'Essentials ($2,800) is a credible, fast site with up to 4 pages that gets you found and alerts you to every lead. AxeonCORE ($5,800) is 5–7 pages, plus the system that captures, qualifies, and follows up on leads for you: a Custom CRM Pipeline, AI chat and scheduling, a pre-qualifying intake, automated SMS and email follow-up, and a half-day on-site video shoot. AxeonCORE is the one we recommend.',
+        'Essentials ($2,800 setup, then from $284/mo) is a fast, credible site that gets you found and alerts you to every lead. AxeonCORE ($5,800 setup, then from $574/mo) adds the system that captures, qualifies, and follows up on leads for you, plus a half-day on-site video shoot. AxeonCORE is the one we recommend.',
     },
     {
       question: 'Will I lose my Google rankings if I replace my current site?',
       answer:
-        'Not if the move is handled properly. We map every old URL to the most relevant new page and set a permanent 301 redirect, so bookmarks, backlinks, and Google’s existing index all land somewhere real. On the A-1 Auto Detailing rebuild that was about 56 old URLs.',
-    },
-    {
-      question: 'What do I need to provide?',
-      answer:
-        'Your logo if you have one, your list of services and prices, any photos of your work, and access to your domain. If you don’t have good photos, the AxeonCORE on-site shoot (or the $1,500 add-on on Essentials) covers it.',
+        'Not if the move is handled properly. We map every old URL to the most relevant new page with a permanent redirect, so bookmarks, links, and Google’s existing index all land somewhere real.',
     },
     {
       question: 'Do I own the website once it’s built?',
       answer: 'Yes. You own 100% of the site, code, and design files. There’s no proprietary platform and no lock-in.',
-    },
-    {
-      question: 'What if I don’t like the design?',
-      answer:
-        'Every build includes 2 rounds of revisions before launch. We don’t consider it finished until it’s a site you’re proud to put your name on.',
-    },
-    {
-      question: 'What does the free consultation include?',
-      answer:
-        'A walkthrough of your business and goals, a custom homepage mockup, and an AI visibility report showing how you appear on Google, ChatGPT, and Perplexity. Both are yours to keep either way.',
     },
   ],
 };
@@ -264,185 +191,103 @@ export const seoDetail: SolutionDetail = {
   problem: {
     eyebrow: 'The Problem',
     heading: 'Why Good Local Businesses Stay Invisible',
-    intro:
-      'Most businesses that don’t show up aren’t worse than the ones that do. Their websites just make it hard for Google and AI assistants to understand them.',
+    intro: 'Most businesses that don’t show up aren’t worse than the ones that do. Their sites just make it hard for Google and AI to understand them.',
     items: [
       {
-        title: 'The site is slow on phones',
-        body: 'Google measures real-world load speed and stability. A bloated template that stutters on a phone starts behind before content is even considered.',
-      },
-      {
         title: 'Search engines have to guess',
-        body: 'Without structured data, Google and AI tools have to work out your services, hours, service area, and prices from loose paragraphs. Most of the time they guess wrong, or skip you.',
+        body: 'Your services, hours, and service area are buried in loose paragraphs. Google and AI tools guess wrong, or skip you.',
       },
       {
-        title: 'AI crawlers are blocked or ignored',
-        body: 'OpenAI says sites that opt out of its search crawler won’t be shown in ChatGPT search answers. Plenty of sites block it without knowing.',
-      },
-      {
-        title: 'Dozens of copy-paste town pages',
-        body: 'Twenty pages that only swap a city name are thin content. Google treats them as low value, and AI tools have nothing unique to quote.',
-      },
-      {
-        title: 'Your details don’t match',
-        body: 'When your name, address, phone, or hours differ between your site and your listings, search engines trust all of them less.',
+        title: 'AI tools are shut out',
+        body: 'Plenty of sites block AI search tools without knowing it, so ChatGPT recommends someone else.',
       },
       {
         title: 'Answers are buried',
-        body: 'People ask full questions now: “how much does ceramic coating cost near me?” If your page never answers plainly, an AI assistant quotes a competitor who did.',
+        body: 'People ask full questions now. If your page never answers plainly, an AI assistant quotes a competitor who did.',
       },
     ],
     stat: {
-      text: '45% of consumers now use ChatGPT or other AI tools for local business recommendations, up from 6% the year before.',
-      sourceLabel: 'BrightLocal Local Consumer Review Survey',
-      sourceUrl: 'https://www.brightlocal.com/research/local-consumer-review-survey/',
+      text: '97% of people read reviews when choosing a local business. Being found is step one; what they find on Google decides who gets the call.',
+      ...STAT_97,
     },
   },
   deliverables: {
-    eyebrow: 'What’s Included',
-    heading: 'Everything That Gets You Found',
-    intro:
-      'This isn’t a separate package or an add-on. All of it ships with every Essentials and AxeonCORE build.',
+    eyebrow: 'What You Get',
+    heading: 'Found Wherever Customers Look',
     groups: [
       {
-        title: 'Technical SEO',
+        title: 'Found on Google',
         items: [
-          'Sub-second loads and a 100% Core Web Vitals pass',
-          'Mobile-first build',
-          'Clean URL structure with canonical tags',
-          'XML sitemap and robots.txt',
-          'Every old URL 301-redirected when replacing a site',
-          'IndexNow submission at launch so search engines see changes quickly',
+          'A page for every core service',
+          'Business details Google can read and trust',
+          'Fast, mobile-first pages',
         ],
       },
       {
-        title: 'On-page SEO',
+        title: 'Found in AI answers',
         items: [
-          'A unique title and meta description on every page',
-          'One clear H1 and a logical heading structure',
-          'A dedicated page for each core service',
-          'Internal links between related services',
-          'Descriptive image alt text',
+          'Plain answers to the questions customers ask',
+          'Your site open to AI search tools like ChatGPT',
+          'The same facts about you everywhere AI looks',
         ],
       },
       {
-        title: 'Local SEO',
+        title: 'Measured monthly',
         items: [
-          'Local business structured data: name, address, phone, hours, and service area',
-          'Business details that match your Google Business Profile exactly',
-          'Service-area wording written for real towns, without thin copy-paste city pages',
-        ],
-      },
-      {
-        title: 'AEO: answer engines',
-        items: [
-          'A plain, direct answer at the top of each page: what it is, what it costs, what’s included',
-          'FAQ sections written around the questions customers actually ask',
-          'FAQ structured data so answers can be read as answers',
-        ],
-      },
-      {
-        title: 'GEO: generative AI',
-        items: [
-          'AI search crawlers allowed in robots.txt',
-          'An llms.txt file that summarizes your business for AI tools',
-          'Machine-readable content on every page',
-          'Consistent facts about your business wherever AI looks',
-        ],
-      },
-      {
-        title: 'Measurement',
-        items: [
-          'Conversion tracking so you know which pages produce calls and forms',
-          'An AI visibility report at your free consultation, so you can see where you stand before we start',
+          'Tracking on every call and form',
+          'A monthly calls & leads report',
+          'A clear view of which pages bring in work',
         ],
       },
     ],
+  },
+  fit: {
+    step: 'found',
+    lines: [`Built into both plans. ${BOTH_PLANS}`, 'Ongoing SEO & content beyond the build is an add-on, scoped on your strategy call.'],
   },
   timeline: {
     eyebrow: 'How It Works',
-    heading: 'How We Get You Found, Step by Step',
+    heading: 'How We Get You Found',
     steps: [
       {
-        title: 'Free consultation & AI visibility report',
-        body: 'We check how you show up today on Google, ChatGPT, and Perplexity, and hand you the report along with a custom homepage mockup. Both are yours to keep.',
+        title: 'Map the searches',
+        body: 'We find the searches that bring you paying work (your services, your towns, the questions people ask) and give each one a page.',
       },
       {
-        title: 'Search & page map',
-        body: 'We map the searches that actually bring you paying work (your services, your towns, the questions people ask) and give each one a page with a clear job.',
+        title: 'Build it in',
+        body: 'Search and AI visibility go in while the site is built, not bolted on after launch.',
       },
       {
-        title: 'Build with SEO baked in',
-        body: 'Structured data, headings, direct answers, FAQs, and internal links go in while the site is built, not bolted on after launch.',
+        title: 'Launch & measure',
+        body: 'Search engines notified, tracking live, and a monthly report on calls and leads. Rankings take time, so we never promise a date.',
       },
-      {
-        title: 'Launch checklist',
-        body: 'Redirects tested, sitemap submitted, search engines notified through IndexNow, structured data validated, and AI crawlers confirmed allowed.',
-      },
-      {
-        title: 'Let it compound',
-        body: 'Rankings take real time and vary by market and competition. We won’t promise a date. We build every page to compete for the top spot from day one.',
-      },
-    ],
-  },
-  comparison: {
-    eyebrow: 'Side by Side',
-    heading: 'How Our SEO Compares',
-    rows: [
-      { label: 'How it’s sold', typical: 'A separate SEO package', axeon: 'Included in every build' },
-      { label: 'AI answers', typical: 'Rarely covered', axeon: 'AEO and GEO built in' },
-      { label: 'Structured data', typical: 'Whatever a plugin adds by default', axeon: 'Local business and FAQ schema written for your business' },
-      { label: 'City pages', typical: 'Dozens of copy-paste town pages', axeon: 'Only pages with something real to say' },
-      { label: 'Promises', typical: '“Page one guaranteed”', axeon: 'No fake guarantees and no made-up dates' },
-      { label: 'Redesigns', typical: 'Old URLs break and rankings reset', axeon: 'Every old URL mapped and 301-redirected' },
     ],
   },
   proof: {
     heading: 'Page 2 to #1 on Google for “Pleasant Hill Auto Detailing”',
-    body: 'A-1 Auto Detailing was stuck on page 2. We rebuilt the site with search designed in from the start: redirects, schema, AI crawler access, and speed. A-1 now ranks #1 for its main local search.',
-    facts: [
-      '#1 on Google for “Pleasant Hill auto detailing,” up from page 2',
-      'A perfect 100/100 SEO audit score',
-      'About 56 old URLs 301-redirected so existing search value carried over',
-      'AI search crawlers allowed in robots.txt, plus an llms.txt file',
-      'FAQ and local business schema',
-      'IndexNow set up for fast re-crawls',
-      'Page loads of roughly 0.3–0.8 seconds',
-    ],
+    body: 'A-1 Auto Detailing was stuck on page 2. We rebuilt the site with search designed in from the start, and it now ranks #1 for its main local search.',
+    facts: ['#1 on Google for “Pleasant Hill auto detailing,” up from page 2', 'A perfect 100/100 SEO audit score'],
   },
   faqs: [
     {
-      question: 'Will my SEO get a specific ranking date or guarantee?',
-      answer:
-        'No. Search rankings take real time and vary by market, so we won’t promise a date. Every build is optimized to compete for the top spot, and we’re upfront that timelines vary by industry and market.',
-    },
-    {
       question: 'What’s the difference between SEO, AEO, and GEO?',
       answer:
-        'SEO gets your pages ranking in regular search results. AEO (answer engine optimization) structures your content so Google’s AI answers and voice assistants can pull a direct answer from it. GEO (generative engine optimization) makes sure tools like ChatGPT, Perplexity, and Gemini can read, trust, and cite your business.',
+        'SEO gets your pages ranking in regular search results. AEO (answer engine optimization) shapes your content so Google’s AI answers and voice assistants can pull a direct answer from it. GEO (generative engine optimization) makes sure tools like ChatGPT, Perplexity, and Gemini can read, trust, and cite your business.',
     },
     {
-      question: 'Is AEO/GEO an extra cost on top of SEO?',
-      answer: 'No. SEO, AEO, and GEO are bundled into every Axeon Studio build by default, not sold as separate add-ons.',
-    },
-    {
-      question: 'Do I need a separate SEO contract?',
-      answer: 'No. It’s included in both plans, Essentials and AxeonCORE.',
-    },
-    {
-      question: 'How do I know if ChatGPT can see my business?',
+      question: 'Will you guarantee a ranking or a date?',
       answer:
-        'Book a free consultation. It includes an AI visibility report showing how you appear on Google, ChatGPT, and Perplexity today, and it’s yours to keep.',
+        'No. Rankings take real time and vary by market, so we won’t promise a date. Every page is built to compete for the top spot from day one.',
+    },
+    {
+      question: 'Does SEO cost extra?',
+      answer:
+        'No. SEO, AEO, and GEO are built into every Essentials and AxeonCORE site. Ongoing SEO & content after launch is an add-on, scoped on your strategy call.',
     },
     {
       question: 'Do you build a page for every town I serve?',
       answer:
-        'Only when there’s something unique to put on it, like photos, reviews, or projects from that town. Pages that only swap the city name are thin content, and Google and AI tools treat them that way.',
-    },
-    {
-      question: 'What is llms.txt?',
-      answer:
-        'A plain-text file at the root of your site that summarizes who you are, what you offer, and where, in a format AI tools can read easily. We add one to every build.',
+        'Only when there’s something real to put on it, like photos, reviews, or projects from that town. Pages that only swap the city name are thin content, and Google treats them that way.',
     },
   ],
 };
@@ -455,308 +300,192 @@ export const aiChatDetail: SolutionDetail = {
   problem: {
     eyebrow: 'The Problem',
     heading: 'Where Local Businesses Lose Leads Every Day',
-    intro: 'The lead usually isn’t lost because of price. It’s lost because nobody answered while the customer was still interested.',
+    intro: 'The lead usually isn’t lost on price. It’s lost because nobody answered while the customer was still interested.',
     items: [
       {
-        title: 'Calls go to voicemail while you’re working',
-        body: 'You’re on a job, with a client, or under a car. The caller doesn’t leave a message. They call the next business on the list.',
-      },
-      {
         title: 'After-hours visitors just leave',
-        body: 'Someone finds your site at 10 p.m., has a question, and gets no answer. By morning they’ve booked with whoever responded first.',
+        body: 'Someone finds your site at 10 p.m. with a question and gets no answer. By morning they’ve booked elsewhere.',
       },
       {
-        title: 'Phone tag to book one appointment',
-        body: '“Does Tuesday work?” “How about Thursday?” Every back-and-forth text is another chance for the lead to go cold.',
+        title: 'Phone tag to book one job',
+        body: '“Does Tuesday work?” “How about Thursday?” Every back-and-forth is another chance for the lead to go cold.',
       },
       {
-        title: 'Chatbots that frustrate people',
-        body: 'Most website chat widgets are a menu of buttons or a form in disguise. They collect an email and do nothing, and visitors can tell.',
+        title: 'Chat widgets that frustrate people',
+        body: 'Most are a button menu or a form in disguise. They collect an email and do nothing, and visitors can tell.',
       },
     ],
+    stat: {
+      text: '62% of calls to small businesses go unanswered. After hours, your website may be the only thing still answering.',
+      ...STAT_62,
+    },
   },
   deliverables: {
-    eyebrow: 'What’s Included',
-    heading: 'What the AI Actually Does for You',
-    intro: 'AI chat and online scheduling are included in AxeonCORE ($5,800 setup), set up around your business. An AI receptionist that picks up your phone calls around the clock is an AxeonCORE add-on, scoped on your strategy call.',
+    eyebrow: 'What You Get',
+    heading: 'An Assistant That Works the Night Shift',
     groups: [
       {
-        title: 'Answers questions',
+        title: 'Answers',
         items: [
           '24/7 chat on your website',
-          'Set up with your real services, prices, hours, and service area',
-          'Holds a natural conversation instead of a button menu',
+          'Set up with your real services, prices, and hours',
+          'A real conversation, not a button menu',
         ],
       },
       {
-        title: 'Books appointments',
+        title: 'Books',
         items: [
-          'Online scheduling connected to your real calendar',
-          'Qualified leads book themselves straight onto your schedule',
+          'Scheduling connected to your calendar',
+          'Qualified leads book themselves',
           'No back-and-forth texts to lock in a time',
-        ],
-      },
-      {
-        title: 'Qualifies leads',
-        items: [
-          'Multi-step intake questionnaire that pre-qualifies leads before you ever call',
-          'Captures the details you need to quote: the job, the timing, the location',
         ],
       },
       {
         title: 'Follows up',
         items: [
-          'Automated SMS & email follow-up the second a lead comes in',
-          'Missed-call text-back, so a caller who can’t reach you gets a text right away',
-          'Instant alerts to your inbox and phone',
-        ],
-      },
-      {
-        title: 'Feeds your pipeline',
-        items: [
-          'Every conversation lands in your Custom CRM Pipeline',
-          'One place to see every lead, not another vendor dashboard',
-        ],
-      },
-      {
-        title: 'Built into your site',
-        items: [
-          'Designed to match your website, not a generic widget',
-          'Works on phones as well as desktops',
-          'No separate per-seat chat subscription',
+          'A text and email the second a lead comes in',
+          'Missed-call text-back',
+          'Every conversation in your CRM pipeline',
         ],
       },
     ],
+  },
+  fit: {
+    step: 'booked',
+    lines: [CORE_PLAN, 'Not part of Essentials. The AI phone receptionist is a separate add-on, scoped on your strategy call.'],
   },
   timeline: {
     eyebrow: 'How It Works',
     heading: 'How We Set It Up',
     steps: [
-      CONSULTATION_STEP,
       {
         title: 'Map your conversations',
-        body: 'We write down what customers actually ask you, what you charge, what makes a job a good fit, and what you need to know before you quote.',
+        body: 'What customers ask you, what you charge, and what you need to know before you quote.',
       },
       {
         title: 'Configure & connect',
-        body: 'We set the AI up with your answers, connect it to your calendar, and build the intake questions and follow-up messages.',
+        body: 'We load your answers, connect your calendar, and write the intake questions and follow-up messages.',
       },
       {
-        title: 'Test with real scenarios',
-        body: 'We run it through the questions, edge cases, and bookings your business actually gets before a single customer sees it.',
+        title: 'Test & launch',
+        body: 'We run it through real questions and bookings before a customer sees it, then review early conversations with you.',
       },
-      {
-        title: 'Launch & review',
-        body: 'It goes live on your site, and every conversation flows into your pipeline. We review the early conversations with you and adjust answers where needed.',
-      },
-    ],
-  },
-  comparison: {
-    eyebrow: 'Side by Side',
-    heading: 'How It Compares to a Typical Chat Widget',
-    rows: [
-      { label: 'Conversation', typical: 'Scripted menus and canned replies', axeon: 'Natural conversation using your real info' },
-      { label: 'Result', typical: 'Collects an email and waits', axeon: 'Books qualified leads onto your calendar' },
-      { label: 'Qualification', typical: 'None, so every lead looks the same', axeon: 'A multi-step intake that pre-qualifies' },
-      { label: 'Follow-up', typical: 'Manual, when someone remembers', axeon: 'Automatic SMS and email the second a lead comes in' },
-      { label: 'Where leads go', typical: 'A separate vendor dashboard', axeon: 'Your Custom CRM Pipeline' },
-      { label: 'Cost structure', typical: 'Another per-seat subscription', axeon: 'Included in the AxeonCORE build' },
     ],
   },
   faqs: [
     {
-      question: 'Will it sound like a robot?',
-      answer:
-        'Listen for yourself above. That’s a real recorded call from Axeon’s AI receptionist next to a typical agency’s, so you can judge the difference directly instead of taking our word for it.',
-    },
-    {
       question: 'Can it actually book appointments, or just answer questions?',
       answer:
-        'It checks your real calendar and books qualified leads directly onto it. It’s not just a chatbot that collects an email and passes it along.',
+        'It checks your real calendar and books qualified leads directly onto it. It’s not a chatbot that collects an email and passes it along.',
     },
     {
       question: 'Does this replace my front desk?',
       answer:
-        'It’s built to catch what would otherwise go to voicemail or a missed chat. Most clients use it as always-on backup and after-hours coverage, not a full front-desk replacement.',
+        'It’s built to catch what would otherwise go to voicemail or a missed chat, as after-hours backup, not a front-desk replacement.',
     },
     {
       question: 'What if someone asks something it doesn’t know?',
       answer:
-        'We set it up with your real services, prices, and policies. When a question falls outside that, it’s set up to take the person’s details and get them to you rather than guess.',
+        'We set it up with your real services, prices, and policies. When a question falls outside that, it takes the person’s details and gets them to you rather than guess.',
     },
     {
       question: 'Is AI chat included in Essentials?',
       answer:
-        'No. AI chat and online scheduling are part of AxeonCORE ($5,800), along with the Custom CRM Pipeline, the pre-qualifying intake, and automated follow-up. Essentials includes instant lead alerts, so you still hear about every form and call request right away.',
-    },
-    {
-      question: 'Where do the conversations go?',
-      answer: 'Every conversation lands in your Custom CRM Pipeline, the same place as your calls and form fills, and you get an instant alert.',
+        'No. AI chat and online scheduling are part of AxeonCORE, along with the CRM pipeline and automated follow-up. Essentials includes instant lead alerts, so you still hear about every form and call request right away.',
     },
   ],
 };
 
 // ---------------------------------------------------------------------------
-// Lead Generation
+// Lead Capture & Follow-Up
 // ---------------------------------------------------------------------------
 
 export const leadGenDetail: SolutionDetail = {
   problem: {
     eyebrow: 'Where Leads Go Missing',
     heading: 'Most Businesses Don’t Need More Leads First',
-    intro: 'They need to stop losing the ones they already get. These are the leaks we see most.',
+    intro: 'They need to stop losing the ones they already get.',
     items: [
       {
         title: 'Slow first response',
-        body: 'A lead reaches out, and nobody replies until the end of the day. By then they’ve talked to two competitors.',
+        body: 'A lead reaches out and nobody replies until the end of the day. By then they’ve talked to two competitors.',
       },
       {
-        title: 'Leads scattered across apps',
-        body: 'Calls on your cell, forms in one inbox, chats in another tool, and texts on your personal phone. Something always slips.',
-      },
-      {
-        title: 'No follow-up after the first touch',
-        body: 'A quote goes out and nobody checks back. A lot of work is won on the second or third contact, and most businesses never make it.',
+        title: 'No follow-up',
+        body: 'A quote goes out and nobody checks back, so the lead goes with whoever followed up.',
       },
       {
         title: 'Every lead treated the same',
-        body: 'Tire-kickers and ready-to-buy customers get the same callback, so your best leads wait behind your worst.',
-      },
-      {
-        title: 'No idea what’s working',
-        body: 'Without tracking, you can’t tell which page, service, or channel brings in the calls that turn into jobs.',
-      },
-      {
-        title: 'A stack of subscriptions',
-        body: 'A CRM, a form tool, a scheduler, a texting app, each with its own login and per-seat price, and none of them talking to each other.',
+        body: 'Ready-to-buy customers wait behind tire-kickers, because nothing sorts them first.',
       },
     ],
+    stat: {
+      text: 'Leads called back within 5 minutes were about 21× more likely to qualify than leads called back after 30.',
+      ...STAT_21X,
+    },
   },
   deliverables: {
-    eyebrow: 'What’s Included',
-    heading: 'The Full Lead System, Piece by Piece',
-    intro:
-      'Every build includes instant lead alerts and conversion tracking. The full system below comes with AxeonCORE ($5,800).',
+    eyebrow: 'What You Get',
+    heading: 'Every Lead Answered, Followed Up, and Booked',
     groups: [
       {
         title: 'Capture',
-        note: 'Every build',
         items: [
-          'Quote and contact forms placed where visitors decide',
-          'Tap-to-call on mobile',
-          'Instant lead alerts to your inbox and phone',
-          'Conversion tracking so you know which pages produce calls',
-        ],
-      },
-      {
-        title: 'Qualify',
-        note: 'AxeonCORE',
-        items: [
-          'Multi-step intake questionnaire that pre-qualifies leads before you call',
-          'Service pre-select, so you know what the lead wants before you pick up',
+          'Quote forms and tap-to-call where visitors decide',
+          'Intake questions that qualify the lead',
+          'Instant alerts to your inbox and phone',
         ],
       },
       {
         title: 'Follow up',
-        note: 'AxeonCORE',
         items: [
-          'Automated SMS & email follow-up the second a lead comes in',
-          'Messages written in your voice for your services',
-          'Speed-to-lead call connect: when a form comes in, your phone rings and connects you to that lead while they’re still on your site',
-          'Missed-call text-back: anyone who calls and can’t reach you gets an instant text',
+          'A text and email the second a lead comes in',
+          'Your phone rings and connects you to new form leads',
+          'Missed callers get a text back right away',
         ],
       },
       {
         title: 'Book',
-        note: 'AxeonCORE',
-        items: ['AI chat & online scheduling so leads book themselves 24/7', 'Appointments go straight onto your calendar'],
-      },
-      {
-        title: 'Track',
-        note: 'AxeonCORE',
         items: [
-          'Custom CRM Pipeline built around your lead-to-close workflow',
-          'Every call, form, chat, and booking in one place',
-          'Stages that match how you actually sell, from new lead to booked to won',
-          'Call tracking numbers that show which pages and listings make your phone ring',
-          'Exit-intent offers matched to the service a visitor was looking at',
-        ],
-      },
-      {
-        title: 'Own',
-        items: [
-          'No per-seat CRM software stacked on top',
-          'One team to call instead of a vendor for every tool',
+          'AI chat and online scheduling, 24/7',
+          'Appointments straight onto your calendar',
+          'Every lead tracked from first contact to booked job',
         ],
       },
     ],
+  },
+  fit: {
+    step: 'booked',
+    lines: [CORE_PLAN, 'Essentials ($2,800 setup, then from $284/mo) includes instant lead alerts and conversion tracking.'],
   },
   timeline: {
     eyebrow: 'How It Works',
-    heading: 'How We Set Up Your Lead Pipeline',
+    heading: 'How We Set Up Your Pipeline',
     steps: [
-      CONSULTATION_STEP,
       {
-        title: 'Map your lead-to-close process',
-        body: 'Where leads come from today, what you ask them, how you quote, and what “won” means for your business. The pipeline gets built around that, not a generic template.',
+        title: 'Map how you close',
+        body: 'Where leads come from, what you ask them, how you quote, and what “won” means for your business.',
       },
       {
-        title: 'Build intake & stages',
-        body: 'We build the pre-qualifying questions, the pipeline stages, and the forms and booking flow on your site.',
+        title: 'Build & write',
+        body: 'Intake questions, pipeline stages, and follow-up texts and emails, written in your voice.',
       },
       {
-        title: 'Write the follow-up',
-        body: 'We write the automated texts and emails that go out the moment a lead arrives, in your voice and for your services.',
+        title: 'Test & launch',
+        body: 'We send real test leads through every channel and confirm each one lands, alerts you, and gets its follow-up.',
       },
-      {
-        title: 'Test end to end',
-        body: 'We submit real test leads through every channel and confirm each one lands in the pipeline, triggers an alert, and gets its follow-up.',
-      },
-      {
-        title: 'Launch',
-        body: 'The system goes live with your site. From then on, every lead is captured, followed up, and tracked automatically.',
-      },
-    ],
-  },
-  comparison: {
-    eyebrow: 'Side by Side',
-    heading: 'One Pipeline vs. a Vendor Stack',
-    rows: [
-      { label: 'Where leads live', typical: 'Spread across several apps and inboxes', axeon: 'One Custom CRM Pipeline' },
-      { label: 'First response', typical: 'Whenever someone checks', axeon: 'Your phone rings and connects you to the lead, plus automatic SMS and email' },
-      { label: 'Missed calls', typical: 'Voicemail, and the caller moves on', axeon: 'An instant text back to every missed caller' },
-      { label: 'Qualification', typical: 'A phone call to find out', axeon: 'A multi-step intake before you ever call' },
-      { label: 'Software cost', typical: 'Per-seat subscriptions for each tool', axeon: 'No per-seat CRM software' },
-      { label: 'Setup', typical: 'Off-the-shelf stages that don’t fit', axeon: 'Built around your workflow' },
-      { label: 'Support', typical: 'A different vendor for each tool', axeon: 'One team' },
     ],
   },
   proof: {
-    heading: '“Getting Lots of Leads”',
-    body: 'A-1 Auto Detailing’s old site made customers dig for a way to book. The rebuild puts the next step in front of every visitor, and the owner’s verdict was: “…Whatever you have been doing, it’s working. Getting lots of leads.”',
-    facts: [
-      '#1 on Google for “Pleasant Hill auto detailing,” up from page 2',
-      'Quote and booking form with service pre-select',
-      'Tap-to-call on every page',
-      'Published starting prices, so leads arrive already knowing the range',
-      '180+ five-star Google reviews, now shown where it helps people decide',
-    ],
+    heading: 'Every Page Ready to Take a Booking',
+    body: 'A-1 Auto Detailing’s rebuild added a quote and booking form with service pre-select and tap-to-call on every page. Owner Levi Rench:',
+    facts: [],
+    quote: true,
   },
   faqs: [
     {
-      question: 'Do you run Google or Facebook ads?',
-      answer:
-        'Yes, as a separate service. This service is about capturing, qualifying, and following up on every lead, including the ones your ads bring in, so fewer of them slip away. See our Advertising page for Google Ads and Meta Ads.',
-    },
-    {
-      question: 'Does this replace my existing CRM?',
-      answer:
-        'It replaces the need for a separate per-seat CRM subscription. Your Custom CRM Pipeline is built into your site and run by us, so you’re not paying for and managing another piece of software.',
-    },
-    {
-      question: 'What counts as a lead in this system?',
-      answer:
-        'Every call, form fill, chat, and text. Anything that comes in through your site or listed number goes into the same pipeline instead of being scattered across different tools.',
+      question: 'What counts as a lead?',
+      answer: 'Every call, form fill, chat, and text that comes in through your site or listed number. They all land in the same pipeline.',
     },
     {
       question: 'Do I still have to check it manually?',
@@ -765,12 +494,12 @@ export const leadGenDetail: SolutionDetail = {
     {
       question: 'What’s included in Essentials vs. AxeonCORE?',
       answer:
-        'Essentials includes instant lead alerts to your inbox and phone, plus conversion tracking. AxeonCORE adds the full system: the Custom CRM Pipeline, the pre-qualifying intake, AI chat and scheduling, automated SMS and email follow-up, speed-to-lead call connect, missed-call text-back, exit-intent offers, and call tracking.',
+        'Essentials includes instant lead alerts and conversion tracking. AxeonCORE adds the full system: the CRM pipeline, pre-qualifying intake, AI chat and scheduling, automated text and email follow-up, speed-to-lead call connect, missed-call text-back, and call tracking.',
     },
     {
-      question: 'Can the pipeline match how my business already works?',
+      question: 'Do you run Google or Facebook ads?',
       answer:
-        'Yes, that’s the point of it. We map how you get from first contact to a paid job, and build the stages, questions, and follow-up around that.',
+        'Yes, as a separate add-on. This service makes sure every lead, including the ones your ads bring in, gets answered and followed up. See our Advertising page.',
     },
   ],
 };
@@ -783,11 +512,11 @@ export const videoDetail: SolutionDetail = {
   problem: {
     eyebrow: 'The Problem',
     heading: 'Why Most Local Business Visuals Don’t Sell',
-    intro: 'People hire the business they trust, and they decide a lot of that from what they see before they read a word.',
+    intro: 'People hire the business they trust, and they decide a lot of that before they read a word.',
     items: [
       {
         title: 'Stock photos that could be anyone',
-        body: 'A smiling model in a hard hat tells a customer nothing about you. They’ve seen the same photo on three other sites.',
+        body: 'A smiling model in a hard hat tells a customer nothing about you. They’ve seen it on three other sites.',
       },
       {
         title: 'Phone photos that undersell the work',
@@ -795,116 +524,77 @@ export const videoDetail: SolutionDetail = {
       },
       {
         title: 'One long video nobody finishes',
-        body: 'A four-minute brand video on the about page doesn’t get watched. Short cuts in the right places do.',
-      },
-      {
-        title: 'Content that doesn’t fit where it runs',
-        body: 'A horizontal video forced into a vertical feed, or a photo cropped badly on a phone. The content has to be shot for where it’ll be used.',
+        body: 'A four-minute brand video doesn’t get watched. Short cuts in the right places do.',
       },
     ],
   },
   deliverables: {
-    eyebrow: 'What’s Included',
-    heading: 'What One Half-Day Shoot Gets You',
-    intro: 'Included in AxeonCORE ($5,800), or added to an Essentials build for $1,500.',
+    eyebrow: 'What You Get',
+    heading: 'One Half-Day Shoot, Used Everywhere',
     groups: [
       {
-        title: 'The shoot',
+        title: 'Shoot',
         items: [
           'A half-day on-site shoot at your location',
-          'Your team, your space, and your work, never stock footage',
-          'Planned before we arrive, so nothing important gets missed',
+          'Your team, your space, your work. Never stock',
+          'A shot list planned with you beforehand',
         ],
       },
       {
-        title: 'Video',
-        items: [
-          'A hero film cut for your website',
-          '3 vertical cuts sized for social and ads',
-        ],
+        title: 'Edit',
+        items: ['A hero film for your website', '3 vertical cuts for social and ads', 'A photo set for your site and profiles'],
       },
       {
-        title: 'Photography',
+        title: 'Use everywhere',
         items: [
-          'A photo set for your website and profiles',
-          'Shot to fit the pages and placements where it will run',
-        ],
-      },
-      {
-        title: 'Built into your site',
-        items: [
-          'Placed on your homepage, service pages, and about page as part of the build',
-          'Compressed so real footage doesn’t slow the site down',
-        ],
-      },
-      {
-        title: 'One team',
-        items: [
-          'The same team that builds your website plans the shoot',
-          'No separate vendor to hire, brief, or manage',
+          'Built into your homepage and service pages',
+          'Ready for social, ads, and your Google profile',
+          'Compressed so your site stays fast',
         ],
       },
     ],
+  },
+  fit: {
+    step: 'chosen',
+    lines: [CORE_PLAN, 'On Essentials ($2,800 setup, then from $284/mo), add the shoot for $1,500.'],
   },
   timeline: {
     eyebrow: 'How It Works',
     heading: 'How a Shoot Comes Together',
     steps: [
-      CONSULTATION_STEP,
       {
         title: 'Plan the shoot',
-        body: 'We decide what needs to be on camera: the work you’re proudest of, the people customers will meet, and the moments that make you different. Then we build a shot list around your pages.',
-      },
-      {
-        title: 'Schedule around your day',
-        body: 'We pick a half-day that works around your jobs and customers, so the shoot doesn’t shut the business down.',
+        body: 'The work you’re proudest of, the people customers will meet, and a shot list built around your pages.',
       },
       {
         title: 'Shoot on-site',
-        body: 'We come to you and capture your team, your space, and your work.',
+        body: 'We pick a half-day that works around your jobs and capture your team, your space, and your work.',
       },
       {
-        title: 'Edit & deliver',
+        title: 'Edit & build in',
         body: 'You get the hero film, 3 vertical cuts, and a photo set, and we build them into your website.',
       },
-    ],
-  },
-  comparison: {
-    eyebrow: 'Side by Side',
-    heading: 'How It Compares',
-    rows: [
-      { label: 'Footage', typical: 'Stock photos and generic b-roll', axeon: 'Your team, your space, and your work' },
-      { label: 'Vendor', typical: 'A separate videographer to brief', axeon: 'The same team building your site' },
-      { label: 'Formats', typical: 'One long video to repurpose yourself', axeon: 'A hero film, 3 vertical cuts, and a photo set' },
-      { label: 'On the site', typical: 'Handed over as files', axeon: 'Built into your pages' },
-      { label: 'Price', typical: 'A separate quote', axeon: 'Included in AxeonCORE, or $1,500 on Essentials' },
     ],
   },
   faqs: [
     {
       question: 'What exactly do I get from the shoot?',
       answer:
-        'A half-day on-site shoot at your location. You get a hero film cut for your website, three vertical cuts sized for social and ads, and a photo set for your site and profiles.',
+        'A half-day on-site shoot at your location: a hero film for your website, three vertical cuts sized for social and ads, and a photo set for your site and profiles.',
     },
     {
       question: 'Can I see examples of your work?',
-      answer:
-        'Yes. See the A-1 Auto Detailing case study for a full before-and-after, and our Work page for recent homepages. On your strategy call we’ll walk through exactly what a shoot would look like for your business.',
-    },
-    {
-      question: 'Is this a separate contract from my website?',
-      answer:
-        'No. It’s included in AxeonCORE, or added to an Essentials build for $1,500. You don’t hire a separate vendor or manage another handoff.',
+      answer: 'On your strategy call we’ll walk through exactly what a shoot would look like for your business.',
     },
     {
       question: 'Is the $1,500 add-on or AxeonCORE the better deal?',
       answer:
-        'If you want the video, AxeonCORE is usually the better value. It’s $1,500 more than Essentials plus the add-on, and it also includes the Custom CRM Pipeline, AI chat and scheduling, the pre-qualifying intake, and automated follow-up.',
+        'If you want the video, AxeonCORE is usually the better value. Its setup is $1,500 more than Essentials plus the add-on, and it also includes the CRM pipeline, AI chat and scheduling, and automated follow-up.',
     },
     {
       question: 'Do I need to prepare anything?',
       answer:
-        'Just tidy the space you want on camera and let the people who will appear know ahead of time. We plan the shot list with you beforehand, so you’ll know what we’re capturing.',
+        'Just tidy the space you want on camera and let the people who will appear know ahead of time. We plan the shot list with you beforehand.',
     },
   ],
 };
@@ -915,140 +605,88 @@ export const videoDetail: SolutionDetail = {
 
 export const advertisingDetail: SolutionDetail = {
   problem: {
-    eyebrow: 'Where Ad Budgets Leak',
-    heading: 'Most Local Ad Spend Is Wasted Before Anyone Clicks',
-    intro: 'Ads aren’t the hard part. Running them so every dollar can be traced to a call or a booking is.',
+    eyebrow: 'The Problem',
+    heading: 'Where Local Ad Budgets Leak',
+    intro: 'Ads aren’t the hard part. Running them so every dollar traces back to a call or a booking is.',
     items: [
       {
-        title: 'Boosted posts instead of campaigns',
-        body: 'Hitting “Boost” reaches people who like pictures, not people who need your service this week.',
-      },
-      {
-        title: 'Broad keywords burning the budget',
-        body: 'Without negative keywords and tight targeting, you pay for clicks from job seekers, DIYers, and people three states away.',
+        title: 'Paying for the wrong clicks',
+        body: 'Boosted posts and broad keywords reach job seekers, DIYers, and people three states away.',
       },
       {
         title: 'Clicks sent to the homepage',
-        body: 'Someone searches for one specific service and lands on a generic page. They hit back and call the next ad.',
+        body: 'Someone searches for one service and lands on a generic page. They hit back and call the next ad.',
       },
       {
-        title: 'No conversion tracking',
-        body: 'The dashboard shows clicks and impressions, but nobody can tell you which ads produced calls, forms, or booked jobs.',
+        title: 'No idea what worked',
+        body: 'The dashboard shows clicks, but nobody can tell you which ads produced calls or booked jobs.',
+      },
+    ],
+    stat: {
+      text: 'Every paid lead is only worth it if someone answers fast. Leads called back within 5 minutes were about 21× more likely to qualify (MIT/InsideSales).',
+      ...STAT_21X,
+    },
+  },
+  deliverables: {
+    eyebrow: 'What You Get',
+    heading: 'Google and Meta, Run Like a System',
+    groups: [
+      {
+        title: 'Google',
+        items: [
+          'Search campaigns for the services you want more of',
+          'Tight keywords and service-area targeting',
+          'Tap-to-call straight from the ad',
+        ],
       },
       {
-        title: 'Leads that nobody answers',
-        body: 'You paid for the click, the form comes in, and it sits until the end of the day. By then they’ve booked someone else.',
+        title: 'Meta',
+        items: [
+          'Facebook and Instagram campaigns in your service area',
+          'Retargeting people who visited but didn’t book',
+          'Your own video and photos with an Axeon shoot',
+        ],
       },
       {
-        title: 'Set it and forget it',
-        body: 'Campaigns launched once and never touched again. Costs creep up while the same tired ads keep running.',
+        title: 'Tracking & landing pages',
+        items: [
+          'Every ad points to a page for that exact service',
+          'Calls, forms, and bookings tracked to the campaign',
+          'Plain-English reporting on spend and results',
+        ],
       },
     ],
   },
-  deliverables: {
-    eyebrow: 'What’s Included',
-    heading: 'Google and Meta, Run Like a System',
-    intro:
-      'Ads work best when they send people to a site built to convert and a pipeline that follows up instantly. That’s the part most ad agencies can’t offer.',
-    groups: [
-      {
-        title: 'Google Ads',
-        items: [
-          'Search campaigns built around the services you actually want more of',
-          'Keyword research, negative keywords, and service-area targeting',
-          'Ad copy written for high-intent local searches',
-          'Call assets so mobile searchers can tap to call straight from the ad',
-        ],
-      },
-      {
-        title: 'Meta Ads',
-        items: [
-          'Facebook and Instagram campaigns aimed at your service area',
-          'Audience setup, including retargeting people who already visited your site',
-          'Lead forms and offers matched to each service',
-          'Creative cut for Reels, Stories, and the feed',
-        ],
-      },
-      {
-        title: 'Landing pages',
-        items: [
-          'Every ad points to a page about that specific service, not your homepage',
-          'Fast, mobile-first pages with one clear next step',
-          'Forms, tap-to-call, and booking placed where people decide',
-        ],
-      },
-      {
-        title: 'Tracking',
-        items: [
-          'Conversion tracking for calls, forms, chats, and bookings',
-          'Call tracking numbers that show which campaigns make your phone ring',
-          'Reporting in plain English: what you spent and what it produced',
-        ],
-      },
-      {
-        title: 'Creative',
-        items: [
-          'Ad copy and static creative for every campaign',
-          'Video from an Axeon shoot, cut into vertical formats sized for ads',
-        ],
-      },
-      {
-        title: 'Optimization',
-        items: [
-          'Ongoing bid, budget, and keyword adjustments based on real conversions',
-          'New ad variations tested against what’s already working',
-          'Budget moved toward the campaigns that produce booked work',
-        ],
-      },
+  fit: {
+    step: 'found',
+    lines: [
+      'A growth add-on to your plan, scoped on your strategy call',
+      'No published price. Budget and scope are set around your market and goals. Pair it with AxeonCORE and every paid lead gets instant follow-up.',
     ],
-    footnote:
-      'Pair ads with AxeonCORE and every paid lead lands in your Custom CRM Pipeline with instant follow-up, speed-to-lead call connect, and missed-call text-back.',
   },
   timeline: {
     eyebrow: 'How It Works',
     heading: 'How We Launch Your Campaigns',
     steps: [
-      CONSULTATION_STEP,
       {
-        title: 'Audit & strategy',
-        body: 'If you’ve run ads before, we audit the accounts. Then we pick the services, service area, and channels worth paying for, and set a budget that fits.',
-      },
-      {
-        title: 'Tracking first',
-        body: 'Conversion tracking and call tracking go in before a single dollar is spent, so every result can be traced to a campaign.',
+        title: 'Audit & tracking',
+        body: 'We review any past accounts, pick the services worth paying for, and set up tracking before a dollar is spent.',
       },
       {
         title: 'Build campaigns & pages',
-        body: 'We build the campaigns, write the ads, and make sure each one points to a landing page about that specific service.',
+        body: 'We write the ads and point each one to a landing page for that specific service.',
       },
       {
-        title: 'Launch',
-        body: 'Campaigns go live, and every lead flows into the same place as the rest of your leads.',
+        title: 'Launch & optimize',
+        body: 'We keep adjusting targeting and creative toward what produces calls and bookings, and report back in plain English.',
       },
-      {
-        title: 'Optimize & report',
-        body: 'We keep adjusting targeting, keywords, and creative based on what produces calls and bookings, and report back in plain English.',
-      },
-    ],
-  },
-  comparison: {
-    eyebrow: 'Side by Side',
-    heading: 'Axeon vs. a Typical Ad Agency',
-    rows: [
-      { label: 'Where clicks go', typical: 'Your homepage', axeon: 'A landing page for that exact service' },
-      { label: 'Tracking', typical: 'Clicks and impressions', axeon: 'Calls, forms, chats, and bookings' },
-      { label: 'Lead follow-up', typical: 'Not their problem', axeon: 'Instant follow-up through your pipeline with AxeonCORE' },
-      { label: 'Channels', typical: 'Google or Meta, rarely both', axeon: 'Google and Meta under one team' },
-      { label: 'Creative', typical: 'Stock photos', axeon: 'Your own video and photos' },
-      { label: 'Reporting', typical: 'A PDF full of jargon', axeon: 'Spend in, results out, in plain English' },
-      { label: 'Website & ads', typical: 'Two vendors blaming each other', axeon: 'One team that owns both' },
     ],
   },
   faqs: [
     {
       question: 'Do you manage both Google Ads and Meta Ads?',
       answer:
-        'Yes. We run Google Search campaigns and Facebook and Instagram campaigns, and we recommend the mix based on how your customers actually look for you.',
+        'Yes. We run Google Search campaigns and Facebook and Instagram campaigns, and recommend the mix based on how your customers actually look for you.',
     },
     {
       question: 'Do I need a new website to run ads with you?',
@@ -1058,17 +696,12 @@ export const advertisingDetail: SolutionDetail = {
     {
       question: 'How much should I spend on ads?',
       answer:
-        'It depends on your market, your services, and how much work you can take on. We’ll recommend a starting budget on your strategy call, based on your goals rather than a one-size-fits-all number.',
+        'It depends on your market, your services, and how much work you can take on. We’ll recommend a starting budget on your strategy call.',
     },
     {
       question: 'How do I know the ads are working?',
       answer:
-        'Conversion tracking and call tracking go in before launch, so you’ll see which campaigns produced calls, forms, and bookings, not just clicks.',
-    },
-    {
-      question: 'Do you run Local Services Ads?',
-      answer:
-        'Not at this time. We focus on Google Search campaigns and Meta (Facebook and Instagram) campaigns.',
+        'Conversion and call tracking go in before launch, so you see which campaigns produced calls, forms, and bookings, not just clicks.',
     },
   ],
 };

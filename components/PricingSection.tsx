@@ -23,13 +23,15 @@ interface PricingSectionProps {
    * URL is a structured-data error.
    */
   includeFaqSchema?: boolean;
+  /** Less top padding, for /pricing where the plans should start near the first screen. */
+  tightTop?: boolean;
 }
 
-export function PricingSection({ includeFaqSchema = false }: PricingSectionProps) {
+export function PricingSection({ includeFaqSchema = false, tightTop = false }: PricingSectionProps) {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   return (
-    <section id="pricing" className="w-full py-24 sm:py-36 lg:py-44 px-6 sm:px-10 lg:px-16 xl:px-24">
+    <section id="pricing" className={`w-full ${tightTop ? 'pt-6 sm:pt-10 lg:pt-14' : 'pt-24 sm:pt-36 lg:pt-44'} pb-24 sm:pb-36 lg:pb-44 px-6 sm:px-10 lg:px-16 xl:px-24`}>
       {includeFaqSchema && (
         <script
           type="application/ld+json"
@@ -42,8 +44,9 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.6 }}
-          className="text-center max-w-4xl mx-auto mb-16 sm:mb-20"
+          className={`text-center max-w-4xl mx-auto ${tightTop ? 'mb-12 sm:mb-16' : 'mb-16 sm:mb-20'}`}
         >
+          <span className="block mb-4 text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ PRICING ]</span>
           <h2 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-neutral-950 mb-6 leading-[1.12]">
             Two Ways to Get More Customers
           </h2>
@@ -51,7 +54,7 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
             A one-time setup, then a monthly plan that keeps new customers coming in.
             Monthly plans start at $284 and are tailored to your market on the call.
           </p>
-          <div className="mt-6 inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-emerald-50 border border-emerald-200 text-base font-semibold text-emerald-800">
+          <div className="mt-6 inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-blue-50 border border-blue-200 text-base font-semibold text-blue-800">
             <ShieldCheck size={18} className="shrink-0" />
             <span>{customerGuarantee}</span>
           </div>
@@ -61,7 +64,7 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
           {pricingTiers.map((tier, idx) => {
             // The entry tier is deliberately the plain card and the featured
             // (recommended) tier the loud one, so the eye lands on the tier we
-            // want to sell. The step-up box stays dark.
+            // want to sell. The free-call card sits beside them.
             const isPlain = !tier.featured;
             const highlights = new Set(tier.highlightFeatures ?? []);
             return (
@@ -156,25 +159,6 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
                     );
                   })}
                 </ul>
-
-                {tier.stepUp && (
-                  <div className="mb-8 p-5 sm:p-6 rounded-2xl bg-neutral-900 border border-neutral-700">
-                    <div className="text-xs sm:text-sm font-mono font-semibold tracking-widest text-neutral-400 uppercase mb-3">
-                      {tier.stepUp.heading}
-                    </div>
-                    <ul className="space-y-2 text-sm sm:text-base text-neutral-300">
-                      {tier.stepUp.items.map((item) => (
-                        <li key={item.label} className="flex flex-wrap justify-between gap-x-3">
-                          <span>{item.label}</span>
-                          {item.note && <span className="text-neutral-500 ml-auto text-right">{item.note}</span>}
-                        </li>
-                      ))}
-                    </ul>
-                    <p className="mt-4 pt-3.5 border-t border-neutral-700 text-sm sm:text-base font-semibold text-blue-400">
-                      {tier.stepUp.footer}
-                    </p>
-                  </div>
-                )}
 
                 <Link
                   href={`/book?tier=${tier.id}`}
@@ -293,10 +277,10 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
 }
 
 /**
- * Third card beside the two builds. A free call alone is table stakes, so
+ * Third card beside the two plans. A free call alone is table stakes, so
  * booking one comes with two things prepared for that business before the
  * call: a custom homepage mockup and an AI visibility report. The call is
- * where we walk them through both. Also covers custom scopes neither build
+ * where we walk them through both. Also covers custom scopes neither plan
  * fits (this replaced the old "Need Something Different?" box).
  * Spans the full row at lg (two columns) and sits third at xl.
  */
@@ -326,19 +310,19 @@ function FreeConsultationCard() {
       viewport={{ once: true, amount: 0.15 }}
       transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
       whileHover={{ y: -6 }}
-      className="relative rounded-[32px] p-8 sm:p-10 lg:p-12 xl:p-10 2xl:p-12 flex flex-col lg:col-span-2 xl:col-span-1 bg-gradient-to-b from-emerald-50 to-white text-neutral-950 border-2 border-emerald-500 shadow-xl shadow-emerald-600/10"
+      className="relative rounded-[32px] p-8 sm:p-10 lg:p-12 xl:p-10 2xl:p-12 flex flex-col lg:col-span-2 xl:col-span-1 bg-gradient-to-b from-blue-50 to-white text-neutral-950 border-2 border-blue-200 shadow-xl shadow-blue-600/10"
     >
-      <span className="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold tracking-wide uppercase shadow-md whitespace-nowrap bg-emerald-600 text-white">
+      <span className="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold tracking-wide uppercase shadow-md whitespace-nowrap bg-blue-600 text-white">
         100% Free
       </span>
 
       <h3 className="text-2xl sm:text-3xl font-bold mb-1.5">Free Consultation</h3>
-      <p className="text-sm sm:text-base font-semibold mb-4 uppercase tracking-wide text-emerald-700">
+      <p className="text-sm sm:text-base font-semibold mb-4 uppercase tracking-wide text-blue-700">
         Book a call. Get your new homepage.
       </p>
-      <p className="text-sm sm:text-base leading-relaxed mb-5 rounded-xl px-4 py-3 bg-emerald-100/70 text-emerald-950">
+      <p className="text-sm sm:text-base leading-relaxed mb-5 rounded-xl px-4 py-3 bg-blue-100/70 text-blue-950">
         Right for you if you want to see exactly what you&apos;d get before spending a
-        dollar, or if neither build quite fits.
+        dollar, or if neither plan quite fits.
       </p>
       <p className="text-base sm:text-lg mb-6 leading-relaxed text-neutral-500">No cost, no obligation</p>
       <div className="text-4xl sm:text-6xl font-black mb-3 tracking-tight whitespace-nowrap">$0</div>
@@ -351,9 +335,9 @@ function FreeConsultationCard() {
         {bonuses.map(({ icon: Icon, title, body }) => (
           <div
             key={title}
-            className="flex gap-3.5 rounded-2xl p-4 sm:p-5 -mx-1 bg-white border border-emerald-200 shadow-sm"
+            className="flex gap-3.5 rounded-2xl p-4 sm:p-5 -mx-1 bg-white border border-blue-200 shadow-sm"
           >
-            <Icon size={22} className="shrink-0 mt-0.5 text-emerald-600" />
+            <Icon size={22} className="shrink-0 mt-0.5 text-blue-600" />
             <div>
               <div className="font-bold text-base sm:text-lg leading-snug">{title}</div>
               <p className="mt-1 text-sm sm:text-base text-neutral-600 leading-relaxed">{body}</p>
@@ -365,7 +349,7 @@ function FreeConsultationCard() {
       <ul className="space-y-4 mb-8 flex-1">
         {points.map((point) => (
           <li key={point} className="flex gap-3.5 text-base sm:text-lg leading-relaxed">
-            <MessagesSquare size={20} className="shrink-0 mt-1 text-emerald-600" />
+            <MessagesSquare size={20} className="shrink-0 mt-1 text-blue-600" />
             <span>{point}</span>
           </li>
         ))}
@@ -375,7 +359,7 @@ function FreeConsultationCard() {
         href="/book"
         data-track="cta_click"
         data-track-cta="free_consultation_card"
-        className="text-center py-4 sm:py-4.5 rounded-full font-bold text-base sm:text-lg transition-colors shadow-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30"
+        className="text-center py-4 sm:py-4.5 rounded-full font-bold text-base sm:text-lg transition-colors shadow-sm bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30"
       >
         Book My Free Consultation
       </Link>

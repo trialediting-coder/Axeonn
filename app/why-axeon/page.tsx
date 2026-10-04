@@ -4,9 +4,9 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/why-axeon',
-  title: 'Axeon vs. a Typical Agency | Axeon Studio',
+  title: 'Typical Agency vs. Axeon: Who Gets You More Customers | Axeon Studio',
   description:
-    'See how Axeon compares to a typical agency across web design, AI receptionist, data infrastructure, SEO/AEO/GEO, and automation.',
+    'Typical agency vs. Axeon, side by side: who gets your business found, chosen and booked. Backed by the 90-Day Customer Guarantee.',
 });
 
 export default function WhyAxeonPage() {
