@@ -3,10 +3,9 @@
 // options, the packages it can recommend, and each package's matching rules.
 // lib/getStarted.ts reads this; nothing here runs any logic.
 //
-// Every name, price, tagline, include, and Stripe link below is a TODO for the
-// owner to fill. Do not invent them. Until a package has a real
-// https://buy.stripe.com/ link, the result screen falls back to the booking
-// button instead of a broken pay button (see isPaymentLinkReady).
+// Packages mirror the plans on /pricing. They have no Stripe link on purpose:
+// every result goes to a booked call (owner decision 2026-09-29), so the
+// result screen shows the booking button (see isPaymentLinkReady).
 
 /** Exact values. They map 1:1 to the Airtable "Services" field, so never rename. */
 export const SERVICES = ['Website', 'Meta Ads', 'Google Ads', 'SEO', 'AI Automation', 'Content'] as const;
@@ -75,67 +74,46 @@ export interface Package {
   match?: PackageMatch;
 }
 
-const TODO_INCLUDES = ['TODO: include 1', 'TODO: include 2', 'TODO: include 3'];
+// The two plans from /pricing (data/pricingData.ts). Ads are an add-on scoped
+// on a call, so any ads pick routes to the custom result.
+const PLAN_BUDGETS: Budget[] = ['Under $1,000', '$1,000 – $2,000', '$2,000 – $3,000'];
 
 // Order matters only as the final tie-breaker in recommendPackage.
 export const PACKAGES: Package[] = [
   {
-    id: 'website',
-    name: 'TODO: Website package name',
-    price: 0, // TODO: deposit in dollars
-    priceLabel: 'TODO: price label',
-    tagline: 'TODO: one-line tagline',
-    includes: TODO_INCLUDES,
-    services: ['Website'],
-    stripePaymentLink: '', // TODO: https://buy.stripe.com/...
+    id: 'essentials',
+    name: 'Essentials',
+    price: 2800,
+    priceLabel: '$2,800 setup, then from $284/mo',
+    tagline: 'Get found and get chosen: a site and search presence built to bring in calls.',
+    includes: [
+      'A custom website written to turn visitors into calls',
+      'SEO, AEO and GEO so you show up on Google and in AI answers',
+      'Google Business Profile upkeep and a monthly calls & leads report',
+    ],
+    services: ['Website', 'SEO', 'Content'],
+    stripePaymentLink: null,
     match: {
-      services: ['Website'],
-      budgets: ['Under $1,000', '$1,000 – $2,000', '$2,000 – $3,000'],
+      services: ['Website', 'SEO', 'Content'],
+      budgets: PLAN_BUDGETS,
     },
   },
   {
-    id: 'ads',
-    name: 'TODO: Ads package name',
-    price: 0, // TODO: deposit in dollars
-    priceLabel: 'TODO: price label',
-    tagline: 'TODO: one-line tagline',
-    includes: TODO_INCLUDES,
-    services: ['Meta Ads', 'Google Ads'],
-    stripePaymentLink: '', // TODO: https://buy.stripe.com/...
+    id: 'axeoncore',
+    name: 'AxeonCORE',
+    price: 5800,
+    priceLabel: '$5,800 setup, then from $574/mo',
+    tagline: 'The full customer engine: get found, get chosen, and get every lead booked.',
+    includes: [
+      'Everything in Essentials, plus custom on-site videography',
+      'AI chat & scheduling, speed-to-lead call connect and missed-call text-back',
+      'CRM pipeline with automated follow-up and call tracking',
+    ],
+    services: ['Website', 'SEO', 'Content', 'AI Automation'],
+    stripePaymentLink: null,
     match: {
-      services: ['Meta Ads', 'Google Ads'],
-      budgets: ['$1,000 – $2,000', '$2,000 – $3,000'],
-      // Ads need somewhere to land. No site, or one that needs a redo, goes to custom.
-      hasWebsite: ['Yes'],
-    },
-  },
-  {
-    id: 'seo-content',
-    name: 'TODO: SEO + Content package name',
-    price: 0, // TODO: deposit in dollars
-    priceLabel: 'TODO: price label',
-    tagline: 'TODO: one-line tagline',
-    includes: TODO_INCLUDES,
-    services: ['SEO', 'Content'],
-    stripePaymentLink: '', // TODO: https://buy.stripe.com/...
-    match: {
-      services: ['SEO', 'Content'],
-      budgets: ['$1,000 – $2,000', '$2,000 – $3,000'],
-      hasWebsite: ['Yes'],
-    },
-  },
-  {
-    id: 'ai-automation',
-    name: 'TODO: AI Automation package name',
-    price: 0, // TODO: deposit in dollars
-    priceLabel: 'TODO: price label',
-    tagline: 'TODO: one-line tagline',
-    includes: TODO_INCLUDES,
-    services: ['AI Automation'],
-    stripePaymentLink: '', // TODO: https://buy.stripe.com/...
-    match: {
-      services: ['AI Automation'],
-      budgets: ['$1,000 – $2,000', '$2,000 – $3,000'],
+      services: ['Website', 'SEO', 'Content', 'AI Automation'],
+      budgets: PLAN_BUDGETS,
     },
   },
 ];

@@ -61,6 +61,9 @@ const LEAKS = [
   },
 ];
 
+// 62% leads at hero scale; the other two read as footnotes so one number lands.
+const [LEAD_LEAK, ...FOOTNOTE_LEAKS] = LEAKS;
+
 const byId = (id: string) => marketingSolutions.find((s) => s.id === id);
 
 // The customer journey, in order. Each step names the result first, then the parts.
@@ -136,27 +139,40 @@ export default function MarketingSolutionsPage() {
         </ol>
       </section>
 
-      {/* 2. The problem, with sourced numbers */}
+      {/* 2. The problem: one dominant sourced number, the other two as footnotes */}
       <section className="py-24 sm:py-32 px-4 sm:px-8">
         <div className="max-w-6xl mx-auto">
-          <div className="max-w-2xl">
+          <div className="max-w-3xl">
             <Eyebrow label="The Problem" />
-            <h2 className="mt-4 text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1]">
+            <h2 className="mt-4 text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1] text-balance">
               Most businesses don&apos;t need more traffic. They&apos;re leaking customers.
             </h2>
           </div>
-          <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
-            {LEAKS.map((l) => (
-              <div key={l.stat} className="border-t-2 border-neutral-950 pt-6">
-                <p className="text-6xl sm:text-7xl font-black font-display tracking-tight">{l.stat}</p>
-                <p className="mt-2 text-lg font-bold">{l.title}</p>
-                <p className="mt-3 text-neutral-600 leading-relaxed">{l.body}</p>
-                <a href={l.href} target="_blank" rel="noopener" className="mt-4 inline-block text-xs text-neutral-400 hover:text-neutral-700 underline underline-offset-2">
-                  Source: {l.source}
-                </a>
-              </div>
-            ))}
+          <div className="mt-12 sm:mt-16 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 lg:items-end">
+            <p className="lg:col-span-7 text-[8rem] sm:text-[12rem] lg:text-[15rem] font-black font-display tracking-tighter leading-[0.8] text-blue-600">
+              {LEAD_LEAK.stat}
+            </p>
+            <div className="lg:col-span-5 lg:pb-4">
+              <p className="text-2xl sm:text-3xl font-bold font-display tracking-tight leading-snug">{LEAD_LEAK.title}</p>
+              <p className="mt-4 text-lg text-neutral-600 leading-relaxed">{LEAD_LEAK.body}</p>
+              <a href={LEAD_LEAK.href} target="_blank" rel="noopener" className="mt-4 inline-block text-xs text-neutral-400 hover:text-neutral-700 underline underline-offset-2">
+                Source: {LEAD_LEAK.source}
+              </a>
+            </div>
           </div>
+          <ul className="mt-14 sm:mt-20 pt-8 border-t border-neutral-200 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+            {FOOTNOTE_LEAKS.map((l) => (
+              <li key={l.stat} className="flex items-start gap-5">
+                <span className="text-3xl sm:text-4xl font-black font-display tracking-tight text-neutral-950 shrink-0 w-20 sm:w-24">{l.stat}</span>
+                <div>
+                  <p className="text-sm sm:text-[15px] text-neutral-600 leading-relaxed">{l.body}</p>
+                  <a href={l.href} target="_blank" rel="noopener" className="mt-2 inline-block text-xs text-neutral-400 hover:text-neutral-700 underline underline-offset-2">
+                    Source: {l.source}
+                  </a>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
@@ -243,37 +259,6 @@ export default function MarketingSolutionsPage() {
           >
             Read the full case study <ArrowRight size={16} />
           </Link>
-        </div>
-      </section>
-
-      {/* 6. Price (the guarantee lives in the closing CTA) */}
-      <section className="pb-24 sm:pb-32 px-4 sm:px-8">
-        <div className="max-w-5xl mx-auto rounded-[32px] bg-neutral-50 border border-neutral-200 p-8 sm:p-14">
-          <div className="max-w-2xl">
-            <Eyebrow label="Pricing" />
-            <h2 className="mt-4 text-3xl sm:text-4xl font-extrabold font-display tracking-tight leading-[1.1]">
-              Start with the plan that fits
-            </h2>
-          </div>
-          <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div className="rounded-2xl bg-white border border-neutral-200 p-7">
-              <p className="text-lg font-bold">Essentials</p>
-              <p className="mt-1 text-sm text-neutral-500">Get found</p>
-              <p className="mt-5 text-3xl font-black font-display tracking-tight">$2,800 <span className="text-base font-semibold text-neutral-500">setup</span></p>
-              <p className="mt-1 font-semibold">then from $284/mo</p>
-            </div>
-            <div className="rounded-2xl bg-white border-2 border-blue-600 p-7">
-              <p className="text-lg font-bold">AxeonCORE <span className="ml-2 align-middle text-[11px] font-bold uppercase tracking-wide text-white bg-blue-600 px-2 py-0.5 rounded-full">Recommended</span></p>
-              <p className="mt-1 text-sm text-neutral-500">Get found, chosen, and booked</p>
-              <p className="mt-5 text-3xl font-black font-display tracking-tight">$5,800 <span className="text-base font-semibold text-neutral-500">setup</span></p>
-              <p className="mt-1 font-semibold">then from $574/mo</p>
-            </div>
-          </div>
-          <div className="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <Link href="/pricing" className="inline-flex items-center gap-2 font-semibold text-neutral-700 hover:text-blue-600 transition-colors">
-              Compare plans in detail <ArrowRight size={16} />
-            </Link>
-          </div>
         </div>
       </section>
 

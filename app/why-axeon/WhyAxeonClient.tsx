@@ -3,6 +3,7 @@
 import { motion } from 'motion/react';
 import GetFoundComparison from '@/components/why-axeon/GetFoundComparison';
 import { VersusSection } from '@/components/why-axeon/VersusSection';
+import { GuaranteeBand } from '@/components/why-axeon/GuaranteeBand';
 import WhyAxeonClosingCTA from '@/components/why-axeon/WhyAxeonClosingCTA';
 import { WhyAxeonSectionNav } from '@/components/why-axeon/WhyAxeonSectionNav';
 
@@ -45,6 +46,8 @@ export default function WhyAxeonClient() {
       <VersusSection
         id="get-chosen"
         eyebrow="02 · GET CHOSEN"
+        layout="giant"
+        tone="warm"
         heading="Found is half the job. They pick the business they trust."
         stat={{
           value: '97%',
@@ -84,13 +87,7 @@ export default function WhyAxeonClient() {
         ]}
       />
 
-      <VersusSection
-        id="guarantee"
-        eyebrow="04 · THE GUARANTEE"
-        heading="A typical agency gets paid either way. We put ours on the line."
-        typical={['Paid the same whether your phone rings or not.']}
-        axeon={['The 90-Day Customer Guarantee on every monthly plan.']}
-      />
+      <GuaranteeBand />
 
       <WhyAxeonClosingCTA />
     </main>

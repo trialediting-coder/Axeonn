@@ -5,7 +5,6 @@ import { niches } from '@/data/nichesData';
 import { NicheSchema } from '@/components/niches/NicheSchema';
 import { NicheHero } from '@/components/niches/NicheHero';
 import { NichePainPoints } from '@/components/niches/NichePainPoints';
-import { NicheSystem } from '@/components/niches/NicheSystem';
 import { NicheWorkflow } from '@/components/niches/NicheWorkflow';
 import { NicheWork } from '@/components/niches/NicheWork';
 import { NicheProof } from '@/components/niches/NicheProof';
@@ -73,11 +72,10 @@ export default async function NichePage({
       <JsonLd data={faqJsonLd} />
       <NicheHero niche={niche} />
       <NichePainPoints niche={niche} />
-      <NicheSystem niche={niche} />
+      <Testimonials />
       <NicheWorkflow niche={niche} />
       <NicheWork niche={niche} />
       <NicheProof niche={niche} />
-      <Testimonials />
       <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50">
         <div className="max-w-3xl mx-auto">
           <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ FAQ ]</p>

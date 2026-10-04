@@ -1,10 +1,26 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import Link from 'next/link';
-import { Check, ShieldCheck, ChevronDown, ChevronUp, Clapperboard, MessagesSquare, LayoutTemplate, Sparkles } from 'lucide-react';
+import {
+  Check,
+  ShieldCheck,
+  ChevronDown,
+  ChevronUp,
+  Clapperboard,
+  LayoutTemplate,
+  Sparkles,
+  ArrowRight,
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { pricingTiers, addOns, pricingFaqs, customerGuarantee } from '@/data/pricingData';
+import {
+  pricingTiers,
+  addOns,
+  pricingFaqs,
+  guaranteeSentence,
+  FEATURED_BULLETS,
+  type PricingTier,
+} from '@/data/pricingData';
 
 const pricingFaqJsonLd = {
   '@context': 'https://schema.org',
@@ -25,212 +41,98 @@ interface PricingSectionProps {
   includeFaqSchema?: boolean;
   /** Less top padding, for /pricing where the plans should start near the first screen. */
   tightTop?: boolean;
+  /** Rendered right under the plans (e.g. the 21x speed band on /pricing). */
+  afterPlans?: ReactNode;
+  /** Rendered between the add-ons and the pricing FAQ. */
+  beforeFaq?: ReactNode;
 }
 
-export function PricingSection({ includeFaqSchema = false, tightTop = false }: PricingSectionProps) {
+// Everything renders visible by default (no scroll-triggered opacity), so
+// full-page captures and crawlers never see a blank section.
+export function PricingSection({
+  includeFaqSchema = false,
+  tightTop = false,
+  afterPlans,
+  beforeFaq,
+}: PricingSectionProps) {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   return (
-    <section id="pricing" className={`w-full ${tightTop ? 'pt-6 sm:pt-10 lg:pt-14' : 'pt-24 sm:pt-36 lg:pt-44'} pb-24 sm:pb-36 lg:pb-44 px-6 sm:px-10 lg:px-16 xl:px-24`}>
+    <section
+      id="pricing"
+      className={`w-full ${tightTop ? 'pt-6 sm:pt-10 lg:pt-14' : 'pt-24 sm:pt-36 lg:pt-44'} pb-24 sm:pb-36 lg:pb-44 px-4 sm:px-10 lg:px-16 xl:px-24`}
+    >
       {includeFaqSchema && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(pricingFaqJsonLd) }}
-        />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(pricingFaqJsonLd) }} />
       )}
       <div className="max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.6 }}
-          className={`text-center max-w-4xl mx-auto ${tightTop ? 'mb-12 sm:mb-16' : 'mb-16 sm:mb-20'}`}
-        >
-          <span className="block mb-4 text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ PRICING ]</span>
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-neutral-950 mb-6 leading-[1.12]">
-            Two Ways to Get More Customers
+        <div className={`text-center max-w-4xl mx-auto ${tightTop ? 'mb-10 sm:mb-12' : 'mb-12 sm:mb-16'}`}>
+          <span className="block mb-4 text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">
+            [ PRICING ]
+          </span>
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold font-display tracking-tight text-neutral-950 mb-6 leading-[1.08]">
+            Two plans. Both backed by a guarantee.
           </h2>
-          <p className="text-xl sm:text-2xl text-neutral-600 leading-relaxed max-w-3xl mx-auto">
-            A one-time setup, then a monthly plan that keeps new customers coming in.
-            Monthly plans start at $284 and are tailored to your market on the call.
+          <p className="text-lg sm:text-2xl text-neutral-600 leading-relaxed max-w-3xl mx-auto">
+            A one-time setup, then a monthly plan that keeps new customers coming in. Monthly plans start at $284 and
+            are tailored to your market on the call.
           </p>
-          <div className="mt-6 inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-blue-50 border border-blue-200 text-base font-semibold text-blue-800">
-            <ShieldCheck size={18} className="shrink-0" />
-            <span>{customerGuarantee}</span>
-          </div>
-        </motion.div>
-
-        <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-8 lg:gap-10 xl:gap-8 items-stretch max-w-6xl xl:max-w-[1500px] 2xl:max-w-[1600px] mx-auto">
-          {pricingTiers.map((tier, idx) => {
-            // The entry tier is deliberately the plain card and the featured
-            // (recommended) tier the loud one, so the eye lands on the tier we
-            // want to sell. The free-call card sits beside them.
-            const isPlain = !tier.featured;
-            const highlights = new Set(tier.highlightFeatures ?? []);
-            return (
-              <motion.div
-                key={tier.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.15 }}
-                transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                whileHover={{ y: -6 }}
-                className={`relative rounded-[32px] p-8 sm:p-10 lg:p-12 xl:p-10 2xl:p-12 flex flex-col ${
-                  isPlain
-                    ? 'bg-neutral-50 text-neutral-900 border border-neutral-200 shadow-sm'
-                    : 'bg-white text-neutral-950 border-2 border-blue-600 shadow-2xl shadow-blue-600/20 ring-8 ring-blue-600/10 lg:scale-[1.03] z-10'
-                }`}
-              >
-                {tier.badge && (
-                  <motion.span
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: 0.3 }}
-                    className={`absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold tracking-wide uppercase shadow-md whitespace-nowrap ${
-                      'bg-blue-600 text-white'
-                    }`}
-                  >
-                    {tier.badge}
-                  </motion.span>
-                )}
-
-                <h3 className="text-2xl sm:text-3xl font-bold mb-1.5">{tier.name}</h3>
-                <p
-                  className={`text-sm sm:text-base font-semibold mb-4 uppercase tracking-wide ${
-                    isPlain ? 'text-neutral-500' : 'text-blue-600'
-                  }`}
-                >
-                  {tier.focus}
-                </p>
-                {tier.bestFor && (
-                  <p
-                    className={`text-sm sm:text-base leading-relaxed mb-5 rounded-xl px-4 py-3 ${
-                      isPlain ? 'bg-white border border-neutral-200 text-neutral-700' : 'bg-blue-50 text-blue-900'
-                    }`}
-                  >
-                    {tier.bestFor}
-                  </p>
-                )}
-                <p
-                  className={`text-base sm:text-lg mb-6 leading-relaxed ${
-                    'text-neutral-500'
-                  }`}
-                >
-                  {tier.billingNote}
-                </p>
-                <div className="text-4xl sm:text-6xl font-black mb-2 tracking-tight whitespace-nowrap">{tier.price}</div>
-                <p className="text-lg sm:text-xl font-bold text-neutral-900">
-                  then {tier.monthly}
-                </p>
-                <p className="mt-1 text-sm sm:text-base text-neutral-500 leading-relaxed mb-8">
-                  {tier.monthlyNote}
-                </p>
-
-                {tier.inherits && (
-                  <p
-                    className={`text-sm sm:text-base font-bold uppercase tracking-wide mb-4 ${
-                      'text-neutral-500'
-                    }`}
-                  >
-                    {tier.inherits}
-                  </p>
-                )}
-
-                <ul className="space-y-4 mb-8 flex-1">
-                  {tier.features.map((feature) => {
-                    const isHighlight = highlights.has(feature);
-                    if (isHighlight) {
-                      return (
-                        <li
-                          key={feature}
-                          className="flex gap-3.5 text-base sm:text-lg leading-relaxed rounded-2xl p-4 sm:p-5 -mx-1 bg-blue-50 border border-blue-100"
-                        >
-                          <Clapperboard size={22} className="shrink-0 mt-0.5 text-blue-400" />
-                          <span className="font-semibold">{feature}</span>
-                        </li>
-                      );
-                    }
-                    return (
-                      <li key={feature} className="flex gap-3.5 text-base sm:text-lg leading-relaxed">
-                        <Check size={20} className={`shrink-0 mt-1 ${isPlain ? 'text-neutral-400' : 'text-blue-600'}`} />
-                        <span>{feature}</span>
-                      </li>
-                    );
-                  })}
-                </ul>
-
-                <Link
-                  href={`/book?tier=${tier.id}`}
-                  className={`text-center py-4 sm:py-4.5 rounded-full font-bold text-base sm:text-lg transition-colors shadow-sm ${
-                    isPlain
-                      ? 'bg-white hover:bg-neutral-100 text-neutral-900 border border-neutral-300'
-                      : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30'
-                  }`}
-                >
-                  {tier.cta}
-                </Link>
-                <p className={`mt-3 text-center text-xs sm:text-sm ${'text-neutral-500'}`}>
-                  Free 20-minute call, no obligation.{' '}
-                  <a href="tel:+15154938017" className="font-semibold underline underline-offset-2">
-                    Or call (515) 493-8017
-                  </a>
-                </p>
-              </motion.div>
-            );
-          })}
-
-          <FreeConsultationCard />
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.6 }}
-          className="mt-20 sm:mt-24"
-        >
-          <h3 className="text-2xl sm:text-3xl font-bold text-neutral-950 mb-8 text-center">
+        {/* The guarantee: its own full-width blue band, at display size. */}
+        <div className="max-w-6xl mx-auto rounded-[28px] sm:rounded-[36px] bg-blue-600 text-white px-6 py-10 sm:px-12 sm:py-14 lg:px-16 shadow-xl shadow-blue-600/20">
+          <div className="flex items-center gap-2.5 text-xs sm:text-sm font-mono font-bold tracking-widest uppercase text-blue-100">
+            <ShieldCheck size={18} className="shrink-0" />
+            <span>[ 90-DAY CUSTOMER GUARANTEE ]</span>
+          </div>
+          <p className="mt-5 text-2xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-[1.15]">
+            {guaranteeSentence}
+          </p>
+          <p className="mt-5 text-sm sm:text-base text-blue-100 leading-relaxed max-w-3xl">
+            Baseline set together on your kickoff call. Applies while you&apos;re on a monthly plan and answering new
+            leads within one business day.
+          </p>
+        </div>
+
+        <div className="mt-12 sm:mt-16 grid lg:grid-cols-2 gap-8 lg:gap-10 items-stretch max-w-6xl mx-auto">
+          {pricingTiers.map((tier) => (
+            <PlanCard key={tier.id} tier={tier} />
+          ))}
+        </div>
+
+        <FreeConsultationStrip />
+
+        {afterPlans}
+
+        <div className="mt-20 sm:mt-24">
+          <h3 className="text-2xl sm:text-3xl font-bold font-display text-neutral-950 mb-8 text-center">
             Add More Ways to Win Customers
           </h3>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
-            {addOns.map((addOn, idx) => (
-              <motion.div
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto">
+            {addOns.map((addOn) => (
+              <div
                 key={addOn.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.5, delay: idx * 0.06 }}
-                whileHover={{ y: -3 }}
-                className="p-6 sm:p-7 rounded-2xl border border-neutral-200 bg-white text-center shadow-xs"
+                className="p-5 sm:p-7 rounded-2xl border border-neutral-200 bg-white text-center shadow-xs"
               >
                 <div className="text-base sm:text-lg text-neutral-700 font-medium mb-2 leading-snug">{addOn.name}</div>
                 <div className="text-xl sm:text-2xl font-black text-blue-600">{addOn.price}</div>
-              </motion.div>
+              </div>
             ))}
           </div>
-        </motion.div>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.6 }}
-          className="mt-24 max-w-4xl mx-auto"
-        >
-          <h3 className="text-2xl sm:text-3xl font-bold text-neutral-950 mb-10 text-center">
+        {beforeFaq}
+
+        <div className="mt-24 max-w-4xl mx-auto">
+          <h3 className="text-2xl sm:text-3xl font-bold font-display text-neutral-950 mb-10 text-center">
             Common Questions About Pricing
           </h3>
           <div className="space-y-4">
             {pricingFaqs.map((faq, idx) => {
               const isOpen = openFaqIndex === idx;
               return (
-                <motion.div
+                <div
                   key={faq.q}
-                  initial={{ opacity: 0, y: 15 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.3 }}
-                  transition={{ duration: 0.5, delay: idx * 0.06 }}
                   className="rounded-2xl border border-neutral-200 bg-white overflow-hidden transition-colors hover:border-neutral-300 shadow-xs"
                 >
                   <button
@@ -238,7 +140,7 @@ export function PricingSection({ includeFaqSchema = false, tightTop = false }: P
                     onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
                     aria-expanded={isOpen}
                     aria-controls={`pricing-faq-${idx}`}
-                    className="w-full p-6 sm:p-7 text-left flex items-center justify-between gap-4 cursor-pointer hover:bg-neutral-50/50 transition-colors"
+                    className="w-full p-5 sm:p-7 text-left flex items-center justify-between gap-4 cursor-pointer hover:bg-neutral-50/50 transition-colors"
                   >
                     <span className="font-bold text-lg sm:text-xl text-neutral-950">{faq.q}</span>
                     <div
@@ -260,108 +162,129 @@ export function PricingSection({ includeFaqSchema = false, tightTop = false }: P
                         transition={{ duration: 0.3, ease: 'easeInOut' }}
                         className="overflow-hidden"
                       >
-                        <p className="px-6 sm:px-7 pb-6 sm:pb-7 text-base sm:text-lg text-neutral-600 leading-relaxed">
+                        <p className="px-5 sm:px-7 pb-6 sm:pb-7 text-base sm:text-lg text-neutral-600 leading-relaxed">
                           {faq.a}
                         </p>
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </motion.div>
+                </div>
               );
             })}
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );
 }
 
+function FeatureItem({ feature, isPlain, highlight }: { feature: string; isPlain: boolean; highlight: boolean }) {
+  if (highlight) {
+    return (
+      <li className="flex gap-3.5 text-base sm:text-lg leading-relaxed rounded-2xl p-4 sm:p-5 -mx-1 bg-blue-50 border border-blue-100">
+        <Clapperboard size={22} className="shrink-0 mt-0.5 text-blue-500" />
+        <span className="font-semibold">{feature}</span>
+      </li>
+    );
+  }
+  return (
+    <li className="flex gap-3.5 text-base sm:text-lg leading-relaxed">
+      <Check size={20} className={`shrink-0 mt-1 ${isPlain ? 'text-neutral-400' : 'text-blue-600'}`} />
+      <span>{feature}</span>
+    </li>
+  );
+}
+
 /**
- * Third card beside the two plans. A free call alone is table stakes, so
- * booking one comes with two things prepared for that business before the
- * call: a custom homepage mockup and an AI visibility report. The call is
- * where we walk them through both. Also covers custom scopes neither plan
- * fits (this replaced the old "Need Something Different?" box).
- * Spans the full row at lg (two columns) and sits third at xl.
+ * The entry tier is deliberately the plain card and the featured (recommended)
+ * tier the loud one, so the eye lands on the tier we want to sell. Each card
+ * shows its strongest bullets up front; the rest stay one tap away in a native
+ * <details>, so they remain in the HTML for crawlers.
  */
-function FreeConsultationCard() {
-  const bonuses = [
-    {
-      icon: LayoutTemplate,
-      title: 'Your new homepage, designed for you',
-      body: 'A custom mockup of your homepage with your business, your services, and your brand. See your new site before you spend a dollar.',
-    },
-    {
-      icon: Sparkles,
-      title: 'Your AI visibility report',
-      body: 'Where you show up on Google, ChatGPT, and Perplexity for the searches that matter, and who gets recommended instead of you.',
-    },
-  ];
-  const points = [
-    'One-on-one call with our team, not a sales script',
-    'A straight recommendation on which plan fits, or a custom scope if neither does',
-    'Both are yours to keep, whether or not you hire us',
-  ];
+function PlanCard({ tier }: { tier: PricingTier }) {
+  const isPlain = !tier.featured;
+  const highlights = new Set(tier.highlightFeatures ?? []);
+  const shown = tier.features.slice(0, FEATURED_BULLETS);
+  const rest = tier.features.slice(FEATURED_BULLETS);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.15 }}
-      transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-      whileHover={{ y: -6 }}
-      className="relative rounded-[32px] p-8 sm:p-10 lg:p-12 xl:p-10 2xl:p-12 flex flex-col lg:col-span-2 xl:col-span-1 bg-gradient-to-b from-blue-50 to-white text-neutral-950 border-2 border-blue-200 shadow-xl shadow-blue-600/10"
+    <div
+      className={`relative rounded-[28px] sm:rounded-[32px] p-6 sm:p-10 lg:p-12 flex flex-col ${
+        isPlain
+          ? 'bg-neutral-50 text-neutral-900 border border-neutral-200 shadow-sm'
+          : 'bg-white text-neutral-950 border-2 border-blue-600 shadow-2xl shadow-blue-600/20 ring-8 ring-blue-600/10 z-10'
+      }`}
     >
-      <span className="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold tracking-wide uppercase shadow-md whitespace-nowrap bg-blue-600 text-white">
-        100% Free
-      </span>
+      {tier.badge && (
+        <span className="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold tracking-wide uppercase shadow-md whitespace-nowrap bg-blue-600 text-white">
+          {tier.badge}
+        </span>
+      )}
 
-      <h3 className="text-2xl sm:text-3xl font-bold mb-1.5">Free Consultation</h3>
-      <p className="text-sm sm:text-base font-semibold mb-4 uppercase tracking-wide text-blue-700">
-        Book a call. Get your new homepage.
+      <h3 className="text-2xl sm:text-3xl font-bold font-display mb-1.5">{tier.name}</h3>
+      <p
+        className={`text-sm sm:text-base font-semibold mb-4 uppercase tracking-wide ${
+          isPlain ? 'text-neutral-500' : 'text-blue-600'
+        }`}
+      >
+        {tier.focus}
       </p>
-      <p className="text-sm sm:text-base leading-relaxed mb-5 rounded-xl px-4 py-3 bg-blue-100/70 text-blue-950">
-        Right for you if you want to see exactly what you&apos;d get before spending a
-        dollar, or if neither plan quite fits.
-      </p>
-      <p className="text-base sm:text-lg mb-6 leading-relaxed text-neutral-500">No cost, no obligation</p>
-      <div className="text-4xl sm:text-6xl font-black mb-3 tracking-tight whitespace-nowrap">$0</div>
-      <p className="text-base sm:text-lg mb-8 text-neutral-600">Prepared for your business</p>
-
-      <p className="text-sm sm:text-base font-bold uppercase tracking-wide mb-4 text-neutral-500">
-        Every consultation includes:
-      </p>
-      <div className="space-y-3 mb-6">
-        {bonuses.map(({ icon: Icon, title, body }) => (
-          <div
-            key={title}
-            className="flex gap-3.5 rounded-2xl p-4 sm:p-5 -mx-1 bg-white border border-blue-200 shadow-sm"
-          >
-            <Icon size={22} className="shrink-0 mt-0.5 text-blue-600" />
-            <div>
-              <div className="font-bold text-base sm:text-lg leading-snug">{title}</div>
-              <p className="mt-1 text-sm sm:text-base text-neutral-600 leading-relaxed">{body}</p>
-            </div>
-          </div>
-        ))}
+      {tier.bestFor && (
+        <p
+          className={`text-sm sm:text-base leading-relaxed mb-6 rounded-xl px-4 py-3 ${
+            isPlain ? 'bg-white border border-neutral-200 text-neutral-700' : 'bg-blue-50 text-blue-900'
+          }`}
+        >
+          {tier.bestFor}
+        </p>
+      )}
+      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <span className="text-4xl sm:text-6xl font-black tracking-tight whitespace-nowrap">{tier.price}</span>
+        <span className="text-sm sm:text-base text-neutral-500">{tier.billingNote.toLowerCase()}</span>
       </div>
+      <p className="mt-1 text-lg sm:text-xl font-bold text-neutral-900">then {tier.monthly}</p>
+      <p className="mt-1 text-sm sm:text-base text-neutral-500 leading-relaxed mb-8">{tier.monthlyNote}</p>
 
-      <ul className="space-y-4 mb-8 flex-1">
-        {points.map((point) => (
-          <li key={point} className="flex gap-3.5 text-base sm:text-lg leading-relaxed">
-            <MessagesSquare size={20} className="shrink-0 mt-1 text-blue-600" />
-            <span>{point}</span>
-          </li>
+      {tier.inherits && (
+        <p className="text-sm sm:text-base font-bold uppercase tracking-wide mb-4 text-neutral-500">{tier.inherits}</p>
+      )}
+
+      <ul className="space-y-4">
+        {shown.map((feature) => (
+          <FeatureItem key={feature} feature={feature} isPlain={isPlain} highlight={highlights.has(feature)} />
         ))}
       </ul>
 
+      {rest.length > 0 && (
+        <details className="group mt-5">
+          <summary
+            className={`list-none [&::-webkit-details-marker]:hidden inline-flex items-center gap-1.5 cursor-pointer text-sm sm:text-base font-semibold ${
+              isPlain ? 'text-neutral-700 hover:text-neutral-950' : 'text-blue-600 hover:text-blue-700'
+            }`}
+          >
+            <span className="group-open:hidden">See everything included ({rest.length} more)</span>
+            <span className="hidden group-open:inline">Show less</span>
+            <ChevronDown size={16} className="transition-transform group-open:rotate-180" />
+          </summary>
+          <ul className="space-y-4 mt-5">
+            {rest.map((feature) => (
+              <FeatureItem key={feature} feature={feature} isPlain={isPlain} highlight={highlights.has(feature)} />
+            ))}
+          </ul>
+        </details>
+      )}
+
+      <div className="flex-1 min-h-8" />
+
       <Link
-        href="/book"
-        data-track="cta_click"
-        data-track-cta="free_consultation_card"
-        className="text-center py-4 sm:py-4.5 rounded-full font-bold text-base sm:text-lg transition-colors shadow-sm bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30"
+        href={`/book?tier=${tier.id}`}
+        className={`text-center py-4 rounded-full font-bold text-base sm:text-lg transition-colors shadow-sm ${
+          isPlain
+            ? 'bg-white hover:bg-neutral-100 text-neutral-900 border border-neutral-300'
+            : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30'
+        }`}
       >
-        Book My Free Consultation
+        {tier.cta}
       </Link>
       <p className="mt-3 text-center text-xs sm:text-sm text-neutral-500">
         Free 20-minute call, no obligation.{' '}
@@ -369,6 +292,48 @@ function FreeConsultationCard() {
           Or call (515) 493-8017
         </a>
       </p>
-    </motion.div>
+    </div>
+  );
+}
+
+/**
+ * Not a third plan: a slim strip under the two plans. Booking the free call
+ * comes with a custom homepage mockup and an AI visibility report, and covers
+ * custom scopes neither plan fits.
+ */
+function FreeConsultationStrip() {
+  return (
+    <div className="mt-8 max-w-6xl mx-auto rounded-3xl border border-neutral-200 bg-[#F7F6F3] px-6 py-6 sm:px-8 sm:py-7 flex flex-col lg:flex-row lg:items-center gap-5 lg:gap-10">
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">
+          [ NOT SURE YET? $0 CONSULTATION ]
+        </p>
+        <p className="mt-2 text-lg sm:text-xl font-bold font-display text-neutral-950 leading-snug">
+          Book a free call and see your new homepage before you spend a dollar.
+        </p>
+        <ul className="mt-3 flex flex-col sm:flex-row sm:flex-wrap gap-x-6 gap-y-2 text-sm sm:text-base text-neutral-600">
+          <li className="flex items-center gap-2">
+            <LayoutTemplate size={16} className="shrink-0 text-blue-600" />
+            A custom homepage mockup
+          </li>
+          <li className="flex items-center gap-2">
+            <Sparkles size={16} className="shrink-0 text-blue-600" />
+            Your AI visibility report
+          </li>
+          <li className="flex items-center gap-2">
+            <Check size={16} className="shrink-0 text-blue-600" />
+            Yours to keep, or a custom scope if neither plan fits
+          </li>
+        </ul>
+      </div>
+      <Link
+        href="/book"
+        data-track="cta_click"
+        data-track-cta="free_consultation_card"
+        className="shrink-0 inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-base transition-colors"
+      >
+        Book My Free Consultation <ArrowRight size={16} />
+      </Link>
+    </div>
   );
 }

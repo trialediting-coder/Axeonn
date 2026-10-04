@@ -279,25 +279,30 @@ export default function NonprofitsPage() {
         </figure>
       </section>
 
-      {/* What's included */}
-      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50 border-y border-neutral-200">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight font-display mb-4">What You Get</h2>
-          <p className="text-lg text-neutral-600 max-w-3xl mb-12 leading-relaxed">
-            So donors, volunteers and the people you serve find you first. It is the same build our paying
-            clients get, and you own your domain, your content, and your accounts.
-          </p>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {INCLUDED.map(({ icon: Icon, title, description }) => (
-              <div key={title} className="rounded-3xl border border-neutral-200 bg-white p-8 shadow-sm">
-                <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-5">
-                  <Icon size={22} />
-                </div>
-                <h3 className="text-xl font-bold mb-2">{title}</h3>
-                <p className="text-neutral-600 leading-relaxed">{description}</p>
-              </div>
-            ))}
+      {/* What's included: one message -- the full paid build, free. */}
+      <section className="w-full py-20 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50 border-y border-neutral-200">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+          <div className="lg:col-span-5">
+            <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ WHAT YOU GET ]</p>
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight font-display leading-[1.05]">
+              The same build paying clients get, free.
+            </h2>
+            <p className="mt-5 text-lg text-neutral-600 leading-relaxed">
+              So donors, volunteers and the people you serve find you first. You own your domain, your content, and
+              your accounts. You only cover basic hosting.
+            </p>
           </div>
+          <ul className="lg:col-span-7 divide-y divide-neutral-200 border-y border-neutral-200">
+            {INCLUDED.map(({ icon: Icon, title, description }) => (
+              <li key={title} className="flex gap-4 py-5">
+                <Icon size={20} className="mt-1 shrink-0 text-blue-600" />
+                <div>
+                  <h3 className="text-lg font-bold">{title}</h3>
+                  <p className="mt-1 text-neutral-600 leading-relaxed">{description}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
@@ -322,6 +327,26 @@ export default function NonprofitsPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Deadline band */}
+      <section className="w-full py-12 sm:py-16 px-4 sm:px-10 lg:px-16 xl:px-24 bg-blue-600 text-white">
+        <div className="max-w-6xl mx-auto flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div>
+            <p className="text-xs font-mono font-bold tracking-widest text-blue-100 uppercase">
+              [ {GROUP_NAME.toUpperCase()} GROUP ]
+            </p>
+            <p className="mt-2 text-3xl sm:text-5xl font-black font-display tracking-tight leading-tight">
+              Applications close {GROUP_DEADLINE}.
+            </p>
+          </div>
+          <a
+            href={CONTACT_HREF}
+            className="shrink-0 inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-white hover:bg-blue-50 text-blue-700 font-bold text-base transition-colors"
+          >
+            Email Us About Your Nonprofit <ArrowRight size={16} />
+          </a>
         </div>
       </section>
 

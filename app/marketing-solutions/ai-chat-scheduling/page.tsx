@@ -7,8 +7,7 @@ import {
   ServiceHero,
   ProblemSection,
   DeliverablesSection,
-  WhereItFits,
-  TimelineSection,
+  CaseStudyProof,
   ServiceFaqSection,
   ServiceFaqJsonLd,
 } from '@/components/marketing-solutions/SolutionSections';
@@ -44,6 +43,7 @@ export default function AIChatSchedulingPage() {
       <ServiceFaqJsonLd items={d.faqs} />
 
       <ServiceHero
+        image="/temp-scorpion-refs/ai-chat-hero.webp"
         eyebrow="Services · AI Chat & Scheduling"
         title="Never miss a lead, even after hours."
         subtitle="Answers questions and books appointments on your site 24/7, so after-hours visitors don't go to whoever answers first."
@@ -51,11 +51,10 @@ export default function AIChatSchedulingPage() {
         note="AI chat, scheduling and follow-up in one build"
       />
       <ProblemSection data={d.problem} />
-      <DeliverablesSection data={d.deliverables} />
-      <WhereItFits data={d.fit} />
+      <DeliverablesSection detail={d} />
 
       {/* Add-on, not part of either plan: kept below the core offer on purpose. */}
-      <section className="w-full px-4 sm:px-8 lg:px-16 pb-16 sm:pb-24 bg-white text-neutral-950">
+      <section className="w-full px-4 sm:px-8 lg:px-16 py-16 sm:py-24 bg-white text-neutral-950">
         <div className="max-w-5xl mx-auto rounded-3xl bg-neutral-950 text-white px-6 py-12 sm:px-12 sm:py-14 text-center">
           <Eyebrow label="Add-on" onDark className="mb-4" />
           <h2 className="text-2xl sm:text-4xl font-black font-display tracking-tight leading-[1.15] text-balance">
@@ -72,7 +71,7 @@ export default function AIChatSchedulingPage() {
         </div>
       </section>
 
-      <TimelineSection data={d.timeline} />
+      {d.proof && <CaseStudyProof data={d.proof} />}
       <ServiceFaqSection heading="Common Questions About AI Chat" faqs={d.faqs} />
       <ServiceClosingCta trackId="service_ai_chat" />
     </main>

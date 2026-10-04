@@ -155,55 +155,108 @@ export default function DesMoinesWebDesignPage() {
         </div>
       </section>
 
-      {/* Why local */}
-      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
-        <div className="max-w-6xl mx-auto">
-          <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ WHY LOCAL ]</p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight mb-4">
-            Why Des Moines Businesses Get More Customers With a Local Team
-          </h2>
-          <p className="text-lg text-neutral-600 max-w-3xl mb-12 leading-relaxed">
-            Most web agencies pitching Iowa businesses are somewhere else. That shows up as slow replies, stock
-            photos of a city that is not yours, and a site that reads like every other one in your industry.
-          </p>
-          <div className="grid sm:grid-cols-2 gap-6 lg:gap-8">
-            {LOCAL_REASONS.map(({ icon: Icon, title, description }) => (
-              <div key={title} className="rounded-3xl border border-neutral-200 bg-white p-8 shadow-sm">
-                <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-5">
-                  <Icon size={22} />
-                </div>
-                <h3 className="text-xl font-bold mb-2">{title}</h3>
-                <p className="text-neutral-600 leading-relaxed">{description}</p>
+      {/* Why local: one message -- the person who builds it answers the phone. */}
+      <section className="w-full py-20 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+          <div className="lg:col-span-5">
+            <div className="relative w-full max-w-sm mx-auto lg:max-w-none aspect-[4/4.6] rounded-3xl overflow-hidden bg-neutral-200 border border-neutral-200 shadow-xl">
+              <picture>
+                <source srcSet="/hayder_hatem.webp" type="image/webp" />
+                <img
+                  src="/hayder_hatem.png"
+                  alt="Hayder Hatem, founder of Axeon Studio in West Des Moines"
+                  loading="lazy"
+                  decoding="async"
+                  width={600}
+                  height={750}
+                  className="w-full h-full object-cover object-center"
+                />
+              </picture>
+              <div className="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-black/80 to-transparent text-white">
+                <div className="text-lg font-extrabold font-display">Hayder Hatem</div>
+                <div className="text-xs text-neutral-300">Founder · West Des Moines, Iowa</div>
               </div>
-            ))}
+            </div>
+          </div>
+
+          <div className="lg:col-span-7">
+            <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">
+              [ WHY A LOCAL TEAM ]
+            </p>
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-[1.05]">
+              The person who builds it answers the phone.
+            </h2>
+            <p className="mt-5 text-lg text-neutral-600 leading-relaxed">{LOCAL_REASONS[0].description}</p>
+            <a
+              href={TEL_HREF}
+              className="mt-5 inline-flex items-center gap-2 text-base font-bold text-blue-600 hover:text-blue-700"
+            >
+              <PhoneCall size={18} /> {BUSINESS.telephoneDisplay}
+            </a>
+
+            <ul className="mt-10 divide-y divide-neutral-200 border-y border-neutral-200">
+              {LOCAL_REASONS.slice(1, 3).map(({ icon: Icon, title, description }) => (
+                <li key={title} className="flex gap-4 py-5">
+                  <Icon size={20} className="mt-1 shrink-0 text-blue-600" />
+                  <div>
+                    <h3 className="text-lg font-bold">{title}</h3>
+                    <p className="mt-1 text-neutral-600 leading-relaxed">{description}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            {/* Proven right here: the A-1 result as a stat. */}
+            <Link
+              href="/insights/a-1-auto-detailing-website-case-study"
+              className="group mt-8 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 rounded-3xl bg-neutral-950 text-white p-6 sm:p-8"
+            >
+              <span className="text-6xl sm:text-7xl font-black font-display tracking-tighter text-blue-500 leading-none">
+                #1
+              </span>
+              <span className="block">
+                <span className="block text-lg sm:text-xl font-bold leading-snug">
+                  {LOCAL_REASONS[3].title}: A-1 Auto Detailing ranks #1 for &ldquo;Pleasant Hill auto detailing,&rdquo;
+                  up from page 2.
+                </span>
+                <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-300 group-hover:text-white">
+                  Read the case study <ArrowRight size={14} />
+                </span>
+              </span>
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* What we build */}
-      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50 border-y border-neutral-200">
+      {/* The system, as one slim strip (not another card grid). */}
+      <section className="w-full py-10 sm:py-12 px-4 sm:px-10 lg:px-16 xl:px-24 bg-[#F7F6F3] border-y border-neutral-200">
         <div className="max-w-6xl mx-auto">
-          <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ THE SYSTEM ]</p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight mb-4">
-            How We Get Metro Businesses More Customers
-          </h2>
-          <p className="text-lg text-neutral-600 max-w-3xl mb-12 leading-relaxed">
-            One team runs the whole system, so nothing gets lost between a designer, an SEO vendor, and a booking tool.
-          </p>
-          <div className="grid md:grid-cols-3 gap-5">
-            {SYSTEM.map((item) => (
-              <Link
-                key={item.step}
-                href={item.href}
-                className="group rounded-2xl border border-neutral-200 bg-white p-7 hover:border-blue-400 hover:shadow-lg transition-all"
-              >
-                <p className="text-sm font-semibold text-blue-600">{item.step}</p>
-                <h3 className="mt-1 text-2xl font-black font-display tracking-tight mb-3">{item.title}</h3>
-                <p className="text-neutral-600 leading-relaxed">{item.description}</p>
-              </Link>
-            ))}
+          <div className="flex flex-col lg:flex-row lg:items-center gap-5 lg:gap-10">
+            <div className="lg:w-72 shrink-0">
+              <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ THE SYSTEM ]</p>
+              <h2 className="mt-2 text-2xl font-extrabold font-display tracking-tight leading-tight">
+                How We Get Metro Businesses More Customers
+              </h2>
+            </div>
+            <ol className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
+              {SYSTEM.map((item, idx) => (
+                <li key={item.step}>
+                  <Link
+                    href={item.href}
+                    className="group flex items-center justify-between gap-3 rounded-2xl bg-white border border-neutral-200 px-5 py-4 hover:border-blue-400 transition-colors"
+                  >
+                    <span>
+                      <span className="block text-xs font-mono font-bold text-neutral-400">0{idx + 1}</span>
+                      <span className="block text-lg font-extrabold font-display tracking-tight">{item.step}</span>
+                      <span className="block text-sm text-neutral-500">{item.title}</span>
+                    </span>
+                    <ArrowRight size={16} className="shrink-0 text-blue-600 group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                </li>
+              ))}
+            </ol>
           </div>
-          <p className="mt-8 text-neutral-700">
+          <p className="mt-6 text-sm sm:text-base text-neutral-700">
             Essentials: $2,800 setup, then from $284/mo. AxeonCORE: $5,800 setup, then from $574/mo.{' '}
             <Link href="/pricing" className="font-semibold text-blue-600 hover:underline">
               See both plans &rarr;

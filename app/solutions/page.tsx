@@ -25,11 +25,12 @@ export default function SolutionsHubPage() {
       <BreadcrumbJsonLd items={[{ name: 'Industries', path: '/solutions' }]} />
       <div className="max-w-6xl mx-auto">
         <p className={`${EYEBROW} mb-3`}>[ WHO WE HELP ]</p>
-        <h1 className="text-4xl sm:text-5xl font-extrabold font-display tracking-tight text-neutral-950 mb-4">
-          More Customers for Your Industry
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-[1.05] text-balance text-neutral-950 mb-5 max-w-4xl">
+          Every trade leaks customers somewhere different.
         </h1>
         <p className="text-lg text-neutral-600 max-w-2xl mb-14">
-          Pick your industry. See how we get you found, chosen, and booked, backed by our 90-Day Customer Guarantee.
+          Find yours below. Each page shows where your customers slip away and the system that plugs it, backed by our
+          90-Day Customer Guarantee.
         </p>
 
         <div className="flex flex-col gap-14">

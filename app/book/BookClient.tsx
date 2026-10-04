@@ -44,7 +44,7 @@ export default function BookClient() {
               <div className="space-y-4 sm:space-y-5">
                 <span className="block text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ FREE STRATEGY CALL ]</span>
                 <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-zinc-950 tracking-tight leading-[1.12] font-display">
-                  Book Your Free Customer Growth Session
+                  See your new homepage before you pay anything.
                 </h1>
 
                 <p className="text-base sm:text-lg text-zinc-600 leading-relaxed font-normal">

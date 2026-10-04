@@ -9,39 +9,55 @@ import type { FaqItem } from '@/data/faqData';
 // facts, one angle per page. At most one sourced statistic per page, always
 // with its real source URL.
 //
-// Keep it short: 3 problems, 3 outcome groups, 3 steps, max 4 own FAQs.
+// Each page sells one story: the leaks (problem.items) -> the fix for each leak
+// (deliverables.fixes, same order) -> proof. Every section header is the
+// message, not a label. Keep it short: 3 leaks, 3 fixes, max 4 own FAQs.
 
 export type FunnelStep = 'found' | 'chosen' | 'booked';
 
 export interface SolutionProblem {
   eyebrow: string;
+  /** The message a skimmer gets in two seconds. */
   heading: string;
   intro?: string;
+  /** Each leak: one bold sentence (title) and a short cost line (body). */
   items: { title: string; body: string }[];
-  stat?: { text: string; sourceLabel: string; sourceUrl: string };
+  /** The page's sourced stat, shown as a giant number. */
+  stat?: { figure: string; text: string; sourceLabel: string; sourceUrl: string };
+  /** Pages without a sourced stat lead with their strongest leak instead. */
+  pullLine?: string;
+}
+
+export interface SolutionFix {
+  title: string;
+  items: string[];
 }
 
 export interface SolutionDeliverables {
   eyebrow: string;
   heading: string;
   intro?: string;
-  groups: { title: string; items: string[] }[];
+  /** One fix per leak, in the same order as problem.items. */
+  fixes: SolutionFix[];
+  /** Index of the fix that carries the page; rendered dark and dominant. */
+  dominant?: number;
+  /** One large frame for a page's hero deliverable. */
+  feature?: { image: string; alt: string; label: string; caption: string };
+  /** Included work that doesn't answer a single leak. */
+  alsoIncluded?: { label: string; items: string[] };
 }
 
-export interface SolutionTimeline {
-  eyebrow: string;
-  heading: string;
-  intro?: string;
-  steps: { title: string; body: string }[];
-}
-
-/** Where the service sits in Found → Chosen → Booked, and how it's bought. First line is the headline. */
+/** Where the service sits in Found -> Chosen -> Booked, and how it's bought. First line is the headline. */
 export interface SolutionFit {
   step: FunnelStep;
   lines: string[];
 }
 
 export interface SolutionProof {
+  /** Big result number; without one the section leads with Levi's quote. */
+  figure?: string;
+  figureLabel?: string;
+  /** The result, stated as the headline. */
   heading: string;
   body: string;
   facts: string[];
@@ -53,7 +69,8 @@ export interface SolutionDetail {
   problem: SolutionProblem;
   deliverables: SolutionDeliverables;
   fit: SolutionFit;
-  timeline: SolutionTimeline;
+  /** Step names for the slim "how it works" strip. */
+  timeline: string[];
   proof?: SolutionProof;
   faqs: FaqItem[];
 }
@@ -82,45 +99,46 @@ const STAT_97 = {
 export const websiteDetail: SolutionDetail = {
   problem: {
     eyebrow: 'The Problem',
-    heading: 'Why Most Small-Business Websites Don’t Bring In Work',
+    heading: 'Your site looks fine. It isn’t selling.',
+    pullLine: 'A form fill at 2 p.m. gets seen at 9 p.m. By then the customer has called someone who picked up.',
     items: [
       {
-        title: 'Built like a brochure',
-        body: 'Nothing tells a visitor why to pick you over the next result, or what to do next. So they go back and compare.',
+        title: 'It’s built like a brochure.',
+        body: 'Nothing tells a visitor why to pick you or what to do next, so they go back and compare.',
       },
       {
-        title: 'Slow and clumsy on a phone',
-        body: 'Most people find a local business on their phone. Make them wait and they go back to the search results.',
+        title: 'It’s slow and clumsy on a phone.',
+        body: 'Most people find a local business on their phone. Make them wait and they’re back in the search results.',
       },
       {
-        title: 'Leads land in an inbox nobody watches',
-        body: 'A form fill at 2 p.m. gets seen at 9 p.m. By then the customer has called someone who picked up.',
+        title: 'Leads land in an inbox nobody watches.',
+        body: 'By the time someone sees the form fill, the customer has called whoever picked up.',
       },
     ],
   },
   deliverables: {
-    eyebrow: 'What You Get',
+    eyebrow: 'The Fix',
     heading: 'A Site That Turns Visitors Into Calls',
-    groups: [
+    fixes: [
       {
         title: 'Built to win the comparison',
         items: [
           'Custom pages designed around how you sell',
           'Your reviews, prices, and real work up front',
-          'Fast on every phone',
           'You own the site and every file',
         ],
       },
       {
-        title: 'Found on Google & AI',
+        title: 'Fast on every phone, found on Google & AI',
         items: [
+          'Fast on every phone',
           'Search and AI-answer visibility built into every page',
           'Business details that match your Google profile',
           'Old pages redirected, so you keep what you’ve earned',
         ],
       },
       {
-        title: 'Every lead reaches you',
+        title: 'Every lead reaches you, instantly',
         items: [
           'Quote forms and tap-to-call where people decide',
           'Instant alerts to your inbox and phone',
@@ -133,32 +151,13 @@ export const websiteDetail: SolutionDetail = {
     step: 'chosen',
     lines: [`Part of ${BOTH_PLANS}`, 'Every plan starts with the website. AxeonCORE adds the lead system and a half-day video shoot.'],
   },
-  timeline: {
-    eyebrow: 'How It Works',
-    heading: 'From Kickoff to Launch',
-    steps: [
-      {
-        title: 'Scope & content',
-        body: 'We agree on the pages and the price in writing, then gather your services, prices, photos, and reviews.',
-      },
-      {
-        title: 'Design, build & review',
-        body: 'You talk directly to the person building your site, and review it on a live link. Two rounds of revisions are included.',
-      },
-      {
-        title: 'Launch',
-        body: 'Redirects in place, search engines notified, and lead alerts tested with real submissions before we call it done.',
-      },
-    ],
-  },
+  timeline: ['Scope & content', 'Design, build & review', 'Launch'],
   proof: {
-    heading: 'A New Brand and a Site Built to Sell',
+    figure: '0.3–0.8s',
+    figureLabel: 'page loads on A-1’s new site',
+    heading: 'A-1’s new site loads in under a second.',
     body: 'A-1 Auto Detailing had 25 years of experience and an old site that hid it. We redesigned it from the logo up.',
-    facts: [
-      'New logo and a custom site, designed by Axeon',
-      '18 pages, including 6 service pages and 4 guides',
-      'Page loads of roughly 0.3–0.8 seconds',
-    ],
+    facts: ['New logo and a custom site, designed by Axeon', '18 pages, including 6 service pages and 4 guides'],
   },
   faqs: [
     {
@@ -190,83 +189,61 @@ export const websiteDetail: SolutionDetail = {
 export const seoDetail: SolutionDetail = {
   problem: {
     eyebrow: 'The Problem',
-    heading: 'Why Good Local Businesses Stay Invisible',
+    heading: 'Google can’t read you. AI recommends competitors.',
     intro: 'Most businesses that don’t show up aren’t worse than the ones that do. Their sites just make it hard for Google and AI to understand them.',
     items: [
       {
-        title: 'Search engines have to guess',
-        body: 'Your services, hours, and service area are buried in loose paragraphs. Google and AI tools guess wrong, or skip you.',
+        title: 'Search engines have to guess what you do.',
+        body: 'Services, hours, and service area are buried in loose paragraphs, so Google and AI tools guess wrong, or skip you.',
       },
       {
-        title: 'AI tools are shut out',
+        title: 'Your site may be shutting AI tools out.',
         body: 'Plenty of sites block AI search tools without knowing it, so ChatGPT recommends someone else.',
       },
       {
-        title: 'Answers are buried',
+        title: 'Your answers are buried.',
         body: 'People ask full questions now. If your page never answers plainly, an AI assistant quotes a competitor who did.',
       },
     ],
     stat: {
-      text: '97% of people read reviews when choosing a local business. Being found is step one; what they find on Google decides who gets the call.',
+      figure: '97%',
+      text: 'of people read reviews when choosing a local business. Being found is step one; what they find on Google decides who gets the call.',
       ...STAT_97,
     },
   },
   deliverables: {
-    eyebrow: 'What You Get',
+    eyebrow: 'The Fix',
     heading: 'Found Wherever Customers Look',
-    groups: [
+    fixes: [
       {
-        title: 'Found on Google',
-        items: [
-          'A page for every core service',
-          'Business details Google can read and trust',
-          'Fast, mobile-first pages',
-        ],
+        title: 'Google reads you right',
+        items: ['A page for every core service', 'Business details Google can read and trust', 'Fast, mobile-first pages'],
       },
       {
-        title: 'Found in AI answers',
-        items: [
-          'Plain answers to the questions customers ask',
-          'Your site open to AI search tools like ChatGPT',
-          'The same facts about you everywhere AI looks',
-        ],
+        title: 'AI tools let in, with the same facts everywhere',
+        items: ['Your site open to AI search tools like ChatGPT', 'The same facts about you everywhere AI looks'],
       },
       {
-        title: 'Measured monthly',
-        items: [
-          'Tracking on every call and form',
-          'A monthly calls & leads report',
-          'A clear view of which pages bring in work',
-        ],
+        title: 'Plain answers AI can quote',
+        items: ['Plain answers to the questions customers ask'],
       },
     ],
+    alsoIncluded: {
+      label: 'Measured monthly',
+      items: ['Tracking on every call and form', 'A monthly calls & leads report', 'A clear view of which pages bring in work'],
+    },
   },
   fit: {
     step: 'found',
     lines: [`Built into both plans. ${BOTH_PLANS}`, 'Ongoing SEO & content beyond the build is an add-on, scoped on your strategy call.'],
   },
-  timeline: {
-    eyebrow: 'How It Works',
-    heading: 'How We Get You Found',
-    steps: [
-      {
-        title: 'Map the searches',
-        body: 'We find the searches that bring you paying work (your services, your towns, the questions people ask) and give each one a page.',
-      },
-      {
-        title: 'Build it in',
-        body: 'Search and AI visibility go in while the site is built, not bolted on after launch.',
-      },
-      {
-        title: 'Launch & measure',
-        body: 'Search engines notified, tracking live, and a monthly report on calls and leads. Rankings take time, so we never promise a date.',
-      },
-    ],
-  },
+  timeline: ['Map the searches', 'Build it in', 'Launch & measure'],
   proof: {
+    figure: '#1',
+    figureLabel: 'on Google for “Pleasant Hill auto detailing,” up from page 2',
     heading: 'Page 2 to #1 on Google for “Pleasant Hill Auto Detailing”',
     body: 'A-1 Auto Detailing was stuck on page 2. We rebuilt the site with search designed in from the start, and it now ranks #1 for its main local search.',
-    facts: ['#1 on Google for “Pleasant Hill auto detailing,” up from page 2', 'A perfect 100/100 SEO audit score'],
+    facts: ['A perfect 100/100 SEO audit score'],
   },
   faqs: [
     {
@@ -299,50 +276,44 @@ export const seoDetail: SolutionDetail = {
 export const aiChatDetail: SolutionDetail = {
   problem: {
     eyebrow: 'The Problem',
-    heading: 'Where Local Businesses Lose Leads Every Day',
+    heading: 'At 10 p.m., nobody answers. They book elsewhere.',
     intro: 'The lead usually isn’t lost on price. It’s lost because nobody answered while the customer was still interested.',
     items: [
       {
-        title: 'After-hours visitors just leave',
-        body: 'Someone finds your site at 10 p.m. with a question and gets no answer. By morning they’ve booked elsewhere.',
+        title: 'After-hours visitors just leave.',
+        body: 'Their question gets no answer, and by morning they’ve booked elsewhere.',
       },
       {
-        title: 'Phone tag to book one job',
+        title: 'Booking one job takes a round of phone tag.',
         body: '“Does Tuesday work?” “How about Thursday?” Every back-and-forth is another chance for the lead to go cold.',
       },
       {
-        title: 'Chat widgets that frustrate people',
-        body: 'Most are a button menu or a form in disguise. They collect an email and do nothing, and visitors can tell.',
+        title: 'Your chat widget frustrates people.',
+        body: 'Most are a form in disguise. They collect an email and do nothing, and visitors can tell.',
       },
     ],
     stat: {
-      text: '62% of calls to small businesses go unanswered. After hours, your website may be the only thing still answering.',
+      figure: '62%',
+      text: 'of calls to small businesses go unanswered. After hours, your website may be the only thing still answering.',
       ...STAT_62,
     },
   },
   deliverables: {
-    eyebrow: 'What You Get',
+    eyebrow: 'The Fix',
     heading: 'An Assistant That Works the Night Shift',
-    groups: [
+    fixes: [
       {
-        title: 'Answers',
+        title: 'Answers 24/7, with your real details',
+        items: ['24/7 chat on your website', 'Set up with your real services, prices, and hours'],
+      },
+      {
+        title: 'Qualified leads book themselves',
+        items: ['Scheduling connected to your calendar', 'No back-and-forth texts to lock in a time'],
+      },
+      {
+        title: 'A real conversation that follows through',
         items: [
-          '24/7 chat on your website',
-          'Set up with your real services, prices, and hours',
           'A real conversation, not a button menu',
-        ],
-      },
-      {
-        title: 'Books',
-        items: [
-          'Scheduling connected to your calendar',
-          'Qualified leads book themselves',
-          'No back-and-forth texts to lock in a time',
-        ],
-      },
-      {
-        title: 'Follows up',
-        items: [
           'A text and email the second a lead comes in',
           'Missed-call text-back',
           'Every conversation in your CRM pipeline',
@@ -354,23 +325,12 @@ export const aiChatDetail: SolutionDetail = {
     step: 'booked',
     lines: [CORE_PLAN, 'Not part of Essentials. The AI phone receptionist is a separate add-on, scoped on your strategy call.'],
   },
-  timeline: {
-    eyebrow: 'How It Works',
-    heading: 'How We Set It Up',
-    steps: [
-      {
-        title: 'Map your conversations',
-        body: 'What customers ask you, what you charge, and what you need to know before you quote.',
-      },
-      {
-        title: 'Configure & connect',
-        body: 'We load your answers, connect your calendar, and write the intake questions and follow-up messages.',
-      },
-      {
-        title: 'Test & launch',
-        body: 'We run it through real questions and bookings before a customer sees it, then review early conversations with you.',
-      },
-    ],
+  timeline: ['Map your conversations', 'Configure & connect', 'Test & launch'],
+  proof: {
+    heading: 'A local owner, after his Axeon rebuild',
+    body: 'A-1 Auto Detailing’s site was redesigned by Axeon from the logo up.',
+    facts: [],
+    quote: true,
   },
   faqs: [
     {
@@ -403,41 +363,34 @@ export const aiChatDetail: SolutionDetail = {
 export const leadGenDetail: SolutionDetail = {
   problem: {
     eyebrow: 'Where Leads Go Missing',
-    heading: 'Most Businesses Don’t Need More Leads First',
-    intro: 'They need to stop losing the ones they already get.',
+    heading: 'You’re losing leads you already paid for.',
+    intro: 'Most businesses don’t need more leads first. They need to stop losing the ones they already get.',
     items: [
       {
-        title: 'Slow first response',
-        body: 'A lead reaches out and nobody replies until the end of the day. By then they’ve talked to two competitors.',
+        title: 'Nobody replies until the end of the day.',
+        body: 'By then the lead has talked to two competitors.',
       },
       {
-        title: 'No follow-up',
-        body: 'A quote goes out and nobody checks back, so the lead goes with whoever followed up.',
+        title: 'The quote goes out, and nobody checks back.',
+        body: 'The lead goes with whoever followed up.',
       },
       {
-        title: 'Every lead treated the same',
-        body: 'Ready-to-buy customers wait behind tire-kickers, because nothing sorts them first.',
+        title: 'Every lead waits in the same line.',
+        body: 'Ready-to-buy customers sit behind tire-kickers, because nothing sorts them first.',
       },
     ],
     stat: {
-      text: 'Leads called back within 5 minutes were about 21× more likely to qualify than leads called back after 30.',
+      figure: '21×',
+      text: 'Leads called back within 5 minutes were about 21 times more likely to qualify than leads called back after 30.',
       ...STAT_21X,
     },
   },
   deliverables: {
-    eyebrow: 'What You Get',
+    eyebrow: 'The Fix',
     heading: 'Every Lead Answered, Followed Up, and Booked',
-    groups: [
+    fixes: [
       {
-        title: 'Capture',
-        items: [
-          'Quote forms and tap-to-call where visitors decide',
-          'Intake questions that qualify the lead',
-          'Instant alerts to your inbox and phone',
-        ],
-      },
-      {
-        title: 'Follow up',
+        title: 'Answered in seconds',
         items: [
           'A text and email the second a lead comes in',
           'Your phone rings and connects you to new form leads',
@@ -445,11 +398,20 @@ export const leadGenDetail: SolutionDetail = {
         ],
       },
       {
-        title: 'Book',
+        title: 'Followed up until they book',
         items: [
+          'Automatic texts and emails keep following up until they book',
           'AI chat and online scheduling, 24/7',
           'Appointments straight onto your calendar',
           'Every lead tracked from first contact to booked job',
+        ],
+      },
+      {
+        title: 'Ready buyers sorted first',
+        items: [
+          'Intake questions that qualify the lead',
+          'Quote forms and tap-to-call where visitors decide',
+          'Instant alerts to your inbox and phone',
         ],
       },
     ],
@@ -458,27 +420,10 @@ export const leadGenDetail: SolutionDetail = {
     step: 'booked',
     lines: [CORE_PLAN, 'Essentials ($2,800 setup, then from $284/mo) includes instant lead alerts and conversion tracking.'],
   },
-  timeline: {
-    eyebrow: 'How It Works',
-    heading: 'How We Set Up Your Pipeline',
-    steps: [
-      {
-        title: 'Map how you close',
-        body: 'Where leads come from, what you ask them, how you quote, and what “won” means for your business.',
-      },
-      {
-        title: 'Build & write',
-        body: 'Intake questions, pipeline stages, and follow-up texts and emails, written in your voice.',
-      },
-      {
-        title: 'Test & launch',
-        body: 'We send real test leads through every channel and confirm each one lands, alerts you, and gets its follow-up.',
-      },
-    ],
-  },
+  timeline: ['Map how you close', 'Build & write', 'Test & launch'],
   proof: {
-    heading: 'Every Page Ready to Take a Booking',
-    body: 'A-1 Auto Detailing’s rebuild added a quote and booking form with service pre-select and tap-to-call on every page. Owner Levi Rench:',
+    heading: 'Now every page on A-1’s site can take a booking.',
+    body: 'A-1 Auto Detailing’s rebuild added a quote and booking form with service pre-select and tap-to-call on every page.',
     facts: [],
     quote: true,
   },
@@ -511,46 +456,44 @@ export const leadGenDetail: SolutionDetail = {
 export const videoDetail: SolutionDetail = {
   problem: {
     eyebrow: 'The Problem',
-    heading: 'Why Most Local Business Visuals Don’t Sell',
-    intro: 'People hire the business they trust, and they decide a lot of that before they read a word.',
+    heading: 'Stock photos make you look like everyone else.',
+    pullLine: 'People hire the business they trust, and they decide a lot of that before they read a word.',
     items: [
       {
-        title: 'Stock photos that could be anyone',
+        title: 'Stock photos could be anyone.',
         body: 'A smiling model in a hard hat tells a customer nothing about you. They’ve seen it on three other sites.',
       },
       {
-        title: 'Phone photos that undersell the work',
-        body: 'Your work is good, but bad lighting and awkward angles make it look ordinary.',
+        title: 'Phone photos undersell good work.',
+        body: 'Bad lighting and awkward angles make it look ordinary.',
       },
       {
-        title: 'One long video nobody finishes',
+        title: 'One long video nobody finishes.',
         body: 'A four-minute brand video doesn’t get watched. Short cuts in the right places do.',
       },
     ],
   },
   deliverables: {
-    eyebrow: 'What You Get',
+    eyebrow: 'The Fix',
     heading: 'One Half-Day Shoot, Used Everywhere',
-    groups: [
+    feature: {
+      image: '/temp-scorpion-refs/video-photography-hero.webp',
+      alt: 'An on-site video shoot',
+      label: 'The hero film',
+      caption: 'A hero film for your website, shot in a half-day at your location.',
+    },
+    fixes: [
       {
-        title: 'Shoot',
-        items: [
-          'A half-day on-site shoot at your location',
-          'Your team, your space, your work. Never stock',
-          'A shot list planned with you beforehand',
-        ],
+        title: 'Your team, your space, your work. Never stock.',
+        items: ['A half-day on-site shoot at your location', 'A shot list planned with you beforehand'],
       },
       {
-        title: 'Edit',
-        items: ['A hero film for your website', '3 vertical cuts for social and ads', 'A photo set for your site and profiles'],
+        title: 'A photo set that shows the work properly',
+        items: ['A photo set for your site and profiles', 'Ready for social, ads, and your Google profile'],
       },
       {
-        title: 'Use everywhere',
-        items: [
-          'Built into your homepage and service pages',
-          'Ready for social, ads, and your Google profile',
-          'Compressed so your site stays fast',
-        ],
+        title: '3 short vertical cuts',
+        items: ['3 vertical cuts for social and ads', 'Built into your homepage and service pages', 'Compressed so your site stays fast'],
       },
     ],
   },
@@ -558,24 +501,7 @@ export const videoDetail: SolutionDetail = {
     step: 'chosen',
     lines: [CORE_PLAN, 'On Essentials ($2,800 setup, then from $284/mo), add the shoot for $1,500.'],
   },
-  timeline: {
-    eyebrow: 'How It Works',
-    heading: 'How a Shoot Comes Together',
-    steps: [
-      {
-        title: 'Plan the shoot',
-        body: 'The work you’re proudest of, the people customers will meet, and a shot list built around your pages.',
-      },
-      {
-        title: 'Shoot on-site',
-        body: 'We pick a half-day that works around your jobs and capture your team, your space, and your work.',
-      },
-      {
-        title: 'Edit & build in',
-        body: 'You get the hero film, 3 vertical cuts, and a photo set, and we build them into your website.',
-      },
-    ],
-  },
+  timeline: ['Plan the shoot', 'Shoot on-site', 'Edit & build in'],
   faqs: [
     {
       question: 'What exactly do I get from the shoot?',
@@ -606,51 +532,54 @@ export const videoDetail: SolutionDetail = {
 export const advertisingDetail: SolutionDetail = {
   problem: {
     eyebrow: 'The Problem',
-    heading: 'Where Local Ad Budgets Leak',
+    heading: 'Every ad dollar should trace to a call.',
     intro: 'Ads aren’t the hard part. Running them so every dollar traces back to a call or a booking is.',
     items: [
       {
-        title: 'Paying for the wrong clicks',
+        title: 'You’re paying for the wrong clicks.',
         body: 'Boosted posts and broad keywords reach job seekers, DIYers, and people three states away.',
       },
       {
-        title: 'Clicks sent to the homepage',
-        body: 'Someone searches for one service and lands on a generic page. They hit back and call the next ad.',
+        title: 'Clicks land on your homepage.',
+        body: 'Someone searches for one service, lands on a generic page, hits back, and calls the next ad.',
       },
       {
-        title: 'No idea what worked',
-        body: 'The dashboard shows clicks, but nobody can tell you which ads produced calls or booked jobs.',
+        title: 'Nobody can tell you what worked.',
+        body: 'The dashboard shows clicks, not which ads produced calls or booked jobs.',
       },
     ],
     stat: {
-      text: 'Every paid lead is only worth it if someone answers fast. Leads called back within 5 minutes were about 21× more likely to qualify (MIT/InsideSales).',
+      figure: '21×',
+      text: 'Every paid lead is only worth it if someone answers fast. Leads called back within 5 minutes were about 21 times more likely to qualify.',
       ...STAT_21X,
     },
   },
   deliverables: {
-    eyebrow: 'What You Get',
+    eyebrow: 'The Fix',
     heading: 'Google and Meta, Run Like a System',
-    groups: [
+    dominant: 2,
+    fixes: [
       {
-        title: 'Google',
+        title: 'Only the clicks worth paying for',
         items: [
-          'Search campaigns for the services you want more of',
+          'Google Search campaigns for the services you want more of',
           'Tight keywords and service-area targeting',
-          'Tap-to-call straight from the ad',
+          'Facebook and Instagram campaigns in your service area',
+          'Retargeting people who visited but didn’t book',
         ],
       },
       {
-        title: 'Meta',
+        title: 'Every ad lands on its own page',
         items: [
-          'Facebook and Instagram campaigns in your service area',
-          'Retargeting people who visited but didn’t book',
+          'Every ad points to a page for that exact service',
+          'Tap-to-call straight from the ad',
           'Your own video and photos with an Axeon shoot',
         ],
       },
       {
-        title: 'Tracking & landing pages',
+        title: 'Every call and booking traced to its ad.',
         items: [
-          'Every ad points to a page for that exact service',
+          'Tracking set up before a dollar is spent',
           'Calls, forms, and bookings tracked to the campaign',
           'Plain-English reporting on spend and results',
         ],
@@ -664,24 +593,7 @@ export const advertisingDetail: SolutionDetail = {
       'No published price. Budget and scope are set around your market and goals. Pair it with AxeonCORE and every paid lead gets instant follow-up.',
     ],
   },
-  timeline: {
-    eyebrow: 'How It Works',
-    heading: 'How We Launch Your Campaigns',
-    steps: [
-      {
-        title: 'Audit & tracking',
-        body: 'We review any past accounts, pick the services worth paying for, and set up tracking before a dollar is spent.',
-      },
-      {
-        title: 'Build campaigns & pages',
-        body: 'We write the ads and point each one to a landing page for that specific service.',
-      },
-      {
-        title: 'Launch & optimize',
-        body: 'We keep adjusting targeting and creative toward what produces calls and bookings, and report back in plain English.',
-      },
-    ],
-  },
+  timeline: ['Audit & tracking', 'Build campaigns & pages', 'Launch & optimize'],
   faqs: [
     {
       question: 'Do you manage both Google Ads and Meta Ads?',

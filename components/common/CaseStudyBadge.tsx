@@ -58,14 +58,24 @@ export function CaseStudyBadge() {
   const [overMarquee, setOverMarquee] = useState(false);
   const shown = visible && !hiddenHere && !isLeadModalOpen && !overMarquee;
 
+  // It also steps aside over the industry picker, where it competed with the headline.
   useEffect(() => {
-    const strip = document.getElementById('iowa-clients');
-    if (!strip || typeof IntersectionObserver === 'undefined') {
+    const targets = ['iowa-clients', 'who-we-help']
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
+    if (targets.length === 0 || typeof IntersectionObserver === 'undefined') {
       setOverMarquee(false);
       return;
     }
-    const observer = new IntersectionObserver(([entry]) => setOverMarquee(entry.isIntersecting));
-    observer.observe(strip);
+    const onScreen = new Set<Element>();
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) onScreen.add(entry.target);
+        else onScreen.delete(entry.target);
+      }
+      setOverMarquee(onScreen.size > 0);
+    });
+    targets.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
   }, [pathname]);
   const cardRef = useRef<HTMLElement>(null);

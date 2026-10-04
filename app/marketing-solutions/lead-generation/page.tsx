@@ -5,8 +5,6 @@ import {
   ServiceHero,
   ProblemSection,
   DeliverablesSection,
-  WhereItFits,
-  TimelineSection,
   CaseStudyProof,
   ServiceFaqSection,
   ServiceFaqJsonLd,
@@ -43,6 +41,7 @@ export default function LeadGenerationPage() {
       <ServiceFaqJsonLd items={d.faqs} />
 
       <ServiceHero
+        image="/temp-scorpion-refs/lead-generation-hero-v2.webp"
         eyebrow="Services · Lead Capture & Follow-Up"
         title="Every lead captured. Every lead followed up. Automatically."
         subtitle="Every call, form, and chat lands in one place the moment it comes in, and follow-up starts automatically before the lead goes cold."
@@ -50,9 +49,7 @@ export default function LeadGenerationPage() {
         note="a CRM pipeline built around how you sell"
       />
       <ProblemSection data={d.problem} />
-      <DeliverablesSection data={d.deliverables} />
-      <WhereItFits data={d.fit} />
-      <TimelineSection data={d.timeline} />
+      <DeliverablesSection detail={d} />
       {d.proof && <CaseStudyProof data={d.proof} />}
       <ServiceFaqSection heading="Common Questions About Lead Follow-Up" faqs={d.faqs} />
       <ServiceClosingCta trackId="service_lead_gen" />

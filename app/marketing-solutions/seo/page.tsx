@@ -5,8 +5,6 @@ import {
   ServiceHero,
   ProblemSection,
   DeliverablesSection,
-  WhereItFits,
-  TimelineSection,
   CaseStudyProof,
   ServiceFaqSection,
   ServiceFaqJsonLd,
@@ -42,6 +40,7 @@ export default function SeoMarketingSolutionPage() {
       />
 
       <ServiceHero
+        image="/temp-scorpion-refs/seo-hero.webp"
         eyebrow="Services · SEO / AEO / GEO"
         title="Get Found on Google. Get Cited by AI."
         subtitle="Show up when people nearby search for what you do: on Google, on the map, and inside AI answers. Built into every site we build, not sold separately."
@@ -49,9 +48,7 @@ export default function SeoMarketingSolutionPage() {
         note="not bolted on"
       />
       <ProblemSection data={d.problem} />
-      <DeliverablesSection data={d.deliverables} />
-      <WhereItFits data={d.fit} />
-      <TimelineSection data={d.timeline} />
+      <DeliverablesSection detail={d} />
       {d.proof && <CaseStudyProof data={d.proof} />}
       <ServiceFaqSection heading="Common Questions About SEO" faqs={d.faqs} />
       <ServiceClosingCta trackId="service_seo" />

@@ -5,8 +5,6 @@ import {
   ServiceHero,
   ProblemSection,
   DeliverablesSection,
-  WhereItFits,
-  TimelineSection,
   CaseStudyProof,
   ServiceFaqSection,
   ServiceFaqJsonLd,
@@ -43,6 +41,7 @@ export default function WebsitePage() {
       <ServiceFaqJsonLd items={d.faqs} />
 
       <ServiceHero
+        image="/temp-scorpion-refs/website-hero.webp"
         eyebrow="Services · Website"
         title="A Website That Turns Searches Into Calls"
         subtitle="Built to make you the obvious choice the second someone compares you, with a call or a booking one tap away."
@@ -50,9 +49,7 @@ export default function WebsitePage() {
         note="backed by our 90-day customer guarantee"
       />
       <ProblemSection data={d.problem} />
-      <DeliverablesSection data={d.deliverables} />
-      <WhereItFits data={d.fit} />
-      <TimelineSection data={d.timeline} />
+      <DeliverablesSection detail={d} />
       {d.proof && <CaseStudyProof data={d.proof} />}
       <ServiceFaqSection heading="Common Questions About Your Website" faqs={d.faqs} />
       <ServiceClosingCta trackId="service_website" />

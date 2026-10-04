@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { motion } from 'motion/react';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -14,7 +13,6 @@ import {
   MapPin,
   Calendar,
   Quote,
-  Check,
 } from 'lucide-react';
 import { LEVI_QUOTE } from '@/components/common/ClientQuote';
 
@@ -28,39 +26,22 @@ const HERO_PROOF = [
   { value: '0.3–0.8s', label: 'page loads on the new site' },
 ];
 
-const PILLARS = [
+// The three steps; the guarantee is rendered as the fourth, blue cell.
+const STEPS = [
   {
     icon: Search,
     title: 'Get Found',
     description: 'Show up first on Google, Maps, and AI search when people nearby look for what you do.',
-    metric: '100/100',
-    metricLabel: 'SEO audit score on A-1’s new site',
-    href: CASE_STUDY,
   },
   {
     icon: Star,
     title: 'Get Chosen',
     description: 'Real reviews, real prices, and a fast mobile site, so you win the side-by-side comparison.',
-    metric: '97%',
-    metricLabel: 'of people read reviews before choosing (BrightLocal)',
-    href: 'https://www.brightlocal.com/research/local-consumer-review-survey/',
   },
   {
     icon: PhoneCall,
     title: 'Get Booked',
     description: 'Instant call connect, missed-call text-back, and automatic follow-up until they book.',
-    metric: '62%',
-    metricLabel: 'of small-business calls go unanswered (411 Locals)',
-    href: 'https://411locals.us/small-business-owners-dont-answer-62-of-phone-calls/',
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Guaranteed',
-    description:
-      'More calls and leads in your first 90 days than you were getting before, or we keep working for free until you do.',
-    metric: '90 days',
-    metricLabel: 'Baseline set on your kickoff call. See the terms',
-    href: '/pricing',
   },
 ];
 
@@ -146,75 +127,74 @@ export default function AboutClient() {
         </div>
       </section>
 
-      {/* SECTION 2: Found / Chosen / Booked / Guaranteed */}
-      <section className="flex flex-col justify-center px-4 sm:px-8 lg:px-14 xl:px-20 border-b border-neutral-200/80 py-12 lg:py-16 relative bg-[#F7F6F3]">
+      {/* SECTION 2: the system in one row (three steps + the guarantee) */}
+      <section className="px-4 sm:px-8 lg:px-14 xl:px-20 border-b border-neutral-200/80 py-12 lg:py-16 bg-[#F7F6F3]">
         <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
-          <div className="max-w-3xl mb-10 sm:mb-14">
-            <span className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">
-              [ WHAT YOU ACTUALLY GET ]
-            </span>
-            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-neutral-950 font-display tracking-tight mt-2">
-              One system that turns searches into booked jobs.
-            </h2>
-            <p className="text-sm sm:text-base lg:text-lg text-neutral-600 mt-2.5 leading-relaxed">
-              Get found, get chosen, get booked. Then we guarantee it.
-            </p>
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3 mb-8 sm:mb-10">
+            <div>
+              <span className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">
+                [ FROM SEARCH TO BOOKED JOB ]
+              </span>
+              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-neutral-950 font-display tracking-tight mt-2">
+                Found. Chosen. Booked. Guaranteed.
+              </h2>
+            </div>
+            <Link
+              href="/process"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 shrink-0"
+            >
+              See the full process <ArrowRight size={14} />
+            </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8 items-stretch">
-            {PILLARS.map((pillar, idx) => {
-              const Icon = pillar.icon;
-              const external = pillar.href.startsWith('http');
+          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.25fr)] rounded-3xl overflow-hidden border border-neutral-200 bg-white">
+            {STEPS.map((step, idx) => {
+              const Icon = step.icon;
               return (
-                <motion.div
-                  key={pillar.title}
-                  initial={{ opacity: 0, y: 40 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.15 }}
-                  transition={{ duration: 0.6, delay: idx * 0.12, ease: [0.16, 1, 0.3, 1] }}
-                  className="flex flex-col justify-between p-7 sm:p-8 rounded-2xl bg-white border border-neutral-200/90 shadow-xs hover:shadow-xl hover:border-blue-500/40 transition-all duration-300 relative group overflow-hidden"
+                <div
+                  key={step.title}
+                  className="p-6 sm:p-8 border-b lg:border-b-0 lg:border-r border-neutral-200 flex gap-4 lg:block"
                 >
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-neutral-200 to-transparent group-hover:via-blue-600 transition-all duration-500" />
-
-                  <div>
-                    <div className="w-12 h-12 rounded-xl bg-neutral-50 border border-neutral-200/80 group-hover:bg-blue-600 group-hover:border-blue-600 text-neutral-800 group-hover:text-white transition-all duration-300 flex items-center justify-center mb-5 shadow-xs">
-                      <Icon size={22} />
-                    </div>
-                    <h3 className="text-xl sm:text-2xl font-extrabold text-neutral-950 font-display tracking-tight group-hover:text-blue-600 transition-colors">
-                      {pillar.title}
-                    </h3>
-                    <p className="text-sm sm:text-base text-neutral-600 mt-3 leading-relaxed">{pillar.description}</p>
+                  <div className="flex items-center gap-3 lg:mb-4 shrink-0">
+                    <span className="font-mono text-xs font-bold text-neutral-400">0{idx + 1}</span>
+                    <Icon size={20} className="text-blue-600" />
                   </div>
-
-                  <a
-                    href={pillar.href}
-                    {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                    className="mt-8 pt-5 border-t border-neutral-100 block"
-                  >
-                    <div className="text-2xl sm:text-3xl font-black font-display text-neutral-950 group-hover:text-blue-600 transition-colors tracking-tight">
-                      {pillar.metric}
-                    </div>
-                    <div className="text-xs text-neutral-500 font-medium mt-0.5 underline-offset-2 hover:underline">
-                      {pillar.metricLabel}
-                    </div>
-                  </a>
-                </motion.div>
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-extrabold font-display tracking-tight text-neutral-950">
+                      {step.title}
+                    </h3>
+                    <p className="mt-1.5 text-sm sm:text-base text-neutral-600 leading-relaxed">{step.description}</p>
+                  </div>
+                </div>
               );
             })}
+            <Link
+              href="/pricing"
+              className="group p-6 sm:p-8 bg-blue-600 text-white flex flex-col justify-between gap-4 hover:bg-blue-700 transition-colors"
+            >
+              <div className="flex items-center gap-2 text-xs font-mono font-bold tracking-widest uppercase text-blue-100">
+                <ShieldCheck size={16} />
+                <span>Guaranteed</span>
+              </div>
+              <div>
+                <div className="text-5xl sm:text-6xl font-black font-display tracking-tight leading-none">90 days</div>
+                <p className="mt-3 text-sm sm:text-base text-blue-50 leading-relaxed">
+                  More calls and leads in your first 90 days than you were getting before, or we keep working for free
+                  until you do.
+                </p>
+              </div>
+              <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-white">
+                See the terms <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+              </span>
+            </Link>
           </div>
         </div>
       </section>
-
       {/* SECTION 3: Founder story */}
       <section className="flex flex-col justify-center px-4 sm:px-8 lg:px-14 xl:px-20 border-b border-neutral-200/80 py-12 lg:py-16 relative bg-[#FAF9F8]">
         <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.6 }}
-              className="lg:col-span-5"
+            <div className="lg:col-span-5"
             >
               <div className="relative w-full aspect-[4/4.6] max-w-md mx-auto lg:max-w-none rounded-3xl overflow-hidden shadow-xl border border-neutral-200/90 group bg-neutral-200">
                 <picture>
@@ -260,14 +240,9 @@ export default function AboutClient() {
                   You talk to me on every call. Not a sales rep, not an account manager.
                 </div>
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="lg:col-span-7 space-y-6"
+            <div className="lg:col-span-7 space-y-6"
             >
               <div>
                 <span className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">
@@ -314,99 +289,72 @@ export default function AboutClient() {
                   </div>
                 </div>
               </figure>
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* SECTION 4: Iowa roots + how I work */}
-      <section className="flex flex-col justify-center px-4 sm:px-8 lg:px-14 xl:px-20 border-b border-neutral-200/80 py-12 lg:py-16 relative">
-        <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.6 }}
-              className="lg:col-span-6 space-y-4"
-            >
-              <span className="text-xs font-mono font-bold tracking-widest text-neutral-400 uppercase">
-                [ WEST DES MOINES, IOWA ]
-              </span>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-neutral-950 font-display tracking-tight">
-                Your word matters here.
-              </h2>
-              <p className="text-base sm:text-lg text-neutral-600 leading-relaxed">
-                Out here you earn trust by doing what you said you would. No big-city office overhead, so your money goes
-                into what brings you customers.
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="lg:col-span-6"
-            >
-              <div className="rounded-3xl bg-white border border-neutral-200/90 shadow-sm p-7 sm:p-10">
-                <span className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">
-                  [ HOW I WORK ]
+      {/* SECTION 4: dark statement band — how I work */}
+      <section className="px-4 sm:px-8 lg:px-14 xl:px-20 py-16 sm:py-24 lg:py-28 bg-neutral-950 text-white">
+        <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+          <div className="lg:col-span-5">
+            <span className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">[ HOW I WORK ]</span>
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-[1.05] mt-3">
+              You&apos;ll never talk to an account manager.
+            </h2>
+            <p className="mt-5 text-base sm:text-lg text-neutral-400 leading-relaxed max-w-md">
+              Out here you earn trust by doing what you said you would. No big-city office overhead, so your money goes
+              into what brings you customers.
+            </p>
+          </div>
+          <ol className="lg:col-span-7 divide-y divide-white/10 border-y border-white/10">
+            {HOW_I_WORK.map((item, idx) => (
+              <li key={item} className="flex items-baseline gap-5 sm:gap-8 py-6 sm:py-7">
+                <span className="text-3xl sm:text-5xl font-black font-display text-blue-500 tabular-nums shrink-0">
+                  0{idx + 1}
                 </span>
-                <ul className="mt-5 space-y-4">
-                  {HOW_I_WORK.map((item) => (
-                    <li key={item} className="flex items-start gap-3 text-sm sm:text-base text-neutral-700 leading-relaxed">
-                      <span className="mt-0.5 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0">
-                        <Check size={14} strokeWidth={3} />
-                      </span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </motion.div>
-          </div>
+                <span className="text-lg sm:text-2xl lg:text-[28px] font-bold font-display tracking-tight leading-snug text-neutral-100">
+                  {item}
+                </span>
+              </li>
+            ))}
+          </ol>
         </div>
       </section>
 
-      {/* SECTION 5: Next Step CTA */}
-      <section className="min-h-[60vh] flex flex-col justify-center px-4 sm:px-8 lg:px-14 xl:px-20 py-16 sm:py-20 relative">
-        <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 bg-neutral-950 text-white rounded-3xl p-8 sm:p-12 lg:p-16 shadow-2xl">
-            <div className="max-w-2xl">
-              <span className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">
-                [ LET&apos;S TALK ]
-              </span>
-              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white font-display tracking-tight mt-2">
-                Let&apos;s get you more customers.
-              </h2>
-              <p className="text-sm sm:text-base text-neutral-400 mt-3 leading-relaxed">
-                Book a free 20-minute call with me. You&apos;ll get a custom homepage mockup and an AI visibility report,
-                yours to keep either way.
-              </p>
-              <div className="mt-5 flex flex-wrap items-center gap-4 text-xs sm:text-sm font-mono text-neutral-400">
-                <a href="mailto:hayder.hatem@axeonstudio.co" className="hover:text-white transition-colors underline">
-                  hayder.hatem@axeonstudio.co
-                </a>
-                <span>•</span>
-                <a href="tel:5154938017" className="hover:text-white transition-colors">
-                  (515) 493-8017
-                </a>
-                <span>•</span>
-                <span>West Des Moines, Iowa</span>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto shrink-0">
-              <button
-                type="button"
-                onClick={() => router.push('/book')}
-                className="inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base tracking-tight shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer"
-              >
-                <Calendar size={18} />
-                <span>Get More Customers</span>
-              </button>
-            </div>
+      {/* SECTION 5: Next Step CTA (light, so it doesn't echo the dark band above) */}
+      <section className="px-4 sm:px-8 lg:px-14 xl:px-20 py-16 sm:py-24">
+        <div className="w-full max-w-4xl mx-auto text-center">
+          <span className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ LET&apos;S TALK ]</span>
+          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-neutral-950 font-display tracking-tight mt-3">
+            Let&apos;s get you more customers.
+          </h2>
+          <p className="text-base sm:text-lg text-neutral-600 mt-4 leading-relaxed max-w-2xl mx-auto">
+            Book a free 20-minute call with me. You&apos;ll get a custom homepage mockup and an AI visibility report,
+            yours to keep either way.
+          </p>
+          <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => router.push('/book')}
+              className="inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base tracking-tight shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer"
+            >
+              <Calendar size={18} />
+              <span>Get More Customers</span>
+            </button>
+            <a
+              href="tel:5154938017"
+              className="inline-flex items-center justify-center px-8 py-4 rounded-full border border-neutral-300 hover:bg-white text-neutral-900 font-semibold text-base transition-colors"
+            >
+              Call (515) 493-8017
+            </a>
+          </div>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs sm:text-sm font-mono text-neutral-500">
+            <a href="mailto:hayder.hatem@axeonstudio.co" className="hover:text-neutral-900 transition-colors underline">
+              hayder.hatem@axeonstudio.co
+            </a>
+            <span>•</span>
+            <span>West Des Moines, Iowa</span>
           </div>
         </div>
       </section>

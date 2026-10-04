@@ -5,8 +5,6 @@ import {
   ServiceHero,
   ProblemSection,
   DeliverablesSection,
-  WhereItFits,
-  TimelineSection,
   ServiceFaqSection,
   ServiceFaqJsonLd,
 } from '@/components/marketing-solutions/SolutionSections';
@@ -42,6 +40,7 @@ export default function VideoPhotographyPage() {
       <ServiceFaqJsonLd items={d.faqs} />
 
       <ServiceHero
+        image="/temp-scorpion-refs/video-photography-hero.webp"
         eyebrow="Services · Video & Photography"
         title="Real Footage That Makes Customers Pick You"
         subtitle={DESCRIPTION}
@@ -49,9 +48,7 @@ export default function VideoPhotographyPage() {
         note="half-day on-site shoot"
       />
       <ProblemSection data={d.problem} />
-      <DeliverablesSection data={d.deliverables} />
-      <WhereItFits data={d.fit} />
-      <TimelineSection data={d.timeline} />
+      <DeliverablesSection detail={d} />
       <ServiceFaqSection heading="Common Questions About Video" faqs={d.faqs} />
       <ServiceClosingCta trackId="service_video" />
     </main>

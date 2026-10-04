@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import { listPosts, type Post } from '@/lib/posts';
 import { PostCard } from '@/components/insights/PostCard';
 import { buildMetadata } from '@/lib/metadata';
@@ -11,6 +12,8 @@ export const metadata = buildMetadata({
 });
 
 export const revalidate = 3600;
+
+const CASE_STUDY_SLUG = 'a-1-auto-detailing-website-case-study';
 
 export default async function InsightsPage() {
   // TODO: remove this try/catch once the live Vercel Postgres database is
@@ -37,11 +40,35 @@ export default async function InsightsPage() {
         <p className="text-lg text-neutral-600 max-w-2xl mb-14">
           Practical guides to getting more calls, leads, and customers for local service businesses.
         </p>
+        {/* The one client case study leads the page, ahead of the guides. */}
+        <Link
+          href={`/insights/${CASE_STUDY_SLUG}`}
+          className="group mb-14 sm:mb-16 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-end rounded-[28px] sm:rounded-[36px] bg-neutral-950 text-white p-6 sm:p-10 lg:p-14"
+        >
+          <span className="lg:col-span-4 block text-[100px] sm:text-[150px] lg:text-[170px] leading-[0.82] font-black font-display tracking-tighter text-blue-500">
+            #1
+          </span>
+          <span className="lg:col-span-8 block">
+            <span className="block text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">
+              [ CASE STUDY · A-1 AUTO DETAILING ]
+            </span>
+            <span className="mt-3 block text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.08]">
+              How A-1 went from page 2 to #1
+            </span>
+            <span className="mt-3 block text-base sm:text-lg text-neutral-400 leading-relaxed">
+              Now #1 on Google for &ldquo;Pleasant Hill auto detailing,&rdquo; up from page 2.
+            </span>
+            <span className="mt-5 inline-flex items-center gap-1.5 text-base font-semibold text-blue-300 group-hover:text-white transition-colors">
+              Read the case study <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+            </span>
+          </span>
+        </Link>
+
         {posts.length === 0 ? (
           <p className="text-neutral-500">No posts published yet — check back soon.</p>
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {posts.map((post) => (
+            {posts.filter((post) => post.slug !== CASE_STUDY_SLUG).map((post) => (
               <PostCard key={post.id} post={post} />
             ))}
           </div>

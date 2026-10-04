@@ -74,7 +74,7 @@ export function WebsiteGallery({
                 isAxeon ? 'bg-blue-600/90 text-white' : 'bg-black/60 text-white'
               }`}
             >
-              {images[active].industry}
+              {isAxeon ? `${images[active].label} · ${images[active].industry}` : images[active].industry}
             </div>
           </div>
         </BrowserFrame>

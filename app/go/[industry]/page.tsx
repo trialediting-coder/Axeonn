@@ -3,10 +3,10 @@ import type { Metadata } from 'next';
 import { ArrowRight, Check, Phone, ShieldCheck } from 'lucide-react';
 import { adFunnels, adFunnelFor } from '@/data/adFunnels';
 import { niches } from '@/data/nichesData';
-import { benefitHeadlinesBySlug } from '@/data/nicheBenefitHeadlines';
 import { nicheFaqData } from '@/data/nicheFaqData';
 import { LEVI_QUOTE } from '@/components/common/ClientQuote';
 import { FunnelBooking } from '@/components/funnel/FunnelBooking';
+import { NichePainPoints } from '@/components/niches/NichePainPoints';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
 import { WORK_PROJECTS } from '@/data/workProjects';
 import { TrustBadges } from '@/components/common/TrustBadges';
@@ -72,7 +72,6 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
   const niche = niches.find((n) => n.slug === industry);
   if (!funnel || !niche) notFound();
 
-  const benefits = benefitHeadlinesBySlug[niche.slug] ?? [];
   const example = WORK_PROJECTS.find((p) => p.name === funnel.example);
   const exampleSameIndustry = example?.niche === niche.slug;
   const sameIndustryProof = niche.slug === 'auto-detailing';
@@ -169,7 +168,10 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
       </section>
 
 
-      {/* 2. Real result, right under the offer */}
+      {/* 2. Where they lose customers: the niche's own leaks, right under the offer */}
+      <NichePainPoints niche={niche} variant="compact" closerHref="#book" closerLabel="Plug them, starting with a free call" closerArrow="up" />
+
+      {/* 3. Real result, right under the leaks */}
       <section className="px-4 sm:px-8 py-20 sm:py-24 border-b border-neutral-200">
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">
@@ -207,7 +209,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
         </div>
       </section>
 
-      {/* 2b. Show what they get: a real site we designed, in a browser frame */}
+      {/* 4. Show what they get: a real site we designed, in a browser frame */}
       {example && (
         <section className="px-4 sm:px-8 py-20 sm:py-24 bg-neutral-50">
           <div className="max-w-5xl mx-auto">
@@ -241,49 +243,6 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
           </div>
         </section>
       )}
-
-      {/* 3. The problem, in their words */}
-      <section className="px-4 sm:px-8 py-20 sm:py-24">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1] max-w-3xl">
-            Where {funnel.audience.replace(/^Iowa /, '')} lose customers every week
-          </h2>
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-5">
-            {niche.painPoints.map((pain, i) => (
-              <div key={pain} className="rounded-2xl border border-neutral-200 p-6 sm:p-7">
-                <p className="text-sm font-bold text-blue-600">{benefits[i] ?? 'What we fix'}</p>
-                <p className="mt-2 text-lg text-neutral-800 leading-relaxed">{pain}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 4. How we fix it */}
-      <section className="px-4 sm:px-8 py-20 sm:py-24 bg-neutral-50">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1] max-w-3xl">
-            How we get you more {funnel.customers}
-          </h2>
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-5">
-            {[
-              { step: 'Step 1', t: 'Get found', d: 'Show up on Google, on the map, and in AI answers when people nearby search for what you do.' },
-              { step: 'Step 2', t: 'Get chosen', d: 'A fast site with your reviews up front that makes you the obvious pick.' },
-              { step: 'Step 3', t: 'Get booked', d: 'Tap-to-call and a quote form on every page. On AxeonCORE, AI chat and automatic follow-up answer every lead in seconds.' },
-            ].map((s) => (
-              <div key={s.t} className="rounded-2xl bg-white border border-neutral-200 p-7">
-                <p className="text-sm font-semibold text-neutral-400">{s.step}</p>
-                <h3 className="mt-1 text-2xl font-black font-display tracking-tight">{s.t}</h3>
-                <p className="mt-3 text-neutral-700 leading-relaxed">{s.d}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-12 text-center">
-            <CTA />
-          </div>
-        </div>
-      </section>
-
 
       {/* 6. What happens on the call (lowers the fear of booking) */}
       <section className="px-4 sm:px-8 py-20 sm:py-24 bg-neutral-950 text-white">

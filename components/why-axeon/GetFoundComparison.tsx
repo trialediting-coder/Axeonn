@@ -5,6 +5,7 @@ import { motion } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
 import { WebsiteGallery } from './WebsiteGallery';
 import { VersusRows } from './VersusSection';
+import { WORK_PROJECTS } from '@/data/workProjects';
 
 const TYPICAL_IMAGES = [
   { src: '/why-axeon/competitor-hvac.webp', industry: 'HVAC', label: 'Typical agency', url: 'example-hvac-co.com' },
@@ -13,19 +14,20 @@ const TYPICAL_IMAGES = [
   { src: '/why-axeon/competitor-realestate.webp', industry: 'Real Estate', label: 'Typical agency', url: 'example-realty.com' },
 ];
 
-const AXEON_IMAGES = [
-  { src: '/why-axeon/axeon-ecommerce.webp', industry: 'E-Commerce', label: 'Concept build', url: 'yourbrand.com' },
-  { src: '/why-axeon/axeon-hvac.webp', industry: 'HVAC & Plumbing', label: 'Concept build', url: 'yourservicecompany.com' },
-  { src: '/why-axeon/axeon-auto-repair.webp', industry: 'Auto Repair', label: 'Concept build', url: 'yourshop.com' },
-  { src: '/why-axeon/axeon-realestate.webp', industry: 'Real Estate', label: 'Concept build', url: 'yourcompany.com' },
-];
+// Real sites from the portfolio, so the comparison shows actual Axeon work.
+const AXEON_IMAGES = WORK_PROJECTS.map((p) => ({
+  src: p.image,
+  industry: p.industry,
+  label: p.name,
+  url: new URL(p.url).hostname,
+}));
 
 export default function GetFoundComparison() {
   return (
     <section id="get-found" className="w-full py-20 sm:py-24 px-6 sm:px-10 lg:px-16 xl:px-24">
       <div className="max-w-5xl mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={false}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.6 }}
@@ -48,7 +50,7 @@ export default function GetFoundComparison() {
           </div>
           <div>
             <div className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">
-              Axeon concept builds
+              Sites we&apos;ve built
             </div>
             <WebsiteGallery images={AXEON_IMAGES} variant="axeon" />
           </div>

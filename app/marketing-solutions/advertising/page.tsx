@@ -5,8 +5,6 @@ import {
   ServiceHero,
   ProblemSection,
   DeliverablesSection,
-  WhereItFits,
-  TimelineSection,
   ServiceFaqSection,
   ServiceFaqJsonLd,
 } from '@/components/marketing-solutions/SolutionSections';
@@ -49,9 +47,7 @@ export default function AdvertisingMarketingSolutionPage() {
         showPricingLink={false}
       />
       <ProblemSection data={d.problem} />
-      <DeliverablesSection data={d.deliverables} />
-      <WhereItFits data={d.fit} />
-      <TimelineSection data={d.timeline} />
+      <DeliverablesSection detail={d} />
       <ServiceFaqSection heading="Common Questions About Ads" faqs={d.faqs} />
       <ServiceClosingCta trackId="service_advertising" />
     </main>

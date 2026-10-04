@@ -45,12 +45,12 @@ export const pricingTiers: PricingTier[] = [
     bestFor: 'Right for you if you mainly need more people to find you. It brings in calls and leads; you handle the follow-up yourself.',
     features: [
       'SEO, AEO & GEO built in — visible on Google and inside AI answers like ChatGPT',
-      'Up to 4 custom-designed, mobile-first pages built around how your business actually sells',
-      'Fast-loading on every phone',
       'Quote request form with instant lead alerts — every request lands in your inbox and on your phone',
+      'Up to 4 custom-designed, mobile-first pages built around how your business actually sells',
+      'You own 100% of the site, code, and design files',
+      'Fast-loading on every phone',
       'See which pages make your phone ring',
       'Built so every customer can use it',
-      'You own 100% of the site, code, and design files',
     ],
     cta: 'Get Essentials',
   },
@@ -69,13 +69,13 @@ export const pricingTiers: PricingTier[] = [
     inherits: 'Everything in Essentials, plus:',
     features: [
       'Custom on-site videography — a half-day shoot at your location: a hero film for your site, 3 vertical cuts for social & ads, and a photo set',
-      '5–7 pages written to turn visitors into calls',
-      'Custom CRM Pipeline built around your lead-to-close workflow — no per-seat monthly software',
-      'AI chat & online scheduling so leads book themselves 24/7',
-      'Multi-step intake questionnaire that pre-qualifies leads before you ever call them',
-      'Automated SMS & email follow-up the second a lead comes in',
       'Speed-to-lead call connect — when a form comes in, your phone rings and connects you to that lead while they\'re still on your site',
       'Missed-call text-back — anyone who calls and can\'t reach you gets an instant text, so they don\'t move on to the next company',
+      'AI chat & online scheduling so leads book themselves 24/7',
+      '5–7 pages written to turn visitors into calls',
+      'Custom CRM Pipeline built around your lead-to-close workflow — no per-seat monthly software',
+      'Multi-step intake questionnaire that pre-qualifies leads before you ever call them',
+      'Automated SMS & email follow-up the second a lead comes in',
       'Exit-intent offers — visitors about to leave see an offer matched to the service they were looking at',
       'Call tracking numbers that show which pages and listings actually make your phone ring',
     ],
@@ -136,6 +136,16 @@ export const pricingFaqs: PricingFaq[] = [
     a: 'Every plan includes 2 rounds of revisions on your new site before launch, at no extra cost. We don\'t consider a project finished until the design is one you\'re proud to put your name on.',
   },
 ];
+
+/** The guarantee sentence on its own, word for word. Never paraphrase it. */
+export const guaranteeSentence =
+  'More calls and leads in your first 90 days than you were getting before, or we keep working for free until you do.';
+
+/**
+ * How many feature bullets a plan card shows up front; the rest sit behind
+ * "See everything included". Order each tier's features strongest-first.
+ */
+export const FEATURED_BULLETS = 4;
 
 export const customerGuarantee = '90-Day Customer Guarantee: More calls and leads in your first 90 days than you were getting before, or we keep working for free until you do.';
 export const revisionGuarantee = '2-Round Revision Guarantee — included with every build';

@@ -71,17 +71,16 @@ for (const pkg of PACKAGES) {
 }
 
 test('spot checks against the shipped config', () => {
-  assert.equal(matchPackage({ ...base, services: ['Website'], budget: 'Under $1,000' }).id, 'website');
-  assert.equal(matchPackage({ ...base, services: ['Meta Ads'] }).id, 'ads');
-  assert.equal(matchPackage({ ...base, services: ['Google Ads', 'Meta Ads'] }).id, 'ads');
-  assert.equal(matchPackage({ ...base, services: ['SEO', 'Content'] }).id, 'seo-content');
-  assert.equal(matchPackage({ ...base, services: ['AI Automation'] }).id, 'ai-automation');
+  assert.equal(matchPackage({ ...base, services: ['Website'], budget: 'Under $1,000' }).id, 'essentials');
+  assert.equal(matchPackage({ ...base, services: ['SEO', 'Content'] }).id, 'essentials');
+  assert.equal(matchPackage({ ...base, services: ['Website', 'SEO', 'Content'] }).id, 'essentials');
+  assert.equal(matchPackage({ ...base, services: ['AI Automation'] }).id, 'axeoncore');
+  assert.equal(matchPackage({ ...base, services: ['Website', 'AI Automation'] }).id, 'axeoncore');
 });
 
 // ---- custom fallback -------------------------------------------------------
 
-test('custom: 3+ services', () => {
-  assert.equal(matchPackage({ ...base, services: ['Website', 'SEO', 'Content'] }).id, 'custom');
+test('custom: 5+ services', () => {
   assert.equal(matchPackage({ ...base, services: [...SERVICES] }).id, 'custom');
 });
 
@@ -92,12 +91,10 @@ test('custom: $3k+ budget, even for a single service', () => {
 });
 
 test('custom: no good match', () => {
-  // Two services no single package covers.
+  // Ads are an add-on scoped on a call, alone or with anything else.
+  assert.equal(matchPackage({ ...base, services: ['Meta Ads'] }).id, 'custom');
+  assert.equal(matchPackage({ ...base, services: ['Google Ads', 'Meta Ads'] }).id, 'custom');
   assert.equal(matchPackage({ ...base, services: ['Website', 'Meta Ads'] }).id, 'custom');
-  // Ads with no site to land on.
-  assert.equal(matchPackage({ ...base, services: ['Meta Ads'], hasWebsite: 'No' }).id, 'custom');
-  // Budget too small for anything but a website.
-  assert.equal(matchPackage({ ...base, services: ['AI Automation'], budget: 'Under $1,000' }).id, 'custom');
 });
 
 test('custom: empty services or missing budget', () => {
@@ -113,7 +110,7 @@ test('custom has no payment link', () => {
 test('deterministic: duplicate services and repeat calls give the same answer', () => {
   const a = { ...base, services: ['SEO', 'SEO'] as GetStartedAnswers['services'] };
   assert.equal(matchPackage(a).id, matchPackage(a).id);
-  assert.equal(matchPackage(a).id, 'seo-content');
+  assert.equal(matchPackage(a).id, 'essentials');
 });
 
 // ---- placeholder guard -----------------------------------------------------
@@ -130,8 +127,8 @@ test('recommendPackage never shows a TODO placeholder package', () => {
 // ---- payload + payment URL -------------------------------------------------
 
 test('payload uses the package services and exact keys', () => {
-  const pkg = PACKAGES.find((p) => p.id === 'ads')!;
-  const payload = buildLeadPayload({ ...base, services: ['Meta Ads'] }, contact, pkg, '');
+  const pkg = PACKAGES.find((p) => p.id === 'axeoncore')!;
+  const payload = buildLeadPayload({ ...base, services: ['AI Automation'] }, contact, pkg, '');
   assert.deepEqual(Object.keys(payload), [
     'businessName', 'contactName', 'email', 'phone', 'website', 'services',
     'packageId', 'packageName', 'packagePrice', 'answers', 'company_fax',

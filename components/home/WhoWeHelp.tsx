@@ -113,20 +113,14 @@ export function WhoWeHelp() {
       <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
         {/* Top Eyebrow & Headlines */}
         <div className="mb-8 sm:mb-16">
-          <p className="text-sm sm:text-base font-bold tracking-[0.22em] text-[#3366ff] uppercase mb-4 sm:mb-5">
-            The Difference
+          <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-4 sm:mb-5">
+            [ PICK YOUR INDUSTRY ]
           </p>
 
-          <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-[68px] font-black tracking-tight text-neutral-950 leading-[1.14]">
-            Pick your industry. See how you&apos;d get more{' '}
-            <span className="inline-block bg-[#dfe8ff] text-neutral-950 px-5 sm:px-7 py-2 rounded-2xl font-black mt-2 sm:mt-0 align-middle">
-              booked jobs
-            </span>
+          <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-[68px] font-black font-display tracking-tight text-neutral-950 leading-[1.08] max-w-5xl">
+            Every trade loses customers differently.{' '}
+            <span className="text-blue-600">See yours.</span>
           </h2>
-
-          <p className="text-xl sm:text-3xl font-bold text-neutral-950 mt-5 sm:mt-8">
-            Every industry wins customers differently. Here&apos;s how it works in yours.
-          </p>
         </div>
 
         {/* Grand Video Canvas Card. On phones the card hugs its content and uses a

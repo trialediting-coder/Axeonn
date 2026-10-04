@@ -144,28 +144,61 @@ const PARTNER_FAQ = [
   },
 ];
 
+/**
+ * The hero's message as a full-width visual: You -> Axeon -> your client ->
+ * back to you. Big numbered stops with arrows between them (stacked on phones).
+ */
 function ReferralLoop() {
   const last = LOOP.length - 1;
   return (
-    <ol className="relative rounded-3xl bg-white text-neutral-950 p-5 sm:p-6 shadow-2xl shadow-black/40 space-y-4">
-      {/* Connector running through the step icons */}
-      <span aria-hidden className="absolute left-[42px] sm:left-[46px] top-10 bottom-10 w-px bg-neutral-200" />
-      {LOOP.map(({ icon: Icon, who, what }, i) => (
-        <li key={who} className="relative flex gap-4 items-center">
-          <span
-            className={`relative z-10 flex-none w-10 h-10 rounded-full flex items-center justify-center ring-4 ring-white ${
-              i === last ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600'
-            }`}
-          >
-            <Icon size={18} />
-          </span>
-          <div>
-            <p className="font-bold leading-tight">{who}</p>
-            <p className="text-sm text-neutral-500 leading-snug">{what}</p>
-          </div>
-        </li>
-      ))}
-    </ol>
+    <section aria-labelledby="referral-loop-heading" className="w-full py-16 sm:py-20 px-4 sm:px-10 lg:px-16 xl:px-24 bg-[#F7F6F3] border-b border-neutral-200">
+      <div className="max-w-6xl mx-auto">
+        <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ HOW A REFERRAL WORKS ]</p>
+        <h2 id="referral-loop-heading" className="text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.08] max-w-3xl">
+          One introduction. It comes back to you.
+        </h2>
+        <ol className="mt-10 sm:mt-12 grid grid-cols-1 lg:grid-cols-4 gap-3 lg:gap-0">
+          {LOOP.map(({ icon: Icon, who, what }, i) => {
+            const isLast = i === last;
+            return (
+              <li key={who} className="relative flex lg:block items-start gap-4 lg:pr-10">
+                <div
+                  className={`flex-1 lg:flex-none rounded-3xl p-6 sm:p-7 h-full ${
+                    isLast ? 'bg-blue-600 text-white shadow-xl shadow-blue-600/25' : 'bg-white border border-neutral-200'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span
+                      className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
+                        isLast ? 'bg-white/15 text-white' : 'bg-blue-50 text-blue-600'
+                      }`}
+                    >
+                      <Icon size={26} />
+                    </span>
+                    <span
+                      className={`text-4xl font-black font-display tracking-tight ${
+                        isLast ? 'text-white/40' : 'text-neutral-200'
+                      }`}
+                    >
+                      0{i + 1}
+                    </span>
+                  </div>
+                  <p className="mt-5 text-2xl sm:text-3xl font-extrabold font-display tracking-tight">{who}</p>
+                  <p className={`mt-2 leading-snug ${isLast ? 'text-blue-50' : 'text-neutral-600'}`}>{what}</p>
+                </div>
+                {!isLast && (
+                  <ArrowRight
+                    aria-hidden
+                    size={28}
+                    className="hidden lg:block absolute right-1 top-1/2 -translate-y-1/2 text-blue-600"
+                  />
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+    </section>
   );
 }
 
@@ -174,7 +207,7 @@ export default function PartnersPage() {
     <main className="w-full bg-white text-neutral-950">
       <BreadcrumbJsonLd items={[{ name: 'Partners', path: '/partners' }]} />
 
-      {/* Hero: Iowa Capitol behind the pitch, with the referral loop alongside */}
+      {/* Hero: Iowa Capitol behind the pitch; the referral loop gets its own band below */}
       <section className="relative isolate w-full overflow-hidden px-6 sm:px-10 lg:px-16 xl:px-24 pt-36 pb-20 sm:pt-44 sm:pb-28 bg-neutral-950 text-white">
         <Image
           src="/iowa_state_capitol_wide.jpg"
@@ -218,11 +251,10 @@ export default function PartnersPage() {
               </Link>
             </div>
           </div>
-          <div className="lg:col-span-5 w-full max-w-md lg:ml-auto">
-            <ReferralLoop />
-          </div>
         </div>
       </section>
+
+      <ReferralLoop />
 
       {/* Tracks: two deliberately different panels */}
       <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
