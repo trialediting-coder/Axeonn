@@ -94,7 +94,7 @@ export function FeaturedWork() {
       <div className="w-full max-w-[1180px] mx-auto">
         {/* 1. Header */}
         <div className="text-center max-w-2xl mx-auto">
-          <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-[#2563eb] uppercase">Client Results</p>
+          <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-[#2563eb] uppercase">Client Spotlight</p>
           <h2
             id="featured-work-heading"
             className="mt-4 text-3xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.08] text-balance"

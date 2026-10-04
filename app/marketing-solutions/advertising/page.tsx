@@ -119,7 +119,7 @@ export default function AdvertisingMarketingSolutionPage() {
               Two Channels, One Strategy
             </p>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.1]">
-              Demand Capture and Demand Creation.
+              Catch buyers searching now. Reach them before they search.
             </h2>
           </div>
 

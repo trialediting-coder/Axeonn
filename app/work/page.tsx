@@ -25,7 +25,7 @@ export default function WorkPage() {
           </div>
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10 sm:mb-14">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-neutral-950 font-display tracking-tight leading-[1.08]">
-              Sites we&rsquo;ve built
+              Our work
             </h1>
             <p className="text-sm sm:text-base lg:text-lg text-neutral-600 max-w-xl leading-relaxed lg:text-right">
               Every site is designed around how that business actually gets customers. Click any project to see the live build.

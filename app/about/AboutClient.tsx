@@ -117,7 +117,7 @@ export default function AboutClient() {
                   onClick={() => router.push('/book')}
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm tracking-tight shadow-sm transition-all duration-200 cursor-pointer"
                 >
-                  <span>Start Your Project</span>
+                  <span>Get More Customers</span>
                   <ArrowRight size={16} />
                 </button>
                 <button
@@ -125,7 +125,7 @@ export default function AboutClient() {
                   onClick={() => router.push('/work')}
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white hover:bg-neutral-100 text-neutral-800 border border-neutral-300 font-semibold text-sm tracking-tight transition-all duration-200 cursor-pointer"
                 >
-                  <span>See What We Build</span>
+                  <span>See Client Results</span>
                   <ArrowUpRight size={16} />
                 </button>
               </div>
@@ -261,7 +261,7 @@ export default function AboutClient() {
                 technologies: ['Gemini 2.0 Flash', 'Twilio', 'Node.js Fastify', 'HubSpot API'],
               },
             ]}
-            sectionTitle="Our Architectural Foundations Breakdown"
+            sectionTitle="The Systems Behind Your New Customers"
             subtitle="Slide through the four core pillars that guide every Axeon engagement—delivering high velocity, dedicated craft, and accountable ROI."
             onSelectSolution={() => router.push('/book')}
           />
@@ -544,7 +544,7 @@ export default function AboutClient() {
                 [ LET&apos;S TALK ]
               </span>
               <h2 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white font-display tracking-tight mt-2">
-                Let’s build something you’re genuinely proud of.
+                Let’s get you more customers.
               </h2>
               <p className="text-sm sm:text-base text-neutral-400 mt-3 leading-relaxed">
                 No sales reps or high-pressure pitches. Schedule a 20-minute strategic conversation with me to review your goals, examine your current site, and see if we are a great fit.
@@ -572,7 +572,7 @@ export default function AboutClient() {
                 className="inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base tracking-tight shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer"
               >
                 <Calendar size={18} />
-                <span>Start Your Project</span>
+                <span>Get More Customers</span>
               </button>
             </div>
           </div>

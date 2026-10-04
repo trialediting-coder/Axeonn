@@ -59,7 +59,7 @@ export function NicheHero({ niche }: { niche: Niche }) {
           href="/pricing"
           className="inline-block text-sm sm:text-base text-neutral-300 hover:text-white underline underline-offset-4 mb-10"
         >
-          See both builds and what each includes
+          See both plans and what each includes
         </Link>
 
         <div className="flex justify-center">

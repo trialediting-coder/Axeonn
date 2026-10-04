@@ -21,7 +21,7 @@ export default function WhyAxeonClient() {
             transition={{ duration: 0.6 }}
             className="text-xs sm:text-sm font-mono font-semibold tracking-widest text-blue-600 uppercase mb-4"
           >
-            Same budget. More customers.
+            Why Axeon
           </motion.div>
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
@@ -29,7 +29,7 @@ export default function WhyAxeonClient() {
             transition={{ duration: 0.7, delay: 0.1 }}
             className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-neutral-950 font-display leading-[1.08] mb-6"
           >
-            See The Difference, Not Just The Price
+            Same Budget. More Customers.
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}

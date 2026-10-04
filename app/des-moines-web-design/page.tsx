@@ -5,6 +5,7 @@ import { niches } from '@/data/nichesData';
 import { marketingSolutions } from '@/data/marketingSolutionsData';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
 import { Testimonials } from '@/components/home/Testimonials';
+import { ProofStrip } from '@/components/common/ProofStrip';
 import { JsonLd, BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { BUSINESS, METRO_CITIES, serviceJsonLd } from '@/lib/seo';
 
@@ -46,9 +47,9 @@ const LOCAL_REASONS = [
   },
   {
     icon: Handshake,
-    title: 'Flat pricing, fast turnaround',
+    title: 'Proven right here in the metro',
     description:
-      'Two published builds — $2,800 and $5,800 — built and launched in a fraction of the time a typical agency takes. No proposals, no hourly billing, no surprise invoices. You own the site, the code, and the design files.',
+      'A-1 Auto Detailing in Pleasant Hill went from page 2 to #1 on Google for "Pleasant Hill auto detailing" after we rebuilt their site. Published pricing, and every plan is backed by our 90-day customer guarantee.',
   },
 ];
 
@@ -66,7 +67,7 @@ const LOCAL_FAQ = [
   {
     question: 'How much does a website cost in Des Moines?',
     answer:
-      'Our pricing is published. Essentials is $2,800 one-time and is our fastest build. The AxeonCORE is $5,800 one-time and adds a Custom CRM Pipeline, AI chat & online scheduling, automated follow-up, and a half-day on-site video shoot.',
+      'Our pricing is published. Essentials is $2,800 to set up, then from $284/mo. AxeonCORE is $5,800 to set up, then from $574/mo, and adds a Custom CRM Pipeline, AI chat & online scheduling, automated follow-up, and a half-day on-site video shoot. Both are backed by our 90-day customer guarantee.',
   },
   {
     question: 'Will my business show up when people search on Google or ask ChatGPT?',
@@ -121,10 +122,12 @@ export default function DesMoinesWebDesignPage() {
       </section>
 
       {/* Why local */}
+      <ProofStrip />
+
       <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight mb-4">
-            Why Des Moines Businesses Work With a Local Studio
+            Why Des Moines Businesses Get More Customers With a Local Team
           </h2>
           <p className="text-lg text-neutral-600 max-w-3xl mb-12 leading-relaxed">
             Most web agencies pitching Iowa businesses are somewhere else. That shows up as slow replies, stock
@@ -148,7 +151,7 @@ export default function DesMoinesWebDesignPage() {
       <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50 border-y border-neutral-200">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight mb-4">
-            What We Build for the Metro
+            How We Get Metro Businesses More Customers
           </h2>
           <p className="text-lg text-neutral-600 max-w-3xl mb-12 leading-relaxed">
             One team handles the whole stack, so there is no handoff between a designer, an SEO vendor, and
@@ -175,12 +178,12 @@ export default function DesMoinesWebDesignPage() {
               href="/pricing"
               className="group rounded-2xl border-2 border-blue-600 bg-neutral-950 text-white p-7 hover:bg-neutral-900 transition-all"
             >
-              <h3 className="text-lg font-bold mb-2">Flat-Rate Pricing</h3>
+              <h3 className="text-lg font-bold mb-2">Plans &amp; Pricing</h3>
               <p className="text-neutral-300 text-sm leading-relaxed mb-4">
-                Essentials from $2,800. AxeonCORE with on-site video from $5,800. No proposals.
+                Essentials from $2,800 setup. AxeonCORE with on-site video from $5,800 setup. Backed by a 90-day guarantee.
               </p>
               <span className="inline-flex items-center gap-1 text-sm font-semibold text-blue-400">
-                See both builds <ArrowRight size={14} />
+                See both plans <ArrowRight size={14} />
               </span>
             </Link>
           </div>

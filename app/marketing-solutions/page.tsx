@@ -225,7 +225,7 @@ export default function MarketingSolutionsPage() {
       {/* 5. Proof from a real client */}
       <section className="py-24 sm:py-32 px-4 sm:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-emerald-600 uppercase">Real result</p>
+          <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-emerald-600 uppercase">Client spotlight</p>
           <h2 className="mt-4 text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1] text-balance">
             A-1 Auto Detailing went from page 2 to #1 on Google
           </h2>

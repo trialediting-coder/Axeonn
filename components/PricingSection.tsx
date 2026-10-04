@@ -207,7 +207,7 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
           className="mt-20 sm:mt-24"
         >
           <h3 className="text-2xl sm:text-3xl font-bold text-neutral-950 mb-8 text-center">
-            Add-Ons &amp; Enhancements
+            Add More Ways to Win Customers
           </h3>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
             {addOns.map((addOn, idx) => (
@@ -315,7 +315,7 @@ function FreeConsultationCard() {
   ];
   const points = [
     'One-on-one call with our team, not a sales script',
-    'A straight recommendation on which build fits, or a custom scope if neither does',
+    'A straight recommendation on which plan fits, or a custom scope if neither does',
     'Both are yours to keep, whether or not you hire us',
   ];
 

@@ -51,6 +51,20 @@ export default function BookClient() {
                 <p className="text-base sm:text-lg text-zinc-600 leading-relaxed font-normal">
                   A focused 20–30 minute call: we look at how customers find you today, where they slip away, and what it would take to get you more of them.
                 </p>
+
+                <ul className="space-y-2.5 pt-1">
+                  {[
+                    'A custom homepage mockup for your business',
+                    'An AI visibility report: how you show up on Google, ChatGPT, and Perplexity',
+                    'A clear plan and price, backed by our 90-day customer guarantee',
+                  ].map((item) => (
+                    <li key={item} className="flex items-start gap-2.5 text-sm sm:text-base text-zinc-700 leading-relaxed">
+                      <span className="mt-2 w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-sm text-zinc-500">Yours to keep, whether or not you hire us.</p>
               </div>
 
               {/* Minimalist, Frameless Direct Contact Info */}

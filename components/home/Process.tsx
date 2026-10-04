@@ -64,7 +64,7 @@ export function Process() {
         'Instant Lead Alerts & CRM Connection',
         'Search Engine Setup & Launch Review',
       ],
-      outcome: 'A live, reliable website ready to welcome new customers.',
+      outcome: 'A live site with every call and lead tracked from day one, and your 90-day customer guarantee running.',
     },
   ];
 

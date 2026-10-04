@@ -115,7 +115,7 @@ export default function VideoPhotographyPage() {
             Video &amp; Photography
           </p>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight mb-6">
-            Show What Makes Your Business Worth Choosing
+            Real Footage That Makes Customers Pick You
           </h1>
           <p className="text-lg sm:text-xl text-neutral-300 max-w-3xl mx-auto leading-relaxed mb-10">
             Professional video and photography that helps your business stand out and tell its
@@ -139,7 +139,7 @@ export default function VideoPhotographyPage() {
               How It Fits In
             </p>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-neutral-950 leading-[1.14]">
-              Content that supports the rest of your marketing
+              Footage that works everywhere customers find you
             </h2>
           </div>
 

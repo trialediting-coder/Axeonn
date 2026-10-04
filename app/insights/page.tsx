@@ -31,7 +31,7 @@ export default async function InsightsPage() {
           Axeon Studio Insights
         </h1>
         <p className="text-lg text-neutral-600 max-w-2xl mb-14">
-          Practical guidance on web systems, search visibility, and lead capture for local service businesses.
+          Practical guides to getting more calls, leads, and customers for local service businesses.
         </p>
         {posts.length === 0 ? (
           <p className="text-neutral-500">No posts published yet — check back soon.</p>

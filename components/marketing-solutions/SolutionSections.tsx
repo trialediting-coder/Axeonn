@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, Check, X, ExternalLink } from 'lucide-react';
 import { niches } from '@/data/nichesData';
+import { benefitHeadlinesBySlug } from '@/data/nicheBenefitHeadlines';
 import { JsonLd } from '@/components/common/JsonLd';
 import type { FaqItem } from '@/data/faqData';
 import type {
@@ -224,7 +225,7 @@ export function CaseStudyProof({ tone = 'light', data, alt }: { tone?: Tone; dat
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
         <div>
           <p className={`text-xs sm:text-sm font-bold tracking-[0.22em] uppercase mb-3 ${p.eyebrow}`}>
-            Client Build: A-1 Auto Detailing, Pleasant Hill, Iowa
+            Client Spotlight: A-1 Auto Detailing, Pleasant Hill, Iowa
           </p>
           <h2 className={`text-3xl sm:text-4xl font-black tracking-tight leading-[1.12] mb-5 ${p.heading}`}>{data.heading}</h2>
           <p className={`text-base leading-relaxed mb-6 ${p.body}`}>{data.body}</p>
@@ -246,10 +247,10 @@ export function CaseStudyProof({ tone = 'light', data, alt }: { tone?: Tone; dat
         </div>
         <Link href={CASE_STUDY_PATH} className={`block rounded-2xl overflow-hidden ${p.card}`}>
           <Image
-            src="/images/case-studies/a1/before-after-slider.jpg"
-            alt="A-1 Auto Detailing website built by Axeon Studio, showing its before and after photo sliders"
-            width={1600}
-            height={1228}
+            src="/images/case-studies/a1/after-hero.webp"
+            alt="A-1 Auto Detailing's homepage, built by Axeon Studio"
+            width={1424}
+            height={882}
             sizes="(max-width: 1024px) 100vw, 50vw"
             className="w-full h-auto"
           />
@@ -267,8 +268,8 @@ export function IndustriesSection({ tone = 'light', serviceName, alt }: { tone?:
         <SectionHeader
           tone={tone}
           eyebrow="Who We Help"
-          heading="Built Around How Your Industry Sells"
-          intro={`A dental office and a roofing company don't book work the same way, so ${serviceName} isn't set up the same way either. See how it fits your business.`}
+          heading="More Customers, Set Up for Your Industry"
+          intro={`A dental office and a roofing company don't win customers the same way, so ${serviceName} isn't set up the same way either. Here's what it fixes in yours.`}
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
           {niches.map((niche) => (
@@ -277,7 +278,12 @@ export function IndustriesSection({ tone = 'light', serviceName, alt }: { tone?:
               href={`/solutions/${niche.slug}`}
               className={`group rounded-xl px-4 py-4 flex items-center justify-between gap-2 text-sm font-semibold transition-colors hover:border-blue-500 ${p.card} ${p.strong}`}
             >
-              <span>{niche.name}</span>
+              <span className="flex flex-col gap-1">
+                <span>{niche.name}</span>
+                {benefitHeadlinesBySlug[niche.slug]?.[0] && (
+                  <span className="text-xs font-normal opacity-70">{benefitHeadlinesBySlug[niche.slug][0]}</span>
+                )}
+              </span>
               <ArrowRight size={14} className="shrink-0 text-blue-500 transition-transform group-hover:translate-x-0.5" />
             </Link>
           ))}

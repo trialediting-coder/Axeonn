@@ -107,9 +107,9 @@ export const pricingTiers: PricingTier[] = [
 
 export const addOns: AddOn[] = [
   { name: 'Custom On-Site Videography (add to Essentials)', price: '+$1,500' },
-  { name: 'Additional Custom Page Build', price: '+$450 / page' },
+  { name: 'Extra Service Page (rank for another service)', price: '+$450 / page' },
   { name: 'Advanced Database/Directory Integration', price: '+$850' },
-  { name: 'Secondary Niche Landing Page Variant', price: '+$500' },
+  { name: 'Second-Service Landing Page (win a second market)', price: '+$500' },
 ];
 
 export interface PricingFaq {
@@ -143,16 +143,16 @@ export const pricingFaqs: PricingFaq[] = [
     a: 'It makes sure a lead never sits waiting. When someone fills out a form, your phone rings and connects you to them while they\'re still on your site. If someone calls and you can\'t pick up, they get a text back right away instead of calling your competitor. Visitors about to leave see an offer tied to the service they were looking at. Every lead lands in your CRM pipeline with automated text and email follow-up, and call tracking shows which pages and listings are making your phone ring.',
   },
   {
-    q: 'Why flat pricing instead of hourly billing?',
-    a: 'Hourly billing rewards slow work and makes budgeting a guessing game. A fixed price means you know the exact cost before we start, and we\'re incentivized to ship fast and move on to the next milestone, not pad the clock.',
+    q: 'What happens in the first 90 days?',
+    a: 'Before launch we set your baseline together: how many calls and leads you get today. From launch day, every call and form is tracked, and you get a monthly report showing each one and where it came from. If you\'re not ahead of your baseline by day 90, we keep working for free until you are.',
   },
   {
-    q: 'What if I need more than what a build includes?',
-    a: 'That\'s what the add-ons above are for — videography, additional pages, deeper database/directory integrations, and niche landing page variants can all be added to either build without re-negotiating the whole engagement.',
+    q: 'What if I need more than what a plan includes?',
+    a: 'That\'s what the add-ons above are for: videography, extra service pages, deeper database/directory integrations, and landing pages for a second service can all be added to either plan without re-negotiating the whole engagement.',
   },
   {
     q: 'What if I don\'t like the initial design?',
-    a: 'Every build includes 2 rounds of revisions before launch, at no extra cost. We don\'t consider a project finished until the design is one you\'re proud to put your name on.',
+    a: 'Every plan includes 2 rounds of revisions on your new site before launch, at no extra cost. We don\'t consider a project finished until the design is one you\'re proud to put your name on.',
   },
 ];
 

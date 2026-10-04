@@ -98,7 +98,7 @@ export const websiteDetail: SolutionDetail = {
   },
   deliverables: {
     eyebrow: 'What’s Included',
-    heading: 'Everything That Goes Into a Build',
+    heading: 'Everything That Turns Visitors Into Calls',
     intro:
       'Two plans. Essentials is $2,800 to set up, then from $284/mo. AxeonCORE is $5,800 to set up, then from $574/mo, and is the one we recommend. Here’s exactly what you get.',
     groups: [
@@ -167,7 +167,7 @@ export const websiteDetail: SolutionDetail = {
   },
   timeline: {
     eyebrow: 'How It Works',
-    heading: 'From First Call to Launch',
+    heading: 'From First Call to Your First 90 Days',
     intro: 'A fixed scope and a fast turnaround, not an open-ended project that drags on for months.',
     steps: [
       CONSULTATION_STEP,
@@ -195,7 +195,7 @@ export const websiteDetail: SolutionDetail = {
   },
   comparison: {
     eyebrow: 'Side by Side',
-    heading: 'How a Build Compares',
+    heading: 'How We Get You More Calls vs. a Typical Agency',
     rows: [
       { label: 'Pricing', typical: 'A custom quote after several sales calls', axeon: 'Published pricing: $2,800 or $5,800 setup, then from $284/mo' },
       { label: 'Design', typical: 'A shared theme with your logo swapped in', axeon: 'Built around how your business sells' },
@@ -300,7 +300,7 @@ export const seoDetail: SolutionDetail = {
   },
   deliverables: {
     eyebrow: 'What’s Included',
-    heading: 'Every Piece of SEO, AEO & GEO We Build In',
+    heading: 'Everything That Gets You Found',
     intro:
       'This isn’t a separate package or an add-on. All of it ships with every Essentials and AxeonCORE build.',
     groups: [
@@ -361,7 +361,7 @@ export const seoDetail: SolutionDetail = {
   },
   timeline: {
     eyebrow: 'How It Works',
-    heading: 'How We Build Search Visibility In',
+    heading: 'How We Get You Found, Step by Step',
     steps: [
       {
         title: 'Free consultation & AI visibility report',
@@ -398,9 +398,10 @@ export const seoDetail: SolutionDetail = {
     ],
   },
   proof: {
-    heading: 'Built for Google and AI From the First Line of Code',
-    body: 'When we rebuilt A-1 Auto Detailing’s site, search was designed in from the start: redirects, schema, AI crawler access, and speed.',
+    heading: 'Page 2 to #1 on Google for “Pleasant Hill Auto Detailing”',
+    body: 'A-1 Auto Detailing was stuck on page 2. We rebuilt the site with search designed in from the start: redirects, schema, AI crawler access, and speed. A-1 now ranks #1 for its main local search.',
     facts: [
+      '#1 on Google for “Pleasant Hill auto detailing,” up from page 2',
       'A perfect 100/100 SEO audit score',
       'About 56 old URLs 301-redirected so existing search value carried over',
       'AI search crawlers allowed in robots.txt, plus an llms.txt file',
@@ -426,7 +427,7 @@ export const seoDetail: SolutionDetail = {
     },
     {
       question: 'Do I need a separate SEO contract?',
-      answer: 'No. It’s included in your website build.',
+      answer: 'No. It’s included in both plans, Essentials and AxeonCORE.',
     },
     {
       question: 'How do I know if ChatGPT can see my business?',
@@ -692,7 +693,7 @@ export const leadGenDetail: SolutionDetail = {
   },
   timeline: {
     eyebrow: 'How It Works',
-    heading: 'How We Build Your Pipeline',
+    heading: 'How We Set Up Your Lead Pipeline',
     steps: [
       CONSULTATION_STEP,
       {
@@ -731,9 +732,10 @@ export const leadGenDetail: SolutionDetail = {
     ],
   },
   proof: {
-    heading: 'Turning Visitors Into Quote Requests',
-    body: 'A-1 Auto Detailing’s old site made customers dig for a way to book. The rebuild puts the next step in front of every visitor.',
+    heading: '“Getting Lots of Leads”',
+    body: 'A-1 Auto Detailing’s old site made customers dig for a way to book. The rebuild puts the next step in front of every visitor, and the owner’s verdict was: “…Whatever you have been doing, it’s working. Getting lots of leads.”',
     facts: [
+      '#1 on Google for “Pleasant Hill auto detailing,” up from page 2',
       'Quote and booking form with service pre-select',
       'Tap-to-call on every page',
       'Published starting prices, so leads arrive already knowing the range',
@@ -887,7 +889,7 @@ export const videoDetail: SolutionDetail = {
     {
       question: 'Can I see examples of your work?',
       answer:
-        'Axeon Studio is a newer team still building its client portfolio. Book a strategy call and we’ll talk through exactly what a shoot would look like for your business.',
+        'Yes. See the A-1 Auto Detailing case study for a full before-and-after, and our Work page for recent homepages. On your strategy call we’ll walk through exactly what a shoot would look like for your business.',
     },
     {
       question: 'Is this a separate contract from my website?',

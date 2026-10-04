@@ -75,11 +75,11 @@ export default function WebsitePage() {
               Website
             </p>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight mb-6">
-              Websites That Build Trust, Drive Revenue, and Make You the Clear Choice
+              A Website That Turns Searches Into Calls
             </h1>
             <p className="text-lg sm:text-xl text-neutral-300 max-w-3xl mx-auto leading-relaxed mb-10">
-              Designed to convert, built to grow. Every build is a brand-driven system shipped
-              and delivered fast — not a generic template with your logo dropped in.
+              Built to make you the obvious choice the second someone compares you. After we rebuilt
+              A-1 Auto Detailing&apos;s site, they went from page 2 to #1 on Google.
             </p>
             <ServiceHeroActions priceLine="Plans from $2,800 setup" note="backed by our 90-day customer guarantee" />
             <div className="flex justify-center">

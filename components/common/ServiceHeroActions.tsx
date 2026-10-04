@@ -52,7 +52,7 @@ export function ServiceHeroActions({
           href="/pricing"
           className="inline-block mt-5 text-sm sm:text-base text-neutral-300 hover:text-white underline underline-offset-4"
         >
-          See both builds and what each includes
+          See both plans and what each includes
         </Link>
       )}
     </div>

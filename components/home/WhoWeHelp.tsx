@@ -118,14 +118,14 @@ export function WhoWeHelp() {
           </p>
 
           <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-[68px] font-black tracking-tight text-neutral-950 leading-[1.14]">
-            The solutions, commitment, and expertise to deliver{' '}
+            Pick your industry. See how you&apos;d get more{' '}
             <span className="inline-block bg-[#dfe8ff] text-neutral-950 px-5 sm:px-7 py-2 rounded-2xl font-black mt-2 sm:mt-0 align-middle">
-              customers
+              booked jobs
             </span>
           </h2>
 
           <p className="text-xl sm:text-3xl font-bold text-neutral-950 mt-5 sm:mt-8">
-            Choose your industry and let&apos;s get started.
+            Every industry wins customers differently. Here&apos;s how it works in yours.
           </p>
         </div>
 

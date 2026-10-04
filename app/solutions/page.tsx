@@ -17,7 +17,7 @@ export default function SolutionsHubPage() {
       <BreadcrumbJsonLd items={[{ name: 'Industries', path: '/solutions' }]} />
       <div className="max-w-6xl mx-auto">
         <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-neutral-950 mb-4">
-          Built for Your Industry, Not a Template
+          More Customers for Your Industry
         </h1>
         <p className="text-lg text-neutral-600 max-w-2xl mb-14">
           Every industry below gets a purpose-built intake workflow and Custom CRM Pipeline — not a
@@ -36,10 +36,10 @@ export default function SolutionsHubPage() {
         >
           <div className="relative z-10 max-w-3xl">
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-950 mb-4">
-              Don&apos;t See Your Specific Industry? We Build for Any Small Business.
+              Don&apos;t See Your Industry? We Get Any Local Business More Customers.
             </h2>
             <p className="text-base sm:text-lg text-neutral-600 leading-relaxed mb-8">
-              Whether you run a specialty clinic, a regional distribution hub, or a niche local consultancy, Axeon architects custom digital storefronts, multi-step intake triage funnels, and Custom CRM Pipelines engineered around your unique sales cycle.
+              Whether you run a specialty clinic, a regional distributor, or a niche local service, the same system works: get found on Google, get chosen over the competition, and answer every lead in seconds. We set it up around how your customers actually buy.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link
@@ -52,7 +52,7 @@ export default function SolutionsHubPage() {
                 href="/#axeoncore"
                 className="inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 border border-neutral-200 font-semibold text-sm transition-all"
               >
-                Explore Platform Architecture →
+                See how it works →
               </Link>
             </div>
           </div>
