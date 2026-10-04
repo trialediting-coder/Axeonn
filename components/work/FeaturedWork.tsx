@@ -2,34 +2,32 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, ArrowUpRight, Check, Quote } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Quote } from 'lucide-react';
 import { WORK_PROJECTS } from '@/data/workProjects';
-import { WorkCard } from '@/components/work/WorkCard';
 import { LEVI_QUOTE } from '@/components/common/ClientQuote';
 
-// The one real, published client leads as a before/after story; the grid
-// below keeps WORK_PROJECTS order (MSH always first).
+// The one real, published client leads as a Problem -> Solution -> Results
+// case study (the pattern proof-first agencies like Blue Corona use). Every
+// figure below is from the A-1 build record in data/solutionDetails.ts; never
+// add a lift percentage or an unverified number here.
 const FEATURED_NAME = 'A-1 Auto Detailing';
 
-const A1_CHANGES = [
-  '5.0 Google rating from 178 reviews, now shown where it helps people decide',
-  'A quote form right in the hero, answered by Levi himself',
-  'A new logo, plus 301s for every old URL so nothing was lost in search',
-];
+const A1_PROBLEM =
+  '25 years in business and a 5.0 Google rating from 178 reviews, but the old site hid nearly all of it. The logo was a tiny business card with a phone number printed on it, and a “Service Areas” menu led to dozens of copy-paste town pages Google ignores.';
 
-const NICHE_LABELS: Record<string, string> = {
-  'real-estate': 'Real Estate',
-  'auto-detailing': 'Auto Detailing',
-  'home-remodeling': 'Remodeling',
-  dental: 'Dental',
-};
-const labelFor = (slug: string) =>
-  NICHE_LABELS[slug] ?? slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+const A1_SOLUTION =
+  'We rebuilt it from the logo up: 18 pages with real service pages and guides, before-and-after sliders of customer cars, published starting prices, and a quote form right in the hero that Levi answers himself.';
+
+const A1_RESULTS = [
+  { value: '178', unit: 'five-star reviews', label: 'now shown where customers decide, at a 5.0 rating' },
+  { value: '~56', unit: 'old URLs', label: '301-redirected, so no search traffic was lost' },
+  { value: '0.3–0.8s', unit: 'page loads', label: 'measured on the finished site, so phone visitors don’t bounce' },
+];
 
 function BeforeAfter() {
   const [pos, setPos] = useState(50);
   return (
-    <div className="relative aspect-[1424/882] w-full overflow-hidden rounded-[20px] sm:rounded-[24px] bg-neutral-900 select-none">
+    <div className="relative aspect-[1424/882] w-full overflow-hidden rounded-[18px] sm:rounded-[22px] bg-neutral-900 select-none">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/images/case-studies/a1/after-hero.webp"
@@ -47,11 +45,11 @@ function BeforeAfter() {
         style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}
         className="absolute inset-0 w-full h-full object-cover"
       />
-      <span className="absolute top-3 left-3 sm:top-4 sm:left-4 px-2.5 py-1 rounded-full bg-neutral-950/80 text-white text-[11px] font-bold tracking-wider uppercase">
-        Before
+      <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-neutral-950/80 text-white text-[11px] font-bold tracking-wider uppercase">
+        Old site
       </span>
-      <span className="absolute top-3 right-3 sm:top-4 sm:right-4 px-2.5 py-1 rounded-full bg-blue-600 text-white text-[11px] font-bold tracking-wider uppercase">
-        After
+      <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-blue-600 text-white text-[11px] font-bold tracking-wider uppercase">
+        Our rebuild
       </span>
       <div aria-hidden="true" className="absolute inset-y-0 w-0.5 bg-white pointer-events-none" style={{ left: `${pos}%` }}>
         <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center text-neutral-900 text-sm font-bold">
@@ -73,24 +71,13 @@ function BeforeAfter() {
 }
 
 /**
- * Homepage portfolio, built for conversion: a real client's before/after
- * story with their own words, sites filtered by the visitor's industry, and
- * the free-mockup offer as the section's call to action.
+ * Homepage proof section. Shows the work as a client outcome (story, owner,
+ * facts) instead of a gallery of homepages, then the rest of the portfolio as
+ * a compact strip.
  */
 export function FeaturedWork() {
-  // "All" skips the featured story (it's right above); an industry filter shows every match.
-  const niches = Array.from(new Set(WORK_PROJECTS.map((p) => p.niche)));
-  const [niche, setNiche] = useState<string | null>(null);
-  const shown = (
-    niche ? WORK_PROJECTS.filter((p) => p.niche === niche) : WORK_PROJECTS.filter((p) => p.name !== FEATURED_NAME)
-  ).slice(0, 6);
-
-  const tabClass = (active: boolean) =>
-    `shrink-0 px-4 sm:px-5 py-2 rounded-full text-sm font-semibold border transition-colors cursor-pointer ${
-      active
-        ? 'bg-neutral-950 border-neutral-950 text-white'
-        : 'bg-white border-neutral-300 text-neutral-700 hover:border-neutral-400'
-    }`;
+  const featured = WORK_PROJECTS.find((p) => p.name === FEATURED_NAME);
+  const more = WORK_PROJECTS.filter((p) => p.name !== FEATURED_NAME).slice(0, 5);
 
   return (
     <section
@@ -98,124 +85,128 @@ export function FeaturedWork() {
       data-track-location="featured_work"
       className="w-full py-20 sm:py-28 px-4 sm:px-8 lg:px-14 xl:px-20"
     >
-      <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
-        <div className="max-w-3xl mb-10 sm:mb-14">
-          <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-[#2563eb] uppercase mb-3">Our Work</p>
-          <h2
-            id="featured-work-heading"
-            className="text-3xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.08]"
-          >
-            Built Around How Each Business Sells
-          </h2>
-          <p className="mt-4 text-base sm:text-lg text-neutral-600 leading-relaxed">
-            Every site starts from how that business actually wins work, not from a theme with the colors changed.
+      <div className="w-full max-w-[1400px] mx-auto">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-10 sm:mb-12">
+          <div className="max-w-3xl">
+            <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-[#2563eb] uppercase mb-3">Client Results</p>
+            <h2
+              id="featured-work-heading"
+              className="text-3xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.08]"
+            >
+              Real Iowa Business. Real Rebuild.
+            </h2>
+          </div>
+          <p className="max-w-md text-base sm:text-lg text-neutral-600 leading-relaxed">
+            We measure a website by the calls and quote requests it brings in, not by how it looks in a portfolio.
           </p>
         </div>
 
-        {/* Client story: real before/after + the owner's own words */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center rounded-[28px] sm:rounded-[36px] border border-neutral-200 bg-neutral-50 p-4 sm:p-6 lg:p-8">
-          <div className="lg:col-span-7">
-            <BeforeAfter />
-            <p className="mt-3 text-center text-xs text-neutral-500">Drag the handle to compare the old site with the one we built.</p>
+        {/* Case study card */}
+        <article className="rounded-[28px] sm:rounded-[36px] bg-neutral-950 text-white overflow-hidden">
+          <header className="flex flex-wrap items-center justify-between gap-4 px-6 sm:px-10 pt-7 sm:pt-9">
+            <div className="flex items-center gap-4">
+              <span className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white flex items-center justify-center shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logos/iowa/a1-auto-detailing.png" alt="" className="w-9 h-9 sm:w-10 sm:h-10 object-contain" />
+              </span>
+              <div>
+                <h3 className="text-xl sm:text-2xl font-bold font-display tracking-tight">A-1 Auto Detailing</h3>
+                <p className="text-sm text-neutral-400">
+                  Pleasant Hill, Iowa · Website rebuild{featured ? ` · ${featured.date}` : ''}
+                </p>
+              </div>
+            </div>
+            <Link
+              href={LEVI_QUOTE.href}
+              className="inline-flex items-center gap-2 text-sm font-semibold text-blue-300 hover:text-white transition-colors"
+            >
+              Read the full case study <ArrowRight size={15} />
+            </Link>
+          </header>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 px-6 sm:px-10 pt-7 sm:pt-9">
+            <div className="lg:col-span-7">
+              <BeforeAfter />
+              <p className="mt-3 text-center text-xs text-neutral-500">Drag to compare the old site with our rebuild.</p>
+            </div>
+            <div className="lg:col-span-5 flex flex-col gap-7">
+              <div>
+                <p className="text-xs font-bold tracking-[0.18em] uppercase text-rose-300">The problem</p>
+                <p className="mt-2 text-[15px] sm:text-base text-neutral-300 leading-relaxed">{A1_PROBLEM}</p>
+              </div>
+              <div>
+                <p className="text-xs font-bold tracking-[0.18em] uppercase text-blue-300">What we built</p>
+                <p className="mt-2 text-[15px] sm:text-base text-neutral-300 leading-relaxed">{A1_SOLUTION}</p>
+              </div>
+              <figure className="rounded-2xl bg-white/[0.06] border border-white/10 p-5">
+                <Quote aria-hidden="true" className="h-5 w-5 text-blue-300" strokeWidth={2.4} />
+                <blockquote className="mt-2 text-lg sm:text-xl font-bold leading-snug">“{LEVI_QUOTE.text}”</blockquote>
+                <figcaption className="mt-2 text-sm text-neutral-400">
+                  {LEVI_QUOTE.name}, {LEVI_QUOTE.role}
+                </figcaption>
+              </figure>
+            </div>
           </div>
-          <div className="lg:col-span-5 px-2 sm:px-4 lg:px-0 pb-4 lg:pb-0">
-            <p className="text-xs font-bold tracking-[0.18em] uppercase text-blue-600">
-              Client story · A-1 Auto Detailing
-            </p>
-            <h3 className="mt-3 text-2xl sm:text-4xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.12]">
-              178 five-star reviews. His website was hiding them.
-            </h3>
-            <ul className="mt-6 space-y-3">
-              {A1_CHANGES.map((change) => (
-                <li key={change} className="flex gap-3 text-[15px] text-neutral-700 leading-relaxed">
-                  <Check size={18} className="mt-0.5 shrink-0 text-blue-600" strokeWidth={2.5} />
-                  <span>{change}</span>
-                </li>
+
+          <div className="px-6 sm:px-10 pt-9 pb-7 sm:pb-10">
+            <p className="text-xs font-bold tracking-[0.18em] uppercase text-emerald-300 mb-4">The results</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+              {A1_RESULTS.map((r) => (
+                <div key={r.unit} className="rounded-2xl bg-white text-neutral-950 p-5 sm:p-6">
+                  <p className="font-display font-black tracking-tight text-3xl sm:text-4xl tabular-nums">
+                    {r.value} <span className="text-base sm:text-lg font-bold text-neutral-500">{r.unit}</span>
+                  </p>
+                  <p className="mt-1 text-sm text-neutral-600 leading-snug">{r.label}</p>
+                </div>
               ))}
-            </ul>
-            <figure className="mt-7 rounded-2xl bg-white border border-neutral-200 p-5">
-              <Quote aria-hidden="true" className="h-5 w-5 text-blue-600" strokeWidth={2.4} />
-              <blockquote className="mt-2 text-lg font-bold text-neutral-950 leading-snug">“{LEVI_QUOTE.text}”</blockquote>
-              <figcaption className="mt-2 text-sm text-neutral-500">
-                {LEVI_QUOTE.name}, {LEVI_QUOTE.role}
-              </figcaption>
-            </figure>
-            <div className="mt-7 flex flex-col sm:flex-row gap-3 sm:items-center">
+            </div>
+            <div className="mt-8 flex flex-col sm:flex-row sm:items-center gap-3">
               <Link
                 href="/get-started"
                 data-track="cta_click"
-                data-track-cta="work_client_story"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors shadow-lg shadow-blue-600/20"
+                data-track-cta="work_case_study"
+                className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors shadow-lg shadow-blue-600/25"
               >
-                Get a site like this <ArrowUpRight size={16} />
+                Get results like this <ArrowUpRight size={16} />
               </Link>
-              <Link
-                href={LEVI_QUOTE.href}
-                className="inline-flex items-center justify-center gap-2 px-5 py-3.5 text-neutral-800 font-semibold hover:text-blue-600 transition-colors"
-              >
-                Read the full story <ArrowRight size={16} />
-              </Link>
+              <p className="text-sm text-neutral-400 sm:ml-3">
+                Your free consultation includes a custom homepage mockup for your business.
+              </p>
             </div>
           </div>
-        </div>
+        </article>
 
-        {/* Self-selection: sites for the visitor's own industry */}
-        <div className="mt-16 sm:mt-20">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-8">
-            <h3 className="text-2xl sm:text-3xl font-extrabold font-display tracking-tight text-neutral-950">
-              Sites for businesses like yours
-            </h3>
-            <div className="-mx-4 px-4 sm:mx-0 sm:px-0 flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <button type="button" aria-pressed={niche === null} onClick={() => setNiche(null)} className={tabClass(niche === null)}>
-                All
-              </button>
-              {niches.map((slug) => (
-                <button
-                  key={slug}
-                  type="button"
-                  aria-pressed={niche === slug}
-                  onClick={() => setNiche(slug)}
-                  data-track="industry_selected"
-                  data-track-industry={slug}
-                  className={tabClass(niche === slug)}
-                >
-                  {labelFor(slug)}
-                </button>
-              ))}
-            </div>
+        {/* The rest of the portfolio, kept compact */}
+        <div className="mt-14 sm:mt-16">
+          <div className="flex items-end justify-between gap-4 mb-6">
+            <h3 className="text-xl sm:text-2xl font-extrabold font-display tracking-tight text-neutral-950">More sites we’ve built</h3>
+            <Link href="/work" className="shrink-0 inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-800 hover:text-blue-600 transition-colors">
+              See all projects <ArrowRight size={15} />
+            </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12 lg:gap-x-8">
-            {shown.map((project) => (
-              <WorkCard key={project.name} project={project} />
+          <div className="-mx-4 px-4 sm:mx-0 sm:px-0 flex sm:grid sm:grid-cols-3 lg:grid-cols-5 gap-4 overflow-x-auto snap-x snap-mandatory sm:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {more.map((project) => (
+              <a
+                key={project.name}
+                href={project.url}
+                target="_blank"
+                rel="noopener"
+                className="group snap-start shrink-0 w-[70%] sm:w-auto"
+              >
+                <div className="aspect-[1200/833] rounded-2xl overflow-hidden border border-neutral-200 bg-neutral-100">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={project.image}
+                    alt={`${project.name} website homepage`}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-500"
+                  />
+                </div>
+                <p className="mt-2.5 text-sm font-bold text-neutral-950 group-hover:text-blue-600 transition-colors">{project.name}</p>
+                <p className="text-xs text-neutral-500">{project.industry} · {project.location}</p>
+              </a>
             ))}
-          </div>
-        </div>
-
-        {/* The offer, right where the visitor is judging the work */}
-        <div className="mt-16 sm:mt-20 rounded-[28px] sm:rounded-[36px] bg-neutral-950 text-white px-6 py-10 sm:px-12 sm:py-14 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-          <div className="max-w-2xl">
-            <h3 className="text-2xl sm:text-4xl font-extrabold font-display tracking-tight leading-[1.12]">
-              Want to see yours before you spend a dollar?
-            </h3>
-            <p className="mt-3 text-base sm:text-lg text-neutral-400 leading-relaxed">
-              Every free consultation includes a custom homepage mockup for your business and an AI visibility report. Both are yours to keep.
-            </p>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-            <Link
-              href="/get-started"
-              data-track="cta_click"
-              data-track-cta="work_free_mockup"
-              className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors"
-            >
-              Get my free mockup <ArrowUpRight size={16} />
-            </Link>
-            <Link
-              href="/work"
-              className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full border border-white/20 text-white font-semibold hover:bg-white/[0.06] transition-colors"
-            >
-              See all projects
-            </Link>
           </div>
         </div>
       </div>
