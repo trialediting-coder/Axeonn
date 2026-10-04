@@ -165,7 +165,7 @@ export async function POST(req: Request) {
       checkout = () => checkoutForLink(link);
     } else {
       const input = parseSelfServe(body);
-      checkout = () => createProjectCheckout({ ...input, source: 'axeon-site-pay', cancelPath: '/pay' });
+      checkout = () => createProjectCheckout({ ...input, source: 'axeon-site-pay', cancelPath: '/book' });
     }
   } catch (err) {
     if (err instanceof ClientError) return NextResponse.json({ error: err.message }, { status: err.status });

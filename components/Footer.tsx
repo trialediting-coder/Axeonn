@@ -163,9 +163,6 @@ export function Footer({ year }: FooterProps) {
             <Link href="/terms" className="hover:text-neutral-950 transition-colors">
               Terms
             </Link>
-            <Link href="/pay" className="hover:text-neutral-950 transition-colors">
-              Make a Payment
-            </Link>
           </div>
           <div className="flex items-center gap-5">
             {SOCIAL_LINKS.map((social) => (

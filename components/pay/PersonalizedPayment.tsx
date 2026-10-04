@@ -64,10 +64,10 @@ function Closed({ title, body }: { title: string; body: string }) {
             Call {PHONE}
           </a>
           <Link
-            href="/pay"
+            href="/book"
             className="inline-flex items-center justify-center px-7 py-3.5 rounded-full border border-neutral-300 hover:border-neutral-500 text-neutral-900 font-semibold text-sm transition-colors"
           >
-            Make a payment instead
+            Book a call instead
           </Link>
         </div>
       </div>

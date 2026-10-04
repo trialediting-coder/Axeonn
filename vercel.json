@@ -4,6 +4,7 @@
     { "path": "/api/cron/publish-scheduled", "schedule": "0 13 * * *" }
   ],
   "redirects": [
+    { "source": "/pay", "destination": "/book", "permanent": false },
     {
       "source": "/",
       "has": [{ "type": "host", "value": "www.axeonstudio.co" }],
