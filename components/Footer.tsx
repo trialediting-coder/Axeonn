@@ -65,6 +65,12 @@ export function Footer({ year }: FooterProps) {
   const router = useRouter();
   const pathname = usePathname();
   const isHomePage = pathname === '/';
+  // Pages that already end with their own closing CTA skip the footer card, so
+  // the page never ends with two calls to action back to back.
+  const pageHasCloser =
+    ['/', '/pricing', '/process', '/why-axeon', '/des-moines-web-design', '/about', '/marketing-solutions'].includes(pathname) ||
+    pathname.startsWith('/marketing-solutions/') ||
+    pathname.startsWith('/solutions/');
 
   const handleHomeClick = () => {
     if (!isHomePage) {
@@ -82,8 +88,8 @@ export function Footer({ year }: FooterProps) {
   return (
     <footer className="w-full bg-white text-neutral-950 py-12 lg:py-16 px-4 sm:px-8 lg:px-14 xl:px-20 border-t border-neutral-200 overflow-hidden">
       <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto py-6 lg:py-10">
-        {/* CTA */}
-        <div className="rounded-[28px] bg-neutral-950 text-white p-7 sm:p-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        {/* CTA (hidden where the page has its own closer) */}
+        <div className={`rounded-[28px] bg-neutral-950 text-white p-7 sm:p-10 ${pageHasCloser ? 'hidden' : 'flex'} flex-col lg:flex-row lg:items-center justify-between gap-6`}>
           <div>
             <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Ready for more customers?</h3>
             <p className="mt-2 text-neutral-300 text-base sm:text-lg max-w-2xl">

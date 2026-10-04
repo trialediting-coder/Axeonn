@@ -17,7 +17,6 @@ import {
   TimelineSection,
   ComparisonSection,
   CaseStudyProof,
-  IndustriesSection,
   ServiceFaqJsonLd,
 } from '@/components/marketing-solutions/SolutionSections';
 import { seoDetail } from '@/data/solutionDetails';
@@ -213,7 +212,6 @@ export default function SeoMarketingSolutionPage() {
       <TimelineSection tone="dark" data={seoDetail.timeline} />
       <ComparisonSection tone="dark" alt data={seoDetail.comparison} />
       {seoDetail.proof && <CaseStudyProof tone="dark" data={seoDetail.proof} />}
-      <IndustriesSection tone="dark" alt serviceName="search visibility" />
 
       {/* FAQ */}
       <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-white text-neutral-950">

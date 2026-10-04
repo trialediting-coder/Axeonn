@@ -12,7 +12,6 @@ import {
   DeliverablesSection,
   TimelineSection,
   ComparisonSection,
-  IndustriesSection,
   ServiceFaqJsonLd,
 } from '@/components/marketing-solutions/SolutionSections';
 import { advertisingDetail } from '@/data/solutionDetails';
@@ -166,7 +165,6 @@ export default function AdvertisingMarketingSolutionPage() {
       <DeliverablesSection tone="dark" alt data={advertisingDetail.deliverables} />
       <TimelineSection tone="dark" data={advertisingDetail.timeline} />
       <ComparisonSection tone="dark" alt data={advertisingDetail.comparison} />
-      <IndustriesSection tone="dark" serviceName="advertising" />
 
       {/* FAQ */}
       <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-white text-neutral-950">

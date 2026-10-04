@@ -78,7 +78,7 @@ export function ProblemSection({ tone = 'light', data, alt }: { tone?: Tone; dat
       <div className="max-w-6xl mx-auto">
         <SectionHeader tone={tone} eyebrow={data.eyebrow} heading={data.heading} intro={data.intro} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
-          {data.items.map((item, i) => (
+          {data.items.slice(0, 4).map((item, i) => (
             <div key={item.title} className={`rounded-2xl p-6 sm:p-8 ${p.card}`}>
               <div className="flex items-start gap-4">
                 <span className={`shrink-0 font-mono text-xs font-bold px-2.5 py-1 rounded-md ${p.chip}`}>

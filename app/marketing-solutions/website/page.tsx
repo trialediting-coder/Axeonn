@@ -12,7 +12,6 @@ import {
   TimelineSection,
   ComparisonSection,
   CaseStudyProof,
-  IndustriesSection,
   ServiceFaqJsonLd,
 } from '@/components/marketing-solutions/SolutionSections';
 import { websiteDetail } from '@/data/solutionDetails';
@@ -102,7 +101,6 @@ export default function WebsitePage() {
       <TimelineSection data={websiteDetail.timeline} />
       <ComparisonSection data={websiteDetail.comparison} />
       {websiteDetail.proof && <CaseStudyProof data={websiteDetail.proof} />}
-      <IndustriesSection serviceName="a website" />
 
       {/* FAQ */}
       <section className="w-full py-20 sm:py-32 px-4 sm:px-8 lg:px-14 xl:px-20 bg-neutral-50/70">

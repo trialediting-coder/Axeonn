@@ -12,7 +12,6 @@ import {
   DeliverablesSection,
   TimelineSection,
   ComparisonSection,
-  IndustriesSection,
   ServiceFaqJsonLd,
 } from '@/components/marketing-solutions/SolutionSections';
 import { aiChatDetail } from '@/data/solutionDetails';
@@ -138,57 +137,9 @@ export default function AIChatSchedulingPage() {
         </Link>
       </div>
 
-      {/* Feature Grid */}
-      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-white text-neutral-950">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center max-w-2xl mx-auto mb-14 sm:mb-16">
-            <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-blue-600 uppercase mb-3">
-              What It Does
-            </p>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-neutral-950 leading-[1.14]">
-              One system, handling every lead
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
-            {FEATURES.map((feature) => {
-              const Icon = feature.icon;
-              return (
-                <div
-                  key={feature.title}
-                  className="rounded-[32px] bg-neutral-50 border border-neutral-200/80 p-8 sm:p-10 flex flex-col"
-                >
-                  <div className="w-12 h-12 rounded-2xl bg-blue-600/10 text-blue-600 flex items-center justify-center mb-6">
-                    <Icon size={24} strokeWidth={2.4} />
-                  </div>
-                  <h3 className="text-xl sm:text-2xl font-bold text-neutral-950 tracking-tight mb-3">
-                    {feature.title}
-                  </h3>
-                  <p className="text-sm sm:text-base text-neutral-600 leading-relaxed">
-                    {feature.description}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-
-          <p className="text-center text-neutral-500 mt-12 sm:mt-14">
-            Every conversation it handles flows into the same lead pipeline —{' '}
-            <Link
-              href="/marketing-solutions/lead-generation"
-              className="text-blue-600 hover:text-blue-700 underline underline-offset-4 font-semibold"
-            >
-              see how that works
-            </Link>
-            .
-          </p>
-        </div>
-      </section>
-
       <DeliverablesSection alt data={aiChatDetail.deliverables} />
       <TimelineSection alt={false} data={aiChatDetail.timeline} />
       <ComparisonSection alt data={aiChatDetail.comparison} />
-      <IndustriesSection serviceName="AI chat and scheduling" />
 
       {/* FAQ */}
       <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50 text-neutral-950">

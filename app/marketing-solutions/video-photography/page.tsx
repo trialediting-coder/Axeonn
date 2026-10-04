@@ -12,7 +12,6 @@ import {
   DeliverablesSection,
   TimelineSection,
   ComparisonSection,
-  IndustriesSection,
   ServiceFaqJsonLd,
 } from '@/components/marketing-solutions/SolutionSections';
 import { videoDetail } from '@/data/solutionDetails';
@@ -131,42 +130,6 @@ export default function VideoPhotographyPage() {
 
       <ProblemSection data={videoDetail.problem} />
 
-      {/* Feature Grid */}
-      <section className="w-full py-20 sm:py-32 px-4 sm:px-8 lg:px-12 xl:px-16 bg-white text-neutral-950">
-        <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
-          <div className="mb-12 sm:mb-16 max-w-3xl">
-            <p className="text-sm sm:text-base font-bold tracking-[0.22em] text-[#3366ff] uppercase mb-4 sm:mb-5">
-              How It Fits In
-            </p>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-neutral-950 leading-[1.14]">
-              Footage that works everywhere customers find you
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-7">
-            {FEATURES.map((feature) => {
-              const Icon = feature.icon;
-              return (
-                <div
-                  key={feature.title}
-                  className="rounded-[32px] border border-neutral-200/80 bg-neutral-50/70 p-8 sm:p-10 shadow-sm hover:shadow-xl hover:border-blue-400/60 transition-all duration-200"
-                >
-                  <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center mb-6">
-                    <Icon size={24} className="text-blue-600" strokeWidth={2.2} />
-                  </div>
-                  <h3 className="text-xl sm:text-2xl font-bold text-neutral-950 tracking-tight mb-3">
-                    {feature.title}
-                  </h3>
-                  <p className="text-sm sm:text-base text-neutral-600 leading-relaxed">
-                    {feature.description}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
       <DeliverablesSection alt data={videoDetail.deliverables} />
       <TimelineSection alt={false} data={videoDetail.timeline} />
       <ComparisonSection alt data={videoDetail.comparison} />
@@ -179,7 +142,6 @@ export default function VideoPhotographyPage() {
         </Link>
       </div>
 
-      <IndustriesSection serviceName="a shoot" />
 
       {/* FAQ */}
       <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50/70">
@@ -203,11 +165,10 @@ export default function VideoPhotographyPage() {
             Ready to see it in your marketing?
           </p>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight mb-6">
-            Let&apos;s put a face and a story on your business
+            More calls and leads in 90 days, or we keep working free.
           </h2>
           <p className="text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-10">
-            Book a strategy session and we&apos;ll walk through how video and photography could
-            fit into your website, ads, or social presence.
+            Book a free strategy call. You walk away with a custom homepage mockup and an AI visibility report for your business, whether or not you hire us.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
