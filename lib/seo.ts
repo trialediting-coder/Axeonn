@@ -122,7 +122,7 @@ export function localBusinessJsonLd() {
     priceRange: BUSINESS.priceRange,
     currenciesAccepted: 'USD',
     areaServed: SERVICE_AREA,
-    slogan: 'Found. Chosen. Booked.',
+    slogan: 'We Get You Customers, Not Clicks.',
     description:
       'Axeon Studio gets Des Moines-area businesses more customers: local SEO and AI search visibility, Google and Meta ads, websites that convert, and lead capture with instant follow-up, run by one West Des Moines team and backed by a 90-day customer guarantee.',
     knowsAbout: KNOWS_ABOUT,

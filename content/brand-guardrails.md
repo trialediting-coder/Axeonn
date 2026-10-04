@@ -10,6 +10,9 @@ local-only.
   (more calls, more booked jobs, more customers) and present the website, SEO,
   ads, and lead system as the parts of one system that gets them: get found,
   get chosen, get booked.
+- Official tagline (owner decision 2026-10-04): "We Get You Customers, Not
+  Clicks." Use it verbatim. The retired tagline "Your Business. Your Partner."
+  must never be used.
 - The 90-Day Customer Guarantee is real and approved by the owner. State it
   only in this form: "More calls and leads in your first 90 days than you were
   getting before, or we keep working for free until you do." Conditions: the
