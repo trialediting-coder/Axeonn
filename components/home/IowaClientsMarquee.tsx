@@ -49,7 +49,7 @@ export function IowaClientsMarquee() {
       className="w-full py-6 sm:py-9 bg-white border-b border-neutral-200"
     >
       <p className="text-center text-xs sm:text-base font-bold tracking-[0.16em] sm:tracking-[0.22em] text-balance text-[#3366ff] uppercase mb-3 sm:mb-5 px-4">
-        Serving 50+ Businesses Here in Iowa
+        Helping 50+ Iowa Businesses Get More Leads
       </p>
 
       <div className="relative w-full overflow-hidden group">

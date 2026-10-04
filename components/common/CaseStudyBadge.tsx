@@ -53,7 +53,7 @@ export function CaseStudyBadge() {
   const shownRef = useRef(false);
 
   const hiddenHere = HIDDEN_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
-  // Never cover the homepage "Serving 50+ Businesses" strip: the card steps
+  // Never cover the homepage "Helping 50+ Iowa Businesses" strip: the card steps
   // aside while that strip is on screen.
   const [overMarquee, setOverMarquee] = useState(false);
   const shown = visible && !hiddenHere && !isLeadModalOpen && !overMarquee;

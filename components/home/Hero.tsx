@@ -204,7 +204,7 @@ export function Hero() {
         which produced accidental navigations from stray taps and polluted the
         click data. The two explicit CTAs below are the only actions now.
       */}
-      {/* The hero stops short of the viewport so the "Serving 50+ Businesses" strip below is in the first screen. */}
+      {/* The hero stops short of the viewport so the "Helping 50+ Iowa Businesses" strip below is in the first screen. */}
       <div className="relative w-full bg-neutral-950 text-white flex flex-col px-6 sm:px-10 lg:px-16 xl:px-20 pt-24 sm:pt-28 pb-8 sm:pb-10 overflow-hidden">
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <video
