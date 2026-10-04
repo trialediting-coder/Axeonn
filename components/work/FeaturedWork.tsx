@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, ArrowUpRight, Quote } from 'lucide-react';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { WORK_PROJECTS } from '@/data/workProjects';
 import { LEVI_QUOTE } from '@/components/common/ClientQuote';
 
@@ -12,22 +12,29 @@ import { LEVI_QUOTE } from '@/components/common/ClientQuote';
 // add a lift percentage or an unverified number here.
 const FEATURED_NAME = 'A-1 Auto Detailing';
 
-const A1_PROBLEM =
-  '25 years in business and a 5.0 Google rating from 178 reviews, but the old site hid nearly all of it. The logo was a tiny business card with a phone number printed on it, and a “Service Areas” menu led to dozens of copy-paste town pages Google ignores.';
-
-const A1_SOLUTION =
-  'We rebuilt it from the logo up: 18 pages with real service pages and guides, before-and-after sliders of customer cars, published starting prices, and a quote form right in the hero that Levi answers himself.';
+const A1_STORY = [
+  {
+    label: 'The problem',
+    tone: 'text-rose-600',
+    text: '178 five-star reviews, buried. A business-card logo. Dozens of copy-paste town pages Google ignored.',
+  },
+  {
+    label: 'What we built',
+    tone: 'text-blue-600',
+    text: 'A custom 18-page site with real service pages, before-and-after photos, and a quote form right up top.',
+  },
+];
 
 const A1_RESULTS = [
-  { value: '178', unit: 'five-star reviews', label: 'now shown where customers decide, at a 5.0 rating' },
-  { value: '~56', unit: 'old URLs', label: '301-redirected, so no search traffic was lost' },
-  { value: '0.3–0.8s', unit: 'page loads', label: 'measured on the finished site, so phone visitors don’t bounce' },
+  { value: '178', label: 'five-star reviews now front and center' },
+  { value: '~56', label: 'old URLs redirected, no search traffic lost' },
+  { value: '0.3–0.8s', label: 'page loads on phones' },
 ];
 
 function BeforeAfter() {
   const [pos, setPos] = useState(50);
   return (
-    <div className="relative aspect-[1424/882] w-full overflow-hidden rounded-[18px] sm:rounded-[22px] bg-neutral-900 select-none">
+    <div className="relative aspect-[1424/882] w-full overflow-hidden rounded-[20px] sm:rounded-[28px] bg-neutral-900 shadow-2xl shadow-neutral-900/15 ring-1 ring-neutral-200 select-none">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/images/case-studies/a1/after-hero.webp"
@@ -45,14 +52,14 @@ function BeforeAfter() {
         style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}
         className="absolute inset-0 w-full h-full object-cover"
       />
-      <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-neutral-950/80 text-white text-[11px] font-bold tracking-wider uppercase">
-        Old site
+      <span className="absolute bottom-3 left-3 sm:bottom-5 sm:left-5 px-3 py-1.5 rounded-full bg-neutral-950/85 text-white text-[11px] sm:text-xs font-bold tracking-wider uppercase">
+        Before
       </span>
-      <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-blue-600 text-white text-[11px] font-bold tracking-wider uppercase">
-        Our rebuild
+      <span className="absolute bottom-3 right-3 sm:bottom-5 sm:right-5 px-3 py-1.5 rounded-full bg-blue-600 text-white text-[11px] sm:text-xs font-bold tracking-wider uppercase">
+        After
       </span>
       <div aria-hidden="true" className="absolute inset-y-0 w-0.5 bg-white pointer-events-none" style={{ left: `${pos}%` }}>
-        <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center text-neutral-900 text-sm font-bold">
+        <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white shadow-lg flex items-center justify-center text-neutral-900 text-sm font-bold">
           ⇆
         </span>
       </div>
@@ -71,113 +78,88 @@ function BeforeAfter() {
 }
 
 /**
- * Homepage proof section. Shows the work as a client outcome (story, owner,
- * facts) instead of a gallery of homepages, then the rest of the portfolio as
- * a compact strip.
+ * Homepage proof section, one beat at a time: the before/after, the story in
+ * two lines, three numbers, the owner's words with the CTA, then the rest of
+ * the portfolio as a compact strip.
  */
 export function FeaturedWork() {
-  const featured = WORK_PROJECTS.find((p) => p.name === FEATURED_NAME);
   const more = WORK_PROJECTS.filter((p) => p.name !== FEATURED_NAME).slice(0, 5);
 
   return (
     <section
       aria-labelledby="featured-work-heading"
       data-track-location="featured_work"
-      className="w-full py-20 sm:py-28 px-4 sm:px-8 lg:px-14 xl:px-20"
+      className="w-full py-24 sm:py-32 px-4 sm:px-8 lg:px-14 xl:px-20"
     >
-      <div className="w-full max-w-[1400px] mx-auto">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-10 sm:mb-12">
-          <div className="max-w-3xl">
-            <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-[#2563eb] uppercase mb-3">Client Results</p>
-            <h2
-              id="featured-work-heading"
-              className="text-3xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.08]"
-            >
-              Real Iowa Business. Real Rebuild.
-            </h2>
-          </div>
-          <p className="max-w-md text-base sm:text-lg text-neutral-600 leading-relaxed">
-            We measure a website by the calls and quote requests it brings in, not by how it looks in a portfolio.
+      <div className="w-full max-w-[1180px] mx-auto">
+        {/* 1. Header */}
+        <div className="text-center max-w-2xl mx-auto">
+          <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-[#2563eb] uppercase">Client Results</p>
+          <h2
+            id="featured-work-heading"
+            className="mt-4 text-3xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.08] text-balance"
+          >
+            A-1 Auto Detailing, Rebuilt
+          </h2>
+          <p className="mt-5 text-base sm:text-lg text-neutral-600 leading-relaxed">
+            25 years in Pleasant Hill, and a website that finally shows it.
           </p>
         </div>
 
-        {/* Case study card */}
-        <article className="rounded-[28px] sm:rounded-[36px] bg-neutral-950 text-white overflow-hidden">
-          <header className="flex flex-wrap items-center justify-between gap-4 px-6 sm:px-10 pt-7 sm:pt-9">
-            <div className="flex items-center gap-4">
-              <span className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white flex items-center justify-center shrink-0">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logos/iowa/a1-auto-detailing.png" alt="" className="w-9 h-9 sm:w-10 sm:h-10 object-contain" />
-              </span>
-              <div>
-                <h3 className="text-xl sm:text-2xl font-bold font-display tracking-tight">A-1 Auto Detailing</h3>
-                <p className="text-sm text-neutral-400">
-                  Pleasant Hill, Iowa · Website rebuild{featured ? ` · ${featured.date}` : ''}
-                </p>
-              </div>
-            </div>
-            <Link
-              href={LEVI_QUOTE.href}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-blue-300 hover:text-white transition-colors"
-            >
-              Read the full case study <ArrowRight size={15} />
-            </Link>
-          </header>
+        {/* 2. The before/after, on its own */}
+        <div className="mt-12 sm:mt-16">
+          <BeforeAfter />
+          <p className="mt-4 text-center text-sm text-neutral-500">Drag to compare</p>
+        </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 px-6 sm:px-10 pt-7 sm:pt-9">
-            <div className="lg:col-span-7">
-              <BeforeAfter />
-              <p className="mt-3 text-center text-xs text-neutral-500">Drag to compare the old site with our rebuild.</p>
+        {/* 3. The story, two short lines */}
+        <div className="mt-16 sm:mt-20 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 max-w-4xl mx-auto">
+          {A1_STORY.map((s) => (
+            <div key={s.label}>
+              <p className={`text-xs font-bold tracking-[0.18em] uppercase ${s.tone}`}>{s.label}</p>
+              <p className="mt-3 text-xl sm:text-2xl font-semibold text-neutral-900 leading-snug">{s.text}</p>
             </div>
-            <div className="lg:col-span-5 flex flex-col gap-7">
-              <div>
-                <p className="text-xs font-bold tracking-[0.18em] uppercase text-rose-300">The problem</p>
-                <p className="mt-2 text-[15px] sm:text-base text-neutral-300 leading-relaxed">{A1_PROBLEM}</p>
-              </div>
-              <div>
-                <p className="text-xs font-bold tracking-[0.18em] uppercase text-blue-300">What we built</p>
-                <p className="mt-2 text-[15px] sm:text-base text-neutral-300 leading-relaxed">{A1_SOLUTION}</p>
-              </div>
-              <figure className="rounded-2xl bg-white/[0.06] border border-white/10 p-5">
-                <Quote aria-hidden="true" className="h-5 w-5 text-blue-300" strokeWidth={2.4} />
-                <blockquote className="mt-2 text-lg sm:text-xl font-bold leading-snug">“{LEVI_QUOTE.text}”</blockquote>
-                <figcaption className="mt-2 text-sm text-neutral-400">
-                  {LEVI_QUOTE.name}, {LEVI_QUOTE.role}
-                </figcaption>
-              </figure>
-            </div>
-          </div>
+          ))}
+        </div>
 
-          <div className="px-6 sm:px-10 pt-9 pb-7 sm:pb-10">
-            <p className="text-xs font-bold tracking-[0.18em] uppercase text-emerald-300 mb-4">The results</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-              {A1_RESULTS.map((r) => (
-                <div key={r.unit} className="rounded-2xl bg-white text-neutral-950 p-5 sm:p-6">
-                  <p className="font-display font-black tracking-tight text-3xl sm:text-4xl tabular-nums">
-                    {r.value} <span className="text-base sm:text-lg font-bold text-neutral-500">{r.unit}</span>
-                  </p>
-                  <p className="mt-1 text-sm text-neutral-600 leading-snug">{r.label}</p>
-                </div>
-              ))}
+        {/* 4. Three numbers */}
+        <div className="mt-16 sm:mt-20 grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-0 sm:divide-x divide-neutral-200 border-y border-neutral-200 py-10 sm:py-12">
+          {A1_RESULTS.map((r) => (
+            <div key={r.value} className="text-center sm:px-6">
+              <p className="font-display font-black tracking-tight text-5xl sm:text-6xl text-neutral-950 tabular-nums">{r.value}</p>
+              <p className="mt-2 text-sm sm:text-base text-neutral-600">{r.label}</p>
             </div>
-            <div className="mt-8 flex flex-col sm:flex-row sm:items-center gap-3">
-              <Link
-                href="/get-started"
-                data-track="cta_click"
-                data-track-cta="work_case_study"
-                className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors shadow-lg shadow-blue-600/25"
-              >
-                Get results like this <ArrowUpRight size={16} />
-              </Link>
-              <p className="text-sm text-neutral-400 sm:ml-3">
-                Your free consultation includes a custom homepage mockup for your business.
-              </p>
-            </div>
-          </div>
-        </article>
+          ))}
+        </div>
 
-        {/* The rest of the portfolio, kept compact */}
-        <div className="mt-14 sm:mt-16">
+        {/* 5. The owner's words + the next step */}
+        <figure className="mt-16 sm:mt-20 text-center max-w-3xl mx-auto">
+          <blockquote className="text-2xl sm:text-4xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.2]">
+            “{LEVI_QUOTE.text}”
+          </blockquote>
+          <figcaption className="mt-5 text-sm sm:text-base text-neutral-500">
+            {LEVI_QUOTE.name}, {LEVI_QUOTE.role}
+          </figcaption>
+        </figure>
+        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6">
+          <Link
+            href="/get-started"
+            data-track="cta_click"
+            data-track-cta="work_case_study"
+            className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors shadow-lg shadow-blue-600/25"
+          >
+            Get results like this <ArrowUpRight size={16} />
+          </Link>
+          <Link
+            href={LEVI_QUOTE.href}
+            className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-neutral-700 hover:text-blue-600 transition-colors"
+          >
+            Read the full case study <ArrowRight size={16} />
+          </Link>
+        </div>
+
+        {/* 6. The rest of the portfolio, kept compact */}
+        <div className="mt-24 sm:mt-28">
           <div className="flex items-end justify-between gap-4 mb-6">
             <h3 className="text-xl sm:text-2xl font-extrabold font-display tracking-tight text-neutral-950">More sites we’ve built</h3>
             <Link href="/work" className="shrink-0 inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-800 hover:text-blue-600 transition-colors">
