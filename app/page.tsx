@@ -4,7 +4,6 @@ import { IowaClientsMarquee } from '@/components/home/IowaClientsMarquee';
 import { WhoWeHelp } from '@/components/home/WhoWeHelp';
 import { ThreePillars } from '@/components/home/ThreePillars';
 import { FeaturedWork } from '@/components/work/FeaturedWork';
-import { ClientQuote } from '@/components/common/ClientQuote';
 import { GrowthEngine } from '@/components/common/GrowthEngine';
 import { Comparison } from '@/components/home/Comparison';
 import { PricingSection } from '@/components/PricingSection';
@@ -24,7 +23,6 @@ export default function HomePage() {
       <WhoWeHelp />
       <ThreePillars />
       <PricingSection />
-      <ClientQuote />
       <GrowthEngine showBuilds={false} />
       <Comparison />
       <FAQ />

@@ -44,6 +44,7 @@ export function IowaClientsMarquee() {
 
   return (
     <section
+      id="iowa-clients"
       aria-label="Iowa businesses we serve"
       className="w-full py-6 sm:py-9 bg-white border-b border-neutral-200"
     >

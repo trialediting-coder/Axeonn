@@ -53,7 +53,21 @@ export function CaseStudyBadge() {
   const shownRef = useRef(false);
 
   const hiddenHere = HIDDEN_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
-  const shown = visible && !hiddenHere && !isLeadModalOpen;
+  // Never cover the homepage "Serving 50+ Businesses" strip: the card steps
+  // aside while that strip is on screen.
+  const [overMarquee, setOverMarquee] = useState(false);
+  const shown = visible && !hiddenHere && !isLeadModalOpen && !overMarquee;
+
+  useEffect(() => {
+    const strip = document.getElementById('iowa-clients');
+    if (!strip || typeof IntersectionObserver === 'undefined') {
+      setOverMarquee(false);
+      return;
+    }
+    const observer = new IntersectionObserver(([entry]) => setOverMarquee(entry.isIntersecting));
+    observer.observe(strip);
+    return () => observer.disconnect();
+  }, [pathname]);
   const cardRef = useRef<HTMLElement>(null);
 
   // Publish the card's footprint (height plus a 12px gap) so other
@@ -126,7 +140,7 @@ export function CaseStudyBadge() {
           transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 320, damping: 30 }}
           aria-label="Client story"
           data-track-location="case_study_badge"
-          className="fixed z-40 left-4 bottom-[max(1rem,env(safe-area-inset-bottom))] w-[calc(100vw-2rem)] max-w-[340px] sm:left-6 sm:bottom-6"
+          className="fixed z-40 left-4 bottom-[max(1rem,env(safe-area-inset-bottom))] w-[calc(100vw-2rem)] max-w-[340px] sm:max-w-[440px] sm:left-6 sm:bottom-6"
         >
           <div className="relative rounded-2xl bg-white text-neutral-950 shadow-2xl shadow-neutral-950/15 ring-1 ring-neutral-200 overflow-hidden">
             <button
@@ -138,22 +152,22 @@ export function CaseStudyBadge() {
               <X size={14} />
             </button>
 
-            <Link href={STORY_PATH} onClick={open} className="group flex items-stretch gap-3 p-3 pr-9">
+            <Link href={STORY_PATH} onClick={open} className="group flex items-stretch gap-3 sm:gap-4 p-3 sm:p-4 pr-9 sm:pr-10">
               <img
                 src="https://www.a-1autodetailing.net/img/og-card.jpg"
                 alt=""
                 loading="lazy"
                 decoding="async"
-                className="w-20 sm:w-24 shrink-0 rounded-xl object-cover bg-neutral-100"
+                className="w-20 sm:w-32 shrink-0 rounded-xl object-cover bg-neutral-100"
               />
               <span className="flex flex-col justify-center min-w-0">
-                <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-blue-600">
+                <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.18em] uppercase text-blue-600">
                   Client story
                 </span>
-                <span className="mt-1 text-sm font-extrabold leading-snug tracking-tight">
+                <span className="mt-1 text-sm sm:text-lg font-extrabold leading-snug tracking-tight">
                   178 five-star reviews. His website was hiding them.
                 </span>
-                <span className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-neutral-500 group-hover:text-blue-600 transition-colors">
+                <span className="mt-1.5 inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-neutral-500 group-hover:text-blue-600 transition-colors">
                   How we fixed it for A-1 Auto Detailing
                   <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
                 </span>

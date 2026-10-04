@@ -13,7 +13,7 @@ export function SideTabCTA() {
     <button
       type="button"
       onClick={() => open('side_tab')}
-      className="hidden sm:block fixed right-0 top-1/2 -translate-y-1/2 z-40 origin-right rotate-90 translate-x-1/2 px-5 py-3 rounded-t-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-lg transition-colors cursor-pointer"
+      className="hidden sm:block fixed right-0 top-1/2 -translate-y-1/2 z-40 [writing-mode:vertical-rl] px-2.5 py-4 rounded-l-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-lg transition-colors cursor-pointer"
     >
       Book a Call
     </button>

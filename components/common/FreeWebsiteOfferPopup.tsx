@@ -224,9 +224,9 @@ export function FreeWebsiteOfferPopup() {
           // Phone: a compact pill in the bottom-right corner, clear of the page
           // copy; while the case-study card is up (it spans the bottom on
           // phones) the pill rides just above it. Desktop: a slim tab on
-          // the left edge, mirroring the "Book a Call" tab on the right. Blue
+          // the right edge, stacked above the "Book a Call" tab (owner request). Blue
           // with a light ring so it reads on both the dark hero and white sections.
-          className="fixed z-40 right-4 bottom-[calc(max(1rem,env(safe-area-inset-bottom))_+_var(--case-study-card-h,0px))] transition-[bottom] duration-300 sm:right-auto sm:bottom-auto sm:left-0 sm:top-1/2 sm:-translate-y-1/2 flex items-center sm:flex-col rounded-full sm:rounded-none sm:rounded-r-xl bg-blue-600 text-white ring-1 ring-white/25 shadow-lg shadow-blue-950/30 overflow-hidden"
+          className="fixed z-40 right-4 bottom-[calc(max(1rem,env(safe-area-inset-bottom))_+_var(--case-study-card-h,0px))] transition-[bottom] duration-300 sm:right-0 sm:bottom-auto sm:top-[calc(50%-5rem)] sm:-translate-y-full flex items-center sm:flex-col rounded-full sm:rounded-none sm:rounded-l-xl bg-blue-600 text-white ring-1 ring-white/25 shadow-lg shadow-blue-950/30 overflow-hidden"
         >
           <button
             ref={tabRef}
@@ -236,7 +236,7 @@ export function FreeWebsiteOfferPopup() {
             className="sm:order-2 flex items-center sm:flex-col gap-2 pl-3.5 pr-2 py-2.5 sm:px-2.5 sm:pt-3 sm:pb-3.5 hover:bg-blue-700 transition-colors cursor-pointer"
           >
             <Sparkles size={14} className="text-blue-100 shrink-0" />
-            <span className="sm:[writing-mode:vertical-rl] sm:rotate-180 text-[13px] font-semibold tracking-wide whitespace-nowrap">
+            <span className="sm:[writing-mode:vertical-rl] text-[13px] font-semibold tracking-wide whitespace-nowrap">
               Free website · {spotsLeft} left
             </span>
           </button>

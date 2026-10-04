@@ -2,196 +2,221 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, ArrowUpRight } from 'lucide-react';
-import { WORK_PROJECTS, type WorkProject } from '@/data/workProjects';
+import { ArrowRight, ArrowUpRight, Check, Quote } from 'lucide-react';
+import { WORK_PROJECTS } from '@/data/workProjects';
+import { WorkCard } from '@/components/work/WorkCard';
+import { LEVI_QUOTE } from '@/components/common/ClientQuote';
 
-const hostOf = (url: string) => url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+// The one real, published client leads as a before/after story; the grid
+// below keeps WORK_PROJECTS order (MSH always first).
+const FEATURED_NAME = 'A-1 Auto Detailing';
 
-function BrowserFrame({ url, children }: { url: string; children: React.ReactNode }) {
+const A1_CHANGES = [
+  '5.0 Google rating from 178 reviews, now shown where it helps people decide',
+  'A quote form right in the hero, answered by Levi himself',
+  'A new logo, plus 301s for every old URL so nothing was lost in search',
+];
+
+const NICHE_LABELS: Record<string, string> = {
+  'real-estate': 'Real Estate',
+  'auto-detailing': 'Auto Detailing',
+  'home-remodeling': 'Remodeling',
+  dental: 'Dental',
+};
+const labelFor = (slug: string) =>
+  NICHE_LABELS[slug] ?? slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
+function BeforeAfter() {
+  const [pos, setPos] = useState(50);
   return (
-    <div className="rounded-[18px] sm:rounded-[22px] overflow-hidden bg-neutral-900 border border-white/10 shadow-[0_40px_120px_-30px_rgba(37,99,235,0.45)]">
-      <div className="flex items-center gap-3 px-4 h-9 sm:h-11 border-b border-white/10 bg-neutral-900">
-        <div className="flex gap-1.5 shrink-0">
-          <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
-          <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
-          <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
-        </div>
-        <div className="flex-1 min-w-0 flex justify-center">
-          <span className="truncate max-w-full px-3 py-1 rounded-md bg-white/[0.06] text-[11px] sm:text-xs font-mono text-neutral-400">
-            {hostOf(url)}
-          </span>
-        </div>
-        <span className="w-[42px] shrink-0" />
+    <div className="relative aspect-[1424/882] w-full overflow-hidden rounded-[20px] sm:rounded-[24px] bg-neutral-900 select-none">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/images/case-studies/a1/after-hero.webp"
+        alt="A-1 Auto Detailing's new homepage, built by Axeon Studio"
+        loading="lazy"
+        decoding="async"
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/images/case-studies/a1/before-hero.webp"
+        alt="A-1 Auto Detailing's old homepage"
+        loading="lazy"
+        decoding="async"
+        style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+      <span className="absolute top-3 left-3 sm:top-4 sm:left-4 px-2.5 py-1 rounded-full bg-neutral-950/80 text-white text-[11px] font-bold tracking-wider uppercase">
+        Before
+      </span>
+      <span className="absolute top-3 right-3 sm:top-4 sm:right-4 px-2.5 py-1 rounded-full bg-blue-600 text-white text-[11px] font-bold tracking-wider uppercase">
+        After
+      </span>
+      <div aria-hidden="true" className="absolute inset-y-0 w-0.5 bg-white pointer-events-none" style={{ left: `${pos}%` }}>
+        <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center text-neutral-900 text-sm font-bold">
+          ⇆
+        </span>
       </div>
-      <div className="relative aspect-[1200/833] bg-neutral-800">{children}</div>
+      <input
+        type="range"
+        min={0}
+        max={100}
+        value={pos}
+        onChange={(e) => setPos(Number(e.target.value))}
+        aria-label="Drag to compare A-1's old and new homepage"
+        style={{ touchAction: 'pan-y' }}
+        className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize"
+      />
     </div>
   );
 }
 
-function Screenshot({ project, visible = true }: { project: WorkProject; visible?: boolean }) {
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={project.image}
-      alt={`${project.name} website homepage`}
-      loading="lazy"
-      decoding="async"
-      width={1200}
-      height={833}
-      className={`absolute inset-0 w-full h-full object-cover object-top transition-all duration-700 ease-out ${
-        visible ? 'opacity-100 scale-100' : 'opacity-0 scale-[1.02]'
-      }`}
-    />
-  );
-}
-
 /**
- * Homepage portfolio "showroom": a numbered project index that auto-advances
- * (desktop) beside a browser-framed live preview, and a swipeable rail of
- * framed cards on phones. /work and the service pages keep the WorkCard grid.
+ * Homepage portfolio, built for conversion: a real client's before/after
+ * story with their own words, sites filtered by the visitor's industry, and
+ * the free-mockup offer as the section's call to action.
  */
-export function FeaturedWork({ limit = 6 }: { limit?: number }) {
-  const projects = WORK_PROJECTS.slice(0, limit);
-  const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const current = projects[active];
+export function FeaturedWork() {
+  // "All" skips the featured story (it's right above); an industry filter shows every match.
+  const niches = Array.from(new Set(WORK_PROJECTS.map((p) => p.niche)));
+  const [niche, setNiche] = useState<string | null>(null);
+  const shown = (
+    niche ? WORK_PROJECTS.filter((p) => p.niche === niche) : WORK_PROJECTS.filter((p) => p.name !== FEATURED_NAME)
+  ).slice(0, 6);
+
+  const tabClass = (active: boolean) =>
+    `shrink-0 px-4 sm:px-5 py-2 rounded-full text-sm font-semibold border transition-colors cursor-pointer ${
+      active
+        ? 'bg-neutral-950 border-neutral-950 text-white'
+        : 'bg-white border-neutral-300 text-neutral-700 hover:border-neutral-400'
+    }`;
 
   return (
     <section
       aria-labelledby="featured-work-heading"
-      className="relative w-full overflow-hidden bg-neutral-950 text-white py-20 sm:py-28 px-4 sm:px-8 lg:px-14 xl:px-20"
+      data-track-location="featured_work"
+      className="w-full py-20 sm:py-28 px-4 sm:px-8 lg:px-14 xl:px-20"
     >
-      <div className="absolute -top-40 right-[10%] w-[720px] h-[720px] rounded-full bg-[radial-gradient(closest-side,rgb(37_99_235/0.18),transparent)] pointer-events-none" />
+      <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
+        <div className="max-w-3xl mb-10 sm:mb-14">
+          <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-[#2563eb] uppercase mb-3">Our Work</p>
+          <h2
+            id="featured-work-heading"
+            className="text-3xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.08]"
+          >
+            Built Around How Each Business Sells
+          </h2>
+          <p className="mt-4 text-base sm:text-lg text-neutral-600 leading-relaxed">
+            Every site starts from how that business actually wins work, not from a theme with the colors changed.
+          </p>
+        </div>
 
-      <div className="relative w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-5 mb-10 sm:mb-14">
-          <div className="max-w-3xl">
-            <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-blue-400 uppercase mb-3">Our Work</p>
-            <h2
-              id="featured-work-heading"
-              className="text-3xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-[1.08]"
-            >
-              Built Around How Each Business Sells
-            </h2>
-            <p className="mt-4 text-base sm:text-lg text-neutral-400 leading-relaxed">
-              Every site starts from how that business actually wins work, not from a theme with the colors changed.
+        {/* Client story: real before/after + the owner's own words */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center rounded-[28px] sm:rounded-[36px] border border-neutral-200 bg-neutral-50 p-4 sm:p-6 lg:p-8">
+          <div className="lg:col-span-7">
+            <BeforeAfter />
+            <p className="mt-3 text-center text-xs text-neutral-500">Drag the handle to compare the old site with the one we built.</p>
+          </div>
+          <div className="lg:col-span-5 px-2 sm:px-4 lg:px-0 pb-4 lg:pb-0">
+            <p className="text-xs font-bold tracking-[0.18em] uppercase text-blue-600">
+              Client story · A-1 Auto Detailing
+            </p>
+            <h3 className="mt-3 text-2xl sm:text-4xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.12]">
+              178 five-star reviews. His website was hiding them.
+            </h3>
+            <ul className="mt-6 space-y-3">
+              {A1_CHANGES.map((change) => (
+                <li key={change} className="flex gap-3 text-[15px] text-neutral-700 leading-relaxed">
+                  <Check size={18} className="mt-0.5 shrink-0 text-blue-600" strokeWidth={2.5} />
+                  <span>{change}</span>
+                </li>
+              ))}
+            </ul>
+            <figure className="mt-7 rounded-2xl bg-white border border-neutral-200 p-5">
+              <Quote aria-hidden="true" className="h-5 w-5 text-blue-600" strokeWidth={2.4} />
+              <blockquote className="mt-2 text-lg font-bold text-neutral-950 leading-snug">“{LEVI_QUOTE.text}”</blockquote>
+              <figcaption className="mt-2 text-sm text-neutral-500">
+                {LEVI_QUOTE.name}, {LEVI_QUOTE.role}
+              </figcaption>
+            </figure>
+            <div className="mt-7 flex flex-col sm:flex-row gap-3 sm:items-center">
+              <Link
+                href="/get-started"
+                data-track="cta_click"
+                data-track-cta="work_client_story"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors shadow-lg shadow-blue-600/20"
+              >
+                Get a site like this <ArrowUpRight size={16} />
+              </Link>
+              <Link
+                href={LEVI_QUOTE.href}
+                className="inline-flex items-center justify-center gap-2 px-5 py-3.5 text-neutral-800 font-semibold hover:text-blue-600 transition-colors"
+              >
+                Read the full story <ArrowRight size={16} />
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Self-selection: sites for the visitor's own industry */}
+        <div className="mt-16 sm:mt-20">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-8">
+            <h3 className="text-2xl sm:text-3xl font-extrabold font-display tracking-tight text-neutral-950">
+              Sites for businesses like yours
+            </h3>
+            <div className="-mx-4 px-4 sm:mx-0 sm:px-0 flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <button type="button" aria-pressed={niche === null} onClick={() => setNiche(null)} className={tabClass(niche === null)}>
+                All
+              </button>
+              {niches.map((slug) => (
+                <button
+                  key={slug}
+                  type="button"
+                  aria-pressed={niche === slug}
+                  onClick={() => setNiche(slug)}
+                  data-track="industry_selected"
+                  data-track-industry={slug}
+                  className={tabClass(niche === slug)}
+                >
+                  {labelFor(slug)}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12 lg:gap-x-8">
+            {shown.map((project) => (
+              <WorkCard key={project.name} project={project} />
+            ))}
+          </div>
+        </div>
+
+        {/* The offer, right where the visitor is judging the work */}
+        <div className="mt-16 sm:mt-20 rounded-[28px] sm:rounded-[36px] bg-neutral-950 text-white px-6 py-10 sm:px-12 sm:py-14 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+          <div className="max-w-2xl">
+            <h3 className="text-2xl sm:text-4xl font-extrabold font-display tracking-tight leading-[1.12]">
+              Want to see yours before you spend a dollar?
+            </h3>
+            <p className="mt-3 text-base sm:text-lg text-neutral-400 leading-relaxed">
+              Every free consultation includes a custom homepage mockup for your business and an AI visibility report. Both are yours to keep.
             </p>
           </div>
-          <Link
-            href="/work"
-            className="shrink-0 inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/20 text-white font-semibold hover:border-white/40 hover:bg-white/[0.06] transition-colors"
-          >
-            See all projects <ArrowRight size={16} />
-          </Link>
-        </div>
-
-        {/* Desktop: index + live preview */}
-        <div
-          className="hidden lg:grid grid-cols-12 gap-10 xl:gap-16 items-start"
-          onMouseEnter={() => setPaused(true)}
-          onMouseLeave={() => setPaused(false)}
-          onFocus={() => setPaused(true)}
-          onBlur={() => setPaused(false)}
-        >
-          <ol className="col-span-5 border-t border-white/10">
-            {projects.map((project, i) => {
-              const isActive = i === active;
-              return (
-                <li key={project.name} className="border-b border-white/10">
-                  <button
-                    type="button"
-                    aria-pressed={isActive}
-                    onMouseEnter={() => setActive(i)}
-                    onFocus={() => setActive(i)}
-                    onClick={() => setActive(i)}
-                    className="group relative w-full text-left py-5 xl:py-6 cursor-pointer"
-                  >
-                    <div className="flex items-baseline gap-5">
-                      <span
-                        className={`font-mono text-sm tabular-nums transition-colors ${isActive ? 'text-blue-400' : 'text-neutral-600'}`}
-                      >
-                        {String(i + 1).padStart(2, '0')}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-baseline justify-between gap-4">
-                          <span
-                            className={`text-2xl xl:text-3xl font-bold font-display tracking-tight transition-colors ${
-                              isActive ? 'text-white' : 'text-neutral-500 group-hover:text-neutral-300'
-                            }`}
-                          >
-                            {project.name}
-                          </span>
-                          <span className="shrink-0 text-xs font-medium text-neutral-500">{project.date}</span>
-                        </div>
-                        <p className="mt-1 text-sm text-neutral-500">
-                          {project.industry} &middot; {project.location}
-                        </p>
-                        <div
-                          className={`grid transition-[grid-template-rows,opacity] duration-500 ease-out ${
-                            isActive ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
-                          }`}
-                        >
-                          <p className="overflow-hidden text-[15px] text-neutral-300 leading-relaxed">
-                            <span className="block pt-3">{project.summary}</span>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    {isActive && (
-                      <span
-                        key={active}
-                        aria-hidden="true"
-                        onAnimationEnd={() => setActive((a) => (a + 1) % projects.length)}
-                        className={`work-progress absolute left-0 right-0 -bottom-px h-px bg-blue-400 origin-left ${paused ? '[animation-play-state:paused]' : ''}`}
-                      />
-                    )}
-                  </button>
-                </li>
-              );
-            })}
-          </ol>
-
-          <div className="col-span-7 sticky top-28">
-            <a href={current.url} target="_blank" rel="noopener" className="group block">
-              <BrowserFrame url={current.url}>
-                {projects.map((project, i) => (
-                  <Screenshot key={project.name} project={project} visible={i === active} />
-                ))}
-                <span className="absolute bottom-5 right-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-neutral-950 text-sm font-bold shadow-lg opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-                  Visit live site <ArrowUpRight size={15} />
-                </span>
-              </BrowserFrame>
-            </a>
-          </div>
-        </div>
-
-        {/* Phones/tablets: swipeable rail of framed cards */}
-        <div className="lg:hidden -mx-4 sm:-mx-8 px-4 sm:px-8 flex gap-4 sm:gap-6 overflow-x-auto snap-x snap-mandatory pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {projects.map((project, i) => (
-            <a
-              key={project.name}
-              href={project.url}
-              target="_blank"
-              rel="noopener"
-              className="snap-start shrink-0 w-[86%] sm:w-[60%]"
+          <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+            <Link
+              href="/get-started"
+              data-track="cta_click"
+              data-track-cta="work_free_mockup"
+              className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors"
             >
-              <BrowserFrame url={project.url}>
-                <Screenshot project={project} />
-              </BrowserFrame>
-              <div className="flex items-baseline gap-3 pt-4 px-1">
-                <span className="font-mono text-xs text-blue-400 tabular-nums">{String(i + 1).padStart(2, '0')}</span>
-                <div className="min-w-0">
-                  <h3 className="text-xl font-bold font-display tracking-tight inline-flex items-center gap-1.5">
-                    {project.name} <ArrowUpRight size={16} className="text-neutral-500" />
-                  </h3>
-                  <p className="text-xs text-neutral-500 mt-0.5">
-                    {project.industry} &middot; {project.location} &middot; {project.date}
-                  </p>
-                  <p className="text-sm text-neutral-400 leading-relaxed mt-2">{project.summary}</p>
-                </div>
-              </div>
-            </a>
-          ))}
+              Get my free mockup <ArrowUpRight size={16} />
+            </Link>
+            <Link
+              href="/work"
+              className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full border border-white/20 text-white font-semibold hover:bg-white/[0.06] transition-colors"
+            >
+              See all projects
+            </Link>
+          </div>
         </div>
       </div>
     </section>
