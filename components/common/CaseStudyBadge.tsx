@@ -165,7 +165,7 @@ export function CaseStudyBadge() {
                   Client story
                 </span>
                 <span className="mt-1 text-sm sm:text-lg font-extrabold leading-snug tracking-tight">
-                  178 five-star reviews. His website was hiding them.
+                  Page 2 to #1 on Google. Here’s how.
                 </span>
                 <span className="mt-1.5 inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-neutral-500 group-hover:text-blue-600 transition-colors">
                   How we fixed it for A-1 Auto Detailing

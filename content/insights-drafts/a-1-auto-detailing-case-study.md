@@ -1,6 +1,6 @@
-# He Had 178 Five-Star Reviews. His Website Was Hiding Them.
+# He Had 180+ Five-Star Reviews. His Website Was Hiding Them.
 
-A-1 Auto Detailing had the hard part figured out before we ever touched the website. Levi Rench runs it out of Pleasant Hill, Iowa, he has 25 years of hands-on detailing behind him, and his customers had left him a 5.0 rating across 178 Google reviews. People who found him loved him.
+A-1 Auto Detailing had the hard part figured out before we ever touched the website. Levi Rench runs it out of Pleasant Hill, Iowa, he has 25 years of hands-on detailing behind him, and his customers had left him a 5.0 rating across 180+ Google reviews. People who found him loved him.
 
 The problem was the finding. His website wasn't doing the work his reputation deserved, and the way people search for a detailer has changed. They still type "car detailing Des Moines" into Google, but more and more of them ask ChatGPT, or read the AI Overview at the top of Google and never scroll down.
 

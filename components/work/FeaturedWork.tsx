@@ -16,7 +16,7 @@ const A1_STORY = [
   {
     label: 'The problem',
     tone: 'text-rose-600',
-    text: '178 five-star reviews, buried. A business-card logo. Dozens of copy-paste town pages Google ignored.',
+    text: 'Stuck on page 2 of Google. 180+ five-star reviews, buried. A business-card logo and dozens of copy-paste town pages Google ignored.',
   },
   {
     label: 'What we built',
@@ -26,9 +26,9 @@ const A1_STORY = [
 ];
 
 const A1_RESULTS = [
-  { value: '178', label: 'five-star reviews now front and center' },
-  { value: '~56', label: 'old URLs redirected, no search traffic lost' },
-  { value: '0.3–0.8s', label: 'page loads on phones' },
+  { value: '#1', label: 'on Google for “Pleasant Hill auto detailing,” up from page 2' },
+  { value: '180+', label: 'five-star Google reviews, now front and center' },
+  { value: '~56', label: 'old URLs redirected, so no search traffic was lost' },
 ];
 
 function BeforeAfter() {
@@ -99,10 +99,10 @@ export function FeaturedWork() {
             id="featured-work-heading"
             className="mt-4 text-3xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.08] text-balance"
           >
-            A-1 Auto Detailing, Rebuilt
+            A-1 Auto Detailing: Page 2 to #1 on Google
           </h2>
           <p className="mt-5 text-base sm:text-lg text-neutral-600 leading-relaxed">
-            25 years in Pleasant Hill, and a website that finally shows it.
+            25 years in Pleasant Hill. Now he’s the first detailer local customers find.
           </p>
         </div>
 

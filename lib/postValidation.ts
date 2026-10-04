@@ -18,11 +18,15 @@ const MIN_WORD_COUNT = 800;
 const BANNED_PHRASE_PATTERNS: { pattern: RegExp; reason: string }[] = [
   { pattern: /\bsprint\b/i, reason: 'Uses "sprint" as a value proposition (banned terminology).' },
   { pattern: /operations retainer/i, reason: 'References the retired "Operations Retainer" plan — those plans are retired.' },
-  { pattern: /axeoncore retainer/i, reason: 'References the retired "AxeonCORE retainer" plan — AxeonCORE is the premium one-time build, never a subscription.' },
-  { pattern: /\$\s?490|\b490\s*(\/|per|a)\s*mo/i, reason: 'References the retired $490/month plan — never state a monthly price.' },
+  { pattern: /axeoncore retainer/i, reason: 'References the retired "AxeonCORE retainer" plan name.' },
+  { pattern: /\$\s?490|\b490\s*(\/|per|a)\s*mo/i, reason: 'References the retired $490/month plan.' },
+  // Monthly plans start at $284 and $574 (set per client); no other monthly figure.
+  { pattern: /\$\s?(?!284\b|574\b)\d[\d,]*\s*(\/|per|a)\s*(mo|month)\b/i, reason: 'States a monthly price other than the starting $284 or $574.' },
+  { pattern: /(?<!from |at )\$\s?(284|574)\s*(\/|per|a)\s*(mo|month)\b/i, reason: 'States $284/$574 as a fixed monthly price; write "from" or "starting at".' },
+  { pattern: /guarantee[^.]{0,80}\b\d+\s*(%|percent|leads|calls|customers|jobs)/i, reason: 'Turns the 90-day customer guarantee into a number; quote it only as approved.' },
   { pattern: /no (recurring |monthly |ongoing )+(fees?|costs?|plan)|no monthly plan bundled/i, reason: 'Claims there is no recurring fee — never make claims about ongoing fees either way.' },
   { pattern: /\b(7|14|seven|fourteen)[\s-]*(to|–|-)?[\s-]*(14|fourteen)?[\s-]*(business[\s-]*)?days?\b/i, reason: 'Promises a specific build timeline — describe speed in relative terms instead.' },
-  { pattern: /care plan|monthly (plan|fee)/i, reason: 'Mentions a monthly/care plan — ongoing arrangements are handled privately with each client.' },
+  { pattern: /care plan/i, reason: 'Mentions a "care plan"; the ongoing service is the monthly plan.' },
   { pattern: /local services ads? management/i, reason: 'Implies Axeon offers Local Services Ads management (not-live service).' },
   { pattern: /chatgpt ads/i, reason: 'Implies Axeon offers ChatGPT Ads (not-live service).' },
 ];

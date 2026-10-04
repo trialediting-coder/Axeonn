@@ -4,6 +4,10 @@ export interface PricingTier {
   focus: string;
   price: string;
   billingNote: string;
+  /** Starting monthly plan after launch; the final amount is set per client. */
+  monthly: string;
+  /** What the monthly plan keeps doing for the client. */
+  monthlyNote: string;
   turnaround: string;
   /** Short badge rendered above the card (e.g. "Recommended"). */
   badge?: string;
@@ -30,20 +34,21 @@ export interface AddOn {
   price: string;
 }
 
-// Two flat-rate builds (one-time setup payments). Each is followed by a monthly
-// plan that starts after launch: Core $284/mo, AxeonCORE $574/mo (see PLANS in
-// lib/billing.ts). The plans are shown on /pay; this pricing page does not list
-// them yet. Numbers here must stay in sync with content/brand-guardrails.md and
-// the priceRange in app/layout.tsx.
+// Two plans, each a one-time setup plus a monthly plan that starts after launch.
+// The monthly amounts are STARTING prices (owner, 2026-10-03): $284 and $574,
+// adjusted up or down per client on the call. Keep in sync with
+// content/brand-guardrails.md, lib/billing.ts PLANS and priceRange in lib/seo.ts.
 export const pricingTiers: PricingTier[] = [
   {
     id: 'core-web-build',
     name: 'Essentials',
-    focus: 'Show up on Google and in AI answers, with a quote form that sends every lead to your phone.',
+    focus: 'Get found by more customers',
     price: '$2,800',
-    billingNote: 'Flat-rate build price',
-    turnaround: 'Our Fastest Turnaround',
-    bestFor: 'Right for you if you just need a credible, fast site that shows up on Google. It brings in leads; it won\'t capture, qualify, or follow up on them for you.',
+    billingNote: 'One-time setup',
+    monthly: 'from $284/mo',
+    monthlyNote: 'Hosting, security, Google Business Profile upkeep, local search upkeep, and a monthly calls & leads report.',
+    turnaround: 'Our Fastest Launch',
+    bestFor: 'Right for you if you mainly need more people to find you. It brings in calls and leads; you handle the follow-up yourself.',
     features: [
       'SEO, AEO & GEO built in — visible on Google and inside AI answers like ChatGPT',
       'Up to 4 custom-designed, mobile-first pages built around how your business actually sells',
@@ -53,18 +58,20 @@ export const pricingTiers: PricingTier[] = [
       'Foundational ADA accessibility standards',
       'You own 100% of the site, code, and design files',
     ],
-    cta: 'Book Essentials',
+    cta: 'Get Essentials',
   },
   {
     id: 'axeoncore',
-    name: 'AxeonCORE Build',
-    focus: 'Capture, qualify, and close — with real footage of your business',
+    name: 'AxeonCORE',
+    focus: 'Get found, chosen, and booked',
     price: '$5,800',
-    billingNote: 'Flat-rate build price',
-    turnaround: 'Fast Turnaround',
+    billingNote: 'One-time setup',
+    monthly: 'from $574/mo',
+    monthlyNote: 'Everything in Essentials monthly, plus your lead system kept running and improving: CRM pipeline, AI chat, automated follow-up, call tracking, and a monthly strategy call.',
+    turnaround: 'Fast Launch',
     badge: 'Recommended',
     featured: true,
-    bestFor: 'The build we recommend: a site that captures, qualifies, and follows up on every lead automatically, with real footage of your business doing the selling.',
+    bestFor: 'The plan we recommend: it doesn\'t just bring in leads, it captures, qualifies, and follows up on every one automatically, so more of them turn into paying customers.',
     inherits: 'Everything in Essentials, plus:',
     features: [
       'Custom on-site videography — a half-day shoot at your location: a hero film for your site, 3 vertical cuts for social & ads, and a photo set',
@@ -82,7 +89,7 @@ export const pricingTiers: PricingTier[] = [
       'Custom on-site videography — a half-day shoot at your location: a hero film for your site, 3 vertical cuts for social & ads, and a photo set',
     ],
     stepUp: {
-      heading: 'What the extra $3,000 buys',
+      heading: 'What the extra $3,000 setup buys',
       items: [
         { label: 'Custom on-site videography', note: '$1,500 as an add-on' },
         { label: 'Custom CRM Pipeline', note: 'no per-seat software' },
@@ -92,9 +99,9 @@ export const pricingTiers: PricingTier[] = [
         { label: 'Exit-intent offers + call tracking' },
         { label: 'Up to 3 additional pages', note: '$450 each as an add-on' },
       ],
-      footer: 'The video alone is half the step-up. The lead system comes with it.',
+      footer: 'The video alone is half the step-up. The system that turns leads into customers comes with it.',
     },
-    cta: 'Book AxeonCORE Build',
+    cta: 'Get AxeonCORE',
   },
 ];
 
@@ -112,8 +119,16 @@ export interface PricingFaq {
 
 export const pricingFaqs: PricingFaq[] = [
   {
-    q: 'Which build should I pick?',
-    a: 'Essentials if you just need a credible, fast site online and you\'re happy to chase every lead yourself. AxeonCORE if you want the site to do the selling for you: it captures, qualifies, and follows up on leads automatically, and real footage of your team and your work makes you look like the biggest operation in town in a way no template can. It\'s the build we recommend.',
+    q: 'What is the 90-day customer guarantee?',
+    a: 'If you\'re not getting more calls and leads in your first 90 days after launch than you were getting before, we keep working for free until you are. We set your starting baseline together on the kickoff call and track every call and form from day one, so the comparison is real. The guarantee applies while you\'re on your monthly plan and answering new leads within one business day, because we can bring the customers to you but you have to pick up the phone.',
+  },
+  {
+    q: 'How does the monthly plan work, and what does it cost?',
+    a: 'Every plan is a one-time setup and then a monthly plan that starts after launch. Essentials starts at $284/mo and AxeonCORE starts at $574/mo. The final monthly amount depends on your market, how many services and locations we\'re covering, and what you want us to run for you. We set it with you on the call, before you commit to anything.',
+  },
+  {
+    q: 'Which plan should I pick?',
+    a: 'Essentials if you mainly need more people to find you and you\'re happy to chase every lead yourself. AxeonCORE if you want the site to do the selling for you: it captures, qualifies, and follows up on leads automatically, and real footage of your team and your work makes you look like the biggest operation in town in a way no template can. It\'s the build we recommend.',
   },
   {
     q: 'What does the on-site videography actually include?',
@@ -141,4 +156,5 @@ export const pricingFaqs: PricingFaq[] = [
   },
 ];
 
+export const customerGuarantee = '90-Day Customer Guarantee: more calls and leads, or we work free until you get them';
 export const revisionGuarantee = '2-Round Revision Guarantee — included with every build';

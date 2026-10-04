@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Check, ShieldCheck, ChevronDown, ChevronUp, Clapperboard, MessagesSquare, LayoutTemplate, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { pricingTiers, addOns, pricingFaqs, revisionGuarantee } from '@/data/pricingData';
+import { pricingTiers, addOns, pricingFaqs, customerGuarantee } from '@/data/pricingData';
 
 const pricingFaqJsonLd = {
   '@context': 'https://schema.org',
@@ -45,15 +45,15 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
           className="text-center max-w-4xl mx-auto mb-16 sm:mb-20"
         >
           <h2 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-neutral-950 mb-6 leading-[1.12]">
-            Two Flat-Rate Builds. Or See Your New Site Free First.
+            Two Ways to Get More Customers
           </h2>
           <p className="text-xl sm:text-2xl text-neutral-600 leading-relaxed max-w-3xl mx-auto">
-            No 3-week proposals, no hourly billing. One price, a fast turnaround,
-            and a site you own outright.
+            A one-time setup, then a monthly plan that keeps new customers coming in.
+            Monthly plans start at $284 and are tailored to your market on the call.
           </p>
-          <div className="mt-6 inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-blue-50 border border-blue-100 text-base font-semibold text-blue-700">
+          <div className="mt-6 inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-emerald-50 border border-emerald-200 text-base font-semibold text-emerald-800">
             <ShieldCheck size={18} className="shrink-0" />
-            <span>{revisionGuarantee}</span>
+            <span>{customerGuarantee}</span>
           </div>
         </motion.div>
 
@@ -116,9 +116,12 @@ export function PricingSection({ includeFaqSchema = false }: PricingSectionProps
                 >
                   {tier.billingNote}
                 </p>
-                <div className="text-4xl sm:text-6xl font-black mb-3 tracking-tight whitespace-nowrap">{tier.price}</div>
-                <p className={`text-base sm:text-lg mb-8 ${'text-neutral-600'}`}>
-                  {tier.turnaround}
+                <div className="text-4xl sm:text-6xl font-black mb-2 tracking-tight whitespace-nowrap">{tier.price}</div>
+                <p className="text-lg sm:text-xl font-bold text-neutral-900">
+                  then {tier.monthly}
+                </p>
+                <p className="mt-1 text-sm sm:text-base text-neutral-500 leading-relaxed mb-8">
+                  {tier.monthlyNote}
                 </p>
 
                 {tier.inherits && (

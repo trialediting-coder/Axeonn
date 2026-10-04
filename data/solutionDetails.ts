@@ -207,8 +207,8 @@ export const websiteDetail: SolutionDetail = {
     ],
   },
   proof: {
-    heading: 'A Site That Finally Showed Off 178 Five-Star Reviews',
-    body: 'A-1 Auto Detailing had 25 years of experience and a 5.0 Google rating from 178 reviews. The old website hid most of that. We rebuilt it from the logo up.',
+    heading: 'From Page 2 to #1 on Google',
+    body: 'A-1 Auto Detailing had 25 years of experience and 180+ five-star Google reviews, but sat on page 2 of Google and the old website hid most of that. We rebuilt it from the logo up, and A-1 now ranks #1 for “Pleasant Hill auto detailing.”',
     facts: [
       'New logo and a custom site designed by Axeon',
       '18 pages, including 6 service pages and 4 guides',
@@ -737,7 +737,7 @@ export const leadGenDetail: SolutionDetail = {
       'Quote and booking form with service pre-select',
       'Tap-to-call on every page',
       'Published starting prices, so leads arrive already knowing the range',
-      '5.0 Google rating from 178 reviews, now shown where it helps people decide',
+      '180+ five-star Google reviews, now shown where it helps people decide',
     ],
   },
   faqs: [
