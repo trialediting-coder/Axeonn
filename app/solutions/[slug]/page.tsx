@@ -9,7 +9,8 @@ import { NicheWorkflow } from '@/components/niches/NicheWorkflow';
 import { NicheWork } from '@/components/niches/NicheWork';
 import { NicheClosingCTA } from '@/components/niches/NicheClosingCTA';
 import { NicheVideoBreak } from '@/components/niches/NicheVideoBreak';
-import { NichePlatformsMarquee } from '@/components/niches/NichePlatformsMarquee';
+import { ProofStrip } from '@/components/common/ProofStrip';
+import { ClientQuote } from '@/components/common/ClientQuote';
 import { Testimonials } from '@/components/home/Testimonials';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
 import { faqItems } from '@/data/faqData';
@@ -65,9 +66,10 @@ export default async function NichePage({
     <main>
       <NicheSchema niche={niche} />
       <NicheHero niche={niche} />
-      <NichePlatformsMarquee slug={niche.slug} />
+      <ProofStrip />
       <NichePainPoints niche={niche} />
       <NicheServices niche={niche} />
+      <ClientQuote />
       <NicheVideoBreak slug={niche.slug} headline={niche.tagline} ctaLabel={niche.primaryCTA} />
       <NicheWorkflow niche={niche} />
       <NicheWork niche={niche} />

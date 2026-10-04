@@ -18,7 +18,7 @@ export function NicheServices({ niche }: { niche: Niche }) {
     <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-950 mb-10">
-          What You Get
+          How we get you more {niche.name.toLowerCase()} customers
         </h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {servicePillars.map(({ key, icon: Icon, title, description }) => {
@@ -35,7 +35,7 @@ export function NicheServices({ niche }: { niche: Niche }) {
                 <div>
                   <h3 className="text-lg font-bold text-neutral-950 mb-2">{title}</h3>
                   <p className="text-neutral-600 text-sm leading-relaxed">
-                    {description} Built for {niche.name.toLowerCase()}.
+                    {description}
                   </p>
                 </div>
               </>

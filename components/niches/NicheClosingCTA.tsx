@@ -7,14 +7,14 @@ export function NicheClosingCTA({ niche }: { niche: Niche }) {
     <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
       <div className="max-w-4xl mx-auto text-center">
         <p className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-4">
-          Ready to see it built for {niche.name}?
+          Ready for more {niche.name.toLowerCase()} customers?
         </p>
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight mb-6">
-          A site and intake pipeline built for {niche.name}, priced upfront.
+          More calls and leads in 90 days, or we keep working free.
         </h2>
         <p className="text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-10">
-          Book a free 20-minute strategy call. We show you where customers are slipping away and exactly
-          what it costs to fix, whether or not you hire us.
+          Book a free 20-minute strategy call. You walk away with a custom homepage mockup and an AI
+          visibility report for your business, whether or not you hire us.
         </p>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4">
           <Link

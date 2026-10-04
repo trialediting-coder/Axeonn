@@ -24,10 +24,10 @@ export default function ProcessPage() {
             Ready to get started?
           </p>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight mb-6">
-            Your Business. Your Partner.
+            More calls and leads in 90 days, or we keep working free.
           </h2>
           <p className="text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-10">
-            Book a strategy session and we'll map out exactly how your build would run — and how fast we can get you live.
+            Book a free strategy call. You walk away with a custom homepage mockup and an AI visibility report for your business, whether or not you hire us.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link

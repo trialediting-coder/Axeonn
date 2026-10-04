@@ -21,7 +21,7 @@ export default function WhyAxeonClient() {
             transition={{ duration: 0.6 }}
             className="text-xs sm:text-sm font-mono font-semibold tracking-widest text-blue-600 uppercase mb-4"
           >
-            Your Business. Your Partner.
+            Same budget. More customers.
           </motion.div>
           <motion.h1
             initial={{ opacity: 0, y: 20 }}

@@ -59,14 +59,14 @@ export function Comparison() {
           className="text-center max-w-4xl mx-auto mb-8 sm:mb-12"
         >
           <div className="text-sm sm:text-base font-mono font-bold tracking-widest text-blue-600 uppercase mb-4 sm:mb-5">
-            Your Business. Your Partner.
+            Why owners switch
           </div>
           <h2 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-neutral-950 mb-6 leading-[1.12]">
-            What Actually Makes Us Different
+            You Pay for Customers, Not Deliverables
           </h2>
           <p className="text-lg sm:text-2xl text-neutral-600 leading-relaxed max-w-3xl mx-auto">
-            Most agencies and most AI tools run every client through the same generic process.
-            We don&apos;t. Here&apos;s the honest comparison.
+            Most agencies sell you a website and a report. We sell what you actually want, and track every
+            call and lead to prove it. Here&apos;s the honest comparison.
           </p>
         </motion.div>
 

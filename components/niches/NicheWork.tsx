@@ -17,7 +17,7 @@ export function NicheWork({ niche }: { niche: Niche }) {
         </p>
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-950">
-            Sites we&rsquo;ve built for {niche.name}
+            Homepages we&rsquo;ve designed for {niche.name}
           </h2>
           <Link
             href="/work"
