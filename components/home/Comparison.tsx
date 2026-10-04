@@ -12,9 +12,14 @@ interface ComparisonRow {
 
 const ROWS: ComparisonRow[] = [
   {
+    dimension: 'What You Pay For',
+    typical: 'Deliverables: a website, a report, hours billed',
+    axeon: 'Customers: calls and leads tracked from day one, backed by our 90-day customer guarantee',
+  },
+  {
     dimension: 'Pricing',
-    typical: '$5K–$30K+ for a comparable build, plus a separate CRM subscription',
-    axeon: '$2,800 or $5,800 flat — CRM Pipeline and on-site video included in AxeonCORE, no per-seat software',
+    typical: '$5K–$30K+ up front for a comparable build, plus separate CRM and marketing retainers',
+    axeon: '$2,800 or $5,800 setup, then from $284/mo, with the CRM pipeline, on-site video, and follow-up included in AxeonCORE',
   },
   {
     dimension: 'Timeline',
@@ -32,9 +37,9 @@ const ROWS: ComparisonRow[] = [
     axeon: 'Direct access to the person building your system',
   },
   {
-    dimension: 'After Launch',
-    typical: 'Hourly billing for small changes, slower turnaround',
-    axeon: 'A direct line to the person who built your system — no hourly billing',
+    dimension: 'Reporting',
+    typical: 'Clicks, impressions, and rankings',
+    axeon: 'A monthly report on calls, leads, and exactly where each one came from',
   },
 ];
 

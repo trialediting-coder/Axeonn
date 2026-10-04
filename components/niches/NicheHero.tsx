@@ -23,7 +23,7 @@ export function NicheHero({ niche }: { niche: Niche }) {
       <div className="relative z-10 w-full max-w-5xl mx-auto text-center">
         {/* Geo + service line: the message-match a paid click needs to see first */}
         <p className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-4">
-          Websites &amp; lead systems for {niche.name} &middot; Des Moines metro &amp; Iowa
+          More customers for {niche.name} &middot; Des Moines metro &amp; Iowa
         </p>
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight mb-6">
           {niche.headline}
@@ -34,9 +34,9 @@ export function NicheHero({ niche }: { niche: Niche }) {
 
         {/* Price anchor: the #1 objection, answered before the first scroll */}
         <p className="inline-flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 rounded-2xl sm:rounded-full bg-white/[0.07] border border-white/15 px-4 py-2 text-sm sm:text-base text-neutral-200 mb-8">
-          <span className="font-bold text-white">Flat-rate builds from {corePrice}</span>
+          <span className="font-bold text-white">Plans from {corePrice} setup</span>
           <span className="text-neutral-400">
-            <span className="hidden sm:inline">&middot; </span>published pricing, no proposals
+            <span className="hidden sm:inline">&middot; </span>backed by a 90-day customer guarantee
           </span>
         </p>
 

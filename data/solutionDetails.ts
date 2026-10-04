@@ -100,7 +100,7 @@ export const websiteDetail: SolutionDetail = {
     eyebrow: 'What’s Included',
     heading: 'Everything That Goes Into a Build',
     intro:
-      'Two flat-price builds. Essentials is $2,800. AxeonCORE is $5,800 and is the one we recommend. Here’s exactly what you get.',
+      'Two plans. Essentials is $2,800 to set up, then from $284/mo. AxeonCORE is $5,800 to set up, then from $574/mo, and is the one we recommend. Here’s exactly what you get.',
     groups: [
       {
         title: 'Design & build',
@@ -197,7 +197,7 @@ export const websiteDetail: SolutionDetail = {
     eyebrow: 'Side by Side',
     heading: 'How a Build Compares',
     rows: [
-      { label: 'Pricing', typical: 'A custom quote after several sales calls', axeon: 'Published flat price: $2,800 or $5,800' },
+      { label: 'Pricing', typical: 'A custom quote after several sales calls', axeon: 'Published pricing: $2,800 or $5,800 setup, then from $284/mo' },
       { label: 'Design', typical: 'A shared theme with your logo swapped in', axeon: 'Built around how your business sells' },
       { label: 'Speed', typical: 'Heavy page builder, slow on phones', axeon: 'Sub-second loads, Core Web Vitals pass' },
       { label: 'AI search', typical: 'Rarely addressed', axeon: 'SEO, AEO, and GEO in every build' },
@@ -477,7 +477,7 @@ export const aiChatDetail: SolutionDetail = {
   deliverables: {
     eyebrow: 'What’s Included',
     heading: 'What the AI Actually Does for You',
-    intro: 'AI chat and online scheduling are included in the AxeonCORE Build ($5,800), set up around your business. An AI receptionist that picks up your phone calls around the clock is an AxeonCORE add-on, scoped on your strategy call.',
+    intro: 'AI chat and online scheduling are included in AxeonCORE ($5,800 setup), set up around your business. An AI receptionist that picks up your phone calls around the clock is an AxeonCORE add-on, scoped on your strategy call.',
     groups: [
       {
         title: 'Answers questions',

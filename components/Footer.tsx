@@ -85,9 +85,9 @@ export function Footer({ year }: FooterProps) {
         {/* CTA */}
         <div className="rounded-[28px] bg-neutral-950 text-white p-7 sm:p-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div>
-            <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Ready when you are.</h3>
+            <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Ready for more customers?</h3>
             <p className="mt-2 text-neutral-300 text-base sm:text-lg max-w-2xl">
-              A free 20-minute call. You leave with a clear scope and a flat price, whether or not you hire us.
+              A free 20-minute call. You leave knowing where customers are slipping away and exactly what it costs to fix, whether or not you hire us.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 shrink-0">

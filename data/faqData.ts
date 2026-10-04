@@ -5,6 +5,11 @@ export interface FaqItem {
 
 export const faqItems: FaqItem[] = [
   {
+    question: 'Do you guarantee results?',
+    answer:
+      'Yes. Our 90-Day Customer Guarantee: if you\'re not getting more calls and leads in your first 90 days after launch than you were getting before, we keep working for free until you are. We set your baseline together on the kickoff call and track every call and form from day one. It applies while you\'re on your monthly plan and answering new leads within one business day.',
+  },
+  {
     question: 'How long does it take to launch?',
     answer:
       'Fast — most builds go live in a fraction of the time a typical agency takes. The exact timing depends on how quickly we get your content, brand assets, and any integration details (booking system, CRM, phone number) — the build itself moves efficiently because we work from a proven system, not a from-scratch design process.',
@@ -17,7 +22,7 @@ export const faqItems: FaqItem[] = [
   {
     question: 'Is there a contract, and how long is it?',
     answer:
-      'We keep terms simple and transparent — no multi-year lock-in. Build pricing is published on our Pricing page, and every term is laid out clearly before you sign anything.',
+      'Every plan is a one-time setup and then a monthly plan that keeps the customers coming. There\'s no multi-year lock-in, and every term is laid out clearly before you sign anything.',
   },
   {
     question: 'Do I get access to my own analytics?',
@@ -32,7 +37,7 @@ export const faqItems: FaqItem[] = [
   {
     question: 'How much does it cost to work with Axeon?',
     answer:
-      'It depends on your package and goals — see the Pricing page for exact numbers. We\'d rather be upfront about cost than make you book a call just to find out.',
+      'A one-time setup of $2,800 (Essentials) or $5,800 (AxeonCORE), then a monthly plan starting at $284 or $574. The final monthly amount depends on your market and what you want us to run, and we set it with you before you commit. We\'d rather be upfront about cost than make you book a call just to find out.',
   },
 ];
 

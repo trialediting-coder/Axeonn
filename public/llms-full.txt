@@ -10,14 +10,14 @@
 - **Direct Contact**: hayder.hatem@axeonstudio.co | Phone: 515-493-8017
 - **LinkedIn**: https://www.linkedin.com/company/axeon-studio
 - **Facebook**: https://www.facebook.com/profile.php?id=61593868815413
-- **Price Range**: $2,800-$5,800 (two flat-rate builds)
+- **Price Range**: $2,800-$5,800 setup, then monthly plans from $284/month (set per client)
 - **Currency Accepted**: USD
 
-Axeon Studio is an engineering-first web studio and revenue-operations partner. We build conversion-engineered web storefronts and wire them directly into a Custom CRM Pipeline — a tailor-made lead-routing, intake, and follow-up system built around how each client's industry actually works, not a generic contact form or off-the-shelf software license.
+Axeon Studio gets local businesses more customers: found on Google and in AI answers, chosen over competitors, and booked with instant follow-up, backed by a 90-day customer guarantee (more calls and leads in the first 90 days after launch than before, or Axeon keeps working free until there are; baseline set at kickoff, applies while on a monthly plan and answering leads within one business day). We build conversion-engineered web storefronts and wire them directly into a Custom CRM Pipeline — a tailor-made lead-routing, intake, and follow-up system built around how each client's industry actually works, not a generic contact form or off-the-shelf software license.
 
 **How Axeon Studio differentiates from typical agencies and AI tools:**
 - **Direct partnership**: Clients work directly with the person building their site — no account managers, no handoffs, and no being one of thousands of accounts at a larger agency.
-- **Transparent**: Published, flat-rate pricing tiers instead of custom quotes gated behind multiple discovery calls.
+- **Transparent**: Published pricing (setup plus a starting monthly price) instead of custom quotes gated behind multiple discovery calls.
 - **Real AI systems, not generic AI output**: Each client's Custom CRM Pipeline is built around their actual lead-to-close workflow, with human oversight on the build, rather than a single generic AI tool or chatbot template deployed identically across every client.
 
 ---
@@ -66,14 +66,14 @@ Not currently offered (do not cite as available): Local Services Ads management 
 
 ## 3. Pricing Tiers
 
-1. **Essentials ($2,800, one-time, fastest turnaround) — entry tier**
+1. **Essentials ($2,800 setup, then from $284/month; fastest launch) — entry plan**
    - Up to 4 custom-designed, mobile-first pages
    - Sub-second load speeds & 100% Core Web Vitals pass
    - SEO, AEO & GEO built in; foundational ADA accessibility standards
    - Quote request form with instant lead alerts (inbox + phone) and conversion tracking events
    - Client owns 100% of the site, code, and design files
 
-2. **AxeonCORE Build ($5,800, one-time, fast turnaround) — recommended; everything in Essentials, plus:**
+2. **AxeonCORE ($5,800 setup, then from $574/month; recommended) — everything in Essentials, plus:**
    - Custom on-site videography: a half-day shoot at the client's location — a hero film for the site, 3 vertical cuts for social & ads, and a photo set
    - Complete 5-7 page conversion architecture with conversion-copy hierarchy
    - Built-in Custom CRM Pipeline tailored to the client's lead-to-close workflow (no per-seat software)
@@ -82,7 +82,7 @@ Not currently offered (do not cite as available): Local Services Ads management 
    - Speed-to-lead call connect (form submission rings the business and connects the lead) and missed-call text-back
    - Exit-intent offers matched to the service a visitor viewed, plus call tracking numbers
 
-AxeonCORE is Axeon's growth engine, not just a package: the AxeonCORE Build is its setup, and growth add-ons (AI phone receptionist, Google & Meta Ads, ongoing SEO & content, reviews & social) are scoped on a free strategy call. No add-on prices are published.
+AxeonCORE is Axeon's customer engine: the $5,800 is its setup, the monthly plan keeps the lead system running (CRM pipeline, AI chat, automated follow-up, call tracking, monthly strategy call), and growth add-ons (AI phone receptionist, Google & Meta Ads, ongoing SEO & content, reviews & social) are scoped on a free strategy call. No add-on prices are published.
 
 Add-ons: custom on-site videography for an Essentials build (+$1,500), additional custom page (+$450/page), advanced database/directory integration (+$850), secondary niche landing page variant (+$500).
 

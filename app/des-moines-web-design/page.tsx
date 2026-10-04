@@ -12,7 +12,7 @@ export const metadata = buildMetadata({
   path: '/des-moines-web-design',
   title: 'Des Moines Web Design & Marketing Agency | Axeon Studio',
   description:
-    'Web design, SEO/AEO/GEO, AI scheduling, and lead pipelines for Des Moines-area businesses. Based in West Des Moines, flat pricing from $2,800, live fast.',
+    'More customers for Des Moines-area businesses: web design, local SEO, ads, and lead follow-up from one West Des Moines team. Plans from $2,800 setup, backed by a 90-day guarantee.',
 });
 
 const webDesignServiceJsonLd = serviceJsonLd({
@@ -99,9 +99,9 @@ export default function DesMoinesWebDesignPage() {
             Web Design &amp; Digital Marketing for Des Moines Businesses
           </h1>
           <p className="text-lg sm:text-xl text-neutral-300 leading-relaxed max-w-3xl mb-10">
-            Axeon Studio builds custom websites, local search visibility, AI scheduling, and lead pipelines for
-            businesses across the Des Moines metro — from a studio in West Des Moines, at a flat price, live in
-            a fraction of the time a typical agency takes.
+            Axeon Studio gets businesses across the Des Moines metro more customers: found on Google, chosen
+            over the competition, and booked with instant follow-up. One West Des Moines team runs it all,
+            backed by our 90-day customer guarantee.
           </p>
           <div className="flex flex-wrap items-center gap-4">
             <Link

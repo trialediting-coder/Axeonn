@@ -45,11 +45,11 @@ const engineModules: EngineModule[] = [
 ];
 
 const builds = [
-  { name: 'Essentials', price: '$2,800', line: 'Custom site, SEO/AEO/GEO, and instant lead alerts.' },
+  { name: 'Essentials', price: '$2,800 + from $284/mo', line: 'Get found: Google, AI search, a site that converts, and instant lead alerts.' },
   {
-    name: 'AxeonCORE Build',
-    price: '$5,800',
-    line: 'Adds on-site video, the custom CRM pipeline, AI chat, and automated follow-up.',
+    name: 'AxeonCORE',
+    price: '$5,800 + from $574/mo',
+    line: 'Get found, chosen, and booked: adds on-site video, the CRM pipeline, AI chat, and automated follow-up.',
     recommended: true,
   },
 ];
@@ -72,21 +72,21 @@ export function GrowthEngine({ showBuilds = true, variant = 'section' }: GrowthE
 
       <div className="relative">
         <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-blue-400 uppercase mb-4">
-          AxeonCORE · The Growth Engine
+          AxeonCORE · The Customer Engine
         </p>
         <h2 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-[1.08] max-w-4xl">
-          Your build gets you started. AxeonCORE keeps you growing.
+          Want even more customers? Turn up the engine.
         </h2>
         <p className="mt-5 text-base sm:text-lg lg:text-xl text-neutral-300 leading-relaxed max-w-3xl">
-          Every client starts with a flat-price build. From there, AxeonCORE is the engine we run with you: the
-          systems that bring in more calls, answer every one, and keep you ahead of the business down the road.
+          Your plan gets new customers coming in. When you&apos;re ready for more, we plug in extra channels: every
+          call answered, ads on the services you want more of, and a steady stream of fresh reviews.
         </p>
 
         <div className={`mt-12 grid gap-6 lg:gap-8 ${showBuilds ? 'lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]' : ''}`}>
           {showBuilds && (
             <div>
               <p className="text-xs font-mono font-semibold tracking-widest text-neutral-400 uppercase mb-4">
-                Step 1 · Start with a build
+                Step 1 · Pick your plan
               </p>
               <div className="flex flex-col gap-4">
                 {builds.map((b) => (

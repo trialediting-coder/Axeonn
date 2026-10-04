@@ -13,8 +13,8 @@ export function NicheClosingCTA({ niche }: { niche: Niche }) {
           A site and intake pipeline built for {niche.name}, priced upfront.
         </h2>
         <p className="text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-10">
-          Book a free 20-minute strategy call. We walk through exactly how the site and intake pipeline
-          would work for your business and leave you with a flat price, whether or not you hire us.
+          Book a free 20-minute strategy call. We show you where customers are slipping away and exactly
+          what it costs to fix, whether or not you hire us.
         </p>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4">
           <Link

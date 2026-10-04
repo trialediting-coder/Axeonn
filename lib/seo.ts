@@ -122,9 +122,9 @@ export function localBusinessJsonLd() {
     priceRange: BUSINESS.priceRange,
     currenciesAccepted: 'USD',
     areaServed: SERVICE_AREA,
-    slogan: 'Your Business. Your Partner.',
+    slogan: 'Found. Chosen. Booked.',
     description:
-      'Web design, SEO/AEO/GEO, AI chat & scheduling, lead-generation pipelines, and on-site video for Des Moines-area businesses — flat pricing, built and run by one West Des Moines team.',
+      'Axeon Studio gets Des Moines-area businesses more customers: local SEO and AI search visibility, Google and Meta ads, websites that convert, and lead capture with instant follow-up, run by one West Des Moines team and backed by a 90-day customer guarantee.',
     knowsAbout: KNOWS_ABOUT,
     founder: { '@id': FOUNDER_ID },
     sameAs: BUSINESS.sameAs,

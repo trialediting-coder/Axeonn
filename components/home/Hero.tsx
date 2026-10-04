@@ -7,9 +7,10 @@ import { motion, AnimatePresence } from 'motion/react';
 import { TrustBadges } from '@/components/common/TrustBadges';
 import { useLeadModal } from '@/components/common/LeadModalProvider';
 
-// One word cycles in the otherwise-fixed headline "Grow Your ___",
-// mirroring Scorpion's "MAXIMIZE Your ___" rotating-word pattern.
-const ROTATING_WORDS = ['Revenue', 'Bookings', 'Business', 'Brand'];
+// One word cycles in the otherwise-fixed headline "Get More ___",
+// mirroring Scorpion's "MAXIMIZE Your ___" rotating-word pattern. Every word
+// is an outcome the owner wants, never a deliverable (we sell customers).
+const ROTATING_WORDS = ['Customers', 'Calls', 'Booked Jobs', 'Revenue'];
 const ROTATE_INTERVAL_MS = 2200;
 
 // Matches Tailwind's `sm` breakpoint: below it the hero uses the portrait phone media.
@@ -264,7 +265,7 @@ export function Hero() {
 
         <div className="relative z-10 w-full max-w-3xl flex-1 flex flex-col justify-center sm:ml-16 lg:ml-24 xl:ml-32">
           <h1 className="hero-rise text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-black tracking-[-0.03em] leading-[1.05] font-display text-white">
-            Grow Your
+            Get More
             {/* The rotating word always sits on its own line. */}
             <span className="grid">
               <AnimatePresence mode="wait" initial={false}>
@@ -286,8 +287,8 @@ export function Hero() {
             style={{ animationDelay: '0.15s' }}
             className="hero-rise mt-6 text-base sm:text-lg lg:text-xl text-neutral-300 font-normal leading-relaxed max-w-xl"
           >
-            We build and run websites that turn local searches into phone calls, with
-            flat-rate pricing and a team you can actually reach.
+            We get Iowa businesses found on Google, chosen over the competition, and
+            booked solid. Backed by our 90-day customer guarantee.
           </p>
 
           <div
@@ -302,7 +303,7 @@ export function Hero() {
               data-track-cta="get_started_hero"
               className="group inline-flex items-center justify-center gap-3 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-base font-bold transition-all duration-200 cursor-pointer shadow-lg shadow-blue-600/25 hover:scale-[1.02] active:scale-[0.98]"
             >
-              <span>Get Started</span>
+              <span>Get More Customers</span>
               <div className="w-8 h-8 rounded-full bg-white/15 text-white flex items-center justify-center shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
                 <ArrowUpRight size={15} />
               </div>
@@ -326,7 +327,7 @@ export function Hero() {
               data-track-cta="see_pricing"
               className="inline-flex items-center justify-center py-2 sm:py-4 text-base font-semibold text-white/80 hover:text-white underline underline-offset-4 decoration-white/30 hover:decoration-white transition-colors"
             >
-              See flat-rate pricing
+              See pricing
             </Link>
           </div>
 

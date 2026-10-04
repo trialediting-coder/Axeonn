@@ -127,7 +127,7 @@ export default function LeadGenerationPage() {
             them. We built one pipeline that catches every call, form, and chat the moment it
             comes in, and follows up automatically before the lead has time to go cold.
           </p>
-          <ServiceHeroActions priceLine="Included in AxeonCORE, $5,800 flat" note="a Custom CRM Pipeline built around your workflow" />
+          <ServiceHeroActions priceLine="Included in AxeonCORE, from $5,800 setup" note="a Custom CRM Pipeline built around your workflow" />
           <div className="flex justify-center">
             <TrustBadges variant="dark" />
           </div>

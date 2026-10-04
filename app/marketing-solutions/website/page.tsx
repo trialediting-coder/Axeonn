@@ -81,7 +81,7 @@ export default function WebsitePage() {
               Designed to convert, built to grow. Every build is a brand-driven system shipped
               and delivered fast — not a generic template with your logo dropped in.
             </p>
-            <ServiceHeroActions priceLine="Websites from $2,800 flat" note="published pricing, no proposals" />
+            <ServiceHeroActions priceLine="Plans from $2,800 setup" note="backed by our 90-day customer guarantee" />
             <div className="flex justify-center">
               <TrustBadges variant="dark" />
             </div>
@@ -129,8 +129,8 @@ export default function WebsitePage() {
             Your Business. Your Partner.
           </h2>
           <p className="text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-10">
-            Book a strategy session and we&apos;ll walk through exactly how a fast, fixed-scope build
-            would work for your business — flat pricing, no surprise invoices.
+            Book a strategy session and we&apos;ll walk through exactly how a new site would bring
+            your business more customers, with published pricing and no surprise invoices.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link

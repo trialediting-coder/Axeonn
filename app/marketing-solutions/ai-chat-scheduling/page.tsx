@@ -99,7 +99,7 @@ export default function AIChatSchedulingPage() {
             24/7 AI chat that books, answers, and converts clicks to customers — so every website visitor and
             missed call turns into a real conversation instead of a lost opportunity.
           </p>
-          <ServiceHeroActions priceLine="Included in AxeonCORE, $5,800 flat" note="AI chat, scheduling and follow-up in one build" />
+          <ServiceHeroActions priceLine="Included in AxeonCORE, from $5,800 setup" note="AI chat, scheduling and follow-up in one build" />
         </div>
       </section>
 

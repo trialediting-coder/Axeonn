@@ -8,9 +8,9 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/pricing',
-  title: 'Website & Marketing Pricing | Axeon Studio',
+  title: 'Pricing: Plans to Get More Customers | Axeon Studio',
   description:
-    'Two flat-rate builds — a $2,800 Essentials build and a $5,800 AxeonCORE with custom on-site videography. One price, a fast turnaround, no proposals.',
+    'Two plans to get more customers: Essentials ($2,800 setup, then from $284/mo) and AxeonCORE ($5,800 setup, then from $574/mo). Backed by our 90-day customer guarantee.',
 });
 
 export default function PricingPage() {
@@ -28,10 +28,10 @@ export default function PricingPage() {
             Still deciding?
           </p>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight mb-6">
-            Your Business. Your Partner.
+            More customers, or we keep working free.
           </h2>
           <p className="text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-10">
-            Book a strategy session and we'll walk through exactly which tier fits your business.
+            Book a strategy session and we&apos;ll show you where customers are slipping away and which plan gets them back.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link

@@ -150,7 +150,7 @@ export const CUSTOM_PACKAGE: Package = {
   includes: [
     'A short call to understand your business and goals',
     'A recommended plan built around the services you picked',
-    'A clear, flat price before you pay anything',
+    'A clear price before you pay anything',
   ],
   services: [],
   stripePaymentLink: null,

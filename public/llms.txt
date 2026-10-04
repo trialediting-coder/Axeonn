@@ -1,9 +1,13 @@
 # Axeon Studio
-> The one-stop shop for growing Iowa businesses — website, SEO/AEO/GEO, reviews, social media, and lead capture, built and run by one team. Based in West Des Moines, Iowa.
+> Axeon Studio gets Iowa businesses more customers: found on Google and in AI answers, chosen over competitors, and booked with instant lead follow-up. One West Des Moines team runs the whole system, backed by a 90-day customer guarantee.
 
-Axeon Studio is a productized web studio and revenue-operations partner. We replace slow, disconnected websites with conversion-built storefronts wired directly into a tailor-made Custom CRM Pipeline — purpose-built intake, lead routing, and follow-up for each client's industry, not a generic template.
+Axeon Studio is a customer-acquisition partner for local businesses. One system covers the full path from search to booked job: local SEO, AEO/GEO and Google/Meta ads to get found; a conversion-built website, reviews, and real footage to get chosen; and a Custom CRM Pipeline with AI chat, missed-call text-back, and automated follow-up to get booked.
 
-**Core differentiators**: Direct partnership (you work with the actual builder, not an account manager), Transparent (published flat-rate pricing instead of custom quotes after multiple discovery calls), and real AI systems tailored to each client's actual lead-to-close workflow — not a generic, templated AI tool with a logo pasted on top.
+**Pricing**: two plans, each a one-time setup plus a monthly plan that starts after launch. Essentials: $2,800 setup, then from $284/month. AxeonCORE (recommended): $5,800 setup, then from $574/month. Monthly amounts are starting prices set per client.
+
+**90-Day Customer Guarantee**: more calls and leads in the first 90 days after launch than the business was getting before, or Axeon keeps working for free until it is. The baseline is set on the kickoff call and tracked from day one; it applies while the client is on a monthly plan and answering new leads within one business day.
+
+**Core differentiators**: Direct partnership (you work with the actual builder, not an account manager), transparent published pricing, and real AI systems tailored to each client's actual lead-to-close workflow.
 
 **Search visibility services**: Every Axeon Studio build includes Search Engine Optimization (SEO), Answer Engine Optimization (AEO), and Generative Engine Optimization (GEO) by default — technical SEO, structured data, and machine-readable content so a business is findable on Google as well as citable by AI answer engines like ChatGPT, Perplexity, Claude, and Gemini. These are not sold as separate add-ons.
 
@@ -27,7 +31,7 @@ Axeon Studio is a productized web studio and revenue-operations partner. We repl
 - [Lead Capture & Follow-Up](https://axeonstudio.co/marketing-solutions/lead-generation): Every lead captured and followed up on automatically in one unified pipeline.
 - [Video & Photography](https://axeonstudio.co/marketing-solutions/video-photography): Professional video and photography for your website, ads, and social profiles.
 - [Why Axeon](https://axeonstudio.co/why-axeon): Direct comparison of a typical agency vs. Axeon Studio across web design, AI receptionist, data infrastructure, SEO/AEO/GEO, and automation.
-- [Pricing](https://axeonstudio.co/pricing): Two flat-rate builds — Essentials ($2,800) and the AxeonCORE Build ($5,800, includes custom on-site videography). AxeonCORE is Axeon's growth engine; add-ons (AI receptionist, Google & Meta Ads, ongoing SEO & content, reviews & social) are scoped on a strategy call.
+- [Pricing](https://axeonstudio.co/pricing): Two plans to get more customers — Essentials ($2,800 setup, then from $284/month) and AxeonCORE ($5,800 setup, then from $574/month, includes custom on-site videography and the lead system), backed by a 90-day customer guarantee; add-ons (AI receptionist, Google & Meta Ads, ongoing SEO & content, reviews & social) are scoped on a strategy call.
 - [Des Moines Web Design](https://axeonstudio.co/des-moines-web-design): Local landing page for the Des Moines metro — service area, in-person meetings, on-site video, and industries served.
 - [Work](https://axeonstudio.co/work): Websites Axeon Studio has designed and built, including the A-1 Auto Detailing client site plus self-initiated concept redesigns for local remodelers, a family dentist and a detailer (concepts are labeled and not client engagements).
 - [Process](https://axeonstudio.co/process): The fast, fixed-scope delivery framework used to design, build, and launch every project.

@@ -5,11 +5,11 @@ import { faqItems } from '@/data/faqData';
 
 export function FAQ() {
   // Lead with the three questions people actually ask before booking:
-  // price, ownership, and "I already have a site". Falls back to the first
+  // price, results, and "I already have a site". Falls back to the first
   // three if the data file is reworded.
   const preferred = [
     'How much does it cost to work with Axeon?',
-    'Do I own my website?',
+    'Do you guarantee results?',
     'What if I already have a website?',
   ];
   const picked = preferred
@@ -50,7 +50,7 @@ export function FAQ() {
             href="/pricing"
             className="inline-flex items-center gap-2 text-blue-600 font-bold text-base sm:text-lg hover:text-blue-700 transition-colors"
           >
-            <span>See flat-rate pricing</span>
+            <span>See pricing</span>
             <ArrowRight size={18} />
           </Link>
           <Link href="/faq" className="text-neutral-500 font-semibold text-sm sm:text-base hover:text-neutral-800 transition-colors">

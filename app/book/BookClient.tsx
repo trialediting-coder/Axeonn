@@ -45,11 +45,11 @@ export default function BookClient() {
               {/* Main Headline & Context */}
               <div className="space-y-4 sm:space-y-5">
                 <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-zinc-950 tracking-tight leading-[1.12] font-display">
-                  Schedule a Systems &amp; Architecture Strategy Session
+                  Book Your Free Customer Growth Session
                 </h1>
 
                 <p className="text-base sm:text-lg text-zinc-600 leading-relaxed font-normal">
-                  A focused 20–30 minute working session to diagnose manual bottlenecks, audit your inbound lead flow, and engineer custom automation or web architecture for your business.
+                  A focused 20–30 minute call: we look at how customers find you today, where they slip away, and what it would take to get you more of them.
                 </p>
               </div>
 

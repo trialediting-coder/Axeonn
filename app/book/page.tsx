@@ -6,7 +6,7 @@ export const metadata = buildMetadata({
   path: '/book',
   title: 'Book a Strategy Session | Axeon Studio',
   description:
-    'Schedule a 1-on-1 strategy session with Axeon Studio in West Des Moines, Iowa, and see how a Custom CRM Pipeline fits your business.',
+    'Schedule a free 1-on-1 strategy session with Axeon Studio in West Des Moines, Iowa, and see exactly how we would get your business more customers.',
 });
 
 export default function BookPage() {

@@ -302,7 +302,7 @@ export function Contact({ onBookAudit }: ContactProps) {
             <div className="space-y-6">
               <div className="pb-1">
                 <h3 className="text-2xl sm:text-3xl font-bold font-display tracking-tight text-neutral-950 leading-tight">
-                  Let&apos;s Talk About Your Project
+                  Let&apos;s Get You More Customers
                 </h3>
                 <p className="text-sm sm:text-base text-neutral-600 mt-1.5">
                   Answer a few quick questions and get a recommended plan. Takes about a minute.
@@ -322,12 +322,12 @@ export function Contact({ onBookAudit }: ContactProps) {
             className="lg:col-span-5 xl:col-span-5 flex flex-col justify-center text-white"
           >
             <h2 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold font-display tracking-tight text-white leading-[1.08]">
-              Let&apos;s talk about <br className="hidden sm:inline" />
-              growing your business
+              Ready for more <br className="hidden sm:inline" />
+              customers?
             </h2>
 
             <p className="mt-6 sm:mt-8 text-base sm:text-lg lg:text-xl text-neutral-300 max-w-xl leading-relaxed font-normal">
-              New site, better rankings, or automation that actually catches your leads — tell us what&apos;s slowing you down and we&apos;ll map out the fix.
+              Not showing up on Google, losing people to a weak website, or missing calls you never call back? Tell us where customers are slipping away and we&apos;ll map out the fix.
             </p>
 
             {/* Direct Contact Details */}

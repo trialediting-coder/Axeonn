@@ -19,26 +19,26 @@ export const foundingOffer = {
   /** Set to false to take the offer down everywhere at once. */
   active: true,
   eyebrow: 'Founding Client Offer',
-  headline: 'One of our first 5 websites, built free',
+  headline: 'Free setup for one of our first 5 Iowa businesses',
   subhead:
-    'We are launching with five Iowa businesses. Their custom site gets built at no build cost, in exchange for honest feedback and a review we can show the next client.',
+    'We are launching with five Iowa businesses. Their full setup, the site and the system that brings in customers, costs nothing, in exchange for honest feedback and a review we can show the next client.',
   /** Real anchor: the published Essentials build price. */
   anchorPrice: '$2,800',
-  anchorLabel: 'Essentials build value',
+  anchorLabel: 'Essentials setup value',
   totalSpots: 5,
   /** Update as founding clients sign. Never display a number higher than reality. */
   spotsRemaining: 1,
   includes: [
-    'Custom-designed, mobile-first site built around how you sell',
-    'SEO, AEO & GEO built in — found on Google and inside AI answers',
+    'Found by more customers on Google and inside AI answers',
+    'A custom, mobile-first site built to turn visitors into calls',
     'Instant lead alerts to your phone the moment someone reaches out',
-    'You own 100% of the site, code, and design files',
+    'Backed by our 90-day customer guarantee',
   ],
   cta: 'See If I Qualify',
   ctaHint: 'Takes a 15-minute call. No pitch deck, no pressure.',
   decline: 'Not right now',
   terms:
-    'Open to Iowa-based businesses. Limited to 5 founding clients, subject to fit and availability. Build cost waived; ongoing arrangements are discussed on the call.',
+    'Open to Iowa-based businesses. Limited to 5 founding clients, subject to fit and availability. Setup cost waived; the monthly plan is discussed on the call.',
 } as const;
 
 export type FoundingOffer = typeof foundingOffer;

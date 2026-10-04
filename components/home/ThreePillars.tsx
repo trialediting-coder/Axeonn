@@ -24,36 +24,38 @@ type Pillar = {
   color: string;
 };
 
+// The customer journey, in order: every step is one part of the system that
+// turns a stranger searching on Google into a paying customer.
 const PILLARS: Pillar[] = [
   {
-    name: 'Brand',
-    promise: 'Get noticed.',
-    detail:
-      'A name, a look, and a website people trust before they ever call. Identity, design, and photography built to stand out in your market instead of blending into it.',
-    href: '/marketing-solutions/website',
-    cta: 'See our website work',
-    image: '/philosophy/brand.webp',
-    alt: 'Backlit circular logo sign glowing on a dark wall',
-    color: '#F5A623',
-  },
-  {
-    name: 'Marketing',
+    name: 'Step 1',
     promise: 'Get found.',
     detail:
-      'Local SEO, Google Ads, and lead generation that put you in front of people already searching for what you do, at the moment they are ready to buy.',
-    href: '/marketing-solutions',
-    cta: 'Explore marketing',
+      'Local SEO, your Google Business Profile, AI search, and Google & Meta ads put you in front of people already searching for what you do, right when they are ready to buy.',
+    href: '/marketing-solutions/seo',
+    cta: 'How we get you found',
     image: '/philosophy/marketing.webp',
     alt: 'Person looking up a local business on a map on their phone',
     color: '#10B981',
   },
   {
-    name: 'Technology',
+    name: 'Step 2',
+    promise: 'Get chosen.',
+    detail:
+      'A website, reviews, and real footage that make you the obvious pick the second someone compares you with the next company on the list.',
+    href: '/marketing-solutions/website',
+    cta: 'How we get you chosen',
+    image: '/philosophy/brand.webp',
+    alt: 'Backlit circular logo sign glowing on a dark wall',
+    color: '#F5A623',
+  },
+  {
+    name: 'Step 3',
     promise: 'Get booked.',
     detail:
-      'An AI receptionist that answers, books, and follows up around the clock, plus a dashboard that shows every lead, call, and dollar. Nothing slips through.',
-    href: '/marketing-solutions/ai-chat-scheduling',
-    cta: 'See the AI in action',
+      'Instant lead alerts, missed-call text-back, AI chat that books around the clock, and automatic follow-up, so more of those leads turn into paying customers.',
+    href: '/marketing-solutions/lead-generation',
+    cta: 'How we get you booked',
     image: '/philosophy/technology.webp',
     alt: 'Laptop showing a revenue and analytics dashboard',
     color: '#0080FF',
@@ -133,14 +135,14 @@ export function ThreePillars() {
       <div className="max-w-[1720px] 2xl:max-w-[1880px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 mb-12 sm:mb-16 lg:mb-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-end">
           <h2 className="lg:col-span-7 text-5xl sm:text-6xl lg:text-7xl xl:text-[84px] font-black tracking-tight leading-[1.02]">
-            Growth needs all three.
+            How we get you customers.
           </h2>
           <div className="lg:col-span-5">
             <p className="text-xl sm:text-2xl font-semibold text-white leading-snug">
-              Iowa&apos;s first AI-led digital agency.
+              Found. Chosen. Booked.
             </p>
             <p className="mt-3 text-lg sm:text-xl text-neutral-400 leading-relaxed max-w-xl">
-              Most agencies sell you one piece. We build the brand that gets you noticed, the marketing that gets you found, and the technology that turns attention into booked revenue.
+              Most agencies sell you one piece and leave the rest to you. We run all three steps as one system, so the people searching for what you do end up on your calendar.
             </p>
           </div>
         </div>
@@ -158,11 +160,11 @@ export function ThreePillars() {
           href="/get-started"
           className="px-8 py-3.5 sm:px-10 sm:py-4 rounded-full bg-[#0080FF] hover:bg-[#0070EE] active:scale-95 text-white text-sm sm:text-base font-bold shadow-xl shadow-blue-500/25 transition-all inline-flex items-center justify-center gap-2.5 self-start"
         >
-          Get Started
+          Get More Customers
           <ArrowUpRight size={18} />
         </Link>
         <p className="text-base sm:text-lg text-neutral-400">
-          One team for all three, so nothing gets lost between vendors.
+          One team for all three steps, backed by our 90-day customer guarantee.
         </p>
       </div>
     </section>

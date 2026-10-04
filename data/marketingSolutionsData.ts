@@ -31,7 +31,7 @@ export const marketingSolutions: MarketingSolution[] = [
     description:
       'Never miss a lead—24/7 AI chat that books, answers, and converts clicks to customers.',
     href: '/marketing-solutions/ai-chat-scheduling',
-    included: 'AxeonCORE Build',
+    included: 'In AxeonCORE',
   },
   {
     id: 'lead-generation',
@@ -39,7 +39,7 @@ export const marketingSolutions: MarketingSolution[] = [
     description:
       'Every lead captured and followed up on automatically—one unified pipeline instead of a dozen disconnected tools.',
     href: '/marketing-solutions/lead-generation',
-    included: 'AxeonCORE Build',
+    included: 'In AxeonCORE',
   },
   {
     id: 'advertising',
@@ -55,6 +55,6 @@ export const marketingSolutions: MarketingSolution[] = [
     description:
       'Professional video and photography that helps your business stand out and tell its story.',
     href: '/marketing-solutions/video-photography',
-    included: 'AxeonCORE Build',
+    included: 'In AxeonCORE',
   },
 ];
