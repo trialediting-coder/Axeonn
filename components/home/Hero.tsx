@@ -215,7 +215,7 @@ export function Hero() {
             playsInline
             preload="auto"
             poster="/hero-poster.webp"
-            className="hidden sm:block w-full h-full object-cover object-center opacity-70 scale-105"
+            className="hidden sm:block w-full h-full object-cover object-center scale-105"
           >
             {/* No source matches on phones, so they never download the video. */}
             <source src="/videoplayback.mp4" type="video/mp4" media="(min-width: 640px)" />
@@ -227,7 +227,7 @@ export function Hero() {
             portrait poster (paints with the HTML) -> AVIF loop (only if the
             video can't start, see avifFallback) -> H.264 video (faded in once
             it is actually playing). Once the video plays, the poster/AVIF
-            layer is faded out and the AVIF dropped; both sit at opacity-70
+            layer is faded out and the AVIF dropped; both sit at full opacity
             with the dark background, so leaving it would ghost through.
           */}
           <picture
@@ -240,7 +240,7 @@ export function Hero() {
               alt=""
               fetchPriority="high"
               style={{ backgroundImage: 'url(/hero-poster-mobile.webp)' }}
-              className="w-full h-full object-cover object-center bg-cover bg-center opacity-70 scale-105"
+              className="w-full h-full object-cover object-center bg-cover bg-center scale-105"
             />
           </picture>
           {loopReady && (
@@ -252,11 +252,11 @@ export function Hero() {
               playsInline
               preload="auto"
               aria-hidden="true"
-              className={`sm:hidden absolute inset-0 w-full h-full object-cover object-center scale-105 transition-opacity duration-700 ${mobilePlaying ? 'opacity-70' : 'opacity-0'}`}
+              className={`sm:hidden absolute inset-0 w-full h-full object-cover object-center scale-105 transition-opacity duration-700 ${mobilePlaying ? 'opacity-100' : 'opacity-0'}`}
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-neutral-950/95 via-neutral-950/60 to-transparent sm:from-neutral-950 sm:via-neutral-950/80 sm:to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-neutral-950/30" />
+          <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-neutral-950/90 via-neutral-950/40 to-transparent sm:from-neutral-950/90 sm:via-neutral-950/60 sm:via-35% sm:to-transparent sm:to-70%" />
+          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/60 via-transparent to-neutral-950/40" />
           {/* Soft glows as radial gradients: same look as a blurred disc, without a
               64px blur filter that phones have to rasterize over the video. */}
           <div className="absolute -top-[13rem] -right-[13rem] w-[678px] h-[678px] rounded-full bg-[radial-gradient(closest-side,rgb(37_99_235/0.25)_62%,transparent)] pointer-events-none" />
