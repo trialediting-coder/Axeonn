@@ -3,21 +3,24 @@ type ClientLogo = {
   logo: string;
   // Stacked/square marks need more height than wide wordmarks to read at the same visual weight.
   heightClass: string;
+  /** Intrinsic pixel size, so the browser reserves the right width before the logo loads (no layout shift). */
+  w: number;
+  h: number;
 };
 
 // A-1 Auto Detailing is a real client. The rest are small Des Moines-metro
 // businesses (one per niche we serve) used as PLACEHOLDERS until more client
 // logos are approved; swap them out before they're read as endorsements.
 const clientLogos: ClientLogo[] = [
-  { name: 'A-1 Auto Detailing', logo: '/logos/iowa/a1-auto-detailing.webp', heightClass: 'h-12 sm:h-20' },
-  { name: 'Obsidian Heating & Cooling', logo: '/logos/iowa/obsidian-heating-cooling.webp', heightClass: 'h-12 sm:h-20' },
-  { name: 'Mark Gray Law', logo: '/logos/iowa/mark-gray-law.webp', heightClass: 'h-9 sm:h-11' },
-  { name: "Andrew's Roofing Company", logo: '/logos/iowa/andrews-roofing.webp', heightClass: 'h-10 sm:h-12' },
-  { name: 'Hickman Family Dental', logo: '/logos/iowa/hickman-family-dental.webp', heightClass: 'h-10 sm:h-12' },
-  { name: 'Iowa Wealth Management', logo: '/logos/iowa/iowa-wealth-management.svg', heightClass: 'h-8 sm:h-10' },
-  { name: 'Outdoors by JK', logo: '/logos/iowa/outdoors-by-jk.webp', heightClass: 'h-10 sm:h-12' },
-  { name: 'Boutique Real Estate', logo: '/logos/iowa/boutique-real-estate.webp', heightClass: 'h-8 sm:h-10' },
-  { name: 'Compelling Homes', logo: '/logos/iowa/compelling-homes.webp', heightClass: 'h-11 sm:h-14' },
+  { name: 'A-1 Auto Detailing', logo: '/logos/iowa/a1-auto-detailing.webp', heightClass: 'h-12 sm:h-20', w: 154, h: 160 },
+  { name: 'Obsidian Heating & Cooling', logo: '/logos/iowa/obsidian-heating-cooling.webp', heightClass: 'h-12 sm:h-20', w: 167, h: 160 },
+  { name: 'Mark Gray Law', logo: '/logos/iowa/mark-gray-law.webp', heightClass: 'h-9 sm:h-11', w: 643, h: 160 },
+  { name: "Andrew's Roofing Company", logo: '/logos/iowa/andrews-roofing.webp', heightClass: 'h-10 sm:h-12', w: 517, h: 160 },
+  { name: 'Hickman Family Dental', logo: '/logos/iowa/hickman-family-dental.webp', heightClass: 'h-10 sm:h-12', w: 421, h: 160 },
+  { name: 'Iowa Wealth Management', logo: '/logos/iowa/iowa-wealth-management.svg', heightClass: 'h-8 sm:h-10', w: 358, h: 74 },
+  { name: 'Outdoors by JK', logo: '/logos/iowa/outdoors-by-jk.webp', heightClass: 'h-10 sm:h-12', w: 345, h: 160 },
+  { name: 'Boutique Real Estate', logo: '/logos/iowa/boutique-real-estate.webp', heightClass: 'h-8 sm:h-10', w: 737, h: 160 },
+  { name: 'Compelling Homes', logo: '/logos/iowa/compelling-homes.webp', heightClass: 'h-11 sm:h-14', w: 285, h: 81 },
 ];
 
 function LogoCard({ client }: { client: ClientLogo }) {
@@ -27,6 +30,8 @@ function LogoCard({ client }: { client: ClientLogo }) {
         src={client.logo}
         alt={client.name}
         title={client.name}
+        width={client.w}
+        height={client.h}
         loading="lazy"
         decoding="async"
         className={`${client.heightClass} w-auto max-w-[130px] sm:max-w-[210px] object-contain select-none pointer-events-none`}
