@@ -5,9 +5,9 @@ import { FOUNDER_ID, ORG_ID, SITE_URL } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   path: '/about',
-  title: "Iowa's First AI-Forward Digital Agency | Axeon Studio",
+  title: 'About Axeon Studio | More Customers for Iowa Businesses',
   description:
-    'Meet Axeon Studio, founded by Hayder Hatem in West Des Moines, Iowa. Direct builders, fast delivery, zero agency fluff.',
+    'Founded by Hayder Hatem in West Des Moines, Axeon gets Iowa businesses more calls and customers, backed by a 90-day customer guarantee. Work directly with the founder.',
 });
 
 // The founder Person node itself is defined once in the root layout graph;
@@ -17,7 +17,7 @@ const aboutPageJsonLd = {
   '@type': 'AboutPage',
   '@id': `${SITE_URL}/about#webpage`,
   url: `${SITE_URL}/about`,
-  name: "Iowa's First AI-Forward Digital Agency | Axeon Studio",
+  name: 'About Axeon Studio | More Customers for Iowa Businesses',
   about: { '@id': ORG_ID },
   mainEntity: { '@id': FOUNDER_ID },
 };
