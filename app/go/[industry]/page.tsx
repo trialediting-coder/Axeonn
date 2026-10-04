@@ -98,8 +98,13 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
       {/* Top bar: no menu, no links out. Logo + phone only. */}
       <div className="absolute top-0 inset-x-0 z-20 px-4 sm:px-8 py-5">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <span className="text-xl font-extrabold font-display tracking-tight text-white">
-            <span className="text-blue-500">//</span> Axeon
+          <span className="flex items-center gap-3" aria-label="Axeon">
+            <svg width="30" height="25" viewBox="0 0 24 20" fill="currentColor" className="text-blue-600" aria-hidden="true">
+              <polygon points="6,0 2,20 6,20 10,0" />
+              <polygon points="14,0 10,20 14,20 18,0" />
+              <circle cx="21" cy="18" r="2" />
+            </svg>
+            <span className="font-extrabold text-2xl tracking-tight text-white">Axeon</span>
           </span>
           <a href={PHONE_HREF} className="inline-flex items-center gap-2 text-sm font-semibold text-white/90 hover:text-white">
             <Phone size={15} /> <span className="hidden sm:inline">{PHONE}</span><span className="sm:hidden">Call</span>

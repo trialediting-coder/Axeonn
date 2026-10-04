@@ -25,7 +25,7 @@ const clientLogos: ClientLogo[] = [
 
 function LogoCard({ client }: { client: ClientLogo }) {
   return (
-    <div className="shrink-0 h-16 sm:h-20 flex items-center justify-center">
+    <div className="shrink-0 h-14 sm:h-20 flex items-center justify-center">
       <img
         src={client.logo}
         alt={client.name}
@@ -51,9 +51,9 @@ export function IowaClientsMarquee() {
     <section
       id="iowa-clients"
       aria-label="Iowa businesses we serve"
-      className="w-full py-6 sm:py-9 bg-white border-b border-neutral-200"
+      className="w-full py-4 sm:py-9 bg-white border-b border-neutral-200"
     >
-      <p className="text-center text-xs sm:text-base font-bold tracking-[0.16em] sm:tracking-[0.22em] text-balance text-[#3366ff] uppercase mb-3 sm:mb-5 px-4">
+      <p className="text-center text-[11px] sm:text-base font-bold tracking-[0.06em] sm:tracking-[0.22em] whitespace-nowrap sm:whitespace-normal text-[#3366ff] uppercase mb-2 sm:mb-5 px-4">
         Helping 50+ Iowa Businesses Get More Leads
       </p>
 

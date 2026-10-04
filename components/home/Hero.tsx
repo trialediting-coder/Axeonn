@@ -64,11 +64,11 @@ export function Hero() {
     let idleId: number | undefined;
     const start = () => {
       const ric = window.requestIdleCallback;
-      if (ric) idleId = ric(() => setLoopReady(true), { timeout: 1500 });
+      if (ric) idleId = ric(() => setLoopReady(true), { timeout: 300 });
       else setLoopReady(true);
     };
-    if (document.readyState === 'complete') start();
-    else window.addEventListener('load', start, { once: true });
+    // Owner, 2026-10-04: waiting for window load made the video feel slow.
+    start();
     return () => {
       window.removeEventListener('load', start);
       if (idleId !== undefined) window.cancelIdleCallback?.(idleId);
@@ -196,7 +196,7 @@ export function Hero() {
     <section
       ref={sectionRef}
       id="hero-section"
-      className="relative z-10 w-full min-h-[calc(100svh-9rem)] sm:min-h-[calc(100dvh-12.5rem)] flex items-stretch justify-center"
+      className="relative z-10 w-full min-h-[calc(100svh-7.5rem)] sm:min-h-[calc(100dvh-12.5rem)] flex items-stretch justify-center"
     >
       {/*
         The hero is a plain region. It used to be one giant click target that
@@ -205,7 +205,7 @@ export function Hero() {
         click data. The two explicit CTAs below are the only actions now.
       */}
       {/* The hero stops short of the viewport so the "Helping 50+ Iowa Businesses" strip below is in the first screen. */}
-      <div className="relative w-full bg-neutral-950 text-white flex flex-col px-6 sm:px-10 lg:px-16 xl:px-20 pt-24 sm:pt-28 pb-8 sm:pb-10 overflow-hidden">
+      <div className="relative w-full bg-neutral-950 text-white flex flex-col px-6 sm:px-10 lg:px-16 xl:px-20 pt-20 sm:pt-28 pb-6 sm:pb-10 overflow-hidden">
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <video
             ref={heroVideoRef}
@@ -285,7 +285,7 @@ export function Hero() {
 
           <p
             style={{ animationDelay: '0.15s' }}
-            className="hero-rise mt-6 text-base sm:text-lg lg:text-xl text-neutral-300 font-normal leading-relaxed max-w-xl"
+            className="hero-rise mt-4 sm:mt-6 text-base sm:text-lg lg:text-xl text-neutral-300 font-normal leading-relaxed max-w-xl"
           >
             We get Iowa businesses found on Google, chosen over the competition, and
             booked solid. Backed by our 90-day customer guarantee.
@@ -293,7 +293,7 @@ export function Hero() {
 
           <div
             style={{ animationDelay: '0.25s' }}
-            className="hero-rise mt-8 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4"
+            className="hero-rise mt-6 sm:mt-8 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4"
           >
             {/* Primary: the dedicated intake page (same form as the contact section) */}
             <Link
@@ -301,7 +301,7 @@ export function Hero() {
               id="hero-primary-cta"
               data-track="cta_click"
               data-track-cta="get_started_hero"
-              className="group inline-flex items-center justify-center gap-3 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-base font-bold transition-all duration-200 cursor-pointer shadow-lg shadow-blue-600/25 hover:scale-[1.02] active:scale-[0.98]"
+              className="group inline-flex items-center justify-center gap-3 px-7 py-3.5 sm:py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-base font-bold transition-all duration-200 cursor-pointer shadow-lg shadow-blue-600/25 hover:scale-[1.02] active:scale-[0.98]"
             >
               <span>Get More Customers</span>
               <div className="w-8 h-8 rounded-full bg-white/15 text-white flex items-center justify-center shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
@@ -314,7 +314,7 @@ export function Hero() {
               type="button"
               id="hero-secondary-cta"
               onClick={() => openLeadModal('hero')}
-              className="group inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full border border-white/25 bg-white/[0.06] hover:bg-white/[0.12] hover:border-white/40 text-white text-base font-semibold backdrop-blur-sm transition-all duration-200 cursor-pointer"
+              className="group inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:py-4 rounded-full border border-white/25 bg-white/[0.06] hover:bg-white/[0.12] hover:border-white/40 text-white text-base font-semibold backdrop-blur-sm transition-all duration-200 cursor-pointer"
             >
               <span>Book a Free Strategy Call</span>
               <ArrowRight size={16} className="text-blue-300 group-hover:translate-x-1 transition-transform" />
@@ -325,7 +325,7 @@ export function Hero() {
               href="/pricing"
               data-track="cta_click"
               data-track-cta="see_pricing"
-              className="inline-flex items-center justify-center py-2 sm:py-4 text-base font-semibold text-white/80 hover:text-white underline underline-offset-4 decoration-white/30 hover:decoration-white transition-colors"
+              className="hidden sm:inline-flex items-center justify-center py-2 sm:py-4 text-base font-semibold text-white/80 hover:text-white underline underline-offset-4 decoration-white/30 hover:decoration-white transition-colors"
             >
               See pricing
             </Link>
@@ -333,7 +333,7 @@ export function Hero() {
 
           <div
             style={{ animationDelay: '0.35s' }}
-            className="hero-rise mt-6"
+            className="hero-rise mt-6 hidden sm:block"
           >
             <TrustBadges variant="dark" />
           </div>
