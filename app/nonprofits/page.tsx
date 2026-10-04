@@ -243,17 +243,29 @@ export default function NonprofitsPage() {
             </span>
             <blockquote className="space-y-6">
               <p className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-snug text-neutral-950">
-                When someone needs help, the hardest part should not be finding it.
+                Iowa runs on people who show up for each other.
               </p>
               <p className="text-lg text-neutral-700 leading-relaxed">
-                I volunteered in a hospital and joined health clubs in school, so I have seen how much a clinic
-                depends on people finding it at the right moment. I love hiking, and the groups keeping Iowa’s land
-                and rivers clean do it on tiny budgets. And I am an immigrant myself. I know what it is like to
-                search for help in a new place, often in a second language.
+                You see it everywhere once you start looking. The food pantry that stays open late on a Tuesday.
+                The free clinic that knows its patients by name. The volunteers pulling trash out of a river on a
+                Saturday morning. The neighbors who help a new family figure out where to even begin. Most of that
+                work happens quietly, carried by small teams who give far more than they ever get back.
               </p>
               <p className="text-lg text-neutral-700 leading-relaxed">
-                Most small nonprofits cannot pay agency rates, so they end up with an outdated site or none at
-                all, and the people they serve cannot find them. We can fix that, so we are doing it for free.
+                My own life is why that matters to me. Time around a hospital showed me how much it means when
+                someone finds care at the right moment, and what it costs when they don’t. Being an immigrant
+                taught me what it feels like to look for help in a new place, sometimes in a language you are still
+                learning. And every trail I have hiked in this state is cared for by people who love it enough to
+                protect it on almost nothing.
+              </p>
+              <p className="text-lg text-neutral-700 leading-relaxed">
+                Those missions deserve to be found. But most small nonprofits cannot pay agency rates, so they get
+                by with an outdated website or none at all, and the people who need them most never find them. That
+                is a problem we know how to fix, so we are fixing it for free, for as many Iowa nonprofits as we
+                can.
+              </p>
+              <p className="text-lg text-neutral-950 font-semibold leading-relaxed">
+                This state has given me a lot. This is one way I get to give some of it back.
               </p>
             </blockquote>
             <figcaption className="mt-8 flex items-center gap-4">
