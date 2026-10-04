@@ -195,7 +195,7 @@ export function Hero() {
     <section
       ref={sectionRef}
       id="hero-section"
-      className="relative z-10 w-full h-[100svh] sm:h-[100dvh] flex items-stretch justify-center"
+      className="relative z-10 w-full min-h-[calc(100svh-9rem)] sm:min-h-[calc(100dvh-12.5rem)] flex items-stretch justify-center"
     >
       {/*
         The hero is a plain region. It used to be one giant click target that
@@ -203,7 +203,8 @@ export function Hero() {
         which produced accidental navigations from stray taps and polluted the
         click data. The two explicit CTAs below are the only actions now.
       */}
-      <div className="relative w-full h-full bg-neutral-950 text-white flex flex-col px-6 sm:px-10 lg:px-16 xl:px-20 pt-24 sm:pt-28 pb-8 sm:pb-10 overflow-hidden">
+      {/* The hero stops short of the viewport so the "Serving 50+ Businesses" strip below is in the first screen. */}
+      <div className="relative w-full bg-neutral-950 text-white flex flex-col px-6 sm:px-10 lg:px-16 xl:px-20 pt-24 sm:pt-28 pb-8 sm:pb-10 overflow-hidden">
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <video
             ref={heroVideoRef}

@@ -3,7 +3,7 @@ import { Hero } from '@/components/home/Hero';
 import { IowaClientsMarquee } from '@/components/home/IowaClientsMarquee';
 import { WhoWeHelp } from '@/components/home/WhoWeHelp';
 import { ThreePillars } from '@/components/home/ThreePillars';
-import { RecentWork } from '@/components/work/RecentWork';
+import { FeaturedWork } from '@/components/work/FeaturedWork';
 import { ClientQuote } from '@/components/common/ClientQuote';
 import { GrowthEngine } from '@/components/common/GrowthEngine';
 import { Comparison } from '@/components/home/Comparison';
@@ -20,9 +20,9 @@ export default function HomePage() {
     <main>
       <Hero />
       <IowaClientsMarquee />
+      <FeaturedWork />
       <WhoWeHelp />
       <ThreePillars />
-      <RecentWork />
       <PricingSection />
       <ClientQuote />
       <GrowthEngine showBuilds={false} />
