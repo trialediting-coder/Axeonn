@@ -78,11 +78,11 @@ export function Header() {
   const pathname = usePathname();
   const isHomePage = pathname === '/';
   const isNichePage = pathname.startsWith('/solutions/');
-  // The 5 individual marketing-solutions service pages (not the /marketing-solutions
-  // hub itself, which has a light background) each have a full-bleed dark hero.
+  // The individual marketing-solutions service pages each have a full-bleed dark hero.
   const isDarkServicePage = pathname.startsWith('/marketing-solutions/');
-  // Standalone pages that also open on a full-bleed dark hero.
-  const isOtherDarkHeroPage = ['/nonprofits', '/partners', '/des-moines-web-design'].includes(pathname);
+  // Standalone pages that also open on a full-bleed dark hero (the /marketing-solutions
+  // AxeonCORE page has one since 2026-10-03).
+  const isOtherDarkHeroPage = ['/nonprofits', '/partners', '/des-moines-web-design', '/marketing-solutions'].includes(pathname);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -493,7 +493,7 @@ export function Header() {
                         AxeonCORE
                       </span>
                       <span className="block text-[15px] font-bold text-white mt-1">
-                        The growth engine: how every service works together
+                        The customer engine: how every service gets you customers
                       </span>
                     </span>
                     <ArrowRight size={18} className="shrink-0 text-blue-400 group-hover:translate-x-1 transition-transform" />
@@ -746,7 +746,7 @@ export function Header() {
                     className="mb-2 px-3.5 py-3 rounded-xl bg-[#080b12] text-left block"
                   >
                     <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400">AxeonCORE</div>
-                    <div className="text-sm font-semibold text-white mt-0.5">The growth engine →</div>
+                    <div className="text-sm font-semibold text-white mt-0.5">The customer engine →</div>
                   </Link>
                   {marketingSolutions.map((item) => (
                     <Link

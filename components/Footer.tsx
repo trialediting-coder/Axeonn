@@ -31,7 +31,7 @@ const WHO_WE_HELP_LINKS: FooterLink[] = [
 ];
 
 const SOLUTION_LINKS: FooterLink[] = [
-  { label: 'AxeonCORE Growth Engine', href: '/marketing-solutions' },
+  { label: 'AxeonCORE Customer Engine', href: '/marketing-solutions' },
   ...marketingSolutions.map((solution) => ({
     label: solution.title,
     href: `/marketing-solutions/${solution.id}`,
