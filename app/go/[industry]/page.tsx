@@ -1,11 +1,10 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { ArrowRight, Check, Phone, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowRight, Check, Phone, ShieldCheck } from 'lucide-react';
 import { adFunnels, adFunnelFor } from '@/data/adFunnels';
 import { niches } from '@/data/nichesData';
 import { benefitHeadlinesBySlug } from '@/data/nicheBenefitHeadlines';
 import { nicheFaqData } from '@/data/nicheFaqData';
-import { foundingOffer } from '@/data/foundingOfferData';
 import { LEVI_QUOTE } from '@/components/common/ClientQuote';
 import { FunnelBooking } from '@/components/funnel/FunnelBooking';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
@@ -22,8 +21,8 @@ export async function generateMetadata({ params }: { params: Promise<{ industry:
   const funnel = adFunnelFor(industry);
   if (!funnel) return {};
   return {
-    title: `Free Homepage Mockup for ${funnel.audience} | Axeon Studio`,
-    description: `Get a free homepage mockup and AI visibility report for your ${funnel.business}, and a plan to get more ${funnel.customers}.`,
+    title: `Free Website for ${funnel.audience} | Axeon Studio`,
+    description: `Get a free website for your ${funnel.business}: $0 setup with a monthly plan from $284/mo, built to get you more ${funnel.customers}.`,
     robots: { index: false, follow: false },
   };
 }
@@ -69,14 +68,19 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
   const benefits = benefitHeadlinesBySlug[niche.slug] ?? [];
   const faqs = [
     {
-      question: 'Is the mockup really free?',
+      question: 'Is the website really free?',
+      answer:
+        'Yes. The $2,800 setup fee for your website build is waived. You only pay the monthly plan, which starts at $284/mo and keeps your site hosted, secure, and bringing in customers, with a monthly report on every call and lead. We confirm the exact monthly price on your call, before you commit to anything.',
+    },
+    {
+      question: 'Do I get anything if I don\u2019t sign up?',
       answer:
         'Yes. Every free call includes a custom homepage mockup for your business and an AI visibility report showing how you show up on Google, ChatGPT, and Perplexity. Both are yours to keep, whether or not you hire us.',
     },
     {
-      question: 'What does it cost if I want to move forward?',
+      question: 'What if I want the full system with AI chat and follow-up?',
       answer:
-        'Plans start at $2,800 to set up, then from $284/mo. We tell you the exact price on the call, before you commit to anything.',
+        'That\u2019s our AxeonCORE plan. We\u2019ll walk you through it on the call and price any upgrade before you commit.',
     },
     {
       question: 'What if it doesn’t work?',
@@ -85,7 +89,6 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
     },
     ...(nicheFaqData[niche.slug] ?? []),
   ];
-  const founding = foundingOffer.active && foundingOffer.spotsRemaining > 0;
 
   return (
     <main className="bg-white text-neutral-950">
@@ -108,16 +111,16 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
           <div className="lg:col-span-7 lg:pt-6">
             <p className="text-sm font-bold tracking-[0.18em] uppercase text-blue-400">For {funnel.audience}</p>
             <h1 className="mt-4 text-4xl sm:text-5xl lg:text-6xl font-black font-display tracking-tight leading-[1.05] text-balance">
-              Get a Free Homepage Mockup for Your {funnel.business.replace(/^\w/, (c) => c.toUpperCase())}
+              Get a Free Website for Your {funnel.business.replace(/^\w/, (c) => c.toUpperCase())}
             </h1>
             <p className="mt-5 text-lg sm:text-xl text-neutral-300 leading-relaxed max-w-xl">
-              See your new site before you spend a dollar, plus a plan to get more {funnel.customers}. {funnel.result}
+              $0 setup. Your $2,800 website build is free when you start a monthly plan from $284/mo. {funnel.result}
             </p>
             <ul className="mt-8 flex flex-col gap-3 text-base sm:text-lg">
               {[
-                'A custom homepage mockup, made for your business',
-                'A free AI visibility report: how you show up on Google and ChatGPT',
-                `A clear plan to get more ${funnel.customers}`,
+                `A custom website built to get you more ${funnel.customers}`,
+                '$0 setup: the $2,800 build fee is waived',
+                'Free homepage mockup and AI visibility report on your call',
               ].map((item) => (
                 <li key={item} className="flex items-start gap-3">
                   <Check size={22} className="mt-0.5 shrink-0 text-blue-400" strokeWidth={2.6} />
@@ -125,7 +128,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
                 </li>
               ))}
             </ul>
-            <p className="mt-6 text-neutral-400">Free 20-minute call. Yours to keep, whether or not you hire us.</p>
+            <p className="mt-6 text-neutral-400">Monthly plan from $284/mo covers hosting, security, and your monthly calls &amp; leads report. Backed by our 90-day customer guarantee.</p>
           </div>
           <div className="lg:col-span-5">
             <FunnelBooking slug={niche.slug} industryName={niche.name} />
@@ -244,7 +247,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
             {[
               { t: 'We look at how customers find you today', d: 'Your Google listing, your site, and how you show up in AI answers.' },
               { t: 'You see your homepage mockup', d: 'A custom design for your business, plus your AI visibility report.' },
-              { t: 'You get a clear plan and price', d: 'No pressure. Keep the mockup and report either way.' },
+              { t: 'You claim your free website', d: '$0 setup, monthly plan from $284/mo. No pressure: keep the mockup and report either way.' },
             ].map((s) => (
               <li key={s.t} className="relative pl-8 sm:pl-10 pb-10 last:pb-0">
                 <span className="absolute -left-[7px] top-1.5 w-3.5 h-3.5 rounded-full bg-blue-500 ring-4 ring-neutral-950" />
@@ -259,9 +262,9 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
         </div>
       </section>
 
-      {/* 7. Guarantee + 8. scarcity */}
+      {/* 7. Guarantee */}
       <section className="px-4 sm:px-8 py-20 sm:py-24">
-        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="max-w-3xl mx-auto">
           <div className="rounded-3xl border-2 border-emerald-500 p-7 sm:p-9">
             <ShieldCheck size={32} className="text-emerald-600" />
             <h2 className="mt-4 text-2xl sm:text-3xl font-extrabold font-display tracking-tight">90-Day Customer Guarantee</h2>
@@ -270,17 +273,6 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
               you do.
             </p>
           </div>
-          {founding && (
-            <div className="rounded-3xl bg-blue-600 text-white p-7 sm:p-9">
-              <Sparkles size={30} />
-              <h2 className="mt-4 text-2xl sm:text-3xl font-extrabold font-display tracking-tight">
-                {foundingOffer.spotsRemaining === 1 ? '1 founding spot left' : `${foundingOffer.spotsRemaining} founding spots left`}
-              </h2>
-              <p className="mt-3 text-lg text-blue-50 leading-relaxed">
-                One Iowa business gets its {foundingOffer.anchorPrice} setup fee waived. Ask about it on your call.
-              </p>
-            </div>
-          )}
         </div>
       </section>
 
@@ -295,9 +287,9 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
       {/* 10. Final CTA */}
       <section className="px-4 sm:px-8 py-20 sm:py-28 text-center">
         <h2 className="text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1] max-w-3xl mx-auto text-balance">
-          See your new homepage before you spend a dollar
+          Get your free website
         </h2>
-        <p className="mt-5 text-lg text-neutral-600">Free 20-minute call. Free mockup. Free AI visibility report.</p>
+        <p className="mt-5 text-lg text-neutral-600">$0 setup with a monthly plan from $284/mo. Free mockup and AI visibility report on your call.</p>
         <div className="mt-10">
           <CTA />
         </div>

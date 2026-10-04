@@ -44,7 +44,7 @@ export function FunnelBooking({ slug, industryName }: FunnelBookingProps) {
         website: '',
         services: [],
         packageId: `ad-funnel-${slug}`,
-        packageName: `Ad funnel: ${industryName}`,
+        packageName: `Ad funnel (free website): ${industryName}`,
         packagePrice: 0,
         answers: { businessType: industryName, hasWebsite: '', goal: 'More calls and leads', budget: '', timeline: '' },
         company_fax: form.company_fax,
@@ -66,9 +66,9 @@ export function FunnelBooking({ slug, industryName }: FunnelBookingProps) {
         <form onSubmit={submit} noValidate>
           <p className="text-xs font-bold tracking-[0.18em] uppercase text-blue-600">Step 1 of 2</p>
           <h2 className="mt-2 text-2xl sm:text-3xl font-extrabold font-display tracking-tight leading-tight">
-            Claim your free mockup
+            Claim your free website
           </h2>
-          <p className="mt-2 text-neutral-600">Takes 20 seconds. Next, you pick a time for your free call.</p>
+          <p className="mt-2 text-neutral-600">$0 setup with a monthly plan from $284/mo. Takes 20 seconds, then pick a time for your free call.</p>
           <div className="mt-6 flex flex-col gap-3">
             <label className="sr-only" htmlFor="fb-name">Your name</label>
             <input id="fb-name" className={input} placeholder="Your name" autoComplete="name" value={form.contactName} onChange={set('contactName')} />
@@ -99,7 +99,7 @@ export function FunnelBooking({ slug, industryName }: FunnelBookingProps) {
             Book My Free Call <ArrowRight size={18} />
           </button>
           <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-neutral-500">
-            <Lock size={12} /> No spam. No sales pitch. We only use this to send your mockup.
+            <Lock size={12} /> No spam. We only use this to set up your call.
           </p>
         </form>
       ) : (
@@ -109,7 +109,7 @@ export function FunnelBooking({ slug, industryName }: FunnelBookingProps) {
             Pick a time for your free call
           </h2>
           <p className="mt-2 text-neutral-600">
-            Thanks, {form.contactName.split(' ')[0] || 'friend'}. Choose any open time below. We&apos;ll bring your mockup plan.
+            Thanks, {form.contactName.split(' ')[0] || 'friend'}. Choose any open time below. We&apos;ll bring your homepage mockup.
           </p>
           <div className="mt-5 -mx-2 sm:mx-0">
             <BookingCalendar minHeight="640px" />

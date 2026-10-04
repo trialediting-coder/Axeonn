@@ -20,6 +20,10 @@ local-only.
 
 ## Real pricing (never state a different number)
 - Every plan is a one-time setup plus a monthly plan that starts after launch.
+- Ad landing pages only (/go/*, owner decision 2026-10-04): "Get a free website" means the
+  $2,800 Essentials setup is waived when the client starts a monthly plan from
+  $284/month. Always state that condition next to the word "free". Never call a
+  website free without it.
 - Essentials (renamed from "Core Web Build" on 2026-09-27): $2,800 one-time
   setup, then from $284/month. The entry plan; AxeonCORE is the recommended,
   featured plan.
