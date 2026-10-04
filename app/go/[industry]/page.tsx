@@ -8,6 +8,7 @@ import { nicheFaqData } from '@/data/nicheFaqData';
 import { LEVI_QUOTE } from '@/components/common/ClientQuote';
 import { FunnelBooking } from '@/components/funnel/FunnelBooking';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
+import { WORK_PROJECTS } from '@/data/workProjects';
 
 // Paid-ad landing pages. Not linked from the site, not in the sitemap, noindexed.
 export const dynamicParams = false;
@@ -66,6 +67,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
   if (!funnel || !niche) notFound();
 
   const benefits = benefitHeadlinesBySlug[niche.slug] ?? [];
+  const example = WORK_PROJECTS.find((p) => p.name === funnel.example);
   const faqs = [
     {
       question: 'Is the website really free?',
@@ -159,6 +161,41 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
           )}
         </div>
       </section>
+
+      {/* 2b. Show what they get: a real site we designed, in a browser frame */}
+      {example && (
+        <section className="px-4 sm:px-8 py-20 sm:py-24 bg-neutral-50">
+          <div className="max-w-5xl mx-auto">
+            <div className="max-w-2xl">
+              <h2 className="text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1]">
+                What your free website could look like
+              </h2>
+              <p className="mt-4 text-lg text-neutral-600 leading-relaxed">
+                Custom-designed for your business, fast on phones, and built to turn visitors into calls.
+              </p>
+            </div>
+            <div className="mt-10 rounded-[20px] overflow-hidden bg-neutral-900 shadow-2xl ring-1 ring-black/10">
+              <div className="flex items-center gap-1.5 px-4 h-9 bg-neutral-900 border-b border-white/10">
+                <span className="w-2.5 h-2.5 rounded-full bg-white/20" />
+                <span className="w-2.5 h-2.5 rounded-full bg-white/20" />
+                <span className="w-2.5 h-2.5 rounded-full bg-white/20" />
+              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={example.image}
+                alt={`${example.name} website homepage, designed by Axeon Studio`}
+                width={1200}
+                height={833}
+                loading="lazy"
+                className="w-full h-auto"
+              />
+            </div>
+            <p className="mt-4 text-sm text-neutral-500">
+              Recent design: {example.name} ({example.industry}, {example.location})
+            </p>
+          </div>
+        </section>
+      )}
 
       {/* 3. The problem, in their words */}
       <section className="px-4 sm:px-8 py-20 sm:py-24">

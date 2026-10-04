@@ -18,11 +18,14 @@ export interface AdFunnel {
    * already have real proof in this industry (A-1 for auto detailing).
    */
   proofPlaceholder: string | null;
+  /** WORK_PROJECTS name whose screenshot shows "what your site could look like". */
+  example: string;
 }
 
 export const adFunnels: AdFunnel[] = [
   {
     slug: 'dental',
+    example: 'Hintz Family Dentistry',
     audience: 'Iowa dental practices',
     business: 'practice',
     customers: 'new patients',
@@ -31,6 +34,7 @@ export const adFunnels: AdFunnel[] = [
   },
   {
     slug: 'med-spa',
+    example: 'Hintz Family Dentistry',
     audience: 'Iowa med spas',
     business: 'med spa',
     customers: 'consult bookings',
@@ -39,6 +43,7 @@ export const adFunnels: AdFunnel[] = [
   },
   {
     slug: 'hvac',
+    example: 'Kaufman Construction',
     audience: 'Iowa HVAC companies',
     business: 'HVAC business',
     customers: 'booked jobs',
@@ -47,6 +52,7 @@ export const adFunnels: AdFunnel[] = [
   },
   {
     slug: 'roofing',
+    example: 'Kaufman Construction',
     audience: 'Iowa roofing companies',
     business: 'roofing company',
     customers: 'booked inspections',
@@ -55,6 +61,7 @@ export const adFunnels: AdFunnel[] = [
   },
   {
     slug: 'law-firms',
+    example: 'MSH Realty Group',
     audience: 'Iowa law firms',
     business: 'firm',
     customers: 'signed cases',
@@ -63,6 +70,7 @@ export const adFunnels: AdFunnel[] = [
   },
   {
     slug: 'accounting',
+    example: 'MSH Realty Group',
     audience: 'Iowa accounting firms',
     business: 'firm',
     customers: 'new clients',
@@ -71,6 +79,7 @@ export const adFunnels: AdFunnel[] = [
   },
   {
     slug: 'home-remodeling',
+    example: 'Kaufman Construction',
     audience: 'Iowa remodelers and builders',
     business: 'remodeling business',
     customers: 'booked projects',
@@ -79,6 +88,7 @@ export const adFunnels: AdFunnel[] = [
   },
   {
     slug: 'real-estate',
+    example: 'MSH Realty Group',
     audience: 'Iowa real estate agents',
     business: 'real estate business',
     customers: 'listing appointments',
@@ -87,6 +97,7 @@ export const adFunnels: AdFunnel[] = [
   },
   {
     slug: 'landscaping',
+    example: 'Kaufman Construction',
     audience: 'Iowa landscapers',
     business: 'landscaping business',
     customers: 'booked jobs',
@@ -95,6 +106,7 @@ export const adFunnels: AdFunnel[] = [
   },
   {
     slug: 'auto-detailing',
+    example: 'A-1 Auto Detailing',
     audience: 'Iowa auto detailers',
     business: 'detailing business',
     customers: 'booked details',
