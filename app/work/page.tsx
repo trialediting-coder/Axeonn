@@ -7,7 +7,7 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/work',
-  title: 'Our Work | Axeon Studio',
+  title: 'Our Work: Iowa Website Design Portfolio | Axeon Studio',
   description:
     'Websites designed and built by Axeon Studio for local businesses in Iowa and beyond: auto detailing, remodeling, family dentistry and more.',
 });

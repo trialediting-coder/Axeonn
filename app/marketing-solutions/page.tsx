@@ -8,9 +8,9 @@ import { LEVI_QUOTE } from '@/components/common/ClientQuote';
 
 export const metadata = buildMetadata({
   path: '/marketing-solutions',
-  title: 'AxeonCORE: The System That Gets You More Customers | Axeon Studio',
+  title: 'Marketing Services That Get You More Customers | Axeon Studio',
   description:
-    'AxeonCORE gets local businesses found on Google, chosen over competitors, and booked with instant follow-up: SEO, ads, websites, AI chat, and lead capture in one system, backed by a 90-day customer guarantee.',
+    'SEO, ads, websites, AI chat, and lead follow-up in one system that gets local businesses found, chosen, and booked. Backed by a 90-day guarantee.',
 });
 
 const marketingSolutionsJsonLd = {

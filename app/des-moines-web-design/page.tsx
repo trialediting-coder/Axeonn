@@ -13,7 +13,7 @@ export const metadata = buildMetadata({
   path: '/des-moines-web-design',
   title: 'Des Moines Web Design & Marketing Agency | Axeon Studio',
   description:
-    'More customers for Des Moines-area businesses: web design, local SEO, ads, and lead follow-up from one West Des Moines team. Plans from $2,800 setup, backed by a 90-day guarantee.',
+    'Des Moines web design, local SEO, and ads that get you more customers, from one West Des Moines team. Plans from $2,800, backed by a 90-day guarantee.',
 });
 
 const webDesignServiceJsonLd = serviceJsonLd({

@@ -6,9 +6,9 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/solutions',
-  title: 'Industries We Build For | Axeon Studio',
+  title: 'Marketing for Local Service Industries | Axeon Studio',
   description:
-    'High-performance web infrastructure and Custom CRM Pipelines built for 10 high-ticket local service industries.',
+    'Websites, local SEO, and lead follow-up set up for 10 local service industries, from dental and HVAC to roofing and law firms, to get you more customers.',
 });
 
 export default function SolutionsHubPage() {

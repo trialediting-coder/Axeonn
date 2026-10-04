@@ -10,7 +10,7 @@ export const metadata = buildMetadata({
   path: '/pricing',
   title: 'Pricing: Plans to Get More Customers | Axeon Studio',
   description:
-    'Two plans to get more customers: Essentials ($2,800 setup, then from $284/mo) and AxeonCORE ($5,800 setup, then from $574/mo). Backed by our 90-day customer guarantee.',
+    'Website and marketing pricing: Essentials ($2,800 setup, from $284/mo) or AxeonCORE ($5,800 setup, from $574/mo). Backed by a 90-day guarantee.',
 });
 
 export default function PricingPage() {

@@ -6,9 +6,9 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/process',
-  title: 'Our Process | Axeon Studio',
+  title: 'Our Website Design & Marketing Process | Axeon Studio',
   description:
-    'The fast, async framework we use to design, build, and launch every Axeon Studio project.',
+    'How we design, launch, and track a website and marketing system that gets you more customers, from the first call through your first 90 days.',
 });
 
 export default function ProcessPage() {

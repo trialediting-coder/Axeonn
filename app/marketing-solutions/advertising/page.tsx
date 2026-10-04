@@ -21,7 +21,7 @@ export const metadata = buildMetadata({
   path: '/marketing-solutions/advertising',
   title: 'Google Ads & Meta Ads Management | Axeon Studio',
   description:
-    'Google Ads and Meta Ads for local businesses, sent to service-specific landing pages with every call, form, and booking tracked. One team for your ads and your website.',
+    'Google Ads and Meta Ads management for local businesses, sent to pages built to convert, with every call, form, and booking tracked to the customer.',
 });
 
 const channels = [

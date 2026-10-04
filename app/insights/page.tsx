@@ -5,8 +5,8 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/insights',
-  title: 'Insights | Axeon Studio',
-  description: 'Practical guidance on web systems, SEO/AEO, and lead capture for local service businesses, from Axeon Studio.',
+  title: 'Insights: Local Marketing & Lead Generation Guides | Axeon',
+  description: 'Practical guides to getting more calls, leads, and customers for local service businesses: SEO, AI search, websites, and lead follow-up.',
 });
 
 export const revalidate = 3600;

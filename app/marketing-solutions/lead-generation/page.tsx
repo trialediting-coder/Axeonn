@@ -35,7 +35,7 @@ export const metadata = buildMetadata({
   path: '/marketing-solutions/lead-generation',
   title: 'Lead Capture & Follow-Up Automation | Axeon Studio',
   description:
-    'Every lead captured and followed up automatically. One unified pipeline replaces the disconnected apps and logins of a typical agency stack, so no inquiry falls through the cracks.',
+    'Lead capture and follow-up automation for local businesses: every call, form, and chat answered and followed up automatically, so no customer slips away.',
 });
 
 const FEATURES = [

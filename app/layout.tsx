@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     path: '/',
     title: 'Get More Customers | Des Moines Web Design & Marketing | Axeon',
     description:
-      'Axeon Studio gets Des Moines-area businesses more customers: found on Google and AI search, chosen with a website that converts, and booked with instant follow-up. Backed by a 90-day guarantee.',
+      'Des Moines web design and marketing that gets you more customers: found on Google, chosen over competitors, and booked fast. Backed by a 90-day guarantee.',
   }),
   other: {
     'geo.region': 'US-IA',
