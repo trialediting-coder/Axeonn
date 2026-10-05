@@ -29,6 +29,18 @@ const PROJECTS: WorkProject[] = [
     url: 'https://msh-realty-group.vercel.app/',
   },
   {
+    name: 'Patrick Finnegan',
+    date: 'Oct 2026',
+    // Personal-brand site, not one of the service niches in nichesData.
+    niche: 'personal-brand',
+    industry: 'Executive Portfolio',
+    location: 'Iowa',
+    summary:
+      'A dark, editorial portfolio for a senior operations leader in financial services: a bold type-led hero, a case-study section with real results, and a one-tap resume download built to land interviews.',
+    image: '/images/work/patrick.webp',
+    url: 'https://patrick-finnegan.vercel.app/',
+  },
+  {
     name: 'A-1 Auto Detailing',
     date: 'Sep 2026',
     niche: 'auto-detailing',

@@ -8,11 +8,12 @@ type ClientLogo = {
   h: number;
 };
 
-// A-1 Auto Detailing is a real client. The rest are small Des Moines-metro
+// A-1 Auto Detailing and Patrick Finnegan are real clients. The rest are small Des Moines-metro
 // businesses (one per niche we serve) used as PLACEHOLDERS until more client
 // logos are approved; swap them out before they're read as endorsements.
 const clientLogos: ClientLogo[] = [
   { name: 'A-1 Auto Detailing', logo: '/logos/iowa/a1-auto-detailing.webp', heightClass: 'h-12 sm:h-20', w: 154, h: 160 },
+  { name: 'Patrick Finnegan', logo: '/logos/iowa/patrick-finnegan.webp', heightClass: 'h-8 sm:h-10', w: 1475, h: 160 },
   { name: 'Obsidian Heating & Cooling', logo: '/logos/iowa/obsidian-heating-cooling.webp', heightClass: 'h-12 sm:h-20', w: 167, h: 160 },
   { name: 'Mark Gray Law', logo: '/logos/iowa/mark-gray-law.webp', heightClass: 'h-9 sm:h-11', w: 643, h: 160 },
   { name: "Andrew's Roofing Company", logo: '/logos/iowa/andrews-roofing.webp', heightClass: 'h-10 sm:h-12', w: 517, h: 160 },
