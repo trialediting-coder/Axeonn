@@ -18,6 +18,7 @@ const MIN_WORD_COUNT = 800;
 const BANNED_PHRASE_PATTERNS: { pattern: RegExp; reason: string }[] = [
   { pattern: /\bsprint\b/i, reason: 'Uses "sprint" as a value proposition (banned terminology).' },
   { pattern: /operations retainer/i, reason: 'References the retired "Operations Retainer" plan — those plans are retired.' },
+  { pattern: /your business.? your partner/i, reason: 'Uses the retired tagline "Your Business. Your Partner." (current tagline: "We Get You Customers, Not Clicks.").' },
   { pattern: /axeoncore retainer/i, reason: 'References the retired "AxeonCORE retainer" plan name.' },
   { pattern: /\$\s?490|\b490\s*(\/|per|a)\s*mo/i, reason: 'References the retired $490/month plan.' },
   // Monthly plans start at $284 and $574 (set per client); no other monthly figure.
