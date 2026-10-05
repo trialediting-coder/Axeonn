@@ -66,6 +66,17 @@ export const SmoothScrollProvider: React.FC<SmoothScrollProviderProps> = ({ chil
     };
   }, []);
 
+  // Back/forward should restore the previous scroll position, not jump to top.
+  const isPopNavRef = useRef(false);
+  const hasNavigatedRef = useRef(false);
+  useEffect(() => {
+    const onPop = () => {
+      isPopNavRef.current = true;
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
   // When route changes, recalibrate and reset scroll position seamlessly.
   // If the new URL carries a hash (e.g. a Header link to "/#platform" from
   // another page), Lenis manages its own virtual scroll position, so the
@@ -87,7 +98,43 @@ export const SmoothScrollProvider: React.FC<SmoothScrollProviderProps> = ({ chil
       } else {
         lenisRef.current.scrollTo(0, { immediate: true });
       }
+      return;
     }
+
+    // Touch devices (no Lenis): don't rely solely on Next's router scroll.
+    // On iOS the html-level `scroll-behavior: smooth` animation can be cut
+    // short by the new page's layout shifts, leaving the visitor mid-page.
+    // Jump instantly, then once more after the new page has painted.
+    const wasPopNav = isPopNavRef.current;
+    isPopNavRef.current = false;
+    const isFirstRender = !hasNavigatedRef.current;
+    hasNavigatedRef.current = true;
+    if (isFirstRender || wasPopNav || window.location.hash) return;
+    const toTop = () => window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+    toTop();
+    let raf2 = 0;
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(toTop);
+    });
+    // The phone menu holds a body scroll lock until its close animation
+    // (~320ms) finishes; re-check after that unless the visitor has
+    // already started scrolling on their own.
+    let userScrolled = false;
+    const onUserScroll = () => {
+      userScrolled = true;
+    };
+    window.addEventListener('touchstart', onUserScroll, { passive: true });
+    window.addEventListener('wheel', onUserScroll, { passive: true });
+    const timeoutId = window.setTimeout(() => {
+      if (!userScrolled) toTop();
+    }, 400);
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+      window.clearTimeout(timeoutId);
+      window.removeEventListener('touchstart', onUserScroll);
+      window.removeEventListener('wheel', onUserScroll);
+    };
   }, [pathname]);
 
   return <>{children}</>;
