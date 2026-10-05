@@ -8,7 +8,8 @@ type ClientLogo = {
   h: number;
 };
 
-// A-1 Auto Detailing and Patrick Finnegan are real clients. The rest are small Des Moines-metro
+// A-1 Auto Detailing and Patrick Finnegan are real clients; MSH Realty Group is our
+// own company; Hintz and Select are /work projects. The rest are small Des Moines-metro
 // businesses (one per niche we serve) used as PLACEHOLDERS until more client
 // logos are approved; swap them out before they're read as endorsements.
 const clientLogos: ClientLogo[] = [
@@ -17,11 +18,11 @@ const clientLogos: ClientLogo[] = [
   { name: 'Obsidian Heating & Cooling', logo: '/logos/iowa/obsidian-heating-cooling.webp', heightClass: 'h-12 sm:h-20', w: 167, h: 160 },
   { name: 'Mark Gray Law', logo: '/logos/iowa/mark-gray-law.webp', heightClass: 'h-9 sm:h-11', w: 643, h: 160 },
   { name: "Andrew's Roofing Company", logo: '/logos/iowa/andrews-roofing.webp', heightClass: 'h-10 sm:h-12', w: 517, h: 160 },
-  { name: 'Hickman Family Dental', logo: '/logos/iowa/hickman-family-dental.webp', heightClass: 'h-10 sm:h-12', w: 421, h: 160 },
+  { name: 'Hintz Family Dentistry', logo: '/logos/iowa/hintz-family-dentistry.webp', heightClass: 'h-12 sm:h-16', w: 195, h: 160 },
   { name: 'Iowa Wealth Management', logo: '/logos/iowa/iowa-wealth-management.svg', heightClass: 'h-8 sm:h-10', w: 358, h: 74 },
   { name: 'Outdoors by JK', logo: '/logos/iowa/outdoors-by-jk.webp', heightClass: 'h-10 sm:h-12', w: 345, h: 160 },
-  { name: 'Boutique Real Estate', logo: '/logos/iowa/boutique-real-estate.webp', heightClass: 'h-8 sm:h-10', w: 737, h: 160 },
-  { name: 'Compelling Homes', logo: '/logos/iowa/compelling-homes.webp', heightClass: 'h-11 sm:h-14', w: 285, h: 81 },
+  { name: 'MSH Realty Group', logo: '/logos/iowa/msh-realty-group.webp', heightClass: 'h-12 sm:h-20', w: 165, h: 160 },
+  { name: 'Select Construction & Remodeling', logo: '/logos/iowa/select-construction.webp', heightClass: 'h-9 sm:h-12', w: 611, h: 160 },
 ];
 
 function LogoCard({ client }: { client: ClientLogo }) {
