@@ -37,8 +37,8 @@ export function PromoBanner() {
       <div className="flex items-center gap-1.5 sm:gap-3 text-[11px] sm:text-sm font-medium text-center min-w-0 pr-8 sm:pr-0">
         <span className="truncate sm:whitespace-normal">
           <strong className="font-bold hidden sm:inline">Founding Client Offer: </strong>
-          <span className="hidden sm:inline">{foundingOffer.totalSpots} free websites for Iowa businesses</span>
-          <span className="sm:hidden">Free website</span> — only {foundingOffer.spotsRemaining}{' '}
+          <span className="hidden sm:inline">$0 to start + your first month of AxeonCORE free</span>
+          <span className="sm:hidden">{foundingOffer.tabLabel}</span> — only {foundingOffer.spotsRemaining}{' '}
           {foundingOffer.spotsRemaining === 1 ? 'spot' : 'spots'} left.
         </span>
         <Link

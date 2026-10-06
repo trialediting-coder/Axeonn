@@ -90,8 +90,8 @@ export function FreeWebsiteOfferPopup() {
   // first open for when the visitor reaches OPEN_AFTER_MS of time on site.
   useEffect(() => {
     if (!foundingOffer.active || foundingOffer.spotsRemaining <= 0) return;
-    // Never on the pricing page: the "built free" headline would undercut the
-    // $2,800 anchor at the exact decision moment. /book and /get-started are
+    // Never on the pricing page: the $0 offer would undercut the published
+    // prices at the exact decision moment. /book and /get-started are
     // already conversion flows; the popup would only interrupt them.
     if (EXCLUDED_PATHS.includes(pathname)) return;
     if (readStorage(CLAIMED_KEY) === '1') return; // already on the calendar once
@@ -237,13 +237,13 @@ export function FreeWebsiteOfferPopup() {
           >
             <Sparkles size={14} className="text-blue-100 shrink-0" />
             <span className="sm:[writing-mode:vertical-rl] text-[13px] font-semibold tracking-wide whitespace-nowrap">
-              Free website · {spotsLeft} left
+              {foundingOffer.tabLabel} · {spotsLeft} left
             </span>
           </button>
           <button
             type="button"
             onClick={closeTab}
-            aria-label="Hide the free website offer"
+            aria-label="Hide the founding client offer"
             className="sm:order-1 self-stretch sm:self-auto flex items-center justify-center pl-1.5 pr-3 sm:px-0 sm:w-full sm:h-8 border-l sm:border-l-0 sm:border-b border-white/20 text-blue-100 hover:text-white hover:bg-blue-700 transition-colors cursor-pointer"
           >
             <X size={14} />
@@ -326,7 +326,7 @@ export function FreeWebsiteOfferPopup() {
                     <span className="text-xl sm:text-2xl font-bold text-neutral-500 line-through decoration-2 decoration-red-400/80">
                       {foundingOffer.anchorPrice}
                     </span>
-                    <span className="text-3xl sm:text-4xl font-black text-white">Free</span>
+                    <span className="text-3xl sm:text-4xl font-black text-white">{foundingOffer.offerPrice}</span>
                   </div>
                 </div>
 
