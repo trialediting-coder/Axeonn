@@ -5,12 +5,12 @@ import { isDatabaseConfigured } from '@/lib/db';
 import { listOnboardings, welcomeUrl } from '@/lib/onboarding';
 import { OnboardingBoard, type BoardRow } from '@/components/insights/OnboardingBoard';
 
-// Gated by middleware.ts like the rest of /insights/admin, and always live.
+// Gated by middleware.ts like the rest of /admin, and always live.
 export const dynamic = 'force-dynamic';
 
 export default async function OnboardingAdminPage() {
   const session = await auth();
-  if (!session) redirect('/insights/admin/login');
+  if (!session) redirect('/admin/login');
 
   let rows: BoardRow[] = [];
   let dbError: string | null = null;
@@ -34,7 +34,7 @@ export default async function OnboardingAdminPage() {
             </p>
           </div>
           <Link
-            href="/insights/admin"
+            href="/admin"
             className="px-4 py-2 rounded-full border border-neutral-300 hover:bg-neutral-100 text-neutral-700 text-sm font-semibold transition-colors"
           >
             Back to admin

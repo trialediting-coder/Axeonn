@@ -37,7 +37,7 @@ export async function sendScheduledNotification(post: { title: string; slug: str
       <p>The weekly autonomous pipeline generated and validated a new post.</p>
       <p><strong>${escapeHtml(post.title)}</strong></p>
       <p>It will auto-publish in 24 hours unless you review/edit/cancel it first.</p>
-      <p><a href="https://axeonstudio.co/insights/admin/posts/${post.id}/edit">Review and edit</a></p>
+      <p><a href="https://axeonstudio.co/admin/posts/${post.id}/edit">Review and edit</a></p>
     `,
   });
 }
@@ -56,7 +56,7 @@ export async function sendFailedGenerationNotification(
     ? `
       <p>This week's autonomous post generation failed validation and was saved as a draft — nothing was scheduled or published.</p>
       <ul>${reasons.map((r) => `<li>${escapeHtml(r)}</li>`).join('')}</ul>
-      <p><a href="https://axeonstudio.co/insights/admin">View drafts</a></p>
+      <p><a href="https://axeonstudio.co/admin">View drafts</a></p>
     `
     : `
       <p>This week's autonomous post generation failed before a draft could be created — nothing was saved, scheduled, or published.</p>

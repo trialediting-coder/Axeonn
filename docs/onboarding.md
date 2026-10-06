@@ -36,7 +36,7 @@ item ever asks for one.
 - Phone numbers and other sensitive answers show masked (last 4) once saved.
 - The portal turns read-only 60 days after completion, and immediately when an
   admin closes it.
-- Admin routes and pages sit behind the existing `/insights/admin` auth.
+- Admin routes and pages sit behind the existing `/admin` auth.
 
 ## What exists
 
@@ -47,7 +47,7 @@ item ever asks for one.
 | Purchase → portal + welcome email (idempotent) | `lib/onboardingFulfillment.ts` |
 | Client page | `app/welcome/[token]/page.tsx`, `components/welcome/*` |
 | Public API (code, verify, save item) | `app/api/welcome/[token]/*` |
-| Admin board + detail | `/insights/admin/onboarding`, `components/insights/Onboarding*.tsx` |
+| Admin board + detail | `/admin/onboarding`, `components/insights/Onboarding*.tsx` |
 | Admin API (list, mint, mark done, nudge, close) | `app/api/admin/onboarding/*` |
 | Emails (welcome, code, nudge) | `lib/email.ts` |
 | Stripe hook | `app/api/stripe/webhook/route.ts` → `startOnboarding()` |

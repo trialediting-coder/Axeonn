@@ -6,7 +6,7 @@ import { PostEditor } from '@/components/insights/PostEditor';
 // unauthenticated even if the middleware matcher is ever misconfigured.
 export default async function NewPostPage() {
   const session = await auth();
-  if (!session) redirect('/insights/admin/login');
+  if (!session) redirect('/admin/login');
 
   return (
     <main className="w-full min-h-screen pt-16 pb-24 px-6 sm:px-10 bg-neutral-50">

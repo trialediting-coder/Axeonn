@@ -8,12 +8,12 @@ import { ADDON_KEYS, CATALOG, PLANS, PLAN_KEYS, TIER_KEYS, automaticTaxEnabled, 
 import { listPayLinks, payLinkState, payLinkUrl } from '@/lib/payLinks';
 import { BillingConsole, type PayLinkItem } from '@/components/insights/BillingConsole';
 
-// Gated by middleware.ts like the rest of /insights/admin, and always live.
+// Gated by middleware.ts like the rest of /admin, and always live.
 export const dynamic = 'force-dynamic';
 
 export default async function BillingAdminPage() {
   const session = await auth();
-  if (!session) redirect('/insights/admin/login');
+  if (!session) redirect('/admin/login');
 
   let records: BillingRecord[] = [];
   let payLinks: PayLinkItem[] = [];
@@ -55,7 +55,7 @@ export default async function BillingAdminPage() {
             </p>
           </div>
           <Link
-            href="/insights/admin"
+            href="/admin"
             className="px-4 py-2 rounded-full border border-neutral-300 hover:bg-neutral-100 text-neutral-700 text-sm font-semibold transition-colors"
           >
             Back to admin

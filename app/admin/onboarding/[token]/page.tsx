@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function OnboardingDetailPage({ params }: { params: Promise<{ token: string }> }) {
   const session = await auth();
-  if (!session) redirect('/insights/admin/login');
+  if (!session) redirect('/admin/login');
 
   const { token } = await params;
   const onboarding = await getOnboardingByToken(token).catch(() => null);
@@ -21,7 +21,7 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-neutral-950">Onboarding</h1>
           <Link
-            href="/insights/admin/onboarding"
+            href="/admin/onboarding"
             className="px-4 py-2 rounded-full border border-neutral-300 hover:bg-neutral-100 text-neutral-700 text-sm font-semibold transition-colors"
           >
             All clients

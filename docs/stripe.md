@@ -11,7 +11,7 @@ Payments, Invoicing, Billing (recurring), and Tax monitoring. No Connect.
 | Money helpers | `lib/billing.ts`, `lib/billingMath.ts` | Checkout, invoices, care plans, portal |
 | Webhook | `app/api/stripe/webhook/route.ts` | Signature-verified, idempotent, emails the owner |
 | Admin API | `app/api/admin/billing/*` | Session or `CMS_API_TOKEN` bearer auth |
-| Admin UI | `/insights/admin/billing` | Payment links, invoices, plans, portal, activity |
+| Admin UI | `/admin/billing` | Payment links, invoices, plans, portal, activity |
 | Success page | `/billing/success` | Display only, noindex |
 | Public pay page | `/pay` | Self-serve deposit / balance / full via hosted Checkout, noindex, footer link |
 | Public API | `app/api/billing/checkout/route.ts` | No auth; honeypot + per-IP rate limit; generic errors |

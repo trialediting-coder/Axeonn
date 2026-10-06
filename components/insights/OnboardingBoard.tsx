@@ -135,7 +135,7 @@ export function OnboardingBoard({ initialRows, databaseConfigured, dbError }: { 
                       <StatusBadge row={row} />
                     </td>
                     <td className="px-5 py-3.5 text-right">
-                      <Link href={`/insights/admin/onboarding/${row.token}`} className="text-blue-600 hover:text-blue-700 font-semibold">
+                      <Link href={`/admin/onboarding/${row.token}`} className="text-blue-600 hover:text-blue-700 font-semibold">
                         Open
                       </Link>
                     </td>
