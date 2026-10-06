@@ -584,7 +584,7 @@ export function Header() {
             href="/book"
             className={`hidden lg:inline-flex px-6 py-3 rounded-full border text-base font-semibold whitespace-nowrap transition-all ${
               onDarkHero
-                ? 'border-white/30 text-white hover:bg-white/10'
+                ? 'border-white/40 text-white bg-neutral-950/40 backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] hover:bg-neutral-950/55 hover:border-white/60'
                 : 'border-neutral-300 text-neutral-900 hover:border-neutral-400 hover:bg-neutral-50'
             }`}
           >

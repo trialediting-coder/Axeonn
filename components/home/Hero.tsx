@@ -314,7 +314,7 @@ export function Hero() {
               type="button"
               id="hero-secondary-cta"
               onClick={() => openLeadModal('hero')}
-              className="group inline-flex items-center justify-center gap-2.5 px-8 py-4 sm:py-[18px] rounded-full border border-white/25 bg-white/[0.06] hover:bg-white/[0.12] hover:border-white/40 text-white text-base sm:text-lg font-semibold backdrop-blur-sm transition-all duration-200 cursor-pointer"
+              className="group inline-flex items-center justify-center gap-2.5 px-8 py-4 sm:py-[18px] rounded-full border border-white/40 bg-neutral-950/40 backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] hover:bg-neutral-950/55 hover:border-white/60 text-white text-base sm:text-lg font-semibold transition-all duration-200 cursor-pointer"
             >
               <span>Book My Free Call</span>
               <ArrowRight size={18} className="text-blue-300 group-hover:translate-x-1 transition-transform" />
