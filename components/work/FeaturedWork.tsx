@@ -63,10 +63,10 @@ export function FeaturedWork() {
           <div className="rounded-[20px] sm:rounded-[28px] overflow-hidden bg-[#202124] p-2 sm:p-3 shadow-2xl shadow-neutral-900/20 ring-1 ring-neutral-200">
             {/* Phones get a tighter crop (listing + #1 result, no map) so the text stays legible. */}
             <picture>
-              <source media="(max-width: 639px)" srcSet="/images/case-studies/a1/google-rank-1-mobile.webp" width={671} height={601} />
+              <source media="(max-width: 639px)" srcSet="/images/case-studies/a1/google-rank-1-mobile-v2.webp" width={671} height={601} />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/images/case-studies/a1/google-rank-1.webp"
+                src="/images/case-studies/a1/google-rank-1-v2.webp"
                 width={1159}
                 height={931}
                 loading="lazy"
