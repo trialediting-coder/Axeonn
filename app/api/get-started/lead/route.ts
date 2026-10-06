@@ -9,6 +9,9 @@
 import { NextResponse } from 'next/server';
 import { isValidEmail, type LeadPayload } from '@/lib/getStarted';
 import { SERVICES } from '@/data/getStartedPackages';
+import { isAirtableConfigured } from '@/lib/airtable';
+import { saveLeadToAirtable } from '@/lib/airtableSync';
+import { sendLeadNotification } from '@/lib/email';
 
 export const runtime = 'nodejs';
 
@@ -90,26 +93,70 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: 'Too many requests' }, { status: 429 });
   }
 
-  const webhookUrl = process.env.LEAD_WEBHOOK_URL;
-  if (!webhookUrl) {
-    console.error('[get-started] LEAD_WEBHOOK_URL is not set; lead not forwarded', { packageId: payload.packageId });
-    return NextResponse.json({ ok: false, error: 'Lead capture is not configured' }, { status: 503 });
+  // 1. Airtable directly (replaces the n8n "Axeon Website Lead Form" workflow).
+  // 2. Fallback: the old n8n webhook, if Airtable is not configured or fails.
+  // 3. Either way the owner gets the lead by email, so nothing is ever lost silently.
+  let savedTo: 'airtable' | 'n8n' | 'nowhere' = 'nowhere';
+  let returning = false;
+
+  if (isAirtableConfigured()) {
+    try {
+      const result = await saveLeadToAirtable(payload);
+      returning = result.returning;
+      savedTo = 'airtable';
+    } catch (err) {
+      console.error('[get-started] airtable save failed', err instanceof Error ? err.message : err);
+    }
+  }
+
+  if (savedTo === 'nowhere' && process.env.LEAD_WEBHOOK_URL) {
+    if (await forwardToWebhook(process.env.LEAD_WEBHOOK_URL, payload)) savedTo = 'n8n';
   }
 
   try {
-    const res = await fetch(webhookUrl, {
+    await sendLeadNotification({
+      returning,
+      businessName: payload.businessName,
+      contactName: payload.contactName,
+      email: payload.email,
+      phone: payload.phone,
+      packageName: payload.packageName,
+      services: payload.services,
+      budget: payload.answers.budget,
+      timeline: payload.answers.timeline,
+      goal: payload.answers.goal,
+      savedTo,
+    });
+  } catch (err) {
+    console.error('[get-started] lead email failed', err instanceof Error ? err.message : err);
+    if (savedTo === 'nowhere') {
+      return NextResponse.json({ ok: false, error: 'Lead capture failed' }, { status: 502 });
+    }
+  }
+
+  if (savedTo === 'nowhere' && !isLeadEmailConfigured()) {
+    console.error('[get-started] lead not captured: no Airtable, no webhook, no email', { packageId: payload.packageId });
+    return NextResponse.json({ ok: false, error: 'Lead capture is not configured' }, { status: 503 });
+  }
+  return NextResponse.json({ ok: true });
+}
+
+async function forwardToWebhook(url: string, payload: LeadPayload): Promise<boolean> {
+  try {
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
       signal: AbortSignal.timeout(WEBHOOK_TIMEOUT_MS),
     });
-    if (!res.ok) {
-      console.error('[get-started] webhook responded', res.status, { packageId: payload.packageId });
-      return NextResponse.json({ ok: false, error: 'Lead webhook failed' }, { status: 502 });
-    }
-    return NextResponse.json({ ok: true });
+    if (!res.ok) console.error('[get-started] webhook responded', res.status, { packageId: payload.packageId });
+    return res.ok;
   } catch (err) {
     console.error('[get-started] webhook request failed', err instanceof Error ? err.message : err);
-    return NextResponse.json({ ok: false, error: 'Lead webhook failed' }, { status: 502 });
+    return false;
   }
+}
+
+function isLeadEmailConfigured(): boolean {
+  return Boolean(process.env.RESEND_API_KEY && process.env.ADMIN_EMAIL);
 }

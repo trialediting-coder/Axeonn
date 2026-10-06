@@ -15,7 +15,9 @@ import {
   type OnboardingInput,
 } from '@/lib/onboarding';
 import { TIER_LABELS, TIER_RANK, type OnboardingTier } from '@/data/onboardingItems';
-import { sendWelcomeEmail } from '@/lib/email';
+import { sendNudgeEmail, sendWelcomeEmail } from '@/lib/email';
+import { getItemStates, markNudgeSent } from '@/lib/onboarding';
+import { afterOnboardingChange } from '@/lib/onboardingSync';
 import { isDatabaseConfigured, sql } from '@/lib/db';
 
 /** Sum of the per-item estimates, rounded up to a friendly number for the email. */
@@ -72,7 +74,28 @@ export async function ensureOnboardingForPurchase(input: OnboardingInput): Promi
 
   const onboarding = await createOnboarding(input);
   const welcomeSent = await sendWelcomeFor(onboarding).catch(logMail);
+  await afterOnboardingChange(onboarding.token);
   return { onboarding, created: true, welcomeSent };
+}
+
+/**
+ * Emails the client the list of items still open and records the nudge. Shared by
+ * the admin "Nudge" button and the daily job (app/api/cron/onboarding-nudges).
+ * Throws with a message safe to show the admin.
+ */
+export async function sendNudgeFor(onboarding: Onboarding): Promise<void> {
+  if (onboarding.status === 'closed') throw new Error('This onboarding is closed');
+  const states = await getItemStates(onboarding.id);
+  const open = orderedItems(onboarding.tier).client.filter((i) => states[i.key]?.status !== 'done');
+  if (open.length === 0) throw new Error('Nothing is open for this client');
+  const sent = await sendNudgeEmail({
+    to: onboarding.clientEmail,
+    clientName: onboarding.clientName,
+    url: welcomeUrl(onboarding.token),
+    openItems: open.map((i) => i.title),
+  });
+  if (!sent) throw new Error('Email is not configured (RESEND_API_KEY)');
+  await markNudgeSent(onboarding.id);
 }
 
 function logMail(err: unknown): false {

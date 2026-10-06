@@ -125,6 +125,7 @@ async function main() {
       UNIQUE (onboarding_id, item_key)
     );
   `;
+  await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS completion_notified_at TIMESTAMPTZ;`;
   console.log('Schema ready.');
 }
 

@@ -1,14 +1,11 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { Plus } from 'lucide-react';
 import { listPosts } from '@/lib/posts';
 import { ensureSchema, isDatabaseConfigured } from '@/lib/db';
-import { auth, signOut } from '@/lib/auth';
+import { auth } from '@/lib/auth';
 import { AdminDashboardTable } from '@/components/insights/AdminDashboardTable';
-
-async function handleSignOut() {
-  'use server';
-  await signOut({ redirectTo: '/admin/login' });
-}
+import { adminMain, btn } from '@/components/admin/ui';
 
 // This route is gated by middleware.ts (redirects unauthenticated requests
 // to /admin/login) and always shows live, per-request post data —
@@ -25,7 +22,7 @@ export default async function AdminDashboardPage() {
   // Never crash the dashboard on infrastructure state: say what's missing.
   if (!isDatabaseConfigured()) {
     return (
-      <main className="w-full min-h-screen pt-24 pb-24 px-6 sm:px-10 bg-neutral-50">
+      <main className={adminMain}>
         <div className="max-w-2xl mx-auto bg-white rounded-2xl border border-amber-200 p-8">
           <h1 className="text-2xl font-bold text-neutral-950">Axeon Admin</h1>
           <p className="mt-3 text-neutral-700 leading-relaxed">
@@ -51,38 +48,16 @@ export default async function AdminDashboardPage() {
   }
 
   return (
-    <main className="w-full min-h-screen pt-16 pb-24 px-6 sm:px-10 bg-neutral-50">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold text-neutral-950">Axeon Admin</h1>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/admin/onboarding"
-              className="px-4 py-2 rounded-full border border-neutral-300 hover:bg-neutral-100 text-neutral-700 text-sm font-semibold transition-colors"
-            >
-              Onboarding
-            </Link>
-            <Link
-              href="/admin/billing"
-              className="px-4 py-2 rounded-full border border-neutral-300 hover:bg-neutral-100 text-neutral-700 text-sm font-semibold transition-colors"
-            >
-              Billing
-            </Link>
-            <Link
-              href="/admin/posts/new"
-              className="px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors"
-            >
-              New Post
-            </Link>
-            <form action={handleSignOut}>
-              <button
-                type="submit"
-                className="px-4 py-2 rounded-full border border-neutral-300 hover:bg-neutral-100 text-neutral-700 text-sm font-semibold transition-colors cursor-pointer"
-              >
-                Sign out
-              </button>
-            </form>
+    <main className={adminMain}>
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-neutral-950">Posts</h1>
+            <p className="mt-1 text-sm text-neutral-600">Insights articles: drafts, scheduled, and published.</p>
           </div>
+          <Link href="/admin/posts/new" className={btn('primary')}>
+            <Plus size={16} /> New post
+          </Link>
         </div>
         {dbError && (
           <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">

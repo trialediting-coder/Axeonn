@@ -145,6 +145,8 @@ export function ensureSchema(): Promise<void> {
           UNIQUE (onboarding_id, item_key)
         );
       `;
+      // One-time "client finished setup" alert to the owner (lib/onboardingSync.ts).
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS completion_notified_at TIMESTAMPTZ;`;
     })().catch((err) => {
       schemaReady = null; // let the next request retry
       throw err;

@@ -2,8 +2,9 @@
 // Public but cookie-gated: the verified client saves one checklist item. Confirm
 // cards send { itemKey, data, done }, accept buttons send { itemKey, done: true }.
 // Validation lives in lib/onboarding.saveClientItem so no route can skip it.
-import { NextResponse } from 'next/server';
+import { NextResponse, after } from 'next/server';
 import { saveClientItem } from '@/lib/onboarding';
+import { afterOnboardingChange } from '@/lib/onboardingSync';
 import { clientIp, isDeviceVerified, loadOnboarding, notFound, rateLimited } from '@/lib/welcomeApi';
 
 export const runtime = 'nodejs';
@@ -25,6 +26,8 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ token: string
   }
   try {
     const state = await saveClientItem(onboarding, body.itemKey, body.data ?? {}, body.done === true);
+    // Airtable mirror and the "finished" alert run after the client has their response.
+    after(() => afterOnboardingChange(onboarding.token));
     return NextResponse.json({ ok: true, item: state });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Could not save';

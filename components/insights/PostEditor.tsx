@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { niches } from '@/data/nichesData';
 import { slugify, type Post } from '@/lib/posts';
+import { btn } from '@/components/admin/ui';
 
 interface PostEditorProps {
   initialPost?: Post;
@@ -187,7 +188,7 @@ export function PostEditor({ initialPost }: PostEditorProps) {
             <button
               type="button"
               onClick={() => setFaqItems((prev) => [...prev, { question: '', answer: '' }])}
-              className="text-xs font-semibold text-blue-600 hover:underline cursor-pointer"
+              className={btn('secondary', 'sm')}
             >
               + Add question
             </button>
@@ -205,7 +206,7 @@ export function PostEditor({ initialPost }: PostEditorProps) {
                   <button
                     type="button"
                     onClick={() => setFaqItems((prev) => prev.filter((_, j) => j !== i))}
-                    className="text-xs text-red-600 hover:underline cursor-pointer shrink-0"
+                    className={`${btn('danger', 'sm')} shrink-0`}
                   >
                     Remove
                   </button>
@@ -227,7 +228,7 @@ export function PostEditor({ initialPost }: PostEditorProps) {
             <button
               type="button"
               onClick={() => setSources((prev) => [...prev, { claim: '', url: '' }])}
-              className="text-xs font-semibold text-blue-600 hover:underline cursor-pointer"
+              className={btn('secondary', 'sm')}
             >
               + Add source
             </button>
@@ -245,7 +246,7 @@ export function PostEditor({ initialPost }: PostEditorProps) {
                   <button
                     type="button"
                     onClick={() => setSources((prev) => prev.filter((_, j) => j !== i))}
-                    className="text-xs text-red-600 hover:underline cursor-pointer shrink-0"
+                    className={`${btn('danger', 'sm')} shrink-0`}
                   >
                     Remove
                   </button>
@@ -261,27 +262,15 @@ export function PostEditor({ initialPost }: PostEditorProps) {
           </div>
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
-        <div className="flex gap-3 pt-2">
-          <button
-            disabled={saving}
-            onClick={() => save('draft')}
-            className="px-4 py-2 rounded-full border border-neutral-300 text-sm font-semibold disabled:opacity-50 cursor-pointer"
-          >
-            Save Draft
+        <div className="flex flex-wrap gap-2 pt-2">
+          <button type="button" disabled={saving} onClick={() => save('draft')} className={btn('secondary')}>
+            Save draft
           </button>
-          <button
-            disabled={saving}
-            onClick={() => save('scheduled')}
-            className="px-4 py-2 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold disabled:opacity-50 cursor-pointer"
-          >
+          <button type="button" disabled={saving} onClick={() => save('scheduled')} className={btn('warning')}>
             Schedule (+24h)
           </button>
-          <button
-            disabled={saving}
-            onClick={() => save('published')}
-            className="px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold disabled:opacity-50 cursor-pointer"
-          >
-            Publish Now
+          <button type="button" disabled={saving} onClick={() => save('published')} className={btn('primary')}>
+            Publish now
           </button>
         </div>
       </div>

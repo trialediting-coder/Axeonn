@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type FormEvent, type ReactNode } from 'react';
+import { adminInput, adminLabel, btn } from '@/components/admin/ui';
 import { useRouter } from 'next/navigation';
 import { formatCents } from '@/lib/billingMath';
 import type { BillingRecord } from '@/lib/billingRecords';
@@ -82,13 +83,10 @@ function useApi() {
   return { state, run };
 }
 
-const inputClass =
-  'w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-neutral-100';
-const labelClass = 'block text-xs font-semibold uppercase tracking-wide text-neutral-500 mb-1';
-const buttonClass =
-  'px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors';
-const ghostButtonClass =
-  'px-3 py-1.5 rounded-full border border-neutral-300 hover:bg-neutral-100 text-xs font-semibold text-neutral-700';
+const inputClass = adminInput;
+const labelClass = adminLabel;
+const buttonClass = btn('primary');
+const ghostButtonClass = btn('secondary', 'sm');
 
 function Card({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
   return (

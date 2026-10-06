@@ -13,6 +13,13 @@ export const CLIENT_PORTAL_PREFIX = '/welcome';
 export const isClientPortalPath = (pathname: string | null | undefined) =>
   !!pathname && pathname.startsWith(`${CLIENT_PORTAL_PREFIX}/`);
 
+// The admin has its own top bar (components/admin/AdminNav.tsx); the site's
+// header, footer and sales popups never belong on it.
+export const ADMIN_PREFIX = '/admin';
+
+export const isAdminPath = (pathname: string | null | undefined) =>
+  !!pathname && (pathname === ADMIN_PREFIX || pathname.startsWith(`${ADMIN_PREFIX}/`));
+
 /** True on any page that shows none of the marketing chrome. */
 export const hidesSiteChrome = (pathname: string | null | undefined) =>
-  isAdFunnelPath(pathname) || isClientPortalPath(pathname);
+  isAdFunnelPath(pathname) || isClientPortalPath(pathname) || isAdminPath(pathname);

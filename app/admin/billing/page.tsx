@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { adminMain } from '@/components/admin/ui';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { isStripeConfigured } from '@/lib/stripe';
@@ -45,21 +45,13 @@ export default async function BillingAdminPage() {
   }
 
   return (
-    <main className="w-full min-h-screen pt-16 pb-24 px-6 sm:px-10 bg-neutral-50">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-neutral-950">Billing</h1>
-            <p className="mt-1 text-sm text-neutral-600">
-              Payment links, invoices, and recurring plans. Nothing here is public.
-            </p>
-          </div>
-          <Link
-            href="/admin"
-            className="px-4 py-2 rounded-full border border-neutral-300 hover:bg-neutral-100 text-neutral-700 text-sm font-semibold transition-colors"
-          >
-            Back to admin
-          </Link>
+    <main className={adminMain}>
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-neutral-950">Billing</h1>
+          <p className="mt-1 text-sm text-neutral-600">
+            Payment links, invoices, and recurring plans. Nothing here is public.
+          </p>
         </div>
 
         <BillingConsole

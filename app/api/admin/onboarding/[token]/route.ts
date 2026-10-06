@@ -4,21 +4,19 @@
 //   PATCH { status }              active | complete | closed  (closed = link dead)
 //   POST  { action: 'welcome' }   resend the welcome email
 //   POST  { action: 'nudge' }     email the client the list of open items
-import { NextResponse } from 'next/server';
+import { NextResponse, after } from 'next/server';
 import { requireAdmin } from '@/lib/adminAuth';
 import { jsonError, readBody } from '@/lib/billingApi';
 import {
   computeProgress,
   getItemStates,
   getOnboardingByToken,
-  markNudgeSent,
-  orderedItems,
   setItemStatusByAdmin,
   setOnboardingStatus,
   welcomeUrl,
 } from '@/lib/onboarding';
-import { sendWelcomeFor } from '@/lib/onboardingFulfillment';
-import { sendNudgeEmail } from '@/lib/email';
+import { sendNudgeFor, sendWelcomeFor } from '@/lib/onboardingFulfillment';
+import { afterOnboardingChange } from '@/lib/onboardingSync';
 
 export const runtime = 'nodejs';
 
@@ -57,6 +55,7 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ token: string
     } else {
       throw new Error('Nothing to update');
     }
+    after(() => afterOnboardingChange(onboarding.token));
     return NextResponse.json(await present(token));
   } catch (err) {
     return jsonError(err);
@@ -73,17 +72,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
       const sent = await sendWelcomeFor(onboarding);
       if (!sent) throw new Error('Email is not configured (RESEND_API_KEY)');
     } else if (body.action === 'nudge') {
-      const states = await getItemStates(onboarding.id);
-      const open = orderedItems(onboarding.tier).client.filter((i) => states[i.key]?.status !== 'done');
-      if (open.length === 0) throw new Error('Nothing is open for this client');
-      const sent = await sendNudgeEmail({
-        to: onboarding.clientEmail,
-        clientName: onboarding.clientName,
-        url: welcomeUrl(onboarding.token),
-        openItems: open.map((i) => i.title),
-      });
-      if (!sent) throw new Error('Email is not configured (RESEND_API_KEY)');
-      await markNudgeSent(onboarding.id);
+      await sendNudgeFor(onboarding);
     } else {
       throw new Error('Unknown action');
     }

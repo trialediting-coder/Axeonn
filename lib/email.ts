@@ -108,6 +108,18 @@ export function isClientEmailConfigured(): boolean {
   return Boolean(process.env.RESEND_API_KEY);
 }
 
+type SendPayload = Parameters<Resend['emails']['send']>[0];
+
+/**
+ * Resend reports rejections (unverified domain, bad address, rate limit) in the
+ * returned `error`, not by throwing. Client-facing mail must surface that, or the
+ * admin would show "welcome sent" for an email that never left.
+ */
+async function sendChecked(resend: Resend, payload: SendPayload): Promise<void> {
+  const { error } = await resend.emails.send(payload);
+  if (error) throw new Error(`Resend rejected the email: ${error.message}`);
+}
+
 function clientLayout(title: string, bodyHtml: string): string {
   return `
     <div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;color:#0a0a0a;line-height:1.55">
@@ -136,7 +148,7 @@ export async function sendWelcomeEmail(input: {
   if (!resend) return false;
   const first = input.clientName?.split(' ')[0];
   const greeting = first ? `Hi ${escapeHtml(first)},` : 'Hi there,';
-  await resend.emails.send({
+  await sendChecked(resend, {
     from: CLIENT_FROM_ADDRESS,
     replyTo: CLIENT_REPLY_TO,
     to: input.to,
@@ -162,7 +174,7 @@ export async function sendWelcomeEmail(input: {
 export async function sendVerificationCodeEmail(input: { to: string; code: string }): Promise<void> {
   const resend = getClient();
   if (!resend) throw new Error('Email is not configured (RESEND_API_KEY)');
-  await resend.emails.send({
+  await sendChecked(resend, {
     from: CLIENT_FROM_ADDRESS,
     replyTo: CLIENT_REPLY_TO,
     to: input.to,
@@ -191,7 +203,7 @@ export async function sendNudgeEmail(input: {
   if (!resend) return false;
   const first = input.clientName?.split(' ')[0];
   const items = input.openItems.map((t) => `<li style="margin:0 0 6px">${escapeHtml(t)}</li>`).join('');
-  await resend.emails.send({
+  await sendChecked(resend, {
     from: CLIENT_FROM_ADDRESS,
     replyTo: CLIENT_REPLY_TO,
     to: input.to,
@@ -207,4 +219,70 @@ export async function sendNudgeEmail(input: {
     ),
   });
   return true;
+}
+
+// ───────────────────────────── Owner alerts ─────────────────────────────
+// These replace the Gmail steps of the retired n8n workflows. They go to
+// ADMIN_EMAIL from the same From as the other owner alerts.
+
+/** A new or returning website lead from /get-started. */
+export async function sendLeadNotification(input: {
+  returning: boolean;
+  businessName: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  packageName: string;
+  services: string[];
+  budget: string;
+  timeline: string;
+  goal: string;
+  savedTo: 'airtable' | 'n8n' | 'nowhere';
+}): Promise<void> {
+  const resend = getClient();
+  if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
+  const who = input.businessName || input.contactName || input.email;
+  const saved =
+    input.savedTo === 'airtable'
+      ? input.returning
+        ? 'They were already in Airtable, so their record was updated (status unchanged).'
+        : 'Saved in Airtable as a <b>Lead</b>.'
+      : input.savedTo === 'n8n'
+        ? 'Forwarded to n8n.'
+        : '<b>Not saved anywhere: Airtable and n8n both failed.</b> Copy these details by hand.';
+  await sendChecked(resend, {
+    from: FROM_ADDRESS,
+    to: ADMIN_NOTIFICATION_EMAIL,
+    replyTo: input.email,
+    subject: `${input.returning ? 'Returning lead' : 'New website lead'}: ${who} (${input.packageName || 'no package'})`,
+    html: `
+      <p><b>${escapeHtml(input.contactName || 'Someone')}</b>${input.businessName ? ` from <b>${escapeHtml(input.businessName)}</b>` : ''} filled out the Get Started form.</p>
+      <p>Recommended: <b>${escapeHtml(input.packageName || 'n/a')}</b><br>
+      Services: ${escapeHtml(input.services.join(', ') || 'none')}<br>
+      Budget: ${escapeHtml(input.budget || 'n/a')} · Timeline: ${escapeHtml(input.timeline || 'n/a')}<br>
+      Goal: ${escapeHtml(input.goal || 'n/a')}<br>
+      Email: ${escapeHtml(input.email)}<br>
+      Phone: ${escapeHtml(input.phone || '(none)')}</p>
+      <p>${saved} Reply to this email to answer them directly.</p>
+    `,
+  });
+}
+
+/** Sent once when a client finishes every item on their onboarding checklist. */
+export async function sendOnboardingCompleteNotification(input: {
+  displayName: string;
+  planLabel: string;
+  adminUrl: string;
+}): Promise<void> {
+  const resend = getClient();
+  if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
+  await sendChecked(resend, {
+    from: FROM_ADDRESS,
+    to: ADMIN_NOTIFICATION_EMAIL,
+    subject: `${input.displayName} finished their setup`,
+    html: `
+      <p><b>${escapeHtml(input.displayName)}</b> (${escapeHtml(input.planLabel)}) finished every item on their onboarding checklist.</p>
+      <p><a href="${escapeHtml(input.adminUrl)}">Open their answers in the admin</a></p>
+    `,
+  });
 }

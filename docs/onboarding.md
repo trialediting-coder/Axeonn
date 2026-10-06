@@ -68,6 +68,14 @@ item ever asks for one.
    nudges with the list of open items, resends the welcome, or closes the link.
 4. Manual minting from the board covers legacy clients and AxeonGROWTH, which
    has no Stripe catalog entry yet.
+5. After every change (client save, admin action, new purchase) the site mirrors
+   the portal into Airtable > Clients and, the first time a portal completes,
+   emails the owner (`lib/onboardingSync.ts`).
+6. Every day at 15:00 UTC, `/api/cron/onboarding-nudges` sends the day 1, 3 and 7
+   reminders (`nudgeStepDue` in `lib/onboarding.ts`) and refreshes Airtable.
+
+No n8n is involved. The site also writes website leads to Airtable directly
+(`lib/airtableSync.ts`), with the old n8n webhook kept only as a fallback.
 
 ## Environment variables
 
@@ -78,12 +86,13 @@ item ever asks for one.
 | `RESEND_CLIENT_REPLY_TO` | Optional. Default `hello@axeonstudio.co`. |
 | `ONBOARDING_COOKIE_SECRET` | Optional. Falls back to `AUTH_SECRET`. |
 | `POSTGRES_URL` | Required. Tables are created on first use. |
+| `AIRTABLE_TOKEN` | Airtable personal access token for the Clients mirror and website leads. |
+| `CRON_SECRET` | Required for the daily nudge job (and the blog crons). |
+| `ADMIN_EMAIL` | Where lead and "client finished" alerts go. |
 
 ## Not built yet
 
 - File upload for photos and logo (needs Vercel Blob). Today the client texts or
   emails them and taps "Sent them".
-- Scheduled nudges on days 1, 3 and 7 (n8n). Nudges are a button on the board.
 - Prefill from the client's existing Google listing. Today prefill is limited to
   what Stripe knows: business name, contact, email, phone.
-- Mirror to Airtable via n8n.

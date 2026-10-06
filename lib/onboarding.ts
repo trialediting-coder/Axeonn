@@ -337,6 +337,39 @@ export function computeProgress(tier: OnboardingTier, states: Record<string, Ite
   return { clientTotal, clientDone, axeonTotal, axeonDone, percent };
 }
 
+// ───────────────────────────── Nudge schedule ─────────────────────────────
+
+/** Days after the portal opens when a reminder goes out if client items are still open. */
+export const NUDGE_DAYS = [1, 3, 7] as const;
+
+/**
+ * Which nudge step (1, 3 or 7) is due right now, or null. At most one email per
+ * step: a step is due once its day has passed and no nudge (automatic or from the
+ * admin button) went out since that day. Skips clients who touched the portal in
+ * the last 24 hours, closed or finished portals, and portals whose welcome email
+ * never went out (nudging before the welcome would confuse people).
+ */
+export function nudgeStepDue(
+  o: Pick<Onboarding, 'status' | 'welcomeSentAt' | 'nudgeSentAt' | 'lastClientActivityAt' | 'createdAt'>,
+  progress: Pick<Progress, 'clientDone' | 'clientTotal'>,
+  now: number = Date.now()
+): number | null {
+  if (o.status !== 'active' || !o.welcomeSentAt) return null;
+  if (progress.clientDone >= progress.clientTotal) return null;
+  const DAY = 86_400_000;
+  const created = new Date(o.createdAt).getTime();
+  if (!Number.isFinite(created)) return null;
+  const age = (now - created) / DAY;
+  const step = [...NUDGE_DAYS].reverse().find((d) => age >= d);
+  if (!step) return null;
+  const stepAt = created + step * DAY;
+  const lastNudge = o.nudgeSentAt ? new Date(o.nudgeSentAt).getTime() : 0;
+  if (lastNudge >= stepAt) return null;
+  const lastActive = o.lastClientActivityAt ? new Date(o.lastClientActivityAt).getTime() : 0;
+  if (now - lastActive < DAY) return null;
+  return step;
+}
+
 /** The portal is editable while active, and for a grace period after completion. */
 export function isEditable(onboarding: Pick<Onboarding, 'status' | 'completedAt'>, now: number = Date.now()): boolean {
   if (onboarding.status === 'closed') return false;
@@ -576,6 +609,21 @@ export async function setOnboardingStatus(onboarding: Onboarding, status: Onboar
 
 export async function markWelcomeSent(id: number): Promise<void> {
   await sql`UPDATE onboardings SET welcome_sent_at = now(), updated_at = now() WHERE id = ${id};`;
+}
+
+/**
+ * Claims the one-time "client finished" alert. Returns true exactly once per
+ * onboarding, even if two requests race, because the UPDATE only matches while
+ * the column is still empty.
+ */
+export async function claimCompletionNotice(id: number): Promise<boolean> {
+  await ensureSchema();
+  const res = await sql<{ id: number }>`
+    UPDATE onboardings SET completion_notified_at = now()
+    WHERE id = ${id} AND status = 'complete' AND completion_notified_at IS NULL
+    RETURNING id;
+  `;
+  return res.rows.length > 0;
 }
 
 export async function markNudgeSent(id: number): Promise<void> {

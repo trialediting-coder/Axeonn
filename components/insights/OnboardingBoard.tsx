@@ -9,11 +9,11 @@ import { useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { ONBOARDING_TIERS, TIER_LABELS, type OnboardingTier } from '@/data/onboardingItems';
 import type { Onboarding, Progress } from '@/lib/onboarding';
+import { adminInput, btn } from '@/components/admin/ui';
 
 export type BoardRow = Onboarding & { progress: Progress; url: string };
 
-const inputClass =
-  'w-full rounded-xl border border-neutral-300 bg-white px-3.5 py-2.5 text-sm text-neutral-950 placeholder:text-neutral-400 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10';
+const inputClass = adminInput;
 
 function relative(iso: string | null): string {
   if (!iso) return 'never';
@@ -135,7 +135,7 @@ export function OnboardingBoard({ initialRows, databaseConfigured, dbError }: { 
                       <StatusBadge row={row} />
                     </td>
                     <td className="px-5 py-3.5 text-right">
-                      <Link href={`/admin/onboarding/${row.token}`} className="text-blue-600 hover:text-blue-700 font-semibold">
+                      <Link href={`/admin/onboarding/${row.token}`} className={btn('secondary', 'sm')}>
                         Open
                       </Link>
                     </td>
@@ -180,7 +180,7 @@ export function OnboardingBoard({ initialRows, databaseConfigured, dbError }: { 
             <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={inputClass} placeholder="(515) 555-0134" />
           </div>
           <div className="flex items-end">
-            <button type="submit" disabled={busy || !databaseConfigured} className="px-5 py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-semibold transition-colors">
+            <button type="submit" disabled={busy || !databaseConfigured} className={btn('primary')}>
               {busy ? 'Creating…' : 'Create and send welcome'}
             </button>
           </div>

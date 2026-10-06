@@ -20,6 +20,7 @@ import {
   isValidOnboardingToken,
   maskEmail,
   maskPhone,
+  nudgeStepDue,
   orderedItems,
   prefillFor,
   signDeviceCookie,
@@ -249,6 +250,50 @@ test('computeProgress counts only client items toward the percent', () => {
   const all: Record<string, ItemState> = {};
   for (const i of orderedItems('essentials').client) all[i.key] = done(i.key);
   assert.equal(computeProgress('essentials', all).percent, 100);
+});
+
+test('nudgeStepDue sends day 1, 3 and 7 reminders once each', () => {
+  const DAY = 86_400_000;
+  const created = Date.parse('2026-10-01T15:00:00Z');
+  const base = {
+    status: 'active' as const,
+    welcomeSentAt: new Date(created).toISOString(),
+    nudgeSentAt: null as string | null,
+    lastClientActivityAt: null as string | null,
+    createdAt: new Date(created).toISOString(),
+  };
+  const open = { clientDone: 2, clientTotal: 7 };
+  assert.equal(nudgeStepDue(base, open, created + 0.5 * DAY), null, 'too early');
+  assert.equal(nudgeStepDue(base, open, created + 1.2 * DAY), 1);
+  const afterDay1 = { ...base, nudgeSentAt: new Date(created + 1.2 * DAY).toISOString() };
+  assert.equal(nudgeStepDue(afterDay1, open, created + 2 * DAY), null, 'day-1 nudge already sent');
+  assert.equal(nudgeStepDue(afterDay1, open, created + 3.1 * DAY), 3);
+  const afterDay3 = { ...base, nudgeSentAt: new Date(created + 3.1 * DAY).toISOString() };
+  assert.equal(nudgeStepDue(afterDay3, open, created + 6 * DAY), null);
+  assert.equal(nudgeStepDue(afterDay3, open, created + 7.1 * DAY), 7);
+  const afterDay7 = { ...base, nudgeSentAt: new Date(created + 7.1 * DAY).toISOString() };
+  assert.equal(nudgeStepDue(afterDay7, open, created + 30 * DAY), null, 'no more after day 7');
+});
+
+test('nudgeStepDue skips finished, closed, unwelcomed, and recently active clients', () => {
+  const DAY = 86_400_000;
+  const created = Date.parse('2026-10-01T15:00:00Z');
+  const now = created + 3.5 * DAY;
+  const base = {
+    status: 'active' as const,
+    welcomeSentAt: new Date(created).toISOString(),
+    nudgeSentAt: null as string | null,
+    lastClientActivityAt: null as string | null,
+    createdAt: new Date(created).toISOString(),
+  };
+  const open = { clientDone: 2, clientTotal: 7 };
+  assert.equal(nudgeStepDue(base, open, now), 3);
+  assert.equal(nudgeStepDue(base, { clientDone: 7, clientTotal: 7 }, now), null, 'everything done');
+  assert.equal(nudgeStepDue({ ...base, status: 'closed' }, open, now), null);
+  assert.equal(nudgeStepDue({ ...base, status: 'complete' }, open, now), null);
+  assert.equal(nudgeStepDue({ ...base, welcomeSentAt: null }, open, now), null, 'never nudge before the welcome');
+  assert.equal(nudgeStepDue({ ...base, lastClientActivityAt: new Date(now - 2 * 3_600_000).toISOString() }, open, now), null, 'active 2h ago');
+  assert.equal(nudgeStepDue({ ...base, lastClientActivityAt: new Date(now - 2 * DAY).toISOString() }, open, now), 3);
 });
 
 test('isEditable: active always, complete for 60 days, closed never', () => {

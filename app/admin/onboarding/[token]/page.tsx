@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
+import { adminMain, btn } from '@/components/admin/ui';
 import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { computeProgress, getItemStates, getOnboardingByToken, orderedItems, welcomeUrl } from '@/lib/onboarding';
@@ -16,17 +18,11 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
   const states = await getItemStates(onboarding.id);
 
   return (
-    <main className="w-full min-h-screen pt-16 pb-24 px-6 sm:px-10 bg-neutral-50">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-neutral-950">Onboarding</h1>
-          <Link
-            href="/admin/onboarding"
-            className="px-4 py-2 rounded-full border border-neutral-300 hover:bg-neutral-100 text-neutral-700 text-sm font-semibold transition-colors"
-          >
-            All clients
-          </Link>
-        </div>
+    <main className={adminMain}>
+      <div className="max-w-5xl mx-auto">
+        <Link href="/admin/onboarding" className={`${btn('ghost', 'sm')} -ml-3 mb-3`}>
+          <ArrowLeft size={14} /> All clients
+        </Link>
         <OnboardingDetail
           initial={{
             onboarding: { ...onboarding, url: welcomeUrl(onboarding.token) },

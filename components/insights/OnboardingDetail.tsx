@@ -6,6 +6,7 @@
 // calls /api/admin/onboarding/<token> and swaps in the fresh server state.
 
 import { useState } from 'react';
+import { btn } from '@/components/admin/ui';
 import { TIER_LABELS, type ItemField, type OnboardingItem } from '@/data/onboardingItems';
 import type { ItemState, Onboarding, Progress } from '@/lib/onboarding';
 
@@ -90,14 +91,14 @@ export function OnboardingDetail({ initial, items }: { initial: Detail; items: {
 
         <div className="mt-5 flex flex-wrap items-center gap-2">
           <code className="text-xs bg-neutral-100 rounded-lg px-2.5 py-1.5 text-neutral-700 break-all">{onboarding.url}</code>
-          <button type="button" onClick={copy} className="px-3 py-1.5 rounded-full border border-neutral-300 hover:bg-neutral-100 text-xs font-semibold">
+          <button type="button" onClick={copy} className={btn('secondary', 'sm')}>
             {copied ? 'Copied' : 'Copy link'}
           </button>
           <button
             type="button"
             disabled={busy !== null}
             onClick={() => call('POST', { action: 'welcome' }, 'welcome', 'Welcome email sent.')}
-            className="px-3 py-1.5 rounded-full border border-neutral-300 hover:bg-neutral-100 text-xs font-semibold disabled:opacity-50"
+            className={btn('secondary', 'sm')}
           >
             {busy === 'welcome' ? 'Sending…' : onboarding.welcomeSentAt ? 'Resend welcome' : 'Send welcome'}
           </button>
@@ -105,7 +106,7 @@ export function OnboardingDetail({ initial, items }: { initial: Detail; items: {
             type="button"
             disabled={busy !== null || openClient.length === 0 || onboarding.status === 'closed'}
             onClick={() => call('POST', { action: 'nudge' }, 'nudge', 'Nudge sent.')}
-            className="px-3 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold disabled:opacity-50"
+            className={btn('primary', 'sm')}
           >
             {busy === 'nudge' ? 'Sending…' : `Nudge (${openClient.length} open)`}
           </button>
@@ -116,7 +117,7 @@ export function OnboardingDetail({ initial, items }: { initial: Detail; items: {
               onClick={() => {
                 if (confirm('Close this onboarding? The client link stops working.')) void call('PATCH', { status: 'closed' }, 'close', 'Closed.');
               }}
-              className="ml-auto px-3 py-1.5 rounded-full border border-red-200 text-red-700 hover:bg-red-50 text-xs font-semibold disabled:opacity-50"
+              className={`${btn('danger', 'sm')} ml-auto`}
             >
               Close link
             </button>
@@ -125,7 +126,7 @@ export function OnboardingDetail({ initial, items }: { initial: Detail; items: {
               type="button"
               disabled={busy !== null}
               onClick={() => call('PATCH', { status: 'active' }, 'reopen', 'Reopened.')}
-              className="ml-auto px-3 py-1.5 rounded-full border border-neutral-300 hover:bg-neutral-100 text-xs font-semibold disabled:opacity-50"
+              className={`${btn('secondary', 'sm')} ml-auto`}
             >
               Reopen
             </button>
@@ -194,9 +195,7 @@ function ItemList({
                 type="button"
                 disabled={busy !== null}
                 onClick={() => onToggle(item.key, !done)}
-                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors disabled:opacity-50 ${
-                  done ? 'border-neutral-300 text-neutral-600 hover:bg-neutral-100' : 'border-green-600 text-green-700 hover:bg-green-50'
-                }`}
+                className={`${btn(done ? 'secondary' : 'success', 'sm')} shrink-0 min-w-[92px]`}
               >
                 {busy === item.key ? '…' : done ? 'Reopen' : 'Mark done'}
               </button>

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
+import { btn } from '@/components/admin/ui';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -66,7 +67,7 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold transition-colors"
+            className={`${btn('primary')} w-full`}
           >
             {loading ? 'Signing in…' : 'Sign in'}
           </button>

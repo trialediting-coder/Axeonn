@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import type { Post } from '@/lib/posts';
+import { btn } from '@/components/admin/ui';
 
 function statusBadge(status: Post['status']) {
   const styles: Record<Post['status'], string> = {
@@ -53,7 +54,7 @@ export function AdminDashboardTable({ initialPosts }: { initialPosts: Post[] }) 
           <th className="py-3 pr-4">Status</th>
           <th className="py-3 pr-4">Author</th>
           <th className="py-3 pr-4">Scheduled for</th>
-          <th className="py-3">Actions</th>
+          <th className="py-3 text-right">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -65,18 +66,20 @@ export function AdminDashboardTable({ initialPosts }: { initialPosts: Post[] }) 
             <td className="py-3 pr-4 text-neutral-500">
               {post.scheduledPublishAt ? new Date(post.scheduledPublishAt).toLocaleString() : '—'}
             </td>
-            <td className="py-3 flex items-center gap-3">
-              <Link href={`/admin/posts/${post.id}/edit`} className="text-blue-600 hover:underline">
-                Edit
-              </Link>
-              {post.status !== 'published' && (
-                <button onClick={() => handlePublishNow(post.id)} className="text-green-600 hover:underline cursor-pointer">
-                  Publish now
+            <td className="py-3">
+              <div className="flex items-center justify-end gap-2">
+                <Link href={`/admin/posts/${post.id}/edit`} className={btn('secondary', 'sm')}>
+                  Edit
+                </Link>
+                {post.status !== 'published' && (
+                  <button type="button" onClick={() => handlePublishNow(post.id)} className={btn('success', 'sm')}>
+                    Publish now
+                  </button>
+                )}
+                <button type="button" onClick={() => handleDelete(post.id)} className={btn('danger', 'sm')}>
+                  Delete
                 </button>
-              )}
-              <button onClick={() => handleDelete(post.id)} className="text-red-600 hover:underline cursor-pointer">
-                Delete
-              </button>
+              </div>
             </td>
           </tr>
         ))}
