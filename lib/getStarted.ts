@@ -54,13 +54,14 @@ export interface LeadPayload {
   company_fax: string;
 }
 
-const MAX_SERVICES_FOR_PACKAGE = 4;
+// AxeonGROWTH covers every service, so only an empty pick or a $3k+ budget is custom.
+const MAX_SERVICES_FOR_PACKAGE = 6;
 
 /**
  * Picks the package for a set of answers.
  *
  * Rules, in order:
- *  1. No services, 5+ services, or a $3k+ budget → custom.
+ *  1. No services, more than MAX_SERVICES_FOR_PACKAGE, or a $3k+ budget → custom.
  *  2. Budget is a hard filter: a package whose budgets don't include the
  *     visitor's is never considered.
  *  3. Every selected service must be covered by the package, and the optional

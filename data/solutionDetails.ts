@@ -4,7 +4,7 @@ import type { FaqItem } from '@/data/faqData';
 // components/marketing-solutions/SolutionSections.tsx.
 //
 // Every claim here must stay inside content/brand-guardrails.md: real prices
-// only ("from $284/mo" / "from $574/mo"), no build timelines, no invented
+// only ($149 / $299 / $999 a month, $99 to start), no build timelines, no invented
 // results. The only client proof is A-1 Auto Detailing, using its approved
 // facts, one angle per page. At most one sourced statistic per page, always
 // with its real source URL.
@@ -76,8 +76,8 @@ export interface SolutionDetail {
 }
 
 const BOTH_PLANS =
-  'AxeonCORE: $5,800 setup, then from $574/mo · Essentials: $2,800 setup, then from $284/mo';
-const CORE_PLAN = 'Part of AxeonCORE: $5,800 setup, then from $574/mo';
+  'Essentials $149/mo · AxeonCORE $299/mo · AxeonGROWTH $999/mo · $99 to start';
+const CORE_PLAN = 'Part of AxeonCORE: $299/mo, $99 to start';
 
 const STAT_62 = {
   sourceLabel: '411 Locals call study',
@@ -149,7 +149,7 @@ export const websiteDetail: SolutionDetail = {
   },
   fit: {
     step: 'chosen',
-    lines: [`Part of ${BOTH_PLANS}`, 'Every plan starts with the website. AxeonCORE adds the lead system and a half-day video shoot.'],
+    lines: [`Part of ${BOTH_PLANS}`, 'Every plan starts with the website. AxeonCORE adds the lead system; AxeonGROWTH adds a half-day video shoot.'],
   },
   timeline: ['Scope & content', 'Design, build & review', 'Launch'],
   proof: {
@@ -168,7 +168,7 @@ export const websiteDetail: SolutionDetail = {
     {
       question: 'What’s the difference between Essentials and AxeonCORE?',
       answer:
-        'Essentials ($2,800 setup, then from $284/mo) is a fast, credible site that gets you found and alerts you to every lead. AxeonCORE ($5,800 setup, then from $574/mo) adds the system that captures, qualifies, and follows up on leads for you, plus a half-day on-site video shoot. AxeonCORE is the one we recommend.',
+        'Essentials ($149/mo) is a fast, credible site that gets you found and alerts you to every lead. AxeonCORE ($299/mo) adds the system that captures, qualifies, and follows up on leads for you, tracked in AxeonPROOF. AxeonGROWTH ($999/mo plus ad spend) adds ads, an AI phone receptionist, and a half-day on-site video shoot. AxeonCORE is the one we recommend.',
     },
     {
       question: 'Will I lose my Google rankings if I replace my current site?',
@@ -235,7 +235,7 @@ export const seoDetail: SolutionDetail = {
   },
   fit: {
     step: 'found',
-    lines: [`Built into both plans. ${BOTH_PLANS}`, 'Ongoing SEO & content beyond the build is an add-on, scoped on your strategy call.'],
+    lines: [`Built into every plan. ${BOTH_PLANS}`, 'AxeonGROWTH adds a new service page every month; on other plans extra pages are $450 each.'],
   },
   timeline: ['Map the searches', 'Build it in', 'Launch & measure'],
   proof: {
@@ -259,7 +259,7 @@ export const seoDetail: SolutionDetail = {
     {
       question: 'Does SEO cost extra?',
       answer:
-        'No. SEO, AEO, and GEO are built into every Essentials and AxeonCORE site. Ongoing SEO & content after launch is an add-on, scoped on your strategy call.',
+        'No. SEO, AEO, and GEO are built into every plan. AxeonGROWTH adds a new service page every month; on other plans extra pages are $450 each.',
     },
     {
       question: 'Do you build a page for every town I serve?',
@@ -323,7 +323,7 @@ export const aiChatDetail: SolutionDetail = {
   },
   fit: {
     step: 'booked',
-    lines: [CORE_PLAN, 'Not part of Essentials. The AI phone receptionist is a separate add-on, scoped on your strategy call.'],
+    lines: [CORE_PLAN, 'Not part of Essentials. The AI phone receptionist comes with AxeonGROWTH, or +$199/mo on AxeonCORE.'],
   },
   timeline: ['Map your conversations', 'Configure & connect', 'Test & launch'],
   proof: {
@@ -418,7 +418,7 @@ export const leadGenDetail: SolutionDetail = {
   },
   fit: {
     step: 'booked',
-    lines: [CORE_PLAN, 'Essentials ($2,800 setup, then from $284/mo) includes instant lead alerts and conversion tracking.'],
+    lines: [CORE_PLAN, 'Essentials ($149/mo) includes instant lead alerts and conversion tracking.'],
   },
   timeline: ['Map how you close', 'Build & write', 'Test & launch'],
   proof: {
@@ -499,7 +499,7 @@ export const videoDetail: SolutionDetail = {
   },
   fit: {
     step: 'chosen',
-    lines: [CORE_PLAN, 'On Essentials ($2,800 setup, then from $284/mo), add the shoot for $1,500.'],
+    lines: ['Included in AxeonGROWTH: $999/mo plus ad spend', 'On Essentials or AxeonCORE, add the shoot for $1,500.'],
   },
   timeline: ['Plan the shoot', 'Shoot on-site', 'Edit & build in'],
   faqs: [
@@ -513,9 +513,9 @@ export const videoDetail: SolutionDetail = {
       answer: 'On your strategy call we’ll walk through exactly what a shoot would look like for your business.',
     },
     {
-      question: 'Is the $1,500 add-on or AxeonCORE the better deal?',
+      question: 'Is the $1,500 add-on or AxeonGROWTH the better deal?',
       answer:
-        'If you want the video, AxeonCORE is usually the better value. Its setup is $1,500 more than Essentials plus the add-on, and it also includes the CRM pipeline, AI chat and scheduling, and automated follow-up.',
+        'If you also want ads and an AI receptionist, AxeonGROWTH is the better value: its $1,500 start covers the shoot, and the $999/mo includes ads management, the receptionist, and a new page every month. If you only want the video, the $1,500 add-on on Essentials or AxeonCORE is the way to go.',
     },
     {
       question: 'Do I need to prepare anything?',
@@ -589,8 +589,8 @@ export const advertisingDetail: SolutionDetail = {
   fit: {
     step: 'found',
     lines: [
-      'A growth add-on to your plan, scoped on your strategy call',
-      'No published price. Budget and scope are set around your market and goals. Pair it with AxeonCORE and every paid lead gets instant follow-up.',
+      'Included in AxeonGROWTH ($999/mo plus ad spend), or +$399/mo on AxeonCORE',
+      'Ad spend is separate: $500/mo minimum, on your own card and ad account, no markup. Every paid lead gets AxeonCORE\'s instant follow-up.',
     ],
   },
   timeline: ['Audit & tracking', 'Build campaigns & pages', 'Launch & optimize'],

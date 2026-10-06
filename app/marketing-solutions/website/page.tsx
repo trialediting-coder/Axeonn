@@ -45,7 +45,7 @@ export default function WebsitePage() {
         eyebrow="Services · Website"
         title="A Website That Turns Searches Into Calls"
         subtitle="Built to make you the obvious choice the second someone compares you, with a call or a booking one tap away."
-        priceLine="Plans from $2,800 setup"
+        priceLine="Plans from $149/mo, $99 to start"
         note="backed by our 90-day customer guarantee"
       />
       <ProblemSection data={d.problem} />

@@ -34,7 +34,7 @@ export const BUSINESS = {
     longitude: -93.7538,
   },
   // Real published pricing floor/ceiling — never widen to an unsourced range.
-  priceRange: '$2800-$5800',
+  priceRange: '$149-$999',
   sameAs: [
     'https://www.linkedin.com/company/axeon-studio',
     'https://www.facebook.com/profile.php?id=61593868815413',

@@ -44,7 +44,7 @@ export function FunnelBooking({ slug, industryName }: FunnelBookingProps) {
         website: '',
         services: [],
         packageId: `ad-funnel-${slug}`,
-        packageName: `Ad funnel (free website): ${industryName}`,
+        packageName: `Ad funnel ($99 start): ${industryName}`,
         packagePrice: 0,
         answers: { businessType: industryName, hasWebsite: '', goal: 'More calls and leads', budget: '', timeline: '' },
         company_fax: form.company_fax,
@@ -66,9 +66,9 @@ export function FunnelBooking({ slug, industryName }: FunnelBookingProps) {
         <form onSubmit={submit} noValidate>
           <p className="text-xs font-bold tracking-[0.18em] uppercase text-blue-600">Step 1 of 2</p>
           <h2 className="mt-2 text-2xl sm:text-3xl font-extrabold font-display tracking-tight leading-tight">
-            Claim your free website
+            Book your free call
           </h2>
-          <p className="mt-2 text-neutral-600">$0 setup with a monthly plan from $284/mo. Takes 20 seconds, then pick a time for your call.</p>
+          <p className="mt-2 text-neutral-600">$99 to start, plans from $149/mo. Takes 20 seconds, then pick a time for your call.</p>
           <div className="mt-6 flex flex-col gap-3">
             <label className="sr-only" htmlFor="fb-name">Your name</label>
             <input id="fb-name" className={input} placeholder="Your name" autoComplete="name" value={form.contactName} onChange={set('contactName')} />

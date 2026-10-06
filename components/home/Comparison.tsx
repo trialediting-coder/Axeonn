@@ -19,7 +19,7 @@ const ROWS: ComparisonRow[] = [
   {
     dimension: 'Pricing',
     typical: 'A large up-front build fee, plus separate CRM and marketing retainers.',
-    axeon: '$2,800 or $5,800 setup, then from $284/mo, with the CRM pipeline, on-site video, and follow-up included in AxeonCORE',
+    axeon: '$99 to start, then a flat $149, $299, or $999 a month, with the CRM pipeline, follow-up, and AxeonPROOF included from AxeonCORE up',
   },
   {
     dimension: 'Timeline',

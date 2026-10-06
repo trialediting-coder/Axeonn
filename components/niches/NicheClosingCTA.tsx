@@ -31,8 +31,8 @@ export function NicheClosingCTA({ niche }: { niche: Niche }) {
           </a>
         </div>
         <p className="mt-6 text-xs text-neutral-500 max-w-xl mx-auto leading-relaxed">
-          Baseline set together on your kickoff call. Applies while you&apos;re on a monthly plan and answering new leads
-          within one business day.
+          Included with AxeonCORE and AxeonGROWTH. Baseline set together on your kickoff call. Applies while you&apos;re
+          on your plan and answering new leads within one business day.
         </p>
         <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-x-8 gap-y-3">
           <Link

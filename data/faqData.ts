@@ -42,12 +42,12 @@ export const faqItems: FaqItem[] = [
   {
     question: 'How much does it cost to work with Axeon?',
     answer:
-      'A one-time setup of $2,800 (Essentials) or $5,800 (AxeonCORE), then a monthly plan starting at $284 or $574. The final monthly amount depends on your market and what you want us to run, and we set it with you before you commit. We\'d rather be upfront about cost than make you book a call just to find out.',
+      '$99 to start, then a flat monthly plan: $149/mo (Essentials), $299/mo (AxeonCORE), or $999/mo plus ad spend (AxeonGROWTH). There\'s a 3-month minimum, then it\'s month-to-month. We\'d rather be upfront about cost than make you book a call just to find out.',
   },
   {
     question: 'Which plan should I pick?',
     answer:
-      'Essentials ($2,800 setup, then from $284/mo) gets you found and chosen: a site built to turn visitors into calls, plus Google and AI search visibility. AxeonCORE ($5,800 setup, then from $574/mo) adds the full lead system that gets you booked: CRM pipeline, AI chat & scheduling, automated follow-up, and on-site video. Not sure? We\'ll recommend one on the call.',
+      'Essentials ($149/mo) gets you found: a site built to turn visitors into calls, plus Google and AI search visibility. AxeonCORE ($299/mo) adds the full lead system that gets you booked, AxeonPROOF to track every lead, and the 90-day guarantee. AxeonGROWTH ($999/mo plus ad spend) adds Google & Meta ads, an AI phone receptionist, and on-site video. Not sure? We\'ll recommend one on the call.',
   },
 ];
 

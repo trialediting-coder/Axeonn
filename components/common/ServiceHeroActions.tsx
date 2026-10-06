@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ArrowRight, Phone } from 'lucide-react';
 
 interface ServiceHeroActionsProps {
-  /** Price anchor shown above the buttons, e.g. "Websites from $2,800 flat". */
+  /** Price anchor shown above the buttons, e.g. "Plans from $149/mo, $99 to start". */
   priceLine: string;
   /** Optional muted qualifier after the price line. */
   note?: string;
@@ -52,7 +52,7 @@ export function ServiceHeroActions({
           href="/pricing"
           className="inline-block mt-5 text-sm sm:text-base text-neutral-300 hover:text-white underline underline-offset-4"
         >
-          See both plans and what each includes
+          See all three plans and what each includes
         </Link>
       )}
     </div>

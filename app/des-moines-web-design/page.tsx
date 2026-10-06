@@ -11,7 +11,7 @@ export const metadata = buildMetadata({
   path: '/des-moines-web-design',
   title: 'Des Moines Web Design & Marketing Agency | Axeon Studio',
   description:
-    'Des Moines web design, local SEO, and ads that get you more customers, from one West Des Moines team. Plans from $2,800, backed by a 90-day guarantee.',
+    'Des Moines web design, local SEO, and ads that get you more customers, from one West Des Moines team. $99 to start, plans from $149/mo, backed by a 90-day guarantee.',
 });
 
 const webDesignServiceJsonLd = serviceJsonLd({
@@ -24,20 +24,20 @@ const webDesignServiceJsonLd = serviceJsonLd({
 
 const TEL_HREF = `tel:${BUSINESS.telephone.replace(/-/g, '')}`;
 
-// One system, three jobs. Lead-system pieces are AxeonCORE; ads are an add-on scoped on a call.
+// One system, three jobs. Lead-system pieces are AxeonCORE; ads and video are AxeonGROWTH (or add-ons).
 const SYSTEM = [
   {
     step: 'Get found',
     title: 'SEO & Ads',
     description:
-      'Show up on Google, the map, and AI answers when people across the metro search for what you do. Google & Meta Ads are an add-on, scoped on your call.',
+      'Show up on Google, the map, and AI answers when people across the metro search for what you do. Google & Meta Ads come with AxeonGROWTH, or as a +$399/mo add-on to AxeonCORE.',
     href: '/marketing-solutions/seo',
   },
   {
     step: 'Get chosen',
     title: 'Website & Video',
     description:
-      'A fast, custom site with your reviews up front, plus on-site video with AxeonCORE, so you look like the obvious pick.',
+      'A fast, custom site with your reviews up front, plus on-site video with AxeonGROWTH, so you look like the obvious pick.',
     href: '/marketing-solutions/website',
   },
   {
@@ -90,7 +90,7 @@ const LOCAL_FAQ = [
   {
     question: 'How much does a website cost in Des Moines?',
     answer:
-      'Our pricing is published. Essentials is $2,800 to set up, then from $284/mo. AxeonCORE is $5,800 to set up, then from $574/mo, and adds a Custom CRM Pipeline, AI chat & online scheduling, automated follow-up, and a half-day on-site video shoot. Both are backed by our 90-day customer guarantee.',
+      'Our pricing is published: $99 to start, then a flat monthly plan. Essentials is $149/mo. AxeonCORE is $299/mo and adds our AxeonPROOF dashboard, a Custom CRM Pipeline, AI chat & online scheduling, automated follow-up, and our 90-day customer guarantee. AxeonGROWTH is $999/mo plus ad spend and adds Google & Meta ads, an AI phone receptionist, and a half-day on-site video shoot.',
   },
   {
     question: 'Will my business show up when people search on Google or ask ChatGPT?',
@@ -257,9 +257,9 @@ export default function DesMoinesWebDesignPage() {
             </ol>
           </div>
           <p className="mt-6 text-sm sm:text-base text-neutral-700">
-            Essentials: $2,800 setup, then from $284/mo. AxeonCORE: $5,800 setup, then from $574/mo.{' '}
+            Essentials $149/mo, AxeonCORE $299/mo, AxeonGROWTH $999/mo. $99 to start.{' '}
             <Link href="/pricing" className="font-semibold text-blue-600 hover:underline">
-              See both plans &rarr;
+              See all three plans &rarr;
             </Link>
           </p>
         </div>

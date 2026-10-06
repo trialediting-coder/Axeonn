@@ -21,9 +21,9 @@ const BANNED_PHRASE_PATTERNS: { pattern: RegExp; reason: string }[] = [
   { pattern: /your business.? your partner/i, reason: 'Uses the retired tagline "Your Business. Your Partner." (current tagline: "We Get You Customers, Not Clicks.").' },
   { pattern: /axeoncore retainer/i, reason: 'References the retired "AxeonCORE retainer" plan name.' },
   { pattern: /\$\s?490|\b490\s*(\/|per|a)\s*mo/i, reason: 'References the retired $490/month plan.' },
-  // Monthly plans start at $284 and $574 (set per client); no other monthly figure.
-  { pattern: /\$\s?(?!284\b|574\b)\d[\d,]*\s*(\/|per|a)\s*(mo|month)\b/i, reason: 'States a monthly price other than the starting $284 or $574.' },
-  { pattern: /(?<!from |at )\$\s?(284|574)\s*(\/|per|a)\s*(mo|month)\b/i, reason: 'States $284/$574 as a fixed monthly price; write "from" or "starting at".' },
+  // Monthly prices are flat: $149 / $299 / $999 plans, +$399 ads and +$199 receptionist add-ons, $500 ad-spend minimum.
+  { pattern: /\$\s?(?!149\b|299\b|999\b|399\b|199\b|500\b)\d[\d,]*\s*(\/|per|a)\s*(mo|month)\b/i, reason: 'States a monthly price that is not one of the published ones ($149, $299, $999, +$399, +$199, $500 ad spend).' },
+  { pattern: /\$\s?(284|574|2,?800|5,?800)\b/, reason: 'Cites a retired price ($284/$574 monthly or $2,800/$5,800 setup).' },
   { pattern: /guarantee[^.]{0,80}\b\d+\s*(%|percent|leads|calls|customers|jobs)/i, reason: 'Turns the 90-day customer guarantee into a number; quote it only as approved.' },
   { pattern: /no (recurring |monthly |ongoing )+(fees?|costs?|plan)|no monthly plan bundled/i, reason: 'Claims there is no recurring fee — never make claims about ongoing fees either way.' },
   { pattern: /\b(7|14|seven|fourteen)[\s-]*(to|–|-)?[\s-]*(14|fourteen)?[\s-]*(business[\s-]*)?days?\b/i, reason: 'Promises a specific build timeline — describe speed in relative terms instead.' },

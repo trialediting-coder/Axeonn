@@ -11,7 +11,11 @@ import {
   LayoutTemplate,
   Sparkles,
   ArrowRight,
+  Gauge,
+  Megaphone,
+  PhoneCall,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   pricingTiers,
@@ -19,8 +23,18 @@ import {
   pricingFaqs,
   guaranteeSentence,
   FEATURED_BULLETS,
+  MINIMUM_TERM,
+  ANNUAL_DEAL,
+  type HighlightIcon,
   type PricingTier,
 } from '@/data/pricingData';
+
+const HIGHLIGHT_ICONS: Record<HighlightIcon, LucideIcon> = {
+  proof: Gauge,
+  ads: Megaphone,
+  video: Clapperboard,
+  phone: PhoneCall,
+};
 
 const pricingFaqJsonLd = {
   '@context': 'https://schema.org',
@@ -71,16 +85,15 @@ export function PricingSection({
             [ PRICING ]
           </span>
           <h2 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold font-display tracking-tight text-neutral-950 mb-6 leading-[1.08]">
-            Two plans. Both backed by a guarantee.
+            Simple monthly pricing. $99 to start.
           </h2>
           <p className="text-lg sm:text-2xl text-neutral-600 leading-relaxed max-w-3xl mx-auto">
-            A one-time setup, then a monthly plan that keeps new customers coming in. Monthly plans start at $284 and
-            are tailored to your market on the call.
+            No big build fee. A {MINIMUM_TERM.toLowerCase()}, matched to our 90-day guarantee. {ANNUAL_DEAL}
           </p>
         </div>
 
         {/* The guarantee: its own full-width blue band, at display size. */}
-        <div className="max-w-6xl mx-auto rounded-[28px] sm:rounded-[36px] bg-blue-600 text-white px-6 py-10 sm:px-12 sm:py-14 lg:px-16 shadow-xl shadow-blue-600/20">
+        <div className="max-w-7xl mx-auto rounded-[28px] sm:rounded-[36px] bg-blue-600 text-white px-6 py-10 sm:px-12 sm:py-14 lg:px-16 shadow-xl shadow-blue-600/20">
           <div className="flex items-center gap-2.5 text-xs sm:text-sm font-mono font-bold tracking-widest uppercase text-blue-100">
             <ShieldCheck size={18} className="shrink-0" />
             <span>[ 90-DAY CUSTOMER GUARANTEE ]</span>
@@ -89,12 +102,12 @@ export function PricingSection({
             {guaranteeSentence}
           </p>
           <p className="mt-5 text-sm sm:text-base text-blue-100 leading-relaxed max-w-3xl">
-            Baseline set together on your kickoff call. Applies while you&apos;re on a monthly plan and answering new
-            leads within one business day.
+            Included with AxeonCORE and AxeonGROWTH. Baseline set together on your kickoff call and tracked in
+            AxeonPROOF. Applies while you&apos;re on your plan and answering new leads within one business day.
           </p>
         </div>
 
-        <div className="mt-12 sm:mt-16 grid lg:grid-cols-2 gap-8 lg:gap-10 items-stretch max-w-6xl mx-auto">
+        <div className="mt-12 sm:mt-16 grid lg:grid-cols-3 gap-8 lg:gap-6 xl:gap-8 items-stretch max-w-7xl mx-auto">
           {pricingTiers.map((tier) => (
             <PlanCard key={tier.id} tier={tier} />
           ))}
@@ -108,7 +121,7 @@ export function PricingSection({
           <h3 className="text-2xl sm:text-3xl font-bold font-display text-neutral-950 mb-8 text-center">
             Add More Ways to Win Customers
           </h3>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-6xl mx-auto">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto">
             {addOns.map((addOn) => (
               <div
                 key={addOn.name}
@@ -178,43 +191,75 @@ export function PricingSection({
   );
 }
 
-function FeatureItem({ feature, isPlain, highlight }: { feature: string; isPlain: boolean; highlight: boolean }) {
+type CardVariant = PricingTier['variant'];
+
+function FeatureItem({
+  feature,
+  variant,
+  highlight,
+}: {
+  feature: string;
+  variant: CardVariant;
+  highlight?: HighlightIcon;
+}) {
+  const isPremium = variant === 'premium';
   if (highlight) {
+    const Icon = HIGHLIGHT_ICONS[highlight];
     return (
-      <li className="flex gap-3.5 text-base sm:text-lg leading-relaxed rounded-2xl p-4 sm:p-5 -mx-1 bg-blue-50 border border-blue-100">
-        <Clapperboard size={22} className="shrink-0 mt-0.5 text-blue-500" />
+      <li
+        className={`flex gap-3.5 text-base leading-relaxed rounded-2xl p-4 -mx-1 border ${
+          isPremium ? 'bg-white/5 border-white/10' : 'bg-blue-50 border-blue-100'
+        }`}
+      >
+        <Icon size={22} className={`shrink-0 mt-0.5 ${isPremium ? 'text-blue-400' : 'text-blue-500'}`} />
         <span className="font-semibold">{feature}</span>
       </li>
     );
   }
   return (
-    <li className="flex gap-3.5 text-base sm:text-lg leading-relaxed">
-      <Check size={20} className={`shrink-0 mt-1 ${isPlain ? 'text-neutral-400' : 'text-blue-600'}`} />
+    <li className="flex gap-3.5 text-base leading-relaxed">
+      <Check
+        size={20}
+        className={`shrink-0 mt-1 ${
+          variant === 'plain' ? 'text-neutral-400' : isPremium ? 'text-blue-400' : 'text-blue-600'
+        }`}
+      />
       <span>{feature}</span>
     </li>
   );
 }
 
+const CARD_STYLES: Record<CardVariant, string> = {
+  plain: 'bg-neutral-50 text-neutral-900 border border-neutral-200 shadow-sm',
+  featured:
+    'bg-white text-neutral-950 border-2 border-blue-600 shadow-2xl shadow-blue-600/20 ring-8 ring-blue-600/10 z-10',
+  premium: 'bg-[#080b12] text-white border border-neutral-800 shadow-xl',
+};
+
+const CTA_STYLES: Record<CardVariant, string> = {
+  plain: 'bg-white hover:bg-neutral-100 text-neutral-900 border border-neutral-300',
+  featured: 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30',
+  premium: 'bg-white hover:bg-neutral-200 text-neutral-950',
+};
+
 /**
- * The entry tier is deliberately the plain card and the featured (recommended)
- * tier the loud one, so the eye lands on the tier we want to sell. Each card
- * shows its strongest bullets up front; the rest stay one tap away in a native
- * <details>, so they remain in the HTML for crawlers.
+ * Three cards, one job each: the entry tier is the plain card, the tier we
+ * sell is the loud one (so the eye lands there), and the top tier is dark so
+ * it reads as the premium option. Each card shows its strongest bullets up
+ * front; the rest stay one tap away in a native <details>, so they remain in
+ * the HTML for crawlers.
  */
 function PlanCard({ tier }: { tier: PricingTier }) {
-  const isPlain = !tier.featured;
-  const highlights = new Set(tier.highlightFeatures ?? []);
+  const { variant } = tier;
+  const isPlain = variant === 'plain';
+  const isPremium = variant === 'premium';
+  const highlights = new Map((tier.highlightFeatures ?? []).map((h) => [h.feature, h.icon]));
   const shown = tier.features.slice(0, FEATURED_BULLETS);
   const rest = tier.features.slice(FEATURED_BULLETS);
+  const muted = isPremium ? 'text-neutral-400' : 'text-neutral-500';
 
   return (
-    <div
-      className={`relative rounded-[28px] sm:rounded-[32px] p-6 sm:p-10 lg:p-12 flex flex-col ${
-        isPlain
-          ? 'bg-neutral-50 text-neutral-900 border border-neutral-200 shadow-sm'
-          : 'bg-white text-neutral-950 border-2 border-blue-600 shadow-2xl shadow-blue-600/20 ring-8 ring-blue-600/10 z-10'
-      }`}
-    >
+    <div className={`relative rounded-[28px] sm:rounded-[32px] p-6 sm:p-10 lg:p-8 xl:p-10 flex flex-col ${CARD_STYLES[variant]}`}>
       {tier.badge && (
         <span className="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold tracking-wide uppercase shadow-md whitespace-nowrap bg-blue-600 text-white">
           {tier.badge}
@@ -224,7 +269,7 @@ function PlanCard({ tier }: { tier: PricingTier }) {
       <h3 className="text-2xl sm:text-3xl font-bold font-display mb-1.5">{tier.name}</h3>
       <p
         className={`text-sm sm:text-base font-semibold mb-4 uppercase tracking-wide ${
-          isPlain ? 'text-neutral-500' : 'text-blue-600'
+          isPlain ? 'text-neutral-500' : isPremium ? 'text-blue-400' : 'text-blue-600'
         }`}
       >
         {tier.focus}
@@ -232,26 +277,32 @@ function PlanCard({ tier }: { tier: PricingTier }) {
       {tier.bestFor && (
         <p
           className={`text-sm sm:text-base leading-relaxed mb-6 rounded-xl px-4 py-3 ${
-            isPlain ? 'bg-white border border-neutral-200 text-neutral-700' : 'bg-blue-50 text-blue-900'
+            isPlain
+              ? 'bg-white border border-neutral-200 text-neutral-700'
+              : isPremium
+                ? 'bg-white/5 text-neutral-300'
+                : 'bg-blue-50 text-blue-900'
           }`}
         >
           {tier.bestFor}
         </p>
       )}
-      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <span className="text-4xl sm:text-6xl font-black tracking-tight whitespace-nowrap">{tier.price}</span>
-        <span className="text-sm sm:text-base text-neutral-500">{tier.billingNote.toLowerCase()}</span>
+      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+        <span className="text-5xl sm:text-6xl font-black tracking-tight whitespace-nowrap">{tier.price}</span>
+        <span className={`text-base sm:text-lg font-semibold ${muted}`}>{tier.billingNote}</span>
       </div>
-      <p className="mt-1 text-lg sm:text-xl font-bold text-neutral-900">then {tier.monthly}</p>
-      <p className="mt-1 text-sm sm:text-base text-neutral-500 leading-relaxed mb-8">{tier.monthlyNote}</p>
+      <p className={`mt-2 text-lg sm:text-xl font-bold ${isPremium ? 'text-white' : 'text-neutral-900'}`}>
+        {tier.startFee}
+      </p>
+      <p className={`mt-1 text-sm sm:text-base leading-relaxed mb-8 ${muted}`}>{tier.startNote}</p>
 
       {tier.inherits && (
-        <p className="text-sm sm:text-base font-bold uppercase tracking-wide mb-4 text-neutral-500">{tier.inherits}</p>
+        <p className={`text-sm sm:text-base font-bold uppercase tracking-wide mb-4 ${muted}`}>{tier.inherits}</p>
       )}
 
       <ul className="space-y-4">
         {shown.map((feature) => (
-          <FeatureItem key={feature} feature={feature} isPlain={isPlain} highlight={highlights.has(feature)} />
+          <FeatureItem key={feature} feature={feature} variant={variant} highlight={highlights.get(feature)} />
         ))}
       </ul>
 
@@ -259,7 +310,11 @@ function PlanCard({ tier }: { tier: PricingTier }) {
         <details className="group mt-5">
           <summary
             className={`list-none [&::-webkit-details-marker]:hidden inline-flex items-center gap-1.5 cursor-pointer text-sm sm:text-base font-semibold ${
-              isPlain ? 'text-neutral-700 hover:text-neutral-950' : 'text-blue-600 hover:text-blue-700'
+              isPlain
+                ? 'text-neutral-700 hover:text-neutral-950'
+                : isPremium
+                  ? 'text-blue-400 hover:text-blue-300'
+                  : 'text-blue-600 hover:text-blue-700'
             }`}
           >
             <span className="group-open:hidden">See everything included ({rest.length} more)</span>
@@ -268,7 +323,7 @@ function PlanCard({ tier }: { tier: PricingTier }) {
           </summary>
           <ul className="space-y-4 mt-5">
             {rest.map((feature) => (
-              <FeatureItem key={feature} feature={feature} isPlain={isPlain} highlight={highlights.has(feature)} />
+              <FeatureItem key={feature} feature={feature} variant={variant} highlight={highlights.get(feature)} />
             ))}
           </ul>
         </details>
@@ -278,15 +333,11 @@ function PlanCard({ tier }: { tier: PricingTier }) {
 
       <Link
         href={`/book?tier=${tier.id}`}
-        className={`text-center py-4 rounded-full font-bold text-base sm:text-lg transition-colors shadow-sm ${
-          isPlain
-            ? 'bg-white hover:bg-neutral-100 text-neutral-900 border border-neutral-300'
-            : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30'
-        }`}
+        className={`text-center py-4 rounded-full font-bold text-base sm:text-lg transition-colors shadow-sm ${CTA_STYLES[variant]}`}
       >
         {tier.cta}
       </Link>
-      <p className="mt-3 text-center text-xs sm:text-sm text-neutral-500">
+      <p className={`mt-3 text-center text-xs sm:text-sm ${muted}`}>
         Free 20-minute call, no obligation.{' '}
         <a href="tel:+15154938017" className="font-semibold underline underline-offset-2">
           Or call (515) 493-8017
@@ -297,13 +348,13 @@ function PlanCard({ tier }: { tier: PricingTier }) {
 }
 
 /**
- * Not a third plan: a slim strip under the two plans. Booking the free call
+ * Not a fourth plan: a slim strip under the plans. Booking the free call
  * comes with a custom homepage mockup and an AI visibility report, and covers
- * custom scopes neither plan fits.
+ * custom scopes no plan fits.
  */
 function FreeConsultationStrip() {
   return (
-    <div className="mt-8 max-w-6xl mx-auto rounded-3xl border border-neutral-200 bg-[#F7F6F3] px-6 py-6 sm:px-8 sm:py-7 flex flex-col lg:flex-row lg:items-center gap-5 lg:gap-10">
+    <div className="mt-8 max-w-7xl mx-auto rounded-3xl border border-neutral-200 bg-[#F7F6F3] px-6 py-6 sm:px-8 sm:py-7 flex flex-col lg:flex-row lg:items-center gap-5 lg:gap-10">
       <div className="flex-1 min-w-0">
         <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">
           [ NOT SURE YET? $0 CONSULTATION ]
@@ -322,7 +373,7 @@ function FreeConsultationStrip() {
           </li>
           <li className="flex items-center gap-2">
             <Check size={16} className="shrink-0 text-blue-600" />
-            Yours to keep, or a custom scope if neither plan fits
+            Yours to keep, or a custom scope if no plan fits
           </li>
         </ul>
       </div>

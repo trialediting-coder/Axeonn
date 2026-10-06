@@ -47,18 +47,18 @@ export default function AIChatSchedulingPage() {
         eyebrow="Services · AI Chat & Scheduling"
         title="Never miss a lead, even after hours."
         subtitle="Answers questions and books appointments on your site 24/7, so after-hours visitors don't go to whoever answers first."
-        priceLine="Included in AxeonCORE, from $5,800 setup"
+        priceLine="Included in AxeonCORE, $299/mo"
         note="AI chat, scheduling and follow-up in one build"
       />
       <ProblemSection data={d.problem} />
       <DeliverablesSection detail={d} />
 
-      {/* Add-on, not part of either plan: kept below the core offer on purpose. */}
+      {/* Included in AxeonGROWTH, an add-on otherwise: kept below the core offer on purpose. */}
       <section className="w-full px-4 sm:px-8 lg:px-16 py-16 sm:py-24 bg-white text-neutral-950">
         <div className="max-w-5xl mx-auto rounded-3xl bg-neutral-950 text-white px-6 py-12 sm:px-12 sm:py-14 text-center">
           <Eyebrow label="Add-on" onDark className="mb-4" />
           <h2 className="text-2xl sm:text-4xl font-black font-display tracking-tight leading-[1.15] text-balance">
-            Add-on: AI phone receptionist, scoped on your call
+            AI phone receptionist: included in AxeonGROWTH, or +$199/mo
           </h2>
           <p className="mt-4 text-neutral-400 leading-relaxed max-w-2xl mx-auto">
             Want your phone answered the same way? Hear a real recorded call from Axeon&apos;s AI receptionist next to a

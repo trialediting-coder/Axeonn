@@ -80,8 +80,8 @@ test('spot checks against the shipped config', () => {
 
 // ---- custom fallback -------------------------------------------------------
 
-test('custom: 5+ services', () => {
-  assert.equal(matchPackage({ ...base, services: [...SERVICES] }).id, 'custom');
+test('growth: every service at once', () => {
+  assert.equal(matchPackage({ ...base, services: [...SERVICES] }).id, 'axeongrowth');
 });
 
 test('custom: $3k+ budget, even for a single service', () => {
@@ -90,11 +90,15 @@ test('custom: $3k+ budget, even for a single service', () => {
   }
 });
 
-test('custom: no good match', () => {
-  // Ads are an add-on scoped on a call, alone or with anything else.
-  assert.equal(matchPackage({ ...base, services: ['Meta Ads'] }).id, 'custom');
-  assert.equal(matchPackage({ ...base, services: ['Google Ads', 'Meta Ads'] }).id, 'custom');
-  assert.equal(matchPackage({ ...base, services: ['Website', 'Meta Ads'] }).id, 'custom');
+test('growth: any ads pick routes to AxeonGROWTH', () => {
+  assert.equal(matchPackage({ ...base, services: ['Meta Ads'] }).id, 'axeongrowth');
+  assert.equal(matchPackage({ ...base, services: ['Google Ads', 'Meta Ads'] }).id, 'axeongrowth');
+  assert.equal(matchPackage({ ...base, services: ['Website', 'Meta Ads'] }).id, 'axeongrowth');
+});
+
+test('custom: ads on an under-$1k budget', () => {
+  // Ad spend sits on top of the $999/mo, so this needs a call.
+  assert.equal(matchPackage({ ...base, services: ['Google Ads'], budget: 'Under $1,000' }).id, 'custom');
 });
 
 test('custom: empty services or missing budget', () => {

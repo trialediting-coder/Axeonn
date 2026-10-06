@@ -4,7 +4,7 @@ import type { Niche } from '@/data/nichesData';
 import { nicheHeroTempImages, defaultNicheHeroTempImage } from '@/data/nicheHeroTempImages';
 import { pricingTiers } from '@/data/pricingData';
 
-const corePrice = pricingTiers.find((t) => t.id === 'core-web-build')?.price ?? '$2,800';
+const corePrice = pricingTiers.find((t) => t.id === 'core-web-build')?.price ?? '$149';
 
 export function NicheHero({ niche }: { niche: Niche }) {
   const heroImage = nicheHeroTempImages[niche.slug] ?? defaultNicheHeroTempImage;
@@ -42,7 +42,7 @@ export function NicheHero({ niche }: { niche: Niche }) {
 
         {/* Price anchor: the #1 objection, answered before the first scroll */}
         <p className="inline-flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 rounded-2xl sm:rounded-full bg-white/[0.07] border border-white/15 px-4 py-2 text-sm sm:text-base text-neutral-200 mb-8">
-          <span className="font-bold text-white">Plans from {corePrice} setup</span>
+          <span className="font-bold text-white">Plans from {corePrice}/mo</span>
           <span className="text-neutral-400">
             <span className="hidden sm:inline">&middot; </span>backed by our 90-Day Customer Guarantee
           </span>
@@ -67,7 +67,7 @@ export function NicheHero({ niche }: { niche: Niche }) {
           href="/pricing"
           className="inline-block text-sm sm:text-base text-neutral-300 hover:text-white underline underline-offset-4"
         >
-          See both plans and what each includes
+          See all three plans and what each includes
         </Link>
       </div>
     </section>

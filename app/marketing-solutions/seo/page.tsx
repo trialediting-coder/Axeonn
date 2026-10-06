@@ -44,7 +44,7 @@ export default function SeoMarketingSolutionPage() {
         eyebrow="Services · SEO / AEO / GEO"
         title="Get Found on Google. Get Cited by AI."
         subtitle="Show up when people nearby search for what you do: on Google, on the map, and inside AI answers. Built into every site we build, not sold separately."
-        priceLine="Built into every site, from $2,800 setup"
+        priceLine="Built into every plan, from $149/mo"
         note="not bolted on"
       />
       <ProblemSection data={d.problem} />

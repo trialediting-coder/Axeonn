@@ -23,8 +23,8 @@ export async function generateMetadata({ params }: { params: Promise<{ industry:
   const funnel = adFunnelFor(industry);
   if (!funnel) return {};
   return {
-    title: `Free Website With a Plan From $284/mo | ${funnel.titleLabel}`,
-    description: `Get a free website for your ${funnel.business}: $0 setup with a monthly plan from $284/mo, built to get you more ${funnel.customers}.`,
+    title: `A New Website, $99 to Start | ${funnel.titleLabel}`,
+    description: `A custom website for your ${funnel.business}: $99 to start, plans from $149/mo, built to get you more ${funnel.customers}.`,
     robots: { index: false, follow: false },
   };
 }
@@ -39,7 +39,7 @@ const SHOW_PLACEHOLDERS = process.env.VERCEL_ENV === 'preview' || process.env.NO
 
 const GUARANTEE = 'More calls and leads in your first 90 days than you were getting before, or we keep working for free until you do.';
 const GUARANTEE_TERMS =
-  "Baseline set together on your kickoff call. Applies while you're on a monthly plan and answering new leads within one business day.";
+  "Included with AxeonCORE and AxeonGROWTH. Baseline set together on your kickoff call. Applies while you're on your plan and answering new leads within one business day.";
 
 function CTA({ label = 'Book My Free Call', dark = false }: { label?: string; dark?: boolean }) {
   return (
@@ -77,9 +77,9 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
   const sameIndustryProof = niche.slug === 'auto-detailing';
   const faqs = [
     {
-      question: 'Is the website really free?',
+      question: 'What does it cost?',
       answer:
-        'Yes. The $2,800 setup fee for your website build is waived. You only pay the monthly plan, which starts at $284/mo and keeps your site hosted, secure, and bringing in customers, with a monthly report on every call and lead. We confirm the exact monthly price on your call, before you commit to anything.',
+        '$99 to start, with no big build fee. Then a flat monthly plan: $149/mo for Essentials, or $299/mo for AxeonCORE, which adds the full lead system, our AxeonPROOF dashboard, and the 90-day guarantee. There\u2019s a 3-month minimum, then it\u2019s month-to-month.',
     },
     {
       question: 'Do I get anything if I don\u2019t sign up?',
@@ -89,7 +89,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
     {
       question: 'What if I want the full system with AI chat and follow-up?',
       answer:
-        'That\u2019s our AxeonCORE plan. We\u2019ll walk you through it on the call and price any upgrade before you commit.',
+        'That\u2019s our AxeonCORE plan, $299/mo. It adds AI chat & booking, missed-call text-back, automated follow-up, and AxeonPROOF to track every lead. We\u2019ll walk you through it on the call.',
     },
     {
       question: 'What if it doesn’t work?',
@@ -125,10 +125,10 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
           <div className="lg:col-span-7 lg:pt-6">
             <p className="text-sm font-bold tracking-[0.18em] uppercase text-blue-400">For {funnel.audience}</p>
             <h1 className="mt-4 text-4xl sm:text-5xl lg:text-6xl font-black font-display tracking-tight leading-[1.05] text-balance">
-              Get a Free Website for Your {funnel.business.replace(/\b\w/g, (c) => c.toUpperCase())}
+              A New Website for Your {funnel.business.replace(/\b\w/g, (c) => c.toUpperCase())}, $99 to Start
             </h1>
             <p className="mt-4 text-base sm:text-lg font-semibold text-white">
-              $0 setup (the $2,800 Essentials fee waived) when you start a monthly plan from $284/mo.
+              No big build fee: $99 to start, then plans from $149/mo. 3-month minimum, then month-to-month.
             </p>
             <p className="mt-4 text-lg sm:text-xl text-neutral-300 leading-relaxed max-w-xl">
               {funnel.result}
@@ -147,9 +147,9 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
             </ul>
             <div className="mt-8 grid grid-cols-3 max-w-lg rounded-2xl border border-white/15 divide-x divide-white/15 text-center">
               {[
-                { v: '$0', l: 'setup (save $2,800)' },
-                { v: 'from $284', l: 'per month' },
-                { v: '90-day', l: 'customer guarantee' },
+                { v: '$99', l: 'to start' },
+                { v: 'from $149', l: 'per month' },
+                { v: '90-day', l: 'guarantee with AxeonCORE' },
               ].map((o) => (
                 <div key={o.l} className="px-3 py-4">
                   <p className="text-2xl sm:text-3xl font-black font-display tracking-tight">{o.v}</p>
@@ -254,7 +254,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
             {[
               { t: 'We look at how customers find you today', d: 'Your Google listing, your site, and how you show up in AI answers.' },
               { t: 'You see your homepage mockup', d: 'A custom design for your business, plus your AI visibility report.' },
-              { t: 'You claim your free website', d: '$0 setup, monthly plan from $284/mo. No pressure: keep the mockup and report either way.' },
+              { t: 'You pick your plan', d: '$99 to start, plans from $149/mo. No pressure: keep the mockup and report either way.' },
             ].map((s) => (
               <li key={s.t} className="relative pl-8 sm:pl-10 pb-10 last:pb-0">
                 <span className="absolute -left-[7px] top-1.5 w-3.5 h-3.5 rounded-full bg-blue-500 ring-4 ring-neutral-950" />
@@ -292,9 +292,9 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
       {/* 10. Final CTA */}
       <section className="px-4 sm:px-8 py-20 sm:py-28 text-center">
         <h2 className="text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1] max-w-3xl mx-auto text-balance">
-          Get your free website
+          Get your new website
         </h2>
-        <p className="mt-5 text-lg text-neutral-600">$0 setup with a monthly plan from $284/mo. Free mockup and AI visibility report on your call.</p>
+        <p className="mt-5 text-lg text-neutral-600">$99 to start, plans from $149/mo. Free mockup and AI visibility report on your call.</p>
         <div className="mt-10">
           <CTA />
         </div>

@@ -8,7 +8,7 @@ import { ArrowRight } from 'lucide-react';
 export const GUARANTEE_LINE =
   'More calls and leads in your first 90 days than you were getting before, or we keep working for free until you do.';
 export const GUARANTEE_TERMS =
-  'Baseline set together on your kickoff call. Applies while you’re on a monthly plan and answering new leads within one business day.';
+  'Included with AxeonCORE and AxeonGROWTH. Baseline set together on your kickoff call. Applies while you’re on your plan and answering new leads within one business day.';
 
 export function ServiceClosingCta({ trackId }: { trackId?: string }) {
   return (

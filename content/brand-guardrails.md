@@ -17,39 +17,43 @@ local-only.
   only in this form: "More calls and leads in your first 90 days than you were
   getting before, or we keep working for free until you do." Conditions: the
   baseline is set together on the kickoff call and tracked from day one; it
-  applies while the client is on their monthly plan and answering new leads
-  within one business day. Never turn it into a specific lead count or
+  comes with AxeonCORE and AxeonGROWTH, and applies while the client is on
+  their plan and answering new leads within one business day. Never turn it into a specific lead count or
   percentage.
 
 ## Real pricing (never state a different number)
-- Every plan is a one-time setup plus a monthly plan that starts after launch.
-- Ad landing pages only (/go/*, owner decision 2026-10-04): "Get a free website" means the
-  $2,800 Essentials setup is waived when the client starts a monthly plan from
-  $284/month. Always state that condition next to the word "free". Never call a
-  website free without it.
-- Essentials (renamed from "Core Web Build" on 2026-09-27): $2,800 one-time
-  setup, then from $284/month. The entry plan; AxeonCORE is the recommended,
-  featured plan.
-- AxeonCORE: $5,800 one-time setup, then from $574/month (owner decision
-  2026-10-03: AxeonCORE is Axeon's customer engine; the $5,800 is its setup). Includes custom
-  on-site videography (half-day shoot: hero film, 3 vertical cuts, photo set)
-  and the lead system: Custom CRM Pipeline, AI chat & scheduling, multi-step
-  intake, automated SMS/email follow-up, speed-to-lead call connect,
-  missed-call text-back, exit-intent offers, and call tracking. Never attach a
-  percentage or lead-lift number to any of these.
-- Custom on-site videography as an add-on to Essentials: $1,500.
-- Monthly plans (owner decisions 2026-09-23 and 2026-10-03): $284/month and
-  $574/month are STARTING prices; the final amount is set per client on the
-  call and can go up or down. Always write "from $284/mo" / "starting at
-  $574/mo", never as a fixed price, and never state any other monthly figure.
-  Essentials monthly covers hosting, security, Google Business Profile upkeep,
-  local search upkeep, and a monthly calls & leads report. AxeonCORE monthly
-  adds the lead system kept running and improving (CRM pipeline, AI chat,
-  automated follow-up, call tracking) and a monthly strategy call.
-  The $49/month basics arrangement for existing clients is private: never
-  mention it. Never cite the retired "$490/month" figure. There is no public
-  /pay page (removed 2026-10-03); payments go through personalized links and
-  invoices.
+- Three plans, owner decision 2026-10-05 (local, cheap, easy entry). Flat
+  monthly prices: never write "from $299/mo" or "starting at" for a single
+  plan; "plans from $149/mo" is fine when describing the range.
+- Every plan: $99 to start (AxeonGROWTH: $1,500, which covers the on-site
+  video shoot), a 3-month minimum matched to the 90-day guarantee, then
+  month-to-month. A year paid up front gets 2 months free.
+- Essentials: $149/month. The entry tier: up to 4 pages, SEO/AEO/GEO, Google
+  Business Profile upkeep, quote form with instant lead alerts, hosting and
+  security, 2 small edits a month, a monthly calls & leads email report.
+- AxeonCORE: $299/month. The middle tier and the one we sell ("Recommended";
+  only switch to "Most Popular" once real sales show it outsells the other
+  two combined). Adds AxeonPROOF (Axeon's own client dashboard), the 90-day
+  customer guarantee, missed-call text-back, speed-to-lead call connect, AI
+  chat & scheduling, automated SMS/email follow-up and CRM pipeline, call
+  tracking, review requests, exit-intent offers, 5-7 pages, 5 edits a month.
+- AxeonGROWTH: $999/month plus ad spend. The premium tier. Adds Google & Meta
+  ads management, an AI phone receptionist, a half-day on-site video shoot
+  (hero film, 3 vertical cuts, photo set), AxeonPROOF ad reporting, a new
+  service page every month, full review campaigns, a monthly strategy call,
+  same-day priority support.
+- Ad spend: $500/month minimum, paid on the client's own card into their own
+  ad account, no markup.
+- Add-ons: Google & Meta ads management on AxeonCORE +$399/month (not offered
+  on Essentials), AI phone receptionist +$199/month, extra service page $450,
+  on-site videography $1,500. Keep CORE + add-ons priced above AxeonGROWTH.
+- The 90-day guarantee comes with AxeonCORE and AxeonGROWTH only.
+- Never attach a percentage or lead-lift number to any feature.
+- Retired, never cite: the $2,800/$5,800 setup fees, the $284/$574 monthly
+  plans, the "free website / $0 setup" ad offer, "$490/month". The $49/month
+  basics arrangement for existing clients is private: never mention it.
+  Existing clients keep their current rates. There is no public /pay page
+  (removed 2026-10-03); payments go through personalized links and invoices.
 
 ## Real, currently-live services (safe to describe as offered)
 - Custom website design and development.
@@ -58,27 +62,24 @@ local-only.
 - Lead generation / Custom CRM Pipeline.
 - Video & photography.
 - Advertising: Google Ads (Search) and Meta Ads (Facebook & Instagram)
-  management (live since 2026-09-28). No published price; it is scoped on a
-  strategy call. Never promise ROAS, cost-per-lead, or lift numbers.
-- AxeonCORE growth add-ons (owner decision 2026-10-03), all scoped on a
-  strategy call with no published price: AI phone receptionist, Google & Meta
-  Ads, ongoing SEO & content, reviews & social. The AI phone receptionist is
-  NOT included in either plan; only AI chat & scheduling is (AxeonCORE).
-  Never state an add-on price.
+  management (live since 2026-09-28). Included in AxeonGROWTH, or +$399/month
+  on AxeonCORE. Never promise ROAS, cost-per-lead, or lift numbers.
+- AI phone receptionist: included in AxeonGROWTH, or +$199/month on AxeonCORE.
+  Not part of Essentials or base AxeonCORE (AxeonCORE has AI chat & scheduling).
 
 ## NOT currently live — never imply these are offered
 - Local Services Ads management.
 - ChatGPT Ads or any other paid AI-platform advertising product.
 
 ## Banned / retired terminology
-- Do not call the $2,800 tier a "sprint" or otherwise use "sprint" as a
+- Do not call any tier a "sprint" or otherwise use "sprint" as a
   headline value proposition.
 - Never promise a specific build timeline (no "7 days", "14 days", "7–14
   days", etc.). Describe speed in relative terms instead — "fast turnaround",
   "a fraction of the time a typical agency takes", "not six months".
 - Never refer to "Operations Retainer" or an "AxeonCORE retainer" — those plans
-  are retired. "AxeonCORE" is Axeon's customer engine: a $5,800 one-time setup
-  plus a monthly plan from $574/month.
+  are retired. "AxeonCORE" is the $299/month middle plan; AxeonGROWTH is the
+  $999/month top plan.
 
 ## Never fabricate
 - No invented client results, case studies, testimonials, or before/after

@@ -2,9 +2,8 @@ import Link from 'next/link';
 import { ArrowRight, ArrowUpRight, Megaphone, PhoneCall, Search, Star } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
-// AxeonCORE is the growth engine, not a package. The $5,800 "AxeonCORE Build"
-// is the setup; these engine add-ons are scoped on the strategy call.
-// Owner rule: never show add-on prices or the word "monthly" here.
+// The channels you add once a plan is working. All four come with AxeonGROWTH;
+// on AxeonCORE they are add-ons (prices live on /pricing, data/pricingData.ts).
 interface EngineModule {
   icon: LucideIcon;
   title: string;
@@ -40,12 +39,17 @@ const engineModules: EngineModule[] = [
 ];
 
 const builds = [
-  { name: 'Essentials', price: '$2,800 + from $284/mo', line: 'Get found: Google, AI search, a site that converts, and instant lead alerts.' },
+  { name: 'Essentials', price: '$149/mo', line: 'Get found: Google, AI search, a site that converts, and instant lead alerts.' },
   {
     name: 'AxeonCORE',
-    price: '$5,800 + from $574/mo',
-    line: 'Get found, chosen, and booked: adds on-site video, the CRM pipeline, AI chat, and automated follow-up.',
+    price: '$299/mo',
+    line: 'Get found, chosen, and booked: adds AxeonPROOF, the CRM pipeline, AI chat, automated follow-up, and the 90-day guarantee.',
     recommended: true,
+  },
+  {
+    name: 'AxeonGROWTH',
+    price: '$999/mo',
+    line: 'We run your growth: adds Google & Meta ads, an AI phone receptionist, on-site video, and a new page every month.',
   },
 ];
 
@@ -80,8 +84,8 @@ export function GrowthEngine({ showBuilds = true, variant = 'section' }: GrowthE
             Add more once it&apos;s working.
           </h2>
           <p className="mt-4 text-base sm:text-lg text-neutral-400 leading-relaxed">
-            Your plan gets new customers coming in. When you want more, we plug in extra channels, scoped to your
-            market on the call.
+            Your plan gets new customers coming in. When you want more, we plug in extra channels. AxeonGROWTH
+            includes all of them.
           </p>
           <Link
             href="/book"
@@ -115,7 +119,7 @@ export function GrowthEngine({ showBuilds = true, variant = 'section' }: GrowthE
           <p className="text-xs font-mono font-semibold tracking-widest text-neutral-400 uppercase mb-4">
             Start with a plan
           </p>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-3">
             {builds.map((b) => (
               <div
                 key={b.name}
@@ -135,7 +139,7 @@ export function GrowthEngine({ showBuilds = true, variant = 'section' }: GrowthE
             href="/pricing"
             className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors"
           >
-            Compare both plans <ArrowRight size={15} />
+            Compare all three plans <ArrowRight size={15} />
           </Link>
         </div>
       )}

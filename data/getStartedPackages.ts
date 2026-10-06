@@ -74,18 +74,20 @@ export interface Package {
   match?: PackageMatch;
 }
 
-// The two plans from /pricing (data/pricingData.ts). Ads are an add-on scoped
-// on a call, so any ads pick routes to the custom result.
+// The three plans from /pricing (data/pricingData.ts). AxeonGROWTH is the only
+// plan with ads, so any ads pick routes there (it needs a $1k+ budget, since ad
+// spend is on top of the $999/mo).
 const PLAN_BUDGETS: Budget[] = ['Under $1,000', '$1,000 – $2,000', '$2,000 – $3,000'];
+const GROWTH_BUDGETS: Budget[] = ['$1,000 – $2,000', '$2,000 – $3,000'];
 
 // Order matters only as the final tie-breaker in recommendPackage.
 export const PACKAGES: Package[] = [
   {
     id: 'essentials',
     name: 'Essentials',
-    price: 2800,
-    priceLabel: '$2,800 setup, then from $284/mo',
-    tagline: 'Get found and get chosen: a site and search presence built to bring in calls.',
+    price: 99,
+    priceLabel: '$99 to start, then $149/mo',
+    tagline: 'Get found: a site and search presence built to bring in calls.',
     includes: [
       'A custom website written to turn visitors into calls',
       'SEO, AEO and GEO so you show up on Google and in AI answers',
@@ -101,19 +103,37 @@ export const PACKAGES: Package[] = [
   {
     id: 'axeoncore',
     name: 'AxeonCORE',
-    price: 5800,
-    priceLabel: '$5,800 setup, then from $574/mo',
+    price: 99,
+    priceLabel: '$99 to start, then $299/mo',
     tagline: 'The full customer engine: get found, get chosen, and get every lead booked.',
     includes: [
-      'Everything in Essentials, plus custom on-site videography',
+      'Everything in Essentials, plus AxeonPROOF to track every call and lead',
       'AI chat & scheduling, speed-to-lead call connect and missed-call text-back',
-      'CRM pipeline with automated follow-up and call tracking',
+      'CRM pipeline with automated follow-up, call tracking, and the 90-day guarantee',
     ],
     services: ['Website', 'SEO', 'Content', 'AI Automation'],
     stripePaymentLink: null,
     match: {
       services: ['Website', 'SEO', 'Content', 'AI Automation'],
       budgets: PLAN_BUDGETS,
+    },
+  },
+  {
+    id: 'axeongrowth',
+    name: 'AxeonGROWTH',
+    price: 1500,
+    priceLabel: '$1,500 to start, then $999/mo + ad spend',
+    tagline: 'We run your growth: ads, an AI receptionist, and video on top of the full engine.',
+    includes: [
+      'Everything in AxeonCORE, plus Google & Meta ads run for you',
+      'An AI phone receptionist that picks up every call 24/7',
+      'A half-day on-site video shoot and a new service page every month',
+    ],
+    services: ['Website', 'SEO', 'Content', 'AI Automation', 'Google Ads', 'Meta Ads'],
+    stripePaymentLink: null,
+    match: {
+      services: ['Website', 'SEO', 'Content', 'AI Automation', 'Google Ads', 'Meta Ads'],
+      budgets: GROWTH_BUDGETS,
     },
   },
 ];
