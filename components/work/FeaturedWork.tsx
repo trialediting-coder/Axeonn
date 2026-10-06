@@ -34,7 +34,19 @@ export function FeaturedWork() {
       <div className="w-full max-w-[1180px] mx-auto">
         {/* 1. Header */}
         <div className="text-center max-w-2xl mx-auto">
-          <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-[#2563eb] uppercase">Client Spotlight</p>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-[#2563eb] uppercase">Client Spotlight</p>
+            {/* A-1 is on the AxeonCORE plan (owner, 2026-10-05). */}
+            <Link
+              href="/pricing"
+              className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3.5 py-1.5 text-xs sm:text-sm font-bold text-neutral-950 hover:border-blue-300 transition-colors"
+            >
+              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-blue-600" />
+              <span>
+                Axeon<span className="text-blue-600">CORE</span>{' '}<span className="font-semibold text-neutral-600">client</span>
+              </span>
+            </Link>
+          </div>
           <h2
             id="featured-work-heading"
             className="mt-4 text-3xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.08] text-balance"
