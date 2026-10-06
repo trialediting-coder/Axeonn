@@ -73,7 +73,7 @@ export function PostEditor({ initialPost }: PostEditorProps) {
     setSaving(false);
 
     if (res.ok) {
-      router.push('/insights/admin');
+      router.push('/admin');
       router.refresh();
     } else {
       const data = await res.json().catch(() => ({}));

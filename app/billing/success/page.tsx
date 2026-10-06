@@ -50,7 +50,7 @@ export default async function BillingSuccessPage({
         )}
         <p className="text-neutral-300 leading-relaxed">
           {paid &&
-            'Your payment to Axeon Studio went through. A receipt is on its way to the email you entered at checkout.'}
+            'Your payment to Axeon Studio went through. A receipt and your private setup link are on their way to the email you entered at checkout. The setup takes about 10 minutes and you can do it from your phone.'}
           {processing &&
             'Bank payments can take a few business days to clear. You will get an email receipt as soon as it settles.'}
           {!paid && !processing && 'Your checkout is complete. A confirmation email will follow.'}

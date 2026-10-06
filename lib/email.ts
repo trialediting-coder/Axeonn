@@ -37,7 +37,7 @@ export async function sendScheduledNotification(post: { title: string; slug: str
       <p>The weekly autonomous pipeline generated and validated a new post.</p>
       <p><strong>${escapeHtml(post.title)}</strong></p>
       <p>It will auto-publish in 24 hours unless you review/edit/cancel it first.</p>
-      <p><a href="https://axeonstudio.co/insights/admin/posts/${post.id}/edit">Review and edit</a></p>
+      <p><a href="https://axeonstudio.co/admin/posts/${post.id}/edit">Review and edit</a></p>
     `,
   });
 }
@@ -56,7 +56,7 @@ export async function sendFailedGenerationNotification(
     ? `
       <p>This week's autonomous post generation failed validation and was saved as a draft — nothing was scheduled or published.</p>
       <ul>${reasons.map((r) => `<li>${escapeHtml(r)}</li>`).join('')}</ul>
-      <p><a href="https://axeonstudio.co/insights/admin">View drafts</a></p>
+      <p><a href="https://axeonstudio.co/admin">View drafts</a></p>
     `
     : `
       <p>This week's autonomous post generation failed before a draft could be created — nothing was saved, scheduled, or published.</p>
@@ -93,4 +93,118 @@ export async function sendBillingNotification(input: {
     subject: input.subject,
     html: `<ul>${items}</ul>${link}`,
   });
+}
+
+// ───────────────────────────── Client onboarding portal ─────────────────────────────
+// Client-facing mail for /welcome/<token> (lib/onboarding.ts). These go to the
+// client, not the owner, so they use a friendlier From and a plain layout that
+// survives every mail app. Client names and business names are client-typed
+// strings and go through escapeHtml.
+
+const CLIENT_FROM_ADDRESS = process.env.RESEND_CLIENT_FROM_EMAIL || 'Axeon Studio <hello@axeonstudio.co>';
+const CLIENT_REPLY_TO = process.env.RESEND_CLIENT_REPLY_TO || 'hello@axeonstudio.co';
+
+export function isClientEmailConfigured(): boolean {
+  return Boolean(process.env.RESEND_API_KEY);
+}
+
+function clientLayout(title: string, bodyHtml: string): string {
+  return `
+    <div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;color:#0a0a0a;line-height:1.55">
+      <p style="margin:0 0 24px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#2563eb;font-weight:700">Axeon Studio</p>
+      <h1 style="margin:0 0 16px;font-size:24px;line-height:1.2;font-weight:800">${title}</h1>
+      ${bodyHtml}
+      <p style="margin:32px 0 0;font-size:13px;color:#737373">Questions? Reply to this email or call (515) 493-8017.</p>
+    </div>
+  `;
+}
+
+function button(href: string, label: string): string {
+  return `<p style="margin:24px 0"><a href="${escapeHtml(href)}" style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;font-weight:700;padding:14px 24px;border-radius:999px">${escapeHtml(label)}</a></p>`;
+}
+
+/** The link that starts onboarding, sent by the Stripe webhook or from the admin board. */
+export async function sendWelcomeEmail(input: {
+  to: string;
+  clientName: string | null;
+  tierLabel: string;
+  url: string;
+  /** Rough minutes for the client's part, shown in the copy. */
+  minutes: number;
+}): Promise<boolean> {
+  const resend = getClient();
+  if (!resend) return false;
+  const first = input.clientName?.split(' ')[0];
+  const greeting = first ? `Hi ${escapeHtml(first)},` : 'Hi there,';
+  await resend.emails.send({
+    from: CLIENT_FROM_ADDRESS,
+    replyTo: CLIENT_REPLY_TO,
+    to: input.to,
+    subject: `Welcome to Axeon: your ${input.tierLabel} setup (about ${input.minutes} minutes)`,
+    html: clientLayout(
+      'Welcome aboard. Here is your setup page.',
+      `
+        <p style="margin:0 0 12px">${greeting}</p>
+        <p style="margin:0 0 12px">Thanks for choosing Axeon Studio. We have already started on your ${escapeHtml(
+          input.tierLabel
+        )} build. To finish setup we need a few quick things from you, about ${input.minutes} minutes total, and you can do them on your phone.</p>
+        <p style="margin:0 0 12px">Your setup page is private to you. Opening it on a new device asks for a 6-digit code that we send to this email address.</p>
+        ${button(input.url, 'Open my setup page')}
+        <p style="margin:0 0 12px;font-size:14px;color:#525252">Or copy this link: <a href="${escapeHtml(input.url)}" style="color:#2563eb">${escapeHtml(input.url)}</a></p>
+        <p style="margin:16px 0 0;font-size:14px;color:#525252">We will never ask for a password in this page or by email. Access to Google and other accounts goes through their own invites, which you simply accept.</p>
+      `
+    ),
+  });
+  return true;
+}
+
+/** The one-time code for the portal. Throws when mail is not configured, since the client cannot proceed without it. */
+export async function sendVerificationCodeEmail(input: { to: string; code: string }): Promise<void> {
+  const resend = getClient();
+  if (!resend) throw new Error('Email is not configured (RESEND_API_KEY)');
+  await resend.emails.send({
+    from: CLIENT_FROM_ADDRESS,
+    replyTo: CLIENT_REPLY_TO,
+    to: input.to,
+    subject: `${input.code} is your Axeon setup code`,
+    html: clientLayout(
+      'Your setup code',
+      `
+        <p style="margin:0 0 12px">Enter this code on your Axeon setup page. It works once and expires in 10 minutes.</p>
+        <p style="margin:20px 0;font-size:36px;letter-spacing:.3em;font-weight:800;font-family:ui-monospace,SFMono-Regular,Menlo,monospace">${escapeHtml(
+          input.code
+        )}</p>
+        <p style="margin:0;font-size:14px;color:#525252">If you did not request this, you can ignore this email. Nobody can use the code without your setup link.</p>
+      `
+    ),
+  });
+}
+
+/** A gentle reminder listing what is still open, sent from the admin board. */
+export async function sendNudgeEmail(input: {
+  to: string;
+  clientName: string | null;
+  url: string;
+  openItems: string[];
+}): Promise<boolean> {
+  const resend = getClient();
+  if (!resend) return false;
+  const first = input.clientName?.split(' ')[0];
+  const items = input.openItems.map((t) => `<li style="margin:0 0 6px">${escapeHtml(t)}</li>`).join('');
+  await resend.emails.send({
+    from: CLIENT_FROM_ADDRESS,
+    replyTo: CLIENT_REPLY_TO,
+    to: input.to,
+    subject: `Quick one: ${input.openItems.length === 1 ? 'one thing' : `${input.openItems.length} things`} left to finish your Axeon setup`,
+    html: clientLayout(
+      'Almost there.',
+      `
+        <p style="margin:0 0 12px">${first ? `Hi ${escapeHtml(first)},` : 'Hi there,'}</p>
+        <p style="margin:0 0 12px">Your build is moving. A few items on your setup page still need you, and each one takes a minute or two:</p>
+        <ul style="margin:0 0 12px;padding-left:20px">${items}</ul>
+        ${button(input.url, 'Finish my setup')}
+      `
+    ),
+  });
+  return true;
 }

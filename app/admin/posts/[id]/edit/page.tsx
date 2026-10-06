@@ -11,7 +11,7 @@ export default async function EditPostPage({
   params: Promise<{ id: string }>;
 }) {
   const session = await auth();
-  if (!session) redirect('/insights/admin/login');
+  if (!session) redirect('/admin/login');
 
   const { id } = await params;
   const numId = Number(id);

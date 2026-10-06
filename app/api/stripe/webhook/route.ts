@@ -18,6 +18,8 @@ import {
 import { sendBillingNotification } from '@/lib/email';
 import { formatCents } from '@/lib/billingMath';
 import { markPayLinkPaid } from '@/lib/payLinks';
+import { ensureOnboardingForPurchase } from '@/lib/onboardingFulfillment';
+import { tierFromStripeKey } from '@/lib/onboarding';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -123,6 +125,13 @@ async function handleCheckoutSession(session: Stripe.Checkout.Session, type: str
     await markPayLinkPaid(md.pay_link, session.id);
   }
 
+  // A paid build or plan starts onboarding: mint the client's /welcome/<token> portal
+  // and email the link. Failures here are logged, never retried through Stripe, so a
+  // mail hiccup cannot duplicate the owner alerts below; the admin board can resend.
+  if (status === 'paid' || status === 'processing') {
+    await startOnboarding(session, record);
+  }
+
   const amount =
     session.amount_total != null ? formatCents(session.amount_total, session.currency ?? 'usd') : 'an unknown amount';
   const who = [record.customerName, record.customerEmail].filter(Boolean).join(' ') || 'a client';
@@ -140,6 +149,28 @@ async function handleCheckoutSession(session: Stripe.Checkout.Session, type: str
     });
   } else if (status === 'failed') {
     await sendBillingNotification({ subject: `Payment failed: ${amount} from ${who}`, lines, link });
+  }
+}
+
+async function startOnboarding(session: Stripe.Checkout.Session, record: BillingRecordInput): Promise<void> {
+  const md = session.metadata ?? {};
+  const tier = tierFromStripeKey(md.tier ?? md.plan_key ?? null);
+  if (!tier || !record.customerEmail) return;
+  try {
+    const result = await ensureOnboardingForPurchase({
+      tier,
+      clientEmail: record.customerEmail,
+      clientName: record.customerName ?? null,
+      businessName: typeof md.business_name === 'string' ? md.business_name : null,
+      phone: session.customer_details?.phone ?? null,
+      stripeCustomerId: record.customerId ?? null,
+      checkoutSessionId: session.id,
+    });
+    if (result?.created) {
+      console.log('[stripe-webhook] onboarding created', { token: result.onboarding.token, welcomeSent: result.welcomeSent });
+    }
+  } catch (err) {
+    console.error('[stripe-webhook] onboarding setup failed', err instanceof Error ? err.message : err);
   }
 }
 

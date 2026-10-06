@@ -66,7 +66,7 @@ export function AdminDashboardTable({ initialPosts }: { initialPosts: Post[] }) 
               {post.scheduledPublishAt ? new Date(post.scheduledPublishAt).toLocaleString() : '—'}
             </td>
             <td className="py-3 flex items-center gap-3">
-              <Link href={`/insights/admin/posts/${post.id}/edit`} className="text-blue-600 hover:underline">
+              <Link href={`/admin/posts/${post.id}/edit`} className="text-blue-600 hover:underline">
                 Edit
               </Link>
               {post.status !== 'published' && (

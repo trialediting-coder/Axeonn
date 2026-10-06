@@ -5,3 +5,14 @@ export const AD_FUNNEL_PREFIX = '/go';
 
 export const isAdFunnelPath = (pathname: string | null | undefined) =>
   !!pathname && (pathname === AD_FUNNEL_PREFIX || pathname.startsWith(`${AD_FUNNEL_PREFIX}/`));
+
+// The client onboarding portal (/welcome/<token>) is for people who already
+// paid: no "Book My Free Call", no popups, no footer pitch. Same treatment.
+export const CLIENT_PORTAL_PREFIX = '/welcome';
+
+export const isClientPortalPath = (pathname: string | null | undefined) =>
+  !!pathname && pathname.startsWith(`${CLIENT_PORTAL_PREFIX}/`);
+
+/** True on any page that shows none of the marketing chrome. */
+export const hidesSiteChrome = (pathname: string | null | undefined) =>
+  isAdFunnelPath(pathname) || isClientPortalPath(pathname);

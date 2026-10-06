@@ -5,6 +5,6 @@ import type { NextAuthConfig } from 'next-auth';
 
 export const authConfig = {
   providers: [],
-  pages: { signIn: '/insights/admin/login' },
+  pages: { signIn: '/admin/login' },
   session: { strategy: 'jwt' },
 } satisfies NextAuthConfig;
