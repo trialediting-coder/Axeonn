@@ -74,7 +74,7 @@ export function PricingSection({
   return (
     <section
       id="pricing"
-      className={`w-full ${tightTop ? 'pt-6 sm:pt-10 lg:pt-14' : 'pt-24 sm:pt-36 lg:pt-44'} pb-24 sm:pb-36 lg:pb-44 px-4 sm:px-10 lg:px-16 xl:px-24`}
+      className={`w-full ${tightTop ? 'pt-6 sm:pt-10 lg:pt-14' : 'pt-24 sm:pt-36 lg:pt-44'} pb-24 sm:pb-36 lg:pb-44 px-4 sm:px-10 lg:px-10 xl:px-12 2xl:px-16`}
     >
       {includeFaqSchema && (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(pricingFaqJsonLd) }} />
@@ -93,7 +93,7 @@ export function PricingSection({
         </div>
 
         {/* The guarantee: its own full-width blue band, at display size. */}
-        <div className="max-w-7xl mx-auto rounded-[28px] sm:rounded-[36px] bg-blue-600 text-white px-6 py-10 sm:px-12 sm:py-14 lg:px-16 shadow-xl shadow-blue-600/20">
+        <div className="max-w-[1560px] mx-auto rounded-[28px] sm:rounded-[36px] bg-blue-600 text-white px-6 py-10 sm:px-12 sm:py-14 lg:px-16 shadow-xl shadow-blue-600/20">
           <div className="flex items-center gap-2.5 text-xs sm:text-sm font-mono font-bold tracking-widest uppercase text-blue-100">
             <ShieldCheck size={18} className="shrink-0" />
             <span>[ 90-DAY CUSTOMER GUARANTEE ]</span>
@@ -107,7 +107,7 @@ export function PricingSection({
           </p>
         </div>
 
-        <div className="mt-12 sm:mt-16 grid lg:grid-cols-3 gap-8 lg:gap-6 xl:gap-8 items-stretch max-w-7xl mx-auto">
+        <div className="mt-12 sm:mt-16 grid lg:grid-cols-3 gap-8 lg:gap-7 xl:gap-10 items-stretch max-w-[1560px] mx-auto">
           {pricingTiers.map((tier) => (
             <PlanCard key={tier.id} tier={tier} />
           ))}
@@ -121,7 +121,7 @@ export function PricingSection({
           <h3 className="text-2xl sm:text-3xl font-bold font-display text-neutral-950 mb-8 text-center">
             Add More Ways to Win Customers
           </h3>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-[1560px] mx-auto">
             {addOns.map((addOn) => (
               <div
                 key={addOn.name}
@@ -259,7 +259,7 @@ function PlanCard({ tier }: { tier: PricingTier }) {
   const muted = isPremium ? 'text-neutral-400' : 'text-neutral-500';
 
   return (
-    <div className={`relative rounded-[28px] sm:rounded-[32px] p-6 sm:p-10 lg:p-8 xl:p-10 flex flex-col ${CARD_STYLES[variant]}`}>
+    <div className={`relative rounded-[28px] sm:rounded-[32px] p-6 sm:p-10 lg:p-9 xl:p-12 flex flex-col ${CARD_STYLES[variant]}`}>
       {tier.badge && (
         <span className="absolute -top-4 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold tracking-wide uppercase shadow-md whitespace-nowrap bg-blue-600 text-white">
           {tier.badge}
@@ -354,7 +354,7 @@ function PlanCard({ tier }: { tier: PricingTier }) {
  */
 function FreeConsultationStrip() {
   return (
-    <div className="mt-8 max-w-7xl mx-auto rounded-3xl border border-neutral-200 bg-[#F7F6F3] px-6 py-6 sm:px-8 sm:py-7 flex flex-col lg:flex-row lg:items-center gap-5 lg:gap-10">
+    <div className="mt-8 max-w-[1560px] mx-auto rounded-3xl border border-neutral-200 bg-[#F7F6F3] px-6 py-6 sm:px-8 sm:py-7 flex flex-col lg:flex-row lg:items-center gap-5 lg:gap-10">
       <div className="flex-1 min-w-0">
         <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">
           [ NOT SURE YET? $0 CONSULTATION ]
