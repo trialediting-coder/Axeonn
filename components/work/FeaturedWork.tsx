@@ -107,13 +107,54 @@ export function FeaturedWork() {
           </p>
         </div>
 
-        {/* 2. The before/after, on its own */}
-        <div className="mt-12 sm:mt-16">
+        {/* 2. The proof: a real Google search (competitor listings blurred) */}
+        <figure className="mt-12 sm:mt-16">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-5">
+            <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200 px-4 py-2 text-sm sm:text-base font-bold text-emerald-800">
+              <span aria-hidden="true" className="h-2 w-2 rounded-full bg-emerald-500" />
+              #1 on the Google map
+            </span>
+            <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200 px-4 py-2 text-sm sm:text-base font-bold text-emerald-800">
+              <span aria-hidden="true" className="h-2 w-2 rounded-full bg-emerald-500" />
+              #1 in the search results
+            </span>
+          </div>
+          <div className="rounded-[20px] sm:rounded-[28px] overflow-hidden bg-[#202124] p-2 sm:p-3 shadow-2xl shadow-neutral-900/20 ring-1 ring-neutral-200">
+            {/* Phones get a tighter crop (listing + #1 result, no map) so the text stays legible. */}
+            <picture>
+              <source media="(max-width: 639px)" srcSet="/images/case-studies/a1/google-rank-1-mobile.webp" width={671} height={601} />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/case-studies/a1/google-rank-1.webp"
+                width={1159}
+                height={931}
+                loading="lazy"
+                decoding="async"
+                alt="Google results for “Pleasant Hill auto detailing”: A-1 Auto Detailing is first in the map listings with a 5.0 rating from 181 reviews and first in the search results."
+                className="w-full h-auto rounded-xl sm:rounded-2xl"
+              />
+            </picture>
+          </div>
+          <figcaption className="mt-4 text-center text-sm sm:text-base text-neutral-500">
+            A real Google search for “Pleasant Hill auto detailing”, October 2026. Other businesses blurred.{' '}
+            <a
+              href="https://www.google.com/search?q=Pleasant+Hill+auto+detailing"
+              target="_blank"
+              rel="noopener"
+              className="inline-block py-2 font-semibold text-blue-600 hover:text-blue-700 underline underline-offset-4"
+            >
+              Search it yourself ↗
+            </a>
+          </figcaption>
+        </figure>
+
+        {/* 3. The before/after, on its own */}
+        <div className="mt-16 sm:mt-20">
           <BeforeAfter />
           <p className="mt-4 text-center text-sm text-neutral-500">Drag to compare</p>
         </div>
 
-        {/* 3. The story, two short lines */}
+        {/* 4. The story, two short lines */}
         <div className="mt-16 sm:mt-20 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 max-w-4xl mx-auto">
           {A1_STORY.map((s) => (
             <div key={s.label}>
@@ -123,7 +164,7 @@ export function FeaturedWork() {
           ))}
         </div>
 
-        {/* 4. Three numbers */}
+        {/* 5. Three numbers */}
         <div className="mt-16 sm:mt-20 grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-0 sm:divide-x divide-neutral-200 border-y border-neutral-200 py-10 sm:py-12">
           {A1_RESULTS.map((r) => (
             <div key={r.value} className="text-center sm:px-6">
@@ -133,7 +174,7 @@ export function FeaturedWork() {
           ))}
         </div>
 
-        {/* 5. The owner's words + the next step */}
+        {/* 6. The owner's words + the next step */}
         <figure className="mt-16 sm:mt-20 text-center max-w-3xl mx-auto">
           <blockquote className="text-2xl sm:text-4xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.2]">
             “{LEVI_QUOTE.text}”
@@ -159,7 +200,7 @@ export function FeaturedWork() {
           </Link>
         </div>
 
-        {/* 6. The rest of the portfolio, as large cards */}
+        {/* 7. The rest of the portfolio, as large cards */}
         <div className="mt-24 sm:mt-28">
           <div className="flex items-end justify-between gap-4 mb-8">
             <h3 className="text-2xl sm:text-4xl font-extrabold font-display tracking-tight text-neutral-950">More sites we’ve built</h3>
