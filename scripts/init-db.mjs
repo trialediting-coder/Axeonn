@@ -84,6 +84,47 @@ async function main() {
   await sql`CREATE INDEX IF NOT EXISTS pay_links_created_idx ON pay_links (created_at DESC);`;
   await sql`ALTER TABLE pay_links ADD COLUMN IF NOT EXISTS monthly_amount_cents INTEGER;`;
   await sql`ALTER TABLE pay_links ADD COLUMN IF NOT EXISTS plan_name TEXT;`;
+  // Client onboarding portal (lib/onboarding.ts). Mirrors lib/db.ts.
+  await sql`
+    CREATE TABLE IF NOT EXISTS onboardings (
+      id SERIAL PRIMARY KEY,
+      token TEXT UNIQUE NOT NULL,
+      tier TEXT NOT NULL CHECK (tier IN ('essentials', 'axeoncore', 'axeongrowth')),
+      client_email TEXT NOT NULL,
+      client_name TEXT,
+      business_name TEXT,
+      phone TEXT,
+      stripe_customer_id TEXT,
+      checkout_session_id TEXT UNIQUE,
+      status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'complete', 'closed')),
+      code_hash TEXT,
+      code_expires_at TIMESTAMPTZ,
+      code_attempts INTEGER NOT NULL DEFAULT 0,
+      code_sent_at TIMESTAMPTZ,
+      code_sends INTEGER NOT NULL DEFAULT 0,
+      welcome_sent_at TIMESTAMPTZ,
+      nudge_sent_at TIMESTAMPTZ,
+      last_client_activity_at TIMESTAMPTZ,
+      completed_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS onboardings_email_idx ON onboardings (client_email);`;
+  await sql`CREATE INDEX IF NOT EXISTS onboardings_created_idx ON onboardings (created_at DESC);`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS onboarding_items (
+      id SERIAL PRIMARY KEY,
+      onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+      item_key TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'done')),
+      data JSONB NOT NULL DEFAULT '{}',
+      completed_by TEXT CHECK (completed_by IN ('client', 'axeon')),
+      completed_at TIMESTAMPTZ,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      UNIQUE (onboarding_id, item_key)
+    );
+  `;
   console.log('Schema ready.');
 }
 

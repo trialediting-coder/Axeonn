@@ -99,6 +99,52 @@ export function ensureSchema(): Promise<void> {
       // existing rows and seeded-plan links are unaffected.
       await sql`ALTER TABLE pay_links ADD COLUMN IF NOT EXISTS monthly_amount_cents INTEGER;`;
       await sql`ALTER TABLE pay_links ADD COLUMN IF NOT EXISTS plan_name TEXT;`;
+
+      // Client onboarding portal (/welcome/<token>, see lib/onboarding.ts). One row
+      // per paying client; the token is the credential, the email code is the
+      // second factor. Codes are stored hashed and expire in minutes.
+      await sql`
+        CREATE TABLE IF NOT EXISTS onboardings (
+          id SERIAL PRIMARY KEY,
+          token TEXT UNIQUE NOT NULL,
+          tier TEXT NOT NULL CHECK (tier IN ('essentials', 'axeoncore', 'axeongrowth')),
+          client_email TEXT NOT NULL,
+          client_name TEXT,
+          business_name TEXT,
+          phone TEXT,
+          stripe_customer_id TEXT,
+          checkout_session_id TEXT UNIQUE,
+          status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'complete', 'closed')),
+          code_hash TEXT,
+          code_expires_at TIMESTAMPTZ,
+          code_attempts INTEGER NOT NULL DEFAULT 0,
+          code_sent_at TIMESTAMPTZ,
+          code_sends INTEGER NOT NULL DEFAULT 0,
+          welcome_sent_at TIMESTAMPTZ,
+          nudge_sent_at TIMESTAMPTZ,
+          last_client_activity_at TIMESTAMPTZ,
+          completed_at TIMESTAMPTZ,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        );
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS onboardings_email_idx ON onboardings (client_email);`;
+      await sql`CREATE INDEX IF NOT EXISTS onboardings_created_idx ON onboardings (created_at DESC);`;
+      // One row per checklist item the client or Axeon has touched. A missing row
+      // means "pending"; item definitions live in data/onboardingItems.ts.
+      await sql`
+        CREATE TABLE IF NOT EXISTS onboarding_items (
+          id SERIAL PRIMARY KEY,
+          onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+          item_key TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'done')),
+          data JSONB NOT NULL DEFAULT '{}',
+          completed_by TEXT CHECK (completed_by IN ('client', 'axeon')),
+          completed_at TIMESTAMPTZ,
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          UNIQUE (onboarding_id, item_key)
+        );
+      `;
     })().catch((err) => {
       schemaReady = null; // let the next request retry
       throw err;
