@@ -19,7 +19,7 @@ interface ServiceHeroActionsProps {
 export function ServiceHeroActions({
   priceLine,
   note,
-  primaryLabel = 'Book a Free Strategy Call',
+  primaryLabel = 'Book My Free Call',
   showPricingLink = true,
 }: ServiceHeroActionsProps) {
   return (
@@ -50,7 +50,7 @@ export function ServiceHeroActions({
       {showPricingLink && (
         <Link
           href="/pricing"
-          className="inline-block mt-5 text-sm sm:text-base text-neutral-300 hover:text-white underline underline-offset-4"
+          className="py-2 inline-block mt-5 text-sm sm:text-base text-neutral-300 hover:text-white underline underline-offset-4"
         >
           See all three plans and what each includes
         </Link>

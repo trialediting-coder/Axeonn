@@ -48,10 +48,10 @@ function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) 
   return (
     <div>
       <div className="font-mono text-xs uppercase tracking-wider text-neutral-400 font-semibold mb-4">{title}</div>
-      <ul className="space-y-2.5 text-sm text-neutral-600">
+      <ul className="space-y-0.5 text-sm text-neutral-600">
         {links.map((link) => (
           <li key={link.href}>
-            <Link href={link.href} className="hover:text-neutral-950 transition-colors">
+            <Link href={link.href} className="inline-block py-2 hover:text-neutral-950 transition-colors">
               {link.label}
             </Link>
           </li>
@@ -101,7 +101,7 @@ export function Footer({ year }: FooterProps) {
               href="/book"
               className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-colors"
             >
-              Book a Free Strategy Call
+              Book My Free Call
             </Link>
             <a
               href="tel:+15154938017"
@@ -136,16 +136,16 @@ export function Footer({ year }: FooterProps) {
                 <div className="text-sm text-neutral-500">Founder · West Des Moines, Iowa</div>
               </div>
             </div>
-            <div className="mt-6 space-y-1.5">
+            <div className="mt-4">
               <a
                 href="mailto:hayder.hatem@axeonstudio.co"
-                className="block text-base sm:text-lg font-bold text-neutral-950 hover:text-blue-600 transition-colors break-all sm:break-normal"
+                className="block py-2 text-base sm:text-lg font-bold text-neutral-950 hover:text-blue-600 transition-colors break-all sm:break-normal"
               >
                 hayder.hatem@axeonstudio.co
               </a>
               <a
                 href="tel:+15154938017"
-                className="block text-base text-neutral-600 hover:text-blue-600 transition-colors"
+                className="block py-2 text-base text-neutral-600 hover:text-blue-600 transition-colors"
               >
                 (515) 493-8017
               </a>
@@ -161,23 +161,23 @@ export function Footer({ year }: FooterProps) {
 
         {/* Bottom bar */}
         <div className="mt-14 pt-6 border-t border-neutral-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-sm text-neutral-500">
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-0">
             <span>© {year} Axeon Studio</span>
-            <Link href="/privacy" className="hover:text-neutral-950 transition-colors">
+            <Link href="/privacy" className="inline-block py-2.5 hover:text-neutral-950 transition-colors">
               Privacy
             </Link>
-            <Link href="/terms" className="hover:text-neutral-950 transition-colors">
+            <Link href="/terms" className="inline-block py-2.5 hover:text-neutral-950 transition-colors">
               Terms
             </Link>
           </div>
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-2 -ml-3 sm:ml-0">
             {SOCIAL_LINKS.map((social) => (
               <a
                 key={social.href}
                 href={social.href}
                 target="_blank"
                 rel="noreferrer"
-                className="hover:text-neutral-950 transition-colors"
+                className="inline-flex items-center justify-center min-h-11 min-w-11 px-3 hover:text-neutral-950 transition-colors"
               >
                 {social.label}
               </a>

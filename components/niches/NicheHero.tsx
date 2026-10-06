@@ -65,7 +65,7 @@ export function NicheHero({ niche }: { niche: Niche }) {
         </div>
         <Link
           href="/pricing"
-          className="inline-block text-sm sm:text-base text-neutral-300 hover:text-white underline underline-offset-4"
+          className="py-2 inline-block text-sm sm:text-base text-neutral-300 hover:text-white underline underline-offset-4"
         >
           See all three plans and what each includes
         </Link>

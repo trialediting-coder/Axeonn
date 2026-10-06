@@ -50,7 +50,7 @@ export default function FaqPage() {
             data-track-cta="faq_closer"
             className="shrink-0 text-center px-7 py-3.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
           >
-            Book a Free Call
+            Book My Free Call
           </Link>
         </div>
       </div>

@@ -67,7 +67,7 @@ function Closed({ title, body }: { title: string; body: string }) {
             href="/book"
             className="inline-flex items-center justify-center px-7 py-3.5 rounded-full border border-neutral-300 hover:border-neutral-500 text-neutral-900 font-semibold text-sm transition-colors"
           >
-            Book a call instead
+            Book a free call instead
           </Link>
         </div>
       </div>

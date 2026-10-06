@@ -64,7 +64,7 @@ export function NicheWorkflow({ niche }: { niche: Niche }) {
                 {step.plugsLeaks && step.plugsLeaks.length > 0 && (
                   <a
                     href="#the-leaks"
-                    className="mb-2 inline-block font-mono text-[11px] font-bold tracking-widest text-blue-600 hover:text-blue-700"
+                    className="py-2 mb-2 inline-block font-mono text-[11px] font-bold tracking-widest text-blue-600 hover:text-blue-700"
                   >
                     [ PLUGS LEAK {step.plugsLeaks.map(pad).join(' + ')} ]
                   </a>

@@ -49,7 +49,7 @@ function SourceLink({ stat, dark = false }: { stat: SourcedStat; dark?: boolean 
       href={stat.href}
       target="_blank"
       rel="noopener"
-      className={`inline-block text-xs underline underline-offset-2 ${
+      className={`py-2 inline-block text-xs underline underline-offset-2 ${
         dark ? 'text-neutral-500 hover:text-neutral-300' : 'text-neutral-400 hover:text-neutral-700'
       }`}
     >
@@ -113,7 +113,7 @@ export function Testimonials() {
           </div>
           <Link
             href="/marketing-solutions/lead-generation"
-            className="shrink-0 inline-flex items-center gap-2 font-semibold text-blue-300 hover:text-white transition-colors"
+            className="py-2 shrink-0 inline-flex items-center gap-2 font-semibold text-blue-300 hover:text-white transition-colors"
           >
             See how it works <ArrowRight size={16} />
           </Link>

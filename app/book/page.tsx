@@ -12,7 +12,7 @@ export const metadata = buildMetadata({
 export default function BookPage() {
   return (
     <>
-      <BreadcrumbJsonLd items={[{ name: 'Book a Strategy Call', path: '/book' }]} />
+      <BreadcrumbJsonLd items={[{ name: 'Book a Free Call', path: '/book' }]} />
       <BookClient />
     </>
   );

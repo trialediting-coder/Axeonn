@@ -30,7 +30,7 @@ export function ClientQuote({ variant = 'section' }: ClientQuoteProps) {
         </span>
         <Link
           href={LEVI_QUOTE.href}
-          className="mt-4 text-sm font-semibold text-[#2563eb] hover:text-blue-700 transition-colors"
+          className="inline-block py-2 mt-4 text-sm font-semibold text-[#2563eb] hover:text-blue-700 transition-colors"
         >
           Read the A-1 case study →
         </Link>

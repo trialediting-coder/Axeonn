@@ -119,7 +119,7 @@ export default function AboutClient() {
             </div>
             <Link
               href={CASE_STUDY}
-              className="mt-8 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-300 hover:text-white transition-colors"
+              className="py-2 mt-8 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-300 hover:text-white transition-colors"
             >
               See how we did it <ArrowRight size={14} />
             </Link>
@@ -141,7 +141,7 @@ export default function AboutClient() {
             </div>
             <Link
               href="/process"
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 shrink-0"
+              className="py-2 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 shrink-0"
             >
               See the full process <ArrowRight size={14} />
             </Link>
@@ -282,7 +282,7 @@ export default function AboutClient() {
                     </figcaption>
                     <Link
                       href={LEVI_QUOTE.href}
-                      className="mt-3 inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-300 hover:text-white transition-colors"
+                      className="py-2 mt-3 inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-300 hover:text-white transition-colors"
                     >
                       Read the A-1 case study <ArrowRight size={13} />
                     </Link>

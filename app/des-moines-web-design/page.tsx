@@ -143,7 +143,7 @@ export default function DesMoinesWebDesignPage() {
               href="/book"
               className="inline-flex items-center gap-2 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
             >
-              Book a Free Strategy Call <ArrowRight size={18} />
+              Book My Free Call <ArrowRight size={18} />
             </Link>
             <a
               href={TEL_HREF}
@@ -374,7 +374,7 @@ export default function DesMoinesWebDesignPage() {
               href="/book"
               className="inline-flex items-center gap-2 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
             >
-              Book a Free Strategy Call <ArrowRight size={18} />
+              Book My Free Call <ArrowRight size={18} />
             </Link>
             <a
               href={TEL_HREF}

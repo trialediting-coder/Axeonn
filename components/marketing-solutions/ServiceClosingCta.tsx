@@ -32,9 +32,9 @@ export function ServiceClosingCta({ trackId }: { trackId?: string }) {
               data-track-cta={trackId ? `${trackId}_closing` : undefined}
               className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors shadow-lg shadow-blue-600/30"
             >
-              Book a Free Strategy Call <ArrowRight size={18} />
+              Book My Free Call <ArrowRight size={18} />
             </Link>
-            <Link href="/pricing" className="inline-flex items-center gap-2 font-semibold text-white/80 hover:text-white transition-colors">
+            <Link href="/pricing" className="py-2 inline-flex items-center gap-2 font-semibold text-white/80 hover:text-white transition-colors">
               Compare plans <ArrowRight size={16} />
             </Link>
           </div>

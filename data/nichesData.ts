@@ -100,7 +100,7 @@ export const niches: Niche[] = [
       { text: "Missed calls get a text back right away, so after-hours patients aren't lost to voicemail", plugsLeaks: [1] },
       { text: "Automatic text and email reminders bring patients back for their next cleaning", plugsLeaks: [4] },
     ],
-    primaryCTA: 'Book a Free Strategy Call',
+    primaryCTA: 'Book My Free Call',
     secondaryCTA: 'See Dental Package Pricing',
   },
   {
@@ -156,7 +156,7 @@ export const niches: Niche[] = [
       { text: "Automatic text and email reminders go out before the consult to cut no-shows", plugsLeaks: [3] },
       { text: "Your CRM pipeline and automatic follow-up track every quote and membership question until it's booked", plugsLeaks: [2, 4] },
     ],
-    primaryCTA: 'Book a Free Strategy Call',
+    primaryCTA: 'Book My Free Call',
     secondaryCTA: 'See Med Spa Package Pricing',
   },
   {
@@ -212,7 +212,7 @@ export const niches: Niche[] = [
       { text: "AI chat books tune-ups and maintenance visits online", plugsLeaks: [2] },
       { text: "Automatic follow-up after the job invites them back for their next seasonal tune-up", plugsLeaks: [3] },
     ],
-    primaryCTA: 'Book a Free Strategy Call',
+    primaryCTA: 'Book My Free Call',
     secondaryCTA: 'See HVAC Package Pricing',
   },
   {
@@ -268,7 +268,7 @@ export const niches: Niche[] = [
       { text: "Your CRM pipeline tracks every inspection and bid until the job is signed", plugsLeaks: [2] },
       { text: "Automatic follow-up checks in on open bids so they don't go cold", plugsLeaks: [2] },
     ],
-    primaryCTA: 'Book a Free Strategy Call',
+    primaryCTA: 'Book My Free Call',
     secondaryCTA: 'See Roofing Package Pricing',
   },
   {
@@ -324,7 +324,7 @@ export const niches: Niche[] = [
       { text: "Your CRM pipeline tracks every case evaluation through to a signed retainer", plugsLeaks: [2] },
       { text: "Automatic follow-up stays in touch with people who haven't signed yet", plugsLeaks: [2] },
     ],
-    primaryCTA: 'Book a Free Strategy Call',
+    primaryCTA: 'Book My Free Call',
     secondaryCTA: 'See Law Firm Package Pricing',
   },
   {
@@ -380,7 +380,7 @@ export const niches: Niche[] = [
       { text: "Automatic emails tell each new client which documents to have ready", plugsLeaks: [3] },
       { text: "Your CRM pipeline tracks every inquiry, and follow-up reaches the ones you couldn't take until after tax season", plugsLeaks: [4] },
     ],
-    primaryCTA: 'Book a Free Strategy Call',
+    primaryCTA: 'Book My Free Call',
     secondaryCTA: 'See Accounting Package Pricing',
   },
   {
@@ -436,7 +436,7 @@ export const niches: Niche[] = [
       { text: "Your CRM pipeline tracks every bid through to a signed contract", plugsLeaks: [2] },
       { text: "Automatic follow-up checks in on open quotes before another contractor does", plugsLeaks: [2] },
     ],
-    primaryCTA: 'Book a Free Strategy Call',
+    primaryCTA: 'Book My Free Call',
     secondaryCTA: 'See Remodeling Package Pricing',
   },
   {
@@ -492,7 +492,7 @@ export const niches: Niche[] = [
       { text: "Automatic text and email follow-up keeps every lead warm until they're ready to move", plugsLeaks: [4] },
       { text: "Your CRM pipeline shows where every lead stands, from first contact to closing" },
     ],
-    primaryCTA: 'Book a Free Strategy Call',
+    primaryCTA: 'Book My Free Call',
     secondaryCTA: 'See Real Estate Package Pricing',
   },
   {
@@ -548,7 +548,7 @@ export const niches: Niche[] = [
       { text: "Missed calls get a text back during the spring rush", plugsLeaks: [1] },
       { text: "Automatic follow-up reaches maintenance customers before each season", plugsLeaks: [4] },
     ],
-    primaryCTA: 'Book a Free Strategy Call',
+    primaryCTA: 'Book My Free Call',
     secondaryCTA: 'See Landscaping Package Pricing',
   },
   {
@@ -604,7 +604,7 @@ export const niches: Niche[] = [
       { text: "Automatic text reminders before the appointment cut no-shows" },
       { text: "Repeat customers get a reminder when it's time for their next detail", plugsLeaks: [4] },
     ],
-    primaryCTA: 'Book a Free Strategy Call',
+    primaryCTA: 'Book My Free Call',
     secondaryCTA: 'See Auto Detailing Package Pricing',
   },
 ];

@@ -23,7 +23,7 @@ export function ProofStrip({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
           ))}
         </div>
         <p className={`mt-4 text-center text-sm ${dark ? 'text-neutral-400' : 'text-neutral-500'}`}>
-          <Link href="/insights/a-1-auto-detailing-website-case-study" className="underline underline-offset-4 hover:text-blue-600">
+          <Link href="/insights/a-1-auto-detailing-website-case-study" className="inline-block py-2 underline underline-offset-4 hover:text-blue-600">
             See how we did it for A-1 Auto Detailing
           </Link>
         </p>

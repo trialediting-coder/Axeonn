@@ -19,7 +19,7 @@ const GA_MEASUREMENT_ID = 'G-2EDMD31CEP';
  *   booking_completed   — a strategy call was actually booked (fires from the
  *                         LeadConnector calendar iframe's postMessage)
  *   phone_click         — tap/click on a tel: link
- *   book_call_click     — any "Book a Strategy Call" CTA (link to /book or the
+ *   book_call_click     — any "Book My Free Call" CTA (link to /book or the
  *                         calendar modal opening); the top-of-funnel intent event
  *
  * Everything else is a micro-conversion for funnel analysis, not a key event.

@@ -122,9 +122,9 @@ export default function MarketingSolutionsPage() {
               data-track-cta="axeoncore_hero"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors shadow-lg shadow-blue-600/30"
             >
-              Book a Free Strategy Call <ArrowUpRight size={16} />
+              Book My Free Call <ArrowUpRight size={16} />
             </Link>
-            <Link href="/pricing" className="inline-flex items-center gap-2 font-semibold text-white/80 hover:text-white transition-colors">
+            <Link href="/pricing" className="py-2 inline-flex items-center gap-2 font-semibold text-white/80 hover:text-white transition-colors">
               See pricing <ArrowRight size={16} />
             </Link>
           </div>
@@ -155,7 +155,7 @@ export default function MarketingSolutionsPage() {
             <div className="lg:col-span-5 lg:pb-4">
               <p className="text-2xl sm:text-3xl font-bold font-display tracking-tight leading-snug">{LEAD_LEAK.title}</p>
               <p className="mt-4 text-lg text-neutral-600 leading-relaxed">{LEAD_LEAK.body}</p>
-              <a href={LEAD_LEAK.href} target="_blank" rel="noopener" className="mt-4 inline-block text-xs text-neutral-400 hover:text-neutral-700 underline underline-offset-2">
+              <a href={LEAD_LEAK.href} target="_blank" rel="noopener" className="py-2 mt-4 inline-block text-xs text-neutral-400 hover:text-neutral-700 underline underline-offset-2">
                 Source: {LEAD_LEAK.source}
               </a>
             </div>
@@ -166,7 +166,7 @@ export default function MarketingSolutionsPage() {
                 <span className="text-3xl sm:text-4xl font-black font-display tracking-tight text-neutral-950 shrink-0 w-20 sm:w-24">{l.stat}</span>
                 <div>
                   <p className="text-sm sm:text-[15px] text-neutral-600 leading-relaxed">{l.body}</p>
-                  <a href={l.href} target="_blank" rel="noopener" className="mt-2 inline-block text-xs text-neutral-400 hover:text-neutral-700 underline underline-offset-2">
+                  <a href={l.href} target="_blank" rel="noopener" className="py-2 mt-2 inline-block text-xs text-neutral-400 hover:text-neutral-700 underline underline-offset-2">
                     Source: {l.source}
                   </a>
                 </div>
@@ -255,7 +255,7 @@ export default function MarketingSolutionsPage() {
           </figure>
           <Link
             href={LEVI_QUOTE.href}
-            className="mt-10 inline-flex items-center gap-2 font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+            className="py-2 mt-10 inline-flex items-center gap-2 font-semibold text-blue-600 hover:text-blue-700 transition-colors"
           >
             Read the full case study <ArrowRight size={16} />
           </Link>

@@ -264,7 +264,7 @@ export function Hero() {
         </div>
 
         <div className="relative z-10 w-full max-w-3xl flex-1 flex flex-col justify-center sm:ml-16 lg:ml-24 xl:ml-32">
-          <h1 className="hero-rise text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-black tracking-[-0.03em] leading-[1.05] font-display text-white">
+          <h1 className="hero-rise text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-black tracking-[-0.03em] [word-spacing:0.12em] leading-[1.05] font-display text-white">
             Get More
             {/* The rotating word always sits on its own line. */}
             <span className="grid">
@@ -301,7 +301,7 @@ export function Hero() {
               id="hero-primary-cta"
               data-track="cta_click"
               data-track-cta="get_started_hero"
-              className="group inline-flex items-center justify-center gap-3 px-7 py-3.5 sm:py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-base font-bold transition-all duration-200 cursor-pointer shadow-lg shadow-blue-600/25 hover:scale-[1.02] active:scale-[0.98]"
+              className="group inline-flex items-center justify-center gap-3 px-8 py-4 sm:py-[18px] rounded-full bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg font-bold transition-all duration-200 cursor-pointer shadow-lg shadow-blue-600/25 hover:scale-[1.02] active:scale-[0.98]"
             >
               <span>Get More Customers</span>
               <div className="w-8 h-8 rounded-full bg-white/15 text-white flex items-center justify-center shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
@@ -314,10 +314,10 @@ export function Hero() {
               type="button"
               id="hero-secondary-cta"
               onClick={() => openLeadModal('hero')}
-              className="group inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:py-4 rounded-full border border-white/25 bg-white/[0.06] hover:bg-white/[0.12] hover:border-white/40 text-white text-base font-semibold backdrop-blur-sm transition-all duration-200 cursor-pointer"
+              className="group inline-flex items-center justify-center gap-2.5 px-8 py-4 sm:py-[18px] rounded-full border border-white/25 bg-white/[0.06] hover:bg-white/[0.12] hover:border-white/40 text-white text-base sm:text-lg font-semibold backdrop-blur-sm transition-all duration-200 cursor-pointer"
             >
-              <span>Book a Free Strategy Call</span>
-              <ArrowRight size={16} className="text-blue-300 group-hover:translate-x-1 transition-transform" />
+              <span>Book My Free Call</span>
+              <ArrowRight size={18} className="text-blue-300 group-hover:translate-x-1 transition-transform" />
             </button>
 
             {/* Tertiary: answers the #1 objection (price) */}
@@ -325,7 +325,7 @@ export function Hero() {
               href="/pricing"
               data-track="cta_click"
               data-track-cta="see_pricing"
-              className="hidden sm:inline-flex items-center justify-center py-2 sm:py-4 text-base font-semibold text-white/80 hover:text-white underline underline-offset-4 decoration-white/30 hover:decoration-white transition-colors"
+              className="hidden sm:inline-flex items-center justify-center py-2 sm:py-4 text-base sm:text-lg font-semibold text-white/80 hover:text-white underline underline-offset-4 decoration-white/30 hover:decoration-white transition-colors"
             >
               See pricing
             </Link>
@@ -333,9 +333,9 @@ export function Hero() {
 
           <div
             style={{ animationDelay: '0.35s' }}
-            className="hero-rise mt-6 hidden sm:block"
+            className="hero-rise mt-8 hidden sm:block"
           >
-            <TrustBadges variant="dark" />
+            <TrustBadges variant="dark" size="lg" />
           </div>
         </div>
       </div>

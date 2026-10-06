@@ -84,7 +84,7 @@ export function ServiceHero({
       <div className="relative z-10 w-full max-w-4xl mx-auto text-center">
         <Link
           href="/marketing-solutions"
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-400 hover:text-blue-400 transition-colors mb-8"
+          className="py-2 inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-400 hover:text-blue-400 transition-colors mb-8"
         >
           <ArrowLeft size={15} />
           Back to Services
@@ -127,7 +127,7 @@ export function ProblemSection({ data }: { data: SolutionProblem }) {
                   href={data.stat.sourceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 mt-3 text-xs text-neutral-500 hover:text-neutral-300 underline underline-offset-4"
+                  className="py-2 inline-flex items-center gap-1.5 mt-3 text-xs text-neutral-500 hover:text-neutral-300 underline underline-offset-4"
                 >
                   Source: {data.stat.sourceLabel}
                   <ExternalLink size={12} />
@@ -298,7 +298,7 @@ export function DeliverablesSection({ detail }: { detail: SolutionDetail }) {
             </div>
             <Link
               href="/pricing"
-              className="shrink-0 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+              className="py-2 shrink-0 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
             >
               Compare plans <ArrowRight size={14} />
             </Link>
@@ -321,7 +321,7 @@ export function CaseStudyProof({ data }: { data: SolutionProof }) {
   const caseLink = (
     <Link
       href={CASE_STUDY_PATH}
-      className="mt-8 inline-flex items-center gap-2 font-semibold text-white underline underline-offset-4 decoration-white/40 hover:decoration-white transition-colors"
+      className="py-2 mt-8 inline-flex items-center gap-2 font-semibold text-white underline underline-offset-4 decoration-white/40 hover:decoration-white transition-colors"
     >
       Read the full case study <ArrowRight size={16} />
     </Link>

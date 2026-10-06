@@ -38,7 +38,7 @@ export default function PrivacyClient() {
             <button
               type="button"
               onClick={handleBackToHome}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-950 transition-colors cursor-pointer group"
+              className="py-2 inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-950 transition-colors cursor-pointer group"
             >
               <ArrowLeft
                 size={16}
@@ -260,7 +260,7 @@ export default function PrivacyClient() {
                       <span>Google Analytics (GA4 — ID: G-2EDMD31CEP)</span>
                     </div>
                     <p className="mt-1 text-xs sm:text-sm text-gray-600">
-                      Google Analytics collects aggregated, pseudonymous statistics regarding visitor traffic, device categories, page engagements, and interaction events (for example, when a &ldquo;Book a Strategy Call&rdquo; button, phone link, or FAQ item is clicked) to help us understand which services and pages are most valuable to business owners. We do not use Google Analytics advertising features or remarketing audiences.
+                      Google Analytics collects aggregated, pseudonymous statistics regarding visitor traffic, device categories, page engagements, and interaction events (for example, when a &ldquo;Book My Free Call&rdquo; button, phone link, or FAQ item is clicked) to help us understand which services and pages are most valuable to business owners. We do not use Google Analytics advertising features or remarketing audiences.
                     </p>
                   </div>
                   <span className="text-xs font-mono text-gray-400 shrink-0">Traffic Metrics</span>
@@ -367,7 +367,7 @@ export default function PrivacyClient() {
                     href="https://tools.google.com/dlpage/gaoptout"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[#2563EB] font-semibold hover:underline inline-flex items-center gap-0.5"
+                    className="py-2 text-[#2563EB] font-semibold hover:underline inline-flex items-center gap-0.5"
                   >
                     <span>Google Analytics Opt-Out Browser Add-on</span>
                     <ExternalLink size={11} />
@@ -379,7 +379,7 @@ export default function PrivacyClient() {
                     href="https://account.microsoft.com/privacy"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[#2563EB] font-semibold hover:underline inline-flex items-center gap-0.5"
+                    className="py-2 text-[#2563EB] font-semibold hover:underline inline-flex items-center gap-0.5"
                   >
                     <span>Microsoft Privacy Dashboard</span>
                     <ExternalLink size={11} />
@@ -546,7 +546,7 @@ export default function PrivacyClient() {
             <button
               type="button"
               onClick={handleNavigateToTerms}
-              className="text-[#2563EB] font-bold hover:underline cursor-pointer"
+              className="inline-block py-2 text-[#2563EB] font-bold hover:underline cursor-pointer"
             >
               Review the Terms of Service &rarr;
             </button>

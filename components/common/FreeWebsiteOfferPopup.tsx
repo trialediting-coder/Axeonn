@@ -224,7 +224,7 @@ export function FreeWebsiteOfferPopup() {
           // Phone: a compact pill in the bottom-right corner, clear of the page
           // copy; while the case-study card is up (it spans the bottom on
           // phones) the pill rides just above it. Desktop: a slim tab on
-          // the right edge, stacked above the "Book a Call" tab (owner request). Blue
+          // the right edge, stacked above the "Book My Free Call" tab (owner request). Blue
           // with a light ring so it reads on both the dark hero and white sections.
           className="fixed z-40 right-4 bottom-[calc(max(1rem,env(safe-area-inset-bottom))_+_var(--case-study-card-h,0px))] transition-[bottom] duration-300 sm:right-0 sm:bottom-auto sm:top-[calc(50%-5rem)] sm:-translate-y-full flex items-center sm:flex-col rounded-full sm:rounded-none sm:rounded-l-xl bg-blue-600 text-white ring-1 ring-white/25 shadow-lg shadow-blue-950/30 overflow-hidden"
         >

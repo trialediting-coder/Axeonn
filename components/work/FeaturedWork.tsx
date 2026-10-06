@@ -80,10 +80,11 @@ function BeforeAfter() {
 /**
  * Homepage proof section, one beat at a time: the before/after, the story in
  * two lines, three numbers, the owner's words with the CTA, then the rest of
- * the portfolio as a compact strip.
+ * the portfolio as large cards.
  */
 export function FeaturedWork() {
-  const more = WORK_PROJECTS.filter((p) => p.name !== FEATURED_NAME).slice(0, 5);
+  // Six fills two full rows of three on desktop.
+  const more = WORK_PROJECTS.filter((p) => p.name !== FEATURED_NAME).slice(0, 6);
 
   return (
     <section
@@ -152,30 +153,30 @@ export function FeaturedWork() {
           </Link>
           <Link
             href={LEVI_QUOTE.href}
-            className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-neutral-700 hover:text-blue-600 transition-colors"
+            className="py-2 inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-neutral-700 hover:text-blue-600 transition-colors"
           >
             Read the full case study <ArrowRight size={16} />
           </Link>
         </div>
 
-        {/* 6. The rest of the portfolio, kept compact */}
+        {/* 6. The rest of the portfolio, as large cards */}
         <div className="mt-24 sm:mt-28">
-          <div className="flex items-end justify-between gap-4 mb-6">
-            <h3 className="text-xl sm:text-2xl font-extrabold font-display tracking-tight text-neutral-950">More sites we’ve built</h3>
-            <Link href="/work" className="shrink-0 inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-800 hover:text-blue-600 transition-colors">
+          <div className="flex items-end justify-between gap-4 mb-8">
+            <h3 className="text-2xl sm:text-4xl font-extrabold font-display tracking-tight text-neutral-950">More sites we’ve built</h3>
+            <Link href="/work" className="shrink-0 inline-flex items-center gap-1.5 py-2 text-sm sm:text-base font-semibold text-neutral-800 hover:text-blue-600 transition-colors">
               See all projects <ArrowRight size={15} />
             </Link>
           </div>
-          <div className="-mx-4 px-4 sm:mx-0 sm:px-0 flex sm:grid sm:grid-cols-3 lg:grid-cols-5 gap-4 overflow-x-auto snap-x snap-mandatory sm:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="-mx-4 px-4 sm:mx-0 sm:px-0 flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8 overflow-x-auto snap-x snap-mandatory sm:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {more.map((project) => (
               <a
                 key={project.name}
                 href={project.url}
                 target="_blank"
                 rel="noopener"
-                className="group snap-start shrink-0 w-[70%] sm:w-auto"
+                className="group snap-start shrink-0 w-[85%] sm:w-auto"
               >
-                <div className="aspect-[1200/833] rounded-2xl overflow-hidden border border-neutral-200 bg-neutral-100">
+                <div className="aspect-[1200/833] rounded-2xl sm:rounded-3xl overflow-hidden border border-neutral-200 bg-neutral-100 shadow-lg shadow-neutral-900/5">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={project.image}
@@ -185,8 +186,8 @@ export function FeaturedWork() {
                     className="w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-500"
                   />
                 </div>
-                <p className="mt-2.5 text-sm font-bold text-neutral-950 group-hover:text-blue-600 transition-colors">{project.name}</p>
-                <p className="text-xs text-neutral-500">{project.industry} · {project.location}</p>
+                <p className="mt-4 text-lg sm:text-xl font-bold text-neutral-950 group-hover:text-blue-600 transition-colors">{project.name}</p>
+                <p className="mt-0.5 text-sm sm:text-base text-neutral-500">{project.industry} · {project.location}</p>
               </a>
             ))}
           </div>

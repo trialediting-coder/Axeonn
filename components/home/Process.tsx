@@ -143,9 +143,9 @@ export function Process() {
 
         <Link
           href="/book"
-          className="mt-10 inline-flex items-center gap-2 text-base font-semibold text-blue-600 hover:text-blue-700"
+          className="py-2 mt-10 inline-flex items-center gap-2 text-base font-semibold text-blue-600 hover:text-blue-700"
         >
-          Book your free strategy call <ArrowRight size={16} />
+          Book My Free Call <ArrowRight size={16} />
         </Link>
       </div>
     </section>

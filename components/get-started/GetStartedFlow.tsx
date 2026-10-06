@@ -677,7 +677,7 @@ function ResultCard({
             data-track-cta="get_started_book_call"
             className="inline-flex w-full min-h-[56px] items-center justify-center gap-2 rounded-full bg-blue-600 px-7 text-base font-bold text-white shadow-lg shadow-blue-600/25 transition-all hover:bg-blue-700"
           >
-            <CalendarCheck size={18} /> Book a call to lock this in
+            <CalendarCheck size={18} /> Book my free call to lock this in
           </Link>
           <p className="text-center text-sm text-neutral-500">
             We already have your answers, so the call starts with your plan, not a questionnaire.

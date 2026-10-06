@@ -112,7 +112,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
             </svg>
             <span className="font-extrabold text-2xl tracking-tight text-white">Axeon</span>
           </span>
-          <a href={PHONE_HREF} className="inline-flex items-center gap-2 text-sm font-semibold text-white/90 hover:text-white">
+          <a href={PHONE_HREF} className="inline-flex items-center gap-2 min-h-11 px-3 -mr-3 sm:px-0 sm:mr-0 text-sm font-semibold text-white/90 hover:text-white">
             <Phone size={15} /> <span className="hidden sm:inline">{PHONE}</span><span className="sm:hidden">Call</span>
           </a>
         </div>
@@ -158,7 +158,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
               ))}
             </div>
             <div className="mt-6">
-              <TrustBadges variant="dark" />
+              <TrustBadges variant="dark" size="lg" />
             </div>
           </div>
           <div className="lg:col-span-5">

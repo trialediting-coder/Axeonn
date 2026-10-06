@@ -70,7 +70,7 @@ export function WebsiteGallery({
               />
             </AnimatePresence>
             <div
-              className={`absolute bottom-3 left-3 px-3 py-1.5 rounded-full text-[10px] font-mono font-semibold uppercase tracking-wide backdrop-blur-sm ${
+              className={`absolute bottom-3 left-3 px-3 py-1.5 rounded-full text-[11px] font-mono font-semibold uppercase tracking-wide backdrop-blur-sm ${
                 isAxeon ? 'bg-blue-600/90 text-white' : 'bg-black/60 text-white'
               }`}
             >

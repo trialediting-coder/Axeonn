@@ -360,7 +360,7 @@ export function Contact({ onBookAudit }: ContactProps) {
               </div>
             </div>
 
-            {/* Book a Strategy Call Pill Button */}
+            {/* Book My Free Call pill button */}
             <div className="mt-10">
               <a
                 href="tel:+15154938017"

@@ -102,7 +102,7 @@ export function Comparison() {
             href="/book"
             className="w-full sm:w-auto text-center px-8 py-3.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors"
           >
-            Book a Free Strategy Call
+            Book My Free Call
           </Link>
           <Link
             href="/why-axeon"

@@ -48,12 +48,12 @@ export function FAQ() {
           </Link>
           <Link
             href="/pricing"
-            className="inline-flex items-center gap-2 text-blue-600 font-bold text-base sm:text-lg hover:text-blue-700 transition-colors"
+            className="py-2 inline-flex items-center gap-2 text-blue-600 font-bold text-base sm:text-lg hover:text-blue-700 transition-colors"
           >
             <span>See pricing</span>
             <ArrowRight size={18} />
           </Link>
-          <Link href="/faq" className="text-neutral-500 font-semibold text-sm sm:text-base hover:text-neutral-800 transition-colors">
+          <Link href="/faq" className="inline-block py-2 text-neutral-500 font-semibold text-sm sm:text-base hover:text-neutral-800 transition-colors">
             All questions
           </Link>
         </div>

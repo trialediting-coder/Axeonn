@@ -21,7 +21,7 @@ export function NicheWork({ niche }: { niche: Niche }) {
           </h2>
           <Link
             href="/work"
-            className="shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-950 hover:text-blue-600 transition-colors"
+            className="py-2 shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-950 hover:text-blue-600 transition-colors"
           >
             See all our work <ArrowRight size={16} />
           </Link>

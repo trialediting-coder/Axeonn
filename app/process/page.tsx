@@ -59,7 +59,7 @@ export default function ProcessPage() {
               data-track-cta="process_closer"
               className="px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
             >
-              Book a Free Strategy Call
+              Book My Free Call
             </Link>
             <Link
               href="/pricing"

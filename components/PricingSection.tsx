@@ -309,7 +309,7 @@ function PlanCard({ tier }: { tier: PricingTier }) {
       {rest.length > 0 && (
         <details className="group mt-5">
           <summary
-            className={`list-none [&::-webkit-details-marker]:hidden inline-flex items-center gap-1.5 cursor-pointer text-sm sm:text-base font-semibold ${
+            className={`py-2 list-none [&::-webkit-details-marker]:hidden inline-flex items-center gap-1.5 cursor-pointer text-sm sm:text-base font-semibold ${
               isPlain
                 ? 'text-neutral-700 hover:text-neutral-950'
                 : isPremium
@@ -339,7 +339,7 @@ function PlanCard({ tier }: { tier: PricingTier }) {
       </Link>
       <p className={`mt-3 text-center text-xs sm:text-sm ${muted}`}>
         Free 20-minute call, no obligation.{' '}
-        <a href="tel:+15154938017" className="font-semibold underline underline-offset-2">
+        <a href="tel:+15154938017" className="inline-block py-2 font-semibold underline underline-offset-2">
           Or call (515) 493-8017
         </a>
       </p>
@@ -383,7 +383,7 @@ function FreeConsultationStrip() {
         data-track-cta="free_consultation_card"
         className="shrink-0 inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-base transition-colors"
       >
-        Book My Free Consultation <ArrowRight size={16} />
+        Book My Free Call <ArrowRight size={16} />
       </Link>
     </div>
   );

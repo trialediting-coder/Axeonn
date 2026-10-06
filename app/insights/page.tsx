@@ -76,13 +76,13 @@ export default async function InsightsPage() {
 
         <div className="mt-20 rounded-[28px] bg-neutral-950 text-white p-7 sm:p-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight font-display">
-            Want results like A-1&apos;s? Book a free strategy call.
+            Want results like A-1&apos;s? Book a free call.
           </h2>
           <Link
             href="/book"
             className="inline-flex items-center justify-center shrink-0 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-colors"
           >
-            Book a Free Strategy Call
+            Book My Free Call
           </Link>
         </div>
       </div>

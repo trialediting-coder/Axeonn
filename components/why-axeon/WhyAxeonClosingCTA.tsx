@@ -17,7 +17,7 @@ export default function WhyAxeonClosingCTA() {
             href="/book"
             className="px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-colors"
           >
-            Book a Free Strategy Call
+            Book My Free Call
           </Link>
           <Link
             href="/pricing"

@@ -11,7 +11,7 @@ export function BrowserFrame({ url, children, dark }: { url: string; children: R
           <span className="w-2.5 h-2.5 rounded-full bg-[#28C840]" />
         </div>
         <div
-          className={`flex-1 flex items-center gap-1.5 px-3 py-1 rounded-md text-[10px] font-mono truncate ${
+          className={`flex-1 flex items-center gap-1.5 px-3 py-1 rounded-md text-[11px] font-mono truncate ${
             dark ? 'bg-neutral-800 text-neutral-400' : 'bg-white text-neutral-500'
           }`}
         >

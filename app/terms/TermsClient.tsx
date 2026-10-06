@@ -38,7 +38,7 @@ export default function TermsClient() {
             <button
               type="button"
               onClick={handleBackToHome}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-950 transition-colors cursor-pointer group"
+              className="py-2 inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-950 transition-colors cursor-pointer group"
             >
               <ArrowLeft
                 size={16}
@@ -396,7 +396,7 @@ export default function TermsClient() {
             <button
               type="button"
               onClick={handleNavigateToPrivacy}
-              className="text-[#2563EB] font-bold hover:underline cursor-pointer"
+              className="inline-block py-2 text-[#2563EB] font-bold hover:underline cursor-pointer"
             >
               Read our Privacy Policy &rarr;
             </button>

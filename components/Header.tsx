@@ -588,7 +588,7 @@ export function Header() {
                 : 'border-neutral-300 text-neutral-900 hover:border-neutral-400 hover:bg-neutral-50'
             }`}
           >
-            Book a Strategy Call
+            Book My Free Call
           </Link>
           <Link
             href="/get-started"
@@ -800,7 +800,7 @@ export function Header() {
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center min-h-[52px] py-3 border-b border-neutral-100 text-[15px] font-semibold text-neutral-900"
               >
-                Book a Strategy Call
+                Book My Free Call
               </Link>
               <a
                 href="tel:+15154938017"

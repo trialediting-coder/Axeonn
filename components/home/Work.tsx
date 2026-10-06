@@ -209,7 +209,7 @@ export function Work() {
               href="/book"
               className="inline-flex items-center justify-center gap-2.5 px-7 sm:px-9 py-3.5 sm:py-4 rounded-full bg-neutral-950 hover:bg-blue-600 text-white font-bold text-sm sm:text-base tracking-tight shadow-md hover:shadow-lg transition-all duration-300 group cursor-pointer w-full sm:w-auto"
             >
-              <span>Book a Free Strategy Call</span>
+              <span>Book My Free Call</span>
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>

@@ -100,7 +100,7 @@ const CAUSES = [
 ];
 
 const STEPS = [
-  { title: 'Reach out', description: 'Email us or book a call. No application, no forms.' },
+  { title: 'Reach out', description: 'Email us or book a free call. No application, no forms.' },
   { title: 'Fit call', description: 'A short call to learn what you need and answer your questions.' },
   { title: 'Kickoff', description: 'You send your content and photos. We handle the rest.' },
   { title: 'Build and review', description: 'We build it, you review it, and we make your edits.' },
@@ -128,7 +128,7 @@ const NONPROFIT_FAQ = [
   {
     question: 'Do we need to apply?',
     answer:
-      'No. Send us an email or book a call and tell us about your organization. That is it.',
+      'No. Send us an email or book a free call and tell us about your organization. That is it.',
   },
   {
     question: 'When would our site be built?',
@@ -169,7 +169,7 @@ export default function NonprofitsPage() {
           href={`https://www.youtube.com/watch?v=${HERO_VIDEO_ID}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="absolute bottom-4 right-6 z-10 text-[11px] text-neutral-400 hover:text-neutral-200 transition-colors"
+          className="inline-block py-2 absolute bottom-4 right-6 z-10 text-[11px] text-neutral-400 hover:text-neutral-200 transition-colors"
         >
           Video: Food Bank of Iowa
         </a>

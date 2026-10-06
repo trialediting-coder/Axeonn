@@ -72,7 +72,7 @@ export default function SolutionsHubPage() {
                 href="/book"
                 className="inline-flex items-center justify-center px-6 py-3.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg shadow-blue-600/25 transition-all"
               >
-                Book a Free Strategy Call
+                Book My Free Call
               </Link>
               <Link
                 href="/#axeoncore"
