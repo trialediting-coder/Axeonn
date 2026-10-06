@@ -1,6 +1,3 @@
-'use client';
-
-import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { WORK_PROJECTS } from '@/data/workProjects';
@@ -12,75 +9,17 @@ import { LEVI_QUOTE } from '@/components/common/ClientQuote';
 // add a lift percentage or an unverified number here.
 const FEATURED_NAME = 'A-1 Auto Detailing';
 
-const A1_STORY = [
-  {
-    label: 'The problem',
-    tone: 'text-rose-600',
-    text: 'Stuck on page 2 of Google. A 5.0 rating from 180+ reviews, buried. A business-card logo and dozens of copy-paste town pages Google ignored.',
-  },
-  {
-    label: 'What we built',
-    tone: 'text-blue-600',
-    text: 'A custom 18-page site with real service pages, before-and-after photos, and a quote form right up top.',
-  },
-];
-
 const A1_RESULTS = [
   { value: '#1', label: 'on Google for “Pleasant Hill auto detailing,” up from page 2' },
   { value: '180+', label: 'Google reviews at a 5.0 rating, now front and center' },
   { value: '~56', label: 'old URLs redirected, so no search traffic was lost' },
 ];
 
-function BeforeAfter() {
-  const [pos, setPos] = useState(50);
-  return (
-    <div className="relative aspect-[1424/882] w-full overflow-hidden rounded-[20px] sm:rounded-[28px] bg-neutral-900 shadow-2xl shadow-neutral-900/15 ring-1 ring-neutral-200 select-none">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/images/case-studies/a1/after-hero.webp"
-        alt="A-1 Auto Detailing's new homepage, built by Axeon Studio"
-        loading="lazy"
-        decoding="async"
-        className="absolute inset-0 w-full h-full object-cover"
-      />
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/images/case-studies/a1/before-hero.webp"
-        alt="A-1 Auto Detailing's old homepage"
-        loading="lazy"
-        decoding="async"
-        style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}
-        className="absolute inset-0 w-full h-full object-cover"
-      />
-      <span className="absolute bottom-3 left-3 sm:bottom-5 sm:left-5 px-3 py-1.5 rounded-full bg-neutral-950/85 text-white text-[11px] sm:text-xs font-bold tracking-wider uppercase">
-        Before
-      </span>
-      <span className="absolute bottom-3 right-3 sm:bottom-5 sm:right-5 px-3 py-1.5 rounded-full bg-blue-600 text-white text-[11px] sm:text-xs font-bold tracking-wider uppercase">
-        After
-      </span>
-      <div aria-hidden="true" className="absolute inset-y-0 w-0.5 bg-white pointer-events-none" style={{ left: `${pos}%` }}>
-        <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white shadow-lg flex items-center justify-center text-neutral-900 text-sm font-bold">
-          ⇆
-        </span>
-      </div>
-      <input
-        type="range"
-        min={0}
-        max={100}
-        value={pos}
-        onChange={(e) => setPos(Number(e.target.value))}
-        aria-label="Drag to compare A-1's old and new homepage"
-        style={{ touchAction: 'pan-y' }}
-        className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize"
-      />
-    </div>
-  );
-}
-
 /**
- * Homepage proof section, one beat at a time: the before/after, the story in
- * two lines, three numbers, the owner's words with the CTA, then the rest of
- * the portfolio as large cards.
+ * Homepage proof section, one beat at a time (owner, 2026-10-05: keep it
+ * light): the real Google result, three numbers, the owner's words with the
+ * CTA, then the rest of the portfolio. The before/after slider lives on the
+ * A-1 case study page, not here.
  */
 export function FeaturedWork() {
   // Six fills two full rows of three on desktop.
@@ -108,17 +47,7 @@ export function FeaturedWork() {
         </div>
 
         {/* 2. The proof: a real Google search (competitor listings blurred) */}
-        <figure className="mt-12 sm:mt-16">
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-5">
-            <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200 px-4 py-2 text-sm sm:text-base font-bold text-emerald-800">
-              <span aria-hidden="true" className="h-2 w-2 rounded-full bg-emerald-500" />
-              #1 on the Google map
-            </span>
-            <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200 px-4 py-2 text-sm sm:text-base font-bold text-emerald-800">
-              <span aria-hidden="true" className="h-2 w-2 rounded-full bg-emerald-500" />
-              #1 in the search results
-            </span>
-          </div>
+        <figure className="mt-10 sm:mt-14 max-w-[820px] mx-auto">
           <div className="rounded-[20px] sm:rounded-[28px] overflow-hidden bg-[#202124] p-2 sm:p-3 shadow-2xl shadow-neutral-900/20 ring-1 ring-neutral-200">
             {/* Phones get a tighter crop (listing + #1 result, no map) so the text stays legible. */}
             <picture>
@@ -148,23 +77,7 @@ export function FeaturedWork() {
           </figcaption>
         </figure>
 
-        {/* 3. The before/after, on its own */}
-        <div className="mt-16 sm:mt-20">
-          <BeforeAfter />
-          <p className="mt-4 text-center text-sm text-neutral-500">Drag to compare</p>
-        </div>
-
-        {/* 4. The story, two short lines */}
-        <div className="mt-16 sm:mt-20 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 max-w-4xl mx-auto">
-          {A1_STORY.map((s) => (
-            <div key={s.label}>
-              <p className={`text-xs font-bold tracking-[0.18em] uppercase ${s.tone}`}>{s.label}</p>
-              <p className="mt-3 text-xl sm:text-2xl font-semibold text-neutral-900 leading-snug">{s.text}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* 5. Three numbers */}
+        {/* 3. Three numbers */}
         <div className="mt-16 sm:mt-20 grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-0 sm:divide-x divide-neutral-200 border-y border-neutral-200 py-10 sm:py-12">
           {A1_RESULTS.map((r) => (
             <div key={r.value} className="text-center sm:px-6">
@@ -174,7 +87,7 @@ export function FeaturedWork() {
           ))}
         </div>
 
-        {/* 6. The owner's words + the next step */}
+        {/* 4. The owner's words + the next step */}
         <figure className="mt-16 sm:mt-20 text-center max-w-3xl mx-auto">
           <blockquote className="text-2xl sm:text-4xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.2]">
             “{LEVI_QUOTE.text}”
@@ -200,7 +113,7 @@ export function FeaturedWork() {
           </Link>
         </div>
 
-        {/* 7. The rest of the portfolio, as large cards */}
+        {/* 5. The rest of the portfolio, as large cards */}
         <div className="mt-24 sm:mt-28">
           <div className="flex items-end justify-between gap-4 mb-8">
             <h3 className="text-2xl sm:text-4xl font-extrabold font-display tracking-tight text-neutral-950">More sites we’ve built</h3>
