@@ -4,6 +4,8 @@
 // and public/llms.txt — inconsistent NAP across schema/page/citations is the
 // most common local-SEO self-inflicted wound.
 
+import { MINIMUM_TERM, pricingTiers } from '@/data/pricingData';
+
 export const SITE_URL = 'https://axeonstudio.co';
 export const ORG_ID = `${SITE_URL}/#organization`;
 export const FOUNDER_ID = `${SITE_URL}/#founder`;
@@ -12,7 +14,7 @@ export const WEBSITE_ID = `${SITE_URL}/#website`;
 // Bump when static page content materially changes. Used as the sitemap
 // <lastmod> for static routes so we don't tell Google "everything changed"
 // on every request.
-export const CONTENT_LAST_UPDATED = new Date('2026-10-01T00:00:00Z');
+export const CONTENT_LAST_UPDATED = new Date('2026-10-06T00:00:00Z');
 
 export const BUSINESS = {
   name: 'Axeon Studio',
@@ -100,11 +102,46 @@ const KNOWS_ABOUT = [
   'Search engine optimization',
   'Answer engine optimization',
   'Generative engine optimization',
+  'Google Business Profile management',
+  'Google Ads management',
+  'Meta Ads management',
+  'Google Local Services Ads management',
   'Lead generation',
-  'CRM pipeline automation',
+  'Lead follow-up automation',
+  'Missed-call text-back',
   'AI chat and online scheduling',
+  'AI phone receptionist',
   'Video and photography production',
 ];
+
+// The three published plans, generated from data/pricingData.ts so the
+// structured data can never drift from the pricing cards.
+function planOfferCatalog() {
+  return {
+    '@type': 'OfferCatalog',
+    name: 'Axeon Studio plans',
+    url: `${SITE_URL}/pricing`,
+    itemListElement: pricingTiers.map((tier) => {
+      const price = tier.price.replace(/[^0-9.]/g, '');
+      return {
+        '@type': 'Offer',
+        name: tier.name,
+        description: `${tier.focus}. ${tier.price}${tier.billingNote}, ${tier.startFee}. ${MINIMUM_TERM}.`,
+        url: `${SITE_URL}/pricing`,
+        price,
+        priceCurrency: 'USD',
+        priceSpecification: {
+          '@type': 'UnitPriceSpecification',
+          price,
+          priceCurrency: 'USD',
+          unitCode: 'MON',
+          unitText: 'month',
+        },
+        itemOffered: { '@type': 'Service', name: tier.name, provider: providerRef },
+      };
+    }),
+  };
+}
 
 export function localBusinessJsonLd() {
   return {
@@ -124,8 +161,9 @@ export function localBusinessJsonLd() {
     areaServed: SERVICE_AREA,
     slogan: 'We Get You Customers, Not Clicks.',
     description:
-      'Axeon Studio gets Des Moines-area businesses more customers: local SEO and AI search visibility, Google and Meta ads, websites that convert, and lead capture with instant follow-up, run by one West Des Moines team and backed by a 90-day customer guarantee.',
+      'Axeon Studio gets Des Moines-area businesses more customers: local SEO and AI search visibility, Google, Meta and Local Services Ads, websites built to turn visitors into calls, and instant lead follow-up, run by one West Des Moines team and backed by a 90-day customer guarantee.',
     knowsAbout: KNOWS_ABOUT,
+    hasOfferCatalog: planOfferCatalog(),
     founder: { '@id': FOUNDER_ID },
     sameAs: BUSINESS.sameAs,
   };

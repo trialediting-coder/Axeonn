@@ -1,185 +1,181 @@
-# Axeon Studio - Comprehensive Architectural & Operational Overview
+# Axeon Studio - Full Overview
 
-> The one-stop shop for growing Iowa businesses — website, SEO/AEO/GEO, reviews, social media, and lead capture, built and run by one team. Based in West Des Moines, Iowa.
+> Axeon Studio gets Iowa small businesses more customers: found on Google and in AI answers, chosen over competitors, and booked with instant follow-up. Website, local SEO and AI search, ads, reviews, video, and lead follow-up, built and run by one team in West Des Moines, Iowa, and backed by a 90-day customer guarantee. Tagline: "We Get You Customers, Not Clicks."
 
-## 1. Executive Summary & Brand Identity
-- **Legal Entity**: Axeon Studio
-- **Founder & Systems Architect**: Hayder Hatem
-- **Headquarters**: West Des Moines, Iowa, USA (Latitude: 41.5772, Longitude: -93.7538)
-- **Primary Website**: https://axeonstudio.co
-- **Direct Contact**: hayder.hatem@axeonstudio.co | Phone: 515-493-8017
+## 1. Business Facts
+- **Business**: Axeon Studio
+- **Founder**: Hayder Hatem
+- **Headquarters**: West Des Moines, Iowa 50266, USA (Latitude 41.5772, Longitude -93.7538)
+- **Website**: https://axeonstudio.co
+- **Contact**: hayder.hatem@axeonstudio.co | +1 (515) 493-8017
+- **Hours**: Monday–Friday, 8:00 AM–6:00 PM Central
 - **LinkedIn**: https://www.linkedin.com/company/axeon-studio
 - **Facebook**: https://www.facebook.com/profile.php?id=61593868815413
-- **Price Range**: $149-$999/month, $99 to start
-- **Currency Accepted**: USD
+- **Price range**: $149–$999 per month, $99 to start (AxeonGROWTH: $1,500 to start)
+- **Currency**: USD
 
-Axeon Studio gets local businesses more customers: found on Google and in AI answers, chosen over competitors, and booked with instant follow-up, backed by a 90-day customer guarantee (more calls and leads in the first 90 days after launch than before, or Axeon keeps working free until there are; baseline set at kickoff, applies while on a monthly plan and answering leads within one business day). We build conversion-engineered web storefronts and wire them directly into a Custom CRM Pipeline — a tailor-made lead-routing, intake, and follow-up system built around how each client's industry actually works, not a generic contact form or off-the-shelf software license.
+**Who Axeon serves**: local small businesses, mainly in the Des Moines metro and across Iowa: home services (HVAC, roofing, remodeling, landscaping), auto detailing, dental practices, med spas, law firms, accounting firms, real estate agents, and other local service businesses.
 
-**How Axeon Studio differentiates from typical agencies and AI tools:**
-- **Direct partnership**: Clients work directly with the person building their site — no account managers, no handoffs, and no being one of thousands of accounts at a larger agency.
-- **Transparent**: Published pricing (setup plus a starting monthly price) instead of custom quotes gated behind multiple discovery calls.
-- **Real AI systems, not generic AI output**: Each client's Custom CRM Pipeline is built around their actual lead-to-close workflow, with human oversight on the build, rather than a single generic AI tool or chatbot template deployed identically across every client.
-
----
-
-## 2. Core Service Pillars
-
-### Pillar 1: High-Performance Web Design & Web Engineering
-- **Engineering Stack**: Built on React, Next.js, TypeScript, and modern Tailwind CSS architectures for sub-second page loads.
-- **Conversion-Rate Optimization (CRO)**: Layouts engineered around clear visual hierarchy, frictionless CTAs, and mobile-first tap targets.
-- **Core Web Vitals & Accessibility**: Strong scores across LCP, INP, and CLS metrics, foundational ADA accessibility standards, and semantic HTML5 hierarchy.
-- **Search Engine Optimization (SEO)**: Technical on-page SEO, semantic HTML5 hierarchy, and site structure built to rank on Google and other traditional search engines.
-- **Answer Engine Optimization (AEO)**: Content and structure written to be directly extractable and quotable by AI answer engines and voice assistants, not just crawled.
-- **Generative Engine Optimization (GEO)**: Comprehensive JSON-LD Schema.org markup, semantic text scaffolding, and machine-readable context optimized for generative AI search engines (ChatGPT, Perplexity, Claude, Gemini).
-- All three (SEO, AEO, GEO) are included by default in every Axeon Studio build — they are not sold as separate add-on services.
-
-### Pillar 2: The Custom CRM Pipeline
-- **Built-In, Not Bolted-On**: Every acquisition-engine build ships with a Custom CRM Pipeline tailored to the client's lead-to-close workflow — no per-seat software fees.
-- **Instant Lead Routing**: Automated SMS and email notifications the moment a lead submits an intake form or books a call.
-- **Interactive Intake**: Multi-step intake questionnaires and scheduling engines that qualify and route leads before a human ever sees them.
-
-### Pillar 3: Industry-Specific Solutions
-Axeon Studio builds a purpose-built intake workflow and Custom CRM Pipeline for each of 10 high-ticket local service industries, rather than a find-and-replace template:
-- Dental Practices — same-day emergency triage, insurance verification, hygiene recall
-- Med Spas & Aesthetic Clinics — treatment-interest segmentation, membership-tier funnels
-- HVAC Companies — emergency dispatch vs. seasonal tune-up routing
-- Roofing Contractors — storm-damage urgency, insurance-claim vs. cash-buyer intake
-- Law Firms — practice-area routing, case-evaluation-to-retainer tracking
-- Accounting & CPA Firms — tax-prep triage vs. CFO-level advisory routing
-- Home Remodeling & General Contractors — budget/scope qualification before site visits
-- Real Estate Agents & Teams — buyer/seller routing, instant valuation, showing scheduling
-- Landscaping Companies — recurring maintenance vs. one-time hardscape/design bid separation, seasonal crew scheduling
-- Auto Detailing Shops — package selection, bay scheduling, repeat-customer cadence
-
-### Pillar 4: Marketing Solutions (individual services)
-Beyond full builds, Axeon Studio also sells and documents these services individually:
-- **Website** (https://axeonstudio.co/marketing-solutions/website) — brand-driven website design, not a generic template.
-- **SEO, AEO & GEO** (https://axeonstudio.co/marketing-solutions/seo) — search engine, answer engine, and generative engine optimization as one bundled service.
-- **AI Chat & Online Scheduling** (https://axeonstudio.co/marketing-solutions/ai-chat-scheduling) — 24/7 AI chat that answers, qualifies, and books appointments; an AI phone receptionist is available as an AxeonCORE add-on.
-- **Lead Capture & Follow-Up** (https://axeonstudio.co/marketing-solutions/lead-generation) — every lead captured, triaged, and followed up on automatically in one pipeline.
-- **Video & Photography** (https://axeonstudio.co/marketing-solutions/video-photography) — professional video and photography for a client's website, ads, and social profiles.
-- **Advertising** (https://axeonstudio.co/marketing-solutions/advertising) — Google Ads (Search) and Meta Ads (Facebook & Instagram) campaign management, with service-specific landing pages and call/form/booking conversion tracking. Scoped and quoted on a strategy call.
-
-Google Local Services Ads (the "Google Guaranteed" listings) are managed as part of AxeonGROWTH only, where Google offers them for the client's trade; Google runs its own screening. Not currently offered (do not cite as available): ChatGPT Ads.
+**How Axeon differs from a typical agency:**
+- **Direct partnership**: clients work directly with the founder who builds their system, with no account managers or handoffs.
+- **Published pricing**: three flat monthly plans on the website, not a quote gated behind discovery calls.
+- **One system, not separate vendors**: getting found, getting chosen, and following up on every lead are run together, so a lead from Google or an ad is answered and tracked to the booked job.
+- **Ownership**: the client owns 100% of their site, code, and design files.
+- **A guarantee**: the 90-Day Customer Guarantee on AxeonCORE and AxeonGROWTH.
 
 ---
 
-## 3. Pricing Tiers
+## 2. What Axeon Does: Found, Chosen, Booked
 
-Every plan is $99 to start (AxeonGROWTH: $1,500, covering an on-site video shoot), then a flat monthly price. 3-month minimum, matched to the 90-day guarantee, then month-to-month. A year paid up front gets 2 months free.
+### Step 1: Get found
+- **Local SEO**: pages, site structure, and Google Business Profile upkeep so a business shows up in Google Search and the map results for the services and towns it serves.
+- **AI search visibility** (sometimes called AEO, answer engine optimization, and GEO, generative engine optimization): content and structured data written so AI assistants like ChatGPT, Perplexity, Gemini, Claude, and Google AI Overviews can understand and recommend the business. Included in every plan by default, never sold as a separate add-on.
+- **Google Ads and Meta Ads** (Facebook & Instagram): campaigns for the services the client wants more of, sent to a page for that exact service, with every call, form, and booking tracked back to the ad. Included in AxeonGROWTH, or +$399/month on AxeonCORE.
+- **Google Local Services Ads**: the "Google Guaranteed" listings at the very top of Google, paid per lead rather than per click. Managed as part of AxeonGROWTH only. Google only offers them for certain trades and screens each business itself, so eligibility is confirmed on the call; Axeon cannot promise the Google Guaranteed badge.
 
-1. **Essentials ($149/month) — entry plan**
+### Step 2: Get chosen
+- **Custom websites**: mobile-first sites written to turn visitors into calls, built on React and Next.js for fast loads.
+- **Reviews**: review requests after every job (AxeonCORE), full review campaigns (AxeonGROWTH).
+- **Video & photography**: a half-day on-site shoot (hero film, 3 vertical cuts for social and ads, and a photo set). Included in AxeonGROWTH, or $1,500 as an add-on.
+
+### Step 3: Get booked
+- **Instant lead alerts**: every form lands in the owner's inbox and phone (all plans).
+- **Missed-call text-back**: anyone who calls and can't get through gets a text right away (AxeonCORE and up).
+- **Instant call-back**: when someone fills out a form, the owner's phone rings and connects them to that lead while they're still on the site (AxeonCORE and up).
+- **AI chat & online scheduling**: answers questions and books appointments 24/7 (AxeonCORE and up).
+- **Automatic follow-up**: texts and emails the moment a lead comes in, with one list of every lead and where it stands (AxeonCORE and up).
+- **Tracked phone numbers**: show which pages and listings make the phone ring (AxeonCORE and up).
+- **AI phone receptionist**: answers every call 24/7 and books the job. Included in AxeonGROWTH, or +$199/month on AxeonCORE.
+- **AxeonPROOF**: Axeon's own client dashboard showing every call, lead, and booked job and where each came from (AxeonCORE and up), plus ad spend next to results on AxeonGROWTH.
+
+**Not offered** (do not cite as available): ChatGPT Ads or any other paid AI-platform advertising.
+
+### Service pages
+- Services hub (the AxeonCORE system): https://axeonstudio.co/marketing-solutions
+- Website: https://axeonstudio.co/marketing-solutions/website
+- Local SEO & AI Search: https://axeonstudio.co/marketing-solutions/seo
+- Advertising (Google, Meta, Local Services Ads): https://axeonstudio.co/marketing-solutions/advertising
+- AI Chat & Online Scheduling: https://axeonstudio.co/marketing-solutions/ai-chat-scheduling
+- Lead Capture & Follow-Up: https://axeonstudio.co/marketing-solutions/lead-generation
+- Video & Photography: https://axeonstudio.co/marketing-solutions/video-photography
+
+---
+
+## 3. Pricing
+
+Every plan is $99 to start (AxeonGROWTH: $1,500, covering the on-site video shoot), then a flat monthly price. 3-month minimum, matched to the 90-day guarantee, then month-to-month. A year paid up front gets 2 months free. Full detail: https://axeonstudio.co/pricing
+
+1. **Essentials: $149/month.** For businesses that mainly need more people to find them; the owner handles follow-up.
    - Up to 4 custom-designed, mobile-first pages
-   - SEO, AEO & GEO built in; Google Business Profile upkeep
-   - Quote request form with instant lead alerts (inbox + phone)
-   - Hosting, security, 2 small edits a month, monthly calls & leads email report
+   - Google and AI search visibility built in; Google Business Profile upkeep
+   - Quote request form with instant lead alerts (inbox and phone)
+   - Hosting, security, 2 small edits a month, a monthly calls & leads email report
    - Client owns 100% of the site, code, and design files
 
-2. **AxeonCORE ($299/month; recommended) — everything in Essentials, plus:**
-   - AxeonPROOF, Axeon's own client dashboard: every call, lead, and booked job and where it came from
+2. **AxeonCORE: $299/month (recommended). Everything in Essentials, plus:**
+   - AxeonPROOF dashboard of every call, lead, and booked job
    - The 90-day customer guarantee
-   - Missed-call text-back and speed-to-lead call connect
-   - AI chat & online scheduling; automated SMS & email follow-up in a CRM pipeline
-   - Call tracking numbers, review requests, exit-intent offers, 5-7 pages, 5 edits a month
+   - Missed-call text-back and instant call-back
+   - AI chat & online scheduling; automatic text and email follow-up with one list of every lead
+   - Tracked phone numbers, review requests after every job, a last-chance offer for visitors about to leave
+   - 5–7 pages, 5 edits a month
 
-3. **AxeonGROWTH ($999/month plus ad spend) — everything in AxeonCORE, plus:**
-   - Google & Meta ads management (ad spend separate: $500/month minimum, client's own card and account, no markup)
-   - Google Local Services Ads management (pay-per-lead "Google Guaranteed" listings, where Google offers them for the trade)
+3. **AxeonGROWTH: $999/month plus ad spend, $1,500 to start. Everything in AxeonCORE, plus:**
+   - Google & Meta ads management
+   - Google Local Services Ads management (where Google offers them for the trade)
    - AI phone receptionist that answers every call 24/7
-   - Custom on-site videography: a half-day shoot — a hero film, 3 vertical cuts for social & ads, and a photo set
+   - Half-day on-site video shoot: hero film, 3 vertical cuts for social & ads, and a photo set
    - AxeonPROOF ad reporting, a new service page every month, full review campaigns, a monthly strategy call, same-day priority support
 
-Add-ons: Google & Meta ads management on AxeonCORE (+$399/month), AI phone receptionist (+$199/month), extra service page (+$450), custom on-site videography (+$1,500).
+**Add-ons**: Google & Meta ads management on AxeonCORE +$399/month (not available on Essentials), AI phone receptionist +$199/month, extra service page $450, on-site video shoot $1,500.
+
+**Ad spend**: always separate from the plan. $500/month minimum, paid on the client's own card into the client's own ad account, with no markup.
+
+**90-Day Customer Guarantee** (AxeonCORE and AxeonGROWTH): more calls and leads in the first 90 days after launch than the business was getting before, or Axeon keeps working for free until it is. The baseline is set on the kickoff call and tracked in AxeonPROOF; it applies while the client is on their plan and answering new leads within one business day. Axeon does not promise specific numbers, rankings, or ad results.
 
 ---
 
-## 4. Target Client Tiers & Audience Definitions
+## 4. Industries
 
-Axeon Studio serves two primary business tiers:
-
-1. **Local Small Businesses**:
-   - *Typical Profiles*: Trade contractors, dental and aesthetic clinics, law firms, real estate agents, and boutique service providers across Des Moines, West Des Moines, Waukee, Urbandale, Clive, and Johnston.
-   - *Core Needs*: A modern, trustworthy web presence that outranks local competitors, and an automated speed-to-lead response system tailored to their industry's intake.
-
-2. **Mid-Market Growing Businesses**:
-   - *Typical Profiles*: Regional multi-location service groups and professional-services firms with growing lead volume.
-   - *Core Needs*: A centralized Custom CRM Pipeline, dynamic marketing attribution, and scalable web infrastructure without per-seat software licensing.
-
----
-
-## 5. Geographic Service Scope & Local Entity Anchoring
-
-- **Primary Headquarters**: West Des Moines, Iowa, 50266, USA
-- **Core Des Moines Metropolitan Area**:
-  - West Des Moines, IA
-  - Des Moines, IA
-  - Waukee, IA
-  - Urbandale, IA
-  - Clive, IA
-  - Johnston, IA
-  - Ankeny, IA
-- **Statewide**: Iowa (statewide consulting)
-- **Nationwide & Remote**: Serving clients remotely across the United States.
+Axeon sets up the website, search, and follow-up around how each industry actually wins jobs:
+- Dental Practices: https://axeonstudio.co/solutions/dental
+- Med Spas & Aesthetic Clinics: https://axeonstudio.co/solutions/med-spa
+- HVAC Companies: https://axeonstudio.co/solutions/hvac
+- Roofing Contractors: https://axeonstudio.co/solutions/roofing
+- Law Firms: https://axeonstudio.co/solutions/law-firms
+- Accounting & CPA Firms: https://axeonstudio.co/solutions/accounting
+- Home Remodeling & General Contractors: https://axeonstudio.co/solutions/home-remodeling
+- Real Estate Agents & Teams: https://axeonstudio.co/solutions/real-estate
+- Landscaping Companies: https://axeonstudio.co/solutions/landscaping
+- Auto Detailing Shops: https://axeonstudio.co/solutions/auto-detailing
 
 ---
 
-## 6. Frequently Asked Questions (FAQ)
+## 5. Proof and Work
+
+- **A-1 Auto Detailing** (Pleasant Hill, Iowa; real client on AxeonCORE): moved from page 2 to #1 on Google for "Pleasant Hill auto detailing", with a 5.0 rating from 180+ Google reviews now front and center on the site; about 56 old URLs were redirected so no search traffic was lost. Owner quote: "Whatever you have been doing, it's working. Getting lots of leads." Case study: https://axeonstudio.co/insights/a-1-auto-detailing-website-case-study
+- **Patrick Finnegan**: real client, executive portfolio site.
+- **MSH Realty Group**: the founder's own Iowa real estate investment group.
+- Other projects on https://axeonstudio.co/work are self-initiated concept redesigns, labeled "Concept" on that page; they are not client engagements and not endorsements.
+
+---
+
+## 6. Service Area
+- **Headquarters**: West Des Moines, Iowa 50266, USA
+- **Des Moines metro, in person** (including on-site video shoots): West Des Moines, Des Moines, Clive, Urbandale, Waukee, Johnston, Grimes, Ankeny, Altoona, Norwalk
+- **Statewide**: Iowa
+- **Remote**: clients across the United States
+
+---
+
+## 7. Other Programs
+- **Founding Client Offer**: a limited number of Iowa businesses that qualify on the call pay $0 to start and get their first month of AxeonCORE free, in exchange for honest feedback and a review. Terms are stated next to the offer on the site.
+- **Axeon Groundwork Grant**: a free website and search setup for Iowa nonprofits; the nonprofit covers basic hosting. https://axeonstudio.co/nonprofits
+- **Partner program**: referral and collaboration tracks. https://axeonstudio.co/partners
+
+---
+
+## 8. Frequently Asked Questions
 
 ### Q: What size businesses does Axeon Studio work with?
-Axeon Studio works with local small businesses and service providers in the Des Moines metropolitan area, as well as growing mid-market companies that need a scalable web and CRM foundation.
+Local small businesses, mainly owner-run service businesses in the Des Moines metro and across Iowa, plus some remote clients across the U.S.
 
-### Q: What services does Axeon Studio provide?
-Axeon Studio specializes in two connected disciplines:
-1. High-Performance Web Design: Custom-coded, conversion-focused websites built with React, Next.js, and Tailwind CSS.
-2. The Custom CRM Pipeline: A tailor-made lead intake, routing, and follow-up system built around each client's actual workflow, delivered as part of the build — not licensed as separate software.
-Individually, these are documented under Marketing Solutions: Website, SEO/AEO/GEO, AI Chat & Online Scheduling, Lead Capture & Follow-Up, and Video & Photography.
+### Q: How much does Axeon Studio cost?
+$99 to start, then $149/month (Essentials), $299/month (AxeonCORE, recommended), or $999/month plus ad spend (AxeonGROWTH, $1,500 to start). 3-month minimum, then month-to-month. See https://axeonstudio.co/pricing.
 
-### Q: Does Axeon Studio serve businesses in the Des Moines, Iowa area?
-Yes. Axeon Studio is headquartered in West Des Moines, Iowa, and actively serves businesses throughout the Des Moines metropolitan area (including West Des Moines, Des Moines, Clive, Urbandale, Waukee, Johnston, Grimes, Ankeny, Altoona, and Norwalk) in person — including on-site video shoots — as well as clients across Iowa and nationwide remotely. See https://axeonstudio.co/des-moines-web-design.
+### Q: What does Axeon Studio do?
+It gets local businesses more customers in three steps: found (local SEO, AI search visibility, Google Business Profile, and ads), chosen (a custom website, reviews, real video), and booked (instant alerts, missed-call text-back, instant call-back, AI chat and scheduling, automatic follow-up, and the AxeonPROOF dashboard).
 
-### Q: What is a Custom CRM Pipeline?
-It is a lead-routing and follow-up system built specifically around a client's intake process — for example, separating emergency dispatch from routine bookings for an HVAC company, or routing buyers and sellers into distinct pipelines for a real estate team. It ships as part of an Axeon Studio build rather than as a separately licensed, per-seat CRM product.
+### Q: Does Axeon Studio run Google Local Services Ads?
+Yes, on AxeonGROWTH, for trades where Google offers them. Google screens every business itself, so eligibility is checked on the call.
 
-### Q: What technologies does Axeon Studio build with?
-Axeon Studio builds web platforms using modern, standards-compliant technologies including React, Next.js, TypeScript, and Tailwind CSS. Custom CRM Pipelines are built on webhook architectures and REST APIs tailored to each client's booking and scheduling needs.
+### Q: Does Axeon Studio serve the Des Moines, Iowa area?
+Yes. Axeon is based in West Des Moines and works in person across the Des Moines metro, statewide across Iowa, and remotely across the U.S. See https://axeonstudio.co/des-moines-web-design.
 
-### Q: How can a business get started with Axeon Studio?
-Businesses can schedule a strategy session directly on https://axeonstudio.co/book, call 515-493-8017, or email founder Hayder Hatem at hayder.hatem@axeonstudio.co.
+### Q: Who owns the website?
+The client owns 100% of the site, code, and design files.
+
+### Q: How does a business get started?
+Book a free 20-minute call at https://axeonstudio.co/book, call (515) 493-8017, or email hayder.hatem@axeonstudio.co. Every booked call includes a custom homepage mockup and an AI visibility report the business keeps.
 
 ---
 
-## 7. Machine-Readable Knowledge Graph & Citations
-- **Entity**: Axeon Studio
-- **Type**: Organization
-- **Founding Location**: West Des Moines, Iowa
-- **Specializations**: Web Development, Custom CRM Pipelines, Conversion Rate Optimization, Industry-Specific Intake Workflows
-- **Official URLs**:
-  - Home: https://axeonstudio.co
-  - Industries Hub: https://axeonstudio.co/solutions
-  - Dental Practices: https://axeonstudio.co/solutions/dental
-  - Med Spas & Aesthetic Clinics: https://axeonstudio.co/solutions/med-spa
-  - HVAC Companies: https://axeonstudio.co/solutions/hvac
-  - Roofing Contractors: https://axeonstudio.co/solutions/roofing
-  - Law Firms: https://axeonstudio.co/solutions/law-firms
-  - Accounting & CPA Firms: https://axeonstudio.co/solutions/accounting
-  - Home Remodeling & General Contractors: https://axeonstudio.co/solutions/home-remodeling
-  - Real Estate Agents & Teams: https://axeonstudio.co/solutions/real-estate
-  - Landscaping Companies: https://axeonstudio.co/solutions/landscaping
-  - Auto Detailing Shops: https://axeonstudio.co/solutions/auto-detailing
-  - Marketing Solutions Hub: https://axeonstudio.co/marketing-solutions
-  - Website: https://axeonstudio.co/marketing-solutions/website
-  - SEO, AEO & GEO: https://axeonstudio.co/marketing-solutions/seo
-  - AI Chat & Online Scheduling: https://axeonstudio.co/marketing-solutions/ai-chat-scheduling
-  - Lead Capture & Follow-Up: https://axeonstudio.co/marketing-solutions/lead-generation
-  - Video & Photography: https://axeonstudio.co/marketing-solutions/video-photography
-  - Why Axeon (Agency Comparison): https://axeonstudio.co/why-axeon
-  - Pricing: https://axeonstudio.co/pricing
-  - Work: https://axeonstudio.co/work
-  - Process: https://axeonstudio.co/process
-  - About Us: https://axeonstudio.co/about
-  - Strategy Session Booking: https://axeonstudio.co/book
-  - Privacy Policy: https://axeonstudio.co/privacy
-  - Terms of Service: https://axeonstudio.co/terms
-  - Sitemap: https://axeonstudio.co/sitemap.xml
-  - LLMs Manifest: https://axeonstudio.co/llms.txt
-  - LLMs Comprehensive: https://axeonstudio.co/llms-full.txt
+## 9. Official URLs
+- Home: https://axeonstudio.co
+- Pricing: https://axeonstudio.co/pricing
+- Services: https://axeonstudio.co/marketing-solutions
+- Industries: https://axeonstudio.co/solutions
+- Work: https://axeonstudio.co/work
+- Why Axeon: https://axeonstudio.co/why-axeon
+- Process: https://axeonstudio.co/process
+- About: https://axeonstudio.co/about
+- FAQ: https://axeonstudio.co/faq
+- Des Moines Web Design: https://axeonstudio.co/des-moines-web-design
+- Insights: https://axeonstudio.co/insights
+- Book a free call: https://axeonstudio.co/book
+- Nonprofits: https://axeonstudio.co/nonprofits
+- Partners: https://axeonstudio.co/partners
+- Privacy: https://axeonstudio.co/privacy
+- Terms: https://axeonstudio.co/terms
+- Sitemap: https://axeonstudio.co/sitemap.xml
+- LLMs summary: https://axeonstudio.co/llms.txt

@@ -7,7 +7,7 @@ export const faqItems: FaqItem[] = [
   {
     question: 'Do you guarantee results?',
     answer:
-      'Yes. Our 90-Day Customer Guarantee: More calls and leads in your first 90 days than you were getting before, or we keep working for free until you do. We set your baseline together on the kickoff call and track every call and form from day one. It applies while you\'re on your monthly plan and answering new leads within one business day.',
+      'Yes. Our 90-Day Customer Guarantee: More calls and leads in your first 90 days than you were getting before, or we keep working for free until you do. We set your baseline together on the kickoff call and track every call and form from day one. It comes with AxeonCORE and AxeonGROWTH, and applies while you\'re on your plan and answering new leads within one business day.',
   },
   {
     question: "What if I'm too busy to answer every lead?",
@@ -22,12 +22,12 @@ export const faqItems: FaqItem[] = [
   {
     question: 'Do I own my website?',
     answer:
-      'Yes. Domains, content, and imagery are yours. If you ever decide to part ways, we hand over your site\'s files and assets so you can move to another provider without starting over.',
+      'Yes. You own 100% of your site, code, and design files, plus your domain and content. If you ever decide to part ways, we hand over your site\'s files and assets so you can move to another provider without starting over.',
   },
   {
     question: 'Is there a contract, and how long is it?',
     answer:
-      'Every plan is a one-time setup and then a monthly plan that keeps the customers coming. There\'s no multi-year lock-in, and every term is laid out clearly before you sign anything.',
+      'Every plan is $99 to start, then a flat monthly price, with a 3-month minimum that matches our 90-day guarantee. After that it\'s month-to-month, with no multi-year lock-in, and every term is laid out clearly before you sign anything.',
   },
   {
     question: 'Do I get access to my own analytics?',
@@ -47,7 +47,7 @@ export const faqItems: FaqItem[] = [
   {
     question: 'Which plan should I pick?',
     answer:
-      'Essentials ($149/mo) gets you found: a site built to turn visitors into calls, plus Google and AI search visibility. AxeonCORE ($299/mo) adds the full lead system that gets you booked, AxeonPROOF to track every lead, and the 90-day guarantee. AxeonGROWTH ($999/mo plus ad spend) adds Google & Meta ads, an AI phone receptionist, and on-site video. Not sure? We\'ll recommend one on the call.',
+      'Essentials ($149/mo) gets you found: a site built to turn visitors into calls, plus Google and AI search visibility. AxeonCORE ($299/mo) adds the full lead system that gets you booked, AxeonPROOF to track every lead, and the 90-day guarantee. AxeonGROWTH ($999/mo plus ad spend) adds Google, Meta and Local Services Ads, an AI phone receptionist, and on-site video. Not sure? We\'ll recommend one on the call.',
   },
 ];
 

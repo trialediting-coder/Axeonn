@@ -171,7 +171,7 @@ export const pricingFaqs: PricingFaq[] = [
   },
   {
     q: 'Which plan should I pick?',
-    a: 'Essentials if you mainly need more people to find you and you\'re happy to chase every lead yourself. AxeonCORE if you want every lead captured, followed up on, and tracked, with the guarantee behind it. It\'s the plan we recommend. AxeonGROWTH if you want us to run the whole thing: ads, an AI receptionist on your phones, video of your business, and a new page every month.',
+    a: 'Essentials if you mainly need more people to find you and you\'re happy to chase every lead yourself. AxeonCORE if you want every lead captured, followed up on, and tracked, with the guarantee behind it. It\'s the plan we recommend. AxeonGROWTH if you want us to run the whole thing: Google, Meta and Local Services Ads, an AI receptionist on your phones, video of your business, and a new page every month.',
   },
   {
     q: 'What is AxeonPROOF?',
@@ -179,11 +179,11 @@ export const pricingFaqs: PricingFaq[] = [
   },
   {
     q: 'Do I pay for ads separately on AxeonGROWTH?',
-    a: 'Yes. Your ad budget goes straight to Google and Meta, on your own card and in your own ad account, with no markup from us. We ask for at least $500/mo in ad spend, because below that there isn\'t enough data to keep improving your campaigns. The $999/mo is for running them.',
+    a: 'Yes. Your ad budget goes straight to Google and Meta, on your own card and in your own ad account, with no markup from us. Local Services Ads work the same way: Google bills you per lead. We ask for at least $500/mo in ad spend, because below that there isn\'t enough data to keep improving your campaigns. The $999/mo is for running them.',
   },
   {
     q: 'Can I add pieces of AxeonGROWTH to AxeonCORE instead?',
-    a: 'Yes. Ads management is +$399/mo, the AI phone receptionist is +$199/mo, and extra service pages are $450 each. Worth knowing before you do: AxeonCORE plus ads, the receptionist, and a new page every month comes to $1,347/mo, while AxeonGROWTH includes all of it, plus the video shoot, for $999/mo.',
+    a: 'Yes. Ads management is +$399/mo, the AI phone receptionist is +$199/mo, and extra service pages are $450 each. Worth knowing before you do: AxeonCORE plus ads, the receptionist, and a new page every month comes to $1,347/mo, while AxeonGROWTH includes all of it, plus the video shoot and Google Local Services Ads, for $999/mo.',
   },
   {
     q: 'What does the AxeonCORE lead system actually do?',
