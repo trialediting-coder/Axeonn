@@ -315,17 +315,15 @@ export function FreeWebsiteOfferPopup() {
               <X size={18} />
             </button>
 
-            {/* Deliberately simple: one message, one button, the required terms. */}
-            <div className="px-7 sm:px-9 pt-9 pb-7 text-center">
-              <p className="text-xs font-bold tracking-[0.18em] uppercase text-blue-600">{foundingOffer.eyebrow}</p>
+            {/* Deliberately minimal: one line, one button, and the terms the law
+                requires next to any "free" offer. */}
+            <div className="px-7 sm:px-9 pt-10 pb-7 text-center">
               <h2
                 id="founding-offer-title"
-                className="mt-3 text-2xl sm:text-[28px] font-black tracking-tight leading-[1.15] text-neutral-950"
+                className="text-3xl sm:text-4xl font-black tracking-tight leading-[1.1] text-neutral-950"
               >
                 {foundingOffer.headline}
               </h2>
-              <p className="mt-3 text-base text-neutral-600 leading-relaxed">{foundingOffer.subhead}</p>
-
               <button
                 type="button"
                 onClick={claim}
@@ -334,8 +332,6 @@ export function FreeWebsiteOfferPopup() {
                 <span>{foundingOffer.cta}</span>
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </button>
-              <p className="mt-2.5 text-xs sm:text-[13px] text-neutral-500">{foundingOffer.ctaHint}</p>
-
               <p id="founding-offer-terms" className="mt-5 text-[11px] leading-relaxed text-neutral-400">
                 {foundingOffer.terms}
               </p>

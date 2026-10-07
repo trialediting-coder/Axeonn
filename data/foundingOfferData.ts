@@ -19,7 +19,7 @@ export const foundingOffer = {
   /** Set to false to take the offer down everywhere at once. */
   active: true,
   eyebrow: 'Founding Client Offer',
-  headline: '$0 to start, and your first month of AxeonCORE free',
+  headline: '$0 to start. Your first month free.',
   /** One short sentence: the popup shows only the headline, this, the button and the terms. */
   subhead: 'For a few Iowa businesses, in exchange for honest feedback and a review.',
   /** Real anchor: the $99 start fee + the first $299 AxeonCORE month. */
