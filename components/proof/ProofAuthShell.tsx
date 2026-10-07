@@ -1,98 +1,99 @@
 // components/proof/ProofAuthShell.tsx
-// The signed-out AxeonPROOF screen (sign in, forgot, reset). A dark page with the
-// Axeon slash motif behind one centered card: the form on the left, a product
-// showcase with a sample dashboard on the right (hidden on phones).
+// The signed-out AxeonPROOF screen (sign in, forgot, reset), in Axeon's own
+// visual language from the marketing site: warm off-white, mono bracket labels,
+// heavy display type. The right panel shows what makes AxeonPROOF different, a
+// feed of customers with where each one came from (sample data, labelled).
 import type { ReactNode } from 'react';
-import { AxeonLogo } from '@/components/brand/AxeonLogo';
+import { CalendarCheck, FileText, PhoneCall } from 'lucide-react';
+import { AxeonLogo, AxeonMark } from '@/components/brand/AxeonLogo';
 
-function Backdrop() {
-  return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(37,99,235,0.18),transparent_60%)]" />
-      {/* The two slanted bars of the Axeon mark, scaled up across the page. */}
-      <div className="absolute -top-40 left-[18%] h-[140%] w-40 -skew-x-[18deg] bg-gradient-to-b from-blue-600/25 via-blue-600/10 to-transparent" />
-      <div className="absolute -top-40 left-[32%] h-[140%] w-40 -skew-x-[18deg] bg-gradient-to-b from-blue-500/15 via-blue-500/5 to-transparent" />
-      <div className="absolute -bottom-40 right-[12%] h-[120%] w-56 -skew-x-[18deg] bg-gradient-to-t from-blue-700/25 via-blue-700/10 to-transparent" />
-    </div>
-  );
-}
+const SAMPLE_FEED = [
+  { icon: PhoneCall, title: 'New call', source: 'Google Maps listing', time: '2m ago', tone: 'text-blue-300 bg-blue-500/15' },
+  { icon: FileText, title: 'Quote request', source: 'Website · Ceramic coating page', time: '18m ago', tone: 'text-amber-300 bg-amber-500/15' },
+  { icon: CalendarCheck, title: 'Job booked', source: 'Online booking · Tue 9:00am', time: '1h ago', tone: 'text-emerald-300 bg-emerald-500/15' },
+  { icon: PhoneCall, title: 'New call', source: 'Website · Contact page', time: '3h ago', tone: 'text-blue-300 bg-blue-500/15' },
+];
 
-function SampleDashboard() {
-  const bars = [38, 52, 46, 64, 58, 72, 66, 84, 78, 92, 88, 100];
-  const tiles = [
-    { label: 'Calls', value: '128', delta: '+18%' },
-    { label: 'Leads', value: '64', delta: '+24%' },
-    { label: 'Booked jobs', value: '41', delta: '+12%' },
-  ];
+function SourceFeed() {
   return (
-    <div className="relative mx-auto w-full max-w-md rounded-xl border border-white/10 bg-white p-4 shadow-2xl shadow-blue-950/50">
+    <div className="w-full max-w-sm">
       <div className="mb-3 flex items-center justify-between">
-        <span className="text-[11px] font-bold text-neutral-900">Overview</span>
-        <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-neutral-500">
-          Sample
-        </span>
+        <span className="font-mono text-[11px] font-bold uppercase tracking-widest text-neutral-400">Today</span>
+        <span className="font-mono text-[10px] uppercase tracking-widest text-neutral-500">Sample</span>
       </div>
-      <div className="grid grid-cols-3 gap-2">
-        {tiles.map((t) => (
-          <div key={t.label} className="rounded-lg border border-neutral-200 p-2.5">
-            <p className="text-[9px] font-semibold uppercase tracking-wide text-neutral-500">{t.label}</p>
-            <p className="mt-1 text-base font-extrabold text-neutral-950">{t.value}</p>
-            <p className="text-[9px] font-semibold text-emerald-600">{t.delta}</p>
-          </div>
+      <ul className="space-y-2.5">
+        {SAMPLE_FEED.map(({ icon: Icon, title, source, time, tone }, i) => (
+          <li
+            key={i}
+            className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-3 backdrop-blur-sm"
+            style={{ opacity: 1 - i * 0.16 }}
+          >
+            <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${tone}`}>
+              <Icon size={16} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-white">{title}</p>
+              <p className="truncate text-xs text-neutral-400">
+                <span className="text-neutral-500">from</span> {source}
+              </p>
+            </div>
+            <span className="shrink-0 text-[11px] text-neutral-500">{time}</span>
+          </li>
         ))}
-      </div>
-      <div className="mt-3 rounded-lg border border-neutral-200 p-2.5">
-        <p className="mb-2 text-[9px] font-semibold uppercase tracking-wide text-neutral-500">Leads by week</p>
-        <div className="flex h-20 items-end gap-1">
-          {bars.map((h, i) => (
-            <div key={i} className="flex-1 rounded-t bg-blue-600/85" style={{ height: `${h}%` }} />
-          ))}
-        </div>
-      </div>
+      </ul>
     </div>
   );
 }
 
 export function ProofAuthShell({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
   return (
-    <main className="relative flex min-h-screen items-center justify-center bg-[#07090D] px-4 py-10 sm:px-8">
-      <Backdrop />
-      <div className="relative grid w-full max-w-5xl overflow-hidden rounded-2xl border border-white/10 bg-[#0D1017] shadow-2xl shadow-black/60 md:grid-cols-2">
-        <section className="px-6 py-10 sm:px-10 sm:py-12">
-          <AxeonLogo product="PROOF" tone="light" />
-          <h1 className="mt-10 text-3xl font-extrabold tracking-tight text-white">{title}</h1>
-          <p className="mt-2 text-sm leading-relaxed text-neutral-400">{subtitle}</p>
-          <div className="mt-8">{children}</div>
-        </section>
+    <main className="min-h-screen bg-[#F7F6F3] lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+      <section className="flex min-h-screen flex-col px-6 py-8 sm:px-12 lg:px-16">
+        <AxeonLogo product="PROOF" />
+        <div className="my-auto w-full max-w-sm py-12">
+          <p className="font-mono text-xs font-bold uppercase tracking-widest text-blue-600">[ Client sign in ]</p>
+          <h1 className="mt-3 font-display text-4xl font-extrabold leading-[1.05] tracking-tight text-neutral-950">{title}</h1>
+          <p className="mt-3 text-[15px] leading-relaxed text-neutral-600">{subtitle}</p>
+          <div className="mt-9">{children}</div>
+        </div>
+        <p className="text-xs text-neutral-500">
+          © Axeon Studio ·{' '}
+          <a href="https://axeonstudio.co/privacy" className="hover:text-neutral-800">
+            Privacy
+          </a>{' '}
+          ·{' '}
+          <a href="https://axeonstudio.co/terms" className="hover:text-neutral-800">
+            Terms
+          </a>
+        </p>
+      </section>
 
-        <section className="relative hidden overflow-hidden border-l border-white/10 bg-gradient-to-br from-[#0B1A3A] via-[#0A1430] to-[#070B16] px-10 py-12 md:flex md:flex-col">
-          <div aria-hidden className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-blue-600/30 blur-3xl" />
-          <div className="relative text-center">
-            <p className="text-4xl font-light tracking-tight text-white">
-              Axeon<span className="font-black text-blue-500">PROOF</span>
-            </p>
-            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-blue-300/70">by Axeon Studio</p>
-            <p className="mx-auto mt-6 max-w-xs text-sm leading-relaxed text-neutral-300">
-              Every call, lead and booked job, and exactly where each one came from.
-            </p>
-            <p className="mt-5 text-lg font-bold text-white">
-              No guesswork. <span className="text-blue-400">Just proof.</span>
-            </p>
-          </div>
-          <div className="relative mt-auto pt-10">
-            <SampleDashboard />
-          </div>
-        </section>
-      </div>
+      <section className="relative hidden overflow-hidden bg-neutral-950 lg:flex lg:flex-col lg:justify-center lg:gap-14 lg:px-16 lg:py-14">
+        <AxeonMark className="pointer-events-none absolute -bottom-24 -right-28 h-[560px] w-auto text-white/[0.035]" />
+        <div className="relative">
+          <p className="font-mono text-xs font-bold uppercase tracking-widest text-blue-400">[ AxeonPROOF ]</p>
+          <h2 className="mt-4 max-w-md font-display text-5xl font-extrabold leading-[1.02] tracking-tight text-white">
+            Customers,
+            <br />
+            not clicks.
+          </h2>
+          <p className="mt-5 max-w-sm text-[15px] leading-relaxed text-neutral-400">
+            See every call, lead and booked job, and exactly what brought each one in.
+          </p>
+        </div>
+        <div className="relative">
+          <SourceFeed />
+        </div>
+      </section>
     </main>
   );
 }
 
-/** Dark form controls for the auth card. */
+/** Form controls for the auth screen, matching the marketing site's inputs. */
 export const proofInput =
-  'w-full rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2.5 text-[15px] text-white placeholder:text-neutral-500 transition-colors focus:outline-none focus:border-blue-500 focus:bg-white/[0.06] focus:ring-4 focus:ring-blue-500/15 aria-[invalid=true]:border-red-500/70';
+  'w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-[15px] text-neutral-950 placeholder:text-neutral-400 transition-colors focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 aria-[invalid=true]:border-red-500';
 
-export const proofLabel = 'block text-xs font-semibold text-neutral-300';
+export const proofLabel = 'block text-sm font-semibold text-neutral-800';
 
 export const proofButton =
-  'inline-flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-[15px] font-semibold text-white shadow-lg shadow-blue-600/20 transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50';
+  'inline-flex w-full items-center justify-center gap-2 rounded-full bg-neutral-950 px-5 py-3.5 text-[15px] font-bold text-white transition-colors hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50';
