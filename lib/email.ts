@@ -218,6 +218,26 @@ export async function sendNudgeEmail(input: {
   return true;
 }
 
+/** AxeonPROOF "forgot password" link. Throws when mail is not configured or Resend refuses it. */
+export async function sendPasswordResetEmail(input: { to: string; url: string }): Promise<void> {
+  const resend = getClient();
+  if (!resend) throw new Error('Email is not configured (RESEND_API_KEY)');
+  await sendChecked(resend, {
+    from: CLIENT_FROM_ADDRESS,
+    replyTo: CLIENT_REPLY_TO,
+    to: input.to,
+    subject: 'Reset your AxeonPROOF password',
+    html: clientLayout(
+      'Reset your password',
+      `
+        <p style="margin:0 0 12px">Someone asked to reset the AxeonPROOF password for this email. If it was you, use the button below. The link works once and expires in 60 minutes.</p>
+        ${button(input.url, 'Choose a new password')}
+        <p style="margin:0;font-size:14px;color:#525252">If you didn't ask for this, ignore this email. Your password stays the same.</p>
+      `
+    ),
+  });
+}
+
 // ───────────────────────────── Owner alerts ─────────────────────────────
 // They go to ADMIN_EMAIL from the same From as the other owner alerts.
 

@@ -126,6 +126,22 @@ async function main() {
     );
   `;
   await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS completion_notified_at TIMESTAMPTZ;`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS client_accounts (
+      id SERIAL PRIMARY KEY,
+      onboarding_id INTEGER UNIQUE NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+      email TEXT UNIQUE NOT NULL,
+      password_hash TEXT NOT NULL,
+      password_set_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      failed_attempts INTEGER NOT NULL DEFAULT 0,
+      locked_until TIMESTAMPTZ,
+      last_login_at TIMESTAMPTZ,
+      reset_token_hash TEXT,
+      reset_expires_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `;
   console.log('Schema ready.');
 }
 

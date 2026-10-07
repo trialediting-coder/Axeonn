@@ -147,6 +147,25 @@ export function ensureSchema(): Promise<void> {
       `;
       // One-time "client finished setup" alert to the owner (lib/onboardingSync.ts).
       await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS completion_notified_at TIMESTAMPTZ;`;
+
+      // AxeonPROOF client sign-in (lib/proofAuth.ts). Passwords are bcrypt hashes;
+      // reset tokens are stored only as SHA-256 hashes.
+      await sql`
+        CREATE TABLE IF NOT EXISTS client_accounts (
+          id SERIAL PRIMARY KEY,
+          onboarding_id INTEGER UNIQUE NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+          email TEXT UNIQUE NOT NULL,
+          password_hash TEXT NOT NULL,
+          password_set_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          failed_attempts INTEGER NOT NULL DEFAULT 0,
+          locked_until TIMESTAMPTZ,
+          last_login_at TIMESTAMPTZ,
+          reset_token_hash TEXT,
+          reset_expires_at TIMESTAMPTZ,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        );
+      `;
     })().catch((err) => {
       schemaReady = null; // let the next request retry
       throw err;

@@ -77,6 +77,28 @@ item ever asks for one.
 No outside automation tool is involved. The site also writes website leads to
 Airtable directly (`lib/airtableSync.ts`) and emails each one to the owner.
 
+## AxeonPROOF and app.axeonstudio.co
+
+`app.axeonstudio.co` is the client app (routing in `lib/hostRouting.ts`, applied by
+`middleware.ts`):
+
+- `/` shows AxeonPROOF: the welcome and email + password sign-in page, or the
+  client's dashboard once signed in (route `app/proof`, shown at the bare address).
+- `/admin` is the team admin (its own login). `/welcome/<token>` are the portals.
+- Marketing paths on the app host redirect to axeonstudio.co; `/admin`,
+  `/welcome` and `/proof` on axeonstudio.co redirect to the app host. `/api` works
+  on both, so the Stripe webhook and crons are unaffected.
+
+Client accounts (`lib/proofAuth.ts`, table `client_accounts`): the client creates
+their password as the last card of the onboarding portal, after passing the email
+code. bcrypt hashes, signed 30-day session cookie invalidated by a password change,
+lock after 8 wrong passwords for 15 minutes, per-IP limits, and a single-use
+60-minute reset link that never reveals whether an email has an account.
+
+The dashboard shows setup progress and what Axeon is working on. The calls, leads,
+booked jobs and map rank cards read "live after launch" until those data sources
+are connected; nothing is invented.
+
 ## Environment variables
 
 | Variable | Purpose |

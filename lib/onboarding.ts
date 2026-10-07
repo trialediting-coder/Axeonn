@@ -15,7 +15,7 @@
 // data/onboardingItems.ts; a missing onboarding_items row means "pending".
 import { createHash, createHmac, randomInt, timingSafeEqual } from 'node:crypto';
 import { sql, ensureSchema, isDatabaseConfigured } from '@/lib/db';
-import { SITE_URL } from '@/lib/seo';
+import { APP_ORIGIN } from '@/lib/hostRouting';
 import {
   ONBOARDING_ITEMS,
   TIER_RANK,
@@ -141,8 +141,9 @@ export function normalizeToken(raw: string): string {
   return raw.trim().toUpperCase();
 }
 
+/** Portal link. Lives on the app host (app.axeonstudio.co); the main domain forwards old links. */
 export function welcomeUrl(token: string): string {
-  return `${SITE_URL}/welcome/${token}`;
+  return `${APP_ORIGIN}/welcome/${token}`;
 }
 
 export function generateCode(): string {
@@ -478,6 +479,13 @@ export async function getOnboardingByToken(rawToken: string): Promise<Onboarding
   if (!isValidOnboardingToken(token) || !isDatabaseConfigured()) return null;
   await ensureSchema();
   const res = await sql<OnboardingRow>`SELECT * FROM onboardings WHERE token = ${token} LIMIT 1;`;
+  return res.rows[0] ? rowToOnboarding(res.rows[0]) : null;
+}
+
+export async function getOnboardingById(id: number): Promise<Onboarding | null> {
+  if (!isDatabaseConfigured()) return null;
+  await ensureSchema();
+  const res = await sql<OnboardingRow>`SELECT * FROM onboardings WHERE id = ${id} LIMIT 1;`;
   return res.rows[0] ? rowToOnboarding(res.rows[0]) : null;
 }
 

@@ -20,6 +20,11 @@ export const ADMIN_PREFIX = '/admin';
 export const isAdminPath = (pathname: string | null | undefined) =>
   !!pathname && (pathname === ADMIN_PREFIX || pathname.startsWith(`${ADMIN_PREFIX}/`));
 
+// AxeonPROOF, the client dashboard at app.axeonstudio.co. Served from /proof but
+// shown at "/" on the app host, so HideOnAdFunnel also checks the rendered route.
+export const isProofPath = (pathname: string | null | undefined) =>
+  !!pathname && (pathname === '/proof' || pathname.startsWith('/proof/'));
+
 /** True on any page that shows none of the marketing chrome. */
 export const hidesSiteChrome = (pathname: string | null | undefined) =>
-  isAdFunnelPath(pathname) || isClientPortalPath(pathname) || isAdminPath(pathname);
+  isAdFunnelPath(pathname) || isClientPortalPath(pathname) || isAdminPath(pathname) || isProofPath(pathname);

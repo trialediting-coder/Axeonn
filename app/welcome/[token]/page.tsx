@@ -13,6 +13,8 @@ import {
 import { isDeviceVerified, loadOnboarding } from '@/lib/welcomeApi';
 import { VerifyCode } from '@/components/welcome/VerifyCode';
 import { OnboardingPortal } from '@/components/welcome/OnboardingPortal';
+import { ProofPasswordCard } from '@/components/welcome/ProofPasswordCard';
+import { hasAccountForOnboarding } from '@/lib/proofAuth';
 
 // The client onboarding portal: /welcome/<20-char token>. The token is the first
 // factor; a 6-digit email code on each new device is the second (lib/onboarding.ts).
@@ -28,7 +30,7 @@ const PHONE_HREF = 'tel:+15154938017';
 
 function Frame({ children }: { children: React.ReactNode }) {
   return (
-    <main className="min-h-screen bg-[#F7F6F3] text-neutral-950 pt-28 sm:pt-32 pb-24 px-4 sm:px-10">
+    <main className="min-h-screen bg-[#F7F6F3] text-neutral-950 pt-12 sm:pt-16 pb-24 px-4 sm:px-10">
       <div className="max-w-2xl mx-auto mb-8 text-center">
         <p className="text-sm font-mono uppercase tracking-wider text-blue-600">Axeon Studio · Client setup</p>
       </div>
@@ -85,6 +87,13 @@ async function Portal({ onboarding }: { onboarding: Onboarding }) {
         phone={PHONE}
         phoneHref={PHONE_HREF}
       />
+      <div className="max-w-2xl mx-auto">
+        <ProofPasswordCard
+          token={onboarding.token}
+          email={onboarding.clientEmail}
+          hasAccount={await hasAccountForOnboarding(onboarding.id).catch(() => false)}
+        />
+      </div>
     </Frame>
   );
 }

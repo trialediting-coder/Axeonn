@@ -1,11 +1,16 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useSelectedLayoutSegments } from 'next/navigation';
 import { hidesSiteChrome } from '@/lib/adFunnel';
 
-/** Renders its children everywhere except the /go ad landing pages and the /welcome client portal. */
+/**
+ * Renders its children everywhere except the /go ad pages, the client portal, the
+ * admin and AxeonPROOF. Checks both the URL and the rendered route, because the
+ * app host shows AxeonPROOF (route /proof) at the bare "/" via a middleware rewrite.
+ */
 export function HideOnAdFunnel({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  if (hidesSiteChrome(pathname)) return null;
+  const routePath = `/${useSelectedLayoutSegments().join('/')}`;
+  if (hidesSiteChrome(pathname) || hidesSiteChrome(routePath)) return null;
   return <>{children}</>;
 }

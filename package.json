@@ -15,7 +15,7 @@
     "test:billing": "tsx --test lib/billingMath.test.ts",
     "test:paylinks": "tsx --test lib/payLinks.test.ts",
     "test:get-started": "tsx --test lib/getStarted.test.ts",
-    "test:onboarding": "tsx --test lib/onboarding.test.ts lib/airtableSync.test.ts"
+    "test:onboarding": "tsx --test lib/onboarding.test.ts lib/airtableSync.test.ts lib/hostRouting.test.ts lib/proofAuth.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.126.0",
