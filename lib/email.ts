@@ -160,6 +160,7 @@ export async function sendWelcomeEmail(input: {
         <p style="margin:0 0 12px">Your setup page is private to you. Opening it on a new device asks for a 6-digit code that we send to this email address.</p>
         ${button(input.url, 'Open my setup page')}
         <p style="margin:0 0 12px;font-size:14px;color:#525252">Or copy this link: <a href="${escapeHtml(input.url)}" style="color:#2563eb">${escapeHtml(input.url)}</a></p>
+        <p style="margin:0 0 12px;font-size:14px;color:#525252">Your Welcome Packet (what happens and when, who to contact, what is included) is on the same page, or here: <a href="${escapeHtml(input.url)}/packet" style="color:#2563eb">Welcome Packet</a>.</p>
         <p style="margin:16px 0 0;font-size:14px;color:#525252">We will never ask for a password in this page or by email. Access to Google and other accounts goes through their own invites, which you simply accept.</p>
       `
     ),
@@ -298,5 +299,178 @@ export async function sendOnboardingCompleteNotification(input: {
       <p><b>${escapeHtml(input.displayName)}</b> (${escapeHtml(input.planLabel)}) finished every item on their onboarding checklist.</p>
       <p><a href="${escapeHtml(input.adminUrl)}">Open their answers in the admin</a></p>
     `,
+  });
+}
+
+// ───────────────────────────── Agreements ─────────────────────────────
+
+function requireClient(): Resend {
+  const resend = getClient();
+  if (!resend) throw new Error('Email is not configured (RESEND_API_KEY)');
+  return resend;
+}
+
+const firstName = (name: string | null | undefined) => {
+  const first = name?.trim().split(/\s+/)[0];
+  return first ? `Hi ${escapeHtml(first)},` : 'Hi there,';
+};
+
+/** "Please review and sign": sent when Axeon creates an agreement in the admin. */
+export async function sendAgreementEmail(input: {
+  to: string;
+  contactName: string;
+  businessName: string;
+  planLabel: string;
+  number: string;
+  url: string;
+}): Promise<void> {
+  await sendChecked(requireClient(), {
+    from: CLIENT_FROM_ADDRESS,
+    replyTo: CLIENT_REPLY_TO,
+    to: input.to,
+    subject: `Your Axeon agreement is ready to sign (${input.number})`,
+    html: clientLayout(
+      'Your agreement is ready to sign.',
+      `
+        <p style="margin:0 0 12px">${firstName(input.contactName)}</p>
+        <p style="margin:0 0 12px">Here is the Client Services Agreement for <b>${escapeHtml(input.businessName)}</b> on the ${escapeHtml(
+          input.planLabel
+        )} plan. Read it, sign by typing your name, then pay the setup fee and first month. It takes about five minutes.</p>
+        ${button(input.url, 'Review and sign')}
+        <p style="margin:0 0 12px;font-size:14px;color:#525252">As soon as payment goes through, you get your setup page by email and we start building.</p>
+      `
+    ),
+  });
+}
+
+/** The client's signed copy, plus a heads-up to the owner. */
+export async function sendAgreementSignedEmails(input: {
+  to: string;
+  contactName: string;
+  businessName: string;
+  number: string;
+  url: string;
+  signedName: string;
+}): Promise<void> {
+  const resend = requireClient();
+  await sendChecked(resend, {
+    from: CLIENT_FROM_ADDRESS,
+    replyTo: CLIENT_REPLY_TO,
+    to: input.to,
+    subject: `Signed: your Axeon agreement (${input.number})`,
+    html: clientLayout(
+      'Signed. Here is your copy.',
+      `
+        <p style="margin:0 0 12px">${firstName(input.contactName)}</p>
+        <p style="margin:0 0 12px">Thanks. Your agreement is signed and countersigned by Axeon Studio. Keep this email: the link below always opens your signed copy, which you can print or save as a PDF.</p>
+        ${button(input.url, 'View my signed agreement')}
+        <p style="margin:0 0 12px;font-size:14px;color:#525252">If you have not paid yet, the same page has a button to finish payment.</p>
+      `
+    ),
+  });
+  if (ADMIN_NOTIFICATION_EMAIL) {
+    await sendChecked(resend, {
+      from: FROM_ADDRESS,
+      to: ADMIN_NOTIFICATION_EMAIL,
+      subject: `${input.businessName} signed agreement ${input.number}`,
+      html: `<p><b>${escapeHtml(input.signedName)}</b> signed agreement ${escapeHtml(input.number)} for <b>${escapeHtml(
+        input.businessName
+      )}</b>. Payment comes next; onboarding starts by itself once it clears.</p><p><a href="${escapeHtml(input.url)}">Open the signed copy</a></p>`,
+    });
+  }
+}
+
+// ───────────────────────────── Updates & reports ─────────────────────────────
+
+type EmailLine = { title: string; body: string };
+
+function linesHtml(lines: EmailLine[]): string {
+  if (!lines.length) return '';
+  return `<ol style="margin:0 0 16px;padding-left:20px">${lines
+    .map((l) => `<li style="margin:0 0 8px">${l.title ? `<b>${escapeHtml(l.title)}.</b> ` : ''}${escapeHtml(l.body)}</li>`)
+    .join('')}</ol>`;
+}
+
+const h2 = (text: string) =>
+  `<h2 style="margin:24px 0 8px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:#525252">${escapeHtml(text)}</h2>`;
+const para = (text: string) => (text ? `<p style="margin:0 0 12px">${escapeHtml(text)}</p>` : '');
+
+export async function sendProjectUpdateEmail(input: {
+  to: string;
+  clientName: string | null;
+  number: number;
+  title: string;
+  summary: string;
+  type: string;
+  status: string;
+  link: string;
+  changes: EmailLine[];
+  why: string;
+  actionNeeded: string;
+  nextUp: string;
+  proofUrl: string;
+}): Promise<void> {
+  await sendChecked(requireClient(), {
+    from: CLIENT_FROM_ADDRESS,
+    replyTo: CLIENT_REPLY_TO,
+    to: input.to,
+    subject: `Update #${input.number}: ${input.title}`,
+    html: clientLayout(
+      escapeHtml(input.title),
+      `
+        <p style="margin:0 0 12px">${firstName(input.clientName)}</p>
+        ${para(input.summary)}
+        <p style="margin:0 0 16px;font-size:14px;color:#525252">${escapeHtml(input.type)} · ${escapeHtml(input.status)}${
+          input.link ? ` · <a href="${escapeHtml(input.link)}" style="color:#2563eb">See it</a>` : ''
+        }</p>
+        ${input.changes.length ? h2('What changed') + linesHtml(input.changes) : ''}
+        ${input.why ? h2('Why this matters for your business') + para(input.why) : ''}
+        ${h2('What we need from you')}
+        ${para(input.actionNeeded || 'Nothing right now.')}
+        ${input.nextUp ? h2("What's next") + para(input.nextUp) : ''}
+        ${button(input.proofUrl, 'Open AxeonPROOF')}
+      `
+    ),
+  });
+}
+
+export async function sendMonthlyReportEmail(input: {
+  to: string;
+  clientName: string | null;
+  monthLabel: string;
+  stats: Array<{ label: string; value: string; sub?: string | null }>;
+  done: EmailLine[];
+  next: EmailLine[];
+  fromYou: string;
+  note: string;
+  proofUrl: string;
+}): Promise<void> {
+  const stats = input.stats
+    .map(
+      (s) => `<td style="padding:12px;border:1px solid #e5e5e5;border-radius:8px;vertical-align:top">
+        <div style="font-size:12px;color:#525252">${escapeHtml(s.label)}</div>
+        <div style="font-size:24px;font-weight:800">${escapeHtml(s.value)}</div>
+        ${s.sub ? `<div style="font-size:12px;color:#525252">${escapeHtml(s.sub)}</div>` : ''}
+      </td>`
+    )
+    .join('');
+  await sendChecked(requireClient(), {
+    from: CLIENT_FROM_ADDRESS,
+    replyTo: CLIENT_REPLY_TO,
+    to: input.to,
+    subject: `Your ${input.monthLabel} report from Axeon`,
+    html: clientLayout(
+      `${escapeHtml(input.monthLabel)} in numbers.`,
+      `
+        <p style="margin:0 0 12px">${firstName(input.clientName)}</p>
+        <p style="margin:0 0 16px">Calls, leads and booked jobs for ${escapeHtml(input.monthLabel)}, and what we are doing next. Customers, not clicks.</p>
+        <table role="presentation" cellspacing="6" style="width:100%;margin:0 0 8px"><tr>${stats}</tr></table>
+        ${input.note ? para(input.note) : ''}
+        ${input.done.length ? h2('What we did this month') + linesHtml(input.done) : ''}
+        ${input.next.length ? h2("Next month's plan") + linesHtml(input.next) : ''}
+        ${input.fromYou ? h2('From you') + para(input.fromYou) : ''}
+        ${button(input.proofUrl, 'Open AxeonPROOF')}
+      `
+    ),
   });
 }

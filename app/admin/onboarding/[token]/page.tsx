@@ -5,6 +5,8 @@ import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { computeProgress, getItemStates, getOnboardingByToken, orderedItems, welcomeUrl } from '@/lib/onboarding';
 import { OnboardingDetail } from '@/components/insights/OnboardingDetail';
+import { ProjectPanel } from '@/components/insights/ProjectPanel';
+import { getProjectDetails, listMonthlyReports, listProjectUpdates, tierHasGuarantee } from '@/lib/projects';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,7 +17,12 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
   const { token } = await params;
   const onboarding = await getOnboardingByToken(token).catch(() => null);
   if (!onboarding) notFound();
-  const states = await getItemStates(onboarding.id);
+  const [states, details, updates, reports] = await Promise.all([
+    getItemStates(onboarding.id),
+    getProjectDetails(onboarding.id),
+    listProjectUpdates(onboarding.id),
+    listMonthlyReports(onboarding.id),
+  ]);
 
   return (
     <main className={adminMain}>
@@ -31,6 +38,7 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
           }}
           items={orderedItems(onboarding.tier)}
         />
+        <ProjectPanel token={onboarding.token} initial={{ details, updates, reports }} guarantee={tierHasGuarantee(onboarding.tier)} />
       </div>
     </main>
   );

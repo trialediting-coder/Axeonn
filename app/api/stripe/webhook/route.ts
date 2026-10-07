@@ -18,6 +18,7 @@ import {
 import { sendBillingNotification } from '@/lib/email';
 import { formatCents } from '@/lib/billingMath';
 import { markPayLinkPaid } from '@/lib/payLinks';
+import { setAgreementStatus } from '@/lib/agreements';
 import { ensureOnboardingForPurchase } from '@/lib/onboardingFulfillment';
 import { tierFromStripeKey } from '@/lib/onboarding';
 
@@ -123,6 +124,9 @@ async function handleCheckoutSession(session: Stripe.Checkout.Session, type: str
   // be settling, but the client has committed; the link must not be reusable).
   if (md.pay_link && (status === 'paid' || status === 'processing')) {
     await markPayLinkPaid(md.pay_link, session.id);
+  }
+  if (md.agreement && (status === 'paid' || status === 'processing')) {
+    await setAgreementStatus(md.agreement, 'paid');
   }
 
   // A paid build or plan starts onboarding: mint the client's /welcome/<token> portal

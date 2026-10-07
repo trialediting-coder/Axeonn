@@ -93,6 +93,12 @@ async function Portal({ onboarding }: { onboarding: Onboarding }) {
           email={onboarding.clientEmail}
           hasAccount={await hasAccountForOnboarding(onboarding.id).catch(() => false)}
         />
+        <p className="mt-6 text-center text-sm text-neutral-600">
+          What happens next, week by week:{' '}
+          <Link href={`/welcome/${onboarding.token}/packet`} className="font-semibold text-blue-600 hover:text-blue-700">
+            read your Welcome Packet
+          </Link>
+        </p>
       </div>
     </Frame>
   );

@@ -23,7 +23,7 @@ export const APP_ORIGIN = (process.env.APP_URL || SITE_ORIGIN).replace(/\/$/, ''
 /** AxeonPROOF lives at this internal path and is shown at the app host's "/". */
 export const PROOF_PATH = '/proof';
 
-const APP_SECTIONS = ['/admin', '/welcome', PROOF_PATH];
+const APP_SECTIONS = ['/admin', '/welcome', '/sign', PROOF_PATH];
 
 const inSection = (pathname: string, prefix: string) => pathname === prefix || pathname.startsWith(`${prefix}/`);
 

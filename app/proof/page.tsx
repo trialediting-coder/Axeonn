@@ -7,6 +7,8 @@ import { TIER_LABELS } from '@/data/onboardingItems';
 import { ProofAuthShell } from '@/components/proof/ProofAuthShell';
 import { SignInForm } from '@/components/proof/ProofForms';
 import { ProofDashboard } from '@/components/proof/ProofDashboard';
+import { getProjectDetails, guaranteeDay, listMonthlyReports, listProjectUpdates, tierHasGuarantee } from '@/lib/projects';
+import { agreementUrl, latestSignedAgreementFor } from '@/lib/agreements';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,7 +24,13 @@ export default async function ProofPage() {
     );
   }
 
-  const states = await getItemStates(onboarding.id);
+  const [states, details, updates, reports, agreement] = await Promise.all([
+    getItemStates(onboarding.id),
+    getProjectDetails(onboarding.id),
+    listProjectUpdates(onboarding.id),
+    listMonthlyReports(onboarding.id),
+    latestSignedAgreementFor(onboarding.clientEmail).catch(() => null),
+  ]);
   return (
     <ProofDashboard
       email={account.email}
@@ -32,6 +40,12 @@ export default async function ProofPage() {
       axeonItems={orderedItems(onboarding.tier).axeon}
       states={states}
       setupUrl={welcomeUrl(onboarding.token)}
+      details={details}
+      updates={updates}
+      reports={reports}
+      guarantee={tierHasGuarantee(onboarding.tier)}
+      guaranteeDay={guaranteeDay(details.kickoffAt)}
+      agreementUrl={agreement ? agreementUrl(agreement.token) : null}
     />
   );
 }

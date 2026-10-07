@@ -142,6 +142,56 @@ async function main() {
       updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
   `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS agreements (
+      id SERIAL PRIMARY KEY,
+      token TEXT UNIQUE NOT NULL,
+      number TEXT NOT NULL,
+      version TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'sent' CHECK (status IN ('sent', 'signed', 'paid', 'void')),
+      client_email TEXT NOT NULL,
+      fields JSONB NOT NULL,
+      text_hash TEXT,
+      signed_name TEXT,
+      signed_title TEXT,
+      signed_at TIMESTAMPTZ,
+      signed_ip TEXT,
+      signed_ua TEXT,
+      paid_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS agreements_email_idx ON agreements (client_email);`;
+  await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS kickoff_at DATE;`;
+  await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS target_launch_at DATE;`;
+  await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS baseline_calls INTEGER;`;
+  await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS baseline_leads INTEGER;`;
+  await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS baseline_keyword TEXT;`;
+  await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS baseline_rank INTEGER;`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS project_updates (
+      id SERIAL PRIMARY KEY,
+      onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+      title TEXT NOT NULL,
+      body JSONB NOT NULL DEFAULT '{}',
+      emailed_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS project_updates_onb_idx ON project_updates (onboarding_id, created_at DESC);`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS monthly_reports (
+      id SERIAL PRIMARY KEY,
+      onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+      month TEXT NOT NULL,
+      body JSONB NOT NULL DEFAULT '{}',
+      emailed_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      UNIQUE (onboarding_id, month)
+    );
+  `;
   console.log('Schema ready.');
 }
 

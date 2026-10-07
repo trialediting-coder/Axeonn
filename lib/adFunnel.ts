@@ -27,4 +27,7 @@ export const isProofPath = (pathname: string | null | undefined) =>
 
 /** True on any page that shows none of the marketing chrome. */
 export const hidesSiteChrome = (pathname: string | null | undefined) =>
-  isAdFunnelPath(pathname) || isClientPortalPath(pathname) || isAdminPath(pathname) || isProofPath(pathname);
+  isAdFunnelPath(pathname) || isClientPortalPath(pathname) || isAdminPath(pathname) || isProofPath(pathname) || isSignPath(pathname);
+
+// Client Services Agreements are signed at /sign/<token> on the app host.
+export const isSignPath = (pathname: string | null | undefined) => !!pathname && pathname.startsWith('/sign/');

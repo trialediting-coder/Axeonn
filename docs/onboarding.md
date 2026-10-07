@@ -99,6 +99,28 @@ The dashboard shows setup progress and what Axeon is working on. The calls, lead
 booked jobs and map rank cards read "live after launch" until those data sources
 are connected; nothing is invented.
 
+## Client documents (agreement, welcome packet, updates, reports)
+
+The five Claude Design templates are no longer filled in by hand:
+
+| Document | Where it lives | Who triggers it |
+| --- | --- | --- |
+| Client Services Agreement | `/admin/agreements` → client signs at `app.axeonstudio.co/sign/<token>` | Axeon fills the form; the client signs and pays |
+| Client Onboarding | `/welcome/<token>` (the setup portal) | Stripe payment |
+| Welcome Packet | `/welcome/<token>/packet` | Generated from plan, fees and dates |
+| Project Update | Admin client page → "Post a Project Update" | Axeon, whenever something ships |
+| Monthly Report | Admin client page → "Monthly Report" | Axeon, once a month |
+
+Flow: create agreement → client gets "ready to sign" email → reads, types name,
+ticks consent (we store a SHA-256 of the exact text, time, IP, browser) → Stripe
+Checkout for setup + monthly → webhook marks it paid and starts onboarding as
+before. Every page has "Print or save PDF".
+
+- The agreement wording lives in `data/agreementTemplate.ts`. Change it there and
+  bump `AGREEMENT_VERSION`; signed agreements keep the version they signed.
+- The 90-day guarantee shows only for AxeonCORE and AxeonGROWTH.
+- AxeonPROOF numbers come only from Monthly Reports. A blank box shows "—".
+
 ## Environment variables
 
 | Variable | Purpose |

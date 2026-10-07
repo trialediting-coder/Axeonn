@@ -476,6 +476,78 @@ export async function createCarePlanCheckout(input: CarePlanInput): Promise<Chec
   return { url: session.url, sessionId: session.id, amountCents: monthlyAmountCents };
 }
 
+export interface AgreementCheckoutInput {
+  token: string;
+  number: string;
+  clientEmail: string;
+  contactName: string;
+  businessName: string;
+  tier: 'essentials' | 'axeoncore' | 'axeongrowth';
+  planLabel: string;
+  setupCents: number;
+  monthlyCents: number;
+  cancelUrl: string;
+}
+
+const AGREEMENT_TIER_KEYS = { essentials: 'core-web-build', axeoncore: 'axeoncore', axeongrowth: 'axeongrowth' } as const;
+
+/**
+ * Checkout for a signed Client Services Agreement: the monthly plan as a
+ * subscription plus the one-time setup fee on the first invoice. The webhook
+ * marks the agreement paid and starts onboarding from `tier`.
+ */
+export async function createAgreementCheckout(input: AgreementCheckoutInput): Promise<CheckoutResult> {
+  const stripe = getStripe();
+  const customer = await getOrCreateCustomer({ email: input.clientEmail, name: input.contactName || input.businessName });
+  const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
+    {
+      quantity: 1,
+      price_data: {
+        currency: 'usd',
+        product_data: { name: `${input.planLabel} · monthly` },
+        unit_amount: input.monthlyCents,
+        recurring: { interval: 'month' },
+        tax_behavior: 'exclusive',
+      },
+    },
+  ];
+  if (input.setupCents > 0) {
+    lineItems.push({
+      quantity: 1,
+      price_data: {
+        currency: 'usd',
+        product_data: { name: `${input.planLabel} · setup` },
+        unit_amount: input.setupCents,
+        tax_behavior: 'exclusive',
+      },
+    });
+  }
+  const metadata = {
+    source: 'axeon-agreement',
+    kind: 'agreement',
+    agreement: input.token,
+    agreement_number: input.number,
+    tier: AGREEMENT_TIER_KEYS[input.tier],
+    plan_name: input.planLabel,
+    business_name: input.businessName.slice(0, 200),
+  };
+  const session = await stripe.checkout.sessions.create({
+    mode: 'subscription',
+    customer: customer.id,
+    customer_update: { address: 'auto', name: 'auto' },
+    billing_address_collection: 'required',
+    line_items: lineItems,
+    success_url: `${SITE_URL}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: input.cancelUrl,
+    automatic_tax: { enabled: automaticTaxEnabled() },
+    integration_identifier: CHECKOUT_TAGS.care,
+    subscription_data: { description: `${input.planLabel} (Agreement ${input.number})`, metadata },
+    metadata,
+  });
+  if (!session.url) throw new Error('Stripe did not return a Checkout URL');
+  return { url: session.url, sessionId: session.id, amountCents: input.setupCents + input.monthlyCents };
+}
+
 // ---------------------------------------------------------------------------
 // Customer Portal
 // ---------------------------------------------------------------------------

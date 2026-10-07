@@ -15,7 +15,7 @@ test('the bare app address shows AxeonPROOF without changing the URL', () => {
 });
 
 test('the app host serves the admin, portals, AxeonPROOF pages, APIs and assets', () => {
-  for (const p of ['/admin', '/admin/login', '/admin/onboarding/ABC', '/welcome/ABCDEFGHJKMNPQRSTUVW', '/proof/forgot', '/proof/reset/x', '/api/proof/login', '/api/stripe/webhook', '/_next/static/x.js', '/icon.png']) {
+  for (const p of ['/admin', '/admin/login', '/admin/onboarding/ABC', '/welcome/ABCDEFGHJKMNPQRSTUVW', '/sign/ABCDEFGHJKMNPQRSTUVW', '/proof/forgot', '/proof/reset/x', '/api/proof/login', '/api/stripe/webhook', '/_next/static/x.js', '/icon.png']) {
     assert.deepEqual(route('app.axeonstudio.co', p), { type: 'next' }, p);
   }
 });
