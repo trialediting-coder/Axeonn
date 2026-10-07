@@ -16,7 +16,7 @@ export default async function ProofPage() {
 
   if (!account || !onboarding) {
     return (
-      <ProofAuthShell title="Welcome back." subtitle="Sign in to see your calls, leads and booked jobs, and where each one came from.">
+      <ProofAuthShell title="Welcome back" subtitle="Sign in with your business email and password.">
         <SignInForm />
       </ProofAuthShell>
     );

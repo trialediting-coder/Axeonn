@@ -19,7 +19,7 @@ async function post(path: string, body: unknown): Promise<{ ok?: boolean; error?
 
 function ErrorNote({ children }: { children: ReactNode }) {
   return (
-    <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-sm text-red-700">
+    <p role="alert" className="rounded-lg border border-red-500/30 bg-red-500/10 px-3.5 py-2.5 text-sm text-red-300">
       {children}
     </p>
   );
@@ -67,7 +67,7 @@ function PasswordField({
           type="button"
           onClick={() => setShow((s) => !s)}
           aria-label={show ? 'Hide password' : 'Show password'}
-          className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-neutral-400 hover:text-neutral-700"
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-neutral-500 hover:text-neutral-200"
         >
           {show ? <EyeOff size={17} /> : <Eye size={17} />}
         </button>
@@ -121,7 +121,7 @@ export function SignInForm() {
         autoComplete="current-password"
         invalid={Boolean(error)}
         aside={
-          <Link href="/proof/forgot" className="text-xs font-semibold text-blue-600 hover:text-blue-700">
+          <Link href="/proof/forgot" className="text-xs font-semibold text-blue-400 hover:text-blue-300">
             Forgot password?
           </Link>
         }
@@ -132,13 +132,13 @@ export function SignInForm() {
         Sign in
       </button>
       <div className="flex items-center gap-3 pt-2">
-        <span className="h-px flex-1 bg-neutral-300" />
+        <span className="h-px flex-1 bg-white/10" />
         <span className="text-[11px] font-medium uppercase tracking-wider text-neutral-500">New to AxeonPROOF?</span>
-        <span className="h-px flex-1 bg-neutral-300" />
+        <span className="h-px flex-1 bg-white/10" />
       </div>
-      <p className="text-center text-sm leading-relaxed text-neutral-500">
+      <p className="text-center text-sm leading-relaxed text-neutral-400">
         You create your login at the end of your setup page. Need help?{' '}
-        <a href="tel:+15154938017" className="font-semibold text-blue-600 hover:text-blue-700">
+        <a href="tel:+15154938017" className="font-semibold text-blue-400 hover:text-blue-300">
           (515) 493-8017
         </a>
       </p>
@@ -169,8 +169,8 @@ export function ForgotForm() {
   if (sent) {
     return (
       <div className="space-y-5">
-        <p className="rounded-xl border border-green-200 bg-green-50 px-3.5 py-3 text-sm text-green-800">{sent}</p>
-        <Link href="/" className="block text-center text-sm font-semibold text-blue-600 hover:text-blue-700">
+        <p className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-3 text-sm text-emerald-300">{sent}</p>
+        <Link href="/" className="block text-center text-sm font-semibold text-blue-400 hover:text-blue-300">
           Back to sign in
         </Link>
       </div>
@@ -199,7 +199,7 @@ export function ForgotForm() {
         {busy ? <Loader2 size={17} className="animate-spin" /> : null}
         Email me a reset link
       </button>
-      <Link href="/" className="block text-center text-sm font-semibold text-neutral-500 hover:text-neutral-900">
+      <Link href="/" className="block text-center text-sm font-semibold text-neutral-400 hover:text-white">
         Back to sign in
       </Link>
     </form>
