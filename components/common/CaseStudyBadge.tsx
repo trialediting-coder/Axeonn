@@ -53,31 +53,11 @@ export function CaseStudyBadge() {
   const shownRef = useRef(false);
 
   const hiddenHere = HIDDEN_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
-  // Never cover the homepage "Helping 50+ Iowa Businesses" strip: the card steps
-  // aside while that strip is on screen.
-  const [overMarquee, setOverMarquee] = useState(false);
-  const shown = visible && !hiddenHere && !isLeadModalOpen && !overMarquee;
-
-  // It also steps aside over the industry picker, where it competed with the headline.
-  useEffect(() => {
-    const targets = ['iowa-clients', 'who-we-help']
-      .map((id) => document.getElementById(id))
-      .filter((el): el is HTMLElement => el !== null);
-    if (targets.length === 0 || typeof IntersectionObserver === 'undefined') {
-      setOverMarquee(false);
-      return;
-    }
-    const onScreen = new Set<Element>();
-    const observer = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) onScreen.add(entry.target);
-        else onScreen.delete(entry.target);
-      }
-      setOverMarquee(onScreen.size > 0);
-    });
-    targets.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, [pathname]);
+  // Once it appears it stays put until dismissed or clicked. It used to step
+  // aside whenever certain homepage sections were on screen, which made it
+  // flicker in and out while scrolling. It already waits until the visitor is
+  // 30% down the page, past the hero's logo strip.
+  const shown = visible && !hiddenHere && !isLeadModalOpen;
   const cardRef = useRef<HTMLElement>(null);
 
   // Publish the card's footprint (height plus a 12px gap) so other
