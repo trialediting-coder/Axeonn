@@ -335,7 +335,7 @@ export function FreeWebsiteOfferPopup() {
                   <div className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
                     Founding spots
                   </div>
-                  <div className="mt-1.5 flex items-center justify-end gap-1.5" aria-label={`${spotsLeft} of ${foundingOffer.totalSpots} spots open`}>
+                  <div className="mt-1.5 flex items-center justify-end gap-1.5" aria-hidden="true">
                     {Array.from({ length: foundingOffer.totalSpots }).map((_, i) => (
                       <span
                         key={i}

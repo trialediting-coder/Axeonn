@@ -27,7 +27,7 @@ export function AxeonLogo({
   const mark = { sm: 'h-[18px]', md: 'h-[22px]', lg: 'h-8' }[size];
   const ink = tone === 'light' ? 'text-white' : 'text-neutral-950';
   return (
-    <span className="inline-flex items-center gap-2.5" aria-label={`Axeon${product ?? ''}`}>
+    <span className="inline-flex items-center gap-2.5">
       <AxeonMark className={`${mark} w-auto shrink-0 text-blue-600`} />
       <span className={`${text} font-extrabold leading-none tracking-tight ${ink}`}>
         Axeon

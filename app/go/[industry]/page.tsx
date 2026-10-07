@@ -104,7 +104,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
       {/* Top bar: no menu, no links out. Logo + phone only. */}
       <div className="absolute top-0 inset-x-0 z-20 px-4 sm:px-8 py-5">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <span className="flex items-center gap-3" aria-label="Axeon">
+          <span className="flex items-center gap-3">
             <svg width="30" height="25" viewBox="0 0 24 20" fill="currentColor" className="text-blue-600" aria-hidden="true">
               <polygon points="6,0 2,20 6,20 10,0" />
               <polygon points="14,0 10,20 14,20 18,0" />
