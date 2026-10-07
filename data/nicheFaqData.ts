@@ -30,7 +30,7 @@ export const nicheFaqData: Record<string, NicheFaqItem[]> = {
     {
       question: 'Can it cut down on consult no-shows?',
       answer:
-        'Yes. On AxeonCORE, automatic text and email reminders go out before every consult, and your CRM pipeline shows which consults turned into treatments.',
+        'Yes. On AxeonCORE, automatic text and email reminders go out before every consult, and your lead list shows which consults turned into treatments.',
     },
   ],
   hvac: [
@@ -54,7 +54,7 @@ export const nicheFaqData: Record<string, NicheFaqItem[]> = {
     {
       question: "What if a bid doesn't get signed right away?",
       answer:
-        "On AxeonCORE, automatic follow-up checks in on open bids and your CRM pipeline shows every one, so storm leads don't go cold while a homeowner is still deciding.",
+        "On AxeonCORE, automatic follow-up checks in on open bids and your lead list shows every one, so storm leads don't go cold while a homeowner is still deciding.",
     },
   ],
   'law-firms': [
@@ -66,7 +66,7 @@ export const nicheFaqData: Record<string, NicheFaqItem[]> = {
     {
       question: 'Does this help track cases through to a signed retainer?',
       answer:
-        'Yes. On AxeonCORE, your CRM pipeline tracks every case evaluation through to a signed retainer, with automatic follow-up for people who have not signed yet.',
+        'Yes. On AxeonCORE, your lead list tracks every case evaluation through to a signed retainer, with automatic follow-up for people who have not signed yet.',
     },
   ],
   accounting: [
@@ -90,7 +90,7 @@ export const nicheFaqData: Record<string, NicheFaqItem[]> = {
     {
       question: 'What happens to quotes that go quiet?',
       answer:
-        'On AxeonCORE, your CRM pipeline tracks every bid and automatic follow-up checks in on open quotes before another contractor does.',
+        'On AxeonCORE, your lead list tracks every bid and automatic follow-up checks in on open quotes before another contractor does.',
     },
   ],
   'real-estate': [

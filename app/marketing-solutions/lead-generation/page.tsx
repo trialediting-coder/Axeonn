@@ -46,7 +46,7 @@ export default function LeadGenerationPage() {
         title="Every lead captured. Every lead followed up. Automatically."
         subtitle="Every call, form, and chat lands in one place the moment it comes in, and follow-up starts automatically before the lead goes cold."
         priceLine="Included in AxeonCORE, $299/mo"
-        note="a CRM pipeline built around how you sell"
+        note="every lead in one simple list, so nothing slips"
       />
       <ProblemSection data={d.problem} />
       <DeliverablesSection detail={d} />

@@ -18,8 +18,8 @@ const LEAD = {
 const ROWS: ComparisonRow[] = [
   {
     dimension: 'Pricing',
-    typical: 'A large up-front build fee, plus separate CRM and marketing retainers.',
-    axeon: '$99 to start, then a flat $149, $299, or $999 a month, with the CRM pipeline, follow-up, and AxeonPROOF included from AxeonCORE up',
+    typical: 'A large up-front build fee, plus separate software and marketing bills every month.',
+    axeon: '$99 to start, then a flat $149, $299, or $999 a month, with lead follow-up and AxeonPROOF included from AxeonCORE up',
   },
   {
     dimension: 'Timeline',
@@ -27,9 +27,9 @@ const ROWS: ComparisonRow[] = [
     axeon: 'Fixed scope and a fast turnaround — live in a fraction of the usual time, no surprise invoices',
   },
   {
-    dimension: 'AI & Automation',
-    typical: 'One generic AI tool, deployed the same way for every client',
-    axeon: 'A CRM Pipeline built around your actual lead-to-close workflow',
+    dimension: 'Lead Follow-Up',
+    typical: 'One generic chatbot, set up the same way for every client',
+    axeon: 'Follow-up built around how you actually win jobs, from first call to booked',
   },
   {
     dimension: 'Communication',

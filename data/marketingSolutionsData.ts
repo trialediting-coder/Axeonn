@@ -13,7 +13,7 @@ export const marketingSolutions: MarketingSolution[] = [
     id: 'website',
     title: 'Website',
     description:
-      'Websites that build trust, drive revenue, and make you the clear choice—designed to convert, built to grow',
+      'Websites that build trust, drive revenue, and make you the clear choice—built to turn visitors into calls',
     href: '/marketing-solutions/website',
     included: 'In every build',
   },
@@ -45,7 +45,7 @@ export const marketingSolutions: MarketingSolution[] = [
     id: 'advertising',
     title: 'Advertising',
     description:
-      'Google Ads and Meta Ads that send ready-to-buy customers to pages built to convert, with every call and booking tracked.',
+      'Google Ads and Meta Ads that send ready-to-buy customers to pages built to get the call, with every call and booking tracked.',
     href: '/marketing-solutions/advertising',
     included: 'Growth engine add-on',
   },

@@ -61,7 +61,7 @@ export const pricingTiers: PricingTier[] = [
     bestFor: 'Right for you if you mainly need more people to find you. It brings in calls and leads; you handle the follow-up yourself.',
     features: [
       'Up to 4 custom-designed, mobile-first pages built around how your business actually sells',
-      'SEO, AEO & GEO built in — visible on Google and inside AI answers like ChatGPT',
+      'Show up on Google, in the map results, and in AI answers like ChatGPT',
       'Google Business Profile upkeep so you show up in the map results',
       'Quote request form with instant lead alerts — every request lands in your inbox and on your phone',
       'Hosting, security, and 2 small edits a month',
@@ -87,13 +87,13 @@ export const pricingTiers: PricingTier[] = [
       'AxeonPROOF — your live dashboard of every call, lead, and booked job, and where each one came from',
       'The 90-day customer guarantee',
       'Missed-call text-back — anyone who calls and can\'t reach you gets an instant text, so they don\'t move on to the next company',
-      'Speed-to-lead call connect — when a form comes in, your phone rings and connects you to that lead while they\'re still on your site',
+      'Instant call-back — when someone fills out your form, your phone rings and connects you to them while they\'re still on your site',
       'AI chat & online scheduling so leads book themselves 24/7',
-      'Automated SMS & email follow-up the second a lead comes in, in a CRM pipeline built around how you close',
-      'Call tracking numbers that show which pages and listings actually make your phone ring',
+      'Automatic texts and emails the second a lead comes in, plus one simple list of every lead and where it stands',
+      'Tracked phone numbers that show which pages and listings actually make your phone ring',
       'Review requests after every job, so your Google rating keeps climbing',
       '5–7 pages written to turn visitors into calls',
-      'Exit-intent offers — visitors about to leave see an offer matched to the service they were looking at',
+      'A last-chance offer — visitors about to leave your site see a deal on the service they were looking at',
       '5 edits a month',
     ],
     highlightFeatures: [
@@ -118,7 +118,7 @@ export const pricingTiers: PricingTier[] = [
     inherits: 'Everything in AxeonCORE, plus:',
     features: [
       'Google & Meta ads run for you on the services you want more of, tracked to the booked job',
-      'Google Local Services Ads set up and managed — the "Google Guaranteed" listings at the very top of the search, where you pay per lead, not per click (where Google offers them for your trade; Google runs its own screening)',
+      'Google Local Services Ads — the "Google Guaranteed" spots at the very top of the search, where you pay per lead, not per click (for trades Google offers them to)',
       'AI phone receptionist — picks up every call 24/7, answers questions, and books the job',
       'Custom on-site videography — a half-day shoot at your location: a hero film for your site, 3 vertical cuts for social & ads, and a photo set',
       'AxeonPROOF ad reporting — every ad dollar shown next to the calls and jobs it brought in',
@@ -187,7 +187,7 @@ export const pricingFaqs: PricingFaq[] = [
   },
   {
     q: 'What does the AxeonCORE lead system actually do?',
-    a: 'It makes sure a lead never sits waiting. When someone fills out a form, your phone rings and connects you to them while they\'re still on your site. If someone calls and you can\'t pick up, they get a text back right away instead of calling your competitor. Visitors about to leave see an offer tied to the service they were looking at. Every lead lands in your CRM pipeline with automated text and email follow-up, and call tracking shows which pages and listings are making your phone ring.',
+    a: 'It makes sure a lead never sits waiting. When someone fills out a form, your phone rings and connects you to them while they\'re still on your site. If someone calls and you can\'t pick up, they get a text back right away instead of calling your competitor. Visitors about to leave see an offer tied to the service they were looking at. Every lead lands in one simple list with automatic texts and emails, and tracked phone numbers show which pages and listings are making your phone ring.',
   },
   {
     q: 'What does the on-site videography include?',

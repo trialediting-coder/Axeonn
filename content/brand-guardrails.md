@@ -73,6 +73,7 @@ local-only.
 - ChatGPT Ads or any other paid AI-platform advertising product.
 
 ## Banned / retired terminology
+- Plain language for small-business owners (2026-10-06): customer-facing copy never uses "AEO", "GEO", "CRM pipeline", "speed-to-lead", "exit-intent", "funnel", "nurture", "workflow" or "convert/conversion". Say "show up on Google and in AI answers", "one list of every lead", "instant call-back", "a last-chance offer", "tracked phone numbers", "turn visitors into calls". Legal docs, llms files and code identifiers are exempt.
 - Do not call any tier a "sprint" or otherwise use "sprint" as a
   headline value proposition.
 - Never promise a specific build timeline (no "7 days", "14 days", "7–14

@@ -43,7 +43,7 @@ const builds = [
   {
     name: 'AxeonCORE',
     price: '$299/mo',
-    line: 'Get found, chosen, and booked: adds AxeonPROOF, the CRM pipeline, AI chat, automated follow-up, and the 90-day guarantee.',
+    line: 'Get found, chosen, and booked: adds AxeonPROOF, one list of every lead, AI chat, automatic follow-up, and the 90-day guarantee.',
     recommended: true,
   },
   {

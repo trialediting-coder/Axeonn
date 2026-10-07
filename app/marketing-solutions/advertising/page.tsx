@@ -15,7 +15,7 @@ export const metadata = buildMetadata({
   path: '/marketing-solutions/advertising',
   title: 'Google Ads & Meta Ads Management | Axeon Studio',
   description:
-    'Google Ads and Meta Ads management for local businesses, sent to pages built to convert, with every call, form, and booking tracked to the customer.',
+    'Google Ads and Meta Ads management for local businesses, sent to pages built to get the call, with every call, form, and booking tracked to the customer.',
 });
 
 const jsonLd = serviceJsonLd({
@@ -41,7 +41,7 @@ export default function AdvertisingMarketingSolutionPage() {
       <ServiceHero
         eyebrow="Services · Advertising"
         title="Ads That Turn Into Booked Jobs, Not Just Clicks."
-        subtitle="Google Ads and Meta Ads, built around the services you want more of, sent to pages made to convert, and tracked all the way to a call or a booking."
+        subtitle="Google Ads, Meta Ads and Local Services Ads, built around the services you want more of, sent to pages made to get the call, and tracked all the way to a call or a booking."
         priceLine="Campaigns scoped to your market and goals"
         note="quoted on a free strategy call"
         showPricingLink={false}

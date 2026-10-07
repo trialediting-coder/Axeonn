@@ -63,7 +63,7 @@ export default function GetFoundComparison() {
           ]}
           axeon={[
             'Designed around how your business actually sells.',
-            'SEO, AEO and GEO set up on every site.',
+            'Set up to show up on Google and in AI answers.',
           ]}
         />
 

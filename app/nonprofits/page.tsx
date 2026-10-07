@@ -54,7 +54,7 @@ const INCLUDED = [
     icon: Search,
     title: 'Found on Google and in AI answers',
     description:
-      'SEO, AEO, and GEO set up from day one, so people find you on Google and when they ask ChatGPT, Perplexity, or Gemini for help nearby.',
+      'Google and AI search set up from day one, so people find you on Google and when they ask ChatGPT, Perplexity, or Gemini for help nearby.',
   },
   {
     icon: MapPin,

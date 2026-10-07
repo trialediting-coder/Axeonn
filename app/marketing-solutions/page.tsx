@@ -92,7 +92,7 @@ const STEPS = [
 const TIMELINE = [
   { when: 'Second 0', what: 'Someone fills out your form, calls, or starts a chat.' },
   { when: 'Within seconds', what: 'Your phone rings and connects you to them. Miss the call? They get a text back right away.' },
-  { when: 'Same day', what: 'They land in your CRM, and automatic texts and emails keep following up until they book.' },
+  { when: 'Same day', what: 'They land in your lead list, and automatic texts and emails keep following up until they book.' },
   { when: 'Every month', what: 'You get a report showing every call and lead, and exactly where each one came from.' },
 ];
 

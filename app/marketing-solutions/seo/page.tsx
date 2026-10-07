@@ -14,15 +14,15 @@ import { seoDetail as d } from '@/data/solutionDetails';
 
 export const metadata = buildMetadata({
   path: '/marketing-solutions/seo',
-  title: 'SEO, AEO & GEO Services | Axeon Studio',
+  title: 'Local SEO & AI Search Services | Axeon Studio',
   description:
-    'Get found on Google and cited by AI. SEO, AEO, and GEO built into every Axeon Studio site, not sold separately, backed by a 90-day customer guarantee.',
+    'Get found on Google and recommended by AI. Local SEO and AI search built into every Axeon Studio site, not sold separately, backed by a 90-day customer guarantee.',
 });
 
 const jsonLd = serviceJsonLd({
   path: '/marketing-solutions/seo',
-  serviceType: 'Local SEO, AEO & GEO',
-  name: 'Axeon Studio — SEO, AEO & GEO',
+  serviceType: 'Local SEO & AI Search',
+  name: 'Axeon Studio — Local SEO & AI Search',
   description:
     'Search, answer engine, and generative engine optimization built into every Axeon Studio site, so Des Moines-area businesses are found on Google and cited by AI assistants.',
 });
@@ -35,13 +35,13 @@ export default function SeoMarketingSolutionPage() {
       <BreadcrumbJsonLd
         items={[
           { name: 'Services', path: '/marketing-solutions' },
-          { name: 'SEO, AEO & GEO', path: '/marketing-solutions/seo' },
+          { name: 'SEO & AI Search', path: '/marketing-solutions/seo' },
         ]}
       />
 
       <ServiceHero
         image="/temp-scorpion-refs/seo-hero.webp"
-        eyebrow="Services · SEO / AEO / GEO"
+        eyebrow="Services · Google & AI Search"
         title="Get Found on Google. Get Cited by AI."
         subtitle="Show up when people nearby search for what you do: on Google, on the map, and inside AI answers. Built into every site we build, not sold separately."
         priceLine="Built into every plan, from $149/mo"

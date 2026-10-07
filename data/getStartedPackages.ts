@@ -90,7 +90,7 @@ export const PACKAGES: Package[] = [
     tagline: 'Get found: a site and search presence built to bring in calls.',
     includes: [
       'A custom website written to turn visitors into calls',
-      'SEO, AEO and GEO so you show up on Google and in AI answers',
+      'Show up on Google and in AI answers',
       'Google Business Profile upkeep and a monthly calls & leads report',
     ],
     services: ['Website', 'SEO', 'Content'],
@@ -108,8 +108,8 @@ export const PACKAGES: Package[] = [
     tagline: 'The full customer engine: get found, get chosen, and get every lead booked.',
     includes: [
       'Everything in Essentials, plus AxeonPROOF to track every call and lead',
-      'AI chat & scheduling, speed-to-lead call connect and missed-call text-back',
-      'CRM pipeline with automated follow-up, call tracking, and the 90-day guarantee',
+      'AI chat & scheduling, instant call-back and missed-call text-back',
+      'Automatic follow-up, tracked phone numbers, and the 90-day guarantee',
     ],
     services: ['Website', 'SEO', 'Content', 'AI Automation'],
     stripePaymentLink: null,

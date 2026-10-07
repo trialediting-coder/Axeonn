@@ -142,7 +142,7 @@ export const websiteDetail: SolutionDetail = {
         items: [
           'Quote forms and tap-to-call where people decide',
           'Instant alerts to your inbox and phone',
-          'On AxeonCORE: a CRM pipeline, AI chat, and automatic follow-up',
+          'On AxeonCORE: one list of every lead, AI chat, and automatic follow-up',
         ],
       },
     ],
@@ -316,7 +316,7 @@ export const aiChatDetail: SolutionDetail = {
           'A real conversation, not a button menu',
           'A text and email the second a lead comes in',
           'Missed-call text-back',
-          'Every conversation in your CRM pipeline',
+          'Every conversation in one place',
         ],
       },
     ],
@@ -351,7 +351,7 @@ export const aiChatDetail: SolutionDetail = {
     {
       question: 'Is AI chat included in Essentials?',
       answer:
-        'No. AI chat and online scheduling are part of AxeonCORE, along with the CRM pipeline and automated follow-up. Essentials includes instant lead alerts, so you still hear about every form and call request right away.',
+        'No. AI chat and online scheduling are part of AxeonCORE, along with your lead list and automatic follow-up. Essentials includes instant lead alerts, so you still hear about every form and call request right away.',
     },
   ],
 };
@@ -418,7 +418,7 @@ export const leadGenDetail: SolutionDetail = {
   },
   fit: {
     step: 'booked',
-    lines: [CORE_PLAN, 'Essentials ($149/mo) includes instant lead alerts and conversion tracking.'],
+    lines: [CORE_PLAN, 'Essentials ($149/mo) includes instant lead alerts and tracks every call and form.'],
   },
   timeline: ['Map how you close', 'Build & write', 'Test & launch'],
   proof: {
@@ -430,7 +430,7 @@ export const leadGenDetail: SolutionDetail = {
   faqs: [
     {
       question: 'What counts as a lead?',
-      answer: 'Every call, form fill, chat, and text that comes in through your site or listed number. They all land in the same pipeline.',
+      answer: 'Every call, form fill, chat, and text that comes in through your site or listed number. They all land in the same list.',
     },
     {
       question: 'Do I still have to check it manually?',
@@ -439,7 +439,7 @@ export const leadGenDetail: SolutionDetail = {
     {
       question: 'What’s included in Essentials vs. AxeonCORE?',
       answer:
-        'Essentials includes instant lead alerts and conversion tracking. AxeonCORE adds the full system: the CRM pipeline, pre-qualifying intake, AI chat and scheduling, automated text and email follow-up, speed-to-lead call connect, missed-call text-back, and call tracking.',
+        'Essentials includes instant lead alerts and tracks every call and form. AxeonCORE adds the full system: one list of every lead, a few quick questions that screen out tire-kickers, AI chat and scheduling, automatic texts and emails, instant call-back, missed-call text-back, and tracked phone numbers.',
     },
     {
       question: 'Do you run Google or Facebook ads?',
@@ -609,7 +609,7 @@ export const advertisingDetail: SolutionDetail = {
     {
       question: 'Do I need a new website to run ads with you?',
       answer:
-        'Not necessarily. Ads work best when they point to fast, service-specific landing pages, so we’ll look at your current site on the strategy call and tell you honestly whether it can convert paid traffic.',
+        'Not necessarily. Ads work best when they point to fast, service-specific landing pages, so we’ll look at your current site on the strategy call and tell you honestly whether it can turn ad clicks into calls.',
     },
     {
       question: 'How much should I spend on ads?',
@@ -619,7 +619,7 @@ export const advertisingDetail: SolutionDetail = {
     {
       question: 'How do I know the ads are working?',
       answer:
-        'Conversion and call tracking go in before launch, so you see which campaigns produced calls, forms, and bookings, not just clicks.',
+        'Call and form tracking go in before launch, so you see which campaigns produced calls, forms, and bookings, not just clicks.',
     },
   ],
 };

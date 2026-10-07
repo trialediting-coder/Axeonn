@@ -19,7 +19,7 @@ const webDesignServiceJsonLd = serviceJsonLd({
   serviceType: 'Web Design & Digital Marketing',
   name: 'Axeon Studio — Des Moines Web Design & Digital Marketing',
   description:
-    'Custom websites, local SEO/AEO/GEO, AI chat & scheduling, lead-generation pipelines, and on-site video for businesses across the Des Moines metro.',
+    'Custom websites, local SEO and AI search, AI chat & scheduling, automatic lead follow-up, and on-site video for businesses across the Des Moines metro.',
 });
 
 const TEL_HREF = `tel:${BUSINESS.telephone.replace(/-/g, '')}`;
@@ -66,7 +66,7 @@ const LOCAL_REASONS = [
     icon: MapPin,
     title: 'Built for how Des Moines actually searches',
     description:
-      'Suburb-level intent matters here — a Waukee homeowner and a downtown Des Moines law firm search differently. Every build ships with local SEO, structured data, and AI-answer-engine visibility tuned to the metro, not a generic "near me" template.',
+      'Suburb-level intent matters here — a Waukee homeowner and a downtown Des Moines law firm search differently. Every build is set up to show up on Google and in AI answers for searches across the metro, not a generic "near me" template.',
   },
   {
     icon: Handshake,
@@ -90,12 +90,12 @@ const LOCAL_FAQ = [
   {
     question: 'How much does a website cost in Des Moines?',
     answer:
-      'Our pricing is published: $99 to start, then a flat monthly plan. Essentials is $149/mo. AxeonCORE is $299/mo and adds our AxeonPROOF dashboard, a Custom CRM Pipeline, AI chat & online scheduling, automated follow-up, and our 90-day customer guarantee. AxeonGROWTH is $999/mo plus ad spend and adds Google & Meta ads, an AI phone receptionist, and a half-day on-site video shoot.',
+      'Our pricing is published: $99 to start, then a flat monthly plan. Essentials is $149/mo. AxeonCORE is $299/mo and adds our AxeonPROOF dashboard, one simple list of every lead, AI chat & online scheduling, automatic follow-up, and our 90-day customer guarantee. AxeonGROWTH is $999/mo plus ad spend and adds Google & Meta ads, Google Local Services Ads, an AI phone receptionist, and a half-day on-site video shoot.',
   },
   {
     question: 'Will my business show up when people search on Google or ask ChatGPT?',
     answer:
-      'That is the point of every build. Search engine optimization, answer engine optimization, and generative engine optimization are included by default — technical SEO, local structured data, and machine-readable content so your business is findable on Google Maps and Search and citable by AI assistants like ChatGPT, Perplexity, and Gemini.',
+      'That is the point of every build. Showing up on Google and in AI answers is included by default. We set up your site behind the scenes so Google Maps and Search can find you, and so AI assistants like ChatGPT, Perplexity, and Gemini can recommend you.',
   },
   {
     question: 'What industries do you build for in the Des Moines area?',

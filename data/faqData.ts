@@ -12,7 +12,7 @@ export const faqItems: FaqItem[] = [
   {
     question: "What if I'm too busy to answer every lead?",
     answer:
-      'That\'s what AxeonCORE is built for. Speed-to-lead call connect rings your phone the moment a form comes in, missed-call text-back replies to anyone you can\'t pick up for, and automated follow-up keeps every lead warm until you can get to them. The guarantee does ask that new leads get a reply within one business day, and the system makes that easy.',
+      'That\'s what AxeonCORE is built for. Instant call-back rings your phone the moment a form comes in, missed-call text-back replies to anyone you can\'t pick up for, and automated follow-up keeps every lead warm until you can get to them. The guarantee does ask that new leads get a reply within one business day, and the system makes that easy.',
   },
   {
     question: 'How long does it take to launch?',

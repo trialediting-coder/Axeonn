@@ -82,7 +82,7 @@ export default function WhyAxeonClient() {
         ]}
         axeon={[
           'Tap-to-call and quote forms built to book the job.',
-          'With AxeonCORE: your website, CRM pipeline and follow-up working as one system.',
+          'With AxeonCORE: your website, lead list and follow-up working as one system.',
           'A monthly calls & leads report, so you see what is working.',
         ]}
       />
