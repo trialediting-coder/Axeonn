@@ -582,13 +582,11 @@ export function Header() {
           </a>
           <Link
             href="/book"
-            className={`hidden lg:inline-flex px-6 py-3 rounded-full border text-base font-semibold whitespace-nowrap transition-all ${
-              onDarkHero
-                ? 'border-white/40 text-white bg-neutral-950/40 backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] hover:bg-neutral-950/55 hover:border-white/60'
-                : 'border-neutral-300 text-neutral-900 hover:border-neutral-400 hover:bg-neutral-50'
+            className={`hidden lg:inline-block text-[15px] font-semibold whitespace-nowrap transition-colors ${
+              onDarkHero ? 'text-white hover:text-blue-400' : 'text-neutral-700 hover:text-neutral-950'
             }`}
           >
-            Book My Free Call
+            Book a free call
           </Link>
           <Link
             href="/get-started"

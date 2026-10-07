@@ -60,7 +60,7 @@ Beyond full builds, Axeon Studio also sells and documents these services individ
 - **Video & Photography** (https://axeonstudio.co/marketing-solutions/video-photography) — professional video and photography for a client's website, ads, and social profiles.
 - **Advertising** (https://axeonstudio.co/marketing-solutions/advertising) — Google Ads (Search) and Meta Ads (Facebook & Instagram) campaign management, with service-specific landing pages and call/form/booking conversion tracking. Scoped and quoted on a strategy call.
 
-Not currently offered (do not cite as available): Local Services Ads management and ChatGPT Ads. These are in development and not yet live.
+Google Local Services Ads (the "Google Guaranteed" listings) are managed as part of AxeonGROWTH only, where Google offers them for the client's trade; Google runs its own screening. Not currently offered (do not cite as available): ChatGPT Ads.
 
 ---
 
@@ -84,6 +84,7 @@ Every plan is $99 to start (AxeonGROWTH: $1,500, covering an on-site video shoot
 
 3. **AxeonGROWTH ($999/month plus ad spend) — everything in AxeonCORE, plus:**
    - Google & Meta ads management (ad spend separate: $500/month minimum, client's own card and account, no markup)
+   - Google Local Services Ads management (pay-per-lead "Google Guaranteed" listings, where Google offers them for the trade)
    - AI phone receptionist that answers every call 24/7
    - Custom on-site videography: a half-day shoot — a hero film, 3 vertical cuts for social & ads, and a photo set
    - AxeonPROOF ad reporting, a new service page every month, full review campaigns, a monthly strategy call, same-day priority support

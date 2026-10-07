@@ -118,6 +118,7 @@ export const pricingTiers: PricingTier[] = [
     inherits: 'Everything in AxeonCORE, plus:',
     features: [
       'Google & Meta ads run for you on the services you want more of, tracked to the booked job',
+      'Google Local Services Ads set up and managed — the "Google Guaranteed" listings at the very top of the search, where you pay per lead, not per click (where Google offers them for your trade; Google runs its own screening)',
       'AI phone receptionist — picks up every call 24/7, answers questions, and books the job',
       'Custom on-site videography — a half-day shoot at your location: a hero film for your site, 3 vertical cuts for social & ads, and a photo set',
       'AxeonPROOF ad reporting — every ad dollar shown next to the calls and jobs it brought in',

@@ -38,7 +38,9 @@ local-only.
   chat & scheduling, automated SMS/email follow-up and CRM pipeline, call
   tracking, review requests, exit-intent offers, 5-7 pages, 5 edits a month.
 - AxeonGROWTH: $999/month plus ad spend. The premium tier. Adds Google & Meta
-  ads management, an AI phone receptionist, a half-day on-site video shoot
+  ads management, Google Local Services Ads management (GROWTH only, added
+  2026-10-06; only where Google offers LSA for the client's trade, and Google
+  runs its own screening, so never promise the Google Guaranteed badge), an AI phone receptionist, a half-day on-site video shoot
   (hero film, 3 vertical cuts, photo set), AxeonPROOF ad reporting, a new
   service page every month, full review campaigns, a monthly strategy call,
   same-day priority support.
@@ -68,7 +70,6 @@ local-only.
   Not part of Essentials or base AxeonCORE (AxeonCORE has AI chat & scheduling).
 
 ## NOT currently live — never imply these are offered
-- Local Services Ads management.
 - ChatGPT Ads or any other paid AI-platform advertising product.
 
 ## Banned / retired terminology

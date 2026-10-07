@@ -563,6 +563,7 @@ export const advertisingDetail: SolutionDetail = {
         title: 'Only the clicks worth paying for',
         items: [
           'Google Search campaigns for the services you want more of',
+          'Google Local Services Ads, the "Google Guaranteed" spots at the top, paid per lead (AxeonGROWTH)',
           'Tight keywords and service-area targeting',
           'Facebook and Instagram campaigns in your service area',
           'Retargeting people who visited but didn’t book',
@@ -589,7 +590,7 @@ export const advertisingDetail: SolutionDetail = {
   fit: {
     step: 'found',
     lines: [
-      'Included in AxeonGROWTH ($999/mo plus ad spend), or +$399/mo on AxeonCORE',
+      'Included in AxeonGROWTH ($999/mo plus ad spend), or Google & Meta only for +$399/mo on AxeonCORE. Local Services Ads come with AxeonGROWTH.',
       'Ad spend is separate: $500/mo minimum, on your own card and ad account, no markup. Every paid lead gets AxeonCORE\'s instant follow-up.',
     ],
   },
@@ -599,6 +600,11 @@ export const advertisingDetail: SolutionDetail = {
       question: 'Do you manage both Google Ads and Meta Ads?',
       answer:
         'Yes. We run Google Search campaigns and Facebook and Instagram campaigns, and recommend the mix based on how your customers actually look for you.',
+    },
+    {
+      question: 'Do you run Google Local Services Ads?',
+      answer:
+        'Yes, on AxeonGROWTH. These are the "Google Guaranteed" listings at the very top of the search, and you pay per lead instead of per click. Google only offers them for certain trades and screens every business itself, so we check your eligibility on the call, then set up and manage the listing for you.',
     },
     {
       question: 'Do I need a new website to run ads with you?',

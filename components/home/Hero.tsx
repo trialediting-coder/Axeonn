@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ArrowUpRight, ArrowRight } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { TrustBadges } from '@/components/common/TrustBadges';
 import { useLeadModal } from '@/components/common/LeadModalProvider';
@@ -309,26 +309,15 @@ export function Hero() {
               </div>
             </Link>
 
-            {/* Secondary: for visitors who want a human first */}
+            {/* Secondary as a text link, not a second button: one clear action per screen */}
             <button
               type="button"
               id="hero-secondary-cta"
               onClick={() => openLeadModal('hero')}
-              className="group inline-flex items-center justify-center gap-2.5 px-8 py-4 sm:py-[18px] rounded-full border border-white/40 bg-neutral-950/40 backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] hover:bg-neutral-950/55 hover:border-white/60 text-white text-base sm:text-lg font-semibold transition-all duration-200 cursor-pointer"
+              className="inline-flex items-center justify-center gap-1.5 py-2 sm:py-4 text-base sm:text-lg font-semibold text-white/85 hover:text-white underline underline-offset-4 decoration-white/30 hover:decoration-white transition-colors cursor-pointer"
             >
-              <span>Book My Free Call</span>
-              <ArrowRight size={18} className="text-blue-300 group-hover:translate-x-1 transition-transform" />
+              or book a free call
             </button>
-
-            {/* Tertiary: answers the #1 objection (price) */}
-            <Link
-              href="/pricing"
-              data-track="cta_click"
-              data-track-cta="see_pricing"
-              className="hidden sm:inline-flex items-center justify-center py-2 sm:py-4 text-base sm:text-lg font-semibold text-white/80 hover:text-white underline underline-offset-4 decoration-white/30 hover:decoration-white transition-colors"
-            >
-              See pricing
-            </Link>
           </div>
 
           <div
