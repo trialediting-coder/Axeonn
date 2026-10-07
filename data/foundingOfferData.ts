@@ -20,8 +20,8 @@ export const foundingOffer = {
   active: true,
   eyebrow: 'Founding Client Offer',
   headline: '$0 to start, and your first month of AxeonCORE free',
-  subhead:
-    'We are launching with five Iowa businesses. They skip the $99 start fee and get their first month of AxeonCORE, the site and the system that brings in customers, at no cost, in exchange for honest feedback and a review we can show the next client.',
+  /** One short sentence: the popup shows only the headline, this, the button and the terms. */
+  subhead: 'For a few Iowa businesses, in exchange for honest feedback and a review.',
   /** Real anchor: the $99 start fee + the first $299 AxeonCORE month. */
   anchorPrice: '$398',
   anchorLabel: 'Your first month',
@@ -38,10 +38,10 @@ export const foundingOffer = {
     'Backed by our 90-day customer guarantee',
   ],
   cta: 'See If I Qualify',
-  ctaHint: 'Takes a 15-minute call. No pitch deck, no pressure.',
+  ctaHint: 'A free 30-minute call. No pressure.',
   decline: 'Not right now',
   terms:
-    'Open to Iowa-based businesses. Limited to 5 founding clients, subject to fit and availability. The $99 start fee is waived and the first month of AxeonCORE ($299) is free; AxeonCORE then continues at $299/mo with a 3-month minimum, then month-to-month.',
+    'Iowa businesses, limited spots, subject to fit. After the free first month, AxeonCORE is $299/mo with a 3-month minimum.',
 } as const;
 
 export type FoundingOffer = typeof foundingOffer;

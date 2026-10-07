@@ -265,10 +265,6 @@ export function Hero() {
 
         <div className="relative z-10 w-full max-w-3xl flex-1 flex flex-col justify-center sm:ml-16 lg:ml-24 xl:ml-32">
           <h1 className="hero-rise text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-black tracking-[-0.03em] [word-spacing:0.12em] leading-[1.05] font-display text-white">
-            {/* Part of the h1 on purpose: search engines read the heading as a whole. */}
-            <span className="block mb-3 sm:mb-5 font-mono text-[11px] sm:text-sm font-bold tracking-[0.18em] [word-spacing:normal] uppercase text-blue-300 leading-snug">
-              Digital marketing for Iowa&apos;s local businesses
-            </span>
             Get More
             {/* The rotating word always sits on its own line. */}
             <span className="grid">
