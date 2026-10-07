@@ -2,12 +2,14 @@
 // What happens after onboarding: project dates and the 90-day baseline, Project
 // Updates and Monthly Reports. Axeon enters them in the admin; each one is
 // emailed to the client and shown in AxeonPROOF, where the report numbers are
-// the only numbers the dashboard ever shows (no estimates, no fake data).
+// the only numbers the dashboard ever shows. The monthly job (lib/autoReports.ts)
+// attaches measured website numbers to each report; the one derived figure,
+// "estimated new customers", is always labelled as an estimate. Nothing is invented.
 import { sql, ensureSchema, isDatabaseConfigured } from '@/lib/db';
 import type { OnboardingTier } from '@/data/onboardingItems';
-import { UPDATE_STATUSES, UPDATE_TYPES, type Line } from '@/lib/projectsShared';
+import { UPDATE_STATUSES, UPDATE_TYPES, buttonLabel, type Line, type TrafficSummary } from '@/lib/projectsShared';
 
-export { UPDATE_STATUSES, UPDATE_TYPES, linesToText, monthLabel, type Line } from '@/lib/projectsShared';
+export { UPDATE_STATUSES, UPDATE_TYPES, linesToText, monthLabel, type Line, type TrafficSummary } from '@/lib/projectsShared';
 
 export interface ProjectDetails {
   kickoffAt: string | null; // YYYY-MM-DD
@@ -49,6 +51,42 @@ export interface ReportBody {
   next: Line[];
   fromYou: string;
   note: string;
+  /** Website numbers from the tracking snippet (lib/autoReports.ts). Absent until the month is summed. */
+  traffic?: TrafficSummary | null;
+  /** True when the 1st-of-the-month job built and sent this report. */
+  auto?: boolean;
+}
+
+/** A report with nothing typed in yet: what the monthly job starts from when Axeon has not saved one. */
+export const emptyReportBody = (): ReportBody => ({
+  calls: null,
+  leads: null,
+  booked: null,
+  keyword: '',
+  rank: null,
+  reviews: null,
+  rating: null,
+  done: [],
+  next: [],
+  fromYou: '',
+  note: '',
+});
+
+/** Old rows and partial merges may lack keys; every reader gets a complete body. */
+export function normalizeReportBody(raw: Partial<ReportBody> | null | undefined): ReportBody {
+  const base = emptyReportBody();
+  if (!raw || typeof raw !== 'object') return base;
+  return {
+    ...base,
+    ...raw,
+    done: Array.isArray(raw.done) ? raw.done : [],
+    next: Array.isArray(raw.next) ? raw.next : [],
+    keyword: raw.keyword ?? '',
+    fromYou: raw.fromYou ?? '',
+    note: raw.note ?? '',
+    traffic: raw.traffic ?? null,
+    auto: Boolean(raw.auto),
+  };
 }
 
 export interface MonthlyReport extends ReportBody {
@@ -280,7 +318,7 @@ export async function listMonthlyReports(onboardingId: number, limit = 24): Prom
     SELECT * FROM monthly_reports WHERE onboarding_id = ${onboardingId} ORDER BY month DESC LIMIT ${limit};
   `;
   return res.rows.map((r) => ({
-    ...r.body,
+    ...normalizeReportBody(r.body),
     id: r.id,
     month: r.month,
     emailedAt: isoOrNull(r.emailed_at),
@@ -288,15 +326,43 @@ export async function listMonthlyReports(onboardingId: number, limit = 24): Prom
   }));
 }
 
-/** One report per month: saving the same month again replaces it. */
+export async function getMonthlyReport(onboardingId: number, month: string): Promise<MonthlyReport | null> {
+  return (await listMonthlyReports(onboardingId, 60)).find((r) => r.month === month) ?? null;
+}
+
+/**
+ * One report per month. Saving the same month again replaces what Axeon typed
+ * but keeps the website numbers the monthly job attached (`traffic`, `auto`),
+ * since the admin form never carries those.
+ */
 export async function saveMonthlyReport(onboardingId: number, input: { month: string; body: ReportBody }): Promise<MonthlyReport> {
   await ensureSchema();
+  const { traffic: _traffic, auto: _auto, ...typed } = input.body;
   await sql`
     INSERT INTO monthly_reports (onboarding_id, month, body)
-    VALUES (${onboardingId}, ${input.month}, ${JSON.stringify(input.body)}::jsonb)
-    ON CONFLICT (onboarding_id, month) DO UPDATE SET body = EXCLUDED.body, updated_at = now();
+    VALUES (${onboardingId}, ${input.month}, ${JSON.stringify(typed)}::jsonb)
+    ON CONFLICT (onboarding_id, month) DO UPDATE SET body = monthly_reports.body || EXCLUDED.body, updated_at = now();
   `;
-  const found = (await listMonthlyReports(onboardingId)).find((r) => r.month === input.month);
+  const found = await getMonthlyReport(onboardingId, input.month);
+  if (!found) throw new Error('Report was not saved');
+  return found;
+}
+
+/**
+ * The monthly job's write: attaches the website numbers to the month's report,
+ * creating an otherwise blank one when Axeon has not saved anything for it, and
+ * never touching what Axeon typed.
+ */
+export async function attachTrafficToReport(onboardingId: number, month: string, traffic: TrafficSummary): Promise<MonthlyReport> {
+  await ensureSchema();
+  const fresh: ReportBody = { ...emptyReportBody(), traffic, auto: true };
+  const patch = { traffic, auto: true };
+  await sql`
+    INSERT INTO monthly_reports (onboarding_id, month, body)
+    VALUES (${onboardingId}, ${month}, ${JSON.stringify(fresh)}::jsonb)
+    ON CONFLICT (onboarding_id, month) DO UPDATE SET body = monthly_reports.body || ${JSON.stringify(patch)}::jsonb, updated_at = now();
+  `;
+  const found = await getMonthlyReport(onboardingId, month);
   if (!found) throw new Error('Report was not saved');
   return found;
 }
@@ -309,11 +375,22 @@ export async function deleteMonthlyReport(onboardingId: number, id: number): Pro
   await sql`DELETE FROM monthly_reports WHERE id = ${id} AND onboarding_id = ${onboardingId};`;
 }
 
-/** The four headline numbers of a report, compared with last month and the baseline. */
-export function reportStats(r: ReportBody, prev: ReportBody | null, d: ProjectDetails) {
+export interface ReportStat {
+  label: string;
+  value: string;
+  sub?: string | null;
+}
+
+/**
+ * The headline numbers of a report, compared with last month and the baseline.
+ * With website numbers attached, those lead (visits, button clicks, estimated
+ * new customers) and the typed-in numbers follow only when they were filled in;
+ * without them, the four typed-in boxes show as before, blank as "—".
+ */
+export function reportStats(r: ReportBody, prev: ReportBody | null, d: ProjectDetails): ReportStat[] {
   const vs = (now: number | null, before: number | null | undefined, base: number | null) =>
     [delta(now, before) && `${delta(now, before)} vs last month`, base != null && `baseline ${base}`].filter(Boolean).join(' · ') || null;
-  return [
+  const typed: ReportStat[] = [
     { label: 'Phone calls', value: r.calls == null ? '—' : String(r.calls), sub: vs(r.calls, prev?.calls, d.baselineCalls) },
     { label: 'Form & chat leads', value: r.leads == null ? '—' : String(r.leads), sub: vs(r.leads, prev?.leads, d.baselineLeads) },
     { label: 'Booked jobs', value: r.booked == null ? '—' : String(r.booked), sub: vs(r.booked, prev?.booked, null) },
@@ -323,6 +400,40 @@ export function reportStats(r: ReportBody, prev: ReportBody | null, d: ProjectDe
       sub: prev?.rank != null ? `was #${prev.rank} last month` : null,
     },
   ];
+  const t = r.traffic;
+  if (!t) return typed;
+  const pt = prev?.traffic ?? null;
+  const top = t.buttons[0];
+  const web: ReportStat[] = [
+    {
+      label: 'Website visits',
+      value: String(t.views),
+      sub: [`${t.visitors} ${t.visitors === 1 ? 'visitor' : 'visitors'}`, delta(t.views, pt?.views) && `${delta(t.views, pt?.views)} vs last month`]
+        .filter(Boolean)
+        .join(' · '),
+    },
+    {
+      label: 'Button clicks',
+      value: String(t.clicks),
+      sub: top ? `most clicked: ${buttonLabel(top.name)} (${top.count})` : 'calls, texts, forms and bookings',
+    },
+    {
+      label: 'Customers reached out',
+      value: String(t.conversions),
+      sub: [
+        'calls, texts, emails, forms, bookings',
+        delta(t.conversions, pt?.conversions) && `${delta(t.conversions, pt?.conversions)} vs last month`,
+      ]
+        .filter(Boolean)
+        .join(' · '),
+    },
+    {
+      label: 'Estimated new customers',
+      value: `~${t.estimatedCustomers}`,
+      sub: `${t.closeRate}% of those who reached out`,
+    },
+  ];
+  return [...web, ...typed.filter((s) => s.value !== '—')];
 }
 
 /** The report before `month`, for "vs last month". */

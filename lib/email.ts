@@ -1,5 +1,6 @@
 // lib/email.ts
 import { Resend } from 'resend';
+import { buttonLabel, sourceLabel, type TrafficSummary } from '@/lib/projectsShared';
 
 const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_EMAIL;
 // Resend rejects sends from a domain that hasn't been verified in the
@@ -441,26 +442,61 @@ export async function sendProjectUpdateEmail(input: {
   });
 }
 
+/** Tiles two to a row, so they read on a phone. */
+function statTiles(stats: Array<{ label: string; value: string; sub?: string | null }>): string {
+  const tile = (s: { label: string; value: string; sub?: string | null }) => `<td width="50%" style="padding:12px;border:1px solid #e5e5e5;border-radius:8px;vertical-align:top">
+        <div style="font-size:12px;color:#525252">${escapeHtml(s.label)}</div>
+        <div style="font-size:24px;font-weight:800">${escapeHtml(s.value)}</div>
+        ${s.sub ? `<div style="font-size:12px;color:#525252">${escapeHtml(s.sub)}</div>` : ''}
+      </td>`;
+  const rows: string[] = [];
+  for (let i = 0; i < stats.length; i += 2) {
+    rows.push(`<tr>${tile(stats[i])}${stats[i + 1] ? tile(stats[i + 1]) : '<td width="50%"></td>'}</tr>`);
+  }
+  return `<table role="presentation" cellspacing="6" style="width:100%;margin:0 0 8px">${rows.join('')}</table>`;
+}
+
+/** A two-column "name · count" list for the traffic breakdowns. */
+function countList(rows: Array<{ label: string; count: number }>): string {
+  if (!rows.length) return '';
+  return `<table role="presentation" cellspacing="0" cellpadding="0" style="width:100%;margin:0 0 8px;font-size:14px">${rows
+    .map(
+      (r) => `<tr>
+        <td style="padding:6px 0;border-bottom:1px solid #f0f0f0">${escapeHtml(r.label)}</td>
+        <td style="padding:6px 0;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:700;white-space:nowrap">${r.count}</td>
+      </tr>`
+    )
+    .join('')}</table>`;
+}
+
+function trafficSections(t: TrafficSummary): string {
+  const buttons = t.buttons.slice(0, 6).map((b) => ({ label: buttonLabel(b.name), count: b.count }));
+  const sources = t.sources.slice(0, 5).map((x) => ({ label: sourceLabel(x.host), count: x.count }));
+  const pages = t.pages.slice(0, 5).map((pg) => ({ label: pg.path === '/' ? 'Home page' : pg.path, count: pg.count }));
+  return `
+    ${buttons.length ? h2('Most clicked buttons') + countList(buttons) : ''}
+    ${sources.length ? h2('Where visitors came from') + countList(sources) : ''}
+    ${pages.length ? h2('Most visited pages') + countList(pages) : ''}
+    <p style="margin:12px 0 0;font-size:13px;color:#737373">“Estimated new customers” counts ${t.closeRate}% of the people who called, texted, emailed, sent a form or booked from your site. Tell us your real number and we will use that instead.</p>
+  `;
+}
+
 export async function sendMonthlyReportEmail(input: {
   to: string;
   clientName: string | null;
   monthLabel: string;
   stats: Array<{ label: string; value: string; sub?: string | null }>;
+  traffic?: TrafficSummary | null;
   done: EmailLine[];
   next: EmailLine[];
   fromYou: string;
   note: string;
   proofUrl: string;
 }): Promise<void> {
-  const stats = input.stats
-    .map(
-      (s) => `<td style="padding:12px;border:1px solid #e5e5e5;border-radius:8px;vertical-align:top">
-        <div style="font-size:12px;color:#525252">${escapeHtml(s.label)}</div>
-        <div style="font-size:24px;font-weight:800">${escapeHtml(s.value)}</div>
-        ${s.sub ? `<div style="font-size:12px;color:#525252">${escapeHtml(s.sub)}</div>` : ''}
-      </td>`
-    )
-    .join('');
+  const t = input.traffic ?? null;
+  const intro = t
+    ? `How your website did in ${escapeHtml(input.monthLabel)}: who visited, which buttons they pressed, and how many likely became customers.`
+    : `Calls, leads and booked jobs for ${escapeHtml(input.monthLabel)}, and what we are doing next. Customers, not clicks.`;
   await sendChecked(requireClient(), {
     from: CLIENT_FROM_ADDRESS,
     replyTo: CLIENT_REPLY_TO,
@@ -470,14 +506,44 @@ export async function sendMonthlyReportEmail(input: {
       `${escapeHtml(input.monthLabel)} in numbers.`,
       `
         <p style="margin:0 0 12px">${firstName(input.clientName)}</p>
-        <p style="margin:0 0 16px">Calls, leads and booked jobs for ${escapeHtml(input.monthLabel)}, and what we are doing next. Customers, not clicks.</p>
-        <table role="presentation" cellspacing="6" style="width:100%;margin:0 0 8px"><tr>${stats}</tr></table>
+        <p style="margin:0 0 16px">${intro}</p>
+        ${statTiles(input.stats)}
         ${input.note ? para(input.note) : ''}
+        ${t ? trafficSections(t) : ''}
         ${input.done.length ? h2('What we did this month') + linesHtml(input.done) : ''}
         ${input.next.length ? h2("Next month's plan") + linesHtml(input.next) : ''}
         ${input.fromYou ? h2('From you') + para(input.fromYou) : ''}
         ${button(input.proofUrl, 'Open AxeonPROOF')}
       `
     ),
+  });
+}
+
+/** Owner digest after the 1st-of-the-month job: who got a report, who was skipped and why. */
+export async function sendMonthlyReportsDigest(input: {
+  monthLabel: string;
+  sent: string[];
+  skipped: Array<{ name: string; reason: string }>;
+  failed: Array<{ name: string; error: string }>;
+  adminUrl: string;
+}): Promise<void> {
+  const resend = getClient();
+  if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
+  const list = (items: string[]) => (items.length ? `<ul>${items.map((i) => `<li>${escapeHtml(i)}</li>`).join('')}</ul>` : '<p>None.</p>');
+  const subject = input.failed.length
+    ? `${input.monthLabel} client reports: ${input.sent.length} sent, ${input.failed.length} failed`
+    : `${input.monthLabel} client reports: ${input.sent.length} sent`;
+  await sendChecked(resend, {
+    from: FROM_ADDRESS,
+    to: ADMIN_NOTIFICATION_EMAIL,
+    subject,
+    html: `
+      <p>The automatic ${escapeHtml(input.monthLabel)} reports went out this morning.</p>
+      <p><b>Sent (${input.sent.length})</b></p>${list(input.sent)}
+      <p><b>Skipped (${input.skipped.length})</b></p>${list(input.skipped.map((s) => `${s.name}: ${s.reason}`))}
+      ${input.failed.length ? `<p><b>Failed (${input.failed.length})</b></p>${list(input.failed.map((f) => `${f.name}: ${f.error}`))}` : ''}
+      <p>A skipped client has no website numbers for the month (snippet not installed yet) and nothing typed in. Add the snippet or type their report on their admin page and press “Send now”.</p>
+      <p><a href="${escapeHtml(input.adminUrl)}">Open the client board</a></p>
+    `,
   });
 }
