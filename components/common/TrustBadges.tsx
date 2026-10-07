@@ -1,12 +1,12 @@
-import { ShieldCheck, Award, Star } from 'lucide-react';
+import { ShieldCheck, MapPin, Tag } from 'lucide-react';
 
-// Generic, honest trust marks — NOT specific third-party certification claims
-// Axeon doesn't yet hold (e.g. specific partnership programs).
-// Swap the `label`/`icon` pairs below for real partner-program badges once those certifications exist.
+// Only facts anyone can check on this site. No ratings, certifications or
+// "first in Iowa" claims until there is a source to point to (e.g. a Google
+// rating, shown with its source, once Axeon has its own reviews).
 const BADGES = [
-  { icon: ShieldCheck, label: 'Certified Partner' },
-  { icon: Award, label: 'First AI-Powered Agency in Iowa' },
-  { icon: Star, label: '5.0 Client Rating' },
+  { icon: ShieldCheck, label: '90-Day Customer Guarantee' },
+  { icon: Tag, label: 'Published, Flat Monthly Pricing' },
+  { icon: MapPin, label: 'Based in West Des Moines' },
 ];
 
 interface TrustBadgesProps {

@@ -93,7 +93,7 @@ export function Footer({ year }: FooterProps) {
           <div>
             <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Ready for more customers?</h3>
             <p className="mt-2 text-neutral-300 text-base sm:text-lg max-w-2xl">
-              A free 20-minute call. You leave knowing where customers are slipping away and exactly what it costs to fix, whether or not you hire us.
+              A free 30-minute call. You leave knowing where customers are slipping away and exactly what it costs to fix, whether or not you hire us.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 shrink-0">
@@ -138,10 +138,10 @@ export function Footer({ year }: FooterProps) {
             </div>
             <div className="mt-4">
               <a
-                href="mailto:hayder.hatem@axeonstudio.co"
+                href="mailto:hello@axeonstudio.co"
                 className="block py-2 text-base sm:text-lg font-bold text-neutral-950 hover:text-blue-600 transition-colors break-all sm:break-normal"
               >
-                hayder.hatem@axeonstudio.co
+                hello@axeonstudio.co
               </a>
               <a
                 href="tel:+15154938017"

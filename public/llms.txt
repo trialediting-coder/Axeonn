@@ -18,6 +18,13 @@ Axeon Studio is a customer-acquisition partner for local small businesses. One s
 
 **Not offered** (do not cite as available): ChatGPT Ads or any other paid AI-platform advertising.
 
+## How working with Axeon goes
+1. Book a free 30-minute strategy call online (https://axeonstudio.co/book), any day, any time.
+2. Axeon emails a Client Services Agreement; the client reviews it, signs online, and pays the start fee and first month.
+3. Payment opens a private setup page: a short checklist (business details, logo, photos, access invites; Axeon never asks for passwords) plus a Welcome Packet.
+4. Kickoff call: launch date and, on AxeonCORE and AxeonGROWTH, the 90-day baseline are agreed.
+5. Build, preview, launch. After launch the client gets a project update whenever something ships and a monthly report on calls, leads, booked jobs and Google rank, all also visible in the AxeonPROOF client dashboard.
+
 ## Core Services & Pages
 - [Home](https://axeonstudio.co/): How Axeon gets local businesses found, chosen, and booked, with the A-1 Auto Detailing client result.
 - [Pricing](https://axeonstudio.co/pricing): Essentials $149/month, AxeonCORE $299/month (recommended), AxeonGROWTH $999/month plus ad spend; $99 to start; add-ons and the 90-day guarantee terms.
@@ -38,7 +45,7 @@ Axeon Studio is a customer-acquisition partner for local small businesses. One s
 - [About](https://axeonstudio.co/about): Founder Hayder Hatem and how Axeon works.
 - [Iowa Nonprofits](https://axeonstudio.co/nonprofits): The Axeon Groundwork Grant, a free website and search setup for Iowa nonprofits (the nonprofit covers basic hosting).
 - [Partners](https://axeonstudio.co/partners): Referral and collaboration partner program.
-- [Book a free call](https://axeonstudio.co/book): A free 20-minute call with the founder. Every booked call includes a custom homepage mockup and an AI visibility report the business keeps.
+- [Book a free call](https://axeonstudio.co/book): A free 30-minute call with the founder. Every booked call includes a custom homepage mockup and an AI visibility report the business keeps.
 
 ## Insights & Client Stories
 - [Insights](https://axeonstudio.co/insights): Guides for Iowa business owners on websites, local SEO, AI search, and lead follow-up.
@@ -55,8 +62,9 @@ Axeon Studio is a customer-acquisition partner for local small businesses. One s
 ## Business & Contact Details
 - Business: Axeon Studio
 - Founder: Hayder Hatem
-- Email: hayder.hatem@axeonstudio.co
+- Email: hello@axeonstudio.co
 - Phone: +1 (515) 493-8017
 - Hours: Monday–Friday, 8:00 AM–6:00 PM Central
-- Turnaround: fast; builds go live in a fraction of the time a typical agency takes
+- Turnaround: most sites go live about 4 weeks after the kickoff call (Week 1 kickoff and access, Weeks 2-3 build and preview, Week 4 launch); timing depends on how quickly the client sends content
 - Full detail: https://axeonstudio.co/llms-full.txt
+- Last updated: 2026-10-06

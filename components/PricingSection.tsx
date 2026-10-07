@@ -16,7 +16,6 @@ import {
   PhoneCall,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
 import {
   pricingTiers,
   addOns,
@@ -165,22 +164,12 @@ export function PricingSection({
                     </div>
                   </button>
 
-                  <AnimatePresence initial={false}>
-                    {isOpen && (
-                      <motion.div
-                        id={`pricing-faq-${idx}`}
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3, ease: 'easeInOut' }}
-                        className="overflow-hidden"
-                      >
-                        <p className="px-5 sm:px-7 pb-6 sm:pb-7 text-base sm:text-lg text-neutral-600 leading-relaxed">
-                          {faq.a}
-                        </p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                  {/* Always in the HTML (collapsed with `hidden`) so crawlers read the answers. */}
+                  <div id={`pricing-faq-${idx}`} hidden={!isOpen}>
+                    <p className="px-5 sm:px-7 pb-6 sm:pb-7 text-base sm:text-lg text-neutral-600 leading-relaxed">
+                      {faq.a}
+                    </p>
+                  </div>
                 </div>
               );
             })}
@@ -338,7 +327,7 @@ function PlanCard({ tier }: { tier: PricingTier }) {
         {tier.cta}
       </Link>
       <p className={`mt-3 text-center text-xs sm:text-sm ${muted}`}>
-        Free 20-minute call, no obligation.{' '}
+        Free 30-minute call, no obligation.{' '}
         <a href="tel:+15154938017" className="inline-block py-2 font-semibold underline underline-offset-2">
           Or call (515) 493-8017
         </a>

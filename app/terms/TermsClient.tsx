@@ -88,7 +88,7 @@ export default function TermsClient() {
           </h1>
 
           <p className="mt-4 text-base sm:text-lg text-gray-600 leading-relaxed max-w-3xl">
-            These Terms of Service (&ldquo;Terms&rdquo;) establish a binding legal agreement between you (&ldquo;Client,&rdquo; &ldquo;you,&rdquo; or &ldquo;your&rdquo;) and <strong>AxeonStudio</strong> (&ldquo;Axeon,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;), governing your access to{' '}
+            These Terms of Service (&ldquo;Terms&rdquo;) establish a binding legal agreement between you (&ldquo;Client,&rdquo; &ldquo;you,&rdquo; or &ldquo;your&rdquo;) and <strong>Axeon Studio</strong> (&ldquo;Axeon,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;), governing your access to{' '}
             <a
               href="https://axeonstudio.co"
               target="_blank"
@@ -115,10 +115,10 @@ export default function TermsClient() {
             <div>
               <span className="text-gray-400">Legal Contact:</span>{' '}
               <a
-                href="mailto:hayder.hatem@axeonstudio.co"
+                href="mailto:hello@axeonstudio.co"
                 className="text-[#2563EB] hover:underline font-semibold"
               >
-                hayder.hatem@axeonstudio.co
+                hello@axeonstudio.co
               </a>
             </div>
           </div>
@@ -149,7 +149,7 @@ export default function TermsClient() {
             </h2>
             <div className="mt-3.5 space-y-3 text-gray-700 text-[15px] sm:text-base">
               <p>
-                By visiting our website, submitting an inquiry via our contact forms, requesting a website audit, or executing a proposal or Statement of Work (&ldquo;SOW&rdquo;) with AxeonStudio, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.
+                By visiting our website, submitting an inquiry via our contact forms, requesting a website audit, or executing a proposal or Statement of Work (&ldquo;SOW&rdquo;) with Axeon Studio, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.
               </p>
               <p>
                 If you are entering into these Terms on behalf of an enterprise, company, or legal entity, you represent and warrant that you possess the full legal authority to bind that entity to this agreement. If you do not agree to these Terms, you must immediately cease use of our site and services.
@@ -165,7 +165,7 @@ export default function TermsClient() {
             </h2>
             <div className="mt-3.5 space-y-3.5 text-gray-700 text-[15px] sm:text-base">
               <p>
-                AxeonStudio provides bespoke digital agency, design, and engineering services to businesses, including but not limited to:
+                Axeon Studio provides bespoke digital agency, design, and engineering services to businesses, including but not limited to:
               </p>
               <ul className="space-y-1.5 list-disc list-inside text-gray-700">
                 <li>Visual brand identity, typography, design systems, and art direction</li>
@@ -174,7 +174,7 @@ export default function TermsClient() {
                 <li>Digital conversion optimization, technical audits, and performance consulting</li>
               </ul>
               <p>
-                Specific deliverables, project milestones, production timelines, and pricing for bespoke client engagements are formalized in individualized Statements of Work, written project quotes, or contractual addenda executed between the Client and AxeonStudio.
+                Specific deliverables, project milestones, production timelines, and pricing for bespoke client engagements are formalized in individualized Statements of Work, written project quotes, or contractual addenda executed between the Client and Axeon Studio.
               </p>
             </div>
           </section>
@@ -211,17 +211,17 @@ export default function TermsClient() {
                   <span>A. Final Client Deliverables</span>
                 </div>
                 <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                  Upon full and final payment of all agreed project fees, AxeonStudio assigns to the Client all right, title, and interest (including worldwide copyright) in the bespoke final deliverables created specifically for the Client (including custom illustrations, bespoke Figma layouts, client-specific frontend source code, and logo vector files).
+                  Upon full and final payment of all agreed project fees, Axeon Studio assigns to the Client all right, title, and interest (including worldwide copyright) in the bespoke final deliverables created specifically for the Client (including custom illustrations, bespoke Figma layouts, client-specific frontend source code, and logo vector files).
                 </p>
               </div>
 
               <div className="p-4 rounded-lg bg-white border border-gray-200">
                 <div className="font-bold text-gray-950 text-sm mb-1.5 flex items-center gap-2">
                   <Scale size={16} className="text-[#2563EB]" />
-                  <span>B. AxeonStudio Pre-Existing IP &amp; Tooling</span>
+                  <span>B. Axeon Studio Pre-Existing IP &amp; Tooling</span>
                 </div>
                 <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                  AxeonStudio retains exclusive ownership of all pre-existing software, generic utility functions, scaffolding scripts, starter boilerplates, and developer tooling developed independently prior to or outside of the specific Client engagement. We grant the Client a perpetual, irrevocable, royalty-free, worldwide license to utilize such components as embedded within their delivered application.
+                  Axeon Studio retains exclusive ownership of all pre-existing software, generic utility functions, scaffolding scripts, starter boilerplates, and developer tooling developed independently prior to or outside of the specific Client engagement. We grant the Client a perpetual, irrevocable, royalty-free, worldwide license to utilize such components as embedded within their delivered application.
                 </p>
               </div>
 
@@ -231,7 +231,7 @@ export default function TermsClient() {
                   <span>C. Portfolio &amp; Case Study Showcase Rights</span>
                 </div>
                 <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                  Unless the Client and AxeonStudio have executed an explicit non-disclosure agreement (NDA) specifying otherwise, AxeonStudio reserves the right to display visual previews, screenshots, design mockups, and descriptions of the completed deliverables in our design portfolio, case studies, social channels, and promotional materials as authentic proof of work.
+                  Unless the Client and Axeon Studio have executed an explicit non-disclosure agreement (NDA) specifying otherwise, Axeon Studio reserves the right to display visual previews, screenshots, design mockups, and descriptions of the completed deliverables in our design portfolio, case studies, social channels, and promotional materials as authentic proof of work.
                 </p>
               </div>
             </div>
@@ -251,7 +251,7 @@ export default function TermsClient() {
                 <li>Engage in automated scraping, spidering, or harvesting of our proprietary articles, case studies, or brand graphics without prior written consent</li>
                 <li>Probe, scan, or conduct unauthorized vulnerability testing against our infrastructure or hosting platforms</li>
                 <li>Submit misleading, malicious, automated spam, or fraudulent project audit inquiries</li>
-                <li>Impersonate any individual or misrepresent affiliation with AxeonStudio</li>
+                <li>Impersonate any individual or misrepresent affiliation with Axeon Studio</li>
                 <li>Use our website or services to transmit viruses, trojans, ransomware, or malicious code</li>
               </ul>
             </div>
@@ -265,7 +265,7 @@ export default function TermsClient() {
             </h2>
             <div className="mt-3.5 space-y-3 text-gray-700 text-[15px] sm:text-base">
               <p>
-                The Client represents and warrants that all text, photography, graphic trademarks, logos, audio, video, and copy provided to AxeonStudio for incorporation into websites or branding materials are either owned by the Client or properly licensed. The Client assumes full responsibility for securing necessary permissions and licensing for commercial publication.
+                The Client represents and warrants that all text, photography, graphic trademarks, logos, audio, video, and copy provided to Axeon Studio for incorporation into websites or branding materials are either owned by the Client or properly licensed. The Client assumes full responsibility for securing necessary permissions and licensing for commercial publication.
               </p>
             </div>
           </section>
@@ -313,7 +313,7 @@ export default function TermsClient() {
             </h2>
             <div className="mt-3.5 space-y-3 text-gray-700 text-[15px] sm:text-base">
               <p>
-                You agree to defend, indemnify, and hold harmless AxeonStudio, its founder, and affiliates against any third-party claims, liabilities, losses, damages, and expenses (including reasonable legal fees) arising from or relating to: (a) materials or content provided by you that infringe upon third-party copyrights or trademarks; (b) your violation of these Terms; or (c) your unauthorized commercial use or modification of delivered source code.
+                You agree to defend, indemnify, and hold harmless Axeon Studio, its founder, and affiliates against any third-party claims, liabilities, losses, damages, and expenses (including reasonable legal fees) arising from or relating to: (a) materials or content provided by you that infringe upon third-party copyrights or trademarks; (b) your violation of these Terms; or (c) your unauthorized commercial use or modification of delivered source code.
               </p>
             </div>
           </section>
@@ -329,7 +329,7 @@ export default function TermsClient() {
                 Either party may terminate an active project engagement in the event of a material breach by the other party that remains uncured after fourteen (14) days written notice.
               </p>
               <p>
-                Upon early termination by the Client without cause, the Client remains responsible for pro-rata payment of all hours worked and milestones achieved through the effective date of termination. AxeonStudio will promptly release all work-in-progress files corresponding to paid milestones.
+                Upon early termination by the Client without cause, the Client remains responsible for pro-rata payment of all hours worked and milestones achieved through the effective date of termination. Axeon Studio will promptly release all work-in-progress files corresponding to paid milestones.
               </p>
             </div>
           </section>
@@ -361,16 +361,16 @@ export default function TermsClient() {
                 We reserve the right to update or modify these Terms of Service at any time. Changes become effective immediately upon posting to this URL with an updated &ldquo;Last Updated&rdquo; date. Continued interaction with our website or engagement of our services after any modification constitutes affirmative acceptance of the revised Terms.
               </p>
               <div className="mt-4 p-5 rounded-xl bg-white border border-gray-200 space-y-1.5 text-sm">
-                <div className="font-bold text-gray-950 text-base">AxeonStudio</div>
+                <div className="font-bold text-gray-950 text-base">Axeon Studio</div>
                 <div className="text-gray-600">Attention: Hayder Hatem, Founder</div>
                 <div className="text-gray-600">West Des Moines, Iowa, United States</div>
                 <div className="pt-2 text-gray-900 font-medium">
                   Direct Inquiries:{' '}
                   <a
-                    href="mailto:hayder.hatem@axeonstudio.co"
+                    href="mailto:hello@axeonstudio.co"
                     className="text-[#2563EB] hover:underline font-bold"
                   >
-                    hayder.hatem@axeonstudio.co
+                    hello@axeonstudio.co
                   </a>
                 </div>
                 <div className="text-gray-600">

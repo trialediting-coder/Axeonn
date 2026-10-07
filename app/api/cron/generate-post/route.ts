@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { generatePost, critiquePost } from '@/lib/anthropic';
 import { validatePost } from '@/lib/postValidation';
 import { createPost, listPosts, slugify } from '@/lib/posts';
-import { sendScheduledNotification, sendFailedGenerationNotification } from '@/lib/email';
+import { sendDraftReadyNotification, sendFailedGenerationNotification } from '@/lib/email';
 import { niches } from '@/data/nichesData';
 
 const VALID_NICHE_SLUGS = new Set(niches.map((n) => n.slug));
@@ -57,13 +57,17 @@ async function handleGeneratePost(req: Request) {
     // there, a public "Related industries" link that would 404.
     const nicheTags = generated.nicheTags.filter((t) => VALID_NICHE_SLUGS.has(t));
 
+    // A post that passes the checks is still only a draft: a person reviews it,
+    // adds a first-hand Iowa detail, and publishes it from /admin. Nothing the
+    // model writes goes live on its own (Google's scaled-content policy, and the
+    // byline is a real person).
     if (passed) {
       const post = await createPost({
         slug,
         title: generated.title,
         excerpt: generated.excerpt,
         content: generated.content,
-        status: 'scheduled',
+        status: 'draft',
         author: 'ai',
         nicheTags,
         metaTitle: generated.metaTitle,
@@ -72,11 +76,11 @@ async function handleGeneratePost(req: Request) {
         coverImageAlt: null,
         faqItems: generated.faqItems,
         sources: generated.sources,
-        scheduledPublishAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        scheduledPublishAt: null,
         publishedAt: null,
       });
-      await notifySafely(() => sendScheduledNotification({ title: post.title, slug: post.slug, id: post.id }));
-      return NextResponse.json({ status: 'scheduled', postId: post.id });
+      await notifySafely(() => sendDraftReadyNotification({ title: post.title, id: post.id }));
+      return NextResponse.json({ status: 'draft', passed: true, postId: post.id });
     }
 
     // Fail-safe: never scheduled/published on failure — always draft.

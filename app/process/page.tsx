@@ -50,7 +50,7 @@ export default function ProcessPage() {
             Ready for more customers?
           </h2>
           <p className="text-lg sm:text-xl text-neutral-300 max-w-2xl mx-auto leading-relaxed">
-            Book a free 20-minute call. You&apos;ll see your new homepage before you pay anything.
+            Book a free 30-minute call. You&apos;ll see your new homepage before you pay anything.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4">
             <Link

@@ -7,7 +7,7 @@
 - **Founder**: Hayder Hatem
 - **Headquarters**: West Des Moines, Iowa 50266, USA (Latitude 41.5772, Longitude -93.7538)
 - **Website**: https://axeonstudio.co
-- **Contact**: hayder.hatem@axeonstudio.co | +1 (515) 493-8017
+- **Contact**: hello@axeonstudio.co | +1 (515) 493-8017
 - **Hours**: Monday–Friday, 8:00 AM–6:00 PM Central
 - **LinkedIn**: https://www.linkedin.com/company/axeon-studio
 - **Facebook**: https://www.facebook.com/profile.php?id=61593868815413
@@ -95,6 +95,13 @@ Every plan is $99 to start (AxeonGROWTH: $1,500, covering the on-site video shoo
 
 ---
 
+## How working with Axeon goes
+1. Book a free 30-minute strategy call online at https://axeonstudio.co/book (available any day, any time).
+2. Axeon emails a Client Services Agreement. The client reviews it, signs online, and pays the start fee and first month.
+3. Payment opens a private setup page: a short checklist (business details, logo, photos, access invites; Axeon never asks for passwords) and a Welcome Packet.
+4. Kickoff call: launch date and, on AxeonCORE and AxeonGROWTH, the 90-day baseline are agreed in writing.
+5. Most sites go live about 4 weeks after kickoff. After launch the client gets a project update whenever something ships and a monthly report on calls, leads, booked jobs and Google rank, also shown in the AxeonPROOF client dashboard.
+
 ## 4. Industries
 
 Axeon sets up the website, search, and follow-up around how each industry actually wins jobs:
@@ -156,7 +163,7 @@ Yes. Axeon is based in West Des Moines and works in person across the Des Moines
 The client owns 100% of the site, code, and design files.
 
 ### Q: How does a business get started?
-Book a free 20-minute call at https://axeonstudio.co/book, call (515) 493-8017, or email hayder.hatem@axeonstudio.co. Every booked call includes a custom homepage mockup and an AI visibility report the business keeps.
+Book a free 30-minute call at https://axeonstudio.co/book, call (515) 493-8017, or email hello@axeonstudio.co. Every booked call includes a custom homepage mockup and an AI visibility report the business keeps.
 
 ---
 
@@ -179,3 +186,5 @@ Book a free 20-minute call at https://axeonstudio.co/book, call (515) 493-8017, 
 - Terms: https://axeonstudio.co/terms
 - Sitemap: https://axeonstudio.co/sitemap.xml
 - LLMs summary: https://axeonstudio.co/llms.txt
+
+Last updated: 2026-10-06

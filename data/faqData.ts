@@ -17,7 +17,7 @@ export const faqItems: FaqItem[] = [
   {
     question: 'How long does it take to launch?',
     answer:
-      'Fast — a fraction of the time a typical agency takes. Timing mostly depends on how quickly we get your content.',
+      'Most sites go live about 4 weeks after the kickoff call. Timing mostly depends on how quickly we get your content.',
   },
   {
     question: 'Do I own my website?',

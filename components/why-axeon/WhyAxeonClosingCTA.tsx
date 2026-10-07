@@ -10,7 +10,7 @@ export default function WhyAxeonClosingCTA() {
           Ready for more customers?
         </h2>
         <p className="text-lg text-neutral-600 max-w-2xl mx-auto leading-relaxed mb-10">
-          Book a free 20-minute call and see your new homepage before you pay anything.
+          Book a free 30-minute call and see your new homepage before you pay anything.
         </p>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4">
           <Link

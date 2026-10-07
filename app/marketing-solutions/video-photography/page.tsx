@@ -44,7 +44,7 @@ export default function VideoPhotographyPage() {
         eyebrow="Services · Video & Photography"
         title="Real Footage That Makes Customers Pick You"
         subtitle={DESCRIPTION}
-        priceLine="Included in AxeonCORE, or $1,500 added to Essentials"
+        priceLine="Included in AxeonGROWTH, or +$1,500 on Essentials or AxeonCORE"
         note="half-day on-site shoot"
       />
       <ProblemSection data={d.problem} />

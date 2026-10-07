@@ -20,7 +20,7 @@ export const BUSINESS = {
   name: 'Axeon Studio',
   telephone: '+1-515-493-8017',
   telephoneDisplay: '(515) 493-8017',
-  email: 'hayder.hatem@axeonstudio.co',
+  email: 'hello@axeonstudio.co',
   logo: `${SITE_URL}/icon.png`,
   image: `${SITE_URL}/og-axeon-card.png`,
   address: {
@@ -37,11 +37,11 @@ export const BUSINESS = {
   },
   // Real published pricing floor/ceiling — never widen to an unsourced range.
   priceRange: '$149-$999',
+  // Company profiles only; the founder's personal accounts live on FOUNDER.
+  // Add the Google Business Profile, Yelp and Clutch URLs here once claimed.
   sameAs: [
     'https://www.linkedin.com/company/axeon-studio',
     'https://www.facebook.com/profile.php?id=61593868815413',
-    'https://x.com/HayderHatemm',
-    'https://www.instagram.com/hayderhatemm/',
   ],
 } as const;
 
@@ -148,11 +148,21 @@ export function localBusinessJsonLd() {
     '@type': ['ProfessionalService', 'Organization'],
     '@id': ORG_ID,
     name: BUSINESS.name,
+    // Other businesses are called "Axeon"; this ties the short name to this one.
+    alternateName: ['Axeon', 'Axeon Studio West Des Moines'],
     url: SITE_URL,
     logo: BUSINESS.logo,
     image: BUSINESS.image,
     telephone: BUSINESS.telephone,
     email: BUSINESS.email,
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer service',
+      telephone: BUSINESS.telephone,
+      email: BUSINESS.email,
+      areaServed: 'US',
+      availableLanguage: 'en',
+    },
     address: BUSINESS.address,
     geo: BUSINESS.geo,
     openingHoursSpecification: OPENING_HOURS,
@@ -177,7 +187,6 @@ export function founderJsonLd() {
     jobTitle: FOUNDER.jobTitle,
     image: FOUNDER.image,
     url: `${SITE_URL}/about`,
-    email: BUSINESS.email,
     worksFor: { '@id': ORG_ID },
     address: BUSINESS.address,
     sameAs: FOUNDER.sameAs,

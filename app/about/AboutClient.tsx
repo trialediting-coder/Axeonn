@@ -67,7 +67,7 @@ export default function AboutClient() {
           <div className="flex flex-wrap items-center gap-2 text-xs font-mono font-semibold tracking-widest text-neutral-500 uppercase mb-4">
             <span>AXEON STUDIO</span>
             <span>/</span>
-            <span className="text-blue-600">[ IOWA&apos;S FIRST AI-FORWARD DIGITAL AGENCY ]</span>
+            <span className="text-blue-600">[ WEST DES MOINES, IOWA ]</span>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-end">
@@ -230,10 +230,10 @@ export default function AboutClient() {
                   </a>
                   <span className="text-neutral-300">•</span>
                   <a
-                    href="mailto:hayder.hatem@axeonstudio.co"
+                    href="mailto:hello@axeonstudio.co"
                     className="text-blue-600 hover:text-blue-700 hover:underline transition-colors"
                   >
-                    hayder.hatem@axeonstudio.co
+                    hello@axeonstudio.co
                   </a>
                 </div>
                 <div className="text-xs text-neutral-500 mt-1.5">
@@ -330,7 +330,7 @@ export default function AboutClient() {
             Let&apos;s get you more customers.
           </h2>
           <p className="text-base sm:text-lg text-neutral-600 mt-4 leading-relaxed max-w-2xl mx-auto">
-            Book a free 20-minute call with me. You&apos;ll get a custom homepage mockup and an AI visibility report,
+            Book a free 30-minute call with me. You&apos;ll get a custom homepage mockup and an AI visibility report,
             yours to keep either way.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
@@ -350,8 +350,8 @@ export default function AboutClient() {
             </a>
           </div>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs sm:text-sm font-mono text-neutral-500">
-            <a href="mailto:hayder.hatem@axeonstudio.co" className="hover:text-neutral-900 transition-colors underline">
-              hayder.hatem@axeonstudio.co
+            <a href="mailto:hello@axeonstudio.co" className="hover:text-neutral-900 transition-colors underline">
+              hello@axeonstudio.co
             </a>
             <span>•</span>
             <span>West Des Moines, Iowa</span>

@@ -25,19 +25,20 @@ function escapeHtml(value: string): string {
     .replace(/'/g, '&#39;');
 }
 
-export async function sendScheduledNotification(post: { title: string; slug: string; id: number }): Promise<void> {
+/** The weekly post passed the automatic checks and is waiting for a person to approve it. */
+export async function sendDraftReadyNotification(post: { title: string; id: number }): Promise<void> {
   const resend = getClient();
   if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
 
   await resend.emails.send({
     from: FROM_ADDRESS,
     to: ADMIN_NOTIFICATION_EMAIL,
-    subject: `New post scheduled: ${post.title}`,
+    subject: `Blog draft ready for your review: ${post.title}`,
     html: `
-      <p>The weekly autonomous pipeline generated and validated a new post.</p>
+      <p>This week's blog post passed the automatic checks and is saved as a <b>draft</b>. It will not go live until you publish it.</p>
       <p><strong>${escapeHtml(post.title)}</strong></p>
-      <p>It will auto-publish in 24 hours unless you review/edit/cancel it first.</p>
-      <p><a href="https://axeonstudio.co/admin/posts/${post.id}/edit">Review and edit</a></p>
+      <p>Before publishing: check every number and source, and add one real detail from your own work in Iowa (a client result, a local example, a screenshot). That is what makes the post worth ranking.</p>
+      <p><a href="https://app.axeonstudio.co/admin/posts/${post.id}/edit">Review, edit and publish</a></p>
     `,
   });
 }

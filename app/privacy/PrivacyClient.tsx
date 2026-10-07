@@ -88,7 +88,7 @@ export default function PrivacyClient() {
           </h1>
 
           <p className="mt-4 text-base sm:text-lg text-gray-600 leading-relaxed max-w-3xl">
-            This Privacy Policy describes how <strong>AxeonStudio</strong> (&ldquo;Axeon,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) collects, uses, protects, and discloses your information when you visit{' '}
+            This Privacy Policy describes how <strong>Axeon Studio</strong> (&ldquo;Axeon,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) collects, uses, protects, and discloses your information when you visit{' '}
             <a
               href="https://axeonstudio.co"
               target="_blank"
@@ -115,10 +115,10 @@ export default function PrivacyClient() {
             <div>
               <span className="text-gray-400">Contact:</span>{' '}
               <a
-                href="mailto:hayder.hatem@axeonstudio.co"
+                href="mailto:hello@axeonstudio.co"
                 className="text-[#2563EB] hover:underline font-semibold"
               >
-                hayder.hatem@axeonstudio.co
+                hello@axeonstudio.co
               </a>
             </div>
           </div>
@@ -421,7 +421,7 @@ export default function PrivacyClient() {
             </h2>
             <div className="mt-3.5 space-y-3.5 text-gray-700 text-[15px] sm:text-base">
               <p>
-                Regardless of where you reside, AxeonStudio honors fundamental privacy rights regarding your personal information:
+                Regardless of where you reside, Axeon Studio honors fundamental privacy rights regarding your personal information:
               </p>
               <ul className="space-y-2 list-disc list-inside text-gray-700">
                 <li>
@@ -451,7 +451,7 @@ export default function PrivacyClient() {
                   </p>
                 </div>
                 <a
-                  href="mailto:hayder.hatem@axeonstudio.co?subject=Privacy%20Request"
+                  href="mailto:hello@axeonstudio.co?subject=Privacy%20Request"
                   className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-[#2563EB] text-white text-xs sm:text-sm font-semibold hover:bg-[#1d4ed8] transition-colors shrink-0 shadow-xs"
                 >
                   <Mail size={14} />
@@ -511,16 +511,16 @@ export default function PrivacyClient() {
                 If you have questions, concerns, or requests regarding this Privacy Policy or our data management practices, please contact us directly:
               </p>
               <div className="p-5 rounded-xl bg-white border border-gray-200 space-y-1.5 text-sm">
-                <div className="font-bold text-gray-950 text-base">AxeonStudio</div>
+                <div className="font-bold text-gray-950 text-base">Axeon Studio</div>
                 <div className="text-gray-600">Attention: Hayder Hatem, Founder</div>
                 <div className="text-gray-600">West Des Moines, Iowa, United States</div>
                 <div className="pt-2 text-gray-900 font-medium">
                   Direct Email:{' '}
                   <a
-                    href="mailto:hayder.hatem@axeonstudio.co"
+                    href="mailto:hello@axeonstudio.co"
                     className="text-[#2563EB] hover:underline font-bold"
                   >
-                    hayder.hatem@axeonstudio.co
+                    hello@axeonstudio.co
                   </a>
                 </div>
                 <div className="text-gray-600">

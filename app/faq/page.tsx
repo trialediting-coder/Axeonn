@@ -42,7 +42,7 @@ export default function FaqPage() {
         <div className="mt-16 rounded-[28px] bg-neutral-950 text-white p-7 sm:p-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div>
             <h2 className="text-2xl sm:text-3xl font-extrabold font-display tracking-tight">Still have a question?</h2>
-            <p className="mt-2 text-neutral-300 text-base sm:text-lg">Ask it on a free 20-minute call.</p>
+            <p className="mt-2 text-neutral-300 text-base sm:text-lg">Ask it on a free 30-minute call.</p>
           </div>
           <Link
             href="/book"

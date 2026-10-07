@@ -64,26 +64,16 @@ export default async function InsightPostPage({
     '@type': 'BlogPosting',
     headline: post.title,
     description: post.excerpt,
-    image: post.coverImageUrl ?? undefined,
+    image: post.coverImageUrl ?? `${SITE_URL}/og-axeon-card.png`,
     datePublished: post.publishedAt,
     dateModified: post.updatedAt,
     // A named human author (with a profile page and social proof) is an
     // E-E-A-T signal; an anonymous "Organization" author is not.
-    author: {
-      '@type': 'Person',
-      '@id': FOUNDER_ID,
-      name: FOUNDER.name,
-      jobTitle: FOUNDER.jobTitle,
-      url: `${SITE_URL}/about`,
-      sameAs: FOUNDER.sameAs,
-    },
-    publisher: {
-      '@id': ORG_ID,
-      '@type': 'Organization',
-      name: 'Axeon Studio',
-      logo: { '@type': 'ImageObject', url: `${SITE_URL}/icon.png` },
-    },
-    mainEntityOfPage: `${SITE_URL}/insights/${post.slug}`,
+    // Full details for both live in the site-wide graph (lib/seo.ts); restating
+    // them here gave the same @id two different shapes.
+    author: { '@id': FOUNDER_ID },
+    publisher: { '@id': ORG_ID },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE_URL}/insights/${post.slug}` },
     inLanguage: 'en-US',
   };
 
@@ -170,7 +160,10 @@ export default async function InsightPostPage({
           />
         )}
         <div className="prose prose-neutral max-w-none prose-headings:font-display prose-headings:tracking-tight prose-a:text-blue-600">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content}</ReactMarkdown>
+          {/* The page already has the h1 (the title); a markdown h1 in the body renders as h2. */}
+          <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ h1: ({ node: _node, ...props }) => <h2 {...props} /> }}>
+            {post.content.replace(/^\s*#\s+[^\n]*\n+/, '')}
+          </ReactMarkdown>
         </div>
 
         {/* Readers who finish a post had nowhere to go next (Clarity, 2026-09-28:

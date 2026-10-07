@@ -52,18 +52,19 @@ export function FAQAccordion({ items, defaultOpenCount = 0, size = 'default' }: 
                 className={`shrink-0 text-neutral-500 transition-transform duration-200 ${isOpen ? 'rotate-180 text-blue-600' : ''}`}
               />
             </button>
-            {isOpen && (
-              <p
-                id={`faq-answer-${index}`}
-                className={`text-neutral-600 leading-relaxed font-normal ${
-                  isLarge
-                    ? 'pb-7 sm:pb-8 text-base sm:text-lg lg:text-xl'
-                    : 'pb-5 text-sm sm:text-base'
-                }`}
-              >
-                {item.answer}
-              </p>
-            )}
+            {/* Always in the HTML (collapsed with `hidden`), so search engines and AI
+                crawlers read every answer, not just the questions. */}
+            <p
+              id={`faq-answer-${index}`}
+              hidden={!isOpen}
+              className={`text-neutral-600 leading-relaxed font-normal ${
+                isLarge
+                  ? 'pb-7 sm:pb-8 text-base sm:text-lg lg:text-xl'
+                  : 'pb-5 text-sm sm:text-base'
+              }`}
+            >
+              {item.answer}
+            </p>
           </div>
         );
       })}

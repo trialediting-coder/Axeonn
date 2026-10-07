@@ -48,7 +48,7 @@ export default function BookClient() {
                 </h1>
 
                 <p className="text-base sm:text-lg text-zinc-600 leading-relaxed font-normal">
-                  A focused 20–30 minute call: we look at how customers find you today, where they slip away, and what it would take to get you more of them.
+                  A focused 30-minute call: we look at how customers find you today, where they slip away, and what it would take to get you more of them.
                 </p>
 
                 <ul className="space-y-2.5 pt-1">
@@ -131,10 +131,10 @@ export default function BookClient() {
                         Direct Email
                       </span>
                       <a
-                        href="mailto:hayder.hatem@axeonstudio.co"
+                        href="mailto:hello@axeonstudio.co"
                         className="text-sm sm:text-base font-semibold text-zinc-900 hover:text-blue-600 transition-colors tracking-tight block mt-0.5 break-all"
                       >
-                        hayder.hatem@axeonstudio.co
+                        hello@axeonstudio.co
                       </a>
                     </div>
                   </div>
@@ -160,7 +160,7 @@ export default function BookClient() {
               <div className="flex flex-wrap items-center gap-3 sm:gap-5 text-xs text-zinc-500 pt-3 border-t border-zinc-100">
                 <div className="flex items-center gap-1.5 font-medium">
                   <Clock size={14} className="text-blue-600" />
-                  <span>20–30 Minutes</span>
+                  <span>30 Minutes</span>
                 </div>
                 <span>&bull;</span>
                 <div className="flex items-center gap-1.5 font-medium">
