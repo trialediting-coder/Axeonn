@@ -1,17 +1,77 @@
 // components/proof/ProofDashboard.tsx
-// What a signed-in client sees at app.axeonstudio.co. For now: their setup
-// progress, what Axeon is working on, and the metric cards that go live at launch.
-// No numbers are shown until a real data source feeds them.
-import { Activity, CalendarCheck, Check, Clock, LogOut, MapPin, PhoneCall } from 'lucide-react';
+// What a signed-in client sees at app.axeonstudio.co. A dark sidebar and a light
+// workspace, like Stripe or Linear. Until a data source is connected, every
+// metric shows an honest empty state ("Live after launch"); nothing is invented.
+import type { ComponentType, ReactNode } from 'react';
+import {
+  Activity,
+  CalendarCheck,
+  Check,
+  ClipboardList,
+  Clock,
+  LayoutDashboard,
+  LogOut,
+  MapPin,
+  PhoneCall,
+} from 'lucide-react';
+import { AxeonLogo } from '@/components/brand/AxeonLogo';
 import type { OnboardingItem } from '@/data/onboardingItems';
 import type { ItemState, Onboarding, Progress } from '@/lib/onboarding';
 
-const METRICS = [
-  { icon: PhoneCall, label: 'Calls', note: 'Every call from your site and Google listing, with where it came from.' },
-  { icon: Activity, label: 'Leads', note: 'Quote requests and form leads, the second they come in.' },
-  { icon: CalendarCheck, label: 'Booked jobs', note: 'Jobs booked online or by phone, traced to their source.' },
-  { icon: MapPin, label: 'Map rank', note: 'Where you show up on Google Maps for the services you sell.' },
+type Icon = ComponentType<{ size?: number; className?: string }>;
+
+const NAV: { label: string; icon: Icon; soon?: boolean }[] = [
+  { label: 'Overview', icon: LayoutDashboard },
+  { label: 'Calls', icon: PhoneCall, soon: true },
+  { label: 'Leads', icon: Activity, soon: true },
+  { label: 'Booked jobs', icon: CalendarCheck, soon: true },
+  { label: 'Map rank', icon: MapPin, soon: true },
 ];
+
+const METRICS: { label: string; icon: Icon; hint: string }[] = [
+  { label: 'Calls', icon: PhoneCall, hint: 'From your site and Google listing' },
+  { label: 'Leads', icon: Activity, hint: 'Quote requests and form leads' },
+  { label: 'Booked jobs', icon: CalendarCheck, hint: 'Traced back to their source' },
+  { label: 'Map rank', icon: MapPin, hint: 'For the services you sell' },
+];
+
+function SignOut({ className }: { className: string }) {
+  return (
+    <form action="/api/proof/logout" method="post">
+      <button type="submit" className={className}>
+        <LogOut size={14} /> Sign out
+      </button>
+    </form>
+  );
+}
+
+function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return <section className={`rounded-xl border border-neutral-200/80 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04)] ${className}`}>{children}</section>;
+}
+
+function ProgressRing({ percent }: { percent: number }) {
+  const r = 34;
+  const c = 2 * Math.PI * r;
+  return (
+    <div className="relative h-24 w-24 shrink-0">
+      <svg viewBox="0 0 80 80" className="h-24 w-24 -rotate-90">
+        <circle cx="40" cy="40" r={r} fill="none" stroke="#EEF2F7" strokeWidth="8" />
+        <circle
+          cx="40"
+          cy="40"
+          r={r}
+          fill="none"
+          stroke="#2563EB"
+          strokeWidth="8"
+          strokeLinecap="round"
+          strokeDasharray={c}
+          strokeDashoffset={c * (1 - percent / 100)}
+        />
+      </svg>
+      <span className="absolute inset-0 flex items-center justify-center text-lg font-extrabold text-neutral-950">{percent}%</span>
+    </div>
+  );
+}
 
 export function ProofDashboard({
   email,
@@ -31,111 +91,187 @@ export function ProofDashboard({
   setupUrl: string;
 }) {
   const name = onboarding.businessName || onboarding.clientName || 'Your business';
+  const initials = name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase())
+    .join('');
   const setupDone = progress.clientDone >= progress.clientTotal;
+  const firstName = onboarding.clientName?.split(' ')[0];
 
   return (
-    <div className="min-h-screen bg-neutral-50">
-      <header className="sticky top-0 z-40 border-b border-neutral-200 bg-white/90 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:px-8">
-          <span className="font-display text-lg font-black tracking-tight text-blue-600">//.</span>
-          <span className="text-sm font-extrabold tracking-tight text-neutral-950">
-            Axeon<span className="text-blue-600">PROOF</span>
-          </span>
-          <div className="ml-auto flex items-center gap-3">
-            <span className="hidden text-sm text-neutral-500 sm:inline">{email}</span>
-            <form action="/api/proof/logout" method="post">
-              <button
-                type="submit"
-                className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-neutral-300 bg-white px-3 text-xs font-semibold text-neutral-800 shadow-sm hover:bg-neutral-50"
-              >
-                <LogOut size={13} /> Sign out
-              </button>
-            </form>
+    <div className="min-h-screen bg-[#F6F7F9] lg:pl-64">
+      {/* Sidebar (desktop) */}
+      <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col bg-[#0B0D12] text-white lg:flex">
+        <div className="px-5 pb-6 pt-6">
+          <AxeonLogo product="PROOF" tone="light" />
+        </div>
+        <nav aria-label="AxeonPROOF" className="flex-1 space-y-0.5 px-3">
+          {NAV.map(({ label, icon: Icon, soon }) => (
+            <div
+              key={label}
+              aria-current={!soon ? 'page' : undefined}
+              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium ${
+                soon ? 'cursor-default text-neutral-500' : 'bg-white/[0.07] text-white'
+              }`}
+            >
+              <Icon size={17} className={soon ? 'text-neutral-600' : 'text-blue-400'} />
+              {label}
+              {soon ? (
+                <span className="ml-auto rounded-full border border-white/10 px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide text-neutral-500">
+                  Soon
+                </span>
+              ) : null}
+            </div>
+          ))}
+          <a
+            href={setupUrl}
+            className="mt-2 flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-neutral-300 hover:bg-white/[0.05] hover:text-white"
+          >
+            <ClipboardList size={17} className="text-neutral-500" />
+            Setup
+            {!setupDone ? <span className="ml-auto text-xs font-semibold text-blue-400">{progress.percent}%</span> : null}
+          </a>
+        </nav>
+        <div className="border-t border-white/10 p-4">
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-xs font-bold">{initials || 'A'}</span>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold">{name}</p>
+              <p className="truncate text-xs text-neutral-500">{email}</p>
+            </div>
           </div>
+          <SignOut className="mt-3 inline-flex h-8 w-full items-center justify-center gap-1.5 rounded-lg border border-white/10 text-xs font-semibold text-neutral-300 hover:bg-white/[0.05] hover:text-white" />
+        </div>
+      </aside>
+
+      {/* Top bar (phones and tablets) */}
+      <header className="sticky top-0 z-30 flex h-14 items-center border-b border-neutral-200 bg-white/90 px-4 backdrop-blur lg:hidden">
+        <AxeonLogo product="PROOF" size="sm" />
+        <div className="ml-auto">
+          <SignOut className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-neutral-300 bg-white px-3 text-xs font-semibold text-neutral-800 hover:bg-neutral-50" />
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 pb-24 pt-8 sm:px-8">
+      <main className="mx-auto max-w-6xl px-4 pb-20 pt-8 sm:px-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-mono font-bold uppercase tracking-widest text-blue-600">{planLabel}</p>
-            <h1 className="mt-1 font-display text-2xl font-extrabold tracking-tight text-neutral-950 sm:text-3xl">{name}</h1>
+            <p className="text-sm text-neutral-500">{firstName ? `Welcome back, ${firstName}` : 'Welcome back'}</p>
+            <h1 className="mt-0.5 text-2xl font-bold tracking-tight text-neutral-950">{name}</h1>
           </div>
-          <span className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 ring-1 ring-amber-200">
-            <span className="h-1.5 w-1.5 rounded-full bg-amber-500" /> Setting up. Live data starts at launch.
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-neutral-700 ring-1 ring-neutral-200">{planLabel}</span>
+            <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800 ring-1 ring-amber-200">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-500" /> Setting up
+            </span>
+          </div>
         </div>
 
-        <section className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {METRICS.map(({ icon: Icon, label, note }) => (
-            <div key={label} className="rounded-2xl border border-neutral-200 bg-white p-5">
-              <div className="flex items-center gap-2 text-sm font-semibold text-neutral-700">
-                <Icon size={16} className="text-blue-600" /> {label}
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {METRICS.map(({ label, icon: Icon, hint }) => (
+            <Card key={label} className="p-5">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-neutral-600">{label}</p>
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                  <Icon size={16} />
+                </span>
               </div>
-              <p className="mt-3 font-display text-3xl font-extrabold text-neutral-300">—</p>
-              <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-neutral-400">Live after launch</p>
-              <p className="mt-3 text-sm leading-relaxed text-neutral-500">{note}</p>
-            </div>
+              <p className="mt-4 text-3xl font-bold tracking-tight text-neutral-300">—</p>
+              <div className="mt-3 flex items-center justify-between">
+                <p className="text-xs text-neutral-500">{hint}</p>
+              </div>
+              <div className="mt-3 border-t border-dashed border-neutral-200 pt-3">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">Live after launch</p>
+              </div>
+            </Card>
           ))}
-        </section>
+        </div>
 
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-5">
-          <section className="rounded-2xl border border-neutral-200 bg-white p-6 lg:col-span-2">
-            <h2 className="text-base font-bold text-neutral-950">Your setup</h2>
-            <p className="mt-1 text-sm text-neutral-600">
-              {setupDone ? 'Everything we need from you is in. Thank you.' : 'A few quick things from you get you live faster.'}
-            </p>
-            <div className="mt-5 flex items-center justify-between text-sm font-semibold text-neutral-700">
-              <span>
-                {progress.clientDone} of {progress.clientTotal} done
-              </span>
-              <span className="font-mono text-neutral-500">{progress.percent}%</span>
+        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <Card className="p-6 lg:col-span-2">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-semibold text-neutral-950">Calls and leads</h2>
+              <span className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-500">Last 30 days</span>
             </div>
-            <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-neutral-100" role="progressbar" aria-valuenow={progress.percent} aria-valuemin={0} aria-valuemax={100}>
-              <div className="h-full rounded-full bg-blue-600" style={{ width: `${progress.percent}%` }} />
+            <div className="relative mt-6 h-52">
+              <div aria-hidden className="absolute inset-0 flex items-end gap-2">
+                {[30, 45, 38, 55, 48, 62, 52, 70, 60, 74, 66, 80].map((h, i) => (
+                  <div key={i} className="flex-1 rounded-t bg-neutral-100" style={{ height: `${h}%` }} />
+                ))}
+              </div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="rounded-xl border border-neutral-200 bg-white/95 px-5 py-4 text-center shadow-sm">
+                  <p className="text-sm font-semibold text-neutral-900">Your chart starts the day you launch</p>
+                  <p className="mt-1 text-xs text-neutral-500">Every call and lead will show up here, with where it came from.</p>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <h2 className="text-base font-semibold text-neutral-950">Your setup</h2>
+            <div className="mt-5 flex items-center gap-5">
+              <ProgressRing percent={progress.percent} />
+              <div>
+                <p className="text-sm font-semibold text-neutral-900">
+                  {progress.clientDone} of {progress.clientTotal} done
+                </p>
+                <p className="mt-1 text-sm text-neutral-500">
+                  {setupDone ? 'Everything we need is in. Thank you.' : 'A few quick items get you live faster.'}
+                </p>
+              </div>
             </div>
             <a
               href={setupUrl}
-              className="mt-5 inline-flex h-10 items-center justify-center rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+              className="mt-6 inline-flex h-10 w-full items-center justify-center rounded-lg bg-blue-600 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
             >
               {setupDone ? 'Review my answers' : 'Continue setup'}
             </a>
-          </section>
-
-          <section className="rounded-2xl border border-neutral-200 bg-white p-6 lg:col-span-3">
-            <h2 className="text-base font-bold text-neutral-950">What Axeon is working on</h2>
-            <p className="mt-1 text-sm text-neutral-600">
-              {progress.axeonDone} of {progress.axeonTotal} set up
-            </p>
-            <ul className="mt-4 divide-y divide-neutral-100">
-              {axeonItems.map((item) => {
-                const done = states[item.key]?.status === 'done';
-                return (
-                  <li key={item.key} className="flex items-start gap-3 py-3">
-                    <span
-                      className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
-                        done ? 'bg-green-100 text-green-700' : 'border border-neutral-200 bg-white text-neutral-400'
-                      }`}
-                    >
-                      {done ? <Check size={14} className="stroke-[3]" /> : <Clock size={13} />}
-                    </span>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-neutral-900">{item.title}</p>
-                      <p className="text-sm text-neutral-500">{done ? 'Set up' : item.description}</p>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
+          </Card>
         </div>
+
+        <Card className="mt-4">
+          <div className="flex items-center justify-between border-b border-neutral-100 px-6 py-4">
+            <h2 className="text-base font-semibold text-neutral-950">What Axeon is building</h2>
+            <span className="text-sm text-neutral-500">
+              {progress.axeonDone} of {progress.axeonTotal} done
+            </span>
+          </div>
+          <ul className="divide-y divide-neutral-100">
+            {axeonItems.map((item) => {
+              const done = states[item.key]?.status === 'done';
+              return (
+                <li key={item.key} className="flex items-center gap-4 px-6 py-3.5">
+                  <span
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
+                      done ? 'bg-emerald-50 text-emerald-600' : 'bg-neutral-100 text-neutral-400'
+                    }`}
+                  >
+                    {done ? <Check size={14} className="stroke-[3]" /> : <Clock size={14} />}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-neutral-900">{item.title}</p>
+                    <p className="truncate text-sm text-neutral-500">{item.description}</p>
+                  </div>
+                  <span
+                    className={`shrink-0 rounded-md px-2 py-0.5 text-xs font-semibold ${
+                      done ? 'bg-emerald-50 text-emerald-700' : 'bg-neutral-100 text-neutral-600'
+                    }`}
+                  >
+                    {done ? 'Done' : 'In progress'}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </Card>
 
         <p className="mt-10 text-center text-sm text-neutral-500">
           Questions? Call or text{' '}
           <a href="tel:+15154938017" className="font-semibold text-blue-600 hover:text-blue-700">
             (515) 493-8017
           </a>
-          .
         </p>
       </main>
     </div>

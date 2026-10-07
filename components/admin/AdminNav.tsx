@@ -10,6 +10,7 @@ import { usePathname } from 'next/navigation';
 import { ExternalLink, LogOut } from 'lucide-react';
 import { signOutAction } from '@/app/admin/actions';
 import { btn } from '@/components/admin/ui';
+import { AxeonLogo } from '@/components/brand/AxeonLogo';
 
 const TABS = [
   { href: '/admin/onboarding', label: 'Onboarding', match: (p: string) => p.startsWith('/admin/onboarding') },
@@ -24,9 +25,11 @@ export function AdminNav() {
   return (
     <header className="sticky top-0 z-40 border-b border-neutral-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:px-8">
-        <Link href="/admin/onboarding" className="flex items-center gap-2 shrink-0">
-          <span className="font-display text-lg font-black tracking-tight text-blue-600">//.</span>
-          <span className="text-sm font-bold text-neutral-950">Axeon Admin</span>
+        <Link href="/admin/onboarding" className="flex items-center gap-2.5 shrink-0" aria-label="Axeon Admin home">
+          <AxeonLogo size="sm" />
+          <span className="rounded-md bg-neutral-100 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
+            Admin
+          </span>
         </Link>
 
         <nav aria-label="Admin sections" className="ml-2 flex min-w-0 items-center gap-1 overflow-x-auto">
