@@ -104,9 +104,6 @@ export async function sendBillingNotification(input: {
 const CLIENT_FROM_ADDRESS = process.env.RESEND_CLIENT_FROM_EMAIL || 'Axeon Studio <hello@axeonstudio.co>';
 const CLIENT_REPLY_TO = process.env.RESEND_CLIENT_REPLY_TO || 'hello@axeonstudio.co';
 
-export function isClientEmailConfigured(): boolean {
-  return Boolean(process.env.RESEND_API_KEY);
-}
 
 type SendPayload = Parameters<Resend['emails']['send']>[0];
 
@@ -222,8 +219,7 @@ export async function sendNudgeEmail(input: {
 }
 
 // ───────────────────────────── Owner alerts ─────────────────────────────
-// These replace the Gmail steps of the retired n8n workflows. They go to
-// ADMIN_EMAIL from the same From as the other owner alerts.
+// They go to ADMIN_EMAIL from the same From as the other owner alerts.
 
 /** A new or returning website lead from /get-started. */
 export async function sendLeadNotification(input: {
@@ -237,7 +233,7 @@ export async function sendLeadNotification(input: {
   budget: string;
   timeline: string;
   goal: string;
-  savedTo: 'airtable' | 'n8n' | 'nowhere';
+  savedTo: 'airtable' | 'nowhere';
 }): Promise<void> {
   const resend = getClient();
   if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
@@ -247,9 +243,7 @@ export async function sendLeadNotification(input: {
       ? input.returning
         ? 'They were already in Airtable, so their record was updated (status unchanged).'
         : 'Saved in Airtable as a <b>Lead</b>.'
-      : input.savedTo === 'n8n'
-        ? 'Forwarded to n8n.'
-        : '<b>Not saved anywhere: Airtable and n8n both failed.</b> Copy these details by hand.';
+      : '<b>Not saved to Airtable</b> (it failed or is not connected). Copy these details by hand.';
   await sendChecked(resend, {
     from: FROM_ADDRESS,
     to: ADMIN_NOTIFICATION_EMAIL,

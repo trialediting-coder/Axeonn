@@ -4,7 +4,7 @@
 // Self-serve intake used on /get-started and embedded in the homepage contact
 // section: a short multi-step form, a deterministic package recommendation
 // (lib/getStarted.ts), then a "book a call" hand-off. There is deliberately no
-// direct payment step: the lead has to land in Airtable (via the n8n webhook)
+// direct payment step: the lead has to land in Airtable (via /api/get-started/lead)
 // and go through a call first.
 //
 // The lead is posted to /api/get-started/lead BEFORE the result is shown, but a

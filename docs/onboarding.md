@@ -74,8 +74,8 @@ item ever asks for one.
 6. Every day at 15:00 UTC, `/api/cron/onboarding-nudges` sends the day 1, 3 and 7
    reminders (`nudgeStepDue` in `lib/onboarding.ts`) and refreshes Airtable.
 
-No n8n is involved. The site also writes website leads to Airtable directly
-(`lib/airtableSync.ts`), with the old n8n webhook kept only as a fallback.
+No outside automation tool is involved. The site also writes website leads to
+Airtable directly (`lib/airtableSync.ts`) and emails each one to the owner.
 
 ## Environment variables
 

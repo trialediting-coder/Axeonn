@@ -1,6 +1,6 @@
 // lib/getStarted.ts
 // Pure logic for the /get-started flow: package recommendation, the lead
-// payload the n8n webhook expects, and the Stripe Payment Link URL. No I/O and
+// payload the lead route saves to Airtable, and the Stripe Payment Link URL. No I/O and
 // no randomness, so the same answers always give the same result (see
 // lib/getStarted.test.ts).
 import {
@@ -33,7 +33,7 @@ export interface ContactInfo {
   website: string;
 }
 
-/** Exact shape POSTed to the lead webhook. Keys must not change: n8n maps them to Airtable. */
+/** Exact shape POSTed to /api/get-started/lead. lib/airtableSync.ts maps these keys to Airtable columns. */
 export interface LeadPayload {
   businessName: string;
   contactName: string;
