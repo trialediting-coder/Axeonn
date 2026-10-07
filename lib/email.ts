@@ -117,10 +117,16 @@ async function sendChecked(resend: Resend, payload: SendPayload): Promise<void> 
   if (error) throw new Error(`Resend rejected the email: ${error.message}`);
 }
 
+// A PNG, because Gmail and Outlook drop SVG. Served from the main site's /public.
+const EMAIL_LOGO_URL = 'https://axeonstudio.co/email/axeon-mark.png';
+
 function clientLayout(title: string, bodyHtml: string): string {
   return `
     <div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;color:#0a0a0a;line-height:1.55">
-      <p style="margin:0 0 24px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#2563eb;font-weight:700">Axeon Studio</p>
+      <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 28px"><tr>
+        <td style="vertical-align:middle;padding-right:10px"><img src="${EMAIL_LOGO_URL}" width="26" height="22" alt="" style="display:block;border:0"></td>
+        <td style="vertical-align:middle;font-size:22px;font-weight:800;letter-spacing:-.02em;color:#0a0a0a">Axeon</td>
+      </tr></table>
       <h1 style="margin:0 0 16px;font-size:24px;line-height:1.2;font-weight:800">${title}</h1>
       ${bodyHtml}
       <p style="margin:32px 0 0;font-size:13px;color:#737373">Questions? Reply to this email or call (515) 493-8017.</p>
