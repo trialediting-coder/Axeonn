@@ -14,10 +14,8 @@
 // and comes back (either page) picks up exactly where they stopped.
 
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
-import Link from 'next/link';
 import { ArrowLeft, ArrowRight, CalendarCheck, Check, Loader2 } from 'lucide-react';
 import {
-  BOOKING_URL,
   BUDGETS,
   BUSINESS_TYPES,
   CUSTOM_PACKAGE,
@@ -38,6 +36,7 @@ import {
   type GetStartedAnswers,
 } from '@/lib/getStarted';
 import { trackEvent } from '@/components/providers/AnalyticsTracker';
+import { BookingCalendar } from '@/components/booking/BookingCalendar';
 
 const LEAD_TIMEOUT_MS = 10000;
 // Single-choice steps advance on their own; this pause lets the checkmark register first.
@@ -345,7 +344,13 @@ export function GetStartedFlow({
   if (result) {
     return (
       <div ref={topRef} className="scroll-mt-28">
-        <ResultCard pkg={result.pkg} headingRef={headingRef} onStartOver={startOver} embedded={embedded} />
+        <ResultCard
+          pkg={result.pkg}
+          headingRef={headingRef}
+          onStartOver={startOver}
+          embedded={embedded}
+          prefill={{ name: contact.contactName, email: contact.email, phone: contact.phone }}
+        />
       </div>
     );
   }
@@ -631,11 +636,13 @@ function ResultCard({
   headingRef,
   onStartOver,
   embedded,
+  prefill,
 }: {
   pkg: Package;
   headingRef: React.RefObject<HTMLHeadingElement | null>;
   onStartOver: () => void;
   embedded: boolean;
+  prefill: { name: string; email: string; phone: string };
 }) {
   const custom = isCustomPackage(pkg);
 
@@ -670,20 +677,20 @@ function ResultCard({
           ))}
         </ul>
 
-        <div className="mt-8 space-y-3">
-          <Link
-            href={BOOKING_URL}
-            data-track="cta_click"
-            data-track-cta="get_started_book_call"
-            className="inline-flex w-full min-h-[56px] items-center justify-center gap-2 rounded-full bg-blue-600 px-7 text-base font-bold text-white shadow-lg shadow-blue-600/25 transition-all hover:bg-blue-700"
-          >
-            <CalendarCheck size={18} /> Book my free call to lock this in
-          </Link>
-          <p className="text-center text-sm text-neutral-500">
-            We already have your answers, so the call starts with your plan, not a questionnaire.
-          </p>
-        </div>
       </article>
+
+      <section id="book-your-call" className="mt-10 scroll-mt-24">
+        <p className="font-mono text-xs font-semibold tracking-[0.2em] uppercase text-blue-600">Last step</p>
+        <h3 className="mt-2 flex items-center gap-2 text-2xl font-extrabold tracking-tight text-neutral-950">
+          <CalendarCheck size={22} className="text-blue-600" /> Pick a time for your free call
+        </h3>
+        <p className="mt-1.5 text-base text-neutral-600">
+          30 minutes, any day, any time. Your details are already filled in, and we start the call with your plan, not a questionnaire.
+        </p>
+        <div className="mt-5">
+          <BookingCalendar minHeight="640px" prefill={prefill} />
+        </div>
+      </section>
 
       <button
         type="button"

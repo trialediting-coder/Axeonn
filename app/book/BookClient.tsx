@@ -34,13 +34,13 @@ export default function BookClient() {
         <InteractiveFluidAura />
 
         {/* Responsive Dual-Column Grid with Distinct, Generous Column & Stack Separation */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-8 sm:py-12 lg:py-16 w-full flex-1 flex flex-col justify-center">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 sm:gap-12 lg:gap-x-20 xl:gap-x-28 lg:gap-y-10">
+        <div className="relative z-10 max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12 py-8 sm:py-12 lg:py-16 w-full flex-1 flex flex-col justify-center">
+          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] gap-10 sm:gap-12 lg:gap-x-12 xl:gap-x-16 lg:gap-y-10">
 
             {/* Mobile order (via order-*): pitch, calendar, contact details. On desktop
                 the calendar spans both rows on the right. */}
             {/* LEFT, ROW 1 — headline, what you get, one line of proof */}
-            <div className="lg:col-span-5 lg:col-start-1 lg:row-start-1 lg:self-end max-w-xl lg:max-w-md xl:max-w-lg lg:pr-6 xl:pr-10">
+            <div className="lg:col-start-1 lg:row-start-1 lg:self-end max-w-xl lg:max-w-md xl:max-w-lg lg:pr-6 xl:pr-10">
               <div className="space-y-4 sm:space-y-5">
                 <span className="block text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ FREE STRATEGY CALL ]</span>
                 <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-zinc-950 tracking-tight leading-[1.12] font-display">
@@ -80,7 +80,7 @@ export default function BookClient() {
             </div>
 
             {/* LEFT, ROW 2 (after the calendar on mobile) — direct contact */}
-            <div className="lg:col-span-5 lg:col-start-1 lg:row-start-2 lg:self-start max-w-xl lg:max-w-md xl:max-w-lg lg:pr-6 xl:pr-10 space-y-7 sm:space-y-9 pt-8 sm:pt-10 border-t border-zinc-100 lg:pt-0 lg:border-t-0 order-3 lg:order-none">
+            <div className="lg:col-start-1 lg:row-start-2 lg:self-start max-w-xl lg:max-w-md xl:max-w-lg lg:pr-6 xl:pr-10 space-y-7 sm:space-y-9 pt-8 sm:pt-10 border-t border-zinc-100 lg:pt-0 lg:border-t-0 order-3 lg:order-none">
               <div className="space-y-5">
                 <div className="space-y-4 sm:space-y-5">
                   {/* Phone Item */}
@@ -177,7 +177,7 @@ export default function BookClient() {
             </div>
 
             {/* RIGHT, BOTH ROWS — embedded calendar */}
-            <div id="booking-calendar-container" className="lg:col-span-7 lg:col-start-6 lg:row-start-1 lg:row-span-2 lg:self-center w-full order-2 lg:order-none lg:pl-8 xl:pl-16">
+            <div id="booking-calendar-container" className="lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:self-start w-full order-2 lg:order-none">
               <div className="mb-3 sm:mb-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs text-zinc-500 px-1">
                 <span className="font-mono uppercase tracking-wider font-semibold text-zinc-700">
                   Select Date &amp; Time
@@ -186,7 +186,7 @@ export default function BookClient() {
               </div>
 
               <div className="rounded-2xl border border-zinc-200/90 bg-white p-1 sm:p-2 shadow-md transition-shadow hover:shadow-lg">
-                <BookingCalendar theme="light" minHeight="700px" />
+                <BookingCalendar theme="light" minHeight="560px" />
               </div>
             </div>
 

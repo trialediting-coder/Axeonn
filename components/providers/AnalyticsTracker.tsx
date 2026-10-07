@@ -17,7 +17,7 @@ const GA_MEASUREMENT_ID = 'G-2EDMD31CEP';
  * in GA4 → Admin → Key events:
  *
  *   booking_completed   — a strategy call was actually booked (fires from the
- *                         LeadConnector calendar iframe's postMessage)
+ *                         Cal.com booking calendar embed)
  *   phone_click         — tap/click on a tel: link
  *   book_call_click     — any "Book My Free Call" CTA (link to /book or the
  *                         calendar modal opening); the top-of-funnel intent event
@@ -56,7 +56,10 @@ export function trackBookCallClick(location: string, label?: string) {
   trackEvent(EVENTS.bookCallClick, { cta_location: location, cta_label: label ?? '' });
 }
 
-/** Someone actually booked a slot in the LeadConnector calendar. */
+/** Fired on window by BookingCalendar when Cal.com confirms a booking. */
+export const BOOKING_COMPLETE_EVENT = 'axeon:booking-complete';
+
+/** Someone actually booked a slot in the booking calendar. */
 export function trackBookingCompleted(source: string) {
   trackEvent(EVENTS.bookingCompleted, { source, value: 1, currency: 'USD' });
   // GA4 recommended event too, so Google Ads can import it without a remap.
@@ -104,8 +107,8 @@ const VIEW_SECTIONS: Record<string, string> = {
  *
  * Clicks are captured once at the document level so every Book link, phone
  * link, FAQ toggle and industry tab reports itself without per-component
- * wiring. Booking completions arrive as a postMessage from the LeadConnector
- * iframe ("msgsndr-booking-complete").
+ * wiring. Booking completions arrive as the BOOKING_COMPLETE_EVENT window
+ * event from the Cal.com calendar (components/booking/BookingCalendar.tsx).
  */
 export function AnalyticsTracker() {
   const pathname = usePathname();
@@ -198,28 +201,24 @@ export function AnalyticsTracker() {
     return () => document.removeEventListener('click', onClick, true);
   }, []);
 
-  // Booking completions from the LeadConnector calendar iframe.
+  // Booking completions, signalled by components/booking/BookingCalendar.tsx
+  // when the Cal.com embed reports a successful booking.
   useEffect(() => {
-    const onMessage = (e: MessageEvent) => {
-      if (!/leadconnectorhq\.com|msgsndr\.com/.test(e.origin)) return;
-      const data = e.data;
-      const signal =
-        typeof data === 'string'
-          ? data
-          : data && typeof data === 'object'
-            ? String((data as Record<string, unknown>).type ?? (data as Record<string, unknown>).event ?? '')
-            : '';
-      if (!signal.includes('msgsndr-booking-complete')) return;
+    const onBooked = () => {
       if (bookedRef.current) return; // one booking per page load
       bookedRef.current = true;
-
       const dialogOpen = !!document.querySelector('[role="dialog"][aria-label="Book a strategy session"]');
-      const source = dialogOpen ? 'lead_modal' : pathname === '/book' ? 'book_page' : 'contact_section';
+      const source = dialogOpen
+        ? 'lead_modal'
+        : pathname === '/book'
+          ? 'book_page'
+          : pathname?.startsWith('/get-started')
+            ? 'get_started'
+            : 'contact_section';
       trackBookingCompleted(source);
     };
-
-    window.addEventListener('message', onMessage);
-    return () => window.removeEventListener('message', onMessage);
+    window.addEventListener(BOOKING_COMPLETE_EVENT, onBooked);
+    return () => window.removeEventListener(BOOKING_COMPLETE_EVENT, onBooked);
   }, [pathname]);
 
   // First-view events for key sections (once per page path).

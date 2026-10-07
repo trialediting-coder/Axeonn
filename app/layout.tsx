@@ -87,7 +87,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             }
           `}
         </Script>
-        <Script src="https://link.msgsndr.com/js/form_embed.js" strategy="afterInteractive" />
         {/*
           Rendered as a raw script tag (dangerouslySetInnerHTML), not via
           next/script — even next/script's beforeInteractive strategy routes
