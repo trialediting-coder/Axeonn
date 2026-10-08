@@ -591,14 +591,17 @@ export function closeRateNote(t: TrafficSummary): string {
     return `<p style="margin:12px 0 0;font-size:13px;color:#737373">“Estimated new customers” counts ${t.closeRate}% of the people who called, texted, emailed, sent a form or booked from your site. Tell us your real number and we will use that instead.</p>`;
   }
   const reasons = e.factors.map((f) => `<li style="margin:0 0 4px">${escapeHtml(f.label)}${f.effect ? ` (+${f.effect})` : ''}</li>`).join('');
+  const who = t.assistedContacts
+    ? `${t.conversions} people who reached out (${t.directContacts} pressed call, text, form, book or directions on the site; about ${t.assistedContacts} more read your number on a computer and most likely called from their phone)`
+    : `${t.conversions} people who reached out`;
   return `
-    <p style="margin:12px 0 4px;font-size:13px;color:#737373">How we got to ${e.rate}%: of the ${t.conversions} people who reached out, we estimate ${e.low}% to ${e.high}% became customers, so about ${t.estimatedCustomers} (likely ${t.customersLow} to ${t.customersHigh}). The reasons:</p>
+    <p style="margin:12px 0 4px;font-size:13px;color:#737373">How we got to ${e.rate}%: of the ${who}, we estimate ${e.low}% to ${e.high}% became customers, so about ${t.estimatedCustomers} (likely ${t.customersLow} to ${t.customersHigh}). The reasons:</p>
     <ul style="margin:0 0 8px;padding-left:18px;font-size:13px;color:#737373">${reasons}</ul>
     <p style="margin:0;font-size:13px;color:#737373">Know your real number? Reply with it and we will use that from now on.</p>
   `;
 }
 
-export async function sendMonthlyReportEmail(input: {
+export interface MonthlyReportEmailInput {
   to: string;
   clientName: string | null;
   monthLabel: string;
@@ -609,15 +612,15 @@ export async function sendMonthlyReportEmail(input: {
   fromYou: string;
   note: string;
   proofUrl: string;
-}): Promise<void> {
+}
+
+/** The report email as subject + HTML, with no sending, so a sample can be rendered anywhere. */
+export function renderMonthlyReportEmail(input: MonthlyReportEmailInput): { subject: string; html: string } {
   const t = input.traffic ?? null;
   const intro = t
     ? `How your website did in ${escapeHtml(input.monthLabel)}: who visited, which buttons they pressed, and how many likely became customers.`
     : `Calls, leads and booked jobs for ${escapeHtml(input.monthLabel)}, and what we are doing next. Customers, not clicks.`;
-  await sendChecked(requireClient(), {
-    from: CLIENT_FROM_ADDRESS,
-    replyTo: CLIENT_REPLY_TO,
-    to: input.to,
+  return {
     subject: `Your ${input.monthLabel} report from Axeon`,
     html: clientLayout(
       `${escapeHtml(input.monthLabel)} in numbers.`,
@@ -633,7 +636,12 @@ export async function sendMonthlyReportEmail(input: {
         ${button(input.proofUrl, 'Open AxeonPROOF')}
       `
     ),
-  });
+  };
+}
+
+export async function sendMonthlyReportEmail(input: MonthlyReportEmailInput): Promise<void> {
+  const { subject, html } = renderMonthlyReportEmail(input);
+  await sendChecked(requireClient(), { from: CLIENT_FROM_ADDRESS, replyTo: CLIENT_REPLY_TO, to: input.to, subject, html });
 }
 
 /** Owner digest after the 1st-of-the-month job: who got a report, who was skipped and why. */

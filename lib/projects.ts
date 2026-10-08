@@ -421,7 +421,9 @@ export function reportStats(r: ReportBody, prev: ReportBody | null, d: ProjectDe
       label: 'Customers reached out',
       value: String(t.conversions),
       sub: [
-        'calls, texts, emails, forms, bookings',
+        t.assistedContacts
+          ? `${t.directContacts ?? t.conversions - t.assistedContacts} on the site · ~${t.assistedContacts} likely called after reading your number`
+          : 'calls, texts, forms, bookings, directions',
         delta(t.conversions, pt?.conversions) && `${delta(t.conversions, pt?.conversions)} vs last month`,
       ]
         .filter(Boolean)
