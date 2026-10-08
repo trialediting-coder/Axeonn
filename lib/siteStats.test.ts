@@ -541,3 +541,17 @@ test('the sample report renders the real template with the logo images and brand
   assert.match(html, /bgcolor="#2563eb"/, 'solid Axeon-blue band');
   assert.doesNotMatch(html, /conversion/i, 'client copy never says "conversion"');
 });
+
+// ---- Axeon's own site (lib/selfTracking.ts) ------------------------------------
+
+test("Axeon's own site key is a valid tracker key and the tracker honours data-host", async () => {
+  const { readFileSync } = await import('node:fs');
+  const { SELF_SITE_KEY, SELF_SITE_HOST } = await import('./selfTracking');
+  assert.ok(isValidSiteKey(SELF_SITE_KEY), 'SELF_SITE_KEY matches the key format the collector accepts');
+  assert.equal(SELF_SITE_HOST, 'axeonstudio.co');
+  const tjs = readFileSync(new URL('../public/t.js', import.meta.url), 'utf8');
+  assert.match(tjs, /getAttribute\('data-host'\)/, 'tracker reads data-host');
+  assert.match(tjs, /window\.axeonTrack = function/, 'tracker exposes axeonTrack');
+  const layout = readFileSync(new URL('../app/layout.tsx', import.meta.url), 'utf8');
+  assert.match(layout, /src="\/t\.js" data-site=\{SELF_SITE_KEY\} data-host=\{SELF_SITE_HOST\}/, 'the site loads its own tracker');
+});

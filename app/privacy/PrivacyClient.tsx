@@ -140,7 +140,7 @@ export default function PrivacyClient() {
                   <strong>Direct inquiry usage only:</strong> Booking and scheduling details (name, email, phone) submitted through our booking calendar are processed solely to communicate with you regarding design and engineering projects.
                 </li>
                 <li>
-                  <strong>Analytics &amp; tracking, disclosed in full:</strong> We use Google Analytics (GA4) for traffic patterns, Microsoft Clarity for heatmaps and session replay, an Apollo.io script that identifies the business a visitor is browsing from, and an embedded booking widget (provided by a third-party CRM and scheduling platform) for appointment scheduling. Each is described in Section 3, and Section 4 explains how to opt out, including our support for the Global Privacy Control signal.
+                  <strong>Analytics &amp; tracking, disclosed in full:</strong> We use Google Analytics (GA4) for traffic patterns, our own cookie-free first-party measurement script, Microsoft Clarity for heatmaps and session replay, an Apollo.io script that identifies the business a visitor is browsing from, and an embedded booking widget (provided by a third-party CRM and scheduling platform) for appointment scheduling. Each is described in Section 3, and Section 4 explains how to opt out, including our support for the Global Privacy Control signal.
                 </li>
                 <li>
                   <strong>Full user control:</strong> You may request access to, correction of, or complete deletion of your data at any time by emailing us directly.
@@ -261,6 +261,19 @@ export default function PrivacyClient() {
                     </div>
                     <p className="mt-1 text-xs sm:text-sm text-gray-600">
                       Google Analytics collects aggregated, pseudonymous statistics regarding visitor traffic, device categories, page engagements, and interaction events (for example, when a &ldquo;Book My Free Call&rdquo; button, phone link, or FAQ item is clicked) to help us understand which services and pages are most valuable to business owners. We do not use Google Analytics advertising features or remarketing audiences.
+                    </p>
+                  </div>
+                  <span className="text-xs font-mono text-gray-400 shrink-0">Traffic Metrics</span>
+                </div>
+
+                <div className="p-4 rounded-lg bg-white border border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <div className="font-bold text-gray-950 text-sm flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-[#2563EB]" />
+                      <span>Axeon site measurement (first-party, no cookies)</span>
+                    </div>
+                    <p className="mt-1 text-xs sm:text-sm text-gray-600">
+                      Our own small script (served from this site, nothing from a third party) counts page views, which buttons are pressed (for example a phone link, a form, or a completed booking), time on page, scroll depth and load speed. It sets no cookies and stores nothing in your browser. Visits are grouped using a one-way hash that changes every month, together with the city and region reported by our hosting provider; your IP address is used only to compute that hash and is not stored. This is the same tool we provide to our clients for their websites.
                     </p>
                   </div>
                   <span className="text-xs font-mono text-gray-400 shrink-0">Traffic Metrics</span>

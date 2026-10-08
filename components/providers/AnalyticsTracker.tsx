@@ -7,6 +7,8 @@ declare global {
   interface Window {
     dataLayer?: unknown[];
     gtag?: (...args: unknown[]) => void;
+    /** public/t.js, Axeon's own AxeonPROOF tracking (lib/selfTracking.ts). */
+    axeonTrack?: (name: string) => void;
   }
 }
 
@@ -216,6 +218,12 @@ export function AnalyticsTracker() {
             ? 'get_started'
             : 'contact_section';
       trackBookingCompleted(source);
+      // A confirmed booking is the "reached out" that AxeonPROOF counts for our own site.
+      try {
+        window.axeonTrack?.('book');
+      } catch {
+        // Telemetry must never break the page.
+      }
     };
     window.addEventListener(BOOKING_COMPLETE_EVENT, onBooked);
     return () => window.removeEventListener(BOOKING_COMPLETE_EVENT, onBooked);

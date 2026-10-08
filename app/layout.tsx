@@ -14,6 +14,7 @@ import { CaseStudyBadge } from '@/components/common/CaseStudyBadge';
 import { buildMetadata } from '@/lib/metadata';
 import { JsonLd } from '@/components/common/JsonLd';
 import { siteGraphJsonLd } from '@/lib/seo';
+import { SELF_SITE_HOST, SELF_SITE_KEY } from '@/lib/selfTracking';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -48,6 +49,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en-US" className={plusJakartaSans.variable}>
       <body>
         <JsonLd data={siteGraph} />
+        {/*
+          Axeon's own AxeonPROOF tracking (lib/selfTracking.ts): the same
+          cookie-free, first-party script clients install. Records only on
+          axeonstudio.co, so previews, localhost and the app host stay out.
+        */}
+        <script defer src="/t.js" data-site={SELF_SITE_KEY} data-host={SELF_SITE_HOST} />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-2EDMD31CEP"
           strategy="afterInteractive"

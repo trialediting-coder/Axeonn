@@ -234,6 +234,20 @@ Not built: importing Google Analytics or call-tracking numbers. The snippet is
 the one source for now, so a site without it gets no automatic report until it
 is added.
 
+### Axeon's own site in AxeonPROOF
+
+axeonstudio.co loads the same `t.js` every client installs (see `app/layout.tsx`),
+with a fixed key, `ax_axeonstudioown`, and `data-host="axeonstudio.co"` so
+previews, localhost and app.axeonstudio.co never report. `lib/selfTracking.ts`
+creates the matching onboarding record ("Axeon Studio", status complete, no
+checklist or nudges, tracker key and site address filled in) the first time the
+tracker reports or the admin onboarding board is opened. The board shows it at
+the top as **Our own site** with "Open our dashboard" (View as client) and
+"Settings" (close rate, average job, report on/off). Calls, emails, form
+sends and confirmed Cal.com bookings count as people reaching out; the 1st-of-
+the-month report goes to `ADMIN_EMAIL`. Section 3 of the privacy policy
+discloses the script.
+
 ### Seeing the report yourself
 
 The admin onboarding board has an **Email me a sample report** box. It sends a
