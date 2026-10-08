@@ -6,6 +6,8 @@
 //   PUT    { ...details }                 save kickoff, target launch, baseline
 //   POST   { kind: 'update', ... }        post an update (emails the client)
 //   POST   { kind: 'report', send, ... }  save a month's report (emails when send !== false)
+//   POST   { kind: 'tracking', ... }      website address, close rate, automatic reports on/off
+//   POST   { kind: 'auto-report', month } build and email the month's report now (lib/autoReports.ts)
 //   DELETE { kind, id }                   remove an update or report
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/adminAuth';
@@ -13,6 +15,8 @@ import { jsonError, readBody } from '@/lib/billingApi';
 import { sendMonthlyReportEmail, sendProjectUpdateEmail } from '@/lib/email';
 import { APP_ORIGIN } from '@/lib/hostRouting';
 import { getOnboardingByToken, type Onboarding } from '@/lib/onboarding';
+import { sendAutoReport } from '@/lib/autoReports';
+import { hasTraffic, isValidMonth, setTrackingSettings, trackingOverview, validateCloseRate, validateSiteUrl } from '@/lib/siteStats';
 import {
   createProjectUpdate,
   deleteMonthlyReport,
@@ -44,12 +48,13 @@ async function load(token: string): Promise<Onboarding> {
 }
 
 async function present(onboardingId: number) {
-  const [details, updates, reports] = await Promise.all([
+  const [details, updates, reports, tracking] = await Promise.all([
     getProjectDetails(onboardingId),
     listProjectUpdates(onboardingId),
     listMonthlyReports(onboardingId),
+    trackingOverview(onboardingId),
   ]);
-  return { details, updates, reports };
+  return { details, updates, reports, tracking };
 }
 
 export async function GET(req: Request, ctx: { params: Promise<{ token: string }> }) {
@@ -98,6 +103,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
             clientName: onboarding.clientName,
             monthLabel: monthLabel(report.month),
             stats: reportStats(report, previousReport(all, report.month), details),
+            traffic: hasTraffic(report.traffic) ? report.traffic : null,
             done: report.done,
             next: report.next,
             fromYou: report.fromYou,
@@ -109,6 +115,16 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
           emailError = err instanceof Error ? err.message : 'Email failed';
         }
       }
+    } else if (body.kind === 'tracking') {
+      await setTrackingSettings(onboarding.id, {
+        siteUrl: validateSiteUrl(body.siteUrl),
+        closeRate: validateCloseRate(body.closeRate),
+        autoReports: body.autoReports !== false,
+      });
+    } else if (body.kind === 'auto-report') {
+      if (!isValidMonth(body.month)) throw new Error('Pick the month to send');
+      const outcome = await sendAutoReport(onboarding, body.month, { force: true });
+      if (outcome.status === 'failed') emailError = outcome.error;
     } else {
       throw new Error('Unknown kind');
     }

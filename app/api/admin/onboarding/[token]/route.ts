@@ -4,6 +4,7 @@
 //   PATCH { status }              active | complete | closed  (closed = link dead)
 //   POST  { action: 'welcome' }   resend the welcome email
 //   POST  { action: 'nudge' }     email the client the list of open items
+//   POST  { action: 'invite' }    email a live client their AxeonPROOF dashboard link
 import { NextResponse, after } from 'next/server';
 import { requireAdmin } from '@/lib/adminAuth';
 import { jsonError, readBody } from '@/lib/billingApi';
@@ -15,7 +16,7 @@ import {
   setOnboardingStatus,
   welcomeUrl,
 } from '@/lib/onboarding';
-import { sendNudgeFor, sendWelcomeFor } from '@/lib/onboardingFulfillment';
+import { sendDashboardInviteFor, sendNudgeFor, sendWelcomeFor } from '@/lib/onboardingFulfillment';
 import { afterOnboardingChange } from '@/lib/onboardingSync';
 
 export const runtime = 'nodejs';
@@ -73,6 +74,8 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
       if (!sent) throw new Error('Email is not configured (RESEND_API_KEY)');
     } else if (body.action === 'nudge') {
       await sendNudgeFor(onboarding);
+    } else if (body.action === 'invite') {
+      await sendDashboardInviteFor(onboarding);
     } else {
       throw new Error('Unknown action');
     }

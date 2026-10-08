@@ -192,6 +192,26 @@ async function main() {
       UNIQUE (onboarding_id, month)
     );
   `;
+
+  // Website tracking + automatic monthly reports (lib/siteStats.ts, lib/autoReports.ts).
+  await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS site_key TEXT;`;
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS onboardings_site_key_idx ON onboardings (site_key);`;
+  await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS site_url TEXT;`;
+  await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS close_rate INTEGER NOT NULL DEFAULT 25;`;
+  await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS auto_reports BOOLEAN NOT NULL DEFAULT true;`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS site_events (
+      id BIGSERIAL PRIMARY KEY,
+      onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+      kind TEXT NOT NULL CHECK (kind IN ('view', 'click')),
+      name TEXT,
+      path TEXT,
+      referrer TEXT,
+      visitor TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS site_events_onb_time_idx ON site_events (onboarding_id, created_at);`;
   console.log('Schema ready.');
 }
 

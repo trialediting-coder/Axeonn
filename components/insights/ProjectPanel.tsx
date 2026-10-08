@@ -1,15 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { Send, Trash2 } from 'lucide-react';
+import { Check, Copy, Send, Trash2 } from 'lucide-react';
 import { adminInput, adminLabel, btn } from '@/components/admin/ui';
 import type { MonthlyReport, ProjectDetails, ProjectUpdate } from '@/lib/projects';
-import { UPDATE_STATUSES, UPDATE_TYPES, linesToText, monthLabel } from '@/lib/projectsShared';
+import type { TrackingOverview } from '@/lib/siteStats';
+import { UPDATE_STATUSES, UPDATE_TYPES, buttonLabel, linesToText, monthLabel, type TrafficSummary } from '@/lib/projectsShared';
 
 interface Data {
   details: ProjectDetails;
   updates: ProjectUpdate[];
   reports: MonthlyReport[];
+  tracking: TrackingOverview;
 }
 
 type Notice = { ok: boolean; text: string } | null;
@@ -40,8 +42,12 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
       setNotice({ ok: false, text: json.error ?? 'Something went wrong.' });
       return false;
     }
-    setData({ details: json.details, updates: json.updates ?? [], reports: json.reports ?? [] });
-    setNotice(json.emailError ? { ok: false, text: `Saved, but the email failed: ${json.emailError}` } : { ok: true, text: okText });
+    setData({ details: json.details, updates: json.updates ?? [], reports: json.reports ?? [], tracking: json.tracking ?? data.tracking });
+    setNotice(
+      json.emailError
+        ? { ok: false, text: key === 'auto-report' ? `Not sent: ${json.emailError}` : `Saved, but the email failed: ${json.emailError}` }
+        : { ok: true, text: okText }
+    );
     return true;
   }
 
@@ -97,6 +103,32 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
       note: r.note,
     });
 
+  // ── Tracking ──
+  const t = data.tracking;
+  const [tracking, setTracking] = useState({ siteUrl: t.siteUrl ?? '', closeRate: String(t.closeRate), autoReports: t.autoReports });
+  const [copied, setCopied] = useState(false);
+  const lastSeen = t.lastEventAt ? Math.round((Date.now() - new Date(t.lastEventAt).getTime()) / 60_000) : null;
+  const seenText =
+    lastSeen == null
+      ? 'No data yet. Add the line below to the client\u2019s site.'
+      : lastSeen < 2
+        ? 'Receiving data (just now)'
+        : lastSeen < 120
+          ? `Receiving data (last seen ${lastSeen} min ago)`
+          : lastSeen < 60 * 48
+            ? `Receiving data (last seen ${Math.round(lastSeen / 60)} h ago)`
+            : `Last seen ${Math.round(lastSeen / 1440)} days ago`;
+  const copySnippet = async () => {
+    if (!t.snippet) return;
+    try {
+      await navigator.clipboard.writeText(t.snippet);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      setNotice({ ok: false, text: 'Copy failed. Select the line and copy it by hand.' });
+    }
+  };
+
   const input = (
     value: string,
     onChange: React.ChangeEventHandler<HTMLInputElement>,
@@ -149,11 +181,106 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
         </button>
       </form>
 
+      <div className={card}>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h3 className="font-bold text-neutral-950">Website tracking & automatic monthly report</h3>
+            <p className="text-xs text-neutral-500 mt-1">
+              On the 1st of every month the client gets last month&apos;s visits, button clicks and estimated new customers by email, with
+              anything you typed into that month&apos;s report below. Needs one line on their site.
+            </p>
+          </div>
+          <span
+            className={`shrink-0 rounded-md px-2 py-1 text-xs font-semibold ${
+              lastSeen != null && lastSeen < 60 * 48 ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-800'
+            }`}
+          >
+            {seenText}
+          </span>
+        </div>
+
+        {!t.autoReports ? (
+          <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
+            The monthly report email is off for this client. Numbers are still collected; tick “Email on the 1st” below when you are ready for them to
+            hear from us.
+          </p>
+        ) : null}
+
+        {t.snippet ? (
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <code className="flex-1 min-w-0 overflow-x-auto whitespace-nowrap rounded-lg bg-neutral-950 px-3 py-2 text-xs text-neutral-100">
+              {t.snippet}
+            </code>
+            <button type="button" className={btn('secondary', 'sm')} onClick={() => void copySnippet()}>
+              {copied ? <Check size={14} /> : <Copy size={14} />} {copied ? 'Copied' : 'Copy'}
+            </button>
+          </div>
+        ) : (
+          <p className="mt-3 text-sm text-neutral-500">The site key appears once the database is attached.</p>
+        )}
+        <p className="mt-2 text-xs text-neutral-500">
+          Paste it before <code>&lt;/head&gt;</code> on every page. It counts page views and clicks on call, text, email, booking and
+          directions links, form sends, and any button. Add <code>data-axeon=&quot;quote&quot;</code> to name a button yourself.
+        </p>
+
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <TrafficBox title={`${monthLabel(t.month)} so far`} traffic={t.thisMonth} />
+          <TrafficBox title={monthLabel(t.previous)} traffic={t.lastMonth} />
+        </div>
+
+        <form
+          className="mt-4 grid gap-3 sm:grid-cols-[1fr_120px_auto_auto] sm:items-end"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void call('POST', { kind: 'tracking', ...tracking }, 'Tracking settings saved.', 'tracking');
+          }}
+        >
+          {input(tracking.siteUrl, (e) => setTracking((x) => ({ ...x, siteUrl: e.target.value })), 'Client website', {
+            type: 'url',
+            placeholder: 'https://a1autodetailing.com',
+          })}
+          {input(tracking.closeRate, (e) => setTracking((x) => ({ ...x, closeRate: e.target.value })), 'Close rate %', {
+            inputMode: 'numeric',
+            title: 'Share of calls, texts, emails, forms and bookings counted as a new customer',
+          })}
+          <label className="flex h-10 items-center gap-2 text-sm text-neutral-800">
+            <input
+              type="checkbox"
+              className="h-4 w-4 rounded border-neutral-300"
+              checked={tracking.autoReports}
+              onChange={(e) => setTracking((x) => ({ ...x, autoReports: e.target.checked }))}
+            />
+            Email on the 1st
+          </label>
+          <button type="submit" disabled={busy === 'tracking'} className={btn('secondary')}>
+            {busy === 'tracking' ? 'Saving…' : 'Save'}
+          </button>
+        </form>
+
+        <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-neutral-200 pt-4">
+          <button
+            type="button"
+            disabled={busy === 'auto-report'}
+            className={btn('primary', 'sm')}
+            onClick={() => {
+              if (confirm(`Email the ${monthLabel(t.previous)} report to the client now?`))
+                void call('POST', { kind: 'auto-report', month: t.previous }, `${monthLabel(t.previous)} report emailed.`, 'auto-report');
+            }}
+          >
+            <Send size={14} /> {busy === 'auto-report' ? 'Sending…' : `Send ${monthLabel(t.previous)} report now`}
+          </button>
+          <span className="text-xs text-neutral-500">
+            Sends the same email the 1st-of-the-month job would, including anything saved in the Monthly Report box for that month.
+          </span>
+        </div>
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-2">
         <form
           className={`${card} space-y-3 h-fit`}
           onSubmit={async (e) => {
             e.preventDefault();
+            if (!confirm('Post this update and email it to the client?')) return;
             if (await call('POST', { kind: 'update', ...update }, 'Update posted and emailed.', 'update')) setUpdate(emptyUpdate);
           }}
         >
@@ -214,6 +341,7 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
           onSubmit={async (e) => {
             e.preventDefault();
             const send = (e.nativeEvent as SubmitEvent).submitter?.getAttribute('value') !== 'save';
+            if (send && !confirm(`Email the ${monthLabel(report.month || lastMonth())} report to the client?`)) return;
             await call('POST', { kind: 'report', send, ...report }, send ? 'Report saved and emailed.' : 'Report saved (not emailed).', 'report');
           }}
         >
@@ -252,7 +380,8 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
                 <li key={r.id} className="py-2 flex items-center gap-2 text-sm">
                   <span className="flex-1 text-neutral-900">{monthLabel(r.month)}</span>
                   <span className="text-xs text-neutral-500">
-                    {str(r.calls) || '—'} calls · {str(r.leads) || '—'} leads {r.emailedAt ? '· emailed' : ''}
+                    {r.traffic ? `${r.traffic.views} visits · ${r.traffic.clicks} clicks · ` : ''}
+                    {str(r.calls) || '—'} calls · {str(r.leads) || '—'} leads {r.emailedAt ? (r.auto ? '· emailed automatically' : '· emailed') : ''}
                   </span>
                   <button type="button" className={btn('ghost', 'sm')} onClick={() => editReport(r)}>
                     Edit
@@ -272,5 +401,35 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
         </form>
       </div>
     </section>
+  );
+}
+
+/** Four numbers and the top buttons for one month, in the admin. */
+function TrafficBox({ title, traffic }: { title: string; traffic: TrafficSummary }) {
+  const empty = traffic.views === 0 && traffic.clicks === 0;
+  const n = (label: string, value: string | number) => (
+    <div>
+      <div className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">{label}</div>
+      <div className={`text-lg font-extrabold ${empty ? 'text-neutral-300' : 'text-neutral-950'}`}>{value}</div>
+    </div>
+  );
+  return (
+    <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+      <div className="text-xs font-semibold text-neutral-700">{title}</div>
+      <div className="mt-2 grid grid-cols-4 gap-2">
+        {n('Visits', traffic.views)}
+        {n('Visitors', traffic.visitors)}
+        {n('Clicks', traffic.clicks)}
+        {n('Est. customers', empty ? '—' : `~${traffic.estimatedCustomers}`)}
+      </div>
+      {traffic.buttons.length > 0 && (
+        <p className="mt-2 text-xs text-neutral-600">
+          {traffic.buttons
+            .slice(0, 4)
+            .map((b) => `${buttonLabel(b.name)} ${b.count}`)
+            .join(' · ')}
+        </p>
+      )}
+    </div>
   );
 }

@@ -12,6 +12,15 @@ const nextConfig = {
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
         ],
       },
+      {
+        // The tracking script client sites load (public/t.js). Cached for an
+        // hour so their pages never wait on us; a fix reaches every site within it.
+        source: '/t.js',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=3600, stale-while-revalidate=86400' },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+        ],
+      },
     ];
   },
   async redirects() {

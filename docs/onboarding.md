@@ -67,7 +67,12 @@ item ever asks for one.
    stale. The detail view marks Axeon items done (the client sees "Set up"),
    nudges with the list of open items, resends the welcome, or closes the link.
 4. Manual minting from the board covers legacy clients and AxeonGROWTH, which
-   has no Stripe catalog entry yet.
+   has no Stripe catalog entry yet. Tick "Don't email the client yet" to set up a
+   client who was live before the portal existed (A-1, for example): no welcome,
+   no reminders, monthly report email off. Every button that emails a client asks
+   first. When ready, "Send welcome" sends the onboarding welcome and "Send
+   dashboard invite" sends a plain "here is your AxeonPROOF dashboard" email with
+   the same secure link.
 5. After every change (client save, admin action, new purchase) the site mirrors
    the portal into Airtable > Clients and, the first time a portal completes,
    emails the owner (`lib/onboardingSync.ts`).
@@ -121,6 +126,68 @@ before. Every page has "Print or save PDF".
 - The 90-day guarantee shows only for AxeonCORE and AxeonGROWTH.
 - AxeonPROOF numbers come only from Monthly Reports. A blank box shows "—".
 
+## Website tracking and the automatic monthly report
+
+Built 2026-10-07. Every client gets their website numbers by email on the 1st of
+the month without anyone typing them in.
+
+**How the numbers get here.** Each site we build loads one line, shown with a
+copy button on the client's admin page:
+
+```html
+<script defer src="https://axeonstudio.co/t.js" data-site="ax_xxxxxxxxxxxxxx"></script>
+```
+
+`public/t.js` posts page views and clicks to `/api/t`. It names clicks on its
+own: `tel:` links are `call`, `sms:` is `text`, `mailto:` is `email`, booking
+links (Cal.com, Calendly, Square, Jobber, Housecall Pro…) are `book`, map links
+are `directions`, a form send is `form`, and any `<button>`, `role="button"` or
+`.btn`/`.cta` link is recorded by its text. `data-axeon="quote"` on an element
+names it by hand. No cookies, no storage, no IP kept: the visitor column is a
+salted hash that changes every month, so "visitors" means unique people that
+month. Bots, headless browsers and localhost are ignored. The site key is
+minted the first time the admin opens the client's page; a wrong key is
+dropped silently. Rows live in `site_events` (`lib/siteStats.ts`) and are
+pruned after 15 months; the monthly summaries stay on the reports forever.
+
+**What goes out.** `/api/cron/monthly-reports` runs on the 1st at 14:00 UTC
+(`vercel.json`) and, for every open client with "Email on the 1st" switched on,
+sums last month (`lib/autoReports.ts`): visits and visitors, button clicks with
+the most-clicked list, how many people reached out (calls + texts + emails +
+forms + bookings), and **estimated new customers** = that count × the client's
+close rate (default 25%, editable per client; the email says it is an estimate).
+Anything Axeon typed into the same month's Monthly Report box (calls, leads,
+booked jobs, rank, what we did, next month's plan) rides along in the same email,
+so the manual box becomes optional notes rather than the whole report. The job
+skips closed clients, clients who signed up after the month ended, months already
+emailed, and clients with no website numbers *and* nothing typed in (an empty
+report helps nobody), then emails the owner a digest of who was sent and who was
+skipped. "Send … report now" on the admin page sends the same email on demand,
+including re-sending an already-emailed month.
+
+**Where it shows.** The report email leads with the website tiles and adds
+"Most clicked buttons", "Where visitors came from" and "Most visited pages".
+AxeonPROOF shows the same four numbers and three lists from the latest report.
+Saving the manual report for a month keeps the attached website numbers
+(`saveMonthlyReport` merges rather than replaces).
+
+| Piece | Where |
+| --- | --- |
+| Browser script | `public/t.js` (cached 1h, see `next.config.mjs`) |
+| Collector | `app/api/t/route.ts` |
+| Validation, hashing, month sums, settings | `lib/siteStats.ts` |
+| Report build + send | `lib/autoReports.ts` |
+| Monthly job | `app/api/cron/monthly-reports/route.ts` |
+| Admin card (snippet, this/last month, settings, send now) | `components/insights/ProjectPanel.tsx` |
+| Client view | `components/proof/ProofDashboard.tsx` |
+| Email | `sendMonthlyReportEmail`, `sendMonthlyReportsDigest` in `lib/email.ts` |
+| Tables | `site_events`, new columns on `onboardings` |
+| Tests | `lib/siteStats.test.ts` (in `npm run test:onboarding`) |
+
+Not built: importing Google Analytics or call-tracking numbers. The snippet is
+the one source for now, so a site without it gets no automatic report until it
+is added.
+
 ## Environment variables
 
 | Variable | Purpose |
@@ -131,7 +198,8 @@ before. Every page has "Print or save PDF".
 | `ONBOARDING_COOKIE_SECRET` | Optional. Falls back to `AUTH_SECRET`. |
 | `POSTGRES_URL` | Required. Tables are created on first use. |
 | `AIRTABLE_TOKEN` | Airtable personal access token for the Clients mirror and website leads. |
-| `CRON_SECRET` | Required for the daily nudge job (and the blog crons). |
+| `CRON_SECRET` | Required for the daily nudge job, the monthly reports and the blog crons. |
+| `TRACKING_SALT` | Optional. Salts the visitor hash for site tracking; falls back to `AUTH_SECRET`. |
 | `ADMIN_EMAIL` | Where lead and "client finished" alerts go. |
 
 ## Not built yet

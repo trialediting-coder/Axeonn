@@ -15,8 +15,9 @@ import {
   type OnboardingInput,
 } from '@/lib/onboarding';
 import { TIER_LABELS, TIER_RANK, type OnboardingTier } from '@/data/onboardingItems';
-import { sendNudgeEmail, sendWelcomeEmail } from '@/lib/email';
+import { sendDashboardInviteEmail, sendNudgeEmail, sendWelcomeEmail } from '@/lib/email';
 import { getItemStates, markNudgeSent } from '@/lib/onboarding';
+import { hasAccountForOnboarding } from '@/lib/proofAuth';
 import { afterOnboardingChange } from '@/lib/onboardingSync';
 import { isDatabaseConfigured, sql } from '@/lib/db';
 
@@ -44,20 +45,30 @@ export interface FulfillmentResult {
   welcomeSent: boolean;
 }
 
+export interface FulfillmentOptions {
+  /**
+   * Set up a client without telling them yet (a client who was live before the
+   * portal existed, like A-1). No welcome email, and the 1st-of-the-month report
+   * is switched off until the admin turns it on. The daily nudges never fire for
+   * a portal whose welcome was never sent, so the client hears nothing until
+   * "Send welcome" or "Send dashboard invite" is pressed on their page.
+   */
+  quiet?: boolean;
+}
+
 /**
- * Called with what Stripe knows after a paid Checkout. Returns null when there is
- * nothing to do (no database, no email, or a tier we cannot map). Never throws
- * for mail failures: the admin board shows "welcome not sent" and has a resend button.
+ * Called with what Stripe knows after a paid Checkout, and from the admin board.
+ * Returns null when there is nothing to do (no database, no email, or a tier we
+ * cannot map). Never throws for mail failures: the admin board shows "welcome
+ * not sent" and has a resend button.
  */
-export async function ensureOnboardingForPurchase(input: OnboardingInput): Promise<FulfillmentResult | null> {
+export async function ensureOnboardingForPurchase(input: OnboardingInput, opts: FulfillmentOptions = {}): Promise<FulfillmentResult | null> {
   if (!isDatabaseConfigured()) return null;
+  const welcome = (o: Onboarding) => (o.welcomeSentAt ? true : opts.quiet ? false : sendWelcomeFor(o).catch(logMail));
 
   if (input.checkoutSessionId) {
     const existing = await findOnboardingForCheckout(input.checkoutSessionId);
-    if (existing) {
-      const welcomeSent = existing.welcomeSentAt ? true : await sendWelcomeFor(existing).catch(logMail);
-      return { onboarding: existing, created: false, welcomeSent };
-    }
+    if (existing) return { onboarding: existing, created: false, welcomeSent: await welcome(existing) };
   }
 
   const open = await findOpenOnboardingByEmail(input.clientEmail);
@@ -68,14 +79,31 @@ export async function ensureOnboardingForPurchase(input: OnboardingInput): Promi
       await upgradeTier(open, input.tier);
       open.tier = input.tier;
     }
-    const welcomeSent = open.welcomeSentAt ? true : await sendWelcomeFor(open).catch(logMail);
-    return { onboarding: open, created: false, welcomeSent };
+    return { onboarding: open, created: false, welcomeSent: await welcome(open) };
   }
 
   const onboarding = await createOnboarding(input);
-  const welcomeSent = await sendWelcomeFor(onboarding).catch(logMail);
+  if (opts.quiet) await sql`UPDATE onboardings SET auto_reports = false, updated_at = now() WHERE id = ${onboarding.id};`;
+  const welcomeSent = await welcome(onboarding);
   await afterOnboardingChange(onboarding.token);
   return { onboarding, created: true, welcomeSent };
+}
+
+/**
+ * For a client who is already live: "here is your AxeonPROOF dashboard", with
+ * the same secure link as the welcome (email code on a new device, then they
+ * choose a password). Only ever sent from the button on the admin page.
+ */
+export async function sendDashboardInviteFor(onboarding: Onboarding): Promise<void> {
+  if (onboarding.status === 'closed') throw new Error('This onboarding is closed');
+  const sent = await sendDashboardInviteEmail({
+    to: onboarding.clientEmail,
+    clientName: onboarding.clientName,
+    businessName: onboarding.businessName,
+    url: welcomeUrl(onboarding.token),
+    hasAccount: await hasAccountForOnboarding(onboarding.id),
+  });
+  if (!sent) throw new Error('Email is not configured (RESEND_API_KEY)');
 }
 
 /**

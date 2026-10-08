@@ -1,5 +1,6 @@
 // lib/email.ts
 import { Resend } from 'resend';
+import { buttonLabel, sourceLabel, type TrafficSummary } from '@/lib/projectsShared';
 
 const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_EMAIL;
 // Resend rejects sends from a domain that hasn't been verified in the
@@ -169,6 +170,46 @@ export async function sendWelcomeEmail(input: {
         <p style="margin:0 0 12px;font-size:14px;color:#525252">Or copy this link: <a href="${escapeHtml(input.url)}" style="color:#2563eb">${escapeHtml(input.url)}</a></p>
         <p style="margin:0 0 12px;font-size:14px;color:#525252">Your Welcome Packet (what happens and when, who to contact, what is included) is on the same page, or here: <a href="${escapeHtml(input.url)}/packet" style="color:#2563eb">Welcome Packet</a>.</p>
         <p style="margin:16px 0 0;font-size:14px;color:#525252">We will never ask for a password in this page or by email. Access to Google and other accounts goes through their own invites, which you simply accept.</p>
+      `
+    ),
+  });
+  return true;
+}
+
+/**
+ * For a client who was live before AxeonPROOF existed: here is your dashboard.
+ * Same secure link as the welcome; no checklist talk, no "about N minutes".
+ */
+export async function sendDashboardInviteEmail(input: {
+  to: string;
+  clientName: string | null;
+  businessName: string | null;
+  url: string;
+  /** True when they already chose a password: the copy says "sign in" instead of "choose a password". */
+  hasAccount: boolean;
+}): Promise<boolean> {
+  const resend = getClient();
+  if (!resend) return false;
+  const first = input.clientName?.split(' ')[0];
+  const biz = input.businessName ? escapeHtml(input.businessName) : 'your business';
+  await sendChecked(resend, {
+    from: CLIENT_FROM_ADDRESS,
+    replyTo: CLIENT_REPLY_TO,
+    to: input.to,
+    subject: 'Your AxeonPROOF dashboard is ready',
+    html: clientLayout(
+      'Your numbers, in one place.',
+      `
+        <p style="margin:0 0 12px">${first ? `Hi ${escapeHtml(first)},` : 'Hi there,'}</p>
+        <p style="margin:0 0 12px">We set up AxeonPROOF for ${biz}: a private dashboard with your website visits, the buttons customers press, how many reach out, and every update and monthly report from us. On the 1st of each month the same numbers land in your inbox.</p>
+        <p style="margin:0 0 12px">${
+          input.hasAccount
+            ? 'Sign in with your business email and the password you already chose.'
+            : 'Open the link below. On a new device we email you a 6-digit code first, then you choose a password for next time.'
+        }</p>
+        ${button(input.url, input.hasAccount ? 'Open AxeonPROOF' : 'Set up my dashboard')}
+        <p style="margin:0 0 12px;font-size:14px;color:#525252">Or copy this link: <a href="${escapeHtml(input.url)}" style="color:#2563eb">${escapeHtml(input.url)}</a></p>
+        <p style="margin:16px 0 0;font-size:14px;color:#525252">We will never ask for a password by email. Nothing changes about how we work together; this just lets you see it.</p>
       `
     ),
   });
@@ -441,26 +482,61 @@ export async function sendProjectUpdateEmail(input: {
   });
 }
 
+/** Tiles two to a row, so they read on a phone. */
+function statTiles(stats: Array<{ label: string; value: string; sub?: string | null }>): string {
+  const tile = (s: { label: string; value: string; sub?: string | null }) => `<td width="50%" style="padding:12px;border:1px solid #e5e5e5;border-radius:8px;vertical-align:top">
+        <div style="font-size:12px;color:#525252">${escapeHtml(s.label)}</div>
+        <div style="font-size:24px;font-weight:800">${escapeHtml(s.value)}</div>
+        ${s.sub ? `<div style="font-size:12px;color:#525252">${escapeHtml(s.sub)}</div>` : ''}
+      </td>`;
+  const rows: string[] = [];
+  for (let i = 0; i < stats.length; i += 2) {
+    rows.push(`<tr>${tile(stats[i])}${stats[i + 1] ? tile(stats[i + 1]) : '<td width="50%"></td>'}</tr>`);
+  }
+  return `<table role="presentation" cellspacing="6" style="width:100%;margin:0 0 8px">${rows.join('')}</table>`;
+}
+
+/** A two-column "name · count" list for the traffic breakdowns. */
+function countList(rows: Array<{ label: string; count: number }>): string {
+  if (!rows.length) return '';
+  return `<table role="presentation" cellspacing="0" cellpadding="0" style="width:100%;margin:0 0 8px;font-size:14px">${rows
+    .map(
+      (r) => `<tr>
+        <td style="padding:6px 0;border-bottom:1px solid #f0f0f0">${escapeHtml(r.label)}</td>
+        <td style="padding:6px 0;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:700;white-space:nowrap">${r.count}</td>
+      </tr>`
+    )
+    .join('')}</table>`;
+}
+
+function trafficSections(t: TrafficSummary): string {
+  const buttons = t.buttons.slice(0, 6).map((b) => ({ label: buttonLabel(b.name), count: b.count }));
+  const sources = t.sources.slice(0, 5).map((x) => ({ label: sourceLabel(x.host), count: x.count }));
+  const pages = t.pages.slice(0, 5).map((pg) => ({ label: pg.path === '/' ? 'Home page' : pg.path, count: pg.count }));
+  return `
+    ${buttons.length ? h2('Most clicked buttons') + countList(buttons) : ''}
+    ${sources.length ? h2('Where visitors came from') + countList(sources) : ''}
+    ${pages.length ? h2('Most visited pages') + countList(pages) : ''}
+    <p style="margin:12px 0 0;font-size:13px;color:#737373">“Estimated new customers” counts ${t.closeRate}% of the people who called, texted, emailed, sent a form or booked from your site. Tell us your real number and we will use that instead.</p>
+  `;
+}
+
 export async function sendMonthlyReportEmail(input: {
   to: string;
   clientName: string | null;
   monthLabel: string;
   stats: Array<{ label: string; value: string; sub?: string | null }>;
+  traffic?: TrafficSummary | null;
   done: EmailLine[];
   next: EmailLine[];
   fromYou: string;
   note: string;
   proofUrl: string;
 }): Promise<void> {
-  const stats = input.stats
-    .map(
-      (s) => `<td style="padding:12px;border:1px solid #e5e5e5;border-radius:8px;vertical-align:top">
-        <div style="font-size:12px;color:#525252">${escapeHtml(s.label)}</div>
-        <div style="font-size:24px;font-weight:800">${escapeHtml(s.value)}</div>
-        ${s.sub ? `<div style="font-size:12px;color:#525252">${escapeHtml(s.sub)}</div>` : ''}
-      </td>`
-    )
-    .join('');
+  const t = input.traffic ?? null;
+  const intro = t
+    ? `How your website did in ${escapeHtml(input.monthLabel)}: who visited, which buttons they pressed, and how many likely became customers.`
+    : `Calls, leads and booked jobs for ${escapeHtml(input.monthLabel)}, and what we are doing next. Customers, not clicks.`;
   await sendChecked(requireClient(), {
     from: CLIENT_FROM_ADDRESS,
     replyTo: CLIENT_REPLY_TO,
@@ -470,14 +546,44 @@ export async function sendMonthlyReportEmail(input: {
       `${escapeHtml(input.monthLabel)} in numbers.`,
       `
         <p style="margin:0 0 12px">${firstName(input.clientName)}</p>
-        <p style="margin:0 0 16px">Calls, leads and booked jobs for ${escapeHtml(input.monthLabel)}, and what we are doing next. Customers, not clicks.</p>
-        <table role="presentation" cellspacing="6" style="width:100%;margin:0 0 8px"><tr>${stats}</tr></table>
+        <p style="margin:0 0 16px">${intro}</p>
+        ${statTiles(input.stats)}
         ${input.note ? para(input.note) : ''}
+        ${t ? trafficSections(t) : ''}
         ${input.done.length ? h2('What we did this month') + linesHtml(input.done) : ''}
         ${input.next.length ? h2("Next month's plan") + linesHtml(input.next) : ''}
         ${input.fromYou ? h2('From you') + para(input.fromYou) : ''}
         ${button(input.proofUrl, 'Open AxeonPROOF')}
       `
     ),
+  });
+}
+
+/** Owner digest after the 1st-of-the-month job: who got a report, who was skipped and why. */
+export async function sendMonthlyReportsDigest(input: {
+  monthLabel: string;
+  sent: string[];
+  skipped: Array<{ name: string; reason: string }>;
+  failed: Array<{ name: string; error: string }>;
+  adminUrl: string;
+}): Promise<void> {
+  const resend = getClient();
+  if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
+  const list = (items: string[]) => (items.length ? `<ul>${items.map((i) => `<li>${escapeHtml(i)}</li>`).join('')}</ul>` : '<p>None.</p>');
+  const subject = input.failed.length
+    ? `${input.monthLabel} client reports: ${input.sent.length} sent, ${input.failed.length} failed`
+    : `${input.monthLabel} client reports: ${input.sent.length} sent`;
+  await sendChecked(resend, {
+    from: FROM_ADDRESS,
+    to: ADMIN_NOTIFICATION_EMAIL,
+    subject,
+    html: `
+      <p>The automatic ${escapeHtml(input.monthLabel)} reports went out this morning.</p>
+      <p><b>Sent (${input.sent.length})</b></p>${list(input.sent)}
+      <p><b>Skipped (${input.skipped.length})</b></p>${list(input.skipped.map((s) => `${s.name}: ${s.reason}`))}
+      ${input.failed.length ? `<p><b>Failed (${input.failed.length})</b></p>${list(input.failed.map((f) => `${f.name}: ${f.error}`))}` : ''}
+      <p>A skipped client has no website numbers for the month (snippet not installed yet) and nothing typed in. Add the snippet or type their report on their admin page and press “Send now”.</p>
+      <p><a href="${escapeHtml(input.adminUrl)}">Open the client board</a></p>
+    `,
   });
 }

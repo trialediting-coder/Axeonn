@@ -12,16 +12,19 @@ import {
   Clock,
   ExternalLink,
   FileText,
+  Globe,
   LayoutDashboard,
   LogOut,
   MapPin,
+  MousePointerClick,
   PhoneCall,
+  Users,
 } from 'lucide-react';
 import { AxeonLogo } from '@/components/brand/AxeonLogo';
 import type { OnboardingItem } from '@/data/onboardingItems';
 import type { ItemState, Onboarding, Progress } from '@/lib/onboarding';
 import type { MonthlyReport, ProjectDetails, ProjectUpdate } from '@/lib/projects';
-import { monthLabel } from '@/lib/projectsShared';
+import { buttonLabel, monthLabel, sourceLabel, type TrafficSummary } from '@/lib/projectsShared';
 
 type Icon = ComponentType<{ size?: number; className?: string }>;
 
@@ -40,6 +43,31 @@ const METRICS: { key: MetricKey; label: string; icon: Icon; hint: string }[] = [
   { key: 'booked', label: 'Booked jobs', icon: CalendarCheck, hint: 'Traced back to their source' },
   { key: 'rank', label: 'Map rank', icon: MapPin, hint: 'For the services you sell' },
 ];
+
+/** Website cards from the latest report's tracking numbers (lib/autoReports.ts). */
+type WebKey = 'views' | 'clicks' | 'conversions' | 'estimatedCustomers';
+const WEB_METRICS: { key: WebKey; label: string; icon: Icon; hint: string }[] = [
+  { key: 'views', label: 'Website visits', icon: Globe, hint: 'Page views on your site' },
+  { key: 'clicks', label: 'Button clicks', icon: MousePointerClick, hint: 'Call, text, book, form and more' },
+  { key: 'conversions', label: 'Reached out', icon: PhoneCall, hint: 'Calls, texts, emails, forms, bookings' },
+  { key: 'estimatedCustomers', label: 'Est. new customers', icon: Users, hint: 'Estimated from who reached out' },
+];
+
+function webMetric(key: WebKey, t: TrafficSummary, prev: TrafficSummary | null) {
+  const now = t[key];
+  const value = key === 'estimatedCustomers' ? `~${now}` : String(now);
+  const before = prev?.[key] ?? null;
+  if (before == null) {
+    const sub = key === 'views' ? `${t.visitors} ${t.visitors === 1 ? 'visitor' : 'visitors'}` : key === 'estimatedCustomers' ? `${t.closeRate}% of who reached out` : null;
+    return { value, sub, tone: 'neutral' as const };
+  }
+  const diff = now - before;
+  return {
+    value,
+    sub: `${diff > 0 ? '+' : diff < 0 ? '−' : ''}${Math.abs(diff)} vs last month`,
+    tone: diff > 0 ? ('up' as const) : diff < 0 ? ('down' as const) : ('neutral' as const),
+  };
+}
 
 const prettyDay = (iso: string | null) =>
   iso
@@ -128,6 +156,8 @@ export function ProofDashboard({
   const latest = reports[0] ?? null;
   const prev = reports[1] ?? null;
   const live = latest !== null;
+  const traffic = latest?.traffic && (latest.traffic.views > 0 || latest.traffic.clicks > 0) ? latest.traffic : null;
+  const prevTraffic = prev?.traffic ?? null;
   const chart = reports.slice(0, 6).reverse();
   const chartMax = Math.max(1, ...chart.map((r) => (r.calls ?? 0) + (r.leads ?? 0)));
   const baseline = details.baselineCalls != null || details.baselineLeads != null ? (details.baselineCalls ?? 0) + (details.baselineLeads ?? 0) : null;
@@ -219,7 +249,38 @@ export function ProofDashboard({
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {traffic ? (
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {WEB_METRICS.map(({ key, label, icon: Icon, hint }) => {
+              const m = webMetric(key, traffic, prevTraffic);
+              return (
+                <Card key={label} className="p-5">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium text-neutral-600">{label}</p>
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                      <Icon size={16} />
+                    </span>
+                  </div>
+                  <p className="mt-4 text-3xl font-bold tracking-tight text-neutral-950">{m.value}</p>
+                  <div className="mt-3 flex items-center justify-between">
+                    <p
+                      className={`text-xs ${
+                        m.tone === 'up' ? 'font-semibold text-emerald-600' : m.tone === 'down' ? 'font-semibold text-red-600' : 'text-neutral-500'
+                      }`}
+                    >
+                      {m.sub ?? hint}
+                    </p>
+                  </div>
+                  <div className="mt-3 border-t border-dashed border-neutral-200 pt-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">{monthLabel(latest!.month)}</p>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        ) : null}
+
+        <div className={`${traffic ? 'mt-4' : 'mt-6'} grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4`}>
           {METRICS.map(({ key, label, icon: Icon, hint }) => {
             const m = metric(key, latest, prev);
             return (
@@ -416,7 +477,9 @@ export function ProofDashboard({
                         <span className="text-xs text-neutral-500">{monthLabel(f.r.month)}</span>
                       </div>
                       <p className="mt-1.5 text-sm font-semibold text-neutral-950">
-                        {f.r.calls ?? '—'} calls · {f.r.leads ?? '—'} leads · {f.r.booked ?? '—'} booked jobs
+                        {f.r.traffic && (f.r.traffic.views > 0 || f.r.traffic.clicks > 0)
+                          ? `${f.r.traffic.views} visits · ${f.r.traffic.clicks} button clicks · ~${f.r.traffic.estimatedCustomers} new customers (est.)`
+                          : `${f.r.calls ?? '—'} calls · ${f.r.leads ?? '—'} leads · ${f.r.booked ?? '—'} booked jobs`}
                         {f.r.rank != null ? ` · #${f.r.rank} on Google` : ''}
                       </p>
                       {f.r.note ? <p className="mt-1 text-sm text-neutral-600">{f.r.note}</p> : null}
@@ -442,6 +505,48 @@ export function ProofDashboard({
             )}
           </Card>
         </div>
+
+        {traffic ? (
+          <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+            <Card className="p-6">
+              <h2 className="text-base font-semibold text-neutral-950">Most clicked buttons</h2>
+              <p className="mt-0.5 text-xs text-neutral-500">{monthLabel(latest!.month)}</p>
+              <ul className="mt-4 space-y-2 text-sm">
+                {traffic.buttons.slice(0, 6).map((b) => (
+                  <li key={b.name} className="flex items-center justify-between gap-3">
+                    <span className="truncate text-neutral-700">{buttonLabel(b.name)}</span>
+                    <span className="font-semibold text-neutral-950">{b.count}</span>
+                  </li>
+                ))}
+                {traffic.buttons.length === 0 ? <li className="text-neutral-500">No button clicks yet.</li> : null}
+              </ul>
+            </Card>
+            <Card className="p-6">
+              <h2 className="text-base font-semibold text-neutral-950">Where visitors came from</h2>
+              <p className="mt-0.5 text-xs text-neutral-500">{traffic.visitors} visitors</p>
+              <ul className="mt-4 space-y-2 text-sm">
+                {traffic.sources.slice(0, 5).map((x) => (
+                  <li key={x.host || 'direct'} className="flex items-center justify-between gap-3">
+                    <span className="truncate text-neutral-700">{sourceLabel(x.host)}</span>
+                    <span className="font-semibold text-neutral-950">{x.count}</span>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+            <Card className="p-6">
+              <h2 className="text-base font-semibold text-neutral-950">Most visited pages</h2>
+              <p className="mt-0.5 text-xs text-neutral-500">{traffic.views} page views</p>
+              <ul className="mt-4 space-y-2 text-sm">
+                {traffic.pages.slice(0, 5).map((pg) => (
+                  <li key={pg.path} className="flex items-center justify-between gap-3">
+                    <span className="truncate text-neutral-700">{pg.path === '/' ? 'Home page' : pg.path}</span>
+                    <span className="font-semibold text-neutral-950">{pg.count}</span>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          </div>
+        ) : null}
 
         <Card className="mt-4">
           <div className="flex items-center justify-between border-b border-neutral-100 px-6 py-4">
