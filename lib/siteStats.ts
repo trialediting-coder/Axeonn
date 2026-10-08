@@ -12,7 +12,7 @@
 import { createHash, createHmac, randomInt } from 'node:crypto';
 import { sql, ensureSchema, isDatabaseConfigured } from '@/lib/db';
 import { SITE_ORIGIN } from '@/lib/hostRouting';
-import { CONVERSION_NAMES, type TrafficDetail, type TrafficSummary } from '@/lib/projectsShared';
+import { CONVERSION_NAMES, type CloseRateEstimate, type TrafficDetail, type TrafficSummary } from '@/lib/projectsShared';
 
 /** Month boundaries for reports follow the clients' clock (Iowa). */
 export const REPORT_TIME_ZONE = 'America/Chicago';
@@ -48,12 +48,20 @@ export interface TrackingEvent {
   speedMs: number | null;
 }
 
+export type CloseRateMode = 'auto' | 'manual';
+
 export interface TrackingSettings {
   siteKey: string | null;
   siteUrl: string | null;
+  /** 'auto' estimates from the month's data; 'manual' uses closeRate as typed. */
+  closeRateMode: CloseRateMode;
   closeRate: number;
   autoReports: boolean;
 }
+
+/** The rate to hand to monthTraffic: a number to use as-is, or null to estimate. */
+export const effectiveCloseRate = (s: Pick<TrackingSettings, 'closeRateMode' | 'closeRate'>): number | null =>
+  s.closeRateMode === 'manual' ? s.closeRate : null;
 
 // ───────────────────────────── Pure helpers ─────────────────────────────
 
@@ -236,10 +244,107 @@ export function isConversion(name: string): boolean {
   return (CONVERSION_NAMES as readonly string[]).includes(name);
 }
 
-/** Rounds down to a whole number: never promise a customer that is not there. */
+/** Nearest whole customer. */
 export function estimateCustomers(conversions: number, closeRate: number): number {
   if (conversions <= 0 || closeRate <= 0) return 0;
-  return Math.floor((conversions * closeRate) / 100);
+  return Math.round((conversions * closeRate) / 100);
+}
+
+/**
+ * How often each way of reaching out turns into a paying job, for local service
+ * businesses. Someone who books online has already picked a time; someone who
+ * emails is often still shopping. The headline uses the upper figure and the
+ * range runs from the lower one: optimistic, and defensible to the client.
+ */
+export const CONTACT_CLOSE_RATES: Record<(typeof CONVERSION_NAMES)[number], { low: number; high: number }> = {
+  book: { low: 65, high: 85 },
+  call: { low: 35, high: 55 },
+  text: { low: 30, high: 50 },
+  form: { low: 20, high: 40 },
+  email: { low: 15, high: 35 },
+};
+
+/** When nobody has reached out yet there is nothing to weigh; a typical local-service figure. */
+export const DEFAULT_CLOSE_RATE_ESTIMATE: CloseRateEstimate = {
+  rate: 35,
+  low: 25,
+  high: 45,
+  sample: 0,
+  factors: [{ label: 'Typical rate for a local service business, until people start reaching out', effect: 0 }],
+};
+
+const clampPct = (n: number) => Math.max(10, Math.min(90, Math.round(n)));
+
+/**
+ * Estimates the share of people who reached out that became customers, from the
+ * month's own data. Pure, so lib/siteStats.test.ts pins it down.
+ *
+ * Base: each way of reaching out gets its benchmark, weighted by this client's
+ * mix. Then only upward adjustments, each one a reason the client can read:
+ * visitors who read first, who came back, who reached out from a service page,
+ * during business hours, or from a phone. Small samples widen the range rather
+ * than lower the number.
+ */
+export function estimateCloseRate(input: { buttons: Array<{ name: string; count: number }>; detail?: TrafficDetail | null }): CloseRateEstimate {
+  const mix = input.buttons.filter((b) => isConversion(b.name));
+  const sample = mix.reduce((n, b) => n + b.count, 0);
+  if (sample === 0) return DEFAULT_CLOSE_RATE_ESTIMATE;
+
+  let baseHigh = 0;
+  let baseLow = 0;
+  for (const b of mix) {
+    const bench = CONTACT_CLOSE_RATES[b.name as keyof typeof CONTACT_CLOSE_RATES];
+    baseHigh += (bench.high * b.count) / sample;
+    baseLow += (bench.low * b.count) / sample;
+  }
+  const dominant = [...mix].sort((a, b) => b.count - a.count)[0];
+  const factors: CloseRateEstimate['factors'] = [
+    {
+      label: `${Math.round(baseHigh)}% to start, from how people reached out (mostly ${dominant.name === 'book' ? 'online bookings' : dominant.name === 'form' ? 'forms' : `${dominant.name}s`})`,
+      effect: 0,
+    },
+  ];
+
+  let adj = 0;
+  const d = input.detail && input.detail.sessions > 0 ? input.detail : null;
+  if (d) {
+    if (d.avgSeconds >= 60 || d.pagesPerSession >= 2) {
+      adj += 5;
+      factors.push({ label: 'Visitors read several pages before reaching out', effect: 5 });
+    }
+    if (d.returningVisitors / d.sessions >= 0.15) {
+      adj += 3;
+      factors.push({ label: 'Many came back a second time before deciding', effect: 3 });
+    }
+    const convOnPages = d.convertingPages.reduce((n, c) => n + c.count, 0);
+    const onService = d.convertingPages.filter((c) => c.path !== '/').reduce((n, c) => n + c.count, 0);
+    if (convOnPages > 0 && onService / convOnPages >= 0.5) {
+      adj += 4;
+      factors.push({ label: 'Most reached out from a specific service page', effect: 4 });
+    }
+    const hoursTotal = d.conversionHours.reduce((a, b) => a + b, 0);
+    const business = d.conversionHours.slice(8, 18).reduce((a, b) => a + b, 0);
+    if (hoursTotal > 0 && business / hoursTotal >= 0.6) {
+      adj += 4;
+      factors.push({ label: 'Most reached out during business hours, when calls get answered', effect: 4 });
+    }
+    const dev = d.devices.phone + d.devices.tablet + d.devices.desktop;
+    if (dev > 0 && d.devices.phone / dev >= 0.6) {
+      adj += 2;
+      factors.push({ label: 'Most visits were on a phone, where a tap is a real call', effect: 2 });
+    }
+  }
+
+  const spread = sample < 5 ? 10 : 5;
+  if (sample < 5) factors.push({ label: `Only ${sample} ${sample === 1 ? 'person' : 'people'} reached out so far, so the range is wide`, effect: 0 });
+  const rate = clampPct(baseHigh + adj);
+  return {
+    rate,
+    low: clampPct(Math.min(rate - spread, baseLow + adj)),
+    high: clampPct(rate + spread),
+    sample,
+    factors,
+  };
 }
 
 export function validateCloseRate(raw: unknown): number {
@@ -257,6 +362,10 @@ export function validateSiteUrl(raw: unknown): string | null {
 }
 
 /** Builds the summary from the grouped counts. Pure, so the tests can cover it without a database. */
+/**
+ * Builds the summary from the grouped counts. `closeRate` null means "estimate
+ * it from this data" (estimateCloseRate); a number is the admin's own figure.
+ */
 export function summarize(input: {
   views: number;
   visitors: number;
@@ -264,10 +373,12 @@ export function summarize(input: {
   buttons: Array<{ name: string; count: number }>;
   pages: Array<{ path: string; count: number }>;
   sources: Array<{ host: string; count: number }>;
-  closeRate: number;
+  closeRate: number | null;
   detail?: TrafficDetail | null;
 }): TrafficSummary {
   const conversions = input.buttons.filter((b) => isConversion(b.name)).reduce((sum, b) => sum + b.count, 0);
+  const estimate = input.closeRate == null ? estimateCloseRate({ buttons: input.buttons, detail: input.detail }) : null;
+  const closeRate = estimate ? estimate.rate : (input.closeRate as number);
   return {
     views: input.views,
     visitors: input.visitors,
@@ -276,9 +387,12 @@ export function summarize(input: {
     pages: input.pages,
     sources: input.sources,
     conversions,
-    closeRate: input.closeRate,
-    estimatedCustomers: estimateCustomers(conversions, input.closeRate),
+    closeRate,
+    estimatedCustomers: estimateCustomers(conversions, closeRate),
     detail: input.detail ?? null,
+    closeRateEstimate: estimate,
+    customersLow: estimate ? Math.floor((conversions * estimate.low) / 100) : undefined,
+    customersHigh: estimate ? Math.ceil((conversions * estimate.high) / 100) : undefined,
   };
 }
 
@@ -406,12 +520,14 @@ interface SettingsRow {
   site_key: string | null;
   site_url: string | null;
   close_rate: number | null;
+  close_rate_mode: string | null;
   auto_reports: boolean | null;
 }
 
 const rowToSettings = (r: SettingsRow | undefined): TrackingSettings => ({
   siteKey: r?.site_key ?? null,
   siteUrl: r?.site_url ?? null,
+  closeRateMode: r?.close_rate_mode === 'manual' ? 'manual' : 'auto',
   closeRate: r?.close_rate ?? DEFAULT_CLOSE_RATE,
   autoReports: r?.auto_reports ?? true,
 });
@@ -420,7 +536,7 @@ export async function getTrackingSettings(onboardingId: number): Promise<Trackin
   if (!isDatabaseConfigured()) return rowToSettings(undefined);
   await ensureSchema();
   const res = await sql<SettingsRow>`
-    SELECT site_key, site_url, close_rate, auto_reports FROM onboardings WHERE id = ${onboardingId} LIMIT 1;
+    SELECT site_key, site_url, close_rate, close_rate_mode, auto_reports FROM onboardings WHERE id = ${onboardingId} LIMIT 1;
   `;
   return rowToSettings(res.rows[0]);
 }
@@ -441,15 +557,17 @@ export async function ensureSiteKey(onboardingId: number): Promise<TrackingSetti
 
 export async function setTrackingSettings(
   onboardingId: number,
-  input: Pick<TrackingSettings, 'siteUrl' | 'closeRate' | 'autoReports'>
+  input: Pick<TrackingSettings, 'siteUrl' | 'closeRateMode' | 'closeRate' | 'autoReports'>
 ): Promise<void> {
   await ensureSchema();
   await sql`
-    UPDATE onboardings SET site_url = ${input.siteUrl}, close_rate = ${input.closeRate},
+    UPDATE onboardings SET site_url = ${input.siteUrl}, close_rate = ${input.closeRate}, close_rate_mode = ${input.closeRateMode},
       auto_reports = ${input.autoReports}, updated_at = now()
     WHERE id = ${onboardingId};
   `;
 }
+
+export const validateCloseRateMode = (raw: unknown): CloseRateMode => (raw === 'manual' ? 'manual' : 'auto');
 
 const keyCache = new Map<string, { id: number | null; at: number }>();
 const KEY_CACHE_MS = 5 * 60 * 1000;
@@ -532,14 +650,14 @@ export async function sessionRows(onboardingId: number, month: string): Promise<
   return res.rows;
 }
 
-const EMPTY: TrafficSummary = summarize({ views: 0, visitors: 0, clicks: 0, buttons: [], pages: [], sources: [], closeRate: DEFAULT_CLOSE_RATE });
+const EMPTY_INPUT = { views: 0, visitors: 0, clicks: 0, buttons: [], pages: [], sources: [] };
 
 /**
  * One month of a client's website, with the month's edges at midnight in the
  * report time zone (Postgres handles daylight saving).
  */
-export async function monthTraffic(onboardingId: number, month: string, closeRate: number): Promise<TrafficSummary> {
-  if (!isDatabaseConfigured() || !isValidMonth(month)) return { ...EMPTY, closeRate };
+export async function monthTraffic(onboardingId: number, month: string, closeRate: number | null): Promise<TrafficSummary> {
+  if (!isDatabaseConfigured() || !isValidMonth(month)) return summarize({ ...EMPTY_INPUT, closeRate });
   await ensureSchema();
   const first = `${month}-01`;
   const totals = await sql<{ views: number; visitors: number; clicks: number }>`
@@ -553,7 +671,7 @@ export async function monthTraffic(onboardingId: number, month: string, closeRat
       AND created_at < ((${first}::date + interval '1 month') AT TIME ZONE ${REPORT_TIME_ZONE});
   `;
   const t = totals.rows[0] ?? { views: 0, visitors: 0, clicks: 0 };
-  if (t.views === 0 && t.clicks === 0) return { ...EMPTY, closeRate };
+  if (t.views === 0 && t.clicks === 0) return summarize({ ...EMPTY_INPUT, closeRate });
 
   const [buttons, pages, sources, sessions] = await Promise.all([
     sql<{ name: string; count: number }>`
@@ -608,8 +726,8 @@ export async function trackingOverview(onboardingId: number): Promise<TrackingOv
   const month = monthOf();
   const previous = previousMonth(month);
   const [thisMonth, lastMonth, last] = await Promise.all([
-    monthTraffic(onboardingId, month, settings.closeRate),
-    monthTraffic(onboardingId, previous, settings.closeRate),
+    monthTraffic(onboardingId, month, effectiveCloseRate(settings)),
+    monthTraffic(onboardingId, previous, effectiveCloseRate(settings)),
     lastEventAt(onboardingId),
   ]);
   return {

@@ -105,7 +105,14 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
 
   // ── Tracking ──
   const t = data.tracking;
-  const [tracking, setTracking] = useState({ siteUrl: t.siteUrl ?? '', closeRate: String(t.closeRate), autoReports: t.autoReports });
+  const [tracking, setTracking] = useState({
+    siteUrl: t.siteUrl ?? '',
+    closeRateMode: t.closeRateMode,
+    closeRate: String(t.closeRate),
+    autoReports: t.autoReports,
+  });
+  const autoRate = t.lastMonth.conversions > 0 ? t.lastMonth.closeRate : t.thisMonth.closeRate;
+  const autoEstimate = t.lastMonth.conversions > 0 ? t.lastMonth.closeRateEstimate : t.thisMonth.closeRateEstimate;
   const [copied, setCopied] = useState(false);
   const lastSeen = t.lastEventAt ? Math.round((Date.now() - new Date(t.lastEventAt).getTime()) / 60_000) : null;
   const seenText =
@@ -229,7 +236,7 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
         </div>
 
         <form
-          className="mt-4 grid gap-3 sm:grid-cols-[1fr_120px_auto_auto] sm:items-end"
+          className="mt-4 grid gap-3 sm:grid-cols-[1fr_170px_110px_auto_auto] sm:items-end"
           onSubmit={(e) => {
             e.preventDefault();
             void call('POST', { kind: 'tracking', ...tracking }, 'Tracking settings saved.', 'tracking');
@@ -239,10 +246,25 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
             type: 'url',
             placeholder: 'https://a1autodetailing.com',
           })}
-          {input(tracking.closeRate, (e) => setTracking((x) => ({ ...x, closeRate: e.target.value })), 'Close rate %', {
-            inputMode: 'numeric',
-            title: 'Share of calls, texts, emails, forms and bookings counted as a new customer',
-          })}
+          <label className="block">
+            <span className={adminLabel}>Close rate</span>
+            <select
+              className={adminInput}
+              value={tracking.closeRateMode}
+              onChange={(e) => setTracking((x) => ({ ...x, closeRateMode: e.target.value === 'manual' ? 'manual' : 'auto' }))}
+            >
+              <option value="auto">Auto from data ({autoRate}%)</option>
+              <option value="manual">Set by hand</option>
+            </select>
+          </label>
+          {tracking.closeRateMode === 'manual' ? (
+            input(tracking.closeRate, (e) => setTracking((x) => ({ ...x, closeRate: e.target.value })), '%', {
+              inputMode: 'numeric',
+              title: 'Share of calls, texts, emails, forms and bookings counted as a new customer',
+            })
+          ) : (
+            <div className="hidden sm:block" />
+          )}
           <label className="flex h-10 items-center gap-2 text-sm text-neutral-800">
             <input
               type="checkbox"
@@ -256,6 +278,13 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
             {busy === 'tracking' ? 'Saving…' : 'Save'}
           </button>
         </form>
+
+        {tracking.closeRateMode === 'auto' && autoEstimate ? (
+          <p className="mt-2 text-xs text-neutral-500">
+            Auto close rate right now: <b className="text-neutral-700">{autoEstimate.rate}%</b> (likely {autoEstimate.low}% to {autoEstimate.high}%).{' '}
+            {autoEstimate.factors.map((f) => f.label + (f.effect ? ` (+${f.effect})` : '')).join('. ')}.
+          </p>
+        ) : null}
 
         <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-neutral-200 pt-4">
           <button
@@ -420,7 +449,7 @@ function TrafficBox({ title, traffic }: { title: string; traffic: TrafficSummary
         {n('Visits', traffic.views)}
         {n('Visitors', traffic.visitors)}
         {n('Clicks', traffic.clicks)}
-        {n('Est. customers', empty ? '—' : `~${traffic.estimatedCustomers}`)}
+        {n('Est. customers', empty ? '—' : `~${traffic.estimatedCustomers} @ ${traffic.closeRate}%`)}
       </div>
       {traffic.detail && traffic.detail.sessions > 0 ? (
         <p className="mt-2 text-xs text-neutral-600">

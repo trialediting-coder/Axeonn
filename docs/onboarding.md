@@ -175,7 +175,17 @@ load through `lib/proofDashboardData.ts` so they can never drift apart.
 sums last month (`lib/autoReports.ts`): visits and visitors, button clicks with
 the most-clicked list, how many people reached out (calls + texts + emails +
 forms + bookings), and **estimated new customers** = that count × the client's
-close rate (default 25%, editable per client; the email says it is an estimate).
+close rate. The close rate is **estimated from the data by default**
+(`estimateCloseRate` in `lib/siteStats.ts`): each way of reaching out gets the
+optimistic end of local-service benchmarks (online booking 85%, call 55%, text
+50%, form 40%, email 35%), weighted by that client's mix, then only upward
+adjustments, each with a reason the client reads in the email: visitors read
+several pages first (+5), many came back before deciding (+3), most reached out
+from a specific service page (+4), during business hours (+4), from a phone (+2).
+Fewer than five contacts widens the range rather than lowering the number. The
+email and dashboard show the headline figure, the likely range, and the reasons.
+"Close rate: set by hand" on the admin card replaces the estimate with a typed
+number when a client tells us their real one.
 Anything Axeon typed into the same month's Monthly Report box (calls, leads,
 booked jobs, rank, what we did, next month's plan) rides along in the same email,
 so the manual box becomes optional notes rather than the whole report. The job

@@ -232,6 +232,9 @@ export function ensureSchema(): Promise<void> {
       await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS site_url TEXT;`;
       await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS close_rate INTEGER NOT NULL DEFAULT 25;`;
       await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS auto_reports BOOLEAN NOT NULL DEFAULT true;`;
+      // 'auto' estimates the close rate from the month's data (lib/siteStats.ts
+      // estimateCloseRate); 'manual' uses close_rate as typed in the admin.
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS close_rate_mode TEXT NOT NULL DEFAULT 'auto';`;
       // One row per page view or button click on a client's website. No cookies,
       // no IP: `visitor` is a salted hash that rotates monthly, so "visitors" is
       // unique people per month and nothing identifies one of them.

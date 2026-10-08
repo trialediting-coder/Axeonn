@@ -43,6 +43,25 @@ export interface TrafficSummary {
   estimatedCustomers: number;
   /** Session-level detail (added 2026-10-08). Absent on reports summed before then. */
   detail?: TrafficDetail | null;
+  /** Present when closeRate was estimated from the data rather than typed in. */
+  closeRateEstimate?: CloseRateEstimate | null;
+  /** Likely range for estimatedCustomers, from the estimate's low and high rates. */
+  customersLow?: number;
+  customersHigh?: number;
+}
+
+/**
+ * How the close rate was arrived at, so the email and dashboard can show the
+ * reasoning. `rate` is the headline figure; `low`..`high` is the likely range.
+ */
+export interface CloseRateEstimate {
+  rate: number;
+  low: number;
+  high: number;
+  /** Conversions the estimate rests on. Under 5 widens the range. */
+  sample: number;
+  /** Plain-English reasons, each with its effect in percentage points (0 for the base). */
+  factors: Array<{ label: string; effect: number }>;
 }
 
 /**

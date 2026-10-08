@@ -430,7 +430,10 @@ export function reportStats(r: ReportBody, prev: ReportBody | null, d: ProjectDe
     {
       label: 'Estimated new customers',
       value: `~${t.estimatedCustomers}`,
-      sub: `${t.closeRate}% of those who reached out`,
+      sub:
+        t.closeRateEstimate && t.customersLow != null && t.customersHigh != null && t.conversions > 0
+          ? `likely ${t.customersLow} to ${t.customersHigh} · ${t.closeRate}% close rate, worked out from how they reached out`
+          : `${t.closeRate}% of those who reached out`,
     },
   ];
   return [...web, ...typed.filter((s) => s.value !== '—')];
