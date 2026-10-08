@@ -5,6 +5,8 @@
  *  .btn/.cta link), and one "leave" ping per page with time spent, scroll
  *  depth and load speed, to axeonstudio.co/api/t. No cookies, no storage,
  *  nothing personal. Add data-axeon="quote" to any element to name its clicks.
+ *  data-host="example.com" limits recording to that host (previews and staging
+ *  stay out). window.axeonTrack('book') records a click by name from your code.
  */
 (function () {
   var s = document.currentScript;
@@ -14,6 +16,8 @@
   var endpoint = s.getAttribute('data-endpoint') || 'https://axeonstudio.co/api/t';
   if (navigator.webdriver) return;
   if (/^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(location.hostname)) return;
+  var only = s.getAttribute('data-host');
+  if (only && location.hostname.replace(/^www\./, '') !== only.replace(/^www\./, '')) return;
 
   function post(data) {
     data.k = key;
@@ -172,6 +176,12 @@
     },
     true
   );
+
+  // For the site's own code: window.axeonTrack('book') after an embedded calendar confirms, and so on.
+  window.axeonTrack = function (name) {
+    if (typeof name !== 'string' || !name) return;
+    post({ e: 'click', n: name, p: location.pathname, r: document.referrer || undefined, w: window.innerWidth });
+  };
 
   view();
 })();

@@ -5,6 +5,7 @@
 // Validation and hashing live in lib/siteStats.ts.
 import { clientIp, rateLimited } from '@/lib/welcomeApi';
 import { looksLikeBot, monthOf, onboardingIdForSiteKey, parseTrackingEvent, placeFromHeaders, recordEvent, visitorHash } from '@/lib/siteStats';
+import { SELF_SITE_KEY, selfOnboardingId } from '@/lib/selfTracking';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -46,7 +47,9 @@ export async function POST(req: Request) {
     }
     const event = parseTrackingEvent(raw);
     if (!event) return done();
-    const onboardingId = await onboardingIdForSiteKey(event.siteKey);
+    let onboardingId = await onboardingIdForSiteKey(event.siteKey);
+    // Our own site: the record is created the first time axeonstudio.co reports in.
+    if (!onboardingId && event.siteKey === SELF_SITE_KEY) onboardingId = await selfOnboardingId();
     if (!onboardingId) return done();
 
     // City and region come from Vercel's edge headers; the IP itself goes into the hash and nowhere else.

@@ -34,7 +34,18 @@ function StatusBadge({ row }: { row: BoardRow }) {
   return <span className={`text-xs font-semibold px-2 py-1 rounded-full ${styles[row.status]}`}>{row.status}</span>;
 }
 
-export function OnboardingBoard({ initialRows, databaseConfigured, dbError }: { initialRows: BoardRow[]; databaseConfigured: boolean; dbError: string | null }) {
+export function OnboardingBoard({
+  initialRows,
+  selfToken = null,
+  databaseConfigured,
+  dbError,
+}: {
+  initialRows: BoardRow[];
+  /** Token of Axeon's own record (lib/selfTracking.ts), for the shortcut at the top. */
+  selfToken?: string | null;
+  databaseConfigured: boolean;
+  dbError: string | null;
+}) {
   const [rows, setRows] = useState(initialRows);
   const [form, setForm] = useState({ clientEmail: '', clientName: '', businessName: '', phone: '', tier: 'essentials' as OnboardingTier });
   const [quiet, setQuiet] = useState(false);
@@ -76,6 +87,7 @@ export function OnboardingBoard({ initialRows, databaseConfigured, dbError }: { 
 
   return (
     <div className="space-y-8">
+      {selfToken && <SelfSiteCard token={selfToken} />}
       {!databaseConfigured && (
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">
           No database is attached, so onboardings have nowhere to live. Attach Vercel Postgres and redeploy.
@@ -203,6 +215,30 @@ export function OnboardingBoard({ initialRows, databaseConfigured, dbError }: { 
 
       <SampleReport disabled={!databaseConfigured} />
     </div>
+  );
+}
+
+/** Axeon's own site, tracked like a client's. The record is created automatically (lib/selfTracking.ts). */
+function SelfSiteCard({ token }: { token: string }) {
+  return (
+    <section className="rounded-2xl border border-blue-200 bg-blue-50 p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+      <div className="flex-1">
+        <div className="text-xs font-semibold uppercase tracking-wider text-blue-700">Our own site</div>
+        <h2 className="mt-1 text-lg font-bold text-neutral-950">axeonstudio.co in AxeonPROOF</h2>
+        <p className="mt-1 text-sm text-neutral-700">
+          The same tracker clients install runs on our site. See our visits, button presses, calls, bookings and the estimate,
+          exactly as a client would, and get our own report on the 1st.
+        </p>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <Link href={`/admin/onboarding/${token}/preview`} className={btn('primary')}>
+          Open our dashboard
+        </Link>
+        <Link href={`/admin/onboarding/${token}`} className={btn('secondary')}>
+          Settings
+        </Link>
+      </div>
+    </section>
   );
 }
 
