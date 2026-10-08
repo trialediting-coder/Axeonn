@@ -564,7 +564,6 @@ const DARK_CSS = `
   .ax-hero { background:#13213f !important; border-color:#2b4a8f !important; }
   .ax-box { background:#171b25 !important; }
   .ax-track { background:#1c2740 !important; }
-  .ax-band { background:#0b0e14 !important; }
   .ax-pill { background:#13213f !important; }
   .ax-blue { color:#7aa7ff !important; }
   .ax-green { color:#4ade80 !important; }
@@ -587,20 +586,19 @@ function brandDocument(input: { subject: string; headerHtml: string; bodyHtml: s
   a { color:${BRAND.blueText}; }
   @media (max-width: 600px) { .tile { display:block !important; width:100% !important; } .pad { padding-left:20px !important; padding-right:20px !important; } }
   @media (prefers-color-scheme: dark) { ${DARK_CSS} }
-  ${DARK_CSS.replace(/\n\s*\./g, '\n  [data-ogsc] .').replace(/\[data-ogsc\] \.ax-wash|\[data-ogsc\] \.ax-card|\[data-ogsc\] \.ax-band/g, (m) => m.replace('[data-ogsc]', '[data-ogsb]'))}
+  ${DARK_CSS.replace(/\n\s*\./g, '\n  [data-ogsc] .').replace(/\[data-ogsc\] \.ax-wash|\[data-ogsc\] \.ax-card/g, (m) => m.replace('[data-ogsc]', '[data-ogsb]'))}
 </style>
 </head>
 <body class="ax-wash" style="margin:0;padding:0;background:${BRAND.wash}">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" class="ax-wash" style="background:${BRAND.wash}"><tr><td align="center" style="padding:24px 12px">
 <table role="presentation" width="600" cellspacing="0" cellpadding="0" class="ax-card" style="width:100%;max-width:600px;background:#ffffff;border-radius:16px;overflow:hidden;font-family:${FONT};color:${BRAND.body};line-height:1.55">
-  <tr><td style="height:6px;background:${BRAND.blue};font-size:1px;line-height:1px">&nbsp;</td></tr>
-  <tr><td class="pad" style="padding:26px 32px 8px">
+  <tr><td class="pad" bgcolor="${BRAND.blue}" style="background:${BRAND.blue};padding:26px 32px 28px;color:#ffffff">
     ${input.headerHtml}
   </td></tr>
   <tr><td class="pad" style="padding:8px 32px 8px">
     ${input.bodyHtml}
   </td></tr>
-  <tr><td class="pad ax-band" style="background:${BRAND.wash};padding:22px 32px;border-top:1px solid ${BRAND.line}">
+  <tr><td class="pad" bgcolor="${BRAND.blue}" style="background:${BRAND.blue};padding:22px 32px;color:#ffffff">
     ${input.footerHtml}
   </td></tr>
 </table>
@@ -611,6 +609,10 @@ function brandDocument(input: { subject: string; headerHtml: string; bodyHtml: s
 }
 
 /** The mark (blue on transparent, so it works on light and dark) and the wordmark in ink. */
+/** Full lockups rendered as PNGs from Plus Jakarta Sans, so the wordmark is the real logo in every mail app. */
+const LOCKUP_WHITE_PROOF = 'https://axeonstudio.co/email/axeon-proof-white.png'; // 203x30
+const LOCKUP_WHITE = 'https://axeonstudio.co/email/axeon-white.png'; // 98x26
+
 const brandLogo = (product?: string, size: 'md' | 'lg' = 'md') => `
   <table role="presentation" cellspacing="0" cellpadding="0"><tr>
     <td style="vertical-align:middle;padding-right:${size === 'lg' ? 12 : 10}px"><img src="${EMAIL_LOGO_URL}" width="${size === 'lg' ? 34 : 26}" height="${
@@ -813,11 +815,11 @@ export function renderMonthlyReportEmail(input: MonthlyReportEmailInput): { subj
   const didSomething = input.done.length > 0;
   const headerHtml = `
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr>
-      <td style="vertical-align:middle">${brandLogo('PROOF', 'lg')}</td>
-      <td style="vertical-align:middle;text-align:right"><span class="ax-pill ax-blue" style="display:inline-block;padding:6px 12px;border-radius:999px;background:${BRAND.blueTint};color:${BRAND.blueText};font-size:12px;font-weight:700;letter-spacing:.04em">${escapeHtml(input.monthLabel)}</span></td>
+      <td style="vertical-align:middle"><img src="${LOCKUP_WHITE_PROOF}" width="203" height="30" alt="AxeonPROOF" style="display:block;border:0;font-family:${FONT};font-size:22px;font-weight:800;color:#ffffff"></td>
+      <td style="vertical-align:middle;text-align:right"><span style="display:inline-block;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.18);color:#ffffff;font-size:12px;font-weight:700;letter-spacing:.04em">${escapeHtml(input.monthLabel)}</span></td>
     </tr></table>
-    <h1 class="ax-ink" style="margin:26px 0 0;font-family:${FONT};font-size:28px;line-height:1.15;font-weight:800;letter-spacing:-.02em;color:${BRAND.ink}">Here is what Axeon did for you in ${escapeHtml(input.monthLabel)}.</h1>
-    <p class="ax-body" style="margin:14px 0 0;font-family:${FONT};font-size:16px;line-height:1.5;color:${BRAND.body}">${escapeHtml(headline)}</p>
+    <h1 style="margin:26px 0 0;font-family:${FONT};font-size:28px;line-height:1.15;font-weight:800;letter-spacing:-.02em;color:#ffffff">Here is what Axeon did for you in ${escapeHtml(input.monthLabel)}.</h1>
+    <p style="margin:14px 0 0;font-family:${FONT};font-size:16px;line-height:1.5;color:#ffffff">${escapeHtml(headline)}</p>
   `;
   const bodyHtml = `
     <p class="ax-body" style="margin:10px 0 14px;font-size:15px;color:${BRAND.body}">${firstName(input.clientName)}</p>
@@ -836,10 +838,10 @@ export function renderMonthlyReportEmail(input: MonthlyReportEmailInput): { subj
   `;
   const footerHtml = `
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr>
-      <td style="vertical-align:middle">${brandLogo()}</td>
-      <td class="ax-ink" style="vertical-align:middle;text-align:right;font-family:${FONT};font-size:14px;font-weight:800;color:${BRAND.ink};letter-spacing:-.01em">${TAGLINE}</td>
+      <td style="vertical-align:middle"><img src="${LOCKUP_WHITE}" width="98" height="26" alt="Axeon" style="display:block;border:0;font-family:${FONT};font-size:20px;font-weight:800;color:#ffffff"></td>
+      <td style="vertical-align:middle;text-align:right;font-family:${FONT};font-size:14px;font-weight:800;color:#ffffff;letter-spacing:-.01em">${TAGLINE}</td>
     </tr></table>
-    <p class="ax-muted" style="margin:14px 0 0;font-family:${FONT};font-size:13px;color:${BRAND.muted}">Questions? Reply to this email or call <a class="ax-blue" href="tel:+15154938017" style="color:${BRAND.blueText};text-decoration:none">(515) 493-8017</a>.</p>
+    <p style="margin:14px 0 0;font-family:${FONT};font-size:13px;color:#ffffff">Questions? Reply to this email or call <a href="tel:+15154938017" style="color:#ffffff;font-weight:700;text-decoration:underline">(515) 493-8017</a>.</p>
   `;
   return { subject, html: brandDocument({ subject, headerHtml, bodyHtml, footerHtml }) };
 }
