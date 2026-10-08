@@ -176,6 +176,46 @@ export async function sendWelcomeEmail(input: {
   return true;
 }
 
+/**
+ * For a client who was live before AxeonPROOF existed: here is your dashboard.
+ * Same secure link as the welcome; no checklist talk, no "about N minutes".
+ */
+export async function sendDashboardInviteEmail(input: {
+  to: string;
+  clientName: string | null;
+  businessName: string | null;
+  url: string;
+  /** True when they already chose a password: the copy says "sign in" instead of "choose a password". */
+  hasAccount: boolean;
+}): Promise<boolean> {
+  const resend = getClient();
+  if (!resend) return false;
+  const first = input.clientName?.split(' ')[0];
+  const biz = input.businessName ? escapeHtml(input.businessName) : 'your business';
+  await sendChecked(resend, {
+    from: CLIENT_FROM_ADDRESS,
+    replyTo: CLIENT_REPLY_TO,
+    to: input.to,
+    subject: 'Your AxeonPROOF dashboard is ready',
+    html: clientLayout(
+      'Your numbers, in one place.',
+      `
+        <p style="margin:0 0 12px">${first ? `Hi ${escapeHtml(first)},` : 'Hi there,'}</p>
+        <p style="margin:0 0 12px">We set up AxeonPROOF for ${biz}: a private dashboard with your website visits, the buttons customers press, how many reach out, and every update and monthly report from us. On the 1st of each month the same numbers land in your inbox.</p>
+        <p style="margin:0 0 12px">${
+          input.hasAccount
+            ? 'Sign in with your business email and the password you already chose.'
+            : 'Open the link below. On a new device we email you a 6-digit code first, then you choose a password for next time.'
+        }</p>
+        ${button(input.url, input.hasAccount ? 'Open AxeonPROOF' : 'Set up my dashboard')}
+        <p style="margin:0 0 12px;font-size:14px;color:#525252">Or copy this link: <a href="${escapeHtml(input.url)}" style="color:#2563eb">${escapeHtml(input.url)}</a></p>
+        <p style="margin:16px 0 0;font-size:14px;color:#525252">We will never ask for a password by email. Nothing changes about how we work together; this just lets you see it.</p>
+      `
+    ),
+  });
+  return true;
+}
+
 /** The one-time code for the portal. Throws when mail is not configured, since the client cannot proceed without it. */
 export async function sendVerificationCodeEmail(input: { to: string; code: string }): Promise<void> {
   const resend = getClient();

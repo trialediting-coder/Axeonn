@@ -199,6 +199,13 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
           </span>
         </div>
 
+        {!t.autoReports ? (
+          <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
+            The monthly report email is off for this client. Numbers are still collected; tick “Email on the 1st” below when you are ready for them to
+            hear from us.
+          </p>
+        ) : null}
+
         {t.snippet ? (
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <code className="flex-1 min-w-0 overflow-x-auto whitespace-nowrap rounded-lg bg-neutral-950 px-3 py-2 text-xs text-neutral-100">
@@ -255,9 +262,10 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
             type="button"
             disabled={busy === 'auto-report'}
             className={btn('primary', 'sm')}
-            onClick={() =>
-              void call('POST', { kind: 'auto-report', month: t.previous }, `${monthLabel(t.previous)} report emailed.`, 'auto-report')
-            }
+            onClick={() => {
+              if (confirm(`Email the ${monthLabel(t.previous)} report to the client now?`))
+                void call('POST', { kind: 'auto-report', month: t.previous }, `${monthLabel(t.previous)} report emailed.`, 'auto-report');
+            }}
           >
             <Send size={14} /> {busy === 'auto-report' ? 'Sending…' : `Send ${monthLabel(t.previous)} report now`}
           </button>
@@ -272,6 +280,7 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
           className={`${card} space-y-3 h-fit`}
           onSubmit={async (e) => {
             e.preventDefault();
+            if (!confirm('Post this update and email it to the client?')) return;
             if (await call('POST', { kind: 'update', ...update }, 'Update posted and emailed.', 'update')) setUpdate(emptyUpdate);
           }}
         >
@@ -332,6 +341,7 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
           onSubmit={async (e) => {
             e.preventDefault();
             const send = (e.nativeEvent as SubmitEvent).submitter?.getAttribute('value') !== 'save';
+            if (send && !confirm(`Email the ${monthLabel(report.month || lastMonth())} report to the client?`)) return;
             await call('POST', { kind: 'report', send, ...report }, send ? 'Report saved and emailed.' : 'Report saved (not emailed).', 'report');
           }}
         >

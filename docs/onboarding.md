@@ -67,7 +67,12 @@ item ever asks for one.
    stale. The detail view marks Axeon items done (the client sees "Set up"),
    nudges with the list of open items, resends the welcome, or closes the link.
 4. Manual minting from the board covers legacy clients and AxeonGROWTH, which
-   has no Stripe catalog entry yet.
+   has no Stripe catalog entry yet. Tick "Don't email the client yet" to set up a
+   client who was live before the portal existed (A-1, for example): no welcome,
+   no reminders, monthly report email off. Every button that emails a client asks
+   first. When ready, "Send welcome" sends the onboarding welcome and "Send
+   dashboard invite" sends a plain "here is your AxeonPROOF dashboard" email with
+   the same secure link.
 5. After every change (client save, admin action, new purchase) the site mirrors
    the portal into Airtable > Clients and, the first time a portal completes,
    emails the owner (`lib/onboardingSync.ts`).

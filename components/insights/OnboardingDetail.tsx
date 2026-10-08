@@ -97,15 +97,30 @@ export function OnboardingDetail({ initial, items }: { initial: Detail; items: {
           <button
             type="button"
             disabled={busy !== null}
-            onClick={() => call('POST', { action: 'welcome' }, 'welcome', 'Welcome email sent.')}
+            onClick={() => {
+              if (confirm(`Email the welcome and setup link to ${onboarding.clientEmail}?`)) void call('POST', { action: 'welcome' }, 'welcome', 'Welcome email sent.');
+            }}
             className={btn('secondary', 'sm')}
           >
             {busy === 'welcome' ? 'Sending…' : onboarding.welcomeSentAt ? 'Resend welcome' : 'Send welcome'}
           </button>
           <button
             type="button"
+            disabled={busy !== null || onboarding.status === 'closed'}
+            title="For a client who is already live: a plain “here is your dashboard” email instead of the onboarding welcome"
+            onClick={() => {
+              if (confirm(`Email ${onboarding.clientEmail} their AxeonPROOF dashboard invite?`)) void call('POST', { action: 'invite' }, 'invite', 'Dashboard invite sent.');
+            }}
+            className={btn('secondary', 'sm')}
+          >
+            {busy === 'invite' ? 'Sending…' : 'Send dashboard invite'}
+          </button>
+          <button
+            type="button"
             disabled={busy !== null || openClient.length === 0 || onboarding.status === 'closed'}
-            onClick={() => call('POST', { action: 'nudge' }, 'nudge', 'Nudge sent.')}
+            onClick={() => {
+              if (confirm(`Email ${onboarding.clientEmail} a reminder of their ${openClient.length} open items?`)) void call('POST', { action: 'nudge' }, 'nudge', 'Nudge sent.');
+            }}
             className={btn('primary', 'sm')}
           >
             {busy === 'nudge' ? 'Sending…' : `Nudge (${openClient.length} open)`}

@@ -37,6 +37,7 @@ function StatusBadge({ row }: { row: BoardRow }) {
 export function OnboardingBoard({ initialRows, databaseConfigured, dbError }: { initialRows: BoardRow[]; databaseConfigured: boolean; dbError: string | null }) {
   const [rows, setRows] = useState(initialRows);
   const [form, setForm] = useState({ clientEmail: '', clientName: '', businessName: '', phone: '', tier: 'essentials' as OnboardingTier });
+  const [quiet, setQuiet] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<string | null>(null);
@@ -50,13 +51,16 @@ export function OnboardingBoard({ initialRows, databaseConfigured, dbError }: { 
       const res = await fetch('/api/admin/onboarding', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, quiet }),
       });
       const data = (await res.json().catch(() => ({}))) as { error?: string; url?: string; created?: boolean; welcomeSent?: boolean };
       if (!res.ok) throw new Error(data.error ?? `Request failed (${res.status})`);
-      setResult(
-        `${data.created ? 'Created' : 'Already existed, reused'}: ${data.url}${data.welcomeSent ? ' (welcome email sent)' : ' (welcome email NOT sent, check Resend)'}`
-      );
+      const mail = data.welcomeSent
+        ? ' (welcome email sent)'
+        : quiet
+          ? ' (nothing sent to the client; use "Send welcome" or "Send dashboard invite" on their page when ready)'
+          : ' (welcome email NOT sent, check Resend)';
+      setResult(`${data.created ? 'Created' : 'Already existed, reused'}: ${data.url}${mail}`);
       const list = await fetch('/api/admin/onboarding').then((r) => r.json() as Promise<{ onboardings?: BoardRow[] }>);
       if (list.onboardings) setRows(list.onboardings);
       setForm({ clientEmail: '', clientName: '', businessName: '', phone: '', tier: 'essentials' });
@@ -150,7 +154,8 @@ export function OnboardingBoard({ initialRows, databaseConfigured, dbError }: { 
       <section className="bg-white rounded-2xl border border-neutral-200 p-5 sm:p-6">
         <h2 className="font-bold text-neutral-950">Start an onboarding by hand</h2>
         <p className="mt-1 text-sm text-neutral-600">
-          For a client who paid outside Stripe Checkout, or an AxeonGROWTH client. Reuses the open portal if that email already has one. Sends the welcome email.
+          For a client who paid outside Stripe Checkout, an AxeonGROWTH client, or a client who was live before the portal existed. Reuses the open
+          portal if that email already has one.
         </p>
         <form onSubmit={mint} className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -179,9 +184,16 @@ export function OnboardingBoard({ initialRows, databaseConfigured, dbError }: { 
             <label className="block text-xs font-semibold text-neutral-700 mb-1">Phone</label>
             <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={inputClass} placeholder="(515) 555-0134" />
           </div>
+          <label className="sm:col-span-2 flex items-start gap-2.5 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm text-neutral-800">
+            <input type="checkbox" className="mt-0.5 h-4 w-4 rounded border-neutral-300" checked={quiet} onChange={(e) => setQuiet(e.target.checked)} />
+            <span>
+              <span className="font-semibold">Don&apos;t email the client yet.</span> Creates their record so you can add the tracking snippet, type past
+              months and check their dashboard first. No welcome email, no reminders, and the monthly report email stays off until you turn it on.
+            </span>
+          </label>
           <div className="flex items-end">
             <button type="submit" disabled={busy || !databaseConfigured} className={btn('primary')}>
-              {busy ? 'Creating…' : 'Create and send welcome'}
+              {busy ? 'Creating…' : quiet ? 'Create quietly' : 'Create and send welcome'}
             </button>
           </div>
         </form>

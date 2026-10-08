@@ -1,6 +1,7 @@
 // app/api/admin/onboarding/route.ts
 // Admin-only: list onboardings and mint one by hand (legacy clients, AxeonGROWTH,
-// or anyone who paid outside Stripe Checkout). Minting also sends the welcome email.
+// or anyone who paid outside Stripe Checkout). Minting sends the welcome email
+// unless { quiet: true }, which sets the client up without telling them yet.
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/adminAuth';
 import { jsonError, readBody } from '@/lib/billingApi';
@@ -22,8 +23,9 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   if (!(await requireAdmin(req))) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
-    const input = validateOnboardingInput(await readBody(req));
-    const result = await ensureOnboardingForPurchase(input);
+    const body = await readBody(req);
+    const input = validateOnboardingInput(body);
+    const result = await ensureOnboardingForPurchase(input, { quiet: body.quiet === true });
     if (!result) throw new Error('The onboarding portal needs the database (POSTGRES_URL).');
     return NextResponse.json(
       {
@@ -31,6 +33,7 @@ export async function POST(req: Request) {
         onboarding: result.onboarding,
         created: result.created,
         welcomeSent: result.welcomeSent,
+        quiet: body.quiet === true,
       },
       { status: result.created ? 201 : 200 }
     );
