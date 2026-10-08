@@ -234,6 +234,19 @@ Not built: importing Google Analytics or call-tracking numbers. The snippet is
 the one source for now, so a site without it gets no automatic report until it
 is added.
 
+### Seeing the report yourself
+
+The admin onboarding board has an **Email me a sample report** box. It sends a
+made-up month for a fictional detailing shop (`lib/sampleReport.ts`) through
+Resend, the same path the real reports take, to whatever address you type.
+Nothing is saved and no client is involved. Use it rather than forwarding the
+HTML through another mail account: Gmail's compose path strips `<img>`,
+`<style>` and background colours, so a forwarded copy loses the logo and looks
+washed out while the real email does not.
+
+To see a real client's numbers, open their onboarding and use **View as client**
+(the dashboard) or **Send report now** on the tracking card (emails the client).
+
 ## Environment variables
 
 | Variable | Purpose |

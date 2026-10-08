@@ -525,3 +525,19 @@ test('the always-on sentence names real included work in plain words', () => {
   assert.doesNotMatch(s, /CRM|speed-to-lead|funnel|conversion/i);
   assert.match(alwaysOnSentence('axeongrowth'), /Google and Meta ads managed daily/);
 });
+
+// ---- sample report (lib/sampleReport.ts) --------------------------------------
+
+test('the sample report renders the real template with the logo images and brand bands', async () => {
+  const { sampleMonthlyReportInput } = await import('./sampleReport');
+  const { renderMonthlyReportEmail } = await import('./email');
+  const input = sampleMonthlyReportInput('owner@example.com');
+  assert.equal(input.to, 'owner@example.com');
+  assert.ok(input.traffic && input.traffic.conversions > 0, 'the sample month has people reaching out');
+  const { subject, html } = renderMonthlyReportEmail(input);
+  assert.match(subject, /A-1 Auto Detailing/);
+  assert.match(html, /axeonstudio\.co\/email\/axeon-proof-white\.png/, 'header lockup');
+  assert.match(html, /axeonstudio\.co\/email\/axeon-white\.png/, 'footer lockup');
+  assert.match(html, /bgcolor="#2563eb"/, 'solid Axeon-blue band');
+  assert.doesNotMatch(html, /conversion/i, 'client copy never says "conversion"');
+});

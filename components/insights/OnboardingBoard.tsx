@@ -200,7 +200,60 @@ export function OnboardingBoard({ initialRows, databaseConfigured, dbError }: { 
         {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
         {result && <p className="mt-3 text-sm text-green-700 break-all">{result}</p>}
       </section>
+
+      <SampleReport disabled={!databaseConfigured} />
     </div>
+  );
+}
+
+/**
+ * Emails the made-up sample monthly report through Resend, the same path real
+ * reports take, so the inbox copy is exactly what a client would see. Samples
+ * forwarded any other way lose the logo, the styles and the colours.
+ */
+function SampleReport({ disabled }: { disabled: boolean }) {
+  const [to, setTo] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [sent, setSent] = useState<string | null>(null);
+
+  async function send(e: FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    setSent(null);
+    try {
+      const res = await fetch('/api/admin/sample-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string; to?: string; subject?: string };
+      if (!res.ok) throw new Error(data.error ?? `Request failed (${res.status})`);
+      setSent(`Sent to ${data.to}: “${data.subject}”. Give it a minute, then check spam if it is not there.`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not send the sample');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="bg-white rounded-2xl border border-neutral-200 p-6">
+      <h2 className="text-lg font-bold text-neutral-950">Email me a sample report</h2>
+      <p className="mt-1 text-sm text-neutral-600">
+        The monthly report clients get on the 1st, filled with made-up numbers for a fictional detailing shop. It goes out through the
+        same email service as the real ones, so what you see is what they see. Nothing is saved and no client is involved.
+      </p>
+      <form onSubmit={send} className="mt-4 flex flex-col sm:flex-row gap-3">
+        <input type="email" required value={to} onChange={(e) => setTo(e.target.value)} className={inputClass} placeholder="you@axeonstudio.co" />
+        <button type="submit" disabled={busy || disabled} className={`${btn('secondary')} whitespace-nowrap`}>
+          {busy ? 'Sending…' : 'Send sample'}
+        </button>
+      </form>
+      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+      {sent && <p className="mt-3 text-sm text-green-700">{sent}</p>}
+    </section>
   );
 }
 
