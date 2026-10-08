@@ -1,6 +1,8 @@
 // lib/email.ts
 import { Resend } from 'resend';
 import { WEEKDAY_LABELS, buttonLabel, campaignLabel, hourLabel, sourceLabel, type TrafficDetail, type TrafficSummary } from '@/lib/projectsShared';
+import { TAGLINE, alwaysOnSentence, headlineSentence, reportHighlights } from '@/lib/reportCopy';
+import type { OnboardingTier } from '@/data/onboardingItems';
 
 const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_EMAIL;
 // Resend rejects sends from a domain that hasn't been verified in the
@@ -482,33 +484,6 @@ export async function sendProjectUpdateEmail(input: {
   });
 }
 
-/** Tiles two to a row, so they read on a phone. */
-function statTiles(stats: Array<{ label: string; value: string; sub?: string | null }>): string {
-  const tile = (s: { label: string; value: string; sub?: string | null }) => `<td width="50%" style="padding:12px;border:1px solid #e5e5e5;border-radius:8px;vertical-align:top">
-        <div style="font-size:12px;color:#525252">${escapeHtml(s.label)}</div>
-        <div style="font-size:24px;font-weight:800">${escapeHtml(s.value)}</div>
-        ${s.sub ? `<div style="font-size:12px;color:#525252">${escapeHtml(s.sub)}</div>` : ''}
-      </td>`;
-  const rows: string[] = [];
-  for (let i = 0; i < stats.length; i += 2) {
-    rows.push(`<tr>${tile(stats[i])}${stats[i + 1] ? tile(stats[i + 1]) : '<td width="50%"></td>'}</tr>`);
-  }
-  return `<table role="presentation" cellspacing="6" style="width:100%;margin:0 0 8px">${rows.join('')}</table>`;
-}
-
-/** A two-column "name · count" list for the traffic breakdowns. */
-function countList(rows: Array<{ label: string; count: number }>): string {
-  if (!rows.length) return '';
-  return `<table role="presentation" cellspacing="0" cellpadding="0" style="width:100%;margin:0 0 8px;font-size:14px">${rows
-    .map(
-      (r) => `<tr>
-        <td style="padding:6px 0;border-bottom:1px solid #f0f0f0">${escapeHtml(r.label)}</td>
-        <td style="padding:6px 0;border-bottom:1px solid #f0f0f0;text-align:right;font-weight:700;white-space:nowrap">${r.count}</td>
-      </tr>`
-    )
-    .join('')}</table>`;
-}
-
 const pageName = (path: string) => (path === '/' ? 'Home page' : path);
 
 /** Top two of a 24-hour or 7-day histogram, as words. */
@@ -551,36 +526,216 @@ export function usageSentence(t: TrafficSummary, d: TrafficDetail): string {
   return out;
 }
 
-function detailSections(t: TrafficSummary, d: TrafficDetail): string {
-  const landing = d.landing
+// ───────────────────────────── Report look (Axeon brand) ─────────────────────────────
+// Same language as axeonstudio.co: Plus Jakarta Sans, blue-600 accents, near-black
+// ink. Built to survive every mail app's dark mode: the base is light background
+// with dark text (which stays readable whether a client inverts fully, partially,
+// or not at all), blue is used for accents rather than white-on-dark blocks, and a
+// real dark theme is supplied for clients that honour prefers-color-scheme or
+// Gmail's data-ogsc hooks. Web fonts load where allowed and fall back to the
+// system sans elsewhere.
+
+const BRAND = {
+  blue: '#2563eb',
+  blueDeep: '#1d4ed8',
+  blueTint: '#eaf1ff',
+  ink: '#0a0a0a',
+  body: '#262626',
+  muted: '#6b7280',
+  faint: '#9ca3af',
+  line: '#e5e7eb',
+  wash: '#f4f6fa',
+  green: '#059669',
+};
+const FONT = "'Plus Jakarta Sans',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif";
+
+/** The dark theme, applied by clients that honour prefers-color-scheme and by Gmail on Android (data-ogsc). */
+const DARK_CSS = `
+  .ax-wash { background:#0b0e14 !important; }
+  .ax-card { background:#12151d !important; }
+  .ax-ink { color:#f5f7fa !important; }
+  .ax-body { color:#d4d8e0 !important; }
+  .ax-muted { color:#9aa3b2 !important; }
+  .ax-faint { color:#6b7280 !important; }
+  .ax-rule { border-top-color:#262b36 !important; }
+  .ax-tile { background:#171b25 !important; border-color:#262b36 !important; }
+  .ax-hero { background:#13213f !important; border-color:#2b4a8f !important; }
+  .ax-box { background:#171b25 !important; }
+  .ax-track { background:#1c2740 !important; }
+  .ax-band { background:#0b0e14 !important; }
+  .ax-pill { background:#13213f !important; }
+  .ax-blue { color:#7aa7ff !important; }
+  .ax-green { color:#4ade80 !important; }
+`;
+
+/** A full HTML document: light base, dark theme attached, the Axeon font loaded where allowed. */
+function brandDocument(input: { subject: string; headerHtml: string; bodyHtml: string; footerHtml: string }): string {
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
+<title>${escapeHtml(input.subject)}</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+  :root { color-scheme: light dark; supported-color-schemes: light dark; }
+  body { margin:0; padding:0; background:${BRAND.wash}; }
+  a { color:${BRAND.blue}; }
+  @media (max-width: 600px) { .tile { display:block !important; width:100% !important; } .pad { padding-left:20px !important; padding-right:20px !important; } }
+  @media (prefers-color-scheme: dark) { ${DARK_CSS} }
+  ${DARK_CSS.replace(/\n\s*\./g, '\n  [data-ogsc] .').replace(/\[data-ogsc\] \.ax-wash|\[data-ogsc\] \.ax-card|\[data-ogsc\] \.ax-band/g, (m) => m.replace('[data-ogsc]', '[data-ogsb]'))}
+</style>
+</head>
+<body class="ax-wash" style="margin:0;padding:0;background:${BRAND.wash}">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" class="ax-wash" style="background:${BRAND.wash}"><tr><td align="center" style="padding:24px 12px">
+<table role="presentation" width="600" cellspacing="0" cellpadding="0" class="ax-card" style="width:100%;max-width:600px;background:#ffffff;border-radius:16px;overflow:hidden;font-family:${FONT};color:${BRAND.body};line-height:1.55">
+  <tr><td class="pad" style="padding:28px 32px 8px">
+    ${input.headerHtml}
+  </td></tr>
+  <tr><td class="pad" style="padding:8px 32px 8px">
+    ${input.bodyHtml}
+  </td></tr>
+  <tr><td class="pad ax-band" style="background:${BRAND.wash};padding:22px 32px;border-top:1px solid ${BRAND.line}">
+    ${input.footerHtml}
+  </td></tr>
+</table>
+<p class="ax-faint" style="margin:16px 0 0;font-family:${FONT};font-size:12px;color:${BRAND.faint};text-align:center">Axeon Studio · West Des Moines, Iowa</p>
+</td></tr></table>
+</body>
+</html>`;
+}
+
+/** The mark (blue on transparent, so it works on light and dark) and the wordmark in ink. */
+const brandLogo = (product?: string) => `
+  <table role="presentation" cellspacing="0" cellpadding="0"><tr>
+    <td style="vertical-align:middle;padding-right:10px"><img src="${EMAIL_LOGO_URL}" width="26" height="22" alt="" style="display:block;border:0"></td>
+    <td class="ax-ink" style="vertical-align:middle;font-family:${FONT};font-size:22px;font-weight:800;letter-spacing:-.02em;color:${BRAND.ink};line-height:1">Axeon${
+      product ? `<span class="ax-blue" style="color:${BRAND.blue};font-weight:800">${escapeHtml(product)}</span>` : ''
+    }</td>
+  </tr></table>`;
+
+const rH2 = (text: string) =>
+  `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:26px 0 10px"><tr>
+     <td class="ax-blue" style="font-family:${FONT};font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:${BRAND.blue};white-space:nowrap;padding-right:12px">${escapeHtml(text)}</td>
+     <td width="100%" class="ax-rule" style="border-top:1px solid ${BRAND.line};height:1px;line-height:1px;font-size:1px">&nbsp;</td>
+   </tr></table>`;
+
+const rPara = (text: string, extra = '', cls = 'ax-body') =>
+  text ? `<p class="${cls}" style="margin:0 0 12px;font-size:15px;color:${cls === 'ax-ink' ? BRAND.ink : BRAND.body};${extra}">${escapeHtml(text)}</p>` : '';
+
+/** Positive change in green, the rest muted. */
+const subHtml = (sub: string | null | undefined) => {
+  if (!sub) return '';
+  return `<div class="ax-muted" style="font-size:12px;line-height:1.4;color:${BRAND.muted};margin-top:6px">${escapeHtml(sub).replace(
+    /\+(\d+)(%?) vs last month/g,
+    `<span class="ax-green" style="color:${BRAND.green};font-weight:700">+$1$2 vs last month</span>`
+  )}</div>`;
+};
+
+/**
+ * Two tiles to a row. The first two are the headline: blue-tinted with a blue
+ * border and a blue number. The rest are plain with a thin border.
+ */
+function rTiles(stats: Array<{ label: string; value: string; sub?: string | null }>): string {
+  // The tile IS the table cell, so the two tiles in a row always share a height
+  // however their small print wraps. A 6px spacer column keeps the gap.
+  const tile = (st: { label: string; value: string; sub?: string | null }, i: number) => {
+    const hero = i < 2;
+    return `<td class="tile ${hero ? 'ax-hero' : 'ax-tile'}" width="50%" style="background:${hero ? BRAND.blueTint : '#ffffff'};border:${hero ? '2px' : '1px'} solid ${hero ? BRAND.blue : BRAND.line};border-radius:12px;padding:${hero ? '15px 15px 13px' : '16px 16px 14px'};vertical-align:top">
+        <div class="${hero ? 'ax-blue' : 'ax-muted'}" style="font-size:12px;font-weight:700;letter-spacing:.02em;color:${hero ? BRAND.blueDeep : BRAND.muted}">${escapeHtml(st.label)}</div>
+        <div class="${hero ? 'ax-blue' : 'ax-ink'}" style="font-size:30px;line-height:1.1;font-weight:800;letter-spacing:-.02em;margin-top:6px;color:${hero ? BRAND.blue : BRAND.ink}">${escapeHtml(st.value)}</div>
+        ${subHtml(st.sub)}
+      </td>`;
+  };
+  const gap = '<td width="12" style="width:12px;font-size:1px;line-height:1px">&nbsp;</td>';
+  const spacer = '<tr><td colspan="3" style="height:12px;font-size:1px;line-height:1px">&nbsp;</td></tr>';
+  const rows: string[] = [];
+  for (let i = 0; i < stats.length; i += 2) {
+    const right = stats[i + 1] ? tile(stats[i + 1], i + 1) : '<td class="tile" width="50%"></td>';
+    rows.push(`<tr>${tile(stats[i], i)}${gap}${right}</tr>`);
+    if (i + 2 < stats.length) rows.push(spacer);
+  }
+  return `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:4px 0 12px;border-collapse:separate">${rows.join('')}</table>`;
+}
+
+/** Rows with a proportional blue bar behind the count, so the biggest line is obvious at a glance. */
+function rBars(rows: Array<{ label: string; count: number }>): string {
+  if (!rows.length) return '';
+  const max = Math.max(1, ...rows.map((r) => r.count));
+  return `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 6px;font-size:14px">${rows
+    .map((r) => {
+      const pct = Math.max(4, Math.round((r.count / max) * 100));
+      return `<tr>
+        <td style="padding:7px 0;vertical-align:middle">
+          <div class="ax-body" style="color:${BRAND.body}">${escapeHtml(r.label)}</div>
+          <div class="ax-track" style="height:5px;background:${BRAND.blueTint};border-radius:3px;margin-top:5px;overflow:hidden"><div style="height:5px;width:${pct}%;background:${BRAND.blue};border-radius:3px"></div></div>
+        </td>
+        <td width="56" class="ax-ink" style="padding:7px 0 7px 12px;text-align:right;font-weight:800;color:${BRAND.ink};white-space:nowrap;vertical-align:middle">${r.count.toLocaleString('en-US')}</td>
+      </tr>`;
+    })
+    .join('')}</table>`;
+}
+
+/** Wins with a blue check. */
+const rWins = (wins: string[]) =>
+  `<table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 8px">${wins
+    .map(
+      (w) => `<tr>
+      <td class="ax-blue" style="vertical-align:top;padding:0 10px 8px 0;color:${BRAND.blue};font-weight:800;font-size:15px;line-height:1.5">&#10003;</td>
+      <td class="ax-body" style="vertical-align:top;padding:0 0 8px;font-size:15px;color:${BRAND.body}">${escapeHtml(w)}</td>
+    </tr>`
+    )
+    .join('')}</table>`;
+
+/** Numbered steps in blue circles for "what we did" and "what's next". */
+const rSteps = (lines: EmailLine[]) =>
+  `<table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 8px">${lines
+    .map(
+      (l, i) => `<tr>
+      <td style="vertical-align:top;padding:2px 12px 10px 0"><div style="width:22px;height:22px;border-radius:11px;background:${BRAND.blue};color:#ffffff;font-size:12px;font-weight:800;text-align:center;line-height:22px">${i + 1}</div></td>
+      <td class="ax-body" style="vertical-align:top;padding:0 0 10px;font-size:15px;color:${BRAND.body}">${l.title ? `<b class="ax-ink" style="color:${BRAND.ink}">${escapeHtml(l.title)}.</b> ` : ''}${escapeHtml(l.body)}</td>
+    </tr>`
+    )
+    .join('')}</table>`;
+
+const rButton = (href: string, label: string) =>
+  `<table role="presentation" cellspacing="0" cellpadding="0" style="margin:8px 0 4px"><tr><td style="background:${BRAND.blue};border-radius:999px">
+     <a href="${escapeHtml(href)}" style="display:inline-block;padding:14px 26px;font-family:${FONT};font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:999px">${escapeHtml(label)}</a>
+   </td></tr></table>`;
+
+/** What the work produced: the buttons pressed, the pages that brought people, the campaigns. */
+function producedSections(t: TrafficSummary): string {
+  const buttons = t.buttons.slice(0, 6).map((b) => ({ label: buttonLabel(b.name), count: b.count }));
+  const d = t.detail && t.detail.sessions > 0 ? t.detail : null;
+  const landing = (d?.landing ?? [])
     .filter((l) => l.sessions > 0)
     .slice(0, 5)
     .map((l) => ({ label: `${pageName(l.path)}${l.conversions ? ` · ${l.conversions} reached out` : ''}`, count: l.sessions }));
-  const places = d.places.slice(0, 5).map((p) => ({ label: `${p.city}${p.conversions ? ` · ${p.conversions} reached out` : ''}`, count: p.sessions }));
-  const campaigns = d.campaigns
+  const campaigns = (d?.campaigns ?? [])
     .slice(0, 5)
     .map((c) => ({ label: `${campaignLabel(c)}${c.conversions ? ` · ${c.conversions} reached out` : ''}`, count: c.sessions }));
-  const when = whenTheyReachOut(d);
   return `
-    ${h2('How people used your site')}${para(usageSentence(t, d))}
-    ${landing.length ? h2('Pages visitors landed on') + countList(landing) : ''}
-    ${campaigns.length ? h2('Campaigns that sent visitors') + countList(campaigns) : ''}
-    ${places.length ? h2('Where visitors are') + countList(places) : ''}
-    ${when ? h2('When customers reach out') + para(when) : ''}
+    ${buttons.length ? rH2('What people pressed') + rBars(buttons) : ''}
+    ${landing.length ? rH2('Pages that brought them in') + rBars(landing) : ''}
+    ${campaigns.length ? rH2('Campaigns that sent visitors') + rBars(campaigns) : ''}
   `;
 }
 
-function trafficSections(t: TrafficSummary): string {
-  const buttons = t.buttons.slice(0, 6).map((b) => ({ label: buttonLabel(b.name), count: b.count }));
+/** Who found the site and how they used it. */
+function audienceSections(t: TrafficSummary): string {
   const sources = t.sources.slice(0, 5).map((x) => ({ label: sourceLabel(x.host), count: x.count }));
   const pages = t.pages.slice(0, 5).map((pg) => ({ label: pageName(pg.path), count: pg.count }));
   const d = t.detail && t.detail.sessions > 0 ? t.detail : null;
+  const places = (d?.places ?? []).slice(0, 5).map((p) => ({ label: `${p.city}${p.conversions ? ` · ${p.conversions} reached out` : ''}`, count: p.sessions }));
+  const when = d ? whenTheyReachOut(d) : '';
   return `
-    ${buttons.length ? h2('Most clicked buttons') + countList(buttons) : ''}
-    ${sources.length ? h2('Where visitors came from') + countList(sources) : ''}
-    ${pages.length ? h2('Most visited pages') + countList(pages) : ''}
-    ${d ? detailSections(t, d) : ''}
-    ${closeRateNote(t)}
+    ${sources.length ? rH2('Where they found you') + rBars(sources) : ''}
+    ${places.length ? rH2('Where they are') + rBars(places) : ''}
+    ${d ? rH2('How they used your site') + rPara(usageSentence(t, d)) : ''}
+    ${pages.length ? rH2('Most visited pages') + rBars(pages) : ''}
+    ${when ? rH2('When customers reach out') + rPara(when) : ''}
   `;
 }
 
@@ -588,25 +743,38 @@ function trafficSections(t: TrafficSummary): string {
 export function closeRateNote(t: TrafficSummary): string {
   const e = t.closeRateEstimate;
   if (!e || t.conversions === 0) {
-    return `<p style="margin:12px 0 0;font-size:13px;color:#737373">“Estimated new customers” counts ${t.closeRate}% of the people who called, texted, emailed, sent a form or booked from your site. Tell us your real number and we will use that instead.</p>`;
+    return `<p class="ax-muted" style="margin:20px 0 0;font-size:13px;color:${BRAND.muted}">“Estimated new customers” counts ${t.closeRate}% of the people who called, texted, emailed, sent a form or booked from your site. Tell us your real number and we will use that instead.</p>`;
   }
-  const reasons = e.factors.map((f) => `<li style="margin:0 0 4px">${escapeHtml(f.label)}${f.effect ? ` (+${f.effect})` : ''}</li>`).join('');
+  const reasons = e.factors.map((f) => `<li style="margin:0 0 4px">${escapeHtml(f.label)}${f.effect ? ` <span class="ax-green" style="color:${BRAND.green};font-weight:700">+${f.effect}</span>` : ''}</li>`).join('');
   const who = t.assistedContacts
     ? `${t.conversions} people who reached out (${t.directContacts} pressed call, text, form, book or directions on the site; about ${t.assistedContacts} more read your number on a computer and most likely called from their phone)`
     : `${t.conversions} people who reached out`;
   return `
-    <p style="margin:12px 0 4px;font-size:13px;color:#737373">How we got to ${e.rate}%: of the ${who}, we estimate ${e.low}% to ${e.high}% became customers, so about ${t.estimatedCustomers} (likely ${t.customersLow} to ${t.customersHigh}). The reasons:</p>
-    <ul style="margin:0 0 8px;padding-left:18px;font-size:13px;color:#737373">${reasons}</ul>
-    <p style="margin:0;font-size:13px;color:#737373">Know your real number? Reply with it and we will use that from now on.</p>
+    <div class="ax-box" style="margin:22px 0 0;padding:14px 16px;background:${BRAND.wash};border-radius:12px">
+      <p class="ax-muted" style="margin:0 0 6px;font-size:13px;color:${BRAND.muted}">How we got to ${e.rate}%: of the ${who}, we estimate ${e.low}% to ${e.high}% became customers, so about ${t.estimatedCustomers} (likely ${t.customersLow} to ${t.customersHigh}). The reasons:</p>
+      <ul class="ax-muted" style="margin:0 0 8px;padding-left:18px;font-size:13px;color:${BRAND.muted}">${reasons}</ul>
+      <p class="ax-muted" style="margin:0;font-size:13px;color:${BRAND.muted}">Know your real number? Reply with it and we will use that from now on.</p>
+    </div>
   `;
 }
 
 export interface MonthlyReportEmailInput {
   to: string;
   clientName: string | null;
+  businessName?: string | null;
+  tier?: OnboardingTier | null;
   monthLabel: string;
+  prevMonthLabel?: string | null;
   stats: Array<{ label: string; value: string; sub?: string | null }>;
   traffic?: TrafficSummary | null;
+  prevTraffic?: TrafficSummary | null;
+  avgJobValue?: number | null;
+  /** Typed-in report fields the wins draw on. */
+  rank?: number | null;
+  keyword?: string;
+  reviews?: number | null;
+  rating?: number | null;
+  prevRank?: number | null;
   done: EmailLine[];
   next: EmailLine[];
   fromYou: string;
@@ -614,29 +782,61 @@ export interface MonthlyReportEmailInput {
   proofUrl: string;
 }
 
-/** The report email as subject + HTML, with no sending, so a sample can be rendered anywhere. */
+/**
+ * The report email as subject + HTML, with no sending, so a sample can be
+ * rendered anywhere. Framed as "here is what Axeon did for you": outcome first,
+ * then the work, then what it produced, then who found them.
+ */
 export function renderMonthlyReportEmail(input: MonthlyReportEmailInput): { subject: string; html: string } {
   const t = input.traffic ?? null;
-  const intro = t
-    ? `How your website did in ${escapeHtml(input.monthLabel)}: who visited, which buttons they pressed, and how many likely became customers.`
-    : `Calls, leads and booked jobs for ${escapeHtml(input.monthLabel)}, and what we are doing next. Customers, not clicks.`;
-  return {
-    subject: `Your ${input.monthLabel} report from Axeon`,
-    html: clientLayout(
-      `${escapeHtml(input.monthLabel)} in numbers.`,
-      `
-        <p style="margin:0 0 12px">${firstName(input.clientName)}</p>
-        <p style="margin:0 0 16px">${intro}</p>
-        ${statTiles(input.stats)}
-        ${input.note ? para(input.note) : ''}
-        ${t ? trafficSections(t) : ''}
-        ${input.done.length ? h2('What we did this month') + linesHtml(input.done) : ''}
-        ${input.next.length ? h2("Next month's plan") + linesHtml(input.next) : ''}
-        ${input.fromYou ? h2('From you') + para(input.fromYou) : ''}
-        ${button(input.proofUrl, 'Open AxeonPROOF')}
-      `
-    ),
-  };
+  const business = input.businessName?.trim() || 'your business';
+  const typed = { rank: input.rank ?? null, keyword: input.keyword ?? '', reviews: input.reviews ?? null, rating: input.rating ?? null };
+  const headline = t
+    ? headlineSentence({
+        business,
+        monthLabel: input.monthLabel,
+        prevMonthLabel: input.prevMonthLabel,
+        traffic: t,
+        prev: input.prevTraffic,
+        avgJobValue: input.avgJobValue,
+      })
+    : `Calls, leads and booked jobs for ${input.monthLabel}, and what we are doing next.`;
+  const wins = t ? reportHighlights({ traffic: t, prev: input.prevTraffic, report: typed, prevReport: input.prevRank != null ? { rank: input.prevRank } : null }) : [];
+  const subject = t && t.conversions > 0
+    ? `${t.conversions} ${t.conversions === 1 ? 'person' : 'people'} reached out to ${business} in ${input.monthLabel}. Here is how.`
+    : `What Axeon did for ${business} in ${input.monthLabel}`;
+  const didSomething = input.done.length > 0;
+  const headerHtml = `
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr>
+      <td style="vertical-align:middle">${brandLogo('PROOF')}</td>
+      <td style="vertical-align:middle;text-align:right"><span class="ax-pill ax-blue" style="display:inline-block;padding:6px 12px;border-radius:999px;background:${BRAND.blueTint};color:${BRAND.blueDeep};font-size:12px;font-weight:700;letter-spacing:.04em">${escapeHtml(input.monthLabel)}</span></td>
+    </tr></table>
+    <h1 class="ax-ink" style="margin:26px 0 0;font-family:${FONT};font-size:28px;line-height:1.15;font-weight:800;letter-spacing:-.02em;color:${BRAND.ink}">Here is what Axeon did for you in ${escapeHtml(input.monthLabel)}.</h1>
+    <p class="ax-body" style="margin:14px 0 0;font-family:${FONT};font-size:16px;line-height:1.5;color:${BRAND.body}">${escapeHtml(headline)}</p>
+  `;
+  const bodyHtml = `
+    <p class="ax-body" style="margin:10px 0 14px;font-size:15px;color:${BRAND.body}">${firstName(input.clientName)}</p>
+    ${rTiles(input.stats)}
+    ${input.note ? rPara(input.note, 'margin-top:6px;font-weight:600', 'ax-ink') : ''}
+    ${wins.length ? rH2("This month's wins") + rWins(wins) : ''}
+    ${rH2('What Axeon did this month')}
+    ${didSomething ? rSteps(input.done) : ''}
+    ${input.tier ? `<p class="ax-muted" style="margin:0 0 12px;font-size:13px;line-height:1.5;color:${BRAND.muted}">${escapeHtml(alwaysOnSentence(input.tier))}</p>` : ''}
+    ${t ? producedSections(t) : ''}
+    ${t ? audienceSections(t) : ''}
+    ${input.next.length ? rH2('What we are doing next month') + rSteps(input.next) : ''}
+    ${input.fromYou ? rH2('One thing we need from you') + rPara(input.fromYou) : ''}
+    ${t ? closeRateNote(t) : ''}
+    <div style="margin:26px 0 20px">${rButton(input.proofUrl, 'See it all in AxeonPROOF')}</div>
+  `;
+  const footerHtml = `
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr>
+      <td style="vertical-align:middle">${brandLogo()}</td>
+      <td class="ax-ink" style="vertical-align:middle;text-align:right;font-family:${FONT};font-size:14px;font-weight:800;color:${BRAND.ink};letter-spacing:-.01em">${TAGLINE}</td>
+    </tr></table>
+    <p class="ax-muted" style="margin:14px 0 0;font-family:${FONT};font-size:13px;color:${BRAND.muted}">Questions? Reply to this email or call <a class="ax-blue" href="tel:+15154938017" style="color:${BRAND.blue};text-decoration:none">(515) 493-8017</a>.</p>
+  `;
+  return { subject, html: brandDocument({ subject, headerHtml, bodyHtml, footerHtml }) };
 }
 
 export async function sendMonthlyReportEmail(input: MonthlyReportEmailInput): Promise<void> {

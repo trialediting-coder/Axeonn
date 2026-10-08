@@ -387,7 +387,7 @@ export interface ReportStat {
  * new customers) and the typed-in numbers follow only when they were filled in;
  * without them, the four typed-in boxes show as before, blank as "—".
  */
-export function reportStats(r: ReportBody, prev: ReportBody | null, d: ProjectDetails): ReportStat[] {
+export function reportStats(r: ReportBody, prev: ReportBody | null, d: ProjectDetails, opts: { avgJobValue?: number | null } = {}): ReportStat[] {
   const vs = (now: number | null, before: number | null | undefined, base: number | null) =>
     [delta(now, before) && `${delta(now, before)} vs last month`, base != null && `baseline ${base}`].filter(Boolean).join(' · ') || null;
   const typed: ReportStat[] = [
@@ -404,19 +404,8 @@ export function reportStats(r: ReportBody, prev: ReportBody | null, d: ProjectDe
   if (!t) return typed;
   const pt = prev?.traffic ?? null;
   const top = t.buttons[0];
+  const value = opts.avgJobValue && t.estimatedCustomers > 0 ? t.estimatedCustomers * opts.avgJobValue : null;
   const web: ReportStat[] = [
-    {
-      label: 'Website visits',
-      value: String(t.views),
-      sub: [`${t.visitors} ${t.visitors === 1 ? 'visitor' : 'visitors'}`, delta(t.views, pt?.views) && `${delta(t.views, pt?.views)} vs last month`]
-        .filter(Boolean)
-        .join(' · '),
-    },
-    {
-      label: 'Button clicks',
-      value: String(t.clicks),
-      sub: top ? `most clicked: ${buttonLabel(top.name)} (${top.count})` : 'calls, texts, forms and bookings',
-    },
     {
       label: 'Customers reached out',
       value: String(t.conversions),
@@ -432,10 +421,26 @@ export function reportStats(r: ReportBody, prev: ReportBody | null, d: ProjectDe
     {
       label: 'Estimated new customers',
       value: `~${t.estimatedCustomers}`,
-      sub:
+      sub: [
+        value != null ? `about $${Math.round(value).toLocaleString('en-US')} in work` : null,
         t.closeRateEstimate && t.customersLow != null && t.customersHigh != null && t.conversions > 0
-          ? `likely ${t.customersLow} to ${t.customersHigh} · ${t.closeRate}% close rate, worked out from how they reached out`
+          ? `likely ${t.customersLow} to ${t.customersHigh} · ${t.closeRate}% close rate from how they reached out`
           : `${t.closeRate}% of those who reached out`,
+      ]
+        .filter(Boolean)
+        .join(' · '),
+    },
+    {
+      label: 'Website visits',
+      value: String(t.views),
+      sub: [`${t.visitors} ${t.visitors === 1 ? 'visitor' : 'visitors'}`, delta(t.views, pt?.views) && `${delta(t.views, pt?.views)} vs last month`]
+        .filter(Boolean)
+        .join(' · '),
+    },
+    {
+      label: 'Button clicks',
+      value: String(t.clicks),
+      sub: top ? `most clicked: ${buttonLabel(top.name)} (${top.count})` : 'calls, texts, forms and bookings',
     },
   ];
   return [...web, ...typed.filter((s) => s.value !== '—')];

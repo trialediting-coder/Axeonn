@@ -199,6 +199,17 @@ report helps nobody), then emails the owner a digest of who was sent and who was
 skipped. "Send … report now" on the admin page sends the same email on demand,
 including re-sending an already-emailed month.
 
+**How the email reads (2026-10-08).** It is framed as "Here is what Axeon did
+for you in <month>", not a stats dump (`lib/reportCopy.ts`): a one-sentence
+headline (people who reached out, likely new customers, "worth around $X in
+work" when the client's average job is set on their admin card, and the change
+since last month), the tiles with customers first, up to three "wins" drawn from
+the data (rank, visits up, the page or campaign that brought the most people,
+Google reach, reviews, returning visitors, speed), "What Axeon did this month"
+(the typed lines plus the plan's always-on work in one sentence), what people
+pressed and which pages and campaigns brought them, who found them and from
+where, next month, one thing we need, the close-rate note, and the tagline.
+
 **Where it shows.** The report email leads with the website tiles and adds
 "Most clicked buttons", "Where visitors came from" and "Most visited pages".
 AxeonPROOF shows the same four numbers and three lists from the latest report.

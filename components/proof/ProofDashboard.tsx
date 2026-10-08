@@ -47,20 +47,22 @@ const METRICS: { key: MetricKey; label: string; icon: Icon; hint: string }[] = [
 /** Website cards from the latest report's tracking numbers (lib/autoReports.ts). */
 type WebKey = 'views' | 'clicks' | 'conversions' | 'estimatedCustomers';
 const WEB_METRICS: { key: WebKey; label: string; icon: Icon; hint: string }[] = [
-  { key: 'views', label: 'Website visits', icon: Globe, hint: 'Page views on your site' },
-  { key: 'clicks', label: 'Button clicks', icon: MousePointerClick, hint: 'Call, text, book, form and more' },
   { key: 'conversions', label: 'Reached out', icon: PhoneCall, hint: 'Calls, texts, forms, bookings, directions' },
   { key: 'estimatedCustomers', label: 'Est. new customers', icon: Users, hint: 'Estimated from who reached out' },
+  { key: 'views', label: 'Website visits', icon: Globe, hint: 'Page views on your site' },
+  { key: 'clicks', label: 'Button clicks', icon: MousePointerClick, hint: 'Call, text, book, form and more' },
 ];
 
-function webMetric(key: WebKey, t: TrafficSummary, prev: TrafficSummary | null) {
+function webMetric(key: WebKey, t: TrafficSummary, prev: TrafficSummary | null, avgJobValue: number | null = null) {
   const now = t[key];
   const value = key === 'estimatedCustomers' ? `~${now}` : String(now);
   const before = prev?.[key] ?? null;
+  const worth = avgJobValue && t.estimatedCustomers > 0 ? `about $${Math.round(t.estimatedCustomers * avgJobValue).toLocaleString('en-US')} in work · ` : '';
   const estimateSub =
-    t.closeRateEstimate && t.customersLow != null && t.customersHigh != null && t.conversions > 0
+    worth +
+    (t.closeRateEstimate && t.customersLow != null && t.customersHigh != null && t.conversions > 0
       ? `likely ${t.customersLow} to ${t.customersHigh} · ${t.closeRate}% close rate`
-      : `${t.closeRate}% of who reached out`;
+      : `${t.closeRate}% of who reached out`);
   if (key === 'estimatedCustomers') return { value, sub: estimateSub, tone: 'neutral' as const };
   if (key === 'conversions' && t.assistedContacts) {
     return { value, sub: `${t.directContacts} on the site · ~${t.assistedContacts} likely called after reading the number`, tone: 'neutral' as const };
@@ -147,6 +149,7 @@ export function ProofDashboard({
   guaranteeDay,
   agreementUrl,
   preview = null,
+  avgJobValue = null,
 }: {
   email: string;
   onboarding: Onboarding;
@@ -163,6 +166,8 @@ export function ProofDashboard({
   agreementUrl: string | null;
   /** Set when an admin is looking at this client's dashboard (app/admin/onboarding/[token]/preview). */
   preview?: { label: string; backHref: string } | null;
+  /** Average job in dollars, when the client has told us; turns estimated customers into a dollar figure. */
+  avgJobValue?: number | null;
 }) {
   const latest = reports[0] ?? null;
   const prev = reports[1] ?? null;
@@ -280,7 +285,7 @@ export function ProofDashboard({
         {traffic ? (
           <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {WEB_METRICS.map(({ key, label, icon: Icon, hint }) => {
-              const m = webMetric(key, traffic, prevTraffic);
+              const m = webMetric(key, traffic, prevTraffic, avgJobValue);
               return (
                 <Card key={label} className="p-5">
                   <div className="flex items-center justify-between">

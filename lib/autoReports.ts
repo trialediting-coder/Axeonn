@@ -92,13 +92,24 @@ export async function sendAutoReport(onboarding: Onboarding, month: string, opts
   // Attach the numbers even when the site sent nothing, so the report says so honestly.
   const report = await attachTrafficToReport(onboarding.id, month, traffic);
   const [details, all] = await Promise.all([getProjectDetails(onboarding.id), listMonthlyReports(onboarding.id)]);
+  const prev = previousReport(all, month);
   try {
     await sendMonthlyReportEmail({
       to: onboarding.clientEmail,
       clientName: onboarding.clientName,
+      businessName: onboarding.businessName,
+      tier: onboarding.tier,
       monthLabel: monthLabel(month),
-      stats: reportStats(report, previousReport(all, month), details),
+      prevMonthLabel: prev ? monthLabel(prev.month) : null,
+      stats: reportStats(report, prev, details, { avgJobValue: settings.avgJobValue }),
       traffic: hasTraffic(report.traffic) ? report.traffic : null,
+      prevTraffic: prev && hasTraffic(prev.traffic) ? prev.traffic : null,
+      avgJobValue: settings.avgJobValue,
+      rank: report.rank,
+      keyword: report.keyword,
+      reviews: report.reviews,
+      rating: report.rating,
+      prevRank: prev?.rank ?? null,
       done: report.done,
       next: report.next,
       fromYou: report.fromYou,

@@ -151,12 +151,14 @@ test('report stats lead with the website numbers when they exist', () => {
   const withWeb = reportStats({ ...emptyReportBody(), calls: 4, traffic }, { ...emptyReportBody(), traffic: { ...traffic, views: 60, conversions: 5 } }, details);
   assert.deepEqual(
     withWeb.map((s) => s.label),
-    ['Website visits', 'Button clicks', 'Customers reached out', 'Estimated new customers', 'Phone calls']
+    ['Customers reached out', 'Estimated new customers', 'Website visits', 'Button clicks', 'Phone calls']
   );
-  assert.equal(withWeb[0].value, '100');
-  assert.match(withWeb[0].sub ?? '', /80 visitors · \+40 vs last month/);
-  assert.equal(withWeb[3].value, '~3'); // 9 × 30% = 2.7
-  assert.match(withWeb[2].sub ?? '', /\+4 vs last month/);
+  assert.equal(withWeb[2].value, '100');
+  assert.match(withWeb[2].sub ?? '', /80 visitors · \+40 vs last month/);
+  assert.equal(withWeb[1].value, '~3'); // 9 × 30% = 2.7
+  assert.match(withWeb[0].sub ?? '', /\+4 vs last month/);
+  const withValue = reportStats({ ...emptyReportBody(), traffic }, null, details, { avgJobValue: 300 });
+  assert.match(withValue[1].sub ?? '', /about \$900 in work/);
   // Without tracking, the four typed-in boxes show as before.
   const plain = reportStats(emptyReportBody(), null, details);
   assert.equal(plain.length, 4);
@@ -472,4 +474,54 @@ test('summarize adds the off-site credit to who reached out and says so', () => 
   assert.equal(t.conversions, 18);
   assert.equal(t.closeRate, 56); // (55×10 + 60×2) / 12 = 55.8
   assert.equal(t.estimatedCustomers, 10); // round(18 × 0.56)
+});
+
+
+// ───────────────────────────── Report copy ─────────────────────────────
+import { alwaysOnSentence, estimatedValue, headlineSentence, reportHighlights, money } from './reportCopy';
+
+test('the headline leads with people, then customers, then money, then the change', () => {
+  const t = summarize({
+    views: 2120, visitors: 912, clicks: 62,
+    buttons: [{ name: 'call', count: 23 }, { name: 'form', count: 7 }],
+    pages: [], sources: [], closeRate: 50, detail: detailWith({ engagedNoClick: 0 }),
+  });
+  const prev = { ...t, conversions: 20 };
+  const s = headlineSentence({ business: 'A-1 Auto Detailing', monthLabel: 'September', prevMonthLabel: 'August', traffic: t, prev, avgJobValue: 300 });
+  assert.equal(s, '30 people reached out to A-1 Auto Detailing through your website in September, and about 15 of them likely became new customers, worth around $4,500 in work. That is up 10 from August.');
+  const quiet = headlineSentence({ business: 'A-1', monthLabel: 'September', traffic: { ...t, conversions: 0, estimatedCustomers: 0 } });
+  assert.match(quiet, /Nobody has reached out through it yet/);
+  assert.equal(money(11700), '$11,700');
+  assert.deepEqual(estimatedValue({ ...t, estimatedCustomers: 10, customersLow: 8, customersHigh: 12 }, 300), { low: 2400, mid: 3000, high: 3600 });
+  assert.equal(estimatedValue(t, null), null);
+});
+
+test('wins are at most three true things, best first', () => {
+  const t = summarize({
+    views: 2120, visitors: 912, clicks: 62,
+    buttons: [{ name: 'call', count: 23 }],
+    pages: [], sources: [{ host: 'google.com', count: 1140 }], closeRate: null,
+    detail: detailWith({
+      landing: [{ path: '/', sessions: 500, conversions: 19 }, { path: '/ceramic-coating', sessions: 214, conversions: 14 }],
+      campaigns: [{ source: 'google', medium: 'cpc', campaign: 'ceramic', sessions: 140, conversions: 11 }],
+      returningVisitors: 96,
+      speedMs: 1400,
+    }),
+  });
+  const wins = reportHighlights({ traffic: t, prev: { ...t, views: 1680 }, report: { rank: 1, keyword: 'auto detailing des moines', reviews: 4, rating: 4.9 }, prevReport: { rank: 2 } });
+  assert.deepEqual(wins, [
+    'You are #1 on Google for “auto detailing des moines”, up from #2.',
+    'Website visits are up 26% (2120 this month, 1680 last month).',
+    'Your ceramic coating page alone brought 14 people to reach out.',
+  ]);
+  const few = reportHighlights({ traffic: { ...t, sources: [], detail: null }, report: { rank: null, keyword: '', reviews: null, rating: null } });
+  assert.deepEqual(few, []);
+});
+
+test('the always-on sentence names real included work in plain words', () => {
+  const s = alwaysOnSentence('axeoncore');
+  assert.match(s, /^Running every day in the background: hosting, security and backups, /);
+  assert.match(s, /review requests after every job/);
+  assert.doesNotMatch(s, /CRM|speed-to-lead|funnel|conversion/i);
+  assert.match(alwaysOnSentence('axeongrowth'), /Google and Meta ads managed daily/);
 });
