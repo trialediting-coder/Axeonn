@@ -57,6 +57,8 @@ export interface TrackingSettings {
   closeRateMode: CloseRateMode;
   closeRate: number;
   autoReports: boolean;
+  /** Average job in whole dollars, or null when the client has not told us. */
+  avgJobValue: number | null;
 }
 
 /** The rate to hand to monthTraffic: a number to use as-is, or null to estimate. */
@@ -566,6 +568,7 @@ interface SettingsRow {
   close_rate: number | null;
   close_rate_mode: string | null;
   auto_reports: boolean | null;
+  avg_job_value: number | null;
 }
 
 const rowToSettings = (r: SettingsRow | undefined): TrackingSettings => ({
@@ -574,13 +577,14 @@ const rowToSettings = (r: SettingsRow | undefined): TrackingSettings => ({
   closeRateMode: r?.close_rate_mode === 'manual' ? 'manual' : 'auto',
   closeRate: r?.close_rate ?? DEFAULT_CLOSE_RATE,
   autoReports: r?.auto_reports ?? true,
+  avgJobValue: r?.avg_job_value ?? null,
 });
 
 export async function getTrackingSettings(onboardingId: number): Promise<TrackingSettings> {
   if (!isDatabaseConfigured()) return rowToSettings(undefined);
   await ensureSchema();
   const res = await sql<SettingsRow>`
-    SELECT site_key, site_url, close_rate, close_rate_mode, auto_reports FROM onboardings WHERE id = ${onboardingId} LIMIT 1;
+    SELECT site_key, site_url, close_rate, close_rate_mode, auto_reports, avg_job_value FROM onboardings WHERE id = ${onboardingId} LIMIT 1;
   `;
   return rowToSettings(res.rows[0]);
 }
@@ -601,14 +605,21 @@ export async function ensureSiteKey(onboardingId: number): Promise<TrackingSetti
 
 export async function setTrackingSettings(
   onboardingId: number,
-  input: Pick<TrackingSettings, 'siteUrl' | 'closeRateMode' | 'closeRate' | 'autoReports'>
+  input: Pick<TrackingSettings, 'siteUrl' | 'closeRateMode' | 'closeRate' | 'autoReports' | 'avgJobValue'>
 ): Promise<void> {
   await ensureSchema();
   await sql`
     UPDATE onboardings SET site_url = ${input.siteUrl}, close_rate = ${input.closeRate}, close_rate_mode = ${input.closeRateMode},
-      auto_reports = ${input.autoReports}, updated_at = now()
+      auto_reports = ${input.autoReports}, avg_job_value = ${input.avgJobValue}, updated_at = now()
     WHERE id = ${onboardingId};
   `;
+}
+
+export function validateAvgJobValue(raw: unknown): number | null {
+  if (raw === null || raw === undefined || raw === '') return null;
+  const n = Number(String(raw).replace(/[$,\s]/g, ''));
+  if (!Number.isFinite(n) || n < 0 || n > 1_000_000) throw new Error('Average job value must be a dollar amount up to $1,000,000');
+  return Math.round(n) || null;
 }
 
 export const validateCloseRateMode = (raw: unknown): CloseRateMode => (raw === 'manual' ? 'manual' : 'auto');

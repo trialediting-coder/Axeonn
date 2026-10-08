@@ -1,6 +1,8 @@
 // lib/email.ts
 import { Resend } from 'resend';
 import { WEEKDAY_LABELS, buttonLabel, campaignLabel, hourLabel, sourceLabel, type TrafficDetail, type TrafficSummary } from '@/lib/projectsShared';
+import { TAGLINE, alwaysOnSentence, headlineSentence, reportHighlights } from '@/lib/reportCopy';
+import type { OnboardingTier } from '@/data/onboardingItems';
 
 const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_EMAIL;
 // Resend rejects sends from a domain that hasn't been verified in the
@@ -570,17 +572,37 @@ function detailSections(t: TrafficSummary, d: TrafficDetail): string {
   `;
 }
 
-function trafficSections(t: TrafficSummary): string {
+/** What the work produced: the buttons pressed, the pages that brought people, the campaigns. */
+function producedSections(t: TrafficSummary): string {
   const buttons = t.buttons.slice(0, 6).map((b) => ({ label: buttonLabel(b.name), count: b.count }));
+  const d = t.detail && t.detail.sessions > 0 ? t.detail : null;
+  const landing = (d?.landing ?? [])
+    .filter((l) => l.sessions > 0)
+    .slice(0, 5)
+    .map((l) => ({ label: `${pageName(l.path)}${l.conversions ? ` · ${l.conversions} reached out` : ''}`, count: l.sessions }));
+  const campaigns = (d?.campaigns ?? [])
+    .slice(0, 5)
+    .map((c) => ({ label: `${campaignLabel(c)}${c.conversions ? ` · ${c.conversions} reached out` : ''}`, count: c.sessions }));
+  return `
+    ${buttons.length ? h2('What people pressed') + countList(buttons) : ''}
+    ${landing.length ? h2('Pages that brought them in') + countList(landing) : ''}
+    ${campaigns.length ? h2('Campaigns that sent visitors') + countList(campaigns) : ''}
+  `;
+}
+
+/** Who found the site and how they used it. */
+function audienceSections(t: TrafficSummary): string {
   const sources = t.sources.slice(0, 5).map((x) => ({ label: sourceLabel(x.host), count: x.count }));
   const pages = t.pages.slice(0, 5).map((pg) => ({ label: pageName(pg.path), count: pg.count }));
   const d = t.detail && t.detail.sessions > 0 ? t.detail : null;
+  const places = (d?.places ?? []).slice(0, 5).map((p) => ({ label: `${p.city}${p.conversions ? ` · ${p.conversions} reached out` : ''}`, count: p.sessions }));
+  const when = d ? whenTheyReachOut(d) : '';
   return `
-    ${buttons.length ? h2('Most clicked buttons') + countList(buttons) : ''}
-    ${sources.length ? h2('Where visitors came from') + countList(sources) : ''}
+    ${sources.length ? h2('Where they found you') + countList(sources) : ''}
+    ${places.length ? h2('Where they are') + countList(places) : ''}
+    ${d ? h2('How they used your site') + para(usageSentence(t, d)) : ''}
     ${pages.length ? h2('Most visited pages') + countList(pages) : ''}
-    ${d ? detailSections(t, d) : ''}
-    ${closeRateNote(t)}
+    ${when ? h2('When customers reach out') + para(when) : ''}
   `;
 }
 
@@ -604,9 +626,20 @@ export function closeRateNote(t: TrafficSummary): string {
 export interface MonthlyReportEmailInput {
   to: string;
   clientName: string | null;
+  businessName?: string | null;
+  tier?: OnboardingTier | null;
   monthLabel: string;
+  prevMonthLabel?: string | null;
   stats: Array<{ label: string; value: string; sub?: string | null }>;
   traffic?: TrafficSummary | null;
+  prevTraffic?: TrafficSummary | null;
+  avgJobValue?: number | null;
+  /** Typed-in report fields the wins draw on. */
+  rank?: number | null;
+  keyword?: string;
+  reviews?: number | null;
+  rating?: number | null;
+  prevRank?: number | null;
   done: EmailLine[];
   next: EmailLine[];
   fromYou: string;
@@ -614,26 +647,55 @@ export interface MonthlyReportEmailInput {
   proofUrl: string;
 }
 
-/** The report email as subject + HTML, with no sending, so a sample can be rendered anywhere. */
+/**
+ * The report email as subject + HTML, with no sending, so a sample can be
+ * rendered anywhere. Framed as "here is what Axeon did for you": outcome first,
+ * then the work, then what it produced, then who found them.
+ */
 export function renderMonthlyReportEmail(input: MonthlyReportEmailInput): { subject: string; html: string } {
   const t = input.traffic ?? null;
-  const intro = t
-    ? `How your website did in ${escapeHtml(input.monthLabel)}: who visited, which buttons they pressed, and how many likely became customers.`
-    : `Calls, leads and booked jobs for ${escapeHtml(input.monthLabel)}, and what we are doing next. Customers, not clicks.`;
+  const business = input.businessName?.trim() || 'your business';
+  const typed = { rank: input.rank ?? null, keyword: input.keyword ?? '', reviews: input.reviews ?? null, rating: input.rating ?? null };
+  const headline = t
+    ? headlineSentence({
+        business,
+        monthLabel: input.monthLabel,
+        prevMonthLabel: input.prevMonthLabel,
+        traffic: t,
+        prev: input.prevTraffic,
+        avgJobValue: input.avgJobValue,
+      })
+    : `Calls, leads and booked jobs for ${input.monthLabel}, and what we are doing next.`;
+  const wins = t ? reportHighlights({ traffic: t, prev: input.prevTraffic, report: typed, prevReport: input.prevRank != null ? { rank: input.prevRank } : null }) : [];
+  const subject = t && t.conversions > 0
+    ? `${t.conversions} ${t.conversions === 1 ? 'person' : 'people'} reached out to ${business} in ${input.monthLabel}. Here is how.`
+    : `What Axeon did for ${business} in ${input.monthLabel}`;
+  const didSomething = input.done.length > 0;
   return {
-    subject: `Your ${input.monthLabel} report from Axeon`,
+    subject,
     html: clientLayout(
-      `${escapeHtml(input.monthLabel)} in numbers.`,
+      `Here is what Axeon did for you in ${escapeHtml(input.monthLabel)}.`,
       `
         <p style="margin:0 0 12px">${firstName(input.clientName)}</p>
-        <p style="margin:0 0 16px">${intro}</p>
+        <p style="margin:0 0 20px;font-size:17px;line-height:1.45;font-weight:600;color:#0a0a0a">${escapeHtml(headline)}</p>
         ${statTiles(input.stats)}
         ${input.note ? para(input.note) : ''}
-        ${t ? trafficSections(t) : ''}
-        ${input.done.length ? h2('What we did this month') + linesHtml(input.done) : ''}
-        ${input.next.length ? h2("Next month's plan") + linesHtml(input.next) : ''}
-        ${input.fromYou ? h2('From you') + para(input.fromYou) : ''}
-        ${button(input.proofUrl, 'Open AxeonPROOF')}
+        ${
+          wins.length
+            ? h2("This month's wins") +
+              `<ul style="margin:0 0 16px;padding-left:20px">${wins.map((w) => `<li style="margin:0 0 6px">${escapeHtml(w)}</li>`).join('')}</ul>`
+            : ''
+        }
+        ${h2('What Axeon did this month')}
+        ${didSomething ? linesHtml(input.done) : ''}
+        ${input.tier ? `<p style="margin:0 0 12px;font-size:14px;color:#525252">${escapeHtml(alwaysOnSentence(input.tier))}</p>` : ''}
+        ${t ? producedSections(t) : ''}
+        ${t ? audienceSections(t) : ''}
+        ${input.next.length ? h2("What we are doing next month") + linesHtml(input.next) : ''}
+        ${input.fromYou ? h2('One thing we need from you') + para(input.fromYou) : ''}
+        ${t ? closeRateNote(t) : ''}
+        ${button(input.proofUrl, 'See it all in AxeonPROOF')}
+        <p style="margin:0;font-size:13px;font-weight:700;color:#0a0a0a">${TAGLINE}</p>
       `
     ),
   };

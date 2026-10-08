@@ -235,6 +235,9 @@ export function ensureSchema(): Promise<void> {
       // 'auto' estimates the close rate from the month's data (lib/siteStats.ts
       // estimateCloseRate); 'manual' uses close_rate as typed in the admin.
       await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS close_rate_mode TEXT NOT NULL DEFAULT 'auto';`;
+      // Average job value in whole dollars, set in the admin, so the report can say
+      // "about $11,700 in work". Null until the client tells us.
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS avg_job_value INTEGER;`;
       // One row per page view or button click on a client's website. No cookies,
       // no IP: `visitor` is a salted hash that rotates monthly, so "visitors" is
       // unique people per month and nothing identifies one of them.

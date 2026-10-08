@@ -16,7 +16,7 @@ import { sendMonthlyReportEmail, sendProjectUpdateEmail } from '@/lib/email';
 import { APP_ORIGIN } from '@/lib/hostRouting';
 import { getOnboardingByToken, type Onboarding } from '@/lib/onboarding';
 import { sendAutoReport } from '@/lib/autoReports';
-import { hasTraffic, isValidMonth, setTrackingSettings, trackingOverview, validateCloseRate, validateCloseRateMode, validateSiteUrl } from '@/lib/siteStats';
+import { getTrackingSettings, hasTraffic, isValidMonth, setTrackingSettings, trackingOverview, validateAvgJobValue, validateCloseRate, validateCloseRateMode, validateSiteUrl } from '@/lib/siteStats';
 import {
   createProjectUpdate,
   deleteMonthlyReport,
@@ -96,14 +96,25 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
     } else if (body.kind === 'report') {
       const report = await saveMonthlyReport(onboarding.id, validateReportInput(body));
       if (body.send !== false) {
-        const [details, all] = await Promise.all([getProjectDetails(onboarding.id), listMonthlyReports(onboarding.id)]);
+        const [details, all, settings] = await Promise.all([getProjectDetails(onboarding.id), listMonthlyReports(onboarding.id), getTrackingSettings(onboarding.id)]);
+        const prev = previousReport(all, report.month);
         try {
           await sendMonthlyReportEmail({
             to: onboarding.clientEmail,
             clientName: onboarding.clientName,
+            businessName: onboarding.businessName,
+            tier: onboarding.tier,
             monthLabel: monthLabel(report.month),
-            stats: reportStats(report, previousReport(all, report.month), details),
+            prevMonthLabel: prev ? monthLabel(prev.month) : null,
+            stats: reportStats(report, prev, details, { avgJobValue: settings.avgJobValue }),
             traffic: hasTraffic(report.traffic) ? report.traffic : null,
+            prevTraffic: prev && hasTraffic(prev.traffic) ? prev.traffic : null,
+            avgJobValue: settings.avgJobValue,
+            rank: report.rank,
+            keyword: report.keyword,
+            reviews: report.reviews,
+            rating: report.rating,
+            prevRank: prev?.rank ?? null,
             done: report.done,
             next: report.next,
             fromYou: report.fromYou,
@@ -121,6 +132,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
         closeRateMode: validateCloseRateMode(body.closeRateMode),
         closeRate: validateCloseRate(body.closeRate),
         autoReports: body.autoReports !== false,
+        avgJobValue: validateAvgJobValue(body.avgJobValue),
       });
     } else if (body.kind === 'auto-report') {
       if (!isValidMonth(body.month)) throw new Error('Pick the month to send');

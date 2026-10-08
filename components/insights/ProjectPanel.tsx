@@ -110,6 +110,7 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
     closeRateMode: t.closeRateMode,
     closeRate: String(t.closeRate),
     autoReports: t.autoReports,
+    avgJobValue: t.avgJobValue == null ? '' : String(t.avgJobValue),
   });
   const autoRate = t.lastMonth.conversions > 0 ? t.lastMonth.closeRate : t.thisMonth.closeRate;
   const autoEstimate = t.lastMonth.conversions > 0 ? t.lastMonth.closeRateEstimate : t.thisMonth.closeRateEstimate;
@@ -236,7 +237,7 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
         </div>
 
         <form
-          className="mt-4 grid gap-3 sm:grid-cols-[1fr_170px_110px_auto_auto] sm:items-end"
+          className="mt-4 grid gap-3 sm:grid-cols-[1fr_170px_110px_130px_auto_auto] sm:items-end"
           onSubmit={(e) => {
             e.preventDefault();
             void call('POST', { kind: 'tracking', ...tracking }, 'Tracking settings saved.', 'tracking');
@@ -265,6 +266,11 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
           ) : (
             <div className="hidden sm:block" />
           )}
+          {input(tracking.avgJobValue, (e) => setTracking((x) => ({ ...x, avgJobValue: e.target.value })), 'Avg job $', {
+            inputMode: 'numeric',
+            placeholder: '300',
+            title: 'Their average job in dollars. Turns estimated customers into "about $X in work" in the report.',
+          })}
           <label className="flex h-10 items-center gap-2 text-sm text-neutral-800">
             <input
               type="checkbox"

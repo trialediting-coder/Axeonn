@@ -202,6 +202,9 @@ async function main() {
   // 'auto' estimates the close rate from the month's data (lib/siteStats.ts
   // estimateCloseRate); 'manual' uses close_rate as typed in the admin.
   await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS close_rate_mode TEXT NOT NULL DEFAULT 'auto';`;
+  // Average job value in whole dollars, set in the admin, so the report can say
+  // "about $11,700 in work". Null until the client tells us.
+  await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS avg_job_value INTEGER;`;
   await sql`
     CREATE TABLE IF NOT EXISTS site_events (
       id BIGSERIAL PRIMARY KEY,

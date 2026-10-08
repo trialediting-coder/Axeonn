@@ -6,18 +6,20 @@ import { TIER_LABELS } from '@/data/onboardingItems';
 import { agreementUrl, latestSignedAgreementFor } from '@/lib/agreements';
 import { computeProgress, getItemStates, orderedItems, welcomeUrl, type Onboarding } from '@/lib/onboarding';
 import { getProjectDetails, guaranteeDay, listMonthlyReports, listProjectUpdates, tierHasGuarantee } from '@/lib/projects';
+import { getTrackingSettings } from '@/lib/siteStats';
 import type { ProofDashboard } from '@/components/proof/ProofDashboard';
 import type { ComponentProps } from 'react';
 
 export type DashboardData = Omit<ComponentProps<typeof ProofDashboard>, 'email' | 'preview'>;
 
 export async function loadDashboardData(onboarding: Onboarding): Promise<DashboardData> {
-  const [states, details, updates, reports, agreement] = await Promise.all([
+  const [states, details, updates, reports, agreement, tracking] = await Promise.all([
     getItemStates(onboarding.id),
     getProjectDetails(onboarding.id),
     listProjectUpdates(onboarding.id),
     listMonthlyReports(onboarding.id),
     latestSignedAgreementFor(onboarding.clientEmail).catch(() => null),
+    getTrackingSettings(onboarding.id),
   ]);
   return {
     onboarding,
@@ -32,5 +34,6 @@ export async function loadDashboardData(onboarding: Onboarding): Promise<Dashboa
     guarantee: tierHasGuarantee(onboarding.tier),
     guaranteeDay: guaranteeDay(details.kickoffAt),
     agreementUrl: agreement ? agreementUrl(agreement.token) : null,
+    avgJobValue: tracking.avgJobValue,
   };
 }
