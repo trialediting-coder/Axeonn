@@ -49,7 +49,7 @@ type WebKey = 'views' | 'clicks' | 'conversions' | 'estimatedCustomers';
 const WEB_METRICS: { key: WebKey; label: string; icon: Icon; hint: string }[] = [
   { key: 'views', label: 'Website visits', icon: Globe, hint: 'Page views on your site' },
   { key: 'clicks', label: 'Button clicks', icon: MousePointerClick, hint: 'Call, text, book, form and more' },
-  { key: 'conversions', label: 'Reached out', icon: PhoneCall, hint: 'Calls, texts, emails, forms, bookings' },
+  { key: 'conversions', label: 'Reached out', icon: PhoneCall, hint: 'Calls, texts, forms, bookings, directions' },
   { key: 'estimatedCustomers', label: 'Est. new customers', icon: Users, hint: 'Estimated from who reached out' },
 ];
 
@@ -62,6 +62,9 @@ function webMetric(key: WebKey, t: TrafficSummary, prev: TrafficSummary | null) 
       ? `likely ${t.customersLow} to ${t.customersHigh} · ${t.closeRate}% close rate`
       : `${t.closeRate}% of who reached out`;
   if (key === 'estimatedCustomers') return { value, sub: estimateSub, tone: 'neutral' as const };
+  if (key === 'conversions' && t.assistedContacts) {
+    return { value, sub: `${t.directContacts} on the site · ~${t.assistedContacts} likely called after reading the number`, tone: 'neutral' as const };
+  }
   if (before == null) {
     const sub = key === 'views' ? `${t.visitors} ${t.visitors === 1 ? 'visitor' : 'visitors'}` : null;
     return { value, sub, tone: 'neutral' as const };

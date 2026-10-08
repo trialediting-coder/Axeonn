@@ -105,7 +105,7 @@ test('estimated customers round to the nearest whole customer and respect the cl
   assert.throws(() => validateSiteUrl('a1detail'), /https:\/\//);
 });
 
-test('the summary counts only calls, texts, emails, forms and bookings as reaching out', () => {
+test('the summary counts calls, texts, emails, forms, bookings, directions and listing taps as reaching out', () => {
   const t = summarize({
     views: 320,
     visitors: 210,
@@ -123,8 +123,10 @@ test('the summary counts only calls, texts, emails, forms and bookings as reachi
     sources: [],
     closeRate: 25,
   });
-  assert.equal(t.conversions, 22);
-  assert.equal(t.estimatedCustomers, 6);
+  assert.equal(t.directContacts, 32); // 12 calls + 10 directions + 6 forms + 2 book + 1 text + 1 email
+  assert.equal(t.assistedContacts, 0); // no detail, so nothing credited off-site
+  assert.equal(t.conversions, 32);
+  assert.equal(t.estimatedCustomers, 8);
   assert.equal(t.closeRateEstimate, null);
   assert.equal(buttonLabel('call'), 'Call button');
   assert.equal(buttonLabel('get a free quote'), 'Get a free quote');
@@ -338,7 +340,7 @@ const detailWith = (over: Partial<TrafficDetail>): TrafficDetail => ({
 });
 
 test('with nobody reaching out, the estimate is the typical local-service figure', () => {
-  assert.deepEqual(estimateCloseRate({ buttons: [{ name: 'directions', count: 9 }] }), DEFAULT_CLOSE_RATE_ESTIMATE);
+  assert.deepEqual(estimateCloseRate({ buttons: [{ name: 'review', count: 9 }] }), DEFAULT_CLOSE_RATE_ESTIMATE);
 });
 
 test('the base rate is the optimistic benchmark weighted by how people reached out', () => {
@@ -406,4 +408,68 @@ test('summarize estimates when no manual rate is set, and carries the range', ()
   assert.equal(t.customersHigh, Math.ceil((12 * t.closeRateEstimate!.high) / 100));
   assert.equal(effectiveCloseRate({ closeRateMode: 'auto', closeRate: 25 }), null);
   assert.equal(effectiveCloseRate({ closeRateMode: 'manual', closeRate: 40 }), 40);
+});
+
+
+// ───────────────────────────── Generous crediting ─────────────────────────────
+import { ASSISTED_RATE, assistedContacts } from './siteStats';
+
+test('engaged computer visits with no click are counted, from time, pages or an intent page', () => {
+  const base = (over: Partial<SessionRow>): SessionRow => ({
+    visitor: 'x',
+    started_at: '2026-09-10T15:00:00Z',
+    landing: '/',
+    views: 1,
+    converted: false,
+    converted_on: null,
+    converted_at: null,
+    clicks: 0,
+    seconds: null,
+    scroll: null,
+    device: 'desktop',
+    city: null,
+    utm_source: null,
+    utm_medium: null,
+    utm_campaign: null,
+    speed_ms: null,
+    intent: false,
+    ...over,
+  });
+  const d = summarizeSessions([
+    base({ visitor: 'a', seconds: 45 }), // read for 45s: counts
+    base({ visitor: 'b', views: 3 }), // three pages: counts
+    base({ visitor: 'c', intent: true }), // opened the pricing page: counts
+    base({ visitor: 'd', seconds: 5 }), // bounced: no
+    base({ visitor: 'e', device: 'phone', seconds: 120 }), // phone: they could have tapped, so no
+    base({ visitor: 'f', seconds: 90, clicks: 1, converted: true, converted_on: '/' }), // already counted as a click
+    base({ visitor: 'g', device: 'tablet', views: 2 }), // tablet counts like a computer
+  ]);
+  assert.equal(d.engagedNoClick, 4);
+});
+
+test('off-site credit is a quarter of those visits, capped at the real clicks plus two', () => {
+  assert.equal(ASSISTED_RATE, 0.25);
+  assert.equal(assistedContacts(0, 10), 0);
+  assert.equal(assistedContacts(40, 10), 10); // 40 × 0.25
+  assert.equal(assistedContacts(40, 3), 5); // capped at 3 + 2
+  assert.equal(assistedContacts(100, 0), 2); // with no clicks at all, at most two
+  assert.equal(assistedContacts(2, 10), 1); // rounds to nearest
+});
+
+test('summarize adds the off-site credit to who reached out and says so', () => {
+  const t = summarize({
+    views: 400,
+    visitors: 300,
+    clicks: 20,
+    buttons: [{ name: 'call', count: 10 }, { name: 'directions', count: 2 }],
+    pages: [],
+    sources: [],
+    closeRate: null,
+    detail: detailWith({ engagedNoClick: 24, devices: { phone: 100, tablet: 20, desktop: 280 } }),
+  });
+  assert.equal(t.directContacts, 12);
+  assert.equal(t.assistedContacts, 6); // 24 × 0.25, under the cap of 14
+  assert.equal(t.conversions, 18);
+  assert.equal(t.closeRate, 56); // (55×10 + 60×2) / 12 = 55.8
+  assert.equal(t.estimatedCustomers, 10); // round(18 × 0.56)
 });

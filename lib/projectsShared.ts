@@ -35,8 +35,16 @@ export interface TrafficSummary {
   pages: Array<{ path: string; count: number }>;
   /** Where visitors came from (referrer host). An empty host means direct / typed in. */
   sources: Array<{ host: string; count: number }>;
-  /** Calls, texts, emails, form sends and bookings: the clicks that mean a customer reached out. */
+  /** Everyone credited as reaching out: the clicks below plus the estimated off-site callers. */
   conversions: number;
+  /** Clicks on call, text, email, form, book, directions or the Google listing. */
+  directContacts?: number;
+  /**
+   * Engaged computer and tablet visits with no click, credited at ASSISTED_RATE:
+   * nobody can tap to call on a computer, so they read the number and dial it on
+   * a phone. Capped so it can never dwarf the real clicks.
+   */
+  assistedContacts?: number;
   /** Percent of those we count as a new customer. Per client, set in the admin. */
   closeRate: number;
   /** round(conversions × closeRate / 100). Always labelled "estimated". */
@@ -95,6 +103,8 @@ export interface TrafficDetail {
   conversionDays: number[];
   /** Median page load in ms as visitors saw it, or null. */
   speedMs: number | null;
+  /** Computer or tablet sessions that read (30s+, two pages, or a contact / pricing / service page) but clicked nothing. */
+  engagedNoClick?: number;
 }
 
 export const DEVICE_LABELS = { phone: 'Phone', tablet: 'Tablet', desktop: 'Desktop' } as const;
@@ -119,8 +129,12 @@ export function campaignLabel(c: { source: string; medium: string; campaign: str
   return c.campaign ? `${name}: ${c.campaign}` : name;
 }
 
-/** Click names that count as a customer reaching out. The others are navigation. */
-export const CONVERSION_NAMES = ['call', 'text', 'email', 'form', 'book'] as const;
+/**
+ * Click names that count as a customer reaching out. Directions means they are
+ * driving to the business; the Google listing is one tap from a call or a visit.
+ * Review and social links are not leads.
+ */
+export const CONVERSION_NAMES = ['call', 'text', 'email', 'form', 'book', 'directions', 'google-business'] as const;
 
 /** Plain-English label for a tracked click name. */
 export function buttonLabel(name: string): string {

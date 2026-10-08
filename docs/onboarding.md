@@ -174,8 +174,12 @@ load through `lib/proofDashboardData.ts` so they can never drift apart.
 (`vercel.json`) and, for every open client with "Email on the 1st" switched on,
 sums last month (`lib/autoReports.ts`): visits and visitors, button clicks with
 the most-clicked list, how many people reached out (calls + texts + emails +
-forms + bookings), and **estimated new customers** = that count × the client's
-close rate. The close rate is **estimated from the data by default**
+forms + bookings + directions + Google-listing taps), plus an **off-site credit**:
+a computer or tablet visitor cannot tap to call, so engaged computer visits with
+no click (30s+, two pages, or a contact / pricing / service page) are credited
+at 25% as calls made after reading the number, capped at the real clicks plus
+two (`assistedContacts` in `lib/siteStats.ts`). The email states both parts
+separately. **Estimated new customers** = that total × the client's close rate. The close rate is **estimated from the data by default**
 (`estimateCloseRate` in `lib/siteStats.ts`): each way of reaching out gets the
 optimistic end of local-service benchmarks (online booking 85%, call 55%, text
 50%, form 40%, email 35%), weighted by that client's mix, then only upward

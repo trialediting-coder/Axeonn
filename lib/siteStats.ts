@@ -260,9 +260,30 @@ export const CONTACT_CLOSE_RATES: Record<(typeof CONVERSION_NAMES)[number], { lo
   book: { low: 65, high: 85 },
   call: { low: 35, high: 55 },
   text: { low: 30, high: 50 },
+  directions: { low: 40, high: 60 },
   form: { low: 20, high: 40 },
   email: { low: 15, high: 35 },
+  'google-business': { low: 25, high: 45 },
 };
+
+/**
+ * Share of engaged computer / tablet visits with no click that we credit as a
+ * phone call made after reading the number on screen. Industry call-tracking
+ * studies put the untracked share of calls from desktop visits well above this.
+ */
+export const ASSISTED_RATE = 0.25;
+
+/** Pages whose visit alone says "I am shopping for this": the contact, pricing and service pages. */
+export const INTENT_PATH_PATTERN = '(contact|quote|estimate|pricing|prices|book|schedule|appointment|service|detail|coating|repair|install|cleaning|financing)';
+
+/**
+ * Off-site contacts credited from engaged computer visits that clicked nothing,
+ * capped at the real clicks plus two so the estimate never outweighs the facts.
+ */
+export function assistedContacts(engagedNoClick: number, directContacts: number): number {
+  if (engagedNoClick <= 0) return 0;
+  return Math.min(Math.round(engagedNoClick * ASSISTED_RATE), directContacts + 2);
+}
 
 /** When nobody has reached out yet there is nothing to weigh; a typical local-service figure. */
 export const DEFAULT_CLOSE_RATE_ESTIMATE: CloseRateEstimate = {
@@ -300,7 +321,17 @@ export function estimateCloseRate(input: { buttons: Array<{ name: string; count:
   const dominant = [...mix].sort((a, b) => b.count - a.count)[0];
   const factors: CloseRateEstimate['factors'] = [
     {
-      label: `${Math.round(baseHigh)}% to start, from how people reached out (mostly ${dominant.name === 'book' ? 'online bookings' : dominant.name === 'form' ? 'forms' : `${dominant.name}s`})`,
+      label: `${Math.round(baseHigh)}% to start, from how people reached out (mostly ${
+        dominant.name === 'book'
+          ? 'online bookings'
+          : dominant.name === 'form'
+            ? 'forms'
+            : dominant.name === 'directions'
+              ? 'directions to you'
+              : dominant.name === 'google-business'
+                ? 'your Google listing'
+                : `${dominant.name}s`
+      })`,
       effect: 0,
     },
   ];
@@ -376,7 +407,9 @@ export function summarize(input: {
   closeRate: number | null;
   detail?: TrafficDetail | null;
 }): TrafficSummary {
-  const conversions = input.buttons.filter((b) => isConversion(b.name)).reduce((sum, b) => sum + b.count, 0);
+  const directContacts = input.buttons.filter((b) => isConversion(b.name)).reduce((sum, b) => sum + b.count, 0);
+  const assisted = assistedContacts(input.detail?.engagedNoClick ?? 0, directContacts);
+  const conversions = directContacts + assisted;
   const estimate = input.closeRate == null ? estimateCloseRate({ buttons: input.buttons, detail: input.detail }) : null;
   const closeRate = estimate ? estimate.rate : (input.closeRate as number);
   return {
@@ -387,6 +420,8 @@ export function summarize(input: {
     pages: input.pages,
     sources: input.sources,
     conversions,
+    directContacts,
+    assistedContacts: assisted,
     closeRate,
     estimatedCustomers: estimateCustomers(conversions, closeRate),
     detail: input.detail ?? null,
@@ -414,6 +449,8 @@ export interface SessionRow {
   utm_medium: string | null;
   utm_campaign: string | null;
   speed_ms: number | null;
+  /** Viewed a contact, pricing or service page. */
+  intent?: boolean | null;
 }
 
 const topN = <T extends object>(map: Map<string, T>, n: number, by: (t: T) => number): T[] =>
@@ -438,6 +475,7 @@ export function summarizeSessions(rows: SessionRow[], timeZone: string = REPORT_
   const conversionHours = new Array<number>(24).fill(0);
   const conversionDays = new Array<number>(7).fill(0);
   let bounces = 0;
+  let engagedNoClick = 0;
   let views = 0;
   let secondsSum = 0;
   let secondsN = 0;
@@ -449,6 +487,11 @@ export function summarizeSessions(rows: SessionRow[], timeZone: string = REPORT_
     perVisitor.set(r.visitor, (perVisitor.get(r.visitor) ?? 0) + 1);
     views += r.views;
     if (r.views <= 1 && r.clicks === 0) bounces += 1;
+    // A computer visitor cannot tap to call. One who read for 30s, saw two pages, or
+    // opened a contact / pricing / service page and then left is likely to have dialled.
+    if ((r.device === 'desktop' || r.device === 'tablet') && !r.converted && r.clicks === 0) {
+      if ((r.seconds ?? 0) >= 30 || r.views >= 2 || r.intent) engagedNoClick += 1;
+    }
     if (r.seconds != null && r.seconds > 0) {
       secondsSum += r.seconds;
       secondsN += 1;
@@ -509,6 +552,7 @@ export function summarizeSessions(rows: SessionRow[], timeZone: string = REPORT_
     conversionHours,
     conversionDays,
     speedMs: median,
+    engagedNoClick,
   };
 }
 
@@ -635,6 +679,7 @@ export async function sessionRows(onboardingId: number, month: string): Promise<
       (array_agg(path ORDER BY created_at, id) FILTER (WHERE kind = 'click' AND name = ANY(${conv}::text[])))[1] AS converted_on,
       min(created_at) FILTER (WHERE kind = 'click' AND name = ANY(${conv}::text[])) AS converted_at,
       (count(*) FILTER (WHERE kind = 'click'))::int AS clicks,
+      coalesce(bool_or(kind = 'view' AND path ~* ${INTENT_PATH_PATTERN}), false) AS intent,
       (sum(seconds) FILTER (WHERE kind = 'leave'))::int AS seconds,
       max(scroll) FILTER (WHERE kind = 'leave') AS scroll,
       (array_agg(device ORDER BY created_at, id) FILTER (WHERE device IS NOT NULL))[1] AS device,
