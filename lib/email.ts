@@ -536,8 +536,10 @@ export function usageSentence(t: TrafficSummary, d: TrafficDetail): string {
 // system sans elsewhere.
 
 const BRAND = {
+  /** Fills: button, bars, borders, the brand stripe. The exact colour of the Axeon mark. */
   blue: '#2563eb',
-  blueDeep: '#1d4ed8',
+  /** Text accents. The blue the site uses on dark backgrounds; readable on white and on black. */
+  blueText: '#3b82f6',
   blueTint: '#eaf1ff',
   ink: '#0a0a0a',
   body: '#262626',
@@ -582,7 +584,7 @@ function brandDocument(input: { subject: string; headerHtml: string; bodyHtml: s
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
   :root { color-scheme: light dark; supported-color-schemes: light dark; }
   body { margin:0; padding:0; background:${BRAND.wash}; }
-  a { color:${BRAND.blue}; }
+  a { color:${BRAND.blueText}; }
   @media (max-width: 600px) { .tile { display:block !important; width:100% !important; } .pad { padding-left:20px !important; padding-right:20px !important; } }
   @media (prefers-color-scheme: dark) { ${DARK_CSS} }
   ${DARK_CSS.replace(/\n\s*\./g, '\n  [data-ogsc] .').replace(/\[data-ogsc\] \.ax-wash|\[data-ogsc\] \.ax-card|\[data-ogsc\] \.ax-band/g, (m) => m.replace('[data-ogsc]', '[data-ogsb]'))}
@@ -591,7 +593,8 @@ function brandDocument(input: { subject: string; headerHtml: string; bodyHtml: s
 <body class="ax-wash" style="margin:0;padding:0;background:${BRAND.wash}">
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" class="ax-wash" style="background:${BRAND.wash}"><tr><td align="center" style="padding:24px 12px">
 <table role="presentation" width="600" cellspacing="0" cellpadding="0" class="ax-card" style="width:100%;max-width:600px;background:#ffffff;border-radius:16px;overflow:hidden;font-family:${FONT};color:${BRAND.body};line-height:1.55">
-  <tr><td class="pad" style="padding:28px 32px 8px">
+  <tr><td style="height:6px;background:${BRAND.blue};font-size:1px;line-height:1px">&nbsp;</td></tr>
+  <tr><td class="pad" style="padding:26px 32px 8px">
     ${input.headerHtml}
   </td></tr>
   <tr><td class="pad" style="padding:8px 32px 8px">
@@ -608,17 +611,19 @@ function brandDocument(input: { subject: string; headerHtml: string; bodyHtml: s
 }
 
 /** The mark (blue on transparent, so it works on light and dark) and the wordmark in ink. */
-const brandLogo = (product?: string) => `
+const brandLogo = (product?: string, size: 'md' | 'lg' = 'md') => `
   <table role="presentation" cellspacing="0" cellpadding="0"><tr>
-    <td style="vertical-align:middle;padding-right:10px"><img src="${EMAIL_LOGO_URL}" width="26" height="22" alt="" style="display:block;border:0"></td>
-    <td class="ax-ink" style="vertical-align:middle;font-family:${FONT};font-size:22px;font-weight:800;letter-spacing:-.02em;color:${BRAND.ink};line-height:1">Axeon${
-      product ? `<span class="ax-blue" style="color:${BRAND.blue};font-weight:800">${escapeHtml(product)}</span>` : ''
+    <td style="vertical-align:middle;padding-right:${size === 'lg' ? 12 : 10}px"><img src="${EMAIL_LOGO_URL}" width="${size === 'lg' ? 34 : 26}" height="${
+      size === 'lg' ? 28 : 22
+    }" alt="" style="display:block;border:0"></td>
+    <td class="ax-ink" style="vertical-align:middle;font-family:${FONT};font-size:${size === 'lg' ? 26 : 22}px;font-weight:800;letter-spacing:-.02em;color:${BRAND.ink};line-height:1">Axeon${
+      product ? `<span class="ax-blue" style="color:${BRAND.blueText};font-weight:800">${escapeHtml(product)}</span>` : ''
     }</td>
   </tr></table>`;
 
 const rH2 = (text: string) =>
   `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:26px 0 10px"><tr>
-     <td class="ax-blue" style="font-family:${FONT};font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:${BRAND.blue};white-space:nowrap;padding-right:12px">${escapeHtml(text)}</td>
+     <td class="ax-blue" style="font-family:${FONT};font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:${BRAND.blueText};white-space:nowrap;padding-right:12px">${escapeHtml(text)}</td>
      <td width="100%" class="ax-rule" style="border-top:1px solid ${BRAND.line};height:1px;line-height:1px;font-size:1px">&nbsp;</td>
    </tr></table>`;
 
@@ -644,8 +649,8 @@ function rTiles(stats: Array<{ label: string; value: string; sub?: string | null
   const tile = (st: { label: string; value: string; sub?: string | null }, i: number) => {
     const hero = i < 2;
     return `<td class="tile ${hero ? 'ax-hero' : 'ax-tile'}" width="50%" style="background:${hero ? BRAND.blueTint : '#ffffff'};border:${hero ? '2px' : '1px'} solid ${hero ? BRAND.blue : BRAND.line};border-radius:12px;padding:${hero ? '15px 15px 13px' : '16px 16px 14px'};vertical-align:top">
-        <div class="${hero ? 'ax-blue' : 'ax-muted'}" style="font-size:12px;font-weight:700;letter-spacing:.02em;color:${hero ? BRAND.blueDeep : BRAND.muted}">${escapeHtml(st.label)}</div>
-        <div class="${hero ? 'ax-blue' : 'ax-ink'}" style="font-size:30px;line-height:1.1;font-weight:800;letter-spacing:-.02em;margin-top:6px;color:${hero ? BRAND.blue : BRAND.ink}">${escapeHtml(st.value)}</div>
+        <div class="${hero ? 'ax-blue' : 'ax-muted'}" style="font-size:12px;font-weight:700;letter-spacing:.02em;color:${hero ? BRAND.blueText : BRAND.muted}">${escapeHtml(st.label)}</div>
+        <div class="${hero ? 'ax-blue' : 'ax-ink'}" style="font-size:30px;line-height:1.1;font-weight:800;letter-spacing:-.02em;margin-top:6px;color:${hero ? BRAND.blueText : BRAND.ink}">${escapeHtml(st.value)}</div>
         ${subHtml(st.sub)}
       </td>`;
   };
@@ -683,7 +688,7 @@ const rWins = (wins: string[]) =>
   `<table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 8px">${wins
     .map(
       (w) => `<tr>
-      <td class="ax-blue" style="vertical-align:top;padding:0 10px 8px 0;color:${BRAND.blue};font-weight:800;font-size:15px;line-height:1.5">&#10003;</td>
+      <td class="ax-blue" style="vertical-align:top;padding:0 10px 8px 0;color:${BRAND.blueText};font-weight:800;font-size:15px;line-height:1.5">&#10003;</td>
       <td class="ax-body" style="vertical-align:top;padding:0 0 8px;font-size:15px;color:${BRAND.body}">${escapeHtml(w)}</td>
     </tr>`
     )
@@ -808,8 +813,8 @@ export function renderMonthlyReportEmail(input: MonthlyReportEmailInput): { subj
   const didSomething = input.done.length > 0;
   const headerHtml = `
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr>
-      <td style="vertical-align:middle">${brandLogo('PROOF')}</td>
-      <td style="vertical-align:middle;text-align:right"><span class="ax-pill ax-blue" style="display:inline-block;padding:6px 12px;border-radius:999px;background:${BRAND.blueTint};color:${BRAND.blueDeep};font-size:12px;font-weight:700;letter-spacing:.04em">${escapeHtml(input.monthLabel)}</span></td>
+      <td style="vertical-align:middle">${brandLogo('PROOF', 'lg')}</td>
+      <td style="vertical-align:middle;text-align:right"><span class="ax-pill ax-blue" style="display:inline-block;padding:6px 12px;border-radius:999px;background:${BRAND.blueTint};color:${BRAND.blueText};font-size:12px;font-weight:700;letter-spacing:.04em">${escapeHtml(input.monthLabel)}</span></td>
     </tr></table>
     <h1 class="ax-ink" style="margin:26px 0 0;font-family:${FONT};font-size:28px;line-height:1.15;font-weight:800;letter-spacing:-.02em;color:${BRAND.ink}">Here is what Axeon did for you in ${escapeHtml(input.monthLabel)}.</h1>
     <p class="ax-body" style="margin:14px 0 0;font-family:${FONT};font-size:16px;line-height:1.5;color:${BRAND.body}">${escapeHtml(headline)}</p>
@@ -834,7 +839,7 @@ export function renderMonthlyReportEmail(input: MonthlyReportEmailInput): { subj
       <td style="vertical-align:middle">${brandLogo()}</td>
       <td class="ax-ink" style="vertical-align:middle;text-align:right;font-family:${FONT};font-size:14px;font-weight:800;color:${BRAND.ink};letter-spacing:-.01em">${TAGLINE}</td>
     </tr></table>
-    <p class="ax-muted" style="margin:14px 0 0;font-family:${FONT};font-size:13px;color:${BRAND.muted}">Questions? Reply to this email or call <a class="ax-blue" href="tel:+15154938017" style="color:${BRAND.blue};text-decoration:none">(515) 493-8017</a>.</p>
+    <p class="ax-muted" style="margin:14px 0 0;font-family:${FONT};font-size:13px;color:${BRAND.muted}">Questions? Reply to this email or call <a class="ax-blue" href="tel:+15154938017" style="color:${BRAND.blueText};text-decoration:none">(515) 493-8017</a>.</p>
   `;
   return { subject, html: brandDocument({ subject, headerHtml, bodyHtml, footerHtml }) };
 }
