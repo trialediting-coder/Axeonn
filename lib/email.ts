@@ -564,7 +564,6 @@ const DARK_CSS = `
   .ax-hero { background:#13213f !important; border-color:#2b4a8f !important; }
   .ax-box { background:#171b25 !important; }
   .ax-track { background:#1c2740 !important; }
-  .ax-pill { background:#13213f !important; }
   .ax-blue { color:#7aa7ff !important; }
   .ax-green { color:#4ade80 !important; }
 `;
@@ -584,7 +583,7 @@ function brandDocument(input: { subject: string; headerHtml: string; bodyHtml: s
   :root { color-scheme: light dark; supported-color-schemes: light dark; }
   body { margin:0; padding:0; background:${BRAND.wash}; }
   a { color:${BRAND.blueText}; }
-  @media (max-width: 600px) { .tile { display:block !important; width:100% !important; } .pad { padding-left:20px !important; padding-right:20px !important; } }
+  @media (max-width: 600px) { .pad { padding-left:20px !important; padding-right:20px !important; } }
   @media (prefers-color-scheme: dark) { ${DARK_CSS} }
   ${DARK_CSS.replace(/\n\s*\./g, '\n  [data-ogsc] .').replace(/\[data-ogsc\] \.ax-wash|\[data-ogsc\] \.ax-card/g, (m) => m.replace('[data-ogsc]', '[data-ogsb]'))}
 </style>
@@ -647,7 +646,10 @@ const subHtml = (sub: string | null | undefined) => {
  */
 function rTiles(stats: Array<{ label: string; value: string; sub?: string | null }>): string {
   // The tile IS the table cell, so the two tiles in a row always share a height
-  // however their small print wraps. A 6px spacer column keeps the gap.
+  // however their small print wraps. A 12px spacer column keeps the gap. Tiles
+  // stay two-up on phones on purpose: stacking cells with display:block broke
+  // the row in Gmail (half-width tiles, clipped borders), and two 160px tiles
+  // read fine.
   const tile = (st: { label: string; value: string; sub?: string | null }, i: number) => {
     const hero = i < 2;
     return `<td class="tile ${hero ? 'ax-hero' : 'ax-tile'}" width="50%" style="background:${hero ? BRAND.blueTint : '#ffffff'};border:${hero ? '2px' : '1px'} solid ${hero ? BRAND.blue : BRAND.line};border-radius:12px;padding:${hero ? '15px 15px 13px' : '16px 16px 14px'};vertical-align:top">
@@ -814,10 +816,7 @@ export function renderMonthlyReportEmail(input: MonthlyReportEmailInput): { subj
     : `What Axeon did for ${business} in ${input.monthLabel}`;
   const didSomething = input.done.length > 0;
   const headerHtml = `
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr>
-      <td style="vertical-align:middle"><img src="${LOCKUP_WHITE_PROOF}" width="203" height="30" alt="AxeonPROOF" style="display:block;border:0;font-family:${FONT};font-size:22px;font-weight:800;color:#ffffff"></td>
-      <td style="vertical-align:middle;text-align:right"><span style="display:inline-block;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.18);color:#ffffff;font-size:12px;font-weight:700;letter-spacing:.04em">${escapeHtml(input.monthLabel)}</span></td>
-    </tr></table>
+    <img src="${LOCKUP_WHITE_PROOF}" width="203" height="30" alt="AxeonPROOF" style="display:block;border:0;font-family:${FONT};font-size:22px;font-weight:800;color:#ffffff">
     <h1 style="margin:26px 0 0;font-family:${FONT};font-size:28px;line-height:1.15;font-weight:800;letter-spacing:-.02em;color:#ffffff">Here is what Axeon did for you in ${escapeHtml(input.monthLabel)}.</h1>
     <p style="margin:14px 0 0;font-family:${FONT};font-size:16px;line-height:1.5;color:#ffffff">${escapeHtml(headline)}</p>
   `;
