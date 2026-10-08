@@ -94,6 +94,15 @@ export function OnboardingDetail({ initial, items }: { initial: Detail; items: {
           <button type="button" onClick={copy} className={btn('secondary', 'sm')}>
             {copied ? 'Copied' : 'Copy link'}
           </button>
+          <a
+            href={`/admin/onboarding/${onboarding.token}/preview`}
+            target="_blank"
+            rel="noreferrer"
+            title="Open this client's AxeonPROOF dashboard exactly as they see it. Nothing is sent."
+            className={btn('secondary', 'sm')}
+          >
+            View as client
+          </a>
           <button
             type="button"
             disabled={busy !== null}

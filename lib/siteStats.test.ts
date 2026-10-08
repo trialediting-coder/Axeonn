@@ -43,6 +43,11 @@ test('events: views need a key, clicks need a name, paths lose their query', () 
     name: null,
     path: '/services',
     referrer: 'google.com',
+    device: null,
+    utm: null,
+    seconds: null,
+    scroll: null,
+    speedMs: null,
   });
   const click = parseTrackingEvent({ k: KEY, e: 'click', n: '  Call  NOW! ', p: 'junk' });
   assert.equal(click?.name, 'call now');
@@ -181,4 +186,128 @@ test('a report counts as typed in when any box is filled', () => {
   assert.equal(reportHasContent(base), false);
   assert.equal(reportHasContent({ ...base, done: [{ title: 'New page', body: 'Roof repair' }] }), true);
   assert.equal(reportHasContent({ ...base, calls: 0 }), true);
+});
+
+// ───────────────────────────── Detail (2026-10-08) ─────────────────────────────
+import { deviceFromWidth, parseUtm, placeFromHeaders, summarizeSessions, type SessionRow } from './siteStats';
+import { campaignLabel, hourLabel } from './projectsShared';
+
+test('devices come from the viewport width', () => {
+  assert.equal(deviceFromWidth(390), 'phone');
+  assert.equal(deviceFromWidth(820), 'tablet');
+  assert.equal(deviceFromWidth(1440), 'desktop');
+  assert.equal(deviceFromWidth(undefined), null);
+  assert.equal(deviceFromWidth('junk'), null);
+});
+
+test('campaign tags are read from the query string, and ad click ids count as paid', () => {
+  assert.deepEqual(parseUtm('?utm_source=Google&utm_medium=cpc&utm_campaign=Spring%20Detail'), {
+    source: 'google',
+    medium: 'cpc',
+    campaign: 'spring detail',
+  });
+  assert.deepEqual(parseUtm('?gclid=abc123'), { source: 'google', medium: 'cpc', campaign: '' });
+  assert.deepEqual(parseUtm('?fbclid=xyz'), { source: 'facebook', medium: 'cpc', campaign: '' });
+  assert.equal(parseUtm('?page=2'), null);
+  assert.equal(parseUtm(''), null);
+  assert.equal(campaignLabel({ source: 'google', medium: 'cpc', campaign: 'spring detail' }), 'Google Ads: spring detail');
+  assert.equal(campaignLabel({ source: 'facebook', medium: 'paid_social', campaign: '' }), 'Facebook Ads');
+  assert.equal(campaignLabel({ source: 'nextdoor', medium: 'post', campaign: 'fall' }), 'Nextdoor post: fall');
+  assert.equal(campaignLabel({ source: 'newsletter', medium: 'email', campaign: '' }), 'Newsletter email');
+});
+
+test('place is city and region from the edge headers, never the IP', () => {
+  const h = (m: Record<string, string>) => ({ get: (k: string) => m[k] ?? null });
+  assert.equal(placeFromHeaders(h({ 'x-vercel-ip-city': 'Des%20Moines', 'x-vercel-ip-country-region': 'IA', 'x-vercel-ip-country': 'US' })), 'Des Moines, IA');
+  assert.equal(placeFromHeaders(h({ 'x-vercel-ip-city': 'Toronto', 'x-vercel-ip-country-region': 'ON', 'x-vercel-ip-country': 'CA' })), 'Toronto, CA');
+  assert.equal(placeFromHeaders(h({ 'x-vercel-ip-country': 'US' })), null);
+  assert.equal(hourLabel(0), '12am');
+  assert.equal(hourLabel(9), '9am');
+  assert.equal(hourLabel(12), '12pm');
+  assert.equal(hourLabel(17), '5pm');
+});
+
+test('sessions roll up into bounce rate, devices, landing pages, campaigns, places and hours', () => {
+  const row = (over: Partial<SessionRow>): SessionRow => ({
+    visitor: 'v1',
+    started_at: '2026-09-10T15:00:00Z',
+    landing: '/',
+    views: 1,
+    converted: false,
+    converted_on: null,
+    converted_at: null,
+    clicks: 0,
+    seconds: null,
+    scroll: null,
+    device: 'phone',
+    city: 'Des Moines, IA',
+    utm_source: null,
+    utm_medium: null,
+    utm_campaign: null,
+    speed_ms: null,
+    ...over,
+  });
+  const rows: SessionRow[] = [
+    // Bounce: one page, no click.
+    row({ visitor: 'a', seconds: 4, scroll: 10, speed_ms: 900 }),
+    // Converted from Google Ads on the ceramic page at 2pm Central (19:00Z in September, CDT).
+    row({
+      visitor: 'b',
+      landing: '/ceramic-coating',
+      views: 3,
+      clicks: 1,
+      converted: true,
+      converted_on: '/ceramic-coating',
+      converted_at: '2026-09-12T19:30:00Z',
+      seconds: 95,
+      scroll: 80,
+      utm_source: 'google',
+      utm_medium: 'cpc',
+      utm_campaign: 'ceramic',
+      device: 'desktop',
+      speed_ms: 1500,
+    }),
+    // Same visitor as 'b' came back later (returning), looked at two pages, no click.
+    row({ visitor: 'b', landing: '/', views: 2, seconds: 30, scroll: 50, device: 'desktop', city: 'Ankeny, IA', speed_ms: 1100 }),
+    // Converted on the home page via a call at 9am Central on a Saturday (14:00Z Sat Sep 19).
+    row({ visitor: 'c', views: 1, clicks: 1, converted: true, converted_on: '/', converted_at: '2026-09-19T14:05:00Z', seconds: 20 }),
+  ];
+  const d = summarizeSessions(rows, 'America/Chicago');
+  assert.equal(d.sessions, 4);
+  assert.equal(d.returningVisitors, 1);
+  assert.equal(d.bounceRate, 25); // only 'a'; 'c' had one view but clicked
+  assert.equal(d.avgSeconds, Math.round((4 + 95 + 30 + 20) / 4));
+  assert.equal(d.avgScroll, Math.round((10 + 80 + 50) / 3));
+  assert.equal(d.pagesPerSession, 1.8);
+  assert.deepEqual(d.devices, { phone: 2, tablet: 0, desktop: 5 });
+  assert.deepEqual(d.landing[0], { path: '/', sessions: 3, conversions: 1 });
+  assert.deepEqual(d.landing[1], { path: '/ceramic-coating', sessions: 1, conversions: 1 });
+  assert.deepEqual(d.convertingPages, [
+    { path: '/ceramic-coating', count: 1 },
+    { path: '/', count: 1 },
+  ]);
+  assert.deepEqual(d.campaigns, [{ source: 'google', medium: 'cpc', campaign: 'ceramic', sessions: 1, conversions: 1 }]);
+  assert.deepEqual(d.places[0], { city: 'Des Moines, IA', sessions: 3, conversions: 2 });
+  assert.equal(d.conversionHours[14], 1); // 19:30Z = 2:30pm CDT
+  assert.equal(d.conversionHours[9], 1); // 14:05Z = 9:05am CDT
+  assert.equal(d.conversionDays[6], 2); // Sep 12 and Sep 19, 2026 are both Saturdays
+  assert.equal(d.conversionDays.reduce((a, b) => a + b, 0), 2);
+  assert.equal(d.speedMs, 1100); // median of 900, 1100, 1500
+  const empty = summarizeSessions([]);
+  assert.equal(empty.sessions, 0);
+  assert.equal(empty.bounceRate, 0);
+  assert.equal(empty.speedMs, null);
+});
+
+test('leave events carry engagement and are capped', () => {
+  const ev = parseTrackingEvent({ k: KEY, e: 'leave', p: '/services', t: '95.4', s: '140', ms: '1800' });
+  assert.equal(ev?.kind, 'leave');
+  assert.equal(ev?.seconds, 95);
+  assert.equal(ev?.scroll, 100);
+  assert.equal(ev?.speedMs, 1800);
+  assert.equal(ev?.utm, null);
+  const view = parseTrackingEvent({ k: KEY, e: 'view', p: '/', w: 390, u: '?utm_source=yelp&utm_medium=referral' });
+  assert.equal(view?.device, 'phone');
+  assert.deepEqual(view?.utm, { source: 'yelp', medium: 'referral', campaign: '' });
+  assert.equal(view?.seconds, null);
 });

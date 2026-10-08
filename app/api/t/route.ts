@@ -4,7 +4,7 @@
 // with 204, and never says whether a key was known: a wrong key is just dropped.
 // Validation and hashing live in lib/siteStats.ts.
 import { clientIp, rateLimited } from '@/lib/welcomeApi';
-import { looksLikeBot, monthOf, onboardingIdForSiteKey, parseTrackingEvent, recordEvent, visitorHash } from '@/lib/siteStats';
+import { looksLikeBot, monthOf, onboardingIdForSiteKey, parseTrackingEvent, placeFromHeaders, recordEvent, visitorHash } from '@/lib/siteStats';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -49,7 +49,8 @@ export async function POST(req: Request) {
     const onboardingId = await onboardingIdForSiteKey(event.siteKey);
     if (!onboardingId) return done();
 
-    await recordEvent(onboardingId, event, visitorHash(ip, ua ?? '', monthOf(), secret));
+    // City and region come from Vercel's edge headers; the IP itself goes into the hash and nowhere else.
+    await recordEvent(onboardingId, event, visitorHash(ip, ua ?? '', monthOf(), secret), placeFromHeaders(req.headers));
   } catch (err) {
     console.error('[t] drop', err instanceof Error ? err.message : err);
   }

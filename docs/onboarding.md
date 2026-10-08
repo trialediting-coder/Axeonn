@@ -150,6 +150,26 @@ minted the first time the admin opens the client's page; a wrong key is
 dropped silently. Rows live in `site_events` (`lib/siteStats.ts`) and are
 pruned after 15 months; the monthly summaries stay on the reports forever.
 
+**Detail (added 2026-10-08).** Every view also carries the viewport width (phone /
+tablet / desktop), the page's campaign tags (`utm_*`, or Google / Meta / Microsoft
+click ids counted as paid traffic from that network), and a coarse place from
+Vercel's edge headers ("Des Moines, IA"; the IP is hashed and never stored). When
+a visitor leaves a page the script sends one `leave` event with active seconds
+(only while the tab is visible and the person did something in the last 30s),
+deepest scroll, and page load time (largest contentful paint). Links to review
+pages, Google listings, Facebook, Instagram, TikTok and YouTube are named too.
+`sessionRows()` cuts each visitor's month into sessions at 30-minute gaps in SQL;
+`summarizeSessions()` turns those into the `detail` block: sessions, returning
+visitors, bounce rate, time and pages per visit, devices, landing pages with how
+many of those visits reached out, the page they were on when they did, campaigns,
+places, when they reach out (local hour and weekday), and median load time. The
+report email, AxeonPROOF and the admin card all read from it.
+
+**View as client.** "View as client" on a client's admin page opens
+`/admin/onboarding/<token>/preview`: their AxeonPROOF dashboard rendered for the
+admin with an amber banner, read-only, no client session, nothing sent. Both pages
+load through `lib/proofDashboardData.ts` so they can never drift apart.
+
 **What goes out.** `/api/cron/monthly-reports` runs on the 1st at 14:00 UTC
 (`vercel.json`) and, for every open client with "Email on the 1st" switched on,
 sums last month (`lib/autoReports.ts`): visits and visitors, button clicks with
@@ -174,6 +194,7 @@ Saving the manual report for a month keeps the attached website numbers
 | Piece | Where |
 | --- | --- |
 | Browser script | `public/t.js` (cached 1h, see `next.config.mjs`) |
+| Admin preview of a client's dashboard | `app/admin/onboarding/[token]/preview/page.tsx`, `lib/proofDashboardData.ts` |
 | Collector | `app/api/t/route.ts` |
 | Validation, hashing, month sums, settings | `lib/siteStats.ts` |
 | Report build + send | `lib/autoReports.ts` |

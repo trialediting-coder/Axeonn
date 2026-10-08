@@ -41,6 +41,63 @@ export interface TrafficSummary {
   closeRate: number;
   /** round(conversions × closeRate / 100). Always labelled "estimated". */
   estimatedCustomers: number;
+  /** Session-level detail (added 2026-10-08). Absent on reports summed before then. */
+  detail?: TrafficDetail | null;
+}
+
+/**
+ * What the sessions say. A session is one visitor's events with no gap longer
+ * than 30 minutes, worked out at query time from the monthly visitor hash, so
+ * the browser stores nothing.
+ */
+export interface TrafficDetail {
+  sessions: number;
+  /** Visitors with more than one session this month. */
+  returningVisitors: number;
+  /** Percent of sessions with one page view and no click. */
+  bounceRate: number;
+  /** Average active seconds per session, over sessions that reported any. */
+  avgSeconds: number;
+  /** Average deepest scroll, 0..100, over sessions that reported it. */
+  avgScroll: number;
+  pagesPerSession: number;
+  /** Views by device. */
+  devices: { phone: number; tablet: number; desktop: number };
+  /** First page of the session, with how many of those sessions reached out. */
+  landing: Array<{ path: string; sessions: number; conversions: number }>;
+  /** Page the visitor was on when they reached out. */
+  convertingPages: Array<{ path: string; count: number }>;
+  /** utm_source / medium / campaign, sessions and how many reached out. */
+  campaigns: Array<{ source: string; medium: string; campaign: string; sessions: number; conversions: number }>;
+  /** "Des Moines, IA" style, from the edge, never the IP. */
+  places: Array<{ city: string; sessions: number; conversions: number }>;
+  /** Sessions that reached out, by local hour 0..23 and weekday 0 (Sunday)..6. */
+  conversionHours: number[];
+  conversionDays: number[];
+  /** Median page load in ms as visitors saw it, or null. */
+  speedMs: number | null;
+}
+
+export const DEVICE_LABELS = { phone: 'Phone', tablet: 'Tablet', desktop: 'Desktop' } as const;
+
+export const WEEKDAY_LABELS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as const;
+
+/** "2pm", "11am", "12pm". */
+export function hourLabel(h: number): string {
+  const twelve = h % 12 === 0 ? 12 : h % 12;
+  return `${twelve}${h < 12 ? 'am' : 'pm'}`;
+}
+
+/** "google / cpc / spring-detail" -> "Google Ads: spring-detail"; a bare source stays readable. */
+export function campaignLabel(c: { source: string; medium: string; campaign: string }): string {
+  const src = c.source.toLowerCase();
+  const med = c.medium.toLowerCase();
+  const paid = /^(cpc|ppc|paid|paidsocial|paid_social|display|lsa)$/.test(med);
+  let name = sourceLabel(src.includes('.') ? src : `${src}.com`);
+  if (name === src + '.com' || name === `${src}.com`) name = src.charAt(0).toUpperCase() + src.slice(1);
+  if (paid) name = name === 'Google' ? 'Google Ads' : name === 'Facebook' || name === 'Instagram' ? `${name} Ads` : `${name} (paid)`;
+  else if (med && med !== 'referral' && med !== 'organic' && med !== '(none)') name = `${name} ${med}`;
+  return c.campaign ? `${name}: ${c.campaign}` : name;
 }
 
 /** Click names that count as a customer reaching out. The others are navigation. */
@@ -61,6 +118,15 @@ export function buttonLabel(name: string): string {
       return 'Book online';
     case 'directions':
       return 'Get directions';
+    case 'review':
+      return 'Leave a review';
+    case 'google-business':
+      return 'Google listing';
+    case 'facebook':
+    case 'instagram':
+    case 'tiktok':
+    case 'youtube':
+      return `${name.charAt(0).toUpperCase() + name.slice(1)} link`;
     default:
       return name.charAt(0).toUpperCase() + name.slice(1);
   }

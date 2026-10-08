@@ -2,13 +2,11 @@
 // app.axeonstudio.co: the AxeonPROOF welcome / sign-in page, or the client's
 // dashboard once they are signed in.
 import { getSignedInClient } from '@/lib/proofServer';
-import { computeProgress, getItemStates, getOnboardingById, orderedItems, welcomeUrl } from '@/lib/onboarding';
-import { TIER_LABELS } from '@/data/onboardingItems';
+import { getOnboardingById } from '@/lib/onboarding';
 import { ProofAuthShell } from '@/components/proof/ProofAuthShell';
 import { SignInForm } from '@/components/proof/ProofForms';
 import { ProofDashboard } from '@/components/proof/ProofDashboard';
-import { getProjectDetails, guaranteeDay, listMonthlyReports, listProjectUpdates, tierHasGuarantee } from '@/lib/projects';
-import { agreementUrl, latestSignedAgreementFor } from '@/lib/agreements';
+import { loadDashboardData } from '@/lib/proofDashboardData';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,28 +22,5 @@ export default async function ProofPage() {
     );
   }
 
-  const [states, details, updates, reports, agreement] = await Promise.all([
-    getItemStates(onboarding.id),
-    getProjectDetails(onboarding.id),
-    listProjectUpdates(onboarding.id),
-    listMonthlyReports(onboarding.id),
-    latestSignedAgreementFor(onboarding.clientEmail).catch(() => null),
-  ]);
-  return (
-    <ProofDashboard
-      email={account.email}
-      onboarding={onboarding}
-      progress={computeProgress(onboarding.tier, states)}
-      planLabel={TIER_LABELS[onboarding.tier]}
-      axeonItems={orderedItems(onboarding.tier).axeon}
-      states={states}
-      setupUrl={welcomeUrl(onboarding.token)}
-      details={details}
-      updates={updates}
-      reports={reports}
-      guarantee={tierHasGuarantee(onboarding.tier)}
-      guaranteeDay={guaranteeDay(details.kickoffAt)}
-      agreementUrl={agreement ? agreementUrl(agreement.token) : null}
-    />
-  );
+  return <ProofDashboard email={account.email} {...(await loadDashboardData(onboarding))} />;
 }

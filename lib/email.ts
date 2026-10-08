@@ -1,6 +1,6 @@
 // lib/email.ts
 import { Resend } from 'resend';
-import { buttonLabel, sourceLabel, type TrafficSummary } from '@/lib/projectsShared';
+import { WEEKDAY_LABELS, buttonLabel, campaignLabel, hourLabel, sourceLabel, type TrafficDetail, type TrafficSummary } from '@/lib/projectsShared';
 
 const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_EMAIL;
 // Resend rejects sends from a domain that hasn't been verified in the
@@ -509,14 +509,77 @@ function countList(rows: Array<{ label: string; count: number }>): string {
     .join('')}</table>`;
 }
 
+const pageName = (path: string) => (path === '/' ? 'Home page' : path);
+
+/** Top two of a 24-hour or 7-day histogram, as words. */
+function peaks(counts: number[], label: (i: number) => string): string[] {
+  return counts
+    .map((n, i) => ({ n, i }))
+    .filter((x) => x.n > 0)
+    .sort((a, b) => b.n - a.n)
+    .slice(0, 2)
+    .map((x) => label(x.i));
+}
+
+/** "Most often on Saturdays and Fridays, around 9am and 2pm." or empty. */
+export function whenTheyReachOut(d: TrafficDetail): string {
+  const days = peaks(d.conversionDays, (i) => `${WEEKDAY_LABELS[i]}s`);
+  const hours = peaks(d.conversionHours, (i) => hourLabel(i));
+  if (!days.length && !hours.length) return '';
+  const parts: string[] = [];
+  if (days.length) parts.push(`on ${days.join(' and ')}`);
+  if (hours.length) parts.push(`around ${hours.join(' and ')}`);
+  return `Most often ${parts.join(', ')}.`;
+}
+
+/** The "used your site" paragraph: visits, phones, time, bounce. */
+export function usageSentence(t: TrafficSummary, d: TrafficDetail): string {
+  const totalDev = d.devices.phone + d.devices.tablet + d.devices.desktop;
+  const phonePct = totalDev ? Math.round(((d.devices.phone + d.devices.tablet) / totalDev) * 100) : null;
+  const bits: string[] = [];
+  bits.push(`${d.sessions} ${d.sessions === 1 ? 'visit' : 'visits'} from ${t.visitors} ${t.visitors === 1 ? 'person' : 'people'}`);
+  if (d.returningVisitors) bits.push(`${d.returningVisitors} came back more than once`);
+  if (phonePct != null) bits.push(`${phonePct}% were on a phone or tablet`);
+  let out = bits.join('; ') + '.';
+  if (d.avgSeconds) {
+    const t2 = d.avgSeconds >= 90 ? `${Math.round(d.avgSeconds / 60)} min` : `${d.avgSeconds} sec`;
+    out += ` A typical visit lasted about ${t2} over ${d.pagesPerSession} ${d.pagesPerSession === 1 ? 'page' : 'pages'}`;
+    out += d.avgScroll ? `, reading about ${d.avgScroll}% of the way down.` : '.';
+  }
+  if (d.sessions >= 10) out += ` ${d.bounceRate}% left after one page without pressing anything.`;
+  if (d.speedMs) out += ` Pages loaded in about ${(d.speedMs / 1000).toFixed(1)} seconds for a typical visitor.`;
+  return out;
+}
+
+function detailSections(t: TrafficSummary, d: TrafficDetail): string {
+  const landing = d.landing
+    .filter((l) => l.sessions > 0)
+    .slice(0, 5)
+    .map((l) => ({ label: `${pageName(l.path)}${l.conversions ? ` · ${l.conversions} reached out` : ''}`, count: l.sessions }));
+  const places = d.places.slice(0, 5).map((p) => ({ label: `${p.city}${p.conversions ? ` · ${p.conversions} reached out` : ''}`, count: p.sessions }));
+  const campaigns = d.campaigns
+    .slice(0, 5)
+    .map((c) => ({ label: `${campaignLabel(c)}${c.conversions ? ` · ${c.conversions} reached out` : ''}`, count: c.sessions }));
+  const when = whenTheyReachOut(d);
+  return `
+    ${h2('How people used your site')}${para(usageSentence(t, d))}
+    ${landing.length ? h2('Pages visitors landed on') + countList(landing) : ''}
+    ${campaigns.length ? h2('Campaigns that sent visitors') + countList(campaigns) : ''}
+    ${places.length ? h2('Where visitors are') + countList(places) : ''}
+    ${when ? h2('When customers reach out') + para(when) : ''}
+  `;
+}
+
 function trafficSections(t: TrafficSummary): string {
   const buttons = t.buttons.slice(0, 6).map((b) => ({ label: buttonLabel(b.name), count: b.count }));
   const sources = t.sources.slice(0, 5).map((x) => ({ label: sourceLabel(x.host), count: x.count }));
-  const pages = t.pages.slice(0, 5).map((pg) => ({ label: pg.path === '/' ? 'Home page' : pg.path, count: pg.count }));
+  const pages = t.pages.slice(0, 5).map((pg) => ({ label: pageName(pg.path), count: pg.count }));
+  const d = t.detail && t.detail.sessions > 0 ? t.detail : null;
   return `
     ${buttons.length ? h2('Most clicked buttons') + countList(buttons) : ''}
     ${sources.length ? h2('Where visitors came from') + countList(sources) : ''}
     ${pages.length ? h2('Most visited pages') + countList(pages) : ''}
+    ${d ? detailSections(t, d) : ''}
     <p style="margin:12px 0 0;font-size:13px;color:#737373">“Estimated new customers” counts ${t.closeRate}% of the people who called, texted, emailed, sent a form or booked from your site. Tell us your real number and we will use that instead.</p>
   `;
 }

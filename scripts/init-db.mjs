@@ -212,6 +212,21 @@ async function main() {
     );
   `;
   await sql`CREATE INDEX IF NOT EXISTS site_events_onb_time_idx ON site_events (onboarding_id, created_at);`;
+  // Detail added 2026-10-08 (lib/siteStats.ts): device from viewport width, the
+  // campaign the visit came from, a coarse place from Vercel's edge headers (city
+  // and region only, never the IP), and per-page engagement sent when the visitor
+  // leaves (kind 'leave': seconds active, scroll depth, load speed).
+  await sql`ALTER TABLE site_events ADD COLUMN IF NOT EXISTS device TEXT;`;
+  await sql`ALTER TABLE site_events ADD COLUMN IF NOT EXISTS utm_source TEXT;`;
+  await sql`ALTER TABLE site_events ADD COLUMN IF NOT EXISTS utm_medium TEXT;`;
+  await sql`ALTER TABLE site_events ADD COLUMN IF NOT EXISTS utm_campaign TEXT;`;
+  await sql`ALTER TABLE site_events ADD COLUMN IF NOT EXISTS city TEXT;`;
+  await sql`ALTER TABLE site_events ADD COLUMN IF NOT EXISTS seconds INTEGER;`;
+  await sql`ALTER TABLE site_events ADD COLUMN IF NOT EXISTS scroll INTEGER;`;
+  await sql`ALTER TABLE site_events ADD COLUMN IF NOT EXISTS speed_ms INTEGER;`;
+  await sql`ALTER TABLE site_events DROP CONSTRAINT IF EXISTS site_events_kind_check;`;
+  await sql`ALTER TABLE site_events ADD CONSTRAINT site_events_kind_check CHECK (kind IN ('view', 'click', 'leave'));`;
+  await sql`CREATE INDEX IF NOT EXISTS site_events_visitor_idx ON site_events (onboarding_id, visitor, created_at);`;
   console.log('Schema ready.');
 }
 

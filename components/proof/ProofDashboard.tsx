@@ -24,7 +24,7 @@ import { AxeonLogo } from '@/components/brand/AxeonLogo';
 import type { OnboardingItem } from '@/data/onboardingItems';
 import type { ItemState, Onboarding, Progress } from '@/lib/onboarding';
 import type { MonthlyReport, ProjectDetails, ProjectUpdate } from '@/lib/projects';
-import { buttonLabel, monthLabel, sourceLabel, type TrafficSummary } from '@/lib/projectsShared';
+import { DEVICE_LABELS, WEEKDAY_LABELS, buttonLabel, campaignLabel, hourLabel, monthLabel, sourceLabel, type TrafficSummary } from '@/lib/projectsShared';
 
 type Icon = ComponentType<{ size?: number; className?: string }>;
 
@@ -138,6 +138,7 @@ export function ProofDashboard({
   guarantee,
   guaranteeDay,
   agreementUrl,
+  preview = null,
 }: {
   email: string;
   onboarding: Onboarding;
@@ -152,12 +153,18 @@ export function ProofDashboard({
   guarantee: boolean;
   guaranteeDay: number | null;
   agreementUrl: string | null;
+  /** Set when an admin is looking at this client's dashboard (app/admin/onboarding/[token]/preview). */
+  preview?: { label: string; backHref: string } | null;
 }) {
   const latest = reports[0] ?? null;
   const prev = reports[1] ?? null;
   const live = latest !== null;
   const traffic = latest?.traffic && (latest.traffic.views > 0 || latest.traffic.clicks > 0) ? latest.traffic : null;
   const prevTraffic = prev?.traffic ?? null;
+  const detail = traffic?.detail && traffic.detail.sessions > 0 ? traffic.detail : null;
+  const deviceTotal = detail ? detail.devices.phone + detail.devices.tablet + detail.devices.desktop : 0;
+  const hourMax = detail ? Math.max(1, ...detail.conversionHours) : 1;
+  const dayMax = detail ? Math.max(1, ...detail.conversionDays) : 1;
   const chart = reports.slice(0, 6).reverse();
   const chartMax = Math.max(1, ...chart.map((r) => (r.calls ?? 0) + (r.leads ?? 0)));
   const baseline = details.baselineCalls != null || details.baselineLeads != null ? (details.baselineCalls ?? 0) + (details.baselineLeads ?? 0) : null;
@@ -176,9 +183,17 @@ export function ProofDashboard({
   const firstName = onboarding.clientName?.split(' ')[0];
 
   return (
-    <div className="min-h-screen bg-[#F6F7F9] lg:pl-64">
+    <div className={`min-h-screen bg-[#F6F7F9] lg:pl-64 ${preview ? 'pt-10' : ''}`}>
+      {preview ? (
+        <div className="fixed inset-x-0 top-0 z-50 flex h-10 items-center justify-center gap-3 bg-amber-400 px-4 text-xs font-semibold text-amber-950">
+          <span className="truncate">{preview.label}. This is exactly what the client sees; nothing has been sent to them.</span>
+          <a href={preview.backHref} className="shrink-0 rounded-md bg-amber-950/10 px-2 py-0.5 hover:bg-amber-950/20">
+            Back to admin
+          </a>
+        </div>
+      ) : null}
       {/* Sidebar (desktop) */}
-      <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col bg-[#0B0D12] text-white lg:flex">
+      <aside className={`fixed inset-y-0 left-0 hidden w-64 flex-col bg-[#0B0D12] text-white lg:flex ${preview ? 'top-10' : ''}`}>
         <div className="px-5 pb-6 pt-6">
           <AxeonLogo product="PROOF" tone="light" />
         </div>
@@ -217,16 +232,20 @@ export function ProofDashboard({
               <p className="truncate text-xs text-neutral-500">{email}</p>
             </div>
           </div>
-          <SignOut className="mt-3 inline-flex h-8 w-full items-center justify-center gap-1.5 rounded-lg border border-white/10 text-xs font-semibold text-neutral-300 hover:bg-white/[0.05] hover:text-white" />
+          {!preview ? (
+            <SignOut className="mt-3 inline-flex h-8 w-full items-center justify-center gap-1.5 rounded-lg border border-white/10 text-xs font-semibold text-neutral-300 hover:bg-white/[0.05] hover:text-white" />
+          ) : null}
         </div>
       </aside>
 
       {/* Top bar (phones and tablets) */}
-      <header className="sticky top-0 z-30 flex h-14 items-center border-b border-neutral-200 bg-white/90 px-4 backdrop-blur lg:hidden">
+      <header className={`sticky z-30 flex h-14 items-center border-b border-neutral-200 bg-white/90 px-4 backdrop-blur lg:hidden ${preview ? 'top-10' : 'top-0'}`}>
         <AxeonLogo product="PROOF" size="sm" />
-        <div className="ml-auto">
-          <SignOut className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-neutral-300 bg-white px-3 text-xs font-semibold text-neutral-800 hover:bg-neutral-50" />
-        </div>
+        {!preview ? (
+          <div className="ml-auto">
+            <SignOut className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-neutral-300 bg-white px-3 text-xs font-semibold text-neutral-800 hover:bg-neutral-50" />
+          </div>
+        ) : null}
       </header>
 
       <main className="mx-auto max-w-6xl px-4 pb-20 pt-8 sm:px-8">
@@ -546,6 +565,134 @@ export function ProofDashboard({
               </ul>
             </Card>
           </div>
+        ) : null}
+
+        {detail ? (
+          <>
+            <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+              <Card className="p-6">
+                <h2 className="text-base font-semibold text-neutral-950">How people visit</h2>
+                <p className="mt-0.5 text-xs text-neutral-500">
+                  {detail.sessions} visits · {detail.returningVisitors} came back
+                </p>
+                <ul className="mt-4 space-y-3">
+                  {(['phone', 'tablet', 'desktop'] as const).map((k) => {
+                    const pct = deviceTotal ? Math.round((detail.devices[k] / deviceTotal) * 100) : 0;
+                    return (
+                      <li key={k}>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-neutral-700">{DEVICE_LABELS[k]}</span>
+                          <span className="font-semibold text-neutral-950">{pct}%</span>
+                        </div>
+                        <div className="mt-1 h-1.5 rounded-full bg-neutral-100">
+                          <div className="h-1.5 rounded-full bg-blue-600" style={{ width: `${pct}%` }} />
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                  <dt className="text-neutral-500">Typical visit</dt>
+                  <dd className="text-right font-semibold text-neutral-950">
+                    {detail.avgSeconds >= 90 ? `${Math.round(detail.avgSeconds / 60)} min` : `${detail.avgSeconds} sec`}
+                  </dd>
+                  <dt className="text-neutral-500">Pages per visit</dt>
+                  <dd className="text-right font-semibold text-neutral-950">{detail.pagesPerSession}</dd>
+                  <dt className="text-neutral-500">Left after one page</dt>
+                  <dd className="text-right font-semibold text-neutral-950">{detail.bounceRate}%</dd>
+                  {detail.speedMs ? (
+                    <>
+                      <dt className="text-neutral-500">Page load</dt>
+                      <dd className="text-right font-semibold text-neutral-950">{(detail.speedMs / 1000).toFixed(1)}s</dd>
+                    </>
+                  ) : null}
+                </dl>
+              </Card>
+              <Card className="p-6">
+                <h2 className="text-base font-semibold text-neutral-950">Pages that bring customers</h2>
+                <p className="mt-0.5 text-xs text-neutral-500">First page of the visit, and how many reached out</p>
+                <ul className="mt-4 space-y-2 text-sm">
+                  {detail.landing.slice(0, 6).map((l) => (
+                    <li key={l.path} className="flex items-center justify-between gap-3">
+                      <span className="truncate text-neutral-700">{l.path === '/' ? 'Home page' : l.path}</span>
+                      <span className="shrink-0 text-neutral-500">
+                        {l.sessions} {l.conversions ? <span className="font-semibold text-emerald-700">· {l.conversions} reached out</span> : null}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                {detail.campaigns.length ? (
+                  <>
+                    <h3 className="mt-5 text-xs font-semibold uppercase tracking-wide text-neutral-400">Campaigns</h3>
+                    <ul className="mt-2 space-y-2 text-sm">
+                      {detail.campaigns.slice(0, 4).map((c) => (
+                        <li key={`${c.source}|${c.medium}|${c.campaign}`} className="flex items-center justify-between gap-3">
+                          <span className="truncate text-neutral-700">{campaignLabel(c)}</span>
+                          <span className="shrink-0 text-neutral-500">
+                            {c.sessions} {c.conversions ? <span className="font-semibold text-emerald-700">· {c.conversions} reached out</span> : null}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                ) : null}
+              </Card>
+              <Card className="p-6">
+                <h2 className="text-base font-semibold text-neutral-950">Where visitors are</h2>
+                <p className="mt-0.5 text-xs text-neutral-500">City and area only, never who</p>
+                <ul className="mt-4 space-y-2 text-sm">
+                  {detail.places.slice(0, 6).map((p) => (
+                    <li key={p.city} className="flex items-center justify-between gap-3">
+                      <span className="truncate text-neutral-700">{p.city}</span>
+                      <span className="shrink-0 text-neutral-500">
+                        {p.sessions} {p.conversions ? <span className="font-semibold text-emerald-700">· {p.conversions} reached out</span> : null}
+                      </span>
+                    </li>
+                  ))}
+                  {detail.places.length === 0 ? <li className="text-neutral-500">Not enough visits yet.</li> : null}
+                </ul>
+              </Card>
+            </div>
+
+            {traffic && traffic.conversions > 0 ? (
+              <Card className="mt-4 p-6">
+                <h2 className="text-base font-semibold text-neutral-950">When customers reach out</h2>
+                <p className="mt-0.5 text-xs text-neutral-500">Calls, texts, emails, forms and bookings by time of day and day of week</p>
+                <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr]">
+                  <div>
+                    <div className="flex h-24 items-end gap-1">
+                      {detail.conversionHours.map((n, h) => (
+                        <div key={h} className="flex flex-1 flex-col items-center justify-end" title={`${hourLabel(h)}: ${n}`}>
+                          <div className={`w-full rounded-t ${n ? 'bg-blue-600' : 'bg-neutral-100'}`} style={{ height: `${Math.max(4, (n / hourMax) * 100)}%` }} />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-1 flex justify-between text-[11px] text-neutral-500">
+                      <span>12am</span>
+                      <span>6am</span>
+                      <span>12pm</span>
+                      <span>6pm</span>
+                      <span>11pm</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex h-24 items-end gap-1.5">
+                      {detail.conversionDays.map((n, d) => (
+                        <div key={d} className="flex flex-1 flex-col items-center justify-end" title={`${WEEKDAY_LABELS[d]}: ${n}`}>
+                          <div className={`w-full rounded-t ${n ? 'bg-blue-600' : 'bg-neutral-100'}`} style={{ height: `${Math.max(4, (n / dayMax) * 100)}%` }} />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-1 flex justify-between text-[11px] text-neutral-500">
+                      {WEEKDAY_LABELS.map((d) => (
+                        <span key={d}>{d.slice(0, 1)}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            ) : null}
+          </>
         ) : null}
 
         <Card className="mt-4">
