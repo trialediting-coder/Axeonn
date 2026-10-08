@@ -225,9 +225,9 @@ export function displayValue(field: ItemField, value: unknown): string {
 // ───────────────────────────── Tier mapping ─────────────────────────────
 
 /**
- * Stripe metadata carries a catalog key (core-web-build, axeoncore) or a plan
- * lookup_key (core-web-build-monthly, axeoncore-monthly). AxeonGROWTH has no
- * Stripe catalog entry yet and is minted from the admin board.
+ * Stripe metadata carries a catalog key (core-web-build, axeoncore, axeongrowth)
+ * or a plan lookup_key (core-web-build-monthly, axeoncore-monthly,
+ * axeongrowth-monthly), all seeded by scripts/stripe-seed.mjs.
  */
 export function tierFromStripeKey(key: string | null | undefined): OnboardingTier | null {
   if (!key) return null;

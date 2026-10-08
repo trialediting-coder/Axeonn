@@ -20,13 +20,16 @@ import { getStripe } from '@/lib/stripe';
 import { SITE_URL } from '@/lib/seo';
 import { computeSplit, type PaymentKind } from '@/lib/billingMath';
 
+// Tiers are the one-time "to start" fee ($99, or $1,500 on AxeonGROWTH for the
+// video shoot); the monthly plan for each tier lives in PLANS below. Pricing
+// changed 2026-10-05 (data/pricingData.ts); the retired $2,800/$5,800 builds and
+// the directory/landing-page add-ons were archived in Stripe on 2026-10-08.
 export const CATALOG = {
   'core-web-build': { label: 'Essentials', kind: 'tier' },
   axeoncore: { label: 'AxeonCORE', kind: 'tier' },
+  axeongrowth: { label: 'AxeonGROWTH', kind: 'tier' },
   'addon-videography': { label: 'Custom On-Site Videography', kind: 'addon' },
-  'addon-extra-page': { label: 'Additional Custom Page Build', kind: 'addon' },
-  'addon-directory-integration': { label: 'Advanced Database/Directory Integration', kind: 'addon' },
-  'addon-landing-page-variant': { label: 'Secondary Niche Landing Page Variant', kind: 'addon' },
+  'addon-extra-page': { label: 'Extra Service Page', kind: 'addon' },
 } as const satisfies Record<string, { label: string; kind: 'tier' | 'addon' }>;
 
 export type CatalogKey = keyof typeof CATALOG;
@@ -46,21 +49,39 @@ export const STANDARD_CARE_AMOUNT_CENTS = 4900;
 
 // Monthly plans: recurring Prices matched by lookup_key (seeded by
 // scripts/stripe-seed.mjs). amountCents here is the seeded amount used for display
-// fallbacks; the Stripe Price is what actually gets charged. The per-tier plans are
-// shown publicly on /pay ("then $284/mo after launch"); the $49 basics plan is a
-// private preset for existing clients and is never shown on the site.
+// fallbacks; the Stripe Price is what actually gets charged. The per-tier plans
+// match /pricing ($149 / $299 / $999); the recurring add-ons and the $49 basics
+// plan are private presets the admin mints pay links for, never shown on the site.
 export const PLANS = {
   'core-web-build-monthly': {
     label: 'Essentials Monthly Plan',
-    amountCents: 28400,
+    amountCents: 14900,
     tier: 'core-web-build',
     public: true,
   },
   'axeoncore-monthly': {
     label: 'AxeonCORE Monthly Plan',
-    amountCents: 57400,
+    amountCents: 29900,
     tier: 'axeoncore',
     public: true,
+  },
+  'axeongrowth-monthly': {
+    label: 'AxeonGROWTH Monthly Plan',
+    amountCents: 99900,
+    tier: 'axeongrowth',
+    public: true,
+  },
+  'addon-ads-monthly': {
+    label: 'Google & Meta Ads Management (AxeonCORE add-on)',
+    amountCents: 39900,
+    tier: null,
+    public: false,
+  },
+  'addon-ai-receptionist-monthly': {
+    label: 'AI Phone Receptionist (add-on)',
+    amountCents: 19900,
+    tier: null,
+    public: false,
   },
   'hosting-care-monthly': {
     label: 'Website Hosting & Care (basics)',

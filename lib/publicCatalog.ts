@@ -46,23 +46,22 @@ export interface PublicCatalog {
 }
 
 const FALLBACK_CENTS: Record<CatalogKey, number> = {
-  'core-web-build': 280000,
-  axeoncore: 580000,
+  'core-web-build': 9900,
+  axeoncore: 9900,
+  axeongrowth: 150000,
   'addon-videography': 150000,
   'addon-extra-page': 45000,
-  'addon-directory-integration': 85000,
-  'addon-landing-page-variant': 50000,
 };
 
 const DESCRIPTIONS: Record<CatalogKey, string> = {
   'core-web-build':
-    'Up to 4 custom, mobile-first pages with SEO, AEO and GEO built in, instant lead alerts, and conversion tracking.',
+    'To start on Essentials: up to 4 custom, mobile-first pages with SEO, AEO and GEO built in, lead alerts, and tracking. Then $149 a month.',
   axeoncore:
-    'Everything in Essentials plus custom on-site videography, a 5–7 page conversion architecture, a Custom CRM Pipeline, AI chat and scheduling, and automated follow-up.',
+    'To start on AxeonCORE: a 5–7 page site plus lead capture, follow-up, tracked phone numbers, AxeonPROOF, and the 90-day guarantee. Then $299 a month.',
+  axeongrowth:
+    'To start on AxeonGROWTH: covers your on-site video shoot. Then $999 a month for ads management, the AI receptionist, and a new page every month.',
   'addon-videography': 'Half-day shoot at your location: a hero film, 3 vertical cuts, and a photo set.',
-  'addon-extra-page': 'One additional custom-designed page.',
-  'addon-directory-integration': 'A database-backed directory or listing integration.',
-  'addon-landing-page-variant': 'A second landing page targeting another niche or service area.',
+  'addon-extra-page': 'One additional custom-designed service page.',
 };
 
 function buildItem(key: CatalogKey, amountCents: number): PublicCatalogItem {
