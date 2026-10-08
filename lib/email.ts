@@ -639,21 +639,25 @@ const subHtml = (sub: string | null | undefined) => {
  * border and a blue number. The rest are plain with a thin border.
  */
 function rTiles(stats: Array<{ label: string; value: string; sub?: string | null }>): string {
+  // The tile IS the table cell, so the two tiles in a row always share a height
+  // however their small print wraps. A 6px spacer column keeps the gap.
   const tile = (st: { label: string; value: string; sub?: string | null }, i: number) => {
     const hero = i < 2;
-    return `<td class="tile" width="50%" style="padding:0 6px 12px;vertical-align:top">
-      <div class="${hero ? 'ax-hero' : 'ax-tile'}" style="background:${hero ? BRAND.blueTint : '#ffffff'};border:${hero ? '2px' : '1px'} solid ${hero ? BRAND.blue : BRAND.line};border-radius:12px;padding:${hero ? '15px 15px 13px' : '16px 16px 14px'}">
+    return `<td class="tile ${hero ? 'ax-hero' : 'ax-tile'}" width="50%" style="background:${hero ? BRAND.blueTint : '#ffffff'};border:${hero ? '2px' : '1px'} solid ${hero ? BRAND.blue : BRAND.line};border-radius:12px;padding:${hero ? '15px 15px 13px' : '16px 16px 14px'};vertical-align:top">
         <div class="${hero ? 'ax-blue' : 'ax-muted'}" style="font-size:12px;font-weight:700;letter-spacing:.02em;color:${hero ? BRAND.blueDeep : BRAND.muted}">${escapeHtml(st.label)}</div>
         <div class="${hero ? 'ax-blue' : 'ax-ink'}" style="font-size:30px;line-height:1.1;font-weight:800;letter-spacing:-.02em;margin-top:6px;color:${hero ? BRAND.blue : BRAND.ink}">${escapeHtml(st.value)}</div>
         ${subHtml(st.sub)}
-      </div>
-    </td>`;
+      </td>`;
   };
+  const gap = '<td width="12" style="width:12px;font-size:1px;line-height:1px">&nbsp;</td>';
+  const spacer = '<tr><td colspan="3" style="height:12px;font-size:1px;line-height:1px">&nbsp;</td></tr>';
   const rows: string[] = [];
   for (let i = 0; i < stats.length; i += 2) {
-    rows.push(`<tr>${tile(stats[i], i)}${stats[i + 1] ? tile(stats[i + 1], i + 1) : '<td class="tile" width="50%"></td>'}</tr>`);
+    const right = stats[i + 1] ? tile(stats[i + 1], i + 1) : '<td class="tile" width="50%"></td>';
+    rows.push(`<tr>${tile(stats[i], i)}${gap}${right}</tr>`);
+    if (i + 2 < stats.length) rows.push(spacer);
   }
-  return `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:4px -6px 0;width:calc(100% + 12px)">${rows.join('')}</table>`;
+  return `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:4px 0 12px;border-collapse:separate">${rows.join('')}</table>`;
 }
 
 /** Rows with a proportional blue bar behind the count, so the biggest line is obvious at a glance. */
