@@ -12,7 +12,7 @@
 import { createHash, createHmac, randomInt } from 'node:crypto';
 import { sql, ensureSchema, isDatabaseConfigured } from '@/lib/db';
 import { SITE_ORIGIN } from '@/lib/hostRouting';
-import { CONVERSION_NAMES, type TrafficSummary } from '@/lib/projectsShared';
+import { CONVERSION_NAMES, type TrafficDetail, type TrafficSummary } from '@/lib/projectsShared';
 
 /** Month boundaries for reports follow the clients' clock (Iowa). */
 export const REPORT_TIME_ZONE = 'America/Chicago';
@@ -22,16 +22,30 @@ export const DEFAULT_CLOSE_RATE = 25;
 /** Raw events are kept this long; the monthly reports keep the summaries forever. */
 export const EVENT_RETENTION_DAYS = 455;
 
-export type EventKind = 'view' | 'click';
+export type EventKind = 'view' | 'click' | 'leave';
+export type Device = 'phone' | 'tablet' | 'desktop';
+
+export interface Utm {
+  source: string;
+  medium: string;
+  campaign: string;
+}
 
 export interface TrackingEvent {
   siteKey: string;
   kind: EventKind;
-  /** Click name: call, text, email, form, book, directions, or a button's text. Null for views. */
+  /** Click name: call, text, email, form, book, directions, review, a social link, or a button's text. Null otherwise. */
   name: string | null;
   path: string;
   /** Referrer host, lower-case, without a leading www. Empty = direct. */
   referrer: string;
+  device: Device | null;
+  /** Campaign tags from the page URL, or inferred from gclid / fbclid / msclkid. Null when untagged. */
+  utm: Utm | null;
+  /** 'leave' only: active seconds on the page, deepest scroll 0..100, load time in ms. */
+  seconds: number | null;
+  scroll: number | null;
+  speedMs: number | null;
 }
 
 export interface TrackingSettings {
@@ -89,15 +103,60 @@ export function referrerHost(raw: unknown, pageHost?: string): string {
   return host.slice(0, 120);
 }
 
+/** Viewport width to a device class. Phones under 768 CSS px, tablets under 1024. */
+export function deviceFromWidth(raw: unknown): Device | null {
+  const w = Number(raw);
+  if (!Number.isFinite(w) || w <= 0) return null;
+  return w < 768 ? 'phone' : w < 1024 ? 'tablet' : 'desktop';
+}
+
+const tag = (v: string | null) => (v ?? '').trim().toLowerCase().replace(/\s+/g, ' ').slice(0, 80);
+
+/**
+ * utm_source / utm_medium / utm_campaign from the page's query string. Google
+ * Ads, Meta and Microsoft click ids count as paid traffic from that network
+ * when no utm tags are present, so an ad click is never filed as "direct".
+ */
+export function parseUtm(search: unknown): Utm | null {
+  const q = str(search, 2000);
+  if (!q) return null;
+  let params: URLSearchParams;
+  try {
+    params = new URLSearchParams(q.startsWith('?') ? q.slice(1) : q);
+  } catch {
+    return null;
+  }
+  let source = tag(params.get('utm_source'));
+  let medium = tag(params.get('utm_medium'));
+  const campaign = tag(params.get('utm_campaign'));
+  if (!source) {
+    if (params.has('gclid') || params.has('gbraid') || params.has('wbraid')) source = 'google';
+    else if (params.has('fbclid')) source = 'facebook';
+    else if (params.has('msclkid')) source = 'bing';
+    else if (params.has('ttclid')) source = 'tiktok';
+    if (source && !medium) medium = 'cpc';
+  }
+  if (!source && !medium && !campaign) return null;
+  return { source, medium, campaign };
+}
+
+const bounded = (raw: unknown, max: number): number | null => {
+  if (raw === null || raw === undefined || raw === '') return null;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n < 0) return null;
+  return Math.min(max, Math.round(n));
+};
+
 /**
  * Turns whatever the browser posted into an event, or null to drop it. Views
- * carry no name; clicks need one. Paths are kept to the pathname (no query).
+ * carry no name; clicks need one; leaves carry engagement. Paths are kept to
+ * the pathname (no query).
  */
 export function parseTrackingEvent(raw: unknown): TrackingEvent | null {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
   const body = raw as Record<string, unknown>;
   if (!isValidSiteKey(body.k)) return null;
-  const kind = body.e === 'view' ? 'view' : body.e === 'click' ? 'click' : null;
+  const kind: EventKind | null = body.e === 'view' ? 'view' : body.e === 'click' ? 'click' : body.e === 'leave' ? 'leave' : null;
   if (!kind) return null;
   const name = kind === 'click' ? normalizeClickName(body.n) : null;
   if (kind === 'click' && !name) return null;
@@ -105,7 +164,41 @@ export function parseTrackingEvent(raw: unknown): TrackingEvent | null {
   if (!path.startsWith('/')) path = '/';
   path = path.split(/[?#]/)[0] || '/';
   const pageHost = str(body.h, 200);
-  return { siteKey: body.k, kind, name, path, referrer: referrerHost(body.r, pageHost) };
+  const leave = kind === 'leave';
+  return {
+    siteKey: body.k,
+    kind,
+    name,
+    path,
+    referrer: referrerHost(body.r, pageHost),
+    device: deviceFromWidth(body.w),
+    utm: kind === 'view' ? parseUtm(body.u) : null,
+    seconds: leave ? bounded(body.t, 7200) : null,
+    scroll: leave ? bounded(body.s, 100) : null,
+    speedMs: leave ? bounded(body.ms, 120_000) : null,
+  };
+}
+
+/**
+ * "Des Moines, IA" from the headers Vercel adds at the edge. Coarse by design:
+ * city and region only, computed before the request reaches us, and the IP
+ * itself is never written anywhere.
+ */
+export function placeFromHeaders(h: { get(name: string): string | null }): string | null {
+  const dec = (v: string | null) => {
+    if (!v) return '';
+    try {
+      return decodeURIComponent(v).trim().slice(0, 80);
+    } catch {
+      return v.trim().slice(0, 80);
+    }
+  };
+  const city = dec(h.get('x-vercel-ip-city'));
+  const region = dec(h.get('x-vercel-ip-country-region'));
+  const country = dec(h.get('x-vercel-ip-country')).toUpperCase();
+  if (!city) return null;
+  const tail = country && country !== 'US' ? country : region;
+  return tail ? `${city}, ${tail}` : city;
 }
 
 const BOT_RE = /bot|crawl|spider|slurp|headless|lighthouse|pingdom|uptime|monitor|facebookexternalhit|preview|curl|wget|python|java\/|go-http|node-fetch|axios|scrapy/i;
@@ -172,6 +265,7 @@ export function summarize(input: {
   pages: Array<{ path: string; count: number }>;
   sources: Array<{ host: string; count: number }>;
   closeRate: number;
+  detail?: TrafficDetail | null;
 }): TrafficSummary {
   const conversions = input.buttons.filter((b) => isConversion(b.name)).reduce((sum, b) => sum + b.count, 0);
   return {
@@ -184,6 +278,123 @@ export function summarize(input: {
     conversions,
     closeRate: input.closeRate,
     estimatedCustomers: estimateCustomers(conversions, input.closeRate),
+    detail: input.detail ?? null,
+  };
+}
+
+/** One visitor session as the database hands it back (see sessionRows). */
+export interface SessionRow {
+  visitor: string;
+  started_at: string | Date;
+  landing: string | null;
+  views: number;
+  converted: boolean;
+  converted_on: string | null;
+  converted_at: string | Date | null;
+  clicks: number;
+  seconds: number | null;
+  scroll: number | null;
+  device: string | null;
+  city: string | null;
+  utm_source: string | null;
+  utm_medium: string | null;
+  utm_campaign: string | null;
+  speed_ms: number | null;
+}
+
+const topN = <T extends object>(map: Map<string, T>, n: number, by: (t: T) => number): T[] =>
+  [...map.values()].sort((a, b) => by(b) - by(a)).slice(0, n);
+
+function localHourAndDay(at: string | Date, timeZone: string): { hour: number; day: number } {
+  const parts = new Intl.DateTimeFormat('en-US', { timeZone, hour: 'numeric', hour12: false, weekday: 'short' }).formatToParts(new Date(at));
+  const hour = Number(parts.find((p) => p.type === 'hour')?.value ?? 0) % 24;
+  const day = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(parts.find((p) => p.type === 'weekday')?.value ?? 'Sun');
+  return { hour, day: day < 0 ? 0 : day };
+}
+
+/** Pure: turns the month's sessions into the detail block. Covered by lib/siteStats.test.ts. */
+export function summarizeSessions(rows: SessionRow[], timeZone: string = REPORT_TIME_ZONE): TrafficDetail {
+  const sessions = rows.length;
+  const perVisitor = new Map<string, number>();
+  const devices = { phone: 0, tablet: 0, desktop: 0 };
+  const landing = new Map<string, { path: string; sessions: number; conversions: number }>();
+  const converting = new Map<string, { path: string; count: number }>();
+  const campaigns = new Map<string, { source: string; medium: string; campaign: string; sessions: number; conversions: number }>();
+  const places = new Map<string, { city: string; sessions: number; conversions: number }>();
+  const conversionHours = new Array<number>(24).fill(0);
+  const conversionDays = new Array<number>(7).fill(0);
+  let bounces = 0;
+  let views = 0;
+  let secondsSum = 0;
+  let secondsN = 0;
+  let scrollSum = 0;
+  let scrollN = 0;
+  const speeds: number[] = [];
+
+  for (const r of rows) {
+    perVisitor.set(r.visitor, (perVisitor.get(r.visitor) ?? 0) + 1);
+    views += r.views;
+    if (r.views <= 1 && r.clicks === 0) bounces += 1;
+    if (r.seconds != null && r.seconds > 0) {
+      secondsSum += r.seconds;
+      secondsN += 1;
+    }
+    if (r.scroll != null) {
+      scrollSum += r.scroll;
+      scrollN += 1;
+    }
+    if (r.device === 'phone' || r.device === 'tablet' || r.device === 'desktop') devices[r.device] += r.views;
+    if (r.speed_ms != null && r.speed_ms > 0) speeds.push(r.speed_ms);
+    const conv = r.converted ? 1 : 0;
+    if (r.landing) {
+      const l = landing.get(r.landing) ?? { path: r.landing, sessions: 0, conversions: 0 };
+      l.sessions += 1;
+      l.conversions += conv;
+      landing.set(r.landing, l);
+    }
+    if (r.converted && r.converted_on) {
+      const c = converting.get(r.converted_on) ?? { path: r.converted_on, count: 0 };
+      c.count += 1;
+      converting.set(r.converted_on, c);
+    }
+    if (r.utm_source || r.utm_medium || r.utm_campaign) {
+      const key = `${r.utm_source ?? ''}|${r.utm_medium ?? ''}|${r.utm_campaign ?? ''}`;
+      const c = campaigns.get(key) ?? { source: r.utm_source ?? '', medium: r.utm_medium ?? '', campaign: r.utm_campaign ?? '', sessions: 0, conversions: 0 };
+      c.sessions += 1;
+      c.conversions += conv;
+      campaigns.set(key, c);
+    }
+    if (r.city) {
+      const pl = places.get(r.city) ?? { city: r.city, sessions: 0, conversions: 0 };
+      pl.sessions += 1;
+      pl.conversions += conv;
+      places.set(r.city, pl);
+    }
+    if (r.converted && r.converted_at) {
+      const { hour, day } = localHourAndDay(r.converted_at, timeZone);
+      conversionHours[hour] += 1;
+      conversionDays[day] += 1;
+    }
+  }
+
+  speeds.sort((a, b) => a - b);
+  const median = speeds.length ? speeds[Math.floor((speeds.length - 1) / 2)] : null;
+
+  return {
+    sessions,
+    returningVisitors: [...perVisitor.values()].filter((n) => n > 1).length,
+    bounceRate: sessions ? Math.round((bounces / sessions) * 100) : 0,
+    avgSeconds: secondsN ? Math.round(secondsSum / secondsN) : 0,
+    avgScroll: scrollN ? Math.round(scrollSum / scrollN) : 0,
+    pagesPerSession: sessions ? Math.round((views / sessions) * 10) / 10 : 0,
+    devices,
+    landing: topN(landing, 6, (l) => l.sessions),
+    convertingPages: topN(converting, 5, (c) => c.count),
+    campaigns: topN(campaigns, 6, (c) => c.sessions),
+    places: topN(places, 6, (p) => p.sessions),
+    conversionHours,
+    conversionDays,
+    speedMs: median,
   };
 }
 
@@ -256,11 +467,69 @@ export async function onboardingIdForSiteKey(siteKey: string): Promise<number | 
   return id;
 }
 
-export async function recordEvent(onboardingId: number, event: TrackingEvent, visitor: string): Promise<void> {
+export async function recordEvent(onboardingId: number, event: TrackingEvent, visitor: string, place: string | null): Promise<void> {
   await sql`
-    INSERT INTO site_events (onboarding_id, kind, name, path, referrer, visitor)
-    VALUES (${onboardingId}, ${event.kind}, ${event.name}, ${event.path}, ${event.referrer}, ${visitor});
+    INSERT INTO site_events (
+      onboarding_id, kind, name, path, referrer, visitor, device, utm_source, utm_medium, utm_campaign, city, seconds, scroll, speed_ms
+    )
+    VALUES (
+      ${onboardingId}, ${event.kind}, ${event.name}, ${event.path}, ${event.referrer}, ${visitor}, ${event.device},
+      ${event.utm?.source || null}, ${event.utm?.medium || null}, ${event.utm?.campaign || null}, ${place},
+      ${event.seconds}, ${event.scroll}, ${event.speedMs}
+    );
   `;
+}
+
+/** Idle gap that ends a session. */
+export const SESSION_GAP_MINUTES = 30;
+
+/**
+ * One row per session for the month. Sessions are cut where a visitor's events
+ * have a gap longer than SESSION_GAP_MINUTES; everything else is summed per
+ * session in SQL and turned into the detail block by summarizeSessions().
+ */
+export async function sessionRows(onboardingId: number, month: string): Promise<SessionRow[]> {
+  const first = `${month}-01`;
+  const conv = CONVERSION_NAMES as unknown as string;
+  const res = await sql<SessionRow>`
+    WITH ev AS (
+      SELECT id, visitor, created_at, kind, name, path, device, city, utm_source, utm_medium, utm_campaign, seconds, scroll, speed_ms,
+        CASE
+          WHEN lag(created_at) OVER w IS NULL THEN 1
+          WHEN created_at - lag(created_at) OVER w > make_interval(mins => ${SESSION_GAP_MINUTES}) THEN 1
+          ELSE 0
+        END AS starts
+      FROM site_events
+      WHERE onboarding_id = ${onboardingId} AND visitor IS NOT NULL
+        AND created_at >= (${first}::timestamp AT TIME ZONE ${REPORT_TIME_ZONE})
+        AND created_at < ((${first}::date + interval '1 month') AT TIME ZONE ${REPORT_TIME_ZONE})
+      WINDOW w AS (PARTITION BY visitor ORDER BY created_at, id)
+    ),
+    s AS (
+      SELECT *, sum(starts) OVER (PARTITION BY visitor ORDER BY created_at, id) AS sn FROM ev
+    )
+    SELECT
+      visitor,
+      min(created_at) AS started_at,
+      (array_agg(path ORDER BY created_at, id) FILTER (WHERE kind = 'view'))[1] AS landing,
+      (count(*) FILTER (WHERE kind = 'view'))::int AS views,
+      coalesce(bool_or(kind = 'click' AND name = ANY(${conv}::text[])), false) AS converted,
+      (array_agg(path ORDER BY created_at, id) FILTER (WHERE kind = 'click' AND name = ANY(${conv}::text[])))[1] AS converted_on,
+      min(created_at) FILTER (WHERE kind = 'click' AND name = ANY(${conv}::text[])) AS converted_at,
+      (count(*) FILTER (WHERE kind = 'click'))::int AS clicks,
+      (sum(seconds) FILTER (WHERE kind = 'leave'))::int AS seconds,
+      max(scroll) FILTER (WHERE kind = 'leave') AS scroll,
+      (array_agg(device ORDER BY created_at, id) FILTER (WHERE device IS NOT NULL))[1] AS device,
+      (array_agg(city ORDER BY created_at, id) FILTER (WHERE city IS NOT NULL))[1] AS city,
+      (array_agg(utm_source ORDER BY created_at, id) FILTER (WHERE utm_source IS NOT NULL))[1] AS utm_source,
+      (array_agg(utm_medium ORDER BY created_at, id) FILTER (WHERE utm_medium IS NOT NULL))[1] AS utm_medium,
+      (array_agg(utm_campaign ORDER BY created_at, id) FILTER (WHERE utm_campaign IS NOT NULL))[1] AS utm_campaign,
+      min(speed_ms) FILTER (WHERE speed_ms > 0) AS speed_ms
+    FROM s
+    GROUP BY visitor, sn
+    ORDER BY started_at;
+  `;
+  return res.rows;
 }
 
 const EMPTY: TrafficSummary = summarize({ views: 0, visitors: 0, clicks: 0, buttons: [], pages: [], sources: [], closeRate: DEFAULT_CLOSE_RATE });
@@ -286,7 +555,7 @@ export async function monthTraffic(onboardingId: number, month: string, closeRat
   const t = totals.rows[0] ?? { views: 0, visitors: 0, clicks: 0 };
   if (t.views === 0 && t.clicks === 0) return { ...EMPTY, closeRate };
 
-  const [buttons, pages, sources] = await Promise.all([
+  const [buttons, pages, sources, sessions] = await Promise.all([
     sql<{ name: string; count: number }>`
       SELECT name, count(*)::int AS count FROM site_events
       WHERE onboarding_id = ${onboardingId} AND kind = 'click' AND name IS NOT NULL
@@ -308,6 +577,7 @@ export async function monthTraffic(onboardingId: number, month: string, closeRat
         AND created_at < ((${first}::date + interval '1 month') AT TIME ZONE ${REPORT_TIME_ZONE})
       GROUP BY host ORDER BY count DESC, host LIMIT 5;
     `,
+    sessionRows(onboardingId, month),
   ]);
   return summarize({
     views: t.views,
@@ -317,6 +587,7 @@ export async function monthTraffic(onboardingId: number, month: string, closeRat
     pages: pages.rows,
     sources: sources.rows,
     closeRate,
+    detail: summarizeSessions(sessions),
   });
 }
 

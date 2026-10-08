@@ -422,6 +422,18 @@ function TrafficBox({ title, traffic }: { title: string; traffic: TrafficSummary
         {n('Clicks', traffic.clicks)}
         {n('Est. customers', empty ? '—' : `~${traffic.estimatedCustomers}`)}
       </div>
+      {traffic.detail && traffic.detail.sessions > 0 ? (
+        <p className="mt-2 text-xs text-neutral-600">
+          {traffic.detail.sessions} sessions ·{' '}
+          {(() => {
+            const d = traffic.detail.devices;
+            const tot = d.phone + d.tablet + d.desktop;
+            return tot ? `${Math.round(((d.phone + d.tablet) / tot) * 100)}% mobile` : 'device unknown';
+          })()}{' '}
+          · {traffic.detail.bounceRate}% bounced · {traffic.detail.avgSeconds}s avg
+          {traffic.detail.places[0] ? ` · mostly ${traffic.detail.places[0].city}` : ''}
+        </p>
+      ) : null}
       {traffic.buttons.length > 0 && (
         <p className="mt-2 text-xs text-neutral-600">
           {traffic.buttons
