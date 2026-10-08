@@ -580,7 +580,21 @@ function trafficSections(t: TrafficSummary): string {
     ${sources.length ? h2('Where visitors came from') + countList(sources) : ''}
     ${pages.length ? h2('Most visited pages') + countList(pages) : ''}
     ${d ? detailSections(t, d) : ''}
-    <p style="margin:12px 0 0;font-size:13px;color:#737373">“Estimated new customers” counts ${t.closeRate}% of the people who called, texted, emailed, sent a form or booked from your site. Tell us your real number and we will use that instead.</p>
+    ${closeRateNote(t)}
+  `;
+}
+
+/** The fine print under the numbers: where the close rate came from. */
+export function closeRateNote(t: TrafficSummary): string {
+  const e = t.closeRateEstimate;
+  if (!e || t.conversions === 0) {
+    return `<p style="margin:12px 0 0;font-size:13px;color:#737373">“Estimated new customers” counts ${t.closeRate}% of the people who called, texted, emailed, sent a form or booked from your site. Tell us your real number and we will use that instead.</p>`;
+  }
+  const reasons = e.factors.map((f) => `<li style="margin:0 0 4px">${escapeHtml(f.label)}${f.effect ? ` (+${f.effect})` : ''}</li>`).join('');
+  return `
+    <p style="margin:12px 0 4px;font-size:13px;color:#737373">How we got to ${e.rate}%: of the ${t.conversions} people who reached out, we estimate ${e.low}% to ${e.high}% became customers, so about ${t.estimatedCustomers} (likely ${t.customersLow} to ${t.customersHigh}). The reasons:</p>
+    <ul style="margin:0 0 8px;padding-left:18px;font-size:13px;color:#737373">${reasons}</ul>
+    <p style="margin:0;font-size:13px;color:#737373">Know your real number? Reply with it and we will use that from now on.</p>
   `;
 }
 

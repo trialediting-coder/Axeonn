@@ -16,7 +16,7 @@ import { sendMonthlyReportEmail, sendProjectUpdateEmail } from '@/lib/email';
 import { APP_ORIGIN } from '@/lib/hostRouting';
 import { getOnboardingByToken, type Onboarding } from '@/lib/onboarding';
 import { sendAutoReport } from '@/lib/autoReports';
-import { hasTraffic, isValidMonth, setTrackingSettings, trackingOverview, validateCloseRate, validateSiteUrl } from '@/lib/siteStats';
+import { hasTraffic, isValidMonth, setTrackingSettings, trackingOverview, validateCloseRate, validateCloseRateMode, validateSiteUrl } from '@/lib/siteStats';
 import {
   createProjectUpdate,
   deleteMonthlyReport,
@@ -118,6 +118,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
     } else if (body.kind === 'tracking') {
       await setTrackingSettings(onboarding.id, {
         siteUrl: validateSiteUrl(body.siteUrl),
+        closeRateMode: validateCloseRateMode(body.closeRateMode),
         closeRate: validateCloseRate(body.closeRate),
         autoReports: body.autoReports !== false,
       });

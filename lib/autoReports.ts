@@ -21,7 +21,7 @@ import {
   reportStats,
   type MonthlyReport,
 } from '@/lib/projects';
-import { getTrackingSettings, hasTraffic, monthTraffic } from '@/lib/siteStats';
+import { effectiveCloseRate, getTrackingSettings, hasTraffic, monthTraffic } from '@/lib/siteStats';
 
 export type AutoReportOutcome =
   | { status: 'sent'; report: MonthlyReport }
@@ -80,7 +80,7 @@ export async function sendAutoReport(onboarding: Onboarding, month: string, opts
     if (!ok.ok) return { status: 'skipped', reason: ok.reason };
   }
 
-  const traffic = await monthTraffic(onboarding.id, month, settings.closeRate);
+  const traffic = await monthTraffic(onboarding.id, month, effectiveCloseRate(settings));
   if (!hasTraffic(traffic) && !reportHasContent(existing)) {
     const reason = settings.siteKey
       ? 'no website numbers for the month and nothing typed in'

@@ -91,9 +91,10 @@ test('visitor hashes change with the month and never contain the IP', () => {
   assert.ok(!a.includes('1.2.3.4'));
 });
 
-test('estimated customers round down and respect the close rate', () => {
-  assert.equal(estimateCustomers(10, 25), 2);
-  assert.equal(estimateCustomers(3, 25), 0);
+test('estimated customers round to the nearest whole customer and respect the close rate', () => {
+  assert.equal(estimateCustomers(10, 25), 3);
+  assert.equal(estimateCustomers(3, 25), 1);
+  assert.equal(estimateCustomers(1, 25), 0);
   assert.equal(estimateCustomers(0, 50), 0);
   assert.equal(estimateCustomers(8, 0), 0);
   assert.equal(validateCloseRate(''), 25);
@@ -123,7 +124,8 @@ test('the summary counts only calls, texts, emails, forms and bookings as reachi
     closeRate: 25,
   });
   assert.equal(t.conversions, 22);
-  assert.equal(t.estimatedCustomers, 5);
+  assert.equal(t.estimatedCustomers, 6);
+  assert.equal(t.closeRateEstimate, null);
   assert.equal(buttonLabel('call'), 'Call button');
   assert.equal(buttonLabel('get a free quote'), 'Get a free quote');
   assert.equal(sourceLabel(''), 'Direct / typed in');
@@ -151,7 +153,7 @@ test('report stats lead with the website numbers when they exist', () => {
   );
   assert.equal(withWeb[0].value, '100');
   assert.match(withWeb[0].sub ?? '', /80 visitors · \+40 vs last month/);
-  assert.equal(withWeb[3].value, '~2');
+  assert.equal(withWeb[3].value, '~3'); // 9 × 30% = 2.7
   assert.match(withWeb[2].sub ?? '', /\+4 vs last month/);
   // Without tracking, the four typed-in boxes show as before.
   const plain = reportStats(emptyReportBody(), null, details);
@@ -310,4 +312,98 @@ test('leave events carry engagement and are capped', () => {
   assert.equal(view?.device, 'phone');
   assert.deepEqual(view?.utm, { source: 'yelp', medium: 'referral', campaign: '' });
   assert.equal(view?.seconds, null);
+});
+
+
+// ───────────────────────────── Close rate estimate ─────────────────────────────
+import { DEFAULT_CLOSE_RATE_ESTIMATE, effectiveCloseRate, estimateCloseRate } from './siteStats';
+import type { TrafficDetail } from './projectsShared';
+
+const detailWith = (over: Partial<TrafficDetail>): TrafficDetail => ({
+  sessions: 100,
+  returningVisitors: 5,
+  bounceRate: 40,
+  avgSeconds: 30,
+  avgScroll: 40,
+  pagesPerSession: 1.4,
+  devices: { phone: 40, tablet: 5, desktop: 55 },
+  landing: [],
+  convertingPages: [{ path: '/', count: 10 }],
+  campaigns: [],
+  places: [],
+  conversionHours: new Array(24).fill(0),
+  conversionDays: new Array(7).fill(0),
+  speedMs: null,
+  ...over,
+});
+
+test('with nobody reaching out, the estimate is the typical local-service figure', () => {
+  assert.deepEqual(estimateCloseRate({ buttons: [{ name: 'directions', count: 9 }] }), DEFAULT_CLOSE_RATE_ESTIMATE);
+});
+
+test('the base rate is the optimistic benchmark weighted by how people reached out', () => {
+  // 10 calls (55) and 10 forms (40): base 47.5, nothing in the detail to add.
+  const e = estimateCloseRate({ buttons: [{ name: 'call', count: 10 }, { name: 'form', count: 10 }], detail: detailWith({}) });
+  assert.equal(e.rate, 48);
+  assert.equal(e.low, 28); // (35 + 20) / 2 = 27.5
+  assert.equal(e.high, 53);
+  assert.equal(e.sample, 20);
+  assert.equal(e.factors.length, 1);
+  // All online bookings: the ceiling.
+  assert.equal(estimateCloseRate({ buttons: [{ name: 'book', count: 8 }], detail: detailWith({}) }).rate, 85);
+});
+
+test('good signals only ever add, each with a reason the client can read', () => {
+  const hours = new Array(24).fill(0);
+  hours[10] = 6;
+  hours[14] = 3;
+  hours[20] = 1;
+  const e = estimateCloseRate({
+    buttons: [{ name: 'call', count: 10 }],
+    detail: detailWith({
+      avgSeconds: 75, // read first: +5
+      returningVisitors: 20, // came back: +3
+      convertingPages: [
+        { path: '/ceramic-coating', count: 7 },
+        { path: '/', count: 3 },
+      ], // service pages: +4
+      conversionHours: hours, // business hours: +4
+      devices: { phone: 70, tablet: 5, desktop: 25 }, // phones: +2
+    }),
+  });
+  assert.equal(e.rate, 55 + 5 + 3 + 4 + 4 + 2);
+  assert.equal(e.low, 35 + 18);
+  assert.equal(e.high, 78);
+  assert.equal(e.factors.filter((f) => f.effect > 0).length, 5);
+  // A weak month never goes below the base.
+  const weak = estimateCloseRate({ buttons: [{ name: 'call', count: 10 }], detail: detailWith({ avgSeconds: 5, bounceRate: 90 }) });
+  assert.equal(weak.rate, 55);
+});
+
+test('small samples widen the range instead of lowering the number', () => {
+  const e = estimateCloseRate({ buttons: [{ name: 'call', count: 2 }], detail: detailWith({}) });
+  assert.equal(e.rate, 55);
+  assert.equal(e.low, 35);
+  assert.equal(e.high, 65);
+  assert.ok(e.factors.some((f) => /2 people reached out/.test(f.label)));
+  assert.ok(e.rate <= 90 && e.low >= 10);
+});
+
+test('summarize estimates when no manual rate is set, and carries the range', () => {
+  const t = summarize({
+    views: 100,
+    visitors: 80,
+    clicks: 12,
+    buttons: [{ name: 'call', count: 10 }, { name: 'book', count: 2 }],
+    pages: [],
+    sources: [],
+    closeRate: null,
+    detail: detailWith({}),
+  });
+  assert.equal(t.closeRate, 60); // (55*10 + 85*2) / 12 = 60
+  assert.equal(t.estimatedCustomers, 7); // round(12 * 0.6)
+  assert.equal(t.customersLow, Math.floor((12 * t.closeRateEstimate!.low) / 100));
+  assert.equal(t.customersHigh, Math.ceil((12 * t.closeRateEstimate!.high) / 100));
+  assert.equal(effectiveCloseRate({ closeRateMode: 'auto', closeRate: 25 }), null);
+  assert.equal(effectiveCloseRate({ closeRateMode: 'manual', closeRate: 40 }), 40);
 });

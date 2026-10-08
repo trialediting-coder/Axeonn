@@ -57,8 +57,13 @@ function webMetric(key: WebKey, t: TrafficSummary, prev: TrafficSummary | null) 
   const now = t[key];
   const value = key === 'estimatedCustomers' ? `~${now}` : String(now);
   const before = prev?.[key] ?? null;
+  const estimateSub =
+    t.closeRateEstimate && t.customersLow != null && t.customersHigh != null && t.conversions > 0
+      ? `likely ${t.customersLow} to ${t.customersHigh} · ${t.closeRate}% close rate`
+      : `${t.closeRate}% of who reached out`;
+  if (key === 'estimatedCustomers') return { value, sub: estimateSub, tone: 'neutral' as const };
   if (before == null) {
-    const sub = key === 'views' ? `${t.visitors} ${t.visitors === 1 ? 'visitor' : 'visitors'}` : key === 'estimatedCustomers' ? `${t.closeRate}% of who reached out` : null;
+    const sub = key === 'views' ? `${t.visitors} ${t.visitors === 1 ? 'visitor' : 'visitors'}` : null;
     return { value, sub, tone: 'neutral' as const };
   }
   const diff = now - before;
@@ -162,6 +167,7 @@ export function ProofDashboard({
   const traffic = latest?.traffic && (latest.traffic.views > 0 || latest.traffic.clicks > 0) ? latest.traffic : null;
   const prevTraffic = prev?.traffic ?? null;
   const detail = traffic?.detail && traffic.detail.sessions > 0 ? traffic.detail : null;
+  const estimate = traffic && traffic.conversions > 0 ? (traffic.closeRateEstimate ?? null) : null;
   const deviceTotal = detail ? detail.devices.phone + detail.devices.tablet + detail.devices.desktop : 0;
   const hourMax = detail ? Math.max(1, ...detail.conversionHours) : 1;
   const dayMax = detail ? Math.max(1, ...detail.conversionDays) : 1;
@@ -607,6 +613,21 @@ export function ProofDashboard({
                     </>
                   ) : null}
                 </dl>
+                {estimate ? (
+                  <div className="mt-4 rounded-lg bg-neutral-50 p-3">
+                    <p className="text-xs font-semibold text-neutral-700">
+                      How we estimate customers: {estimate.low}% to {estimate.high}% of people who reach out
+                    </p>
+                    <ul className="mt-1.5 space-y-0.5 text-xs text-neutral-500">
+                      {estimate.factors.map((f) => (
+                        <li key={f.label}>
+                          {f.label}
+                          {f.effect ? <span className="font-semibold text-emerald-700"> +{f.effect}</span> : null}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
               </Card>
               <Card className="p-6">
                 <h2 className="text-base font-semibold text-neutral-950">Pages that bring customers</h2>

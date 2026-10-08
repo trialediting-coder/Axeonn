@@ -199,6 +199,9 @@ async function main() {
   await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS site_url TEXT;`;
   await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS close_rate INTEGER NOT NULL DEFAULT 25;`;
   await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS auto_reports BOOLEAN NOT NULL DEFAULT true;`;
+  // 'auto' estimates the close rate from the month's data (lib/siteStats.ts
+  // estimateCloseRate); 'manual' uses close_rate as typed in the admin.
+  await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS close_rate_mode TEXT NOT NULL DEFAULT 'auto';`;
   await sql`
     CREATE TABLE IF NOT EXISTS site_events (
       id BIGSERIAL PRIMARY KEY,
