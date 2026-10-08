@@ -269,6 +269,33 @@ export function ensureSchema(): Promise<void> {
       await sql`ALTER TABLE site_events DROP CONSTRAINT IF EXISTS site_events_kind_check;`;
       await sql`ALTER TABLE site_events ADD CONSTRAINT site_events_kind_check CHECK (kind IN ('view', 'click', 'leave'));`;
       await sql`CREATE INDEX IF NOT EXISTS site_events_visitor_idx ON site_events (onboarding_id, visitor, created_at);`;
+      // The call deck (/admin/calls, lib/callLeads.ts): prospects imported from the
+      // Iowa detailer spreadsheet, plus the owner's notes and call outcomes.
+      await sql`
+        CREATE TABLE IF NOT EXISTS call_leads (
+          id SERIAL PRIMARY KEY,
+          business TEXT NOT NULL,
+          city TEXT NOT NULL DEFAULT '',
+          region TEXT NOT NULL DEFAULT '',
+          phone TEXT NOT NULL DEFAULT '',
+          website TEXT NOT NULL DEFAULT '',
+          site_status TEXT NOT NULL DEFAULT '',
+          rating NUMERIC(2,1),
+          reviews INTEGER,
+          priority TEXT NOT NULL DEFAULT 'D',
+          axeon_status TEXT NOT NULL DEFAULT '',
+          source TEXT NOT NULL DEFAULT '',
+          maps_url TEXT NOT NULL DEFAULT '',
+          why TEXT NOT NULL DEFAULT '',
+          notes TEXT NOT NULL DEFAULT '',
+          outcome TEXT NOT NULL DEFAULT 'none',
+          call_count INTEGER NOT NULL DEFAULT 0,
+          last_called_at TIMESTAMPTZ,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        );
+      `;
+      await sql`CREATE UNIQUE INDEX IF NOT EXISTS call_leads_key_idx ON call_leads (lower(business), phone);`;
     })().catch((err) => {
       schemaReady = null; // let the next request retry
       throw err;

@@ -13,6 +13,7 @@ import { btn } from '@/components/admin/ui';
 import { AxeonLogo } from '@/components/brand/AxeonLogo';
 
 const TABS = [
+  { href: '/admin/calls', label: 'Calls', match: (p: string) => p.startsWith('/admin/calls') },
   { href: '/admin/agreements', label: 'Agreements', match: (p: string) => p.startsWith('/admin/agreements') },
   { href: '/admin/onboarding', label: 'Onboarding', match: (p: string) => p.startsWith('/admin/onboarding') },
   { href: '/admin/billing', label: 'Billing', match: (p: string) => p.startsWith('/admin/billing') },
