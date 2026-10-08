@@ -527,17 +527,19 @@ export function usageSentence(t: TrafficSummary, d: TrafficDetail): string {
 }
 
 // ───────────────────────────── Report look (Axeon brand) ─────────────────────────────
-// Same language as axeonstudio.co: Plus Jakarta Sans, blue-600 on near-black and
-// white, dark header band. Web fonts load where mail apps allow them (Apple
-// Mail, iOS, Outlook for Mac) and fall back to the system sans elsewhere.
+// Same language as axeonstudio.co: Plus Jakarta Sans, blue-600 accents, near-black
+// ink. Built to survive every mail app's dark mode: the base is light background
+// with dark text (which stays readable whether a client inverts fully, partially,
+// or not at all), blue is used for accents rather than white-on-dark blocks, and a
+// real dark theme is supplied for clients that honour prefers-color-scheme or
+// Gmail's data-ogsc hooks. Web fonts load where allowed and fall back to the
+// system sans elsewhere.
 
 const BRAND = {
   blue: '#2563eb',
-  blueSoft: '#60a5fa',
-  blueTint: '#eff4ff',
+  blueDeep: '#1d4ed8',
+  blueTint: '#eaf1ff',
   ink: '#0a0a0a',
-  dark: '#07090e',
-  dark2: '#12151d',
   body: '#262626',
   muted: '#6b7280',
   faint: '#9ca3af',
@@ -547,77 +549,103 @@ const BRAND = {
 };
 const FONT = "'Plus Jakarta Sans',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif";
 
-/** A full HTML document with the brand font loaded, a dark header band, the body, and a dark footer. */
+/** The dark theme, applied by clients that honour prefers-color-scheme and by Gmail on Android (data-ogsc). */
+const DARK_CSS = `
+  .ax-wash { background:#0b0e14 !important; }
+  .ax-card { background:#12151d !important; }
+  .ax-ink { color:#f5f7fa !important; }
+  .ax-body { color:#d4d8e0 !important; }
+  .ax-muted { color:#9aa3b2 !important; }
+  .ax-faint { color:#6b7280 !important; }
+  .ax-rule { border-top-color:#262b36 !important; }
+  .ax-tile { background:#171b25 !important; border-color:#262b36 !important; }
+  .ax-hero { background:#13213f !important; border-color:#2b4a8f !important; }
+  .ax-box { background:#171b25 !important; }
+  .ax-track { background:#1c2740 !important; }
+  .ax-band { background:#0b0e14 !important; }
+  .ax-pill { background:#13213f !important; }
+  .ax-blue { color:#7aa7ff !important; }
+  .ax-green { color:#4ade80 !important; }
+`;
+
+/** A full HTML document: light base, dark theme attached, the Axeon font loaded where allowed. */
 function brandDocument(input: { subject: string; headerHtml: string; bodyHtml: string; footerHtml: string }): string {
   return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="color-scheme" content="light">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
 <title>${escapeHtml(input.subject)}</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+  :root { color-scheme: light dark; supported-color-schemes: light dark; }
   body { margin:0; padding:0; background:${BRAND.wash}; }
   a { color:${BRAND.blue}; }
   @media (max-width: 600px) { .tile { display:block !important; width:100% !important; } .pad { padding-left:20px !important; padding-right:20px !important; } }
+  @media (prefers-color-scheme: dark) { ${DARK_CSS} }
+  ${DARK_CSS.replace(/\n\s*\./g, '\n  [data-ogsc] .').replace(/\[data-ogsc\] \.ax-wash|\[data-ogsc\] \.ax-card|\[data-ogsc\] \.ax-band/g, (m) => m.replace('[data-ogsc]', '[data-ogsb]'))}
 </style>
 </head>
-<body style="margin:0;padding:0;background:${BRAND.wash}">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:${BRAND.wash}"><tr><td align="center" style="padding:24px 12px">
-<table role="presentation" width="600" cellspacing="0" cellpadding="0" style="width:100%;max-width:600px;background:#ffffff;border-radius:16px;overflow:hidden;font-family:${FONT};color:${BRAND.body};line-height:1.55">
-  <tr><td class="pad" style="background:${BRAND.dark};background-image:linear-gradient(160deg,${BRAND.dark} 0%,${BRAND.dark2} 100%);padding:28px 32px 30px;color:#ffffff">
+<body class="ax-wash" style="margin:0;padding:0;background:${BRAND.wash}">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" class="ax-wash" style="background:${BRAND.wash}"><tr><td align="center" style="padding:24px 12px">
+<table role="presentation" width="600" cellspacing="0" cellpadding="0" class="ax-card" style="width:100%;max-width:600px;background:#ffffff;border-radius:16px;overflow:hidden;font-family:${FONT};color:${BRAND.body};line-height:1.55">
+  <tr><td class="pad" style="padding:28px 32px 8px">
     ${input.headerHtml}
   </td></tr>
-  <tr><td class="pad" style="padding:28px 32px 8px">
+  <tr><td class="pad" style="padding:8px 32px 8px">
     ${input.bodyHtml}
   </td></tr>
-  <tr><td class="pad" style="background:${BRAND.dark};padding:24px 32px;color:#ffffff">
+  <tr><td class="pad ax-band" style="background:${BRAND.wash};padding:22px 32px;border-top:1px solid ${BRAND.line}">
     ${input.footerHtml}
   </td></tr>
 </table>
-<p style="margin:16px 0 0;font-family:${FONT};font-size:12px;color:${BRAND.faint};text-align:center">Axeon Studio · West Des Moines, Iowa</p>
+<p class="ax-faint" style="margin:16px 0 0;font-family:${FONT};font-size:12px;color:${BRAND.faint};text-align:center">Axeon Studio · West Des Moines, Iowa</p>
 </td></tr></table>
 </body>
 </html>`;
 }
 
+/** The mark (blue on transparent, so it works on light and dark) and the wordmark in ink. */
 const brandLogo = (product?: string) => `
   <table role="presentation" cellspacing="0" cellpadding="0"><tr>
     <td style="vertical-align:middle;padding-right:10px"><img src="${EMAIL_LOGO_URL}" width="26" height="22" alt="" style="display:block;border:0"></td>
-    <td style="vertical-align:middle;font-family:${FONT};font-size:22px;font-weight:800;letter-spacing:-.02em;color:#ffffff;line-height:1">Axeon${
-      product ? `<span style="color:${BRAND.blueSoft};font-weight:800">${escapeHtml(product)}</span>` : ''
+    <td class="ax-ink" style="vertical-align:middle;font-family:${FONT};font-size:22px;font-weight:800;letter-spacing:-.02em;color:${BRAND.ink};line-height:1">Axeon${
+      product ? `<span class="ax-blue" style="color:${BRAND.blue};font-weight:800">${escapeHtml(product)}</span>` : ''
     }</td>
   </tr></table>`;
 
 const rH2 = (text: string) =>
   `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:26px 0 10px"><tr>
-     <td style="font-family:${FONT};font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:${BRAND.blue};white-space:nowrap;padding-right:12px">${escapeHtml(text)}</td>
-     <td width="100%" style="border-top:1px solid ${BRAND.line};height:1px;line-height:1px;font-size:1px">&nbsp;</td>
+     <td class="ax-blue" style="font-family:${FONT};font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:${BRAND.blue};white-space:nowrap;padding-right:12px">${escapeHtml(text)}</td>
+     <td width="100%" class="ax-rule" style="border-top:1px solid ${BRAND.line};height:1px;line-height:1px;font-size:1px">&nbsp;</td>
    </tr></table>`;
 
-const rPara = (text: string, extra = '') => (text ? `<p style="margin:0 0 12px;font-size:15px;color:${BRAND.body};${extra}">${escapeHtml(text)}</p>` : '');
+const rPara = (text: string, extra = '', cls = 'ax-body') =>
+  text ? `<p class="${cls}" style="margin:0 0 12px;font-size:15px;color:${cls === 'ax-ink' ? BRAND.ink : BRAND.body};${extra}">${escapeHtml(text)}</p>` : '';
 
 /** Positive change in green, the rest muted. */
-const subHtml = (sub: string | null | undefined, onDark: boolean) => {
+const subHtml = (sub: string | null | undefined) => {
   if (!sub) return '';
-  const base = onDark ? 'rgba(255,255,255,.78)' : BRAND.muted;
-  return `<div style="font-size:12px;line-height:1.4;color:${base};margin-top:6px">${escapeHtml(sub).replace(/\+(\d+)(%?) vs last month/g, `<span style="color:${onDark ? '#6ee7b7' : BRAND.green};font-weight:700">+$1$2 vs last month</span>`)}</div>`;
+  return `<div class="ax-muted" style="font-size:12px;line-height:1.4;color:${BRAND.muted};margin-top:6px">${escapeHtml(sub).replace(
+    /\+(\d+)(%?) vs last month/g,
+    `<span class="ax-green" style="color:${BRAND.green};font-weight:700">+$1$2 vs last month</span>`
+  )}</div>`;
 };
 
 /**
- * Two tiles to a row. The first two are the headline: blue, then near-black
- * with a blue number. The rest are white with a thin border and a blue number.
+ * Two tiles to a row. The first two are the headline: blue-tinted with a blue
+ * border and a blue number. The rest are plain with a thin border.
  */
 function rTiles(stats: Array<{ label: string; value: string; sub?: string | null }>): string {
   const tile = (st: { label: string; value: string; sub?: string | null }, i: number) => {
-    const hero = i === 0 ? { bg: BRAND.blue, label: 'rgba(255,255,255,.85)', value: '#ffffff', border: BRAND.blue } : i === 1 ? { bg: BRAND.ink, label: 'rgba(255,255,255,.7)', value: BRAND.blueSoft, border: BRAND.ink } : null;
-    const bg = hero ? hero.bg : '#ffffff';
+    const hero = i < 2;
     return `<td class="tile" width="50%" style="padding:0 6px 12px;vertical-align:top">
-      <div style="background:${bg};border:1px solid ${hero ? hero.border : BRAND.line};border-radius:12px;padding:16px 16px 14px">
-        <div style="font-size:12px;font-weight:600;letter-spacing:.02em;color:${hero ? hero.label : BRAND.muted}">${escapeHtml(st.label)}</div>
-        <div style="font-size:30px;line-height:1.1;font-weight:800;letter-spacing:-.02em;margin-top:6px;color:${hero ? hero.value : BRAND.ink}">${escapeHtml(st.value)}</div>
-        ${subHtml(st.sub, Boolean(hero))}
+      <div class="${hero ? 'ax-hero' : 'ax-tile'}" style="background:${hero ? BRAND.blueTint : '#ffffff'};border:${hero ? '2px' : '1px'} solid ${hero ? BRAND.blue : BRAND.line};border-radius:12px;padding:${hero ? '15px 15px 13px' : '16px 16px 14px'}">
+        <div class="${hero ? 'ax-blue' : 'ax-muted'}" style="font-size:12px;font-weight:700;letter-spacing:.02em;color:${hero ? BRAND.blueDeep : BRAND.muted}">${escapeHtml(st.label)}</div>
+        <div class="${hero ? 'ax-blue' : 'ax-ink'}" style="font-size:30px;line-height:1.1;font-weight:800;letter-spacing:-.02em;margin-top:6px;color:${hero ? BRAND.blue : BRAND.ink}">${escapeHtml(st.value)}</div>
+        ${subHtml(st.sub)}
       </div>
     </td>`;
   };
@@ -636,11 +664,11 @@ function rBars(rows: Array<{ label: string; count: number }>): string {
     .map((r) => {
       const pct = Math.max(4, Math.round((r.count / max) * 100));
       return `<tr>
-        <td style="padding:7px 0 7px;vertical-align:middle">
-          <div style="color:${BRAND.body}">${escapeHtml(r.label)}</div>
-          <div style="height:5px;background:${BRAND.blueTint};border-radius:3px;margin-top:5px;overflow:hidden"><div style="height:5px;width:${pct}%;background:${BRAND.blue};border-radius:3px"></div></div>
+        <td style="padding:7px 0;vertical-align:middle">
+          <div class="ax-body" style="color:${BRAND.body}">${escapeHtml(r.label)}</div>
+          <div class="ax-track" style="height:5px;background:${BRAND.blueTint};border-radius:3px;margin-top:5px;overflow:hidden"><div style="height:5px;width:${pct}%;background:${BRAND.blue};border-radius:3px"></div></div>
         </td>
-        <td width="56" style="padding:7px 0 7px 12px;text-align:right;font-weight:800;color:${BRAND.ink};white-space:nowrap;vertical-align:middle">${r.count.toLocaleString('en-US')}</td>
+        <td width="56" class="ax-ink" style="padding:7px 0 7px 12px;text-align:right;font-weight:800;color:${BRAND.ink};white-space:nowrap;vertical-align:middle">${r.count.toLocaleString('en-US')}</td>
       </tr>`;
     })
     .join('')}</table>`;
@@ -651,8 +679,8 @@ const rWins = (wins: string[]) =>
   `<table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 8px">${wins
     .map(
       (w) => `<tr>
-      <td style="vertical-align:top;padding:0 10px 8px 0;color:${BRAND.blue};font-weight:800;font-size:15px;line-height:1.5">&#10003;</td>
-      <td style="vertical-align:top;padding:0 0 8px;font-size:15px;color:${BRAND.body}">${escapeHtml(w)}</td>
+      <td class="ax-blue" style="vertical-align:top;padding:0 10px 8px 0;color:${BRAND.blue};font-weight:800;font-size:15px;line-height:1.5">&#10003;</td>
+      <td class="ax-body" style="vertical-align:top;padding:0 0 8px;font-size:15px;color:${BRAND.body}">${escapeHtml(w)}</td>
     </tr>`
     )
     .join('')}</table>`;
@@ -662,8 +690,8 @@ const rSteps = (lines: EmailLine[]) =>
   `<table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 8px">${lines
     .map(
       (l, i) => `<tr>
-      <td style="vertical-align:top;padding:2px 12px 10px 0"><div style="width:22px;height:22px;border-radius:11px;background:${BRAND.blue};color:#fff;font-size:12px;font-weight:800;text-align:center;line-height:22px">${i + 1}</div></td>
-      <td style="vertical-align:top;padding:0 0 10px;font-size:15px;color:${BRAND.body}">${l.title ? `<b style="color:${BRAND.ink}">${escapeHtml(l.title)}.</b> ` : ''}${escapeHtml(l.body)}</td>
+      <td style="vertical-align:top;padding:2px 12px 10px 0"><div style="width:22px;height:22px;border-radius:11px;background:${BRAND.blue};color:#ffffff;font-size:12px;font-weight:800;text-align:center;line-height:22px">${i + 1}</div></td>
+      <td class="ax-body" style="vertical-align:top;padding:0 0 10px;font-size:15px;color:${BRAND.body}">${l.title ? `<b class="ax-ink" style="color:${BRAND.ink}">${escapeHtml(l.title)}.</b> ` : ''}${escapeHtml(l.body)}</td>
     </tr>`
     )
     .join('')}</table>`;
@@ -711,17 +739,17 @@ function audienceSections(t: TrafficSummary): string {
 export function closeRateNote(t: TrafficSummary): string {
   const e = t.closeRateEstimate;
   if (!e || t.conversions === 0) {
-    return `<p style="margin:20px 0 0;font-size:13px;color:${BRAND.muted}">“Estimated new customers” counts ${t.closeRate}% of the people who called, texted, emailed, sent a form or booked from your site. Tell us your real number and we will use that instead.</p>`;
+    return `<p class="ax-muted" style="margin:20px 0 0;font-size:13px;color:${BRAND.muted}">“Estimated new customers” counts ${t.closeRate}% of the people who called, texted, emailed, sent a form or booked from your site. Tell us your real number and we will use that instead.</p>`;
   }
-  const reasons = e.factors.map((f) => `<li style="margin:0 0 4px">${escapeHtml(f.label)}${f.effect ? ` <span style="color:${BRAND.green};font-weight:700">+${f.effect}</span>` : ''}</li>`).join('');
+  const reasons = e.factors.map((f) => `<li style="margin:0 0 4px">${escapeHtml(f.label)}${f.effect ? ` <span class="ax-green" style="color:${BRAND.green};font-weight:700">+${f.effect}</span>` : ''}</li>`).join('');
   const who = t.assistedContacts
     ? `${t.conversions} people who reached out (${t.directContacts} pressed call, text, form, book or directions on the site; about ${t.assistedContacts} more read your number on a computer and most likely called from their phone)`
     : `${t.conversions} people who reached out`;
   return `
-    <div style="margin:22px 0 0;padding:14px 16px;background:${BRAND.wash};border-radius:12px">
-      <p style="margin:0 0 6px;font-size:13px;color:${BRAND.muted}">How we got to ${e.rate}%: of the ${who}, we estimate ${e.low}% to ${e.high}% became customers, so about ${t.estimatedCustomers} (likely ${t.customersLow} to ${t.customersHigh}). The reasons:</p>
-      <ul style="margin:0 0 8px;padding-left:18px;font-size:13px;color:${BRAND.muted}">${reasons}</ul>
-      <p style="margin:0;font-size:13px;color:${BRAND.muted}">Know your real number? Reply with it and we will use that from now on.</p>
+    <div class="ax-box" style="margin:22px 0 0;padding:14px 16px;background:${BRAND.wash};border-radius:12px">
+      <p class="ax-muted" style="margin:0 0 6px;font-size:13px;color:${BRAND.muted}">How we got to ${e.rate}%: of the ${who}, we estimate ${e.low}% to ${e.high}% became customers, so about ${t.estimatedCustomers} (likely ${t.customersLow} to ${t.customersHigh}). The reasons:</p>
+      <ul class="ax-muted" style="margin:0 0 8px;padding-left:18px;font-size:13px;color:${BRAND.muted}">${reasons}</ul>
+      <p class="ax-muted" style="margin:0;font-size:13px;color:${BRAND.muted}">Know your real number? Reply with it and we will use that from now on.</p>
     </div>
   `;
 }
@@ -777,19 +805,19 @@ export function renderMonthlyReportEmail(input: MonthlyReportEmailInput): { subj
   const headerHtml = `
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr>
       <td style="vertical-align:middle">${brandLogo('PROOF')}</td>
-      <td style="vertical-align:middle;text-align:right"><span style="display:inline-block;padding:6px 12px;border-radius:999px;background:rgba(96,165,250,.16);color:${BRAND.blueSoft};font-size:12px;font-weight:700;letter-spacing:.04em">${escapeHtml(input.monthLabel)}</span></td>
+      <td style="vertical-align:middle;text-align:right"><span class="ax-pill ax-blue" style="display:inline-block;padding:6px 12px;border-radius:999px;background:${BRAND.blueTint};color:${BRAND.blueDeep};font-size:12px;font-weight:700;letter-spacing:.04em">${escapeHtml(input.monthLabel)}</span></td>
     </tr></table>
-    <h1 style="margin:26px 0 0;font-family:${FONT};font-size:28px;line-height:1.15;font-weight:800;letter-spacing:-.02em;color:#ffffff">Here is what Axeon did for you in ${escapeHtml(input.monthLabel)}.</h1>
-    <p style="margin:14px 0 0;font-family:${FONT};font-size:16px;line-height:1.5;color:rgba(255,255,255,.82)">${escapeHtml(headline)}</p>
+    <h1 class="ax-ink" style="margin:26px 0 0;font-family:${FONT};font-size:28px;line-height:1.15;font-weight:800;letter-spacing:-.02em;color:${BRAND.ink}">Here is what Axeon did for you in ${escapeHtml(input.monthLabel)}.</h1>
+    <p class="ax-body" style="margin:14px 0 0;font-family:${FONT};font-size:16px;line-height:1.5;color:${BRAND.body}">${escapeHtml(headline)}</p>
   `;
   const bodyHtml = `
-    <p style="margin:0 0 14px;font-size:15px;color:${BRAND.body}">${firstName(input.clientName)}</p>
+    <p class="ax-body" style="margin:10px 0 14px;font-size:15px;color:${BRAND.body}">${firstName(input.clientName)}</p>
     ${rTiles(input.stats)}
-    ${input.note ? rPara(input.note, `margin-top:6px;font-weight:600;color:${BRAND.ink}`) : ''}
+    ${input.note ? rPara(input.note, 'margin-top:6px;font-weight:600', 'ax-ink') : ''}
     ${wins.length ? rH2("This month's wins") + rWins(wins) : ''}
     ${rH2('What Axeon did this month')}
     ${didSomething ? rSteps(input.done) : ''}
-    ${input.tier ? `<p style="margin:0 0 12px;font-size:13px;line-height:1.5;color:${BRAND.muted}">${escapeHtml(alwaysOnSentence(input.tier))}</p>` : ''}
+    ${input.tier ? `<p class="ax-muted" style="margin:0 0 12px;font-size:13px;line-height:1.5;color:${BRAND.muted}">${escapeHtml(alwaysOnSentence(input.tier))}</p>` : ''}
     ${t ? producedSections(t) : ''}
     ${t ? audienceSections(t) : ''}
     ${input.next.length ? rH2('What we are doing next month') + rSteps(input.next) : ''}
@@ -800,9 +828,9 @@ export function renderMonthlyReportEmail(input: MonthlyReportEmailInput): { subj
   const footerHtml = `
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr>
       <td style="vertical-align:middle">${brandLogo()}</td>
-      <td style="vertical-align:middle;text-align:right;font-family:${FONT};font-size:14px;font-weight:800;color:#ffffff;letter-spacing:-.01em">${TAGLINE}</td>
+      <td class="ax-ink" style="vertical-align:middle;text-align:right;font-family:${FONT};font-size:14px;font-weight:800;color:${BRAND.ink};letter-spacing:-.01em">${TAGLINE}</td>
     </tr></table>
-    <p style="margin:14px 0 0;font-family:${FONT};font-size:13px;color:rgba(255,255,255,.6)">Questions? Reply to this email or call <a href="tel:+15154938017" style="color:${BRAND.blueSoft};text-decoration:none">(515) 493-8017</a>.</p>
+    <p class="ax-muted" style="margin:14px 0 0;font-family:${FONT};font-size:13px;color:${BRAND.muted}">Questions? Reply to this email or call <a class="ax-blue" href="tel:+15154938017" style="color:${BRAND.blue};text-decoration:none">(515) 493-8017</a>.</p>
   `;
   return { subject, html: brandDocument({ subject, headerHtml, bodyHtml, footerHtml }) };
 }
