@@ -322,7 +322,7 @@ export function Hero() {
 
           <div
             style={{ animationDelay: '0.35s' }}
-            className="hero-rise mt-8 hidden sm:block"
+            className="hero-rise mt-6 sm:mt-8"
           >
             <TrustBadges variant="dark" size="lg" />
           </div>

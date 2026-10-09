@@ -21,13 +21,14 @@ export function TrustBadges({ variant = 'dark', size = 'md' }: TrustBadgesProps)
   const iconClass = variant === 'dark' ? 'text-blue-400' : 'text-blue-600';
 
   return (
-    <div className={`flex flex-wrap items-center ${isLg ? 'gap-x-7 gap-y-3' : 'gap-x-5 gap-y-2'}`}>
+    // lg: stacked on phones, one row from sm up (sized to fit the hero's max-w-3xl column)
+    <div className={isLg ? 'flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-y-2.5 sm:gap-x-6 sm:gap-y-3' : 'flex flex-wrap items-center gap-x-5 gap-y-2'}>
       {BADGES.map(({ icon: Icon, label }) => (
         <span
           key={label}
-          className={`inline-flex items-center font-medium ${isLg ? 'gap-2 text-sm sm:text-base lg:text-lg' : 'gap-1.5 text-xs sm:text-sm'} ${textClass}`}
+          className={`inline-flex items-center font-medium whitespace-nowrap ${isLg ? 'gap-2 text-sm sm:text-[15px] lg:text-base' : 'gap-1.5 text-xs sm:text-sm'} ${textClass}`}
         >
-          <Icon size={isLg ? 20 : 15} className={iconClass} strokeWidth={2.2} />
+          <Icon size={isLg ? 18 : 15} className={`shrink-0 ${iconClass}`} strokeWidth={2.2} />
           {label}
         </span>
       ))}
