@@ -821,6 +821,15 @@ export interface MonthlyReportEmailInput {
   fromYou: string;
   note: string;
   proofUrl: string;
+  /** /f/<token> for this client and month (lib/feedback.ts). Omitted when no secret is configured. */
+  feedbackUrl?: string | null;
+}
+
+/** "Was this report useful? Yes · Sort of · No": three one-tap links, recorded on arrival. */
+export function feedbackLine(url: string): string {
+  const link = (r: 'yes' | 'sortof' | 'no', label: string) =>
+    `<a href="${url}?r=${r}" style="color:${BRAND.blueText};font-weight:700;text-decoration:underline">${label}</a>`;
+  return `<p class="ax-muted" style="margin:0 0 22px;font-family:${FONT};font-size:13px;color:${BRAND.muted}">Was this report useful? ${link('yes', 'Yes')} &nbsp;·&nbsp; ${link('sortof', 'Sort of')} &nbsp;·&nbsp; ${link('no', 'No')}</p>`;
 }
 
 /**
@@ -866,6 +875,7 @@ export function renderMonthlyReportEmail(input: MonthlyReportEmailInput): { subj
     ${input.fromYou ? rH2('One thing we need from you') + rPara(input.fromYou) : ''}
     ${t ? closeRateNote(t) : ''}
     <div style="margin:26px 0 20px">${rButton(input.proofUrl, 'See it all in AxeonPROOF')}</div>
+    ${input.feedbackUrl ? feedbackLine(input.feedbackUrl) : ''}
   `;
   const footerHtml = `
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr>
@@ -880,6 +890,75 @@ export function renderMonthlyReportEmail(input: MonthlyReportEmailInput): { subj
 export async function sendMonthlyReportEmail(input: MonthlyReportEmailInput): Promise<void> {
   const { subject, html } = renderMonthlyReportEmail(input);
   await sendChecked(requireClient(), { from: CLIENT_FROM_ADDRESS, replyTo: CLIENT_REPLY_TO, to: input.to, subject, html });
+}
+
+const OWNER_NAME = process.env.OWNER_NAME || 'Hayder';
+
+/**
+ * A short personal note from the owner, sent once at day 30 and once at day 90
+ * (lib/clientNotes.ts). Plain paragraphs on purpose: it should read like a
+ * person typed it. Returns false when mail is not configured.
+ */
+export async function sendClientNoteEmail(input: {
+  to: string;
+  clientName: string | null;
+  businessName: string | null;
+  kind: 'note30' | 'note90';
+  feedbackUrl: string | null;
+}): Promise<boolean> {
+  const resend = getClient();
+  if (!resend) return false;
+  const business = input.businessName?.trim() || 'your business';
+  const link = (label: string) => (input.feedbackUrl ? `<a href="${input.feedbackUrl}" style="color:#2563eb">${label}</a>` : label);
+  const p = (s: string) => `<p style="margin:0 0 14px">${s}</p>`;
+  const subject = input.kind === 'note30' ? 'One month in. How is it going?' : 'Three months in. Would you recommend us?';
+  const body =
+    input.kind === 'note30'
+      ? [
+          p(firstName(input.clientName)),
+          p(`${escapeHtml(business)} has been live with us for about a month. Anything about the site, the numbers, or how we are working together that feels off?`),
+          p(`Reply to this email with one line, or ${link('tell me here')}. If everything is fine, that is good to hear too.`),
+          p(`${escapeHtml(OWNER_NAME)}<br>Axeon`),
+        ]
+      : [
+          p(firstName(input.clientName)),
+          p(`It has been three months since ${escapeHtml(business)} went live. One honest question: would you recommend Axeon to another business owner?`),
+          p(`If yes, a Google review would mean a lot, and if you reply I will send you the link. If not, ${link('tell me why in one sentence')} and I will fix it.`),
+          p(`${escapeHtml(OWNER_NAME)}<br>Axeon`),
+        ];
+  await sendChecked(resend, {
+    from: CLIENT_FROM_ADDRESS,
+    replyTo: CLIENT_REPLY_TO,
+    to: input.to,
+    subject,
+    html: `<div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#0a0a0a;font-size:15px;line-height:1.55">${body.join('')}</div>`,
+  });
+  return true;
+}
+
+/** To the owner: a client tapped "No" or wrote a sentence (lib/feedback.ts). Never for a plain "Yes". */
+export async function sendFeedbackNotification(input: {
+  businessName: string;
+  token: string;
+  kind: 'report' | 'note30' | 'note90';
+  month: string | null;
+  rating: 'yes' | 'sortof' | 'no' | null;
+  comment: string | null;
+}): Promise<void> {
+  const resend = getClient();
+  if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
+  const what = input.kind === 'report' ? `the ${input.month ?? ''} report`.replace('the  report', 'the report') : input.kind === 'note30' ? 'your day-30 note' : 'your day-90 note';
+  const ratingText = input.rating === 'no' ? 'said it was not useful' : input.rating === 'sortof' ? 'said "sort of"' : input.rating === 'yes' ? 'said yes' : 'replied';
+  await sendChecked(resend, {
+    from: FROM_ADDRESS,
+    to: ADMIN_NOTIFICATION_EMAIL,
+    subject: `${input.businessName} ${input.comment ? 'left a note' : ratingText} on ${what}`,
+    html: `
+      <p><b>${escapeHtml(input.businessName)}</b> ${ratingText} on ${escapeHtml(what)}.</p>
+      ${input.comment ? `<blockquote style="margin:12px 0;padding:10px 14px;border-left:3px solid #2563eb;background:#f4f6fa">${escapeHtml(input.comment)}</blockquote>` : ''}
+      <p><a href="https://app.axeonstudio.co/admin/onboarding/${input.token}">Open their page</a> (the Feedback card keeps every answer).</p>
+    `,
+  });
 }
 
 /** Owner digest after the 1st-of-the-month job: who got a report, who was skipped and why. */

@@ -5,6 +5,7 @@ import { Check, Copy, Send, Trash2 } from 'lucide-react';
 import { adminInput, adminLabel, btn } from '@/components/admin/ui';
 import type { MonthlyReport, ProjectDetails, ProjectUpdate } from '@/lib/projects';
 import type { TrackingOverview } from '@/lib/siteStats';
+import { KIND_LABELS, RATING_LABELS, type FeedbackEntry } from '@/lib/feedbackShared';
 import { UPDATE_STATUSES, UPDATE_TYPES, buttonLabel, linesToText, monthLabel, type TrafficSummary } from '@/lib/projectsShared';
 
 interface Data {
@@ -12,6 +13,10 @@ interface Data {
   updates: ProjectUpdate[];
   reports: MonthlyReport[];
   tracking: TrackingOverview;
+  /** What the client told us (lib/feedback.ts), newest first. */
+  feedback: FeedbackEntry[];
+  /** When the owner's day-30 and day-90 notes went out (lib/clientNotes.ts). */
+  notes: { note30SentAt: string | null; note90SentAt: string | null };
 }
 
 type Notice = { ok: boolean; text: string } | null;
@@ -42,7 +47,14 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
       setNotice({ ok: false, text: json.error ?? 'Something went wrong.' });
       return false;
     }
-    setData({ details: json.details, updates: json.updates ?? [], reports: json.reports ?? [], tracking: json.tracking ?? data.tracking });
+    setData({
+      details: json.details,
+      updates: json.updates ?? [],
+      reports: json.reports ?? [],
+      tracking: json.tracking ?? data.tracking,
+      feedback: json.feedback ?? data.feedback,
+      notes: json.notes ?? data.notes,
+    });
     setNotice(
       json.emailError
         ? { ok: false, text: key === 'auto-report' ? `Not sent: ${json.emailError}` : `Saved, but the email failed: ${json.emailError}` }
@@ -434,6 +446,47 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
             </ul>
           )}
         </form>
+      </div>
+
+      <div className={card}>
+        <h3 className="font-bold text-neutral-950">Feedback</h3>
+        <p className="mt-1 text-sm text-neutral-600">
+          Every &ldquo;Was this report useful?&rdquo; tap and sentence, and replies to the day-30 and day-90 notes. A &ldquo;No&rdquo; or a sentence also
+          emails you the moment it lands.
+        </p>
+        <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+          <dt className="text-neutral-500">Day-30 note</dt>
+          <dd className="font-semibold text-neutral-950">{data.notes.note30SentAt ? `sent ${new Date(data.notes.note30SentAt).toLocaleDateString('en-US')}` : 'not yet'}</dd>
+          <dt className="text-neutral-500">Day-90 note</dt>
+          <dd className="font-semibold text-neutral-950">{data.notes.note90SentAt ? `sent ${new Date(data.notes.note90SentAt).toLocaleDateString('en-US')}` : 'not yet'}</dd>
+        </dl>
+        {data.feedback.length ? (
+          <ul className="mt-4 divide-y divide-neutral-100 border-t border-neutral-100">
+            {data.feedback.map((f) => (
+              <li key={f.id} className="py-3">
+                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm">
+                  <span className="font-semibold text-neutral-950">
+                    {KIND_LABELS[f.kind]}
+                    {f.month ? ` · ${monthLabel(f.month)}` : ''}
+                  </span>
+                  {f.rating ? (
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                        f.rating === 'yes' ? 'bg-emerald-100 text-emerald-800' : f.rating === 'no' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'
+                      }`}
+                    >
+                      {RATING_LABELS[f.rating]}
+                    </span>
+                  ) : null}
+                  <span className="text-xs text-neutral-500">{new Date(f.createdAt).toLocaleDateString('en-US')}</span>
+                </div>
+                {f.comment ? <p className="mt-1 text-sm text-neutral-700">&ldquo;{f.comment}&rdquo;</p> : null}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-4 text-sm text-neutral-500">Nothing yet. The first answers arrive with the first report.</p>
+        )}
       </div>
     </section>
   );

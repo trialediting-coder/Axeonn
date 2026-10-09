@@ -599,3 +599,46 @@ test('the report tile and email note explain where a marked rate came from', asy
   assert.match(note, /marked 3 so far \(2 became customers\)/);
   assert.doesNotMatch(note, /conversion/i);
 });
+
+// ---- feedback links and the owner's notes --------------------------------------
+
+test('feedback tokens round-trip, reject tampering, and the report carries the three links', async () => {
+  const { feedbackToken, readFeedbackToken } = await import('./feedback');
+  const { renderMonthlyReportEmail } = await import('./email');
+  const { sampleMonthlyReportInput } = await import('./sampleReport');
+  const key = 'test-secret';
+  const t = feedbackToken({ onboardingId: 12, kind: 'report', month: '2026-09' }, key);
+  assert.match(t, /^12\.report\.2026-09\.[0-9a-f]{24}$/);
+  assert.deepEqual(readFeedbackToken(t, key), { onboardingId: 12, kind: 'report', month: '2026-09' });
+  assert.deepEqual(readFeedbackToken(feedbackToken({ onboardingId: 3, kind: 'note30', month: null }, key), key), { onboardingId: 3, kind: 'note30', month: null });
+  assert.equal(readFeedbackToken(t.replace('12.', '13.'), key), null, 'another client id fails the signature');
+  assert.equal(readFeedbackToken(t, 'other-secret'), null, 'another secret fails');
+  assert.equal(readFeedbackToken('12.report.2026-09', key), null, 'no signature');
+  assert.equal(feedbackToken({ onboardingId: 1, kind: 'report', month: '2026-09' }, ''), '', 'no secret, no link');
+  const { html } = renderMonthlyReportEmail({ ...sampleMonthlyReportInput('a@b.c'), feedbackUrl: 'https://axeonstudio.co/f/x' });
+  assert.match(html, /Was this report useful\?/);
+  for (const r of ['yes', 'sortof', 'no']) assert.match(html, new RegExp(`href="https://axeonstudio.co/f/x\\?r=${r}"`));
+  const { html: without } = renderMonthlyReportEmail({ ...sampleMonthlyReportInput('a@b.c'), feedbackUrl: null });
+  assert.doesNotMatch(without, /Was this report useful/);
+});
+
+test("the owner's notes are due at day 30 and day 90 after launch, once each, never for quiet or closed clients", async () => {
+  const { noteDue, launchDate } = await import('./clientNotes');
+  const DAY = 86_400_000;
+  const live = { status: 'active' as const, welcomeSentAt: '2026-06-01T00:00:00Z', createdAt: '2026-05-20T00:00:00Z' };
+  const d = { kickoffAt: '2026-06-01', targetLaunchAt: '2026-06-20' };
+  const launch = launchDate(live, d);
+  const none = { note30SentAt: null, note90SentAt: null };
+  assert.equal(noteDue(live, d, none, launch + 10 * DAY), null);
+  assert.equal(noteDue(live, d, none, launch + 30 * DAY), 'note30');
+  assert.equal(noteDue(live, d, none, launch + 45 * DAY), 'note30');
+  assert.equal(noteDue(live, d, { ...none, note30SentAt: 'x' }, launch + 45 * DAY), null, 'sent once');
+  assert.equal(noteDue(live, d, none, launch + 70 * DAY), null, 'missed the window: skipped, not sent late');
+  assert.equal(noteDue(live, d, none, launch + 90 * DAY), 'note90');
+  assert.equal(noteDue(live, d, { ...none, note90SentAt: 'x' }, launch + 100 * DAY), null);
+  assert.equal(noteDue({ ...live, welcomeSentAt: null }, d, none, launch + 30 * DAY), null, 'quiet client');
+  assert.equal(noteDue({ ...live, status: 'closed' }, d, none, launch + 30 * DAY), null, 'closed client');
+  // Without project dates, launch is the sign-up day.
+  assert.equal(launchDate(live, { kickoffAt: null, targetLaunchAt: null }), new Date(live.createdAt).getTime());
+  assert.equal(noteDue(live, { kickoffAt: null, targetLaunchAt: null }, none, new Date(live.createdAt).getTime() + 31 * DAY), 'note30');
+});

@@ -19,6 +19,8 @@ import { getOnboardingByToken, type Onboarding } from '@/lib/onboarding';
 import { sendAutoReport } from '@/lib/autoReports';
 import { getTrackingSettings, hasTraffic, isValidMonth, setLeadOutcome, setTrackingSettings, trackingOverview, validateAvgJobValue, validateCloseRate, validateCloseRateMode, validateSiteUrl } from '@/lib/siteStats';
 import { isLeadOutcome } from '@/lib/projectsShared';
+import { feedbackUrl, listFeedback } from '@/lib/feedback';
+import { noteStatus } from '@/lib/clientNotes';
 import {
   createProjectUpdate,
   deleteMonthlyReport,
@@ -50,13 +52,15 @@ async function load(token: string): Promise<Onboarding> {
 }
 
 async function present(onboardingId: number) {
-  const [details, updates, reports, tracking] = await Promise.all([
+  const [details, updates, reports, tracking, feedback, notes] = await Promise.all([
     getProjectDetails(onboardingId),
     listProjectUpdates(onboardingId),
     listMonthlyReports(onboardingId),
     trackingOverview(onboardingId),
+    listFeedback(onboardingId),
+    noteStatus(onboardingId),
   ]);
-  return { details, updates, reports, tracking };
+  return { details, updates, reports, tracking, feedback, notes };
 }
 
 export async function GET(req: Request, ctx: { params: Promise<{ token: string }> }) {
@@ -122,6 +126,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
             fromYou: report.fromYou,
             note: report.note,
             proofUrl: PROOF_URL,
+            feedbackUrl: feedbackUrl({ onboardingId: onboarding.id, kind: 'report', month: report.month }),
           });
           await markReportEmailed(report.id);
         } catch (err) {

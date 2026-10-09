@@ -275,6 +275,25 @@ export function ensureSchema(): Promise<void> {
       await sql`ALTER TABLE site_events ADD COLUMN IF NOT EXISTS outcome_at TIMESTAMPTZ;`;
       // When the owner was last told this client's tracker went quiet (lib/trackerHealth.ts).
       await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS tracker_alerted_at TIMESTAMPTZ;`;
+      // Client feedback (lib/feedback.ts): the "Was this report useful?" tap at the end
+      // of the monthly report and the sentence box behind it, plus replies to the
+      // owner's day-30 / day-90 notes (lib/clientNotes.ts). One row per client, kind
+      // and month; a later tap or sentence updates the row.
+      await sql`
+        CREATE TABLE IF NOT EXISTS client_feedback (
+          id SERIAL PRIMARY KEY,
+          onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+          kind TEXT NOT NULL CHECK (kind IN ('report', 'note30', 'note90')),
+          month TEXT,
+          month_key TEXT GENERATED ALWAYS AS (coalesce(month, '-')) STORED,
+          rating TEXT CHECK (rating IN ('yes', 'sortof', 'no')),
+          comment TEXT,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          UNIQUE (onboarding_id, kind, month_key)
+        );
+      `;
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS note30_sent_at TIMESTAMPTZ;`;
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS note90_sent_at TIMESTAMPTZ;`;
       // The call deck (/admin/calls, lib/callLeads.ts): prospects imported from the
       // Iowa detailer spreadsheet, plus the owner's notes and call outcomes.
       await sql`

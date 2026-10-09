@@ -4,7 +4,8 @@
     { "path": "/api/cron/publish-scheduled", "schedule": "0 13 * * *" },
     { "path": "/api/cron/onboarding-nudges", "schedule": "0 15 * * *" },
     { "path": "/api/cron/monthly-reports", "schedule": "0 14 1 * *" },
-    { "path": "/api/cron/tracker-health", "schedule": "30 13 * * *" }
+    { "path": "/api/cron/tracker-health", "schedule": "30 13 * * *" },
+    { "path": "/api/cron/client-notes", "schedule": "0 16 * * *" }
   ],
   "redirects": [
     { "source": "/pay", "destination": "/book", "permanent": false },
