@@ -53,6 +53,11 @@ export interface TrafficSummary {
   detail?: TrafficDetail | null;
   /** Present when closeRate was estimated from the data rather than typed in. */
   closeRateEstimate?: CloseRateEstimate | null;
+  /** Leads the client marked in AxeonPROOF this month: became a customer / did not. */
+  markedWon?: number;
+  markedLost?: number;
+  /** Present when closeRate is the client's own rate from marked leads, not an estimate. */
+  observedCloseRate?: ObservedCloseRate | null;
   /** Likely range for estimatedCustomers, from the estimate's low and high rates. */
   customersLow?: number;
   customersHigh?: number;
@@ -62,6 +67,38 @@ export interface TrafficSummary {
  * How the close rate was arrived at, so the email and dashboard can show the
  * reasoning. `rate` is the headline figure; `low`..`high` is the likely range.
  */
+/** Marked leads needed before the client's own close rate replaces the estimate. */
+export const OBSERVED_MIN_MARKED = 5;
+/** How far back marked leads count towards that rate. */
+export const OBSERVED_MONTHS = 6;
+
+/** The client's real close rate, from the leads they marked over the last OBSERVED_MONTHS. */
+export interface ObservedCloseRate {
+  rate: number;
+  won: number;
+  lost: number;
+  months: number;
+}
+
+export type LeadOutcome = 'won' | 'lost';
+export const isLeadOutcome = (v: unknown): v is LeadOutcome => v === 'won' || v === 'lost';
+
+/** One person reaching out: a contact click, with the campaign behind the visit when there was one. */
+export interface LeadRow {
+  id: number;
+  /** ISO time. */
+  at: string;
+  /** call, text, email, form, book, directions, google-business. */
+  name: string;
+  path: string | null;
+  device: string | null;
+  city: string | null;
+  utm_source: string | null;
+  utm_medium: string | null;
+  utm_campaign: string | null;
+  outcome: LeadOutcome | null;
+}
+
 export interface CloseRateEstimate {
   rate: number;
   low: number;

@@ -22,5 +22,5 @@ export default async function ProofPage() {
     );
   }
 
-  return <ProofDashboard email={account.email} {...(await loadDashboardData(onboarding))} />;
+  return <ProofDashboard email={account.email} {...(await loadDashboardData(onboarding))} leadApi="/api/proof/leads" />;
 }

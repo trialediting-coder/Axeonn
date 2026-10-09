@@ -269,6 +269,12 @@ export function ensureSchema(): Promise<void> {
       await sql`ALTER TABLE site_events DROP CONSTRAINT IF EXISTS site_events_kind_check;`;
       await sql`ALTER TABLE site_events ADD CONSTRAINT site_events_kind_check CHECK (kind IN ('view', 'click', 'leave'));`;
       await sql`CREATE INDEX IF NOT EXISTS site_events_visitor_idx ON site_events (onboarding_id, visitor, created_at);`;
+      // Lead outcomes (2026-10-09, lib/siteStats.ts setLeadOutcome): the client taps
+      // "Customer" or "Not" on a lead in AxeonPROOF. Only contact clicks carry one.
+      await sql`ALTER TABLE site_events ADD COLUMN IF NOT EXISTS outcome TEXT CHECK (outcome IN ('won', 'lost'));`;
+      await sql`ALTER TABLE site_events ADD COLUMN IF NOT EXISTS outcome_at TIMESTAMPTZ;`;
+      // When the owner was last told this client's tracker went quiet (lib/trackerHealth.ts).
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS tracker_alerted_at TIMESTAMPTZ;`;
       // The call deck (/admin/calls, lib/callLeads.ts): prospects imported from the
       // Iowa detailer spreadsheet, plus the owner's notes and call outcomes.
       await sql`

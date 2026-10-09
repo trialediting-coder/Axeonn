@@ -555,3 +555,47 @@ test("Axeon's own site key is a valid tracker key and the tracker honours data-h
   const layout = readFileSync(new URL('../app/layout.tsx', import.meta.url), 'utf8');
   assert.match(layout, /src="\/t\.js" data-site=\{SELF_SITE_KEY\} data-host=\{SELF_SITE_HOST\}/, 'the site loads its own tracker');
 });
+
+// ---- lead outcomes and the client's own close rate ------------------------------
+
+test('marked leads are counted as facts and the rate applies only to the rest', () => {
+  const base = { views: 400, visitors: 180, clicks: 12, buttons: [{ name: 'call', count: 10 }], pages: [], sources: [] };
+  const plain = summarize({ ...base, closeRate: null });
+  const marked = summarize({ ...base, closeRate: null, marked: { won: 3, lost: 2 } });
+  assert.equal(marked.conversions, plain.conversions, 'marking never changes who reached out');
+  assert.equal(marked.closeRate, plain.closeRate, 'under 5 marked, the estimate still sets the rate');
+  assert.equal(marked.markedWon, 3);
+  assert.equal(marked.markedLost, 2);
+  const unmarked = plain.conversions - 5;
+  assert.equal(marked.estimatedCustomers, 3 + Math.round((unmarked * plain.closeRate) / 100));
+  assert.ok(marked.customersLow! >= 3, 'the low end can never drop below the confirmed customers');
+  assert.equal(marked.observedCloseRate, null);
+});
+
+test("the client's observed close rate replaces the estimate, but never a typed-in rate", () => {
+  const base = { views: 400, visitors: 180, clicks: 12, buttons: [{ name: 'call', count: 10 }], pages: [], sources: [] };
+  const observed = { rate: 60, won: 6, lost: 4, months: 6 };
+  const own = summarize({ ...base, closeRate: null, observed, marked: { won: 1, lost: 0 } });
+  assert.equal(own.closeRate, 60);
+  assert.equal(own.closeRateEstimate, null, 'no estimate when the client told us their rate');
+  assert.deepEqual(own.observedCloseRate, observed);
+  assert.equal(own.estimatedCustomers, 1 + Math.round(((own.conversions - 1) * 60) / 100));
+  assert.equal(own.customersLow, undefined);
+  const manual = summarize({ ...base, closeRate: 25, observed });
+  assert.equal(manual.closeRate, 25, 'a rate typed in by the admin wins');
+  assert.equal(manual.observedCloseRate, null);
+});
+
+test('the report tile and email note explain where a marked rate came from', async () => {
+  const { reportStats } = await import('./projects');
+  const { closeRateNote } = await import('./email');
+  const base = { views: 400, visitors: 180, clicks: 12, buttons: [{ name: 'call', count: 10 }], pages: [], sources: [] };
+  const t = summarize({ ...base, closeRate: null, observed: { rate: 60, won: 6, lost: 4, months: 6 }, marked: { won: 2, lost: 1 } });
+  const tile = reportStats({ ...emptyReportBody(), traffic: t }, null, { kickoffAt: null, targetLaunchAt: null, baselineCalls: null, baselineLeads: null, baselineKeyword: '', baselineRank: null }).find((s) => s.label === 'Estimated new customers')!;
+  assert.match(tile.sub!, /2 confirmed by you/);
+  assert.match(tile.sub!, /60% close rate from the leads you marked/);
+  const note = closeRateNote(t);
+  assert.match(note, /you told us 6 of the 10 leads you marked/);
+  assert.match(note, /marked 3 so far \(2 became customers\)/);
+  assert.doesNotMatch(note, /conversion/i);
+});

@@ -21,6 +21,7 @@ import {
   Users,
 } from 'lucide-react';
 import { AxeonLogo } from '@/components/brand/AxeonLogo';
+import { LeadLog, type LeadMonth } from '@/components/proof/LeadLog';
 import type { OnboardingItem } from '@/data/onboardingItems';
 import type { ItemState, Onboarding, Progress } from '@/lib/onboarding';
 import type { MonthlyReport, ProjectDetails, ProjectUpdate } from '@/lib/projects';
@@ -58,11 +59,15 @@ function webMetric(key: WebKey, t: TrafficSummary, prev: TrafficSummary | null, 
   const value = key === 'estimatedCustomers' ? `~${now}` : String(now);
   const before = prev?.[key] ?? null;
   const worth = avgJobValue && t.estimatedCustomers > 0 ? `about $${Math.round(t.estimatedCustomers * avgJobValue).toLocaleString('en-US')} in work · ` : '';
+  const confirmed = t.markedWon ? `${t.markedWon} confirmed by you · ` : '';
   const estimateSub =
     worth +
-    (t.closeRateEstimate && t.customersLow != null && t.customersHigh != null && t.conversions > 0
-      ? `likely ${t.customersLow} to ${t.customersHigh} · ${t.closeRate}% close rate`
-      : `${t.closeRate}% of who reached out`);
+    confirmed +
+    (t.observedCloseRate
+      ? `${t.closeRate}% close rate from your marked leads`
+      : t.closeRateEstimate && t.customersLow != null && t.customersHigh != null && t.conversions > 0
+        ? `likely ${t.customersLow} to ${t.customersHigh} · ${t.closeRate}% close rate`
+        : `${t.closeRate}% of who reached out`);
   if (key === 'estimatedCustomers') return { value, sub: estimateSub, tone: 'neutral' as const };
   if (key === 'conversions' && t.assistedContacts) {
     return { value, sub: `${t.directContacts} on the site · ~${t.assistedContacts} likely called after reading the number`, tone: 'neutral' as const };
@@ -150,6 +155,8 @@ export function ProofDashboard({
   agreementUrl,
   preview = null,
   avgJobValue = null,
+  leads = [],
+  leadApi = null,
 }: {
   email: string;
   onboarding: Onboarding;
@@ -168,6 +175,10 @@ export function ProofDashboard({
   preview?: { label: string; backHref: string } | null;
   /** Average job in dollars, when the client has told us; turns estimated customers into a dollar figure. */
   avgJobValue?: number | null;
+  /** This month's and last month's leads (lib/siteStats.ts leadRows), newest first. */
+  leads?: LeadMonth[];
+  /** Where the Customer / Not taps post: the client's own API, or the admin API from View as client. */
+  leadApi?: string | null;
 }) {
   const latest = reports[0] ?? null;
   const prev = reports[1] ?? null;
@@ -312,6 +323,8 @@ export function ProofDashboard({
             })}
           </div>
         ) : null}
+
+        {leads.some((m) => m.rows.length > 0) ? <LeadLog months={leads} api={leadApi} /> : null}
 
         <div className={`${traffic ? 'mt-4' : 'mt-6'} grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4`}>
           {METRICS.map(({ key, label, icon: Icon, hint }) => {
