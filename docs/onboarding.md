@@ -251,6 +251,29 @@ a client has marked five or more leads in the last six months, their own rate
 rate is on Auto; a rate typed in by hand still wins. The report tile and the
 "How we got to N%" note say which one was used.
 
+### Feedback: one-tap in the report, two notes from the owner
+
+The report ends with **Was this report useful? Yes · Sort of · No**. Each is a
+link to `/f/<token>` where the token names the client, the kind (`report`,
+`note30`, `note90`) and the month, signed with `TRACKING_SALT` (or
+`AUTH_SECRET`), so there is no login and nothing to guess (`lib/feedback.ts`).
+The tap is recorded on arrival, then the page offers a box for one sentence
+(`POST /api/feedback`). One row per client, kind and month in
+`client_feedback`; a later tap or sentence updates it. A "No" or any sentence
+emails `ADMIN_EMAIL` at once; a plain "Yes" does not.
+
+`/api/cron/client-notes` runs daily (`lib/clientNotes.ts`) and sends two
+plain-text notes signed by `OWNER_NAME`, each once: day 30 after launch
+("anything feel off?") and day 90 ("would you recommend us?", which asks for
+the Google review on a yes). Launch is the project's target launch date, else
+kickoff, else sign-up. A note that misses its 30-day window is skipped, not
+sent late. Quiet clients (no welcome sent) and closed clients never get one.
+Replies go to the client reply-to address; the link in each note lands on the
+same `/f/<token>` page.
+
+Everything shows on the client's admin page in the **Feedback** card: when
+each note went out, and every tap and sentence, newest first.
+
 ### Quiet trackers
 
 `/api/cron/tracker-health` runs daily (`lib/trackerHealth.ts`). A keyed site

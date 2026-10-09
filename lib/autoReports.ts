@@ -22,6 +22,7 @@ import {
   type MonthlyReport,
 } from '@/lib/projects';
 import { effectiveCloseRate, getTrackingSettings, hasTraffic, monthTraffic } from '@/lib/siteStats';
+import { feedbackUrl } from '@/lib/feedback';
 
 export type AutoReportOutcome =
   | { status: 'sent'; report: MonthlyReport }
@@ -115,6 +116,7 @@ export async function sendAutoReport(onboarding: Onboarding, month: string, opts
       fromYou: report.fromYou,
       note: report.note,
       proofUrl: `${APP_ORIGIN}/`,
+      feedbackUrl: feedbackUrl({ onboardingId: onboarding.id, kind: 'report', month }),
     });
     await markReportEmailed(report.id);
     return { status: 'sent', report: { ...report, emailedAt: new Date().toISOString() } };

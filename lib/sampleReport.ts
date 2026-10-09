@@ -150,5 +150,6 @@ export function sampleMonthlyReportInput(to: string): MonthlyReportEmailInput {
     fromYou: report.fromYou,
     note: report.note,
     proofUrl: `${APP_ORIGIN}/`,
+    feedbackUrl: `${APP_ORIGIN}/f/sample`,
   };
 }
