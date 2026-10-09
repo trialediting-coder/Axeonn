@@ -296,6 +296,8 @@ export function ensureSchema(): Promise<void> {
         );
       `;
       await sql`CREATE UNIQUE INDEX IF NOT EXISTS call_leads_key_idx ON call_leads (lower(business), phone);`;
+      await sql`ALTER TABLE call_leads ADD COLUMN IF NOT EXISTS niche TEXT NOT NULL DEFAULT '';`;
+      await sql`ALTER TABLE call_leads ADD COLUMN IF NOT EXISTS contact TEXT NOT NULL DEFAULT '';`;
     })().catch((err) => {
       schemaReady = null; // let the next request retry
       throw err;

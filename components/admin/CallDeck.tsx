@@ -80,10 +80,27 @@ const hostOf = (url: string) => {
   }
 };
 
+// How the script talks about each niche: who we work with, and what their customers type into Google.
+const NICHE_WORDS: Record<string, { who: string; search: string }> = {
+  'auto detailing': { who: 'detailers', search: 'detailing' },
+  dental: { who: 'dental offices', search: 'dentist' },
+  'med spa': { who: 'med spas', search: 'med spa' },
+  hvac: { who: 'HVAC companies', search: 'furnace repair' },
+  roofing: { who: 'roofers', search: 'roofer' },
+  'law firm': { who: 'law firms', search: 'lawyer' },
+  'accounting/cpa': { who: 'accountants', search: 'CPA' },
+  'home remodeling': { who: 'remodelers', search: 'remodeling contractor' },
+  'real estate': { who: 'real estate teams', search: 'realtor' },
+  landscaping: { who: 'landscapers', search: 'landscaping' },
+};
+const nicheWords = (niche: string) => NICHE_WORDS[(niche || 'auto detailing').toLowerCase()] ?? { who: 'local businesses', search: 'near me' };
+const firstName = (contact: string) => contact.trim().split(/[\s,(]/)[0] ?? '';
+
 export function CallDeck({ initialLeads, dbError }: { initialLeads: CallLead[]; dbError: string | null }) {
   const [leads, setLeads] = useState<CallLead[]>(initialLeads);
   const [priorities, setPriorities] = useState<Set<Priority>>(new Set(['A', 'B']));
   const [region, setRegion] = useState('all');
+  const [niche, setNiche] = useState('all');
   const [hideDone, setHideDone] = useState(true);
   const [search, setSearch] = useState('');
   const [currentId, setCurrentId] = useState<number | null>(null);
@@ -113,6 +130,7 @@ export function CallDeck({ initialLeads, dbError }: { initialLeads: CallLead[]; 
   };
 
   const regions = useMemo(() => Array.from(new Set(leads.map((l) => l.region).filter(Boolean))).sort(), [leads]);
+  const niches = useMemo(() => Array.from(new Set(leads.map((l) => l.niche || 'Auto detailing'))).sort(), [leads]);
 
   const queue = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -120,10 +138,11 @@ export function CallDeck({ initialLeads, dbError }: { initialLeads: CallLead[]; 
       (l) =>
         priorities.has(l.priority) &&
         (region === 'all' || l.region === region) &&
+        (niche === 'all' || (l.niche || 'Auto detailing') === niche) &&
         (!hideDone || !DONE.includes(l.outcome)) &&
         (!q || `${l.business} ${l.city} ${l.phone} ${l.notes}`.toLowerCase().includes(q))
     );
-  }, [leads, priorities, region, hideDone, search]);
+  }, [leads, priorities, region, niche, hideDone, search]);
 
   const idx = Math.max(0, currentId === null ? 0 : queue.findIndex((l) => l.id === currentId));
   const lead: CallLead | undefined = queue[idx] ?? queue[0];
@@ -373,6 +392,14 @@ export function CallDeck({ initialLeads, dbError }: { initialLeads: CallLead[]; 
             </option>
           ))}
         </select>
+        <select value={niche} onChange={(e) => setNiche(e.target.value)} className={`${adminInput} h-8 w-auto py-0 text-xs`}>
+          <option value="all">All niches</option>
+          {niches.map((n) => (
+            <option key={n} value={n}>
+              {n}
+            </option>
+          ))}
+        </select>
         <label className="inline-flex items-center gap-2 text-xs font-semibold text-neutral-600 select-none">
           <input type="checkbox" checked={hideDone} onChange={(e) => setHideDone(e.target.checked)} className="h-4 w-4 accent-blue-600" />
           Hide not-a-fit, booked, clients
@@ -412,7 +439,9 @@ export function CallDeck({ initialLeads, dbError }: { initialLeads: CallLead[]; 
                   <MapPin size={14} className="text-neutral-400" />
                   {lead.city || 'City unknown'}
                   {lead.region && <span className="text-neutral-400">· {lead.region}</span>}
+                  <span className="text-neutral-400">· {lead.niche || 'Auto detailing'}</span>
                 </p>
+                {lead.contact && <p className="mt-1 text-sm font-semibold text-neutral-800">Ask for: {lead.contact}</p>}
               </div>
               <div className="text-right text-xs font-semibold text-neutral-500">
                 {idx + 1} of {queue.length}
@@ -555,11 +584,11 @@ export function CallDeck({ initialLeads, dbError }: { initialLeads: CallLead[]; 
           <aside className="rounded-2xl border border-neutral-200 bg-white p-5 text-sm leading-relaxed text-neutral-800 shadow-sm">
             <h3 className="text-xs font-bold uppercase tracking-wide text-neutral-500">Script · sell the outcome, not the site</h3>
             <p className="mt-3">
-              Hey, is this the owner of <b>{lead.business}</b>? This is Hayder, I&apos;m in West Des Moines. Thirty seconds.
+              Hey, is this {firstName(lead.contact) ? <b>{firstName(lead.contact)}</b> : <>the owner of <b>{lead.business}</b></>}? This is Hayder, I&apos;m in West Des Moines. Thirty seconds.
             </p>
             <p className="mt-2">
-              I work with detailers on one thing: more booked jobs from people searching Google. A-1 in Pleasant Hill is #1 on the map now and his 180 reviews finally show up
-              when someone searches.
+              I work with {nicheWords(lead.niche).who} on one thing: more booked jobs from people searching Google. One of mine, A-1 in Pleasant Hill, is #1 on the map now
+              and his 180 reviews finally show up when someone searches.
             </p>
             <p className="mt-2">
               I looked you up.{' '}
@@ -571,8 +600,8 @@ export function CallDeck({ initialLeads, dbError }: { initialLeads: CallLead[]; 
               ) : (
                 <>You&apos;ve got good work out there</>
               )}
-              , and when someone searches &ldquo;{lead.city || 'your town'} detailing&rdquo;{' '}
-              {lead.siteStatus === 'Has website' ? 'your site gives them nowhere to book' : "you're not on the first screen"}, so that work isn&apos;t earning you anything.
+              , and when someone searches &ldquo;{nicheWords(lead.niche).search} {lead.city || 'near me'}&rdquo;{' '}
+              {lead.siteStatus === 'Has website' || lead.siteStatus === 'Decent' ? 'your site gives them nowhere to book' : "you're not on the first screen"}, so that work isn&apos;t earning you anything.
             </p>
             <p className="mt-2 font-semibold text-blue-900">Quick question: when someone finds you today, where do they go? Facebook?</p>
             <p className="mt-2">
@@ -588,7 +617,7 @@ export function CallDeck({ initialLeads, dbError }: { initialLeads: CallLead[]; 
                 <b>&ldquo;I already have a website.&rdquo;</b> Does it tell you how many calls it made last month? If not, you&apos;re paying for a brochure.
               </li>
               <li>
-                <b>&ldquo;I&apos;m busy enough.&rdquo;</b> Then it&apos;s price, not volume. #1 with your reviews lets you charge more and skip the $60 washes.
+                <b>&ldquo;I&apos;m busy enough.&rdquo;</b> Then it&apos;s price, not volume. #1 with your reviews lets you charge more and skip the low-dollar jobs.
               </li>
               <li>
                 <b>&ldquo;How much?&rdquo;</b> $299 a month, ninety days to show more booked jobs or you stop paying. Only after they&apos;ve said what a job is worth.

@@ -17,6 +17,8 @@ export interface CallLead {
   business: string;
   city: string;
   region: string;
+  niche: string;
+  contact: string;
   phone: string;
   website: string;
   siteStatus: string;
@@ -39,6 +41,8 @@ interface Row {
   business: string;
   city: string;
   region: string;
+  niche: string;
+  contact: string;
   phone: string;
   website: string;
   site_status: string;
@@ -61,6 +65,8 @@ const toLead = (r: Row): CallLead => ({
   business: r.business,
   city: r.city,
   region: r.region,
+  niche: r.niche ?? '',
+  contact: r.contact ?? '',
   phone: r.phone,
   website: r.website,
   siteStatus: r.site_status,
@@ -130,6 +136,8 @@ export interface ImportRow {
   business: string;
   city: string;
   region: string;
+  niche: string;
+  contact: string;
   phone: string;
   website: string;
   siteStatus: string;
@@ -188,6 +196,8 @@ const HEADER_ALIASES: Record<keyof ImportRow, string[]> = {
   business: ['business', 'name', 'company'],
   city: ['city'],
   region: ['region'],
+  niche: ['niche', 'industry', 'vertical'],
+  contact: ['contact', 'key contact', 'owner'],
   phone: ['phone'],
   website: ['website', 'url', 'domain'],
   siteStatus: ['site status', 'site_status', 'website status'],
@@ -231,6 +241,8 @@ export function csvToImportRows(text: string): ImportRow[] {
       business: business.slice(0, 200),
       city: get(r, 'city').slice(0, 100),
       region: get(r, 'region').slice(0, 100),
+      niche: get(r, 'niche').slice(0, 60),
+      contact: get(r, 'contact').slice(0, 120),
       phone: get(r, 'phone').slice(0, 40),
       website: get(r, 'website').slice(0, 500),
       siteStatus: get(r, 'siteStatus').slice(0, 60),
@@ -257,11 +269,13 @@ export async function importCallLeads(rows: ImportRow[]): Promise<{ inserted: nu
   let updated = 0;
   for (const r of rows) {
     const res = await sql<{ inserted: boolean }>`
-      INSERT INTO call_leads (business, city, region, phone, website, site_status, rating, reviews, priority, axeon_status, source, maps_url, why, notes)
-      VALUES (${r.business}, ${r.city}, ${r.region}, ${r.phone}, ${r.website}, ${r.siteStatus}, ${r.rating}, ${r.reviews}, ${r.priority}, ${r.axeonStatus}, ${r.source}, ${r.mapsUrl}, ${r.why}, ${r.notes})
+      INSERT INTO call_leads (business, city, region, niche, contact, phone, website, site_status, rating, reviews, priority, axeon_status, source, maps_url, why, notes)
+      VALUES (${r.business}, ${r.city}, ${r.region}, ${r.niche}, ${r.contact}, ${r.phone}, ${r.website}, ${r.siteStatus}, ${r.rating}, ${r.reviews}, ${r.priority}, ${r.axeonStatus}, ${r.source}, ${r.mapsUrl}, ${r.why}, ${r.notes})
       ON CONFLICT (lower(business), phone) DO UPDATE SET
         city = EXCLUDED.city,
         region = EXCLUDED.region,
+        niche = CASE WHEN EXCLUDED.niche = '' THEN call_leads.niche ELSE EXCLUDED.niche END,
+        contact = CASE WHEN EXCLUDED.contact = '' THEN call_leads.contact ELSE EXCLUDED.contact END,
         website = CASE WHEN EXCLUDED.website = '' THEN call_leads.website ELSE EXCLUDED.website END,
         site_status = EXCLUDED.site_status,
         rating = COALESCE(EXCLUDED.rating, call_leads.rating),
