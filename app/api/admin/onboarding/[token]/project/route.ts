@@ -8,6 +8,7 @@
 //   POST   { kind: 'report', send, ... }  save a month's report (emails when send !== false)
 //   POST   { kind: 'tracking', ... }      website address, close rate, automatic reports on/off
 //   POST   { kind: 'auto-report', month } build and email the month's report now (lib/autoReports.ts)
+//   POST   { kind: 'lead-outcome', id, outcome } mark a lead won / lost / null on the client's behalf (View as client)
 //   DELETE { kind, id }                   remove an update or report
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/adminAuth';
@@ -16,7 +17,8 @@ import { sendMonthlyReportEmail, sendProjectUpdateEmail } from '@/lib/email';
 import { APP_ORIGIN } from '@/lib/hostRouting';
 import { getOnboardingByToken, type Onboarding } from '@/lib/onboarding';
 import { sendAutoReport } from '@/lib/autoReports';
-import { getTrackingSettings, hasTraffic, isValidMonth, setTrackingSettings, trackingOverview, validateAvgJobValue, validateCloseRate, validateCloseRateMode, validateSiteUrl } from '@/lib/siteStats';
+import { getTrackingSettings, hasTraffic, isValidMonth, setLeadOutcome, setTrackingSettings, trackingOverview, validateAvgJobValue, validateCloseRate, validateCloseRateMode, validateSiteUrl } from '@/lib/siteStats';
+import { isLeadOutcome } from '@/lib/projectsShared';
 import {
   createProjectUpdate,
   deleteMonthlyReport,
@@ -134,6 +136,13 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
         autoReports: body.autoReports !== false,
         avgJobValue: validateAvgJobValue(body.avgJobValue),
       });
+    } else if (body.kind === 'lead-outcome') {
+      const id = Number(body.id);
+      const outcome = body.outcome == null ? null : body.outcome;
+      if (!Number.isInteger(id) || id <= 0) throw new Error('Which lead?');
+      if (outcome !== null && !isLeadOutcome(outcome)) throw new Error('Mark a lead as a customer or not');
+      if (!(await setLeadOutcome(onboarding.id, id, outcome))) throw new Error('That lead is not on this site');
+      return NextResponse.json({ ok: true, id, outcome });
     } else if (body.kind === 'auto-report') {
       if (!isValidMonth(body.month)) throw new Error('Pick the month to send');
       const outcome = await sendAutoReport(onboarding, body.month, { force: true });

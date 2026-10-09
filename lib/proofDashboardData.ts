@@ -6,20 +6,25 @@ import { TIER_LABELS } from '@/data/onboardingItems';
 import { agreementUrl, latestSignedAgreementFor } from '@/lib/agreements';
 import { computeProgress, getItemStates, orderedItems, welcomeUrl, type Onboarding } from '@/lib/onboarding';
 import { getProjectDetails, guaranteeDay, listMonthlyReports, listProjectUpdates, tierHasGuarantee } from '@/lib/projects';
-import { getTrackingSettings } from '@/lib/siteStats';
+import { monthLabel } from '@/lib/projectsShared';
+import { getTrackingSettings, leadRows, monthOf, previousMonth } from '@/lib/siteStats';
 import type { ProofDashboard } from '@/components/proof/ProofDashboard';
 import type { ComponentProps } from 'react';
 
-export type DashboardData = Omit<ComponentProps<typeof ProofDashboard>, 'email' | 'preview'>;
+export type DashboardData = Omit<ComponentProps<typeof ProofDashboard>, 'email' | 'preview' | 'leadApi'>;
 
 export async function loadDashboardData(onboarding: Onboarding): Promise<DashboardData> {
-  const [states, details, updates, reports, agreement, tracking] = await Promise.all([
+  const month = monthOf();
+  const previous = previousMonth(month);
+  const [states, details, updates, reports, agreement, tracking, thisLeads, lastLeads] = await Promise.all([
     getItemStates(onboarding.id),
     getProjectDetails(onboarding.id),
     listProjectUpdates(onboarding.id),
     listMonthlyReports(onboarding.id),
     latestSignedAgreementFor(onboarding.clientEmail).catch(() => null),
     getTrackingSettings(onboarding.id),
+    leadRows(onboarding.id, month),
+    leadRows(onboarding.id, previous),
   ]);
   return {
     onboarding,
@@ -35,5 +40,10 @@ export async function loadDashboardData(onboarding: Onboarding): Promise<Dashboa
     guaranteeDay: guaranteeDay(details.kickoffAt),
     agreementUrl: agreement ? agreementUrl(agreement.token) : null,
     avgJobValue: tracking.avgJobValue,
+    // Live from the events table, not the saved report, so a lead shows up the day it happens.
+    leads: [
+      { month, label: `${monthLabel(month)} so far`, rows: thisLeads },
+      { month: previous, label: monthLabel(previous), rows: lastLeads },
+    ],
   };
 }

@@ -13,6 +13,7 @@ import { createHash, createHmac, randomInt } from 'node:crypto';
 import { sql, ensureSchema, isDatabaseConfigured } from '@/lib/db';
 import { SITE_ORIGIN } from '@/lib/hostRouting';
 import { CONVERSION_NAMES, type CloseRateEstimate, type TrafficDetail, type TrafficSummary } from '@/lib/projectsShared';
+import { OBSERVED_MIN_MARKED, OBSERVED_MONTHS, type LeadOutcome, type LeadRow, type ObservedCloseRate } from '@/lib/projectsShared';
 
 /** Month boundaries for reports follow the clients' clock (Iowa). */
 export const REPORT_TIME_ZONE = 'America/Chicago';
@@ -408,12 +409,21 @@ export function summarize(input: {
   sources: Array<{ host: string; count: number }>;
   closeRate: number | null;
   detail?: TrafficDetail | null;
+  /** Leads the client marked for this month in AxeonPROOF. */
+  marked?: { won: number; lost: number } | null;
+  /** The client's own close rate from marked leads (observedCloseRate); beats the estimate when closeRate is null. */
+  observed?: ObservedCloseRate | null;
 }): TrafficSummary {
   const directContacts = input.buttons.filter((b) => isConversion(b.name)).reduce((sum, b) => sum + b.count, 0);
   const assisted = assistedContacts(input.detail?.engagedNoClick ?? 0, directContacts);
   const conversions = directContacts + assisted;
-  const estimate = input.closeRate == null ? estimateCloseRate({ buttons: input.buttons, detail: input.detail }) : null;
-  const closeRate = estimate ? estimate.rate : (input.closeRate as number);
+  const won = Math.max(0, input.marked?.won ?? 0);
+  const lost = Math.max(0, input.marked?.lost ?? 0);
+  const observed = input.closeRate == null ? (input.observed ?? null) : null;
+  const estimate = input.closeRate == null && !observed ? estimateCloseRate({ buttons: input.buttons, detail: input.detail }) : null;
+  const closeRate = input.closeRate != null ? input.closeRate : observed ? observed.rate : (estimate as CloseRateEstimate).rate;
+  // Leads the client already marked are facts; the rate only applies to the rest.
+  const unmarked = Math.max(0, conversions - won - lost);
   return {
     views: input.views,
     visitors: input.visitors,
@@ -425,11 +435,14 @@ export function summarize(input: {
     directContacts,
     assistedContacts: assisted,
     closeRate,
-    estimatedCustomers: estimateCustomers(conversions, closeRate),
+    estimatedCustomers: won + estimateCustomers(unmarked, closeRate),
     detail: input.detail ?? null,
     closeRateEstimate: estimate,
-    customersLow: estimate ? Math.floor((conversions * estimate.low) / 100) : undefined,
-    customersHigh: estimate ? Math.ceil((conversions * estimate.high) / 100) : undefined,
+    customersLow: estimate ? won + Math.floor((unmarked * estimate.low) / 100) : undefined,
+    customersHigh: estimate ? won + Math.ceil((unmarked * estimate.high) / 100) : undefined,
+    markedWon: won,
+    markedLost: lost,
+    observedCloseRate: observed,
   };
 }
 
@@ -706,6 +719,83 @@ export async function sessionRows(onboardingId: number, month: string): Promise<
   return res.rows;
 }
 
+// ───────────────────────────── Leads and outcomes ─────────────────────────────
+
+/**
+ * The month's contact clicks, newest first, each with the campaign behind the
+ * visit when the landing page carried one. What the "People who reached out"
+ * list in AxeonPROOF shows. No names: the tracker never has any.
+ */
+export async function leadRows(onboardingId: number, month: string, limit = 200): Promise<LeadRow[]> {
+  if (!isDatabaseConfigured() || !isValidMonth(month)) return [];
+  await ensureSchema();
+  const first = `${month}-01`;
+  const conv = CONVERSION_NAMES as unknown as string;
+  const res = await sql<Omit<LeadRow, 'at'> & { at: string | Date }>`
+    SELECT c.id, c.created_at AS at, c.name, c.path, c.device, c.city, v.utm_source, v.utm_medium, v.utm_campaign, c.outcome
+    FROM site_events c
+    LEFT JOIN LATERAL (
+      SELECT utm_source, utm_medium, utm_campaign FROM site_events v
+      WHERE v.onboarding_id = c.onboarding_id AND v.visitor = c.visitor AND v.kind = 'view'
+        AND v.utm_source IS NOT NULL
+        AND v.created_at <= c.created_at AND v.created_at > c.created_at - interval '2 hours'
+      ORDER BY v.created_at DESC LIMIT 1
+    ) v ON true
+    WHERE c.onboarding_id = ${onboardingId} AND c.kind = 'click' AND c.name = ANY(${conv}::text[])
+      AND c.created_at >= (${first}::timestamp AT TIME ZONE ${REPORT_TIME_ZONE})
+      AND c.created_at < ((${first}::date + interval '1 month') AT TIME ZONE ${REPORT_TIME_ZONE})
+    ORDER BY c.created_at DESC, c.id DESC
+    LIMIT ${limit};
+  `;
+  return res.rows.map((r) => ({ ...r, at: new Date(r.at).toISOString() }));
+}
+
+/** The client's tap on a lead: became a customer, did not, or cleared. Only this client's contact clicks can be marked. */
+export async function setLeadOutcome(onboardingId: number, eventId: number, outcome: LeadOutcome | null): Promise<boolean> {
+  if (!isDatabaseConfigured() || !Number.isInteger(eventId) || eventId <= 0) return false;
+  await ensureSchema();
+  const conv = CONVERSION_NAMES as unknown as string;
+  const res = await sql`
+    UPDATE site_events SET outcome = ${outcome}, outcome_at = ${outcome ? new Date().toISOString() : null}
+    WHERE id = ${eventId} AND onboarding_id = ${onboardingId} AND kind = 'click' AND name = ANY(${conv}::text[]);
+  `;
+  return (res.rowCount ?? 0) > 0;
+}
+
+/** How many of the month's leads the client marked each way. */
+export async function markedForMonth(onboardingId: number, month: string): Promise<{ won: number; lost: number }> {
+  if (!isDatabaseConfigured() || !isValidMonth(month)) return { won: 0, lost: 0 };
+  await ensureSchema();
+  const first = `${month}-01`;
+  const res = await sql<{ won: number; lost: number }>`
+    SELECT (count(*) FILTER (WHERE outcome = 'won'))::int AS won, (count(*) FILTER (WHERE outcome = 'lost'))::int AS lost
+    FROM site_events
+    WHERE onboarding_id = ${onboardingId} AND kind = 'click' AND outcome IS NOT NULL
+      AND created_at >= (${first}::timestamp AT TIME ZONE ${REPORT_TIME_ZONE})
+      AND created_at < ((${first}::date + interval '1 month') AT TIME ZONE ${REPORT_TIME_ZONE});
+  `;
+  return res.rows[0] ?? { won: 0, lost: 0 };
+}
+
+/**
+ * The client's own close rate: won / (won + lost) over the leads they marked in
+ * the last OBSERVED_MONTHS, once at least OBSERVED_MIN_MARKED are marked. Null
+ * until then, and the data-driven estimate stays in charge.
+ */
+export async function observedCloseRate(onboardingId: number): Promise<ObservedCloseRate | null> {
+  if (!isDatabaseConfigured()) return null;
+  await ensureSchema();
+  const res = await sql<{ won: number; lost: number }>`
+    SELECT (count(*) FILTER (WHERE outcome = 'won'))::int AS won, (count(*) FILTER (WHERE outcome = 'lost'))::int AS lost
+    FROM site_events
+    WHERE onboarding_id = ${onboardingId} AND kind = 'click' AND outcome IS NOT NULL
+      AND created_at >= now() - make_interval(months => ${OBSERVED_MONTHS});
+  `;
+  const { won, lost } = res.rows[0] ?? { won: 0, lost: 0 };
+  if (won + lost < OBSERVED_MIN_MARKED) return null;
+  return { rate: Math.round((won / (won + lost)) * 100), won, lost, months: OBSERVED_MONTHS };
+}
+
 const EMPTY_INPUT = { views: 0, visitors: 0, clicks: 0, buttons: [], pages: [], sources: [] };
 
 /**
@@ -729,7 +819,7 @@ export async function monthTraffic(onboardingId: number, month: string, closeRat
   const t = totals.rows[0] ?? { views: 0, visitors: 0, clicks: 0 };
   if (t.views === 0 && t.clicks === 0) return summarize({ ...EMPTY_INPUT, closeRate });
 
-  const [buttons, pages, sources, sessions] = await Promise.all([
+  const [buttons, pages, sources, sessions, marked, observed] = await Promise.all([
     sql<{ name: string; count: number }>`
       SELECT name, count(*)::int AS count FROM site_events
       WHERE onboarding_id = ${onboardingId} AND kind = 'click' AND name IS NOT NULL
@@ -752,6 +842,9 @@ export async function monthTraffic(onboardingId: number, month: string, closeRat
       GROUP BY host ORDER BY count DESC, host LIMIT 5;
     `,
     sessionRows(onboardingId, month),
+    markedForMonth(onboardingId, month),
+    // A typed-in rate is the client's word already; otherwise their marked leads beat our estimate.
+    closeRate == null ? observedCloseRate(onboardingId) : Promise.resolve(null),
   ]);
   return summarize({
     views: t.views,
@@ -762,6 +855,8 @@ export async function monthTraffic(onboardingId: number, month: string, closeRat
     sources: sources.rows,
     closeRate,
     detail: summarizeSessions(sessions),
+    marked,
+    observed,
   });
 }
 

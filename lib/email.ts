@@ -46,6 +46,25 @@ export async function sendDraftReadyNotification(post: { title: string; id: numb
   });
 }
 
+/** A client's site reported for a while and then stopped (lib/trackerHealth.ts). Returns false when mail is not configured. */
+export async function sendTrackerQuietNotification(input: { businessName: string; token: string; lastEventAt: string; days: number }): Promise<boolean> {
+  const resend = getClient();
+  if (!resend || !ADMIN_NOTIFICATION_EMAIL) return false;
+  const since = new Date(input.lastEventAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', timeZone: 'America/Chicago' });
+  await resend.emails.send({
+    from: FROM_ADDRESS,
+    to: ADMIN_NOTIFICATION_EMAIL,
+    subject: `${input.businessName}'s website tracker has gone quiet`,
+    html: `
+      <p>Nothing has come in from <b>${escapeHtml(input.businessName)}</b>'s website since ${since}, more than ${input.days} days. Usually the tracking line was removed in a site edit, or the site is down.</p>
+      <p>Open their site, view the page source and look for <code>t.js</code>. The line to paste back is on their Tracking card.</p>
+      <p><a href="https://app.axeonstudio.co/admin/onboarding/${input.token}">Open their page</a></p>
+      <p>You will not get this again until their site reports in and then goes quiet again.</p>
+    `,
+  });
+  return true;
+}
+
 // postWasCreated distinguishes "generated, checked, and saved as a draft
 // for review" from "the pipeline threw before any post existed" -- the cron
 // route's outer catch handles the latter and there is no draft to view.
@@ -751,6 +770,19 @@ function audienceSections(t: TrafficSummary): string {
 /** The fine print under the numbers: where the close rate came from. */
 export function closeRateNote(t: TrafficSummary): string {
   const e = t.closeRateEstimate;
+  const o = t.observedCloseRate;
+  if (o && t.conversions > 0) {
+    const marked = (t.markedWon ?? 0) + (t.markedLost ?? 0);
+    const thisMonth = marked
+      ? ` This month you have marked ${marked} so far (${t.markedWon ?? 0} became ${t.markedWon === 1 ? 'a customer' : 'customers'}); the rest are counted at ${o.rate}%.`
+      : '';
+    return `
+    <div class="ax-box" style="margin:22px 0 0;padding:14px 16px;background:${BRAND.wash};border-radius:12px">
+      <p class="ax-muted" style="margin:0 0 6px;font-size:13px;color:${BRAND.muted}">How we got to ${o.rate}%: you told us ${o.won} of the ${o.won + o.lost} leads you marked in AxeonPROOF became customers, so we use your real rate instead of an estimate.${thisMonth}</p>
+      <p class="ax-muted" style="margin:0;font-size:13px;color:${BRAND.muted}">Keep marking leads in AxeonPROOF and this number stays yours.</p>
+    </div>
+  `;
+  }
   if (!e || t.conversions === 0) {
     return `<p class="ax-muted" style="margin:20px 0 0;font-size:13px;color:${BRAND.muted}">“Estimated new customers” counts ${t.closeRate}% of the people who called, texted, emailed, sent a form or booked from your site. Tell us your real number and we will use that instead.</p>`;
   }

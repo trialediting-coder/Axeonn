@@ -234,6 +234,31 @@ Not built: importing Google Analytics or call-tracking numbers. The snippet is
 the one source for now, so a site without it gets no automatic report until it
 is added.
 
+### Leads, outcomes and the client's own close rate
+
+The dashboard lists **People who reached out**: every contact click (call,
+text, email, form, booking, directions, Google listing) this month and last,
+newest first, with the page, the campaign behind the visit when the landing
+page carried one, the city and the device (`leadRows` in `lib/siteStats.ts`).
+No names: the tracker never has any. Each lead has two taps, **Customer** and
+**Not**, saved through `POST /api/proof/leads` (the client) or the admin
+project API with `kind: 'lead-outcome'` (View as client). They land in
+`site_events.outcome`.
+
+Marked leads are facts: the month's estimate is `won + rate × unmarked`. Once
+a client has marked five or more leads in the last six months, their own rate
+(`observedCloseRate`) replaces the data-driven estimate whenever the close
+rate is on Auto; a rate typed in by hand still wins. The report tile and the
+"How we got to N%" note say which one was used.
+
+### Quiet trackers
+
+`/api/cron/tracker-health` runs daily (`lib/trackerHealth.ts`). A keyed site
+that has reported before but sent nothing for 7 days gets one email to
+`ADMIN_EMAIL` with a link to the client's page. The alert is remembered in
+`onboardings.tracker_alerted_at` and fires again only after the site reports
+in and goes quiet a second time.
+
 ### Axeon's own site in AxeonPROOF
 
 axeonstudio.co loads the same `t.js` every client installs (see `app/layout.tsx`),
