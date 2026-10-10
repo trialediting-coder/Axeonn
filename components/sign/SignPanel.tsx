@@ -88,7 +88,7 @@ export function SignPanel(props: { token: string; signerName: string; signerTitl
 }
 
 /** Shown on a signed agreement that has not been paid yet. */
-export function PayPanel({ token, fees }: { token: string; fees: string }) {
+export function PayPanel({ token, dueToday, breakdown }: { token: string; dueToday: string; breakdown: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   return (
@@ -96,7 +96,8 @@ export function PayPanel({ token, fees }: { token: string; fees: string }) {
       <p className="flex items-center gap-2 text-sm font-semibold text-emerald-700">
         <CheckCircle2 size={16} /> Signed. One step left.
       </p>
-      <h2 className="mt-2 text-xl font-extrabold tracking-tight font-display text-neutral-950">Pay {fees}</h2>
+      <h2 className="mt-2 text-xl font-extrabold tracking-tight font-display text-neutral-950">Pay {dueToday} today</h2>
+      <p className="mt-1 text-sm text-neutral-700">{breakdown}.</p>
       <p className="mt-1 text-sm text-neutral-600">Secure checkout by Stripe. Your setup page arrives by email as soon as it goes through.</p>
       {error && <p className="mt-4 text-sm font-semibold text-red-600">{error}</p>}
       <button
