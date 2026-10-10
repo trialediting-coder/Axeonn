@@ -242,6 +242,21 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
           Paste it before <code>&lt;/head&gt;</code> on every page. It counts page views and clicks on call, text, email, booking and
           directions links, form sends, and any button. Add <code>data-axeon=&quot;quote&quot;</code> to name a button yourself.
         </p>
+        {t.ownVisitsUrl ? (
+          <p className="mt-2 text-xs text-neutral-500">
+            Your visits count too.{' '}
+            <a href={t.ownVisitsUrl} target="_blank" rel="noopener" className="font-semibold text-blue-600 hover:text-blue-700">
+              Leave this device out
+            </a>{' '}
+            ·{' '}
+            <a href={t.ownVisitsUrl.replace(/ax_ignore=1/, 'ax_ignore=0')} target="_blank" rel="noopener" className="font-semibold text-blue-600 hover:text-blue-700">
+              count it again
+            </a>
+            . Per device; the client has the same link on their overview.
+          </p>
+        ) : (
+          <p className="mt-2 text-xs text-neutral-500">Enter the client website below to get the &ldquo;leave this device out&rdquo; link for their own phone and laptop.</p>
+        )}
 
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <TrafficBox title={`${monthLabel(t.month)} so far`} traffic={t.thisMonth} />

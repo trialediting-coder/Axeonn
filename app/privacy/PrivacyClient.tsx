@@ -273,7 +273,7 @@ export default function PrivacyClient() {
                       <span>Axeon site measurement (first-party, no cookies)</span>
                     </div>
                     <p className="mt-1 text-xs sm:text-sm text-gray-600">
-                      Our own small script (served from this site, nothing from a third party) counts page views, which buttons are pressed (for example a phone link, a form, or a completed booking), time on page, scroll depth and load speed. It sets no cookies and stores nothing in your browser. Visits are grouped using a one-way hash that changes every month, together with the city and region reported by our hosting provider; your IP address is used only to compute that hash and is not stored. This is the same tool we provide to our clients for their websites.
+                      Our own small script (served from this site, nothing from a third party) counts page views, which buttons are pressed (for example a phone link, a form, or a completed booking), time on page, scroll depth and load speed. It sets no cookies. The only thing it can keep in your browser is an opt-out flag you set yourself by opening the site with ?ax_ignore=1, which stops that browser from being counted. Visits are grouped using a one-way hash that changes every month, together with the city and region reported by our hosting provider; your IP address is used only to compute that hash and is not stored. This is the same tool we provide to our clients for their websites.
                     </p>
                   </div>
                   <span className="text-xs font-mono text-gray-400 shrink-0">Traffic Metrics</span>

@@ -9,6 +9,7 @@ import {
   looksLikeBot,
   monthOf,
   normalizeClickName,
+  ownVisitsUrl,
   parseTrackingEvent,
   previousMonth,
   referrerHost,
@@ -30,6 +31,14 @@ test('site keys are ax_ plus 14 safe characters', () => {
   assert.equal(isValidSiteKey('ax_ABCDEFGHJKMNPQ'), false);
   assert.equal(isValidSiteKey('ax_abc'), false);
   assert.match(trackingSnippet(KEY), /<script defer src="https:\/\/axeonstudio\.co\/t\.js" data-site="ax_abcdefghjkmnpq"><\/script>/);
+});
+
+test('the "do not count my own visits" link opens the client site with the flag, per device', () => {
+  assert.equal(ownVisitsUrl('https://smithroofing.com'), 'https://smithroofing.com/?ax_ignore=1');
+  assert.equal(ownVisitsUrl('https://smithroofing.com/services?x=1'), 'https://smithroofing.com/services?x=1&ax_ignore=1');
+  assert.equal(ownVisitsUrl('https://smithroofing.com', true), 'https://smithroofing.com/?ax_ignore=0');
+  assert.equal(ownVisitsUrl(null), null);
+  assert.equal(ownVisitsUrl('not a url'), null);
 });
 
 test('events: views need a key, clicks need a name, paths lose their query', () => {

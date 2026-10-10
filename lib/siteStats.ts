@@ -86,6 +86,23 @@ export function trackingSnippet(siteKey: string): string {
   return `<script defer src="${SITE_ORIGIN}/t.js" data-site="${siteKey}"></script>`;
 }
 
+/**
+ * The link that marks the browser it is opened in as the owner's own, so their
+ * visits stop counting (public/t.js reads ?ax_ignore). Per device: a phone and a
+ * laptop each need one tap. `count` true builds the link that counts it again.
+ * Null until the admin has entered the client's website.
+ */
+export function ownVisitsUrl(siteUrl: string | null | undefined, count = false): string | null {
+  if (!siteUrl) return null;
+  try {
+    const u = new URL(siteUrl);
+    u.searchParams.set('ax_ignore', count ? '0' : '1');
+    return u.toString();
+  } catch {
+    return null;
+  }
+}
+
 const str = (v: unknown, max: number) => (typeof v === 'string' ? v.replace(/[\u0000-\u001F\u007F]/g, '').trim().slice(0, max) : '');
 
 /** Lower-case, one space between words, letters/digits/basic punctuation only. */
@@ -868,6 +885,8 @@ export async function monthTraffic(onboardingId: number, month: string, closeRat
 export interface TrackingOverview extends TrackingSettings {
   /** The line to paste into the client's site, or null before the key exists. */
   snippet: string | null;
+  /** Opens the client's site so that device stops counting; null until the site address is set. */
+  ownVisitsUrl: string | null;
   lastEventAt: string | null;
   /** The current month and the one before it, "YYYY-MM". */
   month: string;
@@ -889,6 +908,7 @@ export async function trackingOverview(onboardingId: number): Promise<TrackingOv
   return {
     ...settings,
     snippet: settings.siteKey ? trackingSnippet(settings.siteKey) : null,
+    ownVisitsUrl: ownVisitsUrl(settings.siteUrl),
     lastEventAt: last,
     month,
     previous,
