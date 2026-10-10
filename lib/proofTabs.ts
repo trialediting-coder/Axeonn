@@ -8,7 +8,7 @@
 import { TIER_LABELS, TIER_RANK, type OnboardingTier } from '@/data/onboardingItems';
 import type { TrafficSummary } from '@/lib/projectsShared';
 
-export type ProofTabKey = 'overview' | 'leads' | 'calls' | 'bookings' | 'reviews' | 'ads' | 'receptionist';
+export type ProofTabKey = 'overview' | 'leads' | 'calls' | 'bookings' | 'reviews' | 'ads' | 'receptionist' | 'billing';
 
 export interface ProofTab {
   key: ProofTabKey;
@@ -183,6 +183,8 @@ export const PROOF_TABS: readonly ProofTab[] = [
       ],
     },
   },
+  // Every plan: the client's plan, card and invoices, live from Stripe (components/proof/BillingTab.tsx).
+  { key: 'billing', label: 'Billing', tier: 'essentials', promise: '', includes: [] },
 ];
 
 export const TIER_PRICE: Record<OnboardingTier, number> = { essentials: 149, axeoncore: 299, axeongrowth: 999 };

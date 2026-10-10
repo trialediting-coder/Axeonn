@@ -666,8 +666,9 @@ test("the owner's notes are due at day 30 and day 90 after launch, once each, ne
 
 test('every tab is visible, tabs outside the plan are locked, and the price reads as extra jobs', async () => {
   const { PROOF_TABS, isProofTab, proofTab, tabLocked, upgradeMath, lockedHeadline } = await import('./proofTabs');
-  assert.deepEqual(PROOF_TABS.map((t) => t.key), ['overview', 'leads', 'calls', 'bookings', 'reviews', 'ads', 'receptionist']);
-  assert.ok(isProofTab('calls') && !isProofTab('billing'));
+  assert.deepEqual(PROOF_TABS.map((t) => t.key), ['overview', 'leads', 'calls', 'bookings', 'reviews', 'ads', 'receptionist', 'billing']);
+  assert.ok(isProofTab('calls') && isProofTab('billing') && !isProofTab('settings'));
+  assert.equal(tabLocked(proofTab('billing'), 'essentials'), false, 'billing is on every plan');
   const locked = (tier: 'essentials' | 'axeoncore' | 'axeongrowth') => PROOF_TABS.filter((t) => tabLocked(t, tier)).map((t) => t.key);
   assert.deepEqual(locked('essentials'), ['calls', 'bookings', 'reviews', 'ads', 'receptionist']);
   assert.deepEqual(locked('axeoncore'), ['ads', 'receptionist']);

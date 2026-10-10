@@ -12,6 +12,7 @@ import {
   Megaphone,
   Star,
   ClipboardList,
+  CreditCard,
   Clock,
   ExternalLink,
   FileText,
@@ -25,10 +26,12 @@ import {
 } from 'lucide-react';
 import { AxeonLogo } from '@/components/brand/AxeonLogo';
 import { LeadLog, type LeadMonth } from '@/components/proof/LeadLog';
+import { BillingTab } from '@/components/proof/BillingTab';
 import { FeatureTab } from '@/components/proof/FeatureTab';
 import { UpgradePanel } from '@/components/proof/UpgradePanel';
 import { PROOF_TABS, TIER_SHORT, proofTab, tabLocked, type ProofTabKey } from '@/lib/proofTabs';
 import type { UpgradeRequest } from '@/lib/upgrades';
+import type { BillingSummary } from '@/lib/clientBilling';
 import { SITE_ORIGIN } from '@/lib/hostRouting';
 import type { OnboardingItem } from '@/data/onboardingItems';
 import type { ItemState, Onboarding, Progress } from '@/lib/onboarding';
@@ -56,6 +59,7 @@ const TAB_ICONS: Record<ProofTabKey, Icon> = {
   reviews: Star,
   ads: Megaphone,
   receptionist: Bot,
+  billing: CreditCard,
 };
 
 type MetricKey = 'calls' | 'leads' | 'booked' | 'rank';
@@ -197,6 +201,8 @@ export function ProofDashboard({
   upgradeRequest = null,
   live: liveTraffic = null,
   ownVisitsUrl = null,
+  billing = null,
+  ownerEmail = 'hello@axeonstudio.co',
 }: {
   email: string;
   onboarding: Onboarding;
@@ -227,6 +233,10 @@ export function ProofDashboard({
   live?: LiveTraffic | null;
   /** Opens the client's site so the device it is tapped on stops counting (lib/siteStats.ts ownVisitsUrl). */
   ownVisitsUrl?: string | null;
+  /** Plan, card and invoices from Stripe; loaded only for the Billing tab (lib/clientBilling.ts). Null: nothing on file yet. */
+  billing?: BillingSummary | null;
+  /** Where billing questions go before the first invoice exists. */
+  ownerEmail?: string;
 }) {
   const latest = reports[0] ?? null;
   const prev = reports[1] ?? null;
@@ -413,6 +423,8 @@ export function ProofDashboard({
                 </Card>
               )}
             </div>
+          ) : tab === 'billing' ? (
+            <BillingTab billing={billing} tier={onboarding.tier} agreementUrl={agreementUrl} preview={!!preview} ownerEmail={ownerEmail} />
           ) : tabLocked(proofTab(tab), onboarding.tier) ? (
             <UpgradePanel tab={proofTab(tab)} tier={onboarding.tier} traffic={traffic} period={period} avgJobValue={avgJobValue} request={upgradeRequest} preview={!!preview} bookUrl={`${SITE_ORIGIN}/book`} />
           ) : (
