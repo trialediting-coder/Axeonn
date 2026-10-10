@@ -292,6 +292,8 @@ export function ensureSchema(): Promise<void> {
           UNIQUE (onboarding_id, kind, month_key)
         );
       `;
+      // Survey taps from the day-30 email, by question (lib/feedbackShared.ts SURVEYS).
+      await sql`ALTER TABLE client_feedback ADD COLUMN IF NOT EXISTS answers JSONB NOT NULL DEFAULT '{}'::jsonb;`;
       await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS note30_sent_at TIMESTAMPTZ;`;
       await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS note90_sent_at TIMESTAMPTZ;`;
       // A client asked, from their dashboard, to move to a bigger plan (lib/upgrades.ts).

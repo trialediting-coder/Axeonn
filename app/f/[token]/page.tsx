@@ -6,24 +6,33 @@
 import type { Metadata } from 'next';
 import { AxeonLogo } from '@/components/brand/AxeonLogo';
 import { FeedbackForm } from '@/components/feedback/FeedbackForm';
-import { isFeedbackRating, readFeedbackToken, recordFeedback, type FeedbackRating } from '@/lib/feedback';
+import { getFeedback, isFeedbackRating, readFeedbackToken, recordFeedback, surveyFor, type FeedbackRating } from '@/lib/feedback';
 import { getOnboardingById } from '@/lib/onboarding';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Thanks', robots: { index: false, follow: false } };
 
-export default async function FeedbackPage({ params, searchParams }: { params: Promise<{ token: string }>; searchParams: Promise<{ r?: string }> }) {
+/** Axeon's own Google review link (GOOGLE_REVIEW_URL). Without it the day-90 "yes" page just says thanks. */
+const REVIEW_URL = process.env.GOOGLE_REVIEW_URL || null;
+
+export default async function FeedbackPage({ params, searchParams }: { params: Promise<{ token: string }>; searchParams: Promise<{ r?: string; q?: string; a?: string }> }) {
   const { token } = await params;
-  const { r } = await searchParams;
+  const { r, q, a } = await searchParams;
   const ref = readFeedbackToken(token);
   const onboarding = ref ? await getOnboardingById(ref.onboardingId).catch(() => null) : null;
   const rating: FeedbackRating | null = isFeedbackRating(r) ? r : null;
-  if (ref && onboarding && rating) {
-    await recordFeedback(ref, { rating }, { businessName: onboarding.businessName || onboarding.clientEmail, token: onboarding.token }).catch((err) =>
+  // A survey tap in the email arrives as ?q=<question>&a=<answer>; it is recorded before the page asks the rest.
+  const tapped = ref && typeof q === 'string' && typeof a === 'string' ? { [q]: a } : null;
+  if (ref && onboarding && (rating || tapped)) {
+    await recordFeedback(ref, { rating, answers: tapped }, { businessName: onboarding.businessName || onboarding.clientEmail, token: onboarding.token }).catch((err) =>
       console.error('[feedback] record failed', err instanceof Error ? err.message : err)
     );
   }
   const valid = !!(ref && onboarding);
+  const questions = ref ? surveyFor(ref.kind) : [];
+  const existing = valid && questions.length ? await getFeedback(ref!).catch(() => null) : null;
+  const answered = existing?.answers ?? {};
+  const remaining = questions.filter((x) => !answered[x.key]);
   const first = onboarding?.clientName?.trim().split(/\s+/)[0];
   return (
     <main className="min-h-screen bg-[#F6F7F9] px-4 py-10">
@@ -32,18 +41,38 @@ export default async function FeedbackPage({ params, searchParams }: { params: P
         {valid ? (
           <>
             <h1 className="mt-6 text-2xl font-extrabold tracking-tight text-neutral-950">
-              {rating === 'no' ? 'Sorry about that.' : rating ? `Thanks${first ? `, ${first}` : ''}.` : `Hi${first ? ` ${first}` : ''}.`}
+              {questions.length
+                ? remaining.length
+                  ? `Got it${first ? `, ${first}` : ''}. ${remaining.length === questions.length ? `${questions.length} quick ones.` : remaining.length === 1 ? 'One more.' : `${remaining.length} more.`}`
+                  : `That is all of them. Thank you${first ? `, ${first}` : ''}.`
+                : rating === 'no'
+                  ? 'Sorry about that.'
+                  : rating
+                    ? `Thanks${first ? `, ${first}` : ''}.`
+                    : `Hi${first ? ` ${first}` : ''}.`}
             </h1>
             <p className="mt-2 text-sm leading-relaxed text-neutral-600">
-              {rating === 'no'
-                ? 'One sentence on what missed the mark and we will fix it in the next one.'
-                : rating === 'sortof'
-                  ? 'What would have made it more useful? One sentence is plenty.'
-                  : rating === 'yes'
-                    ? 'Anything you would like more of, or less of? Optional.'
-                    : 'Anything about the site, the numbers or how we are working together? One sentence is plenty.'}
+              {questions.length
+                ? remaining.length
+                  ? 'Tap one answer each. What you pick decides what we work on next.'
+                  : 'Anything else you want more of, or less of? One sentence is plenty, and optional.'
+                : rating === 'no'
+                  ? 'One sentence on what missed the mark and we will fix it in the next one.'
+                  : rating === 'sortof'
+                    ? 'What would have made it more useful? One sentence is plenty.'
+                    : rating === 'yes'
+                      ? 'Anything you would like more of, or less of? Optional.'
+                      : 'Anything about the site, the numbers or how we are working together? One sentence is plenty.'}
             </p>
-            <FeedbackForm token={token} rating={rating} />
+            {ref?.kind === 'note90' && rating === 'yes' && REVIEW_URL ? (
+              <a
+                href={REVIEW_URL}
+                className="mt-4 inline-flex h-11 items-center justify-center rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white hover:bg-blue-700"
+              >
+                Leave a Google review
+              </a>
+            ) : null}
+            <FeedbackForm token={token} rating={rating} questions={remaining} />
           </>
         ) : (
           <>

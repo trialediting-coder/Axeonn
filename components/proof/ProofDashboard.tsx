@@ -461,7 +461,7 @@ export function ProofDashboard({
         {tab !== 'overview' ? (
           tab === 'leads' ? (
             <div className="mt-6">
-              <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-200">Included in your plan</span>
+              <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Included in your plan</p>
               <h2 className="mt-3 text-2xl font-bold tracking-tight text-neutral-950">Leads</h2>
               <p className="mt-2 max-w-2xl text-sm text-neutral-600">Every call, text, email, form and booking from your site, the day it happens. Tap Booked on the ones that turned into a job and your numbers get more exact every month.</p>
               {leads.some((m) => m.rows.length > 0) ? (

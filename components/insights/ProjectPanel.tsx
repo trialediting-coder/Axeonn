@@ -5,7 +5,7 @@ import { Check, Copy, Send, Trash2 } from 'lucide-react';
 import { adminInput, adminLabel, btn } from '@/components/admin/ui';
 import type { MonthlyReport, ProjectDetails, ProjectUpdate } from '@/lib/projects';
 import type { TrackingOverview } from '@/lib/siteStats';
-import { KIND_LABELS, RATING_LABELS, type FeedbackEntry } from '@/lib/feedbackShared';
+import { KIND_LABELS, RATING_LABELS, answerLabel, type FeedbackEntry } from '@/lib/feedbackShared';
 import { UPDATE_STATUSES, UPDATE_TYPES, buttonLabel, linesToText, monthLabel, type TrafficSummary } from '@/lib/projectsShared';
 
 interface Data {
@@ -466,8 +466,8 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
       <div className={card}>
         <h3 className="font-bold text-neutral-950">Feedback</h3>
         <p className="mt-1 text-sm text-neutral-600">
-          Every &ldquo;Was this report useful?&rdquo; tap and sentence, and replies to the day-30 and day-90 notes. A &ldquo;No&rdquo; or a sentence also
-          emails you the moment it lands.
+          Every &ldquo;Was this report useful?&rdquo; tap and sentence, the day-30 survey answers, and the day-90 reply. A &ldquo;No&rdquo;, a
+          sentence, or a survey answer that needs attention also emails you the moment it lands.
         </p>
         <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
           <dt className="text-neutral-500">Day-30 note</dt>
@@ -495,6 +495,19 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
                   ) : null}
                   <span className="text-xs text-neutral-500">{new Date(f.createdAt).toLocaleDateString('en-US')}</span>
                 </div>
+                {Object.keys(f.answers).length ? (
+                  <dl className="mt-2 grid grid-cols-1 gap-y-1 text-sm sm:grid-cols-[auto_1fr] sm:gap-x-4">
+                    {Object.entries(f.answers).map(([k, v]) => {
+                      const w = answerLabel(f.kind, k, v);
+                      return w ? (
+                        <div key={k} className="contents">
+                          <dt className="text-neutral-500">{w.question}</dt>
+                          <dd className={`font-semibold ${w.attention ? 'text-amber-700' : 'text-neutral-950'}`}>{w.answer}</dd>
+                        </div>
+                      ) : null;
+                    })}
+                  </dl>
+                ) : null}
                 {f.comment ? <p className="mt-1 text-sm text-neutral-700">&ldquo;{f.comment}&rdquo;</p> : null}
               </li>
             ))}

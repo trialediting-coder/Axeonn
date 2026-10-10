@@ -39,11 +39,7 @@ export function UpgradePanel({
   const loss = lossLine(tab, traffic, period);
   return (
     <div className="mt-6">
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="inline-flex items-center gap-2 rounded-full bg-blue-50 py-1.5 pl-3 pr-2.5 text-xs font-semibold text-blue-700 ring-1 ring-blue-200">
-          Included in <AxeonLogo product={TIER_SHORT[tab.tier]} size="sm" mark={false} />
-        </span>
-      </div>
+      <AxeonLogo product={TIER_SHORT[tab.tier]} size="sm" mark={false} />
       <h2 className="mt-3 text-2xl font-bold tracking-tight text-neutral-950">{tab.label}</h2>
       <p className="mt-2 max-w-2xl text-base leading-relaxed text-neutral-700">{lockedHeadline(tab, traffic, period)}</p>
       {loss ? (

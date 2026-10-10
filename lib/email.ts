@@ -1,4 +1,5 @@
 // lib/email.ts
+import { SURVEYS } from '@/lib/feedbackShared';
 import { Resend } from 'resend';
 import { WEEKDAY_LABELS, buttonLabel, campaignLabel, hourLabel, sourceLabel, type TrafficDetail, type TrafficSummary } from '@/lib/projectsShared';
 import { TAGLINE, alwaysOnSentence, headlineSentence, reportHighlights } from '@/lib/reportCopy';
@@ -922,40 +923,91 @@ const OWNER_NAME = process.env.OWNER_NAME || 'Hayder';
  * (lib/clientNotes.ts). Plain paragraphs on purpose: it should read like a
  * person typed it. Returns false when mail is not configured.
  */
-export async function sendClientNoteEmail(input: {
+export interface ClientNoteEmailInput {
   to: string;
   clientName: string | null;
   businessName: string | null;
   kind: 'note30' | 'note90';
+  /** /f/<token> for this client and note; the taps add ?q=&a= or ?r=. Null: plain reply only. */
   feedbackUrl: string | null;
-}): Promise<boolean> {
+}
+
+/** One tap-able answer: a rounded button that is a link, so it works in every mail app. */
+const tapButton = (href: string, label: string) =>
+  `<td style="padding:0 8px 8px 0"><a href="${escapeHtml(href)}" class="ax-tile" style="display:inline-block;padding:11px 16px;border:1px solid ${BRAND.line};border-radius:999px;background:#ffffff;font-family:${FONT};font-size:14px;font-weight:700;color:${BRAND.ink};text-decoration:none;white-space:nowrap">${escapeHtml(label)}</a></td>`;
+
+const tapRow = (buttons: string[]) =>
+  `<table role="presentation" cellspacing="0" cellpadding="0" style="margin:10px 0 4px"><tr>${buttons.join('')}</tr></table>`;
+
+/**
+ * Day 30: a three-question, tap-to-answer survey branded like the report.
+ * Every option is a link into /f/<token>, so one tap in the inbox records an
+ * answer and the page asks the rest. The questions are framed as "what should
+ * we do for you next", so answering changes what Axeon works on.
+ * Day 90: one question, would you recommend us, with the review ask on a yes.
+ */
+export function renderClientNoteEmail(input: ClientNoteEmailInput): { subject: string; html: string } {
+  const business = input.businessName?.trim() || 'your business';
+  const first = firstName(input.clientName);
+  const owner = escapeHtml(OWNER_NAME);
+  const url = input.feedbackUrl;
+  const header = (kicker: string, title: string, sub: string) => `
+    <img src="${LOCKUP_WHITE}" width="98" height="26" alt="Axeon" style="display:block;border:0;height:26px;width:auto">
+    <p style="margin:18px 0 0;font-family:${FONT};font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#cfe0ff">${escapeHtml(kicker)}</p>
+    <h1 style="margin:6px 0 0;font-family:${FONT};font-size:26px;line-height:1.2;font-weight:800;color:#ffffff;letter-spacing:-.02em">${escapeHtml(title)}</h1>
+    <p style="margin:10px 0 0;font-family:${FONT};font-size:15px;line-height:1.5;color:#e4edff">${escapeHtml(sub)}</p>`;
+  const footer = `
+    <p style="margin:0;font-family:${FONT};font-size:14px;line-height:1.5;color:#ffffff"><b>${owner}</b> · Axeon<br>
+    <span style="color:#cfe0ff">Reply to this email any time; it comes straight to me.</span></p>`;
+
+  if (input.kind === 'note30') {
+    const questions = SURVEYS.note30 ?? [];
+    const blocks = questions.map(
+      (q, i) => `
+      <p class="ax-muted" style="margin:${i === 0 ? 22 : 26}px 0 4px;font-family:${FONT};font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:${BRAND.muted}">${i + 1} of ${questions.length}</p>
+      <p class="ax-ink" style="margin:0;font-family:${FONT};font-size:17px;font-weight:700;line-height:1.35;color:${BRAND.ink}">${escapeHtml(q.text)}</p>
+      ${
+        url
+          ? tapRow(q.options.map((o) => tapButton(`${url}?q=${q.key}&a=${o.value}`, o.label)))
+          : `<p class="ax-body" style="margin:8px 0 0;font-family:${FONT};font-size:14px;color:${BRAND.body}">${q.options.map((o) => escapeHtml(o.label)).join(' · ')}</p>`
+      }`
+    );
+    const body = `
+      <p class="ax-ink" style="margin:22px 0 0;font-family:${FONT};font-size:15px;line-height:1.55;color:${BRAND.ink}">${first} ${escapeHtml(business)} has been live with us for a month. Six quick taps below and we tune the site and the plan to what you want more of. One answer each, under a minute, and every answer changes what we do next.</p>
+      ${blocks.join('')}
+      <p class="ax-muted" style="margin:28px 0 22px;font-family:${FONT};font-size:13px;line-height:1.5;color:${BRAND.muted}">Each tap opens a short page where you can add one sentence if you want to. Your answers go to ${owner} directly, not into a pile.</p>`;
+    return {
+      subject: `${business}: 30 days in, six taps and we tune it to you`,
+      html: brandDocument({
+        subject: '30 days in',
+        headerHtml: header('30 days in', `${first.replace(/,$/, '')}, six taps and we tune ${business} to you.`, 'What you pick decides what we work on next, and what we charge for.'),
+        bodyHtml: body,
+        footerHtml: footer,
+      }),
+    };
+  }
+
+  const body = `
+    <p class="ax-ink" style="margin:22px 0 0;font-family:${FONT};font-size:15px;line-height:1.55;color:${BRAND.ink}">${first} it has been three months since ${escapeHtml(business)} went live. One honest question, one tap.</p>
+    <p class="ax-ink" style="margin:18px 0 0;font-family:${FONT};font-size:17px;font-weight:700;line-height:1.35;color:${BRAND.ink}">Would you recommend Axeon to another business owner?</p>
+    ${url ? tapRow([tapButton(`${url}?r=yes`, 'Yes'), tapButton(`${url}?r=sortof`, 'Maybe'), tapButton(`${url}?r=no`, 'Not yet')]) : ''}
+    <p class="ax-muted" style="margin:22px 0 22px;font-family:${FONT};font-size:13px;line-height:1.5;color:${BRAND.muted}">On a yes, a Google review would mean a lot and the next page has the link. On anything else, tell me why in one sentence and I will fix it.</p>`;
+  return {
+    subject: `${business}: three months in, one tap`,
+    html: brandDocument({
+      subject: 'Three months in',
+      headerHtml: header('Three months in', 'Would you recommend us?', 'One tap, and then a sentence if you feel like it.'),
+      bodyHtml: body,
+      footerHtml: footer,
+    }),
+  };
+}
+
+export async function sendClientNoteEmail(input: ClientNoteEmailInput): Promise<boolean> {
   const resend = getClient();
   if (!resend) return false;
-  const business = input.businessName?.trim() || 'your business';
-  const link = (label: string) => (input.feedbackUrl ? `<a href="${input.feedbackUrl}" style="color:#2563eb">${label}</a>` : label);
-  const p = (s: string) => `<p style="margin:0 0 14px">${s}</p>`;
-  const subject = input.kind === 'note30' ? 'One month in. How is it going?' : 'Three months in. Would you recommend us?';
-  const body =
-    input.kind === 'note30'
-      ? [
-          p(firstName(input.clientName)),
-          p(`${escapeHtml(business)} has been live with us for about a month. Anything about the site, the numbers, or how we are working together that feels off?`),
-          p(`Reply to this email with one line, or ${link('tell me here')}. If everything is fine, that is good to hear too.`),
-          p(`${escapeHtml(OWNER_NAME)}<br>Axeon`),
-        ]
-      : [
-          p(firstName(input.clientName)),
-          p(`It has been three months since ${escapeHtml(business)} went live. One honest question: would you recommend Axeon to another business owner?`),
-          p(`If yes, a Google review would mean a lot, and if you reply I will send you the link. If not, ${link('tell me why in one sentence')} and I will fix it.`),
-          p(`${escapeHtml(OWNER_NAME)}<br>Axeon`),
-        ];
-  await sendChecked(resend, {
-    from: CLIENT_FROM_ADDRESS,
-    replyTo: CLIENT_REPLY_TO,
-    to: input.to,
-    subject,
-    html: `<div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#0a0a0a;font-size:15px;line-height:1.55">${body.join('')}</div>`,
-  });
+  const { subject, html } = renderClientNoteEmail(input);
+  await sendChecked(resend, { from: CLIENT_FROM_ADDRESS, replyTo: CLIENT_REPLY_TO, to: input.to, subject, html });
   return true;
 }
 
@@ -967,17 +1019,26 @@ export async function sendFeedbackNotification(input: {
   month: string | null;
   rating: 'yes' | 'sortof' | 'no' | null;
   comment: string | null;
+  /** Survey answers so far, in words (lib/feedbackShared.ts answerLabel). */
+  answers?: Array<{ question: string; answer: string; attention: boolean }>;
 }): Promise<void> {
   const resend = getClient();
   if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
-  const what = input.kind === 'report' ? `the ${input.month ?? ''} report`.replace('the  report', 'the report') : input.kind === 'note30' ? 'your day-30 note' : 'your day-90 note';
-  const ratingText = input.rating === 'no' ? 'said it was not useful' : input.rating === 'sortof' ? 'said "sort of"' : input.rating === 'yes' ? 'said yes' : 'replied';
+  const what = input.kind === 'report' ? `the ${input.month ?? ''} report`.replace('the  report', 'the report') : input.kind === 'note30' ? 'the day-30 survey' : 'the day-90 note';
+  const flagged = (input.answers ?? []).filter((x) => x.attention);
+  const ratingText = input.rating === 'no' ? 'said it was not useful' : input.rating === 'sortof' ? 'said "sort of"' : input.rating === 'yes' ? 'said yes' : flagged.length ? `answered "${flagged[0].answer}"` : 'replied';
+  const answersHtml = input.answers?.length
+    ? `<table style="margin:12px 0;border-collapse:collapse;font-size:14px">${input.answers
+        .map((x) => `<tr><td style="padding:4px 12px 4px 0;color:#6b7280">${escapeHtml(x.question)}</td><td style="padding:4px 0;font-weight:700;color:${x.attention ? '#b45309' : '#0a0a0a'}">${escapeHtml(x.answer)}</td></tr>`)
+        .join('')}</table>`
+    : '';
   await sendChecked(resend, {
     from: FROM_ADDRESS,
     to: ADMIN_NOTIFICATION_EMAIL,
     subject: `${input.businessName} ${input.comment ? 'left a note' : ratingText} on ${what}`,
     html: `
       <p><b>${escapeHtml(input.businessName)}</b> ${ratingText} on ${escapeHtml(what)}.</p>
+      ${answersHtml}
       ${input.comment ? `<blockquote style="margin:12px 0;padding:10px 14px;border-left:3px solid #2563eb;background:#f4f6fa">${escapeHtml(input.comment)}</blockquote>` : ''}
       <p><a href="https://app.axeonstudio.co/admin/onboarding/${input.token}">Open their page</a> (the Feedback card keeps every answer).</p>
     `,

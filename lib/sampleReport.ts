@@ -5,7 +5,7 @@
 // what lands in the inbox is byte-for-byte what a client would get. Sample
 // emails sent through other channels (Gmail, for one) strip images, <style>
 // and background colours, which is why this exists.
-import type { MonthlyReportEmailInput } from '@/lib/email';
+import type { ClientNoteEmailInput, MonthlyReportEmailInput } from '@/lib/email';
 import { emptyReportBody, reportStats } from '@/lib/projects';
 import type { TrafficDetail } from '@/lib/projectsShared';
 import { summarize } from '@/lib/siteStats';
@@ -152,4 +152,9 @@ export function sampleMonthlyReportInput(to: string): MonthlyReportEmailInput {
     proofUrl: `${APP_ORIGIN}/`,
     feedbackUrl: `${APP_ORIGIN}/f/sample`,
   };
+}
+
+/** The day-30 survey or day-90 note for the same fictional shop. The taps open /f/sample, which says the link is not a real client's. */
+export function sampleNoteInput(to: string, kind: 'note30' | 'note90'): ClientNoteEmailInput {
+  return { to, clientName: 'Mike', businessName: SAMPLE_BUSINESS, kind, feedbackUrl: `${APP_ORIGIN}/f/sample` };
 }
