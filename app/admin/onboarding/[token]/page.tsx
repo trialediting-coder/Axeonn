@@ -41,8 +41,8 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
         </Link>
         {upgrade && upgrade.tier !== onboarding.tier ? (
           <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-950">
-            <b>Wants to move to {TIER_LABELS[upgrade.tier]}.</b> Pressed in their dashboard on {new Date(upgrade.at).toLocaleDateString('en-US')}; they were told it switches on
-            within one business day. Set up billing, change their plan, and reply to confirm.
+            <b>Asked about {TIER_LABELS[upgrade.tier]}.</b> Pressed in their dashboard on {new Date(upgrade.at).toLocaleDateString('en-US')}; they were told you would reach out
+            within one business day to walk them through it. Call or email them.
           </div>
         ) : null}
         <OnboardingDetail

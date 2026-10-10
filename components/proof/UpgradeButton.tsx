@@ -1,9 +1,11 @@
 'use client';
 
 // components/proof/UpgradeButton.tsx
-// The one button on a locked tab. Posts to /api/proof/upgrade; after that it
-// reads "Requested" and stays that way. In the admin preview it is disabled,
-// since the admin is not the client.
+// The one button on a locked tab: "Ask us about <plan>". A bigger plan is set
+// up for the shop, not switched on with a click, so the tap tells the owner the
+// client is interested and promises a walkthrough. Posts to /api/proof/upgrade;
+// after that it reads "We'll reach out" and stays that way. Disabled in the
+// admin preview, since the admin is not the client.
 import { useState } from 'react';
 import { Check } from 'lucide-react';
 import type { OnboardingTier } from '@/data/onboardingItems';
@@ -33,9 +35,9 @@ export function UpgradeButton({ tier, label, requestedAt, preview }: { tier: Onb
     return (
       <div className="rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
         <p className="flex items-center gap-2 font-semibold">
-          <Check size={16} /> Requested{day ? ` on ${day}` : ''}.
+          <Check size={16} /> Got it{day ? `, ${day}` : ''}.
         </p>
-        <p className="mt-1 text-emerald-800">We will switch it on within one business day and confirm by email. Nothing changes until then.</p>
+        <p className="mt-1 text-emerald-800">We will reach out within one business day to walk you through it. Nothing changes until you say yes.</p>
       </div>
     );
   }

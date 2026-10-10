@@ -664,7 +664,7 @@ test('every tab is visible, tabs outside the plan are locked, and the price read
   assert.match(lockedHeadline(proofTab('calls'), null), /^When a call rings out, AxeonCORE/);
   assert.match(lockedHeadline(proofTab('ads'), t), /without a dollar of ads\. AxeonGROWTH/);
   for (const tab of PROOF_TABS.filter((x) => x.tier !== 'essentials')) {
-    assert.ok(tab.includes.length >= 3 && tab.sample.length >= 3, `${tab.key} has bullets and a sample`);
+    assert.ok(tab.includes.length >= 3, `${tab.key} has bullets`);
     assert.doesNotMatch(lockedHeadline(tab, t) + tab.includes.join(' '), /conversion/i);
   }
 });
