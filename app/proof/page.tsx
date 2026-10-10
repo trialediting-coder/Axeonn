@@ -7,10 +7,12 @@ import { ProofAuthShell } from '@/components/proof/ProofAuthShell';
 import { SignInForm } from '@/components/proof/ProofForms';
 import { ProofDashboard } from '@/components/proof/ProofDashboard';
 import { loadDashboardData } from '@/lib/proofDashboardData';
+import { isProofTab } from '@/lib/proofTabs';
 
 export const dynamic = 'force-dynamic';
 
-export default async function ProofPage() {
+export default async function ProofPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
+  const { tab } = await searchParams;
   const account = await getSignedInClient();
   const onboarding = account ? await getOnboardingById(account.onboardingId).catch(() => null) : null;
 
@@ -22,5 +24,5 @@ export default async function ProofPage() {
     );
   }
 
-  return <ProofDashboard email={account.email} {...(await loadDashboardData(onboarding))} leadApi="/api/proof/leads" />;
+  return <ProofDashboard email={account.email} {...(await loadDashboardData(onboarding))} leadApi="/api/proof/leads" tab={isProofTab(tab) ? tab : 'overview'} />;
 }

@@ -294,6 +294,9 @@ export function ensureSchema(): Promise<void> {
       `;
       await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS note30_sent_at TIMESTAMPTZ;`;
       await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS note90_sent_at TIMESTAMPTZ;`;
+      // A client asked, from their dashboard, to move to a bigger plan (lib/upgrades.ts).
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS upgrade_requested_tier TEXT;`;
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS upgrade_requested_at TIMESTAMPTZ;`;
       // The call deck (/admin/calls, lib/callLeads.ts): prospects imported from the
       // Iowa detailer spreadsheet, plus the owner's notes and call outcomes.
       await sql`

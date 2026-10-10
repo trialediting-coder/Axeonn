@@ -2,7 +2,7 @@
 import { Resend } from 'resend';
 import { WEEKDAY_LABELS, buttonLabel, campaignLabel, hourLabel, sourceLabel, type TrafficDetail, type TrafficSummary } from '@/lib/projectsShared';
 import { TAGLINE, alwaysOnSentence, headlineSentence, reportHighlights } from '@/lib/reportCopy';
-import type { OnboardingTier } from '@/data/onboardingItems';
+import { TIER_LABELS, type OnboardingTier } from '@/data/onboardingItems';
 
 const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_EMAIL;
 // Resend rejects sends from a domain that hasn't been verified in the
@@ -957,6 +957,22 @@ export async function sendFeedbackNotification(input: {
       <p><b>${escapeHtml(input.businessName)}</b> ${ratingText} on ${escapeHtml(what)}.</p>
       ${input.comment ? `<blockquote style="margin:12px 0;padding:10px 14px;border-left:3px solid #2563eb;background:#f4f6fa">${escapeHtml(input.comment)}</blockquote>` : ''}
       <p><a href="https://app.axeonstudio.co/admin/onboarding/${input.token}">Open their page</a> (the Feedback card keeps every answer).</p>
+    `,
+  });
+}
+
+/** To the owner: a client pressed "Move me to <plan>" on a locked tab (lib/upgrades.ts). */
+export async function sendUpgradeRequestNotification(input: { businessName: string; clientEmail: string; token: string; from: OnboardingTier; to: OnboardingTier }): Promise<void> {
+  const resend = getClient();
+  if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
+  await sendChecked(resend, {
+    from: FROM_ADDRESS,
+    to: ADMIN_NOTIFICATION_EMAIL,
+    subject: `${input.businessName} wants to move to ${TIER_LABELS[input.to]}`,
+    html: `
+      <p><b>${escapeHtml(input.businessName)}</b> (${escapeHtml(input.clientEmail)}) pressed "Move me to ${TIER_LABELS[input.to]}" in AxeonPROOF. They are on ${TIER_LABELS[input.from]} today.</p>
+      <p>They were told it will be switched on within one business day and confirmed by email, and that nothing changes until then. Set up billing, change their plan, and reply to them.</p>
+      <p><a href="https://app.axeonstudio.co/admin/onboarding/${input.token}">Open their page</a></p>
     `,
   });
 }

@@ -8,15 +8,16 @@ import { computeProgress, getItemStates, orderedItems, welcomeUrl, type Onboardi
 import { getProjectDetails, guaranteeDay, listMonthlyReports, listProjectUpdates, tierHasGuarantee } from '@/lib/projects';
 import { monthLabel } from '@/lib/projectsShared';
 import { getTrackingSettings, leadRows, monthOf, previousMonth } from '@/lib/siteStats';
+import { getUpgradeRequest } from '@/lib/upgrades';
 import type { ProofDashboard } from '@/components/proof/ProofDashboard';
 import type { ComponentProps } from 'react';
 
-export type DashboardData = Omit<ComponentProps<typeof ProofDashboard>, 'email' | 'preview' | 'leadApi'>;
+export type DashboardData = Omit<ComponentProps<typeof ProofDashboard>, 'email' | 'preview' | 'leadApi' | 'tab'>;
 
 export async function loadDashboardData(onboarding: Onboarding): Promise<DashboardData> {
   const month = monthOf();
   const previous = previousMonth(month);
-  const [states, details, updates, reports, agreement, tracking, thisLeads, lastLeads] = await Promise.all([
+  const [states, details, updates, reports, agreement, tracking, thisLeads, lastLeads, upgradeRequest] = await Promise.all([
     getItemStates(onboarding.id),
     getProjectDetails(onboarding.id),
     listProjectUpdates(onboarding.id),
@@ -25,6 +26,7 @@ export async function loadDashboardData(onboarding: Onboarding): Promise<Dashboa
     getTrackingSettings(onboarding.id),
     leadRows(onboarding.id, month),
     leadRows(onboarding.id, previous),
+    getUpgradeRequest(onboarding.id),
   ]);
   return {
     onboarding,
@@ -45,5 +47,6 @@ export async function loadDashboardData(onboarding: Onboarding): Promise<Dashboa
       { month, label: `${monthLabel(month)} so far`, rows: thisLeads },
       { month: previous, label: monthLabel(previous), rows: lastLeads },
     ],
+    upgradeRequest,
   };
 }
