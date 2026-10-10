@@ -8,16 +8,20 @@ import { computeProgress, getItemStates, orderedItems, welcomeUrl, type Onboardi
 import { getProjectDetails, guaranteeDay, listMonthlyReports, listProjectUpdates, tierHasGuarantee } from '@/lib/projects';
 import { monthLabel } from '@/lib/projectsShared';
 import { effectiveCloseRate, getTrackingSettings, hasTraffic, leadRows, monthOf, monthTraffic, ownVisitsUrl, previousMonth } from '@/lib/siteStats';
+import { clientBilling } from '@/lib/clientBilling';
+import { CLIENT_REPLY_TO } from '@/lib/email';
 import { getUpgradeRequest } from '@/lib/upgrades';
+import type { ProofTabKey } from '@/lib/proofTabs';
 import type { ProofDashboard } from '@/components/proof/ProofDashboard';
 import type { ComponentProps } from 'react';
 
 export type DashboardData = Omit<ComponentProps<typeof ProofDashboard>, 'email' | 'preview' | 'leadApi' | 'tab'>;
 
-export async function loadDashboardData(onboarding: Onboarding): Promise<DashboardData> {
+/** `tab` decides what is worth fetching: Stripe is only read for the Billing tab. */
+export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey = 'overview'): Promise<DashboardData> {
   const month = monthOf();
   const previous = previousMonth(month);
-  const [states, details, updates, reports, agreement, tracking, thisLeads, lastLeads, upgradeRequest] = await Promise.all([
+  const [states, details, updates, reports, agreement, tracking, thisLeads, lastLeads, upgradeRequest, billing] = await Promise.all([
     getItemStates(onboarding.id),
     getProjectDetails(onboarding.id),
     listProjectUpdates(onboarding.id),
@@ -27,6 +31,7 @@ export async function loadDashboardData(onboarding: Onboarding): Promise<Dashboa
     leadRows(onboarding.id, month),
     leadRows(onboarding.id, previous),
     getUpgradeRequest(onboarding.id),
+    tab === 'billing' ? clientBilling(onboarding) : Promise.resolve(null),
   ]);
   // This month straight from the tracker, so the overview is never blank between reports
   // (and never blank before the first report, which is the first thing a new client sees).
@@ -55,6 +60,8 @@ export async function loadDashboardData(onboarding: Onboarding): Promise<Dashboa
       { month: previous, label: monthLabel(previous), rows: lastLeads },
     ],
     upgradeRequest,
+    billing,
+    ownerEmail: CLIENT_REPLY_TO,
     live: hasTraffic(thisMonth) ? { month, traffic: thisMonth, prev: hasTraffic(lastMonth) ? lastMonth : null } : null,
   };
 }

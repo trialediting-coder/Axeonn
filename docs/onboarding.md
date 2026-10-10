@@ -371,3 +371,17 @@ To see a real client's numbers, open their onboarding and use **View as client**
   emails them and taps "Sent them".
 - Prefill from the client's existing Google listing. Today prefill is limited to
   what Stripe knows: business name, contact, email, phone.
+
+## Billing tab
+
+Every plan has a Billing tab in AxeonPROOF (`components/proof/BillingTab.tsx`).
+It reads the client's Stripe customer live each time the tab opens
+(`lib/clientBilling.ts`: plan from the subscription, card from the default
+payment method, the last 24 invoices with Stripe's hosted pay/view links and
+PDFs). It does not depend on the webhook. "Open billing" posts to
+`/api/proof/billing`, which creates a Customer Portal session that returns to
+`?tab=billing`; the portal is where the card, receipts and billing email are
+changed. Before the first invoice there is nothing in Stripe, so the tab shows
+the plan price and the reply-to address instead. The portal needs the Customer
+Portal configuration saved in Stripe (docs/stripe.md) and the restricted key's
+"Customer portal: Write" permission.

@@ -125,7 +125,8 @@ export async function sendBillingNotification(input: {
 // strings and go through escapeHtml.
 
 const CLIENT_FROM_ADDRESS = process.env.RESEND_CLIENT_FROM_EMAIL || 'Axeon Studio <hello@axeonstudio.co>';
-const CLIENT_REPLY_TO = process.env.RESEND_CLIENT_REPLY_TO || 'hello@axeonstudio.co';
+/** Where clients write back: the reply-to on every client email and the billing contact on the dashboard. */
+export const CLIENT_REPLY_TO = process.env.RESEND_CLIENT_REPLY_TO || 'hello@axeonstudio.co';
 
 
 type SendPayload = Parameters<Resend['emails']['send']>[0];

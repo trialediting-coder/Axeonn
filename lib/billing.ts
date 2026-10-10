@@ -573,12 +573,12 @@ export async function createAgreementCheckout(input: AgreementCheckoutInput): Pr
 // Customer Portal
 // ---------------------------------------------------------------------------
 
-export async function createPortalLink(email: string): Promise<string> {
+export async function createPortalLink(email: string, returnUrl: string = SITE_URL): Promise<string> {
   const customer = await findCustomerByEmail(email);
   if (!customer) throw new Error(`No Stripe customer found for ${email.trim().toLowerCase()}`);
   const session = await getStripe().billingPortal.sessions.create({
     customer: customer.id,
-    return_url: SITE_URL,
+    return_url: returnUrl,
   });
   return session.url;
 }
