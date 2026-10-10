@@ -359,7 +359,7 @@ export function ProofDashboard({
                 <Icon size={18} className={active ? 'text-white' : 'text-neutral-500'} />
                 {t.label}
                 {locked ? (
-                  <span className={`ml-auto rounded-full px-1.5 py-px text-[10px] font-bold uppercase tracking-wide ${active ? 'bg-white/15 text-white' : 'bg-blue-50 text-blue-700'}`}>{TIER_SHORT[t.tier]}</span>
+                  <span className={`ml-auto text-[11px] font-bold uppercase tracking-wide ${active ? 'text-white/80' : 'text-blue-600'}`}>{TIER_SHORT[t.tier]}</span>
                 ) : null}
               </a>
             );
@@ -410,7 +410,7 @@ export function ProofDashboard({
               }`}
             >
               {t.label}
-              {locked ? <span className={`rounded-full px-1.5 py-px text-[10px] font-bold uppercase ${active ? 'bg-white/20' : 'bg-blue-50 text-blue-700'}`}>{TIER_SHORT[t.tier]}</span> : null}
+              {locked ? <span className={`text-[10px] font-bold uppercase tracking-wide ${active ? 'text-white/80' : 'text-blue-600'}`}>{TIER_SHORT[t.tier]}</span> : null}
             </a>
           );
         })}
