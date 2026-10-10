@@ -264,7 +264,7 @@ export function Hero() {
         </div>
 
         <div className="relative z-10 w-full max-w-3xl flex-1 flex flex-col justify-center sm:ml-16 lg:ml-24 xl:ml-32">
-          <h1 className="hero-rise text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-black tracking-[-0.03em] [word-spacing:0.12em] leading-[1.05] font-display text-white">
+          <h1 className="hero-rise text-center sm:text-left text-[min(3.25rem,13.5vw)] sm:text-6xl lg:text-7xl xl:text-8xl font-black tracking-[-0.03em] [word-spacing:0.12em] leading-[1.05] font-display text-white">
             Get More
             {/* The rotating word always sits on its own line. */}
             <span className="grid">
@@ -285,15 +285,16 @@ export function Hero() {
 
           <p
             style={{ animationDelay: '0.15s' }}
-            className="hero-rise mt-4 sm:mt-6 text-base sm:text-lg lg:text-xl text-neutral-300 font-normal leading-relaxed max-w-xl"
+            className="hero-rise hidden sm:block mt-6 text-lg lg:text-xl text-neutral-300 font-normal leading-relaxed max-w-xl"
           >
+            {/* Desktop only: on phones the hero is headline, CTAs and badges (owner, 2026-10-10). */}
             We get Iowa businesses found on Google, chosen over the competition, and
             booked solid. Backed by our 90-day customer guarantee.
           </p>
 
           <div
             style={{ animationDelay: '0.25s' }}
-            className="hero-rise mt-6 sm:mt-8 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4"
+            className="hero-rise mt-8 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4"
           >
             {/* Primary: the dedicated intake page (same form as the contact section) */}
             <Link
@@ -322,7 +323,7 @@ export function Hero() {
 
           <div
             style={{ animationDelay: '0.35s' }}
-            className="hero-rise mt-6 sm:mt-8"
+            className="hero-rise mt-8"
           >
             <TrustBadges variant="dark" size="lg" />
           </div>
