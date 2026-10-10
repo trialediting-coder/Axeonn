@@ -105,6 +105,21 @@ function webMetric(key: WebKey, t: TrafficSummary, prev: TrafficSummary | null, 
   };
 }
 
+/** Your own visits count too: one tap per phone or laptop leaves that device out. */
+function OwnVisitsLine({ url, className = '', tone = 'neutral' }: { url: string; className?: string; tone?: 'neutral' | 'amber' }) {
+  const text = tone === 'amber' ? 'text-amber-900/80' : 'text-neutral-500';
+  const link = tone === 'amber' ? 'text-amber-950 hover:text-amber-900' : 'text-blue-600 hover:text-blue-700';
+  return (
+    <p className={`text-xs ${text} ${className}`}>
+      Your own visits count too.{' '}
+      <a href={url} target="_blank" rel="noopener" className={`font-semibold ${link}`}>
+        Leave this device out
+      </a>
+      {' '}· opens your site once; do it on each phone or computer you use.
+    </p>
+  );
+}
+
 const prettyDay = (iso: string | null) =>
   iso
     ? new Date(iso.length === 10 ? `${iso}T12:00:00Z` : iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -181,6 +196,7 @@ export function ProofDashboard({
   tab = 'overview',
   upgradeRequest = null,
   live: liveTraffic = null,
+  ownVisitsUrl = null,
 }: {
   email: string;
   onboarding: Onboarding;
@@ -209,6 +225,8 @@ export function ProofDashboard({
   upgradeRequest?: UpgradeRequest | null;
   /** This month so far, straight from the tracker (lib/siteStats.ts monthTraffic); shown ahead of the saved report. */
   live?: LiveTraffic | null;
+  /** Opens the client's site so the device it is tapped on stops counting (lib/siteStats.ts ownVisitsUrl). */
+  ownVisitsUrl?: string | null;
 }) {
   const latest = reports[0] ?? null;
   const prev = reports[1] ?? null;
@@ -370,6 +388,7 @@ export function ProofDashboard({
               <p className="mt-0.5 text-xs text-amber-900/80">
                 Everything fills in by itself the day your site goes live with Axeon&apos;s tracking line: visits, who reached out, and what it is worth. Until then this page shows what is coming.
               </p>
+              {ownVisitsUrl ? <OwnVisitsLine url={ownVisitsUrl} className="mt-2" tone="amber" /> : null}
             </div>
             {!setupDone ? (
               <a href={setupUrl} className="shrink-0 rounded-lg bg-amber-950 px-3 py-1.5 text-center text-xs font-semibold text-white hover:bg-amber-900">
@@ -432,6 +451,7 @@ export function ProofDashboard({
             })}
           </div>
         ) : null}
+        {traffic && ownVisitsUrl ? <OwnVisitsLine url={ownVisitsUrl} className="mt-3" /> : null}
 
         {leads.some((m) => m.rows.length > 0) ? <LeadLog months={leads} api={leadApi} /> : null}
 

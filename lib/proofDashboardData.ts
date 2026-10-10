@@ -7,7 +7,7 @@ import { agreementUrl, latestSignedAgreementFor } from '@/lib/agreements';
 import { computeProgress, getItemStates, orderedItems, welcomeUrl, type Onboarding } from '@/lib/onboarding';
 import { getProjectDetails, guaranteeDay, listMonthlyReports, listProjectUpdates, tierHasGuarantee } from '@/lib/projects';
 import { monthLabel } from '@/lib/projectsShared';
-import { effectiveCloseRate, getTrackingSettings, hasTraffic, leadRows, monthOf, monthTraffic, previousMonth } from '@/lib/siteStats';
+import { effectiveCloseRate, getTrackingSettings, hasTraffic, leadRows, monthOf, monthTraffic, ownVisitsUrl, previousMonth } from '@/lib/siteStats';
 import { getUpgradeRequest } from '@/lib/upgrades';
 import type { ProofDashboard } from '@/components/proof/ProofDashboard';
 import type { ComponentProps } from 'react';
@@ -48,6 +48,7 @@ export async function loadDashboardData(onboarding: Onboarding): Promise<Dashboa
     guaranteeDay: guaranteeDay(details.kickoffAt),
     agreementUrl: agreement ? agreementUrl(agreement.token) : null,
     avgJobValue: tracking.avgJobValue,
+    ownVisitsUrl: ownVisitsUrl(tracking.siteUrl),
     // Live from the events table, not the saved report, so a lead shows up the day it happens.
     leads: [
       { month, label: `${monthLabel(month)} so far`, rows: thisLeads },

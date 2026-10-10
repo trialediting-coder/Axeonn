@@ -143,9 +143,14 @@ own: `tel:` links are `call`, `sms:` is `text`, `mailto:` is `email`, booking
 links (Cal.com, Calendly, Square, Jobber, Housecall Pro…) are `book`, map links
 are `directions`, a form send is `form`, and any `<button>`, `role="button"` or
 `.btn`/`.cta` link is recorded by its text. `data-axeon="quote"` on an element
-names it by hand. No cookies, no storage, no IP kept: the visitor column is a
-salted hash that changes every month, so "visitors" means unique people that
-month. Bots, headless browsers and localhost are ignored. The site key is
+names it by hand. No cookies, no IP kept: the visitor column is a salted hash
+that changes every month, so "visitors" means unique people that month. Bots,
+headless browsers and localhost are ignored. The owner's own devices are left
+out per device, not by IP (phones change IP constantly and the shop Wi-Fi is
+shared): opening the site with `?ax_ignore=1` sets a local-storage flag the
+script checks before sending anything, `?ax_ignore=0` clears it, and a small
+notice confirms either. The link is built by `ownVisitsUrl` and shown on the
+client's overview and the admin's Tracking card. The site key is
 minted the first time the admin opens the client's page; a wrong key is
 dropped silently. Rows live in `site_events` (`lib/siteStats.ts`) and are
 pruned after 15 months; the monthly summaries stay on the reports forever.

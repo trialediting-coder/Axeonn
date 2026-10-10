@@ -3,10 +3,13 @@
  *  Sends page views, clicks on the buttons that matter (call, text, email,
  *  form, book online, directions, reviews, social links, and any <button> or
  *  .btn/.cta link), and one "leave" ping per page with time spent, scroll
- *  depth and load speed, to axeonstudio.co/api/t. No cookies, no storage,
- *  nothing personal. Add data-axeon="quote" to any element to name its clicks.
+ *  depth and load speed, to axeonstudio.co/api/t. No cookies, nothing
+ *  personal. Add data-axeon="quote" to any element to name its clicks.
  *  data-host="example.com" limits recording to that host (previews and staging
  *  stay out). window.axeonTrack('book') records a click by name from your code.
+ *  Opening the site once with ?ax_ignore=1 leaves that browser out from then on
+ *  (the owner's own phone and laptop); ?ax_ignore=0 counts it again. That flag
+ *  in local storage is the only thing the script ever keeps on a device.
  */
 (function () {
   var s = document.currentScript;
@@ -18,6 +21,38 @@
   if (/^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(location.hostname)) return;
   var only = s.getAttribute('data-host');
   if (only && location.hostname.replace(/^www\./, '') !== only.replace(/^www\./, '')) return;
+
+  // ── The owner's own devices ──
+  // ?ax_ignore=1 marks this browser as "do not count" (the shop owner checking
+  // their own site); ?ax_ignore=0 clears it. A small notice confirms the change.
+  var IGNORE = 'ax_ignore';
+  try {
+    var flag = /[?&]ax_ignore=(1|0)(&|$)/.exec(location.search);
+    if (flag) {
+      if (flag[1] === '1') localStorage.setItem(IGNORE, '1');
+      else localStorage.removeItem(IGNORE);
+      notice(flag[1] === '1' ? 'Axeon: visits from this device are no longer counted.' : 'Axeon: visits from this device are counted again.');
+    }
+    if (localStorage.getItem(IGNORE) === '1') return;
+  } catch (_) {}
+
+  function notice(msg) {
+    function show() {
+      try {
+        var n = document.createElement('div');
+        n.setAttribute('role', 'status');
+        n.style.cssText =
+          'position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:2147483647;max-width:calc(100vw - 32px);padding:10px 16px;border-radius:10px;background:#0B0D12;color:#fff;font:600 14px/1.4 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.25)';
+        n.textContent = msg;
+        document.body.appendChild(n);
+        setTimeout(function () {
+          if (n.parentNode) n.parentNode.removeChild(n);
+        }, 6000);
+      } catch (_) {}
+    }
+    if (document.body) show();
+    else addEventListener('DOMContentLoaded', show);
+  }
 
   function post(data) {
     data.k = key;
