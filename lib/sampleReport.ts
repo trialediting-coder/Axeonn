@@ -135,6 +135,7 @@ export function sampleMonthlyReportInput(to: string): MonthlyReportEmailInput {
     businessName: SAMPLE_BUSINESS,
     tier: 'axeoncore',
     monthLabel: 'September 2026',
+    month: '2026-09',
     prevMonthLabel: 'August',
     stats: reportStats(report, prev, details, { avgJobValue: 300 }),
     traffic,

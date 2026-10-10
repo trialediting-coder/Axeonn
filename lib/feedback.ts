@@ -10,7 +10,7 @@ import { ensureSchema, isDatabaseConfigured, sql } from '@/lib/db';
 import { sendFeedbackNotification } from '@/lib/email';
 import { SITE_ORIGIN } from '@/lib/hostRouting';
 
-export { FEEDBACK_KINDS, KIND_LABELS, RATING_LABELS, SURVEYS, answerLabel, cleanAnswers, isFeedbackKind, isFeedbackRating, surveyFor } from '@/lib/feedbackShared';
+export { FEEDBACK_KINDS, KIND_LABELS, RATING_LABELS, REPORT_ROTATION, SURVEYS, answerLabel, askedQuestions, cleanAnswers, isFeedbackKind, isFeedbackRating, surveyFor } from '@/lib/feedbackShared';
 export type { FeedbackAnswers, FeedbackEntry, FeedbackKind, FeedbackRating, SurveyQuestion } from '@/lib/feedbackShared';
 import { answerLabel, cleanAnswers, isFeedbackKind, isFeedbackRating, type FeedbackAnswers, type FeedbackEntry, type FeedbackKind, type FeedbackRating } from '@/lib/feedbackShared';
 

@@ -13,10 +13,18 @@ export const RATING_LABELS: Record<FeedbackRating, string> = { yes: 'Yes', sorto
 export const KIND_LABELS: Record<FeedbackKind, string> = { report: 'Monthly report', note30: 'Day-30 survey', note90: 'Day-90 note' };
 
 /**
- * The tap-to-answer survey in the day-30 email. Every option is a link, so one
- * tap in the inbox records an answer; the landing page then offers the rest.
- * Each question is framed as "what should we do for you", so answering it
- * changes what Axeon works on next. `attention` options email the owner.
+ * Tap-to-answer questions. Every option is a link, so one tap in the inbox
+ * records an answer; the landing page then offers the rest of what that email
+ * asked. `attention` options email the owner the first time they land.
+ *
+ * Day 30 is three taps, each one a number that predicts whether the client
+ * stays: did the site bring a job they would not have had, does anyone pick
+ * up when it rings (explains most results and is the honest case for
+ * AxeonCORE), and is it worth the price so far.
+ *
+ * The monthly report asks "how many jobs came from the site" every month, a
+ * series that calibrates the estimated-customers number per client, plus one
+ * question that rotates with the month (REPORT_ROTATION).
  */
 export interface SurveyOption {
   value: string;
@@ -31,44 +39,51 @@ export interface SurveyQuestion {
 export const SURVEYS: Partial<Record<FeedbackKind, readonly SurveyQuestion[]>> = {
   note30: [
     {
-      key: 'leads',
-      text: 'Are the calls and leads what you hoped for?',
+      key: 'job',
+      text: 'Has the site brought you a job you would not have gotten otherwise?',
       options: [
-        { value: 'more', label: 'More than I expected' },
-        { value: 'right', label: 'About right' },
-        { value: 'fewer', label: 'Fewer than I hoped', attention: true },
+        { value: 'yes', label: 'Yes' },
+        { value: 'notsure', label: 'Not sure' },
+        { value: 'notyet', label: 'Not yet', attention: true },
       ],
     },
     {
-      // Calibrates the "estimated customers" number against what the owner actually saw.
-      key: 'jobs',
-      text: 'Roughly how many jobs came from the site this month?',
+      key: 'pickup',
+      text: 'When the site makes the phone ring, how often does someone pick up?',
       options: [
-        { value: '0', label: 'None yet', attention: true },
-        { value: '1-3', label: '1 to 3' },
-        { value: '4-10', label: '4 to 10' },
-        { value: '10+', label: 'More than 10' },
+        { value: 'always', label: 'Almost always' },
+        { value: 'half', label: 'About half' },
+        { value: 'rarely', label: 'Rarely', attention: true },
       ],
     },
     {
-      // Pricing: is the monthly fee earning its place. "Not yet" reaches the owner before it becomes a cancellation.
-      key: 'value',
-      text: 'Is what you pay each month worth it so far?',
+      key: 'worth',
+      text: 'Is it worth what you pay so far?',
       options: [
         { value: 'easily', label: 'Easily' },
         { value: 'even', label: 'About even' },
         { value: 'notyet', label: 'Not yet', attention: true },
       ],
     },
+  ],
+  report: [
     {
-      // Where the owner thinks customers come from, against what the tracker says.
-      key: 'source',
-      text: 'Where did your best new customer this month come from?',
+      key: 'jobs',
+      text: 'Roughly how many jobs came from the site this month?',
       options: [
-        { value: 'google', label: 'Google' },
-        { value: 'site', label: 'My website' },
-        { value: 'wordofmouth', label: 'Word of mouth' },
-        { value: 'social', label: 'Social media' },
+        { value: '0', label: 'None', attention: true },
+        { value: '1-3', label: '1 to 3' },
+        { value: '4-10', label: '4 to 10' },
+        { value: '10+', label: 'More than 10' },
+      ],
+    },
+    {
+      key: 'clear',
+      text: 'Did the numbers in this report make sense?',
+      options: [
+        { value: 'yes', label: 'Clear' },
+        { value: 'mostly', label: 'Mostly' },
+        { value: 'no', label: 'Confusing', attention: true },
       ],
     },
     {
@@ -82,21 +97,35 @@ export const SURVEYS: Partial<Record<FeedbackKind, readonly SurveyQuestion[]>> =
       ],
     },
     {
-      key: 'clear',
-      text: 'Do the numbers in AxeonPROOF make sense?',
+      key: 'source',
+      text: 'Where did your best new customer this month come from?',
       options: [
-        { value: 'yes', label: 'Clear' },
-        { value: 'mostly', label: 'Mostly' },
-        { value: 'no', label: 'Confusing', attention: true },
+        { value: 'google', label: 'Google' },
+        { value: 'site', label: 'My website' },
+        { value: 'wordofmouth', label: 'Word of mouth' },
+        { value: 'social', label: 'Social media' },
       ],
     },
   ],
 };
 
-/** Answers keyed by question: { leads: 'fewer', next: 'calls' }. */
-export type FeedbackAnswers = Record<string, string>;
+/** The report's second question, by month: "2026-10" asks the first, "2026-11" the second, and round again. */
+export const REPORT_ROTATION: readonly string[] = ['clear', 'next', 'source'];
 
+/** Every question that exists for a kind (what an answer may name). */
 export const surveyFor = (kind: FeedbackKind): readonly SurveyQuestion[] => SURVEYS[kind] ?? [];
+
+/** The questions one email actually asked: all of the day-30 survey; for a report, jobs plus the month's rotating one. */
+export function askedQuestions(kind: FeedbackKind, month: string | null): readonly SurveyQuestion[] {
+  const all = surveyFor(kind);
+  if (kind !== 'report') return all;
+  const m = month ? Number(month.slice(5, 7)) : 1;
+  const rotating = REPORT_ROTATION[(Number.isFinite(m) ? m - 1 : 0) % REPORT_ROTATION.length];
+  return all.filter((q) => q.key === 'jobs' || q.key === rotating);
+}
+
+/** Answers keyed by question: { job: 'yes', pickup: 'half' }. */
+export type FeedbackAnswers = Record<string, string>;
 
 /** Keeps only answers that belong to this kind's survey, by question key and option value. */
 export function cleanAnswers(kind: FeedbackKind, raw: unknown): FeedbackAnswers {
@@ -123,7 +152,7 @@ export interface FeedbackEntry {
   month: string | null;
   rating: FeedbackRating | null;
   comment: string | null;
-  /** Survey taps, by question key (SURVEYS). Empty for a report. */
+  /** Survey taps, by question key (SURVEYS). */
   answers: FeedbackAnswers;
   createdAt: string;
 }
