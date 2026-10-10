@@ -10,9 +10,9 @@ import { ensureSchema, isDatabaseConfigured, sql } from '@/lib/db';
 import { sendFeedbackNotification } from '@/lib/email';
 import { SITE_ORIGIN } from '@/lib/hostRouting';
 
-export { FEEDBACK_KINDS, KIND_LABELS, RATING_LABELS, isFeedbackKind, isFeedbackRating } from '@/lib/feedbackShared';
-export type { FeedbackEntry, FeedbackKind, FeedbackRating } from '@/lib/feedbackShared';
-import { isFeedbackKind, isFeedbackRating, type FeedbackEntry, type FeedbackKind, type FeedbackRating } from '@/lib/feedbackShared';
+export { FEEDBACK_KINDS, KIND_LABELS, RATING_LABELS, SURVEYS, answerLabel, cleanAnswers, isFeedbackKind, isFeedbackRating, surveyFor } from '@/lib/feedbackShared';
+export type { FeedbackAnswers, FeedbackEntry, FeedbackKind, FeedbackRating, SurveyQuestion } from '@/lib/feedbackShared';
+import { answerLabel, cleanAnswers, isFeedbackKind, isFeedbackRating, type FeedbackAnswers, type FeedbackEntry, type FeedbackKind, type FeedbackRating } from '@/lib/feedbackShared';
 
 const secret = () => process.env.TRACKING_SALT || process.env.AUTH_SECRET || '';
 const MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
@@ -52,39 +52,89 @@ export function feedbackUrl(ref: FeedbackRef): string | null {
   return token ? `${SITE_ORIGIN}/f/${token}` : null;
 }
 
+/** Shape of the survey taps on a row. */
+export type StoredAnswers = FeedbackAnswers;
+
 const cleanComment = (v: unknown) => (typeof v === 'string' ? v.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '').trim().slice(0, 1000) : '');
 
+interface Row {
+  id: number;
+  kind: FeedbackKind;
+  month: string | null;
+  rating: FeedbackRating | null;
+  comment: string | null;
+  answers: unknown;
+  created_at: string | Date;
+}
+const toEntry = (r: Row): FeedbackEntry => ({
+  id: r.id,
+  kind: r.kind,
+  month: r.month,
+  rating: r.rating,
+  comment: r.comment,
+  answers: cleanAnswers(r.kind, r.answers),
+  createdAt: new Date(r.created_at).toISOString(),
+});
+
+/** What this client has already said for this kind and month, so the landing page asks only what is left. */
+export async function getFeedback(ref: FeedbackRef): Promise<FeedbackEntry | null> {
+  if (!isDatabaseConfigured()) return null;
+  await ensureSchema();
+  const res = await sql<Row>`
+    SELECT id, kind, month, rating, comment, answers, created_at FROM client_feedback
+    WHERE onboarding_id = ${ref.onboardingId} AND kind = ${ref.kind} AND month_key = ${ref.month ?? '-'} LIMIT 1;
+  `;
+  return res.rows[0] ? toEntry(res.rows[0]) : null;
+}
+
 /**
- * Records a tap and/or a sentence. One row per client, kind and month: a second
- * tap replaces the first (a link scanner's click is overwritten by the person's),
- * and a comment is added to the row rather than making a new one. The owner is
- * emailed for a "No" or for any comment, never for a plain "Yes".
+ * Records a tap, survey answers and/or a sentence. One row per client, kind and
+ * month: a second tap replaces the first (a link scanner's click is overwritten
+ * by the person's), answers merge in by question, and a comment is added to the
+ * row rather than making a new one. The owner is emailed for a "No", for any
+ * comment, and for a survey answer marked `attention` the first time it lands;
+ * never for a plain "Yes".
  */
 export async function recordFeedback(
   ref: FeedbackRef,
-  input: { rating?: unknown; comment?: unknown },
+  input: { rating?: unknown; comment?: unknown; answers?: unknown },
   who: { businessName: string; token: string }
 ): Promise<FeedbackEntry | null> {
   if (!isDatabaseConfigured()) return null;
   await ensureSchema();
   const rating = isFeedbackRating(input.rating) ? input.rating : null;
   const comment = cleanComment(input.comment);
-  if (!rating && !comment) return null;
-  const res = await sql<{ id: number; kind: FeedbackKind; month: string | null; rating: FeedbackRating | null; comment: string | null; created_at: string | Date }>`
-    INSERT INTO client_feedback (onboarding_id, kind, month, rating, comment)
-    VALUES (${ref.onboardingId}, ${ref.kind}, ${ref.month}, ${rating}, ${comment || null})
+  const answers = cleanAnswers(ref.kind, input.answers);
+  if (!rating && !comment && Object.keys(answers).length === 0) return null;
+  const before = Object.keys(answers).length ? await getFeedback(ref) : null;
+  const res = await sql<Row>`
+    INSERT INTO client_feedback (onboarding_id, kind, month, rating, comment, answers)
+    VALUES (${ref.onboardingId}, ${ref.kind}, ${ref.month}, ${rating}, ${comment || null}, ${JSON.stringify(answers)}::jsonb)
     ON CONFLICT (onboarding_id, kind, month_key) DO UPDATE SET
       rating = coalesce(EXCLUDED.rating, client_feedback.rating),
       comment = coalesce(EXCLUDED.comment, client_feedback.comment),
+      answers = client_feedback.answers || EXCLUDED.answers,
       created_at = now()
-    RETURNING id, kind, month, rating, comment, created_at;
+    RETURNING id, kind, month, rating, comment, answers, created_at;
   `;
-  const row = res.rows[0];
-  const entry: FeedbackEntry = { id: row.id, kind: row.kind, month: row.month, rating: row.rating, comment: row.comment, createdAt: new Date(row.created_at).toISOString() };
-  if (rating === 'no' || comment) {
-    sendFeedbackNotification({ businessName: who.businessName, token: who.token, kind: ref.kind, month: ref.month, rating, comment: comment || null }).catch((err) =>
-      console.error('[feedback] owner email failed', err instanceof Error ? err.message : err)
-    );
+  const entry = toEntry(res.rows[0]);
+  // New answers this call, with their words; "attention" ones go to the owner once.
+  const fresh = Object.entries(answers)
+    .filter(([k, v]) => before?.answers[k] !== v)
+    .map(([k, v]) => answerLabel(ref.kind, k, v))
+    .filter((x): x is NonNullable<typeof x> => x !== null);
+  if (rating === 'no' || comment || fresh.some((x) => x.attention)) {
+    sendFeedbackNotification({
+      businessName: who.businessName,
+      token: who.token,
+      kind: ref.kind,
+      month: ref.month,
+      rating,
+      comment: comment || null,
+      answers: Object.entries(entry.answers)
+        .map(([k, v]) => answerLabel(ref.kind, k, v))
+        .filter((x): x is NonNullable<typeof x> => x !== null),
+    }).catch((err) => console.error('[feedback] owner email failed', err instanceof Error ? err.message : err));
   }
   return entry;
 }
@@ -93,8 +143,8 @@ export async function recordFeedback(
 export async function listFeedback(onboardingId: number): Promise<FeedbackEntry[]> {
   if (!isDatabaseConfigured()) return [];
   await ensureSchema();
-  const res = await sql<{ id: number; kind: FeedbackKind; month: string | null; rating: FeedbackRating | null; comment: string | null; created_at: string | Date }>`
-    SELECT id, kind, month, rating, comment, created_at FROM client_feedback WHERE onboarding_id = ${onboardingId} ORDER BY created_at DESC LIMIT 100;
+  const res = await sql<Row>`
+    SELECT id, kind, month, rating, comment, answers, created_at FROM client_feedback WHERE onboarding_id = ${onboardingId} ORDER BY created_at DESC LIMIT 100;
   `;
-  return res.rows.map((r) => ({ id: r.id, kind: r.kind, month: r.month, rating: r.rating, comment: r.comment, createdAt: new Date(r.created_at).toISOString() }));
+  return res.rows.map(toEntry);
 }

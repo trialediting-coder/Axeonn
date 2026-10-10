@@ -305,9 +305,16 @@ The tap is recorded on arrival, then the page offers a box for one sentence
 emails `ADMIN_EMAIL` at once; a plain "Yes" does not.
 
 `/api/cron/client-notes` runs daily (`lib/clientNotes.ts`) and sends two
-plain-text notes signed by `OWNER_NAME`, each once: day 30 after launch
-("anything feel off?") and day 90 ("would you recommend us?", which asks for
-the Google review on a yes). Launch is the project's target launch date, else
+branded emails signed by `OWNER_NAME`, each once. Day 30 is a three-question
+tap survey (`SURVEYS` in `lib/feedbackShared.ts`): every option is a link
+carrying `?q=<question>&a=<answer>`, so one tap in the inbox records an answer
+and `/f/<token>` asks the rest, then offers a sentence. Answers merge by
+question into `client_feedback.answers` (JSONB) on the same row; the admin
+Feedback card lists them in words, and an answer marked `attention` ("Fewer
+than I hoped", "Confusing") emails the owner the first time it lands. Day 90
+asks "would you recommend us?" with Yes / Maybe / Not yet taps, and on a yes
+offers the Google review link from `GOOGLE_REVIEW_URL`. The admin board's
+"Email me a sample" sends any of the three to an address of your choosing. Launch is the project's target launch date, else
 kickoff, else sign-up. A note that misses its 30-day window is skipped, not
 sent late. Quiet clients (no welcome sent) and closed clients never get one.
 Replies go to the client reply-to address; the link in each note lands on the

@@ -1,5 +1,5 @@
 // app/api/feedback/route.ts
-// POST { token, rating?, comment? } from the /f/<token> page. The token is the
+// POST { token, rating?, comment?, answers? } from the /f/<token> page. The token is the
 // only credential: it names one client, one kind and one month, signed with
 // the server secret, so nothing else can be written.
 import { NextResponse } from 'next/server';
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     if (!ref) throw new Error('This link has expired');
     const onboarding = await getOnboardingById(ref.onboardingId);
     if (!onboarding) throw new Error('This link has expired');
-    const entry = await recordFeedback(ref, { rating: body.rating, comment: body.comment }, { businessName: onboarding.businessName || onboarding.clientEmail, token: onboarding.token });
+    const entry = await recordFeedback(ref, { rating: body.rating, comment: body.comment, answers: body.answers }, { businessName: onboarding.businessName || onboarding.clientEmail, token: onboarding.token });
     if (!entry) throw new Error('Write a sentence or pick an answer first');
     return NextResponse.json({ ok: true });
   } catch (err) {
