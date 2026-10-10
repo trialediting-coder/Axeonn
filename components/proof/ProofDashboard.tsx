@@ -6,8 +6,11 @@
 import type { ComponentType, ReactNode } from 'react';
 import {
   Activity,
+  Bot,
   CalendarCheck,
   Check,
+  Megaphone,
+  Star,
   ClipboardList,
   Clock,
   ExternalLink,
@@ -22,6 +25,11 @@ import {
 } from 'lucide-react';
 import { AxeonLogo } from '@/components/brand/AxeonLogo';
 import { LeadLog, type LeadMonth } from '@/components/proof/LeadLog';
+import { FeatureTab } from '@/components/proof/FeatureTab';
+import { UpgradePanel } from '@/components/proof/UpgradePanel';
+import { PROOF_TABS, TIER_SHORT, proofTab, tabLocked, type ProofTabKey } from '@/lib/proofTabs';
+import type { UpgradeRequest } from '@/lib/upgrades';
+import { SITE_ORIGIN } from '@/lib/hostRouting';
 import type { OnboardingItem } from '@/data/onboardingItems';
 import type { ItemState, Onboarding, Progress } from '@/lib/onboarding';
 import type { MonthlyReport, ProjectDetails, ProjectUpdate } from '@/lib/projects';
@@ -29,13 +37,16 @@ import { DEVICE_LABELS, WEEKDAY_LABELS, buttonLabel, campaignLabel, hourLabel, m
 
 type Icon = ComponentType<{ size?: number; className?: string }>;
 
-const NAV: { label: string; icon: Icon; soon?: boolean }[] = [
-  { label: 'Overview', icon: LayoutDashboard },
-  { label: 'Calls', icon: PhoneCall, soon: true },
-  { label: 'Leads', icon: Activity, soon: true },
-  { label: 'Booked jobs', icon: CalendarCheck, soon: true },
-  { label: 'Map rank', icon: MapPin, soon: true },
-];
+/** Every tab is visible to every client; a tab outside their plan opens the upgrade page (lib/proofTabs.ts). */
+const TAB_ICONS: Record<ProofTabKey, Icon> = {
+  overview: LayoutDashboard,
+  leads: Activity,
+  calls: PhoneCall,
+  bookings: CalendarCheck,
+  reviews: Star,
+  ads: Megaphone,
+  receptionist: Bot,
+};
 
 type MetricKey = 'calls' | 'leads' | 'booked' | 'rank';
 const METRICS: { key: MetricKey; label: string; icon: Icon; hint: string }[] = [
@@ -157,6 +168,8 @@ export function ProofDashboard({
   avgJobValue = null,
   leads = [],
   leadApi = null,
+  tab = 'overview',
+  upgradeRequest = null,
 }: {
   email: string;
   onboarding: Onboarding;
@@ -179,6 +192,10 @@ export function ProofDashboard({
   leads?: LeadMonth[];
   /** Where the Customer / Not taps post: the client's own API, or the admin API from View as client. */
   leadApi?: string | null;
+  /** Which tab is open (?tab=). Tabs outside the plan show the upgrade page. */
+  tab?: ProofTabKey;
+  /** The plan the client asked to move to, if they pressed the button (lib/upgrades.ts). */
+  upgradeRequest?: UpgradeRequest | null;
 }) {
   const latest = reports[0] ?? null;
   const prev = reports[1] ?? null;
@@ -223,23 +240,27 @@ export function ProofDashboard({
           <AxeonLogo product="PROOF" tone="light" />
         </div>
         <nav aria-label="AxeonPROOF" className="flex-1 space-y-0.5 px-3">
-          {NAV.map(({ label, icon: Icon, soon }) => (
-            <div
-              key={label}
-              aria-current={!soon ? 'page' : undefined}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium ${
-                soon ? 'cursor-default text-neutral-500' : 'bg-white/[0.07] text-white'
-              }`}
-            >
-              <Icon size={17} className={soon ? 'text-neutral-600' : 'text-blue-400'} />
-              {label}
-              {soon ? (
-                <span className="ml-auto rounded-full border border-white/10 px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide text-neutral-500">
-                  Soon
-                </span>
-              ) : null}
-            </div>
-          ))}
+          {PROOF_TABS.map((t) => {
+            const Icon = TAB_ICONS[t.key];
+            const locked = tabLocked(t, onboarding.tier);
+            const active = t.key === tab;
+            return (
+              <a
+                key={t.key}
+                href={`?tab=${t.key}`}
+                aria-current={active ? 'page' : undefined}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium ${
+                  active ? 'bg-white/[0.07] text-white' : 'text-neutral-300 hover:bg-white/[0.05] hover:text-white'
+                }`}
+              >
+                <Icon size={17} className={active ? 'text-blue-400' : 'text-neutral-500'} />
+                {t.label}
+                {locked ? (
+                  <span className="ml-auto rounded-full bg-blue-500/15 px-1.5 py-px text-[10px] font-bold uppercase tracking-wide text-blue-300">{TIER_SHORT[t.tier]}</span>
+                ) : null}
+              </a>
+            );
+          })}
           <a
             href={setupUrl}
             className="mt-2 flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-neutral-300 hover:bg-white/[0.05] hover:text-white"
@@ -272,6 +293,25 @@ export function ProofDashboard({
           </div>
         ) : null}
       </header>
+      <nav aria-label="AxeonPROOF sections" className={`sticky z-20 flex gap-1.5 overflow-x-auto border-b border-neutral-200 bg-white px-3 py-2 lg:hidden ${preview ? 'top-24' : 'top-14'}`}>
+        {PROOF_TABS.map((t) => {
+          const locked = tabLocked(t, onboarding.tier);
+          const active = t.key === tab;
+          return (
+            <a
+              key={t.key}
+              href={`?tab=${t.key}`}
+              aria-current={active ? 'page' : undefined}
+              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${
+                active ? 'bg-neutral-950 text-white' : 'bg-neutral-100 text-neutral-700'
+              }`}
+            >
+              {t.label}
+              {locked ? <span className={`rounded-full px-1.5 py-px text-[10px] font-bold uppercase ${active ? 'bg-white/20' : 'bg-blue-100 text-blue-700'}`}>{TIER_SHORT[t.tier]}</span> : null}
+            </a>
+          );
+        })}
+      </nav>
 
       <main className="mx-auto max-w-6xl px-4 pb-20 pt-8 sm:px-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
@@ -293,6 +333,29 @@ export function ProofDashboard({
           </div>
         </div>
 
+        {tab !== 'overview' ? (
+          tab === 'leads' ? (
+            <div className="mt-6">
+              <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-200">Included in your plan</span>
+              <h2 className="mt-3 text-2xl font-bold tracking-tight text-neutral-950">Leads</h2>
+              <p className="mt-2 max-w-2xl text-sm text-neutral-600">Every call, text, email, form and booking from your site, the day it happens. Tell us who became a customer and your numbers get more exact every month.</p>
+              {leads.some((m) => m.rows.length > 0) ? (
+                <LeadLog months={leads} api={leadApi} />
+              ) : (
+                <Card className="mt-4 p-8 text-center">
+                  <p className="text-sm font-semibold text-neutral-900">No one has reached out yet this month.</p>
+                  <p className="mt-1 text-sm text-neutral-500">Calls, texts, forms and bookings from your site show up here within a minute.</p>
+                </Card>
+              )}
+            </div>
+          ) : tabLocked(proofTab(tab), onboarding.tier) ? (
+            <UpgradePanel tab={proofTab(tab)} tier={onboarding.tier} traffic={traffic} avgJobValue={avgJobValue} request={upgradeRequest} preview={!!preview} bookUrl={`${SITE_ORIGIN}/book`} />
+          ) : (
+            <FeatureTab tab={proofTab(tab)} reports={reports} traffic={traffic} />
+          )
+        ) : null}
+
+        {tab === 'overview' ? (<>
         {traffic ? (
           <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {WEB_METRICS.map(({ key, label, icon: Icon, hint }) => {
@@ -779,6 +842,7 @@ export function ProofDashboard({
             (515) 493-8017
           </a>
         </p>
+        </>) : null}
       </main>
     </div>
   );

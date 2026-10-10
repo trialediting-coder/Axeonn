@@ -234,6 +234,25 @@ Not built: importing Google Analytics or call-tracking numbers. The snippet is
 the one source for now, so a site without it gets no automatic report until it
 is added.
 
+### Tabs and the upgrade page
+
+AxeonPROOF has seven tabs (`lib/proofTabs.ts`): Overview and Leads for every
+plan, Calls, Bookings and Reviews from AxeonCORE, Ads and AI receptionist from
+AxeonGROWTH. Every client sees every tab; one outside their plan carries a
+CORE or GROWTH chip and opens an upgrade page instead of the feature. That
+page shows the feature with the client's own numbers ("15 people reached out
+last month, and 12 of them pressed Call"), a ghosted sample of the screen,
+what the plan adds, the price difference as "one extra job a month" using
+their average job value, one button, and a "talk it through" link to /book.
+No pop-ups, no banners elsewhere.
+
+The button posts to `POST /api/proof/upgrade` (`lib/upgrades.ts`), which
+stores `upgrade_requested_tier` / `upgrade_requested_at` on the onboarding and
+emails `ADMIN_EMAIL`. The client sees "Requested on <date>" from then on; the
+admin sees a banner on the client's page. Nothing is billed automatically:
+the owner sets up billing, changes the plan, and replies. In View as client
+the button is switched off.
+
 ### Leads, outcomes and the client's own close rate
 
 The dashboard lists **People who reached out**: every contact click (call,

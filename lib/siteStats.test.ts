@@ -642,3 +642,29 @@ test("the owner's notes are due at day 30 and day 90 after launch, once each, ne
   assert.equal(launchDate(live, { kickoffAt: null, targetLaunchAt: null }), new Date(live.createdAt).getTime());
   assert.equal(noteDue(live, { kickoffAt: null, targetLaunchAt: null }, none, new Date(live.createdAt).getTime() + 31 * DAY), 'note30');
 });
+
+// ---- AxeonPROOF tabs and the upgrade page ---------------------------------------
+
+test('every tab is visible, tabs outside the plan are locked, and the price reads as extra jobs', async () => {
+  const { PROOF_TABS, isProofTab, proofTab, tabLocked, upgradeMath, lockedHeadline } = await import('./proofTabs');
+  assert.deepEqual(PROOF_TABS.map((t) => t.key), ['overview', 'leads', 'calls', 'bookings', 'reviews', 'ads', 'receptionist']);
+  assert.ok(isProofTab('calls') && !isProofTab('billing'));
+  const locked = (tier: 'essentials' | 'axeoncore' | 'axeongrowth') => PROOF_TABS.filter((t) => tabLocked(t, tier)).map((t) => t.key);
+  assert.deepEqual(locked('essentials'), ['calls', 'bookings', 'reviews', 'ads', 'receptionist']);
+  assert.deepEqual(locked('axeoncore'), ['ads', 'receptionist']);
+  assert.deepEqual(locked('axeongrowth'), []);
+  assert.equal(upgradeMath('essentials', 'axeoncore', 300).delta, 150);
+  assert.match(upgradeMath('essentials', 'axeoncore', 300).line, /^At your average job of \$300, that is one extra job a month/);
+  assert.match(upgradeMath('essentials', 'axeoncore', 100).line, /2 extra jobs/);
+  assert.match(upgradeMath('essentials', 'axeoncore', null).line, /one or two extra jobs/);
+  assert.equal(upgradeMath('axeoncore', 'axeongrowth', 300).delta, 700);
+  assert.match(upgradeMath('axeoncore', 'axeongrowth', 300).line, /Plus the ad budget you set/);
+  const t = summarize({ views: 300, visitors: 120, clicks: 20, buttons: [{ name: 'call', count: 12 }, { name: 'form', count: 3 }], pages: [], sources: [], closeRate: null });
+  assert.match(lockedHeadline(proofTab('calls'), t), /^15 people reached out through your site last month, and 12 of them pressed Call\. When the phone rings out, AxeonCORE texts them back/);
+  assert.match(lockedHeadline(proofTab('calls'), null), /^When a call rings out, AxeonCORE/);
+  assert.match(lockedHeadline(proofTab('ads'), t), /without a dollar of ads\. AxeonGROWTH/);
+  for (const tab of PROOF_TABS.filter((x) => x.tier !== 'essentials')) {
+    assert.ok(tab.includes.length >= 3 && tab.sample.length >= 3, `${tab.key} has bullets and a sample`);
+    assert.doesNotMatch(lockedHeadline(tab, t) + tab.includes.join(' '), /conversion/i);
+  }
+});
