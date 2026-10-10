@@ -669,3 +669,21 @@ test('every tab is visible, tabs outside the plan are locked, and the price read
     assert.doesNotMatch(lockedHeadline(tab, t) + tab.includes.join(' '), /conversion/i);
   }
 });
+
+test('the loss line uses real counts with a stated rule of thumb, and the report nudges only when the number earns it', async () => {
+  const { lossLine, proofTab } = await import('./proofTabs');
+  const { upgradeNudge, CALLS_NUDGE_MIN } = await import('./email');
+  const big = summarize({ views: 900, visitors: 400, clicks: 40, buttons: [{ name: 'call', count: 23 }, { name: 'form', count: 7 }], pages: [], sources: [], closeRate: null });
+  const small = summarize({ views: 90, visitors: 40, clicks: 4, buttons: [{ name: 'call', count: 3 }], pages: [], sources: [], closeRate: null });
+  const calls = lossLine(proofTab('calls'), big)!;
+  assert.match(calls.text, /^23 people pressed Call last month\. If one in five of those calls rang out, that is roughly 5 people/);
+  assert.match(calls.basis, /rule of thumb/);
+  assert.equal(lossLine(proofTab('calls'), small), null, 'too few to say anything');
+  assert.match(lossLine(proofTab('bookings'), big)!.text, /people reached out last month\. If a third of them/);
+  assert.equal(lossLine(proofTab('reviews'), big), null);
+  assert.equal(lossLine(proofTab('calls'), null), null);
+  assert.equal(CALLS_NUDGE_MIN, 15);
+  assert.match(upgradeNudge({ tier: 'essentials', traffic: big, proofUrl: 'https://app.axeonstudio.co/' }), /23 people pressed Call this month.*href="https:\/\/app\.axeonstudio\.co\/\?tab=calls"/);
+  assert.equal(upgradeNudge({ tier: 'essentials', traffic: small, proofUrl: 'https://app.axeonstudio.co/' }), '', 'under the bar: nothing');
+  assert.equal(upgradeNudge({ tier: 'axeoncore', traffic: big, proofUrl: 'https://app.axeonstudio.co/' }), '', 'already on CORE: nothing');
+});

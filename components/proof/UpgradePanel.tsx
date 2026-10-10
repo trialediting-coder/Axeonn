@@ -6,9 +6,10 @@
 // is no self-serve upgrade: the client asks, the owner walks them through it.
 // Server component; the button is the only client piece.
 import { Check, Lock } from 'lucide-react';
+import { AxeonLogo } from '@/components/brand/AxeonLogo';
 import { TIER_LABELS, type OnboardingTier } from '@/data/onboardingItems';
 import { UpgradeButton } from '@/components/proof/UpgradeButton';
-import { lockedHeadline, upgradeMath, type ProofTab } from '@/lib/proofTabs';
+import { TIER_SHORT, lockedHeadline, lossLine, upgradeMath, type ProofTab } from '@/lib/proofTabs';
 import type { TrafficSummary } from '@/lib/projectsShared';
 import type { UpgradeRequest } from '@/lib/upgrades';
 
@@ -32,18 +33,30 @@ export function UpgradePanel({
   const plan = TIER_LABELS[tab.tier];
   const math = upgradeMath(tier, tab.tier, avgJobValue);
   const requestedThis = request && request.tier === tab.tier ? request.at : null;
+  const loss = lossLine(tab, traffic);
   return (
     <div className="mt-6">
-      <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 ring-1 ring-blue-200">Included in {plan}</span>
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="inline-flex items-center gap-2 rounded-full bg-blue-50 py-1.5 pl-3 pr-2.5 text-xs font-semibold text-blue-700 ring-1 ring-blue-200">
+          Included in <AxeonLogo product={TIER_SHORT[tab.tier]} size="sm" />
+        </span>
+      </div>
       <h2 className="mt-3 text-2xl font-bold tracking-tight text-neutral-950">{tab.label}</h2>
       <p className="mt-2 max-w-2xl text-base leading-relaxed text-neutral-700">{lockedHeadline(tab, traffic)}</p>
+      {loss ? (
+        <div className="mt-4 max-w-2xl rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+          <p className="text-sm font-semibold leading-relaxed text-amber-950">{loss.text}</p>
+          <p className="mt-1 text-xs text-amber-800/80">{loss.basis}</p>
+        </div>
+      ) : null}
 
       {tab.ghost ? (
         <div className="relative mt-6 max-h-[460px] overflow-hidden rounded-2xl border border-neutral-200 bg-white sm:max-h-[560px]">
           {/* An example month, readable and labelled as such: it shows what the screen does, never the client's own results. */}
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-100 px-4 py-3 sm:px-5">
-            <p className="text-sm font-semibold text-neutral-900">
-              An example month on {plan} <span className="font-normal text-neutral-500">· not your numbers yet; yours start the day it is switched on</span>
+            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold text-neutral-900">
+              An example month on <AxeonLogo product={TIER_SHORT[tab.tier]} size="sm" />
+              <span className="font-normal text-neutral-500">· not your numbers yet; yours start the day it is switched on</span>
             </p>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-950 px-3 py-1 text-xs font-semibold text-white">
               <Lock size={12} /> {plan}
@@ -85,7 +98,7 @@ export function UpgradePanel({
                 </ul>
               </div>
             </div>
-            <ul className="mt-3 divide-y divide-neutral-100 rounded-xl border border-neutral-200 bg-white">
+            <ul className="mt-3 divide-y divide-neutral-100 rounded-xl border border-neutral-200 bg-white blur-[1.5px]">
               {tab.ghost.rows.map((row, i) => (
                 <li key={i} className="grid grid-cols-[1fr_1.4fr_1.6fr] gap-3 px-4 py-3 text-sm">
                   <span className="font-semibold text-neutral-900">{row.a}</span>
@@ -101,7 +114,9 @@ export function UpgradePanel({
 
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="rounded-2xl border border-neutral-200 bg-white p-5">
-          <p className="text-sm font-semibold text-neutral-900">What {plan} adds</p>
+          <p className="flex flex-wrap items-center gap-x-2 text-sm font-semibold text-neutral-900">
+            What <AxeonLogo product={TIER_SHORT[tab.tier]} size="sm" /> adds
+          </p>
           <ul className="mt-3 space-y-2.5 text-sm text-neutral-700">
             {tab.includes.map((line) => (
               <li key={line} className="flex gap-2">

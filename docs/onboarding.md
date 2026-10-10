@@ -243,7 +243,9 @@ CORE or GROWTH chip and opens an upgrade page instead of the feature. That
 page shows the feature with the client's own numbers ("15 people reached out
 last month, and 12 of them pressed Call"), an example month of the feature
 (tiles, a chart and a list), readable and labelled on screen as an example
-that is not their numbers, what the plan adds, the price difference as
+that is not their numbers, a loss line on Calls and Bookings from their real
+contact counts with the rule of thumb stated on screen (one in five calls rings
+out; a third would rather book online), what the plan adds, the price difference as
 "one extra job a month" using
 their average job value, one button ("Ask us about AxeonCORE"), and a link to
 book a 10-minute call. No pop-ups, no banners elsewhere.
@@ -255,6 +257,12 @@ set up for the shop, not switched on with a click. The button posts to
 `ADMIN_EMAIL`. The client sees "Got it, we'll reach out within one business
 day" from then on; the admin sees a banner on the client's page and calls or
 emails them. In View as client the button is switched off.
+
+An Essentials client whose report shows 15 or more call presses in a month
+gets one sentence at the end of that report pointing at the Calls tab
+(`upgradeNudge` in `lib/email.ts`). One report a month, so one nudge at most,
+and none when the number does not earn it. Wherever the page names the plan
+it shows the lockup (`AxeonLogo product="CORE"`), not just the word.
 
 ### Leads, outcomes and the client's own close rate
 
