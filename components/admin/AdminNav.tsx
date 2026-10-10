@@ -16,6 +16,7 @@ const TABS = [
   { href: '/admin/calls', label: 'Calls', match: (p: string) => p.startsWith('/admin/calls') },
   { href: '/admin/agreements', label: 'Agreements', match: (p: string) => p.startsWith('/admin/agreements') },
   { href: '/admin/onboarding', label: 'Onboarding', match: (p: string) => p.startsWith('/admin/onboarding') },
+  { href: '/admin/data', label: 'Data', match: (p: string) => p.startsWith('/admin/data') },
   { href: '/admin/billing', label: 'Billing', match: (p: string) => p.startsWith('/admin/billing') },
   { href: '/admin', label: 'Posts', match: (p: string) => p === '/admin' || p.startsWith('/admin/posts') },
 ];
