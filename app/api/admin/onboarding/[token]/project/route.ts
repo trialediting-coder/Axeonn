@@ -17,6 +17,7 @@ import { sendMonthlyReportEmail, sendProjectUpdateEmail } from '@/lib/email';
 import { APP_ORIGIN } from '@/lib/hostRouting';
 import { getOnboardingByToken, type Onboarding } from '@/lib/onboarding';
 import { sendAutoReport } from '@/lib/autoReports';
+import { setReferralPaid } from '@/lib/referrals';
 import { getTrackingSettings, hasTraffic, isValidMonth, setLeadOutcome, setTrackingSettings, trackingOverview, validateAvgJobValue, validateCloseRate, validateCloseRateMode, validateSiteUrl } from '@/lib/siteStats';
 import { isLeadOutcome } from '@/lib/projectsShared';
 import { feedbackUrl, listFeedback } from '@/lib/feedback';
@@ -148,6 +149,9 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
       if (outcome !== null && !isLeadOutcome(outcome)) throw new Error('Mark a lead as a customer or not');
       if (!(await setLeadOutcome(onboarding.id, id, outcome))) throw new Error('That lead is not on this site');
       return NextResponse.json({ ok: true, id, outcome });
+    } else if (body.kind === 'referral-paid') {
+      // The owner paid the $300 to whoever referred this client (lib/referrals.ts).
+      await setReferralPaid(onboarding.id, body.paid !== false);
     } else if (body.kind === 'report-hold') {
       // The owner's hold on a previewed ramp report: held, the client copy waits; released, it goes out on the next daily run.
       const id = Number(body.id);
