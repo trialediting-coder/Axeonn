@@ -968,10 +968,10 @@ export async function sendUpgradeRequestNotification(input: { businessName: stri
   await sendChecked(resend, {
     from: FROM_ADDRESS,
     to: ADMIN_NOTIFICATION_EMAIL,
-    subject: `${input.businessName} wants to move to ${TIER_LABELS[input.to]}`,
+    subject: `${input.businessName} asked about ${TIER_LABELS[input.to]}`,
     html: `
-      <p><b>${escapeHtml(input.businessName)}</b> (${escapeHtml(input.clientEmail)}) pressed "Move me to ${TIER_LABELS[input.to]}" in AxeonPROOF. They are on ${TIER_LABELS[input.from]} today.</p>
-      <p>They were told it will be switched on within one business day and confirmed by email, and that nothing changes until then. Set up billing, change their plan, and reply to them.</p>
+      <p><b>${escapeHtml(input.businessName)}</b> (${escapeHtml(input.clientEmail)}) pressed "Ask us about ${TIER_LABELS[input.to]}" in AxeonPROOF. They are on ${TIER_LABELS[input.from]} today.</p>
+      <p>They were told you will reach out within one business day to walk them through it, and that nothing changes until they say yes. Call or email them, and if they go ahead, set up billing and change their plan.</p>
       <p><a href="https://app.axeonstudio.co/admin/onboarding/${input.token}">Open their page</a></p>
     `,
   });

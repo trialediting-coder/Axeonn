@@ -2,8 +2,8 @@
 // The AxeonPROOF tabs, which plan each one belongs to, and the words on a tab
 // the client's plan does not include. Every tab is visible to every client; a
 // locked one opens an upgrade page that shows the feature with their own
-// numbers, a ghosted sample of what it looks like, the price as "one extra
-// job", and one button. No pop-ups, no nagging: the ask lives where the value
+// numbers, what the plan adds, the price as "one extra job", and one button
+// that asks Axeon to get in touch. No pop-ups, no nagging: the ask lives where the value
 // is. Client-safe (no Node imports); used by the dashboard and its tests.
 import { TIER_LABELS, TIER_RANK, type OnboardingTier } from '@/data/onboardingItems';
 import type { TrafficSummary } from '@/lib/projectsShared';
@@ -19,13 +19,11 @@ export interface ProofTab {
   promise: string;
   /** What the plan adds, in the client's words. */
   includes: readonly string[];
-  /** Ghosted rows for the preview: three columns, nothing real. */
-  sample: ReadonlyArray<{ a: string; b: string; c: string }>;
 }
 
 export const PROOF_TABS: readonly ProofTab[] = [
-  { key: 'overview', label: 'Overview', tier: 'essentials', promise: '', includes: [], sample: [] },
-  { key: 'leads', label: 'Leads', tier: 'essentials', promise: '', includes: [], sample: [] },
+  { key: 'overview', label: 'Overview', tier: 'essentials', promise: '', includes: [] },
+  { key: 'leads', label: 'Leads', tier: 'essentials', promise: '', includes: [] },
   {
     key: 'calls',
     label: 'Calls',
@@ -36,12 +34,6 @@ export const PROOF_TABS: readonly ProofTab[] = [
       'Missed-call text-back within a minute',
       'Instant call-back when someone sends your form',
       'Call counts in your monthly report',
-    ],
-    sample: [
-      { a: 'Mon 10:14 AM', b: '(515) 555-01··', c: 'Answered · 3:12' },
-      { a: 'Mon 12:40 PM', b: '(515) 555-08··', c: 'Missed · text-back sent in 41s' },
-      { a: 'Tue 8:55 AM', b: '(515) 555-02··', c: 'Answered · 1:48 · booked' },
-      { a: 'Tue 4:20 PM', b: '(515) 555-07··', c: 'Missed · called back in 6 min' },
     ],
   },
   {
@@ -55,11 +47,6 @@ export const PROOF_TABS: readonly ProofTab[] = [
       'Reminders, so fewer people no-show',
       'Booked jobs counted here every month',
     ],
-    sample: [
-      { a: 'Thu 9:00 AM', b: 'Full detail · SUV', c: 'Booked online, Tue 9:12 PM' },
-      { a: 'Fri 1:30 PM', b: 'Ceramic coating', c: 'Booked by chat' },
-      { a: 'Sat 10:00 AM', b: 'Interior detail', c: 'Reminder sent' },
-    ],
   },
   {
     key: 'reviews',
@@ -70,11 +57,6 @@ export const PROOF_TABS: readonly ProofTab[] = [
       'A review request texted after every finished job',
       'New reviews and your rating in the monthly report',
       'Automatic text and email follow-up, with one list of every lead',
-    ],
-    sample: [
-      { a: '★★★★★', b: '“Looks brand new. Easy to book.”', c: '2 days after the job' },
-      { a: '★★★★★', b: '“Fair price, on time.”', c: 'Review link texted' },
-      { a: '4.9', b: '38 reviews', c: 'Up from 4.6' },
     ],
   },
   {
@@ -88,11 +70,6 @@ export const PROOF_TABS: readonly ProofTab[] = [
       'A new service page every month',
       'A monthly strategy call',
     ],
-    sample: [
-      { a: 'Google · ceramic coating', b: '140 visits · 11 leads', c: '$18 per lead' },
-      { a: 'Meta · fall interior special', b: '62 visits · 3 leads', c: '$27 per lead' },
-      { a: 'Budget', b: '$900 of $1,000 used', c: 'Paused on weekends' },
-    ],
   },
   {
     key: 'receptionist',
@@ -104,11 +81,6 @@ export const PROOF_TABS: readonly ProofTab[] = [
       'Knows your services, prices and hours',
       'Books the job or takes a message',
       'Everything in AxeonCORE',
-    ],
-    sample: [
-      { a: 'Sun 7:48 PM', b: '“Do you do boats?”', c: 'Answered · took a message' },
-      { a: 'Mon 6:05 AM', b: '“How much for a full detail?”', c: 'Quoted from your price list' },
-      { a: 'Mon 6:06 AM', b: 'Booked Thu 9:00 AM', c: 'Added to your calendar' },
     ],
   },
 ];

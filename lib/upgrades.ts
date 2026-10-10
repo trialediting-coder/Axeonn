@@ -1,7 +1,8 @@
 // lib/upgrades.ts
-// A client asking, from their dashboard, to move to a bigger plan. Nothing is
-// billed here: the request is stored on the onboarding, the owner is emailed,
-// and the client sees "requested" until the owner switches them over.
+// A client asking, from their dashboard, about a bigger plan. There is no
+// self-serve upgrade: the ask is stored on the onboarding, the owner is
+// emailed and reaches out to walk them through it, and the client sees "we'll
+// reach out" until then.
 import { ONBOARDING_TIERS, TIER_LABELS, TIER_RANK, type OnboardingTier } from '@/data/onboardingItems';
 import { ensureSchema, isDatabaseConfigured, sql } from '@/lib/db';
 import { sendUpgradeRequestNotification } from '@/lib/email';
