@@ -19,7 +19,22 @@ export interface ProofTab {
   promise: string;
   /** What the plan adds, in the client's words. */
   includes: readonly string[];
+  /**
+   * The example month shown on a locked tab: tiles, a bar chart and a list
+   * (components/proof/UpgradePanel.tsx). Readable, and labelled on screen as
+   * an example that is not the client's numbers. Owner decision 2026-10-10:
+   * invented figures are never shown as a client's own results.
+   */
+  ghost?: Ghost;
 }
+
+export interface Ghost {
+  tiles: ReadonlyArray<{ label: string; value: string; sub: string }>;
+  bars: readonly number[];
+  rows: ReadonlyArray<{ a: string; b: string; c: string }>;
+}
+
+const BARS = [38, 52, 44, 61, 57, 70, 66, 78, 72, 84, 80, 92] as const;
 
 export const PROOF_TABS: readonly ProofTab[] = [
   { key: 'overview', label: 'Overview', tier: 'essentials', promise: '', includes: [] },
@@ -35,6 +50,23 @@ export const PROOF_TABS: readonly ProofTab[] = [
       'Instant call-back when someone sends your form',
       'Call counts in your monthly report',
     ],
+    ghost: {
+      tiles: [
+        { label: 'Calls this month', value: '64', sub: '+11 vs last month' },
+        { label: 'Answered', value: '51', sub: '80% pick-up' },
+        { label: 'Missed, texted back', value: '13', sub: 'in under a minute' },
+        { label: 'Booked from calls', value: '19', sub: '30% of calls' },
+      ],
+      bars: BARS,
+      rows: [
+        { a: 'Mon 10:14 AM', b: '(515) 555-01··', c: 'Answered · 3:12 · booked' },
+        { a: 'Mon 12:40 PM', b: '(515) 555-08··', c: 'Missed · text-back sent in 41s' },
+        { a: 'Tue 8:55 AM', b: '(515) 555-02··', c: 'Answered · 1:48' },
+        { a: 'Tue 4:20 PM', b: '(515) 555-07··', c: 'Missed · called back in 6 min · booked' },
+        { a: 'Wed 9:03 AM', b: '(515) 555-04··', c: 'Answered · 2:30 · quote sent' },
+        { a: 'Wed 5:47 PM', b: '(515) 555-09··', c: 'After hours · text-back sent' },
+      ],
+    },
   },
   {
     key: 'bookings',
@@ -47,6 +79,23 @@ export const PROOF_TABS: readonly ProofTab[] = [
       'Reminders, so fewer people no-show',
       'Booked jobs counted here every month',
     ],
+    ghost: {
+      tiles: [
+        { label: 'Booked online', value: '27', sub: '+8 vs last month' },
+        { label: 'After hours', value: '11', sub: 'while you were closed' },
+        { label: 'By chat', value: '6', sub: 'questions answered first' },
+        { label: 'No-shows', value: '1', sub: 'reminders sent to all' },
+      ],
+      bars: BARS,
+      rows: [
+        { a: 'Thu 9:00 AM', b: 'Full detail · SUV', c: 'Booked online, Tue 9:12 PM' },
+        { a: 'Thu 1:30 PM', b: 'Ceramic coating', c: 'Booked by chat' },
+        { a: 'Fri 8:30 AM', b: 'Interior detail', c: 'Reminder sent' },
+        { a: 'Fri 2:00 PM', b: 'Paint correction', c: 'Booked from Google listing' },
+        { a: 'Sat 10:00 AM', b: 'Full detail · truck', c: 'Deposit paid' },
+        { a: 'Sat 1:00 PM', b: 'Headlight restore', c: 'Booked online, Fri 11:48 PM' },
+      ],
+    },
   },
   {
     key: 'reviews',
@@ -58,6 +107,23 @@ export const PROOF_TABS: readonly ProofTab[] = [
       'New reviews and your rating in the monthly report',
       'Automatic text and email follow-up, with one list of every lead',
     ],
+    ghost: {
+      tiles: [
+        { label: 'Rating', value: '4.9', sub: 'up from 4.6' },
+        { label: 'Reviews', value: '38', sub: '+9 this month' },
+        { label: 'Requests sent', value: '31', sub: 'after every job' },
+        { label: 'Replied to', value: '38', sub: 'every one' },
+      ],
+      bars: BARS,
+      rows: [
+        { a: '★★★★★', b: '“Looks brand new. Easy to book.”', c: '2 days after the job' },
+        { a: '★★★★★', b: '“Fair price, on time, great work.”', c: 'Review link texted' },
+        { a: '★★★★★', b: '“Came to my office. Flawless.”', c: 'Replied same day' },
+        { a: '★★★★☆', b: '“Great detail, running a bit late.”', c: 'Replied, offered a touch-up' },
+        { a: '★★★★★', b: '“Best in Des Moines, hands down.”', c: 'Shared to Facebook' },
+        { a: '★★★★★', b: '“Ceramic coating still beading.”', c: '6 months later' },
+      ],
+    },
   },
   {
     key: 'ads',
@@ -70,6 +136,23 @@ export const PROOF_TABS: readonly ProofTab[] = [
       'A new service page every month',
       'A monthly strategy call',
     ],
+    ghost: {
+      tiles: [
+        { label: 'Leads from ads', value: '34', sub: '+12 vs last month' },
+        { label: 'Cost per lead', value: '$21', sub: 'down from $29' },
+        { label: 'Spend', value: '$920', sub: 'of $1,000 budget' },
+        { label: 'Booked from ads', value: '14', sub: 'about $4,200 in work' },
+      ],
+      bars: BARS,
+      rows: [
+        { a: 'Google · ceramic coating', b: '140 visits · 11 leads', c: '$18 per lead' },
+        { a: 'Google · paint correction', b: '96 visits · 7 leads', c: '$24 per lead' },
+        { a: 'Meta · fall interior special', b: '62 visits · 3 leads', c: '$27 per lead' },
+        { a: 'Google · mobile detailing', b: '210 visits · 9 leads', c: '$19 per lead' },
+        { a: 'Meta · before and after reel', b: '340 visits · 4 leads', c: '$22 per lead' },
+        { a: 'Weekends', b: 'Paused', c: 'Budget moved to weekdays' },
+      ],
+    },
   },
   {
     key: 'receptionist',
@@ -82,6 +165,23 @@ export const PROOF_TABS: readonly ProofTab[] = [
       'Books the job or takes a message',
       'Everything in AxeonCORE',
     ],
+    ghost: {
+      tiles: [
+        { label: 'Calls answered', value: '118', sub: 'every one, 24/7' },
+        { label: 'After hours', value: '41', sub: 'nights and weekends' },
+        { label: 'Booked by phone', value: '23', sub: 'straight to your calendar' },
+        { label: 'Messages taken', value: '17', sub: 'texted to you' },
+      ],
+      bars: BARS,
+      rows: [
+        { a: 'Sun 7:48 PM', b: '“Do you do boats?”', c: 'Answered · took a message' },
+        { a: 'Mon 6:05 AM', b: '“How much for a full detail?”', c: 'Quoted from your price list' },
+        { a: 'Mon 6:06 AM', b: 'Booked Thu 9:00 AM', c: 'Added to your calendar' },
+        { a: 'Mon 12:31 PM', b: '“Are you open Saturday?”', c: 'Answered · booked Sat 10:00' },
+        { a: 'Tue 9:15 PM', b: '“Can you come to my office?”', c: 'Answered · message sent to you' },
+        { a: 'Wed 7:02 AM', b: 'Reschedule request', c: 'Moved to Fri 2:00 PM' },
+      ],
+    },
   },
 ];
 
