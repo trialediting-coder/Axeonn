@@ -4,12 +4,14 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { SURVEYS, answerLabel, cleanAnswers, surveyFor } from './feedbackShared';
 
-test('the day-30 survey is three questions, each with a tap for every answer', () => {
+test('the day-30 survey is six questions, each with a tap for every answer', () => {
   const qs = SURVEYS.note30!;
-  assert.deepEqual(qs.map((q) => q.key), ['leads', 'next', 'clear']);
+  assert.deepEqual(qs.map((q) => q.key), ['leads', 'jobs', 'value', 'source', 'next', 'clear']);
+  assert.ok(qs.find((q) => q.key === 'value')!.options.find((o) => o.value === 'notyet')?.attention, 'not worth it yet reaches the owner');
+  assert.ok(qs.find((q) => q.key === 'jobs')!.options.find((o) => o.value === '0')?.attention, 'no jobs yet reaches the owner');
   for (const q of qs) assert.ok(q.options.length >= 3 && q.options.length <= 4, q.key);
   assert.ok(qs[0].options.find((o) => o.value === 'fewer')?.attention, 'fewer leads than hoped reaches the owner');
-  assert.ok(qs[2].options.find((o) => o.value === 'no')?.attention, 'confusing numbers reach the owner');
+  assert.ok(qs[5].options.find((o) => o.value === 'no')?.attention, 'confusing numbers reach the owner');
   assert.deepEqual(surveyFor('report'), [], 'the report has taps, not a survey');
 });
 

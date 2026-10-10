@@ -43,7 +43,7 @@ export default async function FeedbackPage({ params, searchParams }: { params: P
             <h1 className="mt-6 text-2xl font-extrabold tracking-tight text-neutral-950">
               {questions.length
                 ? remaining.length
-                  ? `Got it${first ? `, ${first}` : ''}. ${remaining.length === questions.length ? 'Three quick ones.' : remaining.length === 1 ? 'One more.' : `${remaining.length} more.`}`
+                  ? `Got it${first ? `, ${first}` : ''}. ${remaining.length === questions.length ? `${questions.length} quick ones.` : remaining.length === 1 ? 'One more.' : `${remaining.length} more.`}`
                   : `That is all of them. Thank you${first ? `, ${first}` : ''}.`
                 : rating === 'no'
                   ? 'Sorry about that.'

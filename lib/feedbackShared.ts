@@ -40,6 +40,38 @@ export const SURVEYS: Partial<Record<FeedbackKind, readonly SurveyQuestion[]>> =
       ],
     },
     {
+      // Calibrates the "estimated customers" number against what the owner actually saw.
+      key: 'jobs',
+      text: 'Roughly how many jobs came from the site this month?',
+      options: [
+        { value: '0', label: 'None yet', attention: true },
+        { value: '1-3', label: '1 to 3' },
+        { value: '4-10', label: '4 to 10' },
+        { value: '10+', label: 'More than 10' },
+      ],
+    },
+    {
+      // Pricing: is the monthly fee earning its place. "Not yet" reaches the owner before it becomes a cancellation.
+      key: 'value',
+      text: 'Is what you pay each month worth it so far?',
+      options: [
+        { value: 'easily', label: 'Easily' },
+        { value: 'even', label: 'About even' },
+        { value: 'notyet', label: 'Not yet', attention: true },
+      ],
+    },
+    {
+      // Where the owner thinks customers come from, against what the tracker says.
+      key: 'source',
+      text: 'Where did your best new customer this month come from?',
+      options: [
+        { value: 'google', label: 'Google' },
+        { value: 'site', label: 'My website' },
+        { value: 'wordofmouth', label: 'Word of mouth' },
+        { value: 'social', label: 'Social media' },
+      ],
+    },
+    {
       key: 'next',
       text: 'What should we put our time into next?',
       options: [

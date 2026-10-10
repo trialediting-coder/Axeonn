@@ -28,7 +28,7 @@ export function FeatureTab({ tab, reports, traffic }: { tab: ProofTab; reports: 
   const plan = TIER_LABELS[tab.tier];
   const head = (
     <div className="mt-6">
-      <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-200">Included in your plan</span>
+      <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Included in your plan</p>
       <h2 className="mt-3 text-2xl font-bold tracking-tight text-neutral-950">{tab.label}</h2>
     </div>
   );

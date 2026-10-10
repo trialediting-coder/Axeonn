@@ -973,14 +973,14 @@ export function renderClientNoteEmail(input: ClientNoteEmailInput): { subject: s
       }`
     );
     const body = `
-      <p class="ax-ink" style="margin:22px 0 0;font-family:${FONT};font-size:15px;line-height:1.55;color:${BRAND.ink}">${first} ${escapeHtml(business)} has been live with us for a month. Three taps below and we tune the site and the plan to what you want more of. One answer each, about ten seconds.</p>
+      <p class="ax-ink" style="margin:22px 0 0;font-family:${FONT};font-size:15px;line-height:1.55;color:${BRAND.ink}">${first} ${escapeHtml(business)} has been live with us for a month. Six quick taps below and we tune the site and the plan to what you want more of. One answer each, under a minute, and every answer changes what we do next.</p>
       ${blocks.join('')}
       <p class="ax-muted" style="margin:28px 0 22px;font-family:${FONT};font-size:13px;line-height:1.5;color:${BRAND.muted}">Each tap opens a short page where you can add one sentence if you want to. Your answers go to ${owner} directly, not into a pile.</p>`;
     return {
-      subject: `${business}: 30 days in, three taps and we tune it to you`,
+      subject: `${business}: 30 days in, six taps and we tune it to you`,
       html: brandDocument({
         subject: '30 days in',
-        headerHtml: header('30 days in', `${first.replace(/,$/, '')}, three taps and we tune ${business} to you.`, 'What you pick decides what we work on next.'),
+        headerHtml: header('30 days in', `${first.replace(/,$/, '')}, six taps and we tune ${business} to you.`, 'What you pick decides what we work on next, and what we charge for.'),
         bodyHtml: body,
         footerHtml: footer,
       }),

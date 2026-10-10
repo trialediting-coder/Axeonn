@@ -305,8 +305,9 @@ The tap is recorded on arrival, then the page offers a box for one sentence
 emails `ADMIN_EMAIL` at once; a plain "Yes" does not.
 
 `/api/cron/client-notes` runs daily (`lib/clientNotes.ts`) and sends two
-branded emails signed by `OWNER_NAME`, each once. Day 30 is a three-question
-tap survey (`SURVEYS` in `lib/feedbackShared.ts`): every option is a link
+branded emails signed by `OWNER_NAME`, each once. Day 30 is a six-question
+tap survey (leads vs. hopes, jobs from the site, worth the price, where the
+best customer came from, what to work on next, are the numbers clear) (`SURVEYS` in `lib/feedbackShared.ts`): every option is a link
 carrying `?q=<question>&a=<answer>`, so one tap in the inbox records an answer
 and `/f/<token>` asks the rest, then offers a sentence. Answers merge by
 question into `client_feedback.answers` (JSONB) on the same row; the admin

@@ -44,7 +44,7 @@ export function BillingTab({
   const unpaid = billing && billing.due > 0;
   return (
     <div className="mt-6">
-      <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-200">Included in your plan</span>
+      <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Included in your plan</p>
       <h2 className="mt-3 text-2xl font-bold tracking-tight text-neutral-950">Billing</h2>
       <p className="mt-2 max-w-2xl text-sm text-neutral-600">Your plan, the card on file, and every invoice. Receipts download from here any time; nothing to ask us for.</p>
 
