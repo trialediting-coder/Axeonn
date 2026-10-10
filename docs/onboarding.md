@@ -360,3 +360,15 @@ changed. Before the first invoice there is nothing in Stripe, so the tab shows
 the plan price and the reply-to address instead. The portal needs the Customer
 Portal configuration saved in Stripe (docs/stripe.md) and the restricted key's
 "Customer portal: Write" permission.
+
+## The owner's data page
+
+`/admin/data` (`lib/ownerData.ts`, `components/insights/OwnerDataTable.tsx`)
+is every client on one page: totals across clients (live sites, reached out
+this month, estimated customers, the share of emailed reports that got a tap,
+the worth-the-price split), then a row per client with stage (setup, live,
+quiet), reports sent and where the ramp stands, this month from the tracker,
+last month, what they marked and their own close rate, every survey answer in
+words (latest per question) plus the last "was this useful" tap, and flags:
+tracker quiet, an attention answer, a report marked not useful, a low marked
+close rate. Flagged clients sort first. Read live each time; nothing stored.
