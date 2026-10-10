@@ -277,11 +277,11 @@ export function ProofDashboard({
                 key={t.key}
                 href={`?tab=${t.key}`}
                 aria-current={active ? 'page' : undefined}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium ${
+                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] font-medium ${
                   active ? 'bg-white/[0.07] text-white' : 'text-neutral-300 hover:bg-white/[0.05] hover:text-white'
                 }`}
               >
-                <Icon size={17} className={active ? 'text-blue-400' : 'text-neutral-500'} />
+                <Icon size={18} className={active ? 'text-blue-400' : 'text-neutral-500'} />
                 {t.label}
                 {locked ? (
                   <span className="ml-auto rounded-full bg-blue-500/15 px-1.5 py-px text-[10px] font-bold uppercase tracking-wide text-blue-300">{TIER_SHORT[t.tier]}</span>
@@ -291,9 +291,9 @@ export function ProofDashboard({
           })}
           <a
             href={setupUrl}
-            className="mt-2 flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-neutral-300 hover:bg-white/[0.05] hover:text-white"
+            className="mt-2 flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] font-medium text-neutral-300 hover:bg-white/[0.05] hover:text-white"
           >
-            <ClipboardList size={17} className="text-neutral-500" />
+            <ClipboardList size={18} className="text-neutral-500" />
             Setup
             {!setupDone ? <span className="ml-auto text-xs font-semibold text-blue-400">{progress.percent}%</span> : null}
           </a>
@@ -302,8 +302,8 @@ export function ProofDashboard({
           <div className="flex items-center gap-3">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-xs font-bold">{initials || 'A'}</span>
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold">{name}</p>
-              <p className="truncate text-xs text-neutral-500">{email}</p>
+              <p className="truncate text-[15px] font-semibold">{name}</p>
+              <p className="truncate text-[13px] text-neutral-500">{email}</p>
             </div>
           </div>
           {!preview ? (
