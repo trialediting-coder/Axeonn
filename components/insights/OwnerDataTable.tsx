@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { monthLabel } from '@/lib/projectsShared';
 import { RATING_LABELS } from '@/lib/feedbackShared';
 import type { ClientDataRow, OwnerOverview } from '@/lib/ownerData';
+import { REFERRAL } from '@/lib/referral';
+import { referralStatus } from '@/lib/referrals';
+import { ReferralPaidButton } from '@/components/insights/ReferralPaidButton';
 
 const day = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—');
 const num = (n: number | null | undefined) => (n == null ? '—' : String(n));
@@ -44,12 +47,53 @@ export function OwnerDataTable({ data }: { data: OwnerOverview }) {
           ))}
         </div>
 
+        {data.referrals.length ? (
+          <div className="mt-6 rounded-2xl border border-neutral-200 bg-white">
+            <div className="flex flex-wrap items-baseline justify-between gap-2 px-5 py-4">
+              <h2 className="text-base font-semibold text-neutral-950">Referrals</h2>
+              <p className="text-xs text-neutral-500">
+                {REFERRAL.reward} to the referrer {REFERRAL.when}; the client gets {REFERRAL.friendGets}. Owed rows are ready to pay.
+              </p>
+            </div>
+            <ul className="divide-y divide-neutral-100 border-t border-neutral-100">
+              {data.referrals.map((r) => {
+                const st = referralStatus(r);
+                return (
+                  <li key={r.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3 text-sm">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-neutral-950">
+                        {r.referredBy} <span className="font-normal text-neutral-500">sent</span>{' '}
+                        <Link href={`/admin/onboarding/${r.token}`} className="hover:text-blue-700">
+                          {r.name}
+                        </Link>
+                      </p>
+                      <p className="text-xs text-neutral-500">
+                        Signed up {day(r.signedUpAt)} · {r.firstInvoicePaid ? 'first invoice paid' : 'first invoice not paid yet'}
+                        {r.rewardPaidAt ? ` · paid ${day(r.rewardPaidAt)}` : ''}
+                      </p>
+                    </div>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ${
+                        st === 'paid' ? 'bg-emerald-50 text-emerald-800 ring-emerald-200' : st === 'owed' ? 'bg-amber-50 text-amber-800 ring-amber-200' : 'bg-neutral-100 text-neutral-600 ring-neutral-200'
+                      }`}
+                    >
+                      {st === 'paid' ? 'Paid' : st === 'owed' ? `Owed ${REFERRAL.reward}` : 'Pending'}
+                    </span>
+                    {st !== 'pending' ? <ReferralPaidButton token={r.token} paid={st === 'paid'} /> : null}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ) : null}
+
         <div className="mt-6 overflow-x-auto rounded-2xl border border-neutral-200 bg-white">
           <table className="w-full min-w-[1100px] text-sm">
             <thead className="bg-neutral-50 text-left text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
               <tr>
                 <th className="px-4 py-3">Client</th>
                 <th className="px-3 py-3">Stage</th>
+                <th className="px-3 py-3">Found us</th>
                 <th className="px-3 py-3">Reports</th>
                 <th className="px-3 py-3 text-right">Visits</th>
                 <th className="px-3 py-3 text-right">Reached out</th>
@@ -72,6 +116,10 @@ export function OwnerDataTable({ data }: { data: OwnerOverview }) {
                   <td className="px-3 py-3">
                     <Stage row={r} />
                     <p className="mt-1 text-[11px] text-neutral-500">{r.lastEventAt ? `last event ${day(r.lastEventAt)}` : 'no tracker yet'}</p>
+                  </td>
+                  <td className="px-3 py-3 text-xs text-neutral-700">
+                    {r.source ?? <span className="text-neutral-400">not asked yet</span>}
+                    {r.referredBy ? <p className="text-[11px] text-neutral-500">by {r.referredBy}</p> : null}
                   </td>
                   <td className="px-3 py-3 text-neutral-700">
                     {r.reportsSent} sent
@@ -129,7 +177,7 @@ export function OwnerDataTable({ data }: { data: OwnerOverview }) {
               ))}
               {data.rows.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-10 text-center text-sm text-neutral-500">
+                  <td colSpan={11} className="px-4 py-10 text-center text-sm text-neutral-500">
                     No clients yet.
                   </td>
                 </tr>

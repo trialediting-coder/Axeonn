@@ -105,6 +105,26 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     ],
   },
   {
+    // Where clients come from, and who to thank: a referrer named here shows on the
+    // admin Data page as a referral owed $300 once this client's first invoice is paid (lib/referrals.ts).
+    key: 'how-found',
+    kind: 'confirm',
+    tier: 'essentials',
+    title: 'How did you find us?',
+    description: 'One tap. If someone sent you our way, tell us who so we can thank them: they get $300 and you get a month free.',
+    minutes: 1,
+    fields: [
+      {
+        key: 'source',
+        label: 'How did you hear about Axeon?',
+        type: 'select',
+        required: true,
+        options: ['Someone referred me', 'Google search', 'Facebook or Instagram', 'Saw a site you built', 'An ad', 'Other'],
+      },
+      { key: 'referredBy', label: 'Who sent you? (name or business)', type: 'text', placeholder: 'Mike at A-1 Auto Detailing', hint: 'Only if someone referred you.' },
+    ],
+  },
+  {
     key: 'services',
     kind: 'confirm',
     tier: 'essentials',

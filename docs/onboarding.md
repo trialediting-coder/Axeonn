@@ -380,3 +380,10 @@ reads: $300 to whoever refers, paid when the referred business pays its first
 invoice, and a month free for the referred. It appears as a block at the end
 of every monthly report, a card on the AxeonPROOF overview, and a line on the
 feedback page, each with a "Send us a name" mailto to the reply-to address.
+
+Who sent a client comes from the onboarding question "How did you find us?"
+(`how-found`: a source and an optional referrer). A client who names someone
+is a row on the Data page's Referrals card (`lib/referrals.ts`): pending until
+the webhook has recorded a paid invoice or checkout for their email, then owed,
+then paid when the owner presses "Mark $300 paid" (`referral_paid_at`). The
+Data table also shows each client's source.

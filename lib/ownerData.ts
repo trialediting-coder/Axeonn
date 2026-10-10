@@ -6,7 +6,8 @@
 import { TIER_LABELS, type OnboardingTier } from '@/data/onboardingItems';
 import { answerLabel, type FeedbackEntry, type FeedbackRating } from '@/lib/feedbackShared';
 import { listFeedback } from '@/lib/feedback';
-import { listOnboardings, type Onboarding } from '@/lib/onboarding';
+import { getItemStates, listOnboardings, type Onboarding } from '@/lib/onboarding';
+import { listReferrals, readHowFound, type ReferralRow } from '@/lib/referrals';
 import { listMonthlyReports, monthLabel, type MonthlyReport } from '@/lib/projects';
 import { RAMP_REPORTS, reportNumber } from '@/lib/reportPlan';
 import { effectiveCloseRate, getTrackingSettings, hasTraffic, lastEventAt, monthOf, monthTraffic, previousMonth } from '@/lib/siteStats';
@@ -50,12 +51,17 @@ export interface ClientDataRow {
   taps: { answered: number; emailed: number };
   lastEventAt: string | null;
   flags: string[];
+  /** The onboarding answer to "How did you find us?", and who they named. */
+  source: string | null;
+  referredBy: string | null;
 }
 
 export interface OwnerOverview {
   month: string;
   previous: string;
   rows: ClientDataRow[];
+  /** Clients who named a referrer, with what is owed (lib/referrals.ts). */
+  referrals: ReferralRow[];
   totals: {
     live: number;
     reachedOut: number;
@@ -126,13 +132,15 @@ export async function ownerOverview(now: Date = new Date()): Promise<OwnerOvervi
   for (const o of all) {
     const settings = await getTrackingSettings(o.id);
     const rate = effectiveCloseRate(settings);
-    const [thisMonth, lastMonth, reports, feedback, last] = await Promise.all([
+    const [thisMonth, lastMonth, reports, feedback, last, states] = await Promise.all([
       monthTraffic(o.id, month, rate),
       monthTraffic(o.id, previous, rate),
       listMonthlyReports(o.id),
       listFeedback(o.id),
       lastEventAt(o.id),
+      getItemStates(o.id),
     ]);
+    const found = readHowFound(states);
     const sent = reports.filter((r) => r.emailedAt).map((r) => r.month);
     const next = reportNumber(sent, month);
     const t = hasTraffic(thisMonth) ? thisMonth : null;
@@ -161,6 +169,8 @@ export async function ownerOverview(now: Date = new Date()): Promise<OwnerOvervi
       lastTapAt: taps[0]?.createdAt ?? null,
       taps: tapCounts(reports, feedback),
       lastEventAt: last,
+      source: found.source,
+      referredBy: found.referredBy,
     };
     rows.push({ ...base, flags: clientFlags(base) });
   }
@@ -179,6 +189,7 @@ export async function ownerOverview(now: Date = new Date()): Promise<OwnerOvervi
     month,
     previous,
     rows,
+    referrals: await listReferrals(),
     totals: {
       live: live.length,
       reachedOut: rows.reduce((n, r) => n + (r.thisMonth?.conversions ?? 0), 0),
