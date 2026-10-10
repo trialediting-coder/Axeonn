@@ -17,6 +17,7 @@ export function UpgradePanel({
   tab,
   tier,
   traffic,
+  period = 'last month',
   avgJobValue,
   request,
   preview,
@@ -25,6 +26,8 @@ export function UpgradePanel({
   tab: ProofTab;
   tier: OnboardingTier;
   traffic: TrafficSummary | null;
+  /** What `traffic` covers in a sentence: 'last month' from a report, 'so far this month' from the tracker. */
+  period?: string;
   avgJobValue: number | null;
   request: UpgradeRequest | null;
   preview: boolean;
@@ -33,7 +36,7 @@ export function UpgradePanel({
   const plan = TIER_LABELS[tab.tier];
   const math = upgradeMath(tier, tab.tier, avgJobValue);
   const requestedThis = request && request.tier === tab.tier ? request.at : null;
-  const loss = lossLine(tab, traffic);
+  const loss = lossLine(tab, traffic, period);
   return (
     <div className="mt-6">
       <div className="flex flex-wrap items-center gap-3">
@@ -42,7 +45,7 @@ export function UpgradePanel({
         </span>
       </div>
       <h2 className="mt-3 text-2xl font-bold tracking-tight text-neutral-950">{tab.label}</h2>
-      <p className="mt-2 max-w-2xl text-base leading-relaxed text-neutral-700">{lockedHeadline(tab, traffic)}</p>
+      <p className="mt-2 max-w-2xl text-base leading-relaxed text-neutral-700">{lockedHeadline(tab, traffic, period)}</p>
       {loss ? (
         <div className="mt-4 max-w-2xl rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
           <p className="text-sm font-semibold leading-relaxed text-amber-950">{loss.text}</p>

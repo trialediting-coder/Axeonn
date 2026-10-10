@@ -59,8 +59,8 @@ export function decideHostRoute(input: {
   const { pathname, search } = input;
 
   if (host === appHost) {
-    // AxeonPROOF is the front door at the bare address.
-    if (pathname === '/') return { type: 'rewrite', path: PROOF_PATH };
+    // AxeonPROOF is the front door at the bare address. The query rides along (?tab=calls).
+    if (pathname === '/') return { type: 'rewrite', path: `${PROOF_PATH}${search}` };
     // Keep the URL people see clean: /proof itself goes back to "/".
     if (pathname === PROOF_PATH) return { type: 'redirect', url: `${appOrigin}/${search}`, permanent: false };
     if (pathname === '/robots.txt') return { type: 'robots-disallow' };

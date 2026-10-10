@@ -37,6 +37,16 @@ import { DEVICE_LABELS, WEEKDAY_LABELS, buttonLabel, campaignLabel, hourLabel, m
 
 type Icon = ComponentType<{ size?: number; className?: string }>;
 
+/** The tracker's running month (lib/proofDashboardData.ts), shown ahead of the saved report. */
+export type LiveTraffic = { month: string; traffic: TrafficSummary; prev: TrafficSummary | null };
+
+/** The month before "2026-01" is "2025-12". */
+const previousMonth = (month: string) => {
+  const [y, m] = month.split('-').map(Number);
+  const d = new Date(Date.UTC(y, m - 2, 1));
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
+};
+
 /** Every tab is visible to every client; a tab outside their plan opens the upgrade page (lib/proofTabs.ts). */
 const TAB_ICONS: Record<ProofTabKey, Icon> = {
   overview: LayoutDashboard,
@@ -65,7 +75,7 @@ const WEB_METRICS: { key: WebKey; label: string; icon: Icon; hint: string }[] = 
   { key: 'clicks', label: 'Button clicks', icon: MousePointerClick, hint: 'Call, text, book, form and more' },
 ];
 
-function webMetric(key: WebKey, t: TrafficSummary, prev: TrafficSummary | null, avgJobValue: number | null = null) {
+function webMetric(key: WebKey, t: TrafficSummary, prev: TrafficSummary | null, avgJobValue: number | null = null, prevLabel = 'last month') {
   const now = t[key];
   const value = key === 'estimatedCustomers' ? `~${now}` : String(now);
   const before = prev?.[key] ?? null;
@@ -90,7 +100,7 @@ function webMetric(key: WebKey, t: TrafficSummary, prev: TrafficSummary | null, 
   const diff = now - before;
   return {
     value,
-    sub: `${diff > 0 ? '+' : diff < 0 ? '−' : ''}${Math.abs(diff)} vs last month`,
+    sub: `${diff > 0 ? '+' : diff < 0 ? '−' : ''}${Math.abs(diff)} vs ${prevLabel}`,
     tone: diff > 0 ? ('up' as const) : diff < 0 ? ('down' as const) : ('neutral' as const),
   };
 }
@@ -170,6 +180,7 @@ export function ProofDashboard({
   leadApi = null,
   tab = 'overview',
   upgradeRequest = null,
+  live: liveTraffic = null,
 }: {
   email: string;
   onboarding: Onboarding;
@@ -196,19 +207,35 @@ export function ProofDashboard({
   tab?: ProofTabKey;
   /** The plan the client asked to move to, if they pressed the button (lib/upgrades.ts). */
   upgradeRequest?: UpgradeRequest | null;
+  /** This month so far, straight from the tracker (lib/siteStats.ts monthTraffic); shown ahead of the saved report. */
+  live?: LiveTraffic | null;
 }) {
   const latest = reports[0] ?? null;
   const prev = reports[1] ?? null;
-  const live = latest !== null;
-  const traffic = latest?.traffic && (latest.traffic.views > 0 || latest.traffic.clicks > 0) ? latest.traffic : null;
-  const prevTraffic = prev?.traffic ?? null;
+  const reportTraffic = latest?.traffic && (latest.traffic.views > 0 || latest.traffic.clicks > 0) ? latest.traffic : null;
+  // The tracker's running month beats the saved report, so the page moves every day, not once a month.
+  const traffic = liveTraffic?.traffic ?? reportTraffic;
+  const prevTraffic = liveTraffic ? liveTraffic.prev : (prev?.traffic ?? null);
+  const live = latest !== null || liveTraffic !== null;
+  const trafficLabel = liveTraffic ? `${monthLabel(liveTraffic.month)} so far` : latest ? monthLabel(latest.month) : '';
+  const prevLabel = liveTraffic ? `all of ${monthLabel(previousMonth(liveTraffic.month))}` : 'last month';
+  const period = liveTraffic ? 'so far this month' : 'last month';
   const detail = traffic?.detail && traffic.detail.sessions > 0 ? traffic.detail : null;
   const estimate = traffic && traffic.conversions > 0 ? (traffic.closeRateEstimate ?? null) : null;
   const deviceTotal = detail ? detail.devices.phone + detail.devices.tablet + detail.devices.desktop : 0;
   const hourMax = detail ? Math.max(1, ...detail.conversionHours) : 1;
   const dayMax = detail ? Math.max(1, ...detail.conversionDays) : 1;
-  const chart = reports.slice(0, 6).reverse();
+  // Up to six reported months, plus the running month from the tracker when no report covers it yet.
+  const chart: { month: string; calls: number | null; leads: number | null; traffic: TrafficSummary | null; live?: boolean }[] = reports
+    .slice(0, 6)
+    .reverse()
+    .map((r) => ({ month: r.month, calls: r.calls, leads: r.leads, traffic: r.traffic ?? null }));
   const typedChart = chart.some((r) => r.calls != null || r.leads != null);
+  // A typed chart (calls and leads Axeon entered) has no live bar: the tracker counts people who reached out, a different thing.
+  if (liveTraffic && !typedChart && !chart.some((r) => r.month === liveTraffic.month)) {
+    chart.push({ month: liveTraffic.month, calls: null, leads: null, traffic: liveTraffic.traffic, live: true });
+    if (chart.length > 6) chart.shift();
+  }
   const chartMax = Math.max(1, ...chart.map((r) => (typedChart ? (r.calls ?? 0) + (r.leads ?? 0) : (r.traffic?.conversions ?? 0))));
   const baseline = details.baselineCalls != null || details.baselineLeads != null ? (details.baselineCalls ?? 0) + (details.baselineLeads ?? 0) : null;
   const feed = [
@@ -314,7 +341,7 @@ export function ProofDashboard({
         })}
       </nav>
 
-      <main className="mx-auto max-w-[1440px] px-4 pb-20 pt-8 sm:px-8 2xl:px-12">
+      <main className="mx-auto max-w-[1920px] px-4 pb-20 pt-8 sm:px-8 xl:px-12 2xl:px-16">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-sm text-neutral-500">{firstName ? `Welcome back, ${firstName}` : 'Welcome back'}</p>
@@ -336,6 +363,22 @@ export function ProofDashboard({
           </div>
         </div>
 
+        {!live ? (
+          <div className="mt-5 flex flex-col gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-amber-950">You are in setup, so the numbers are not on yet.</p>
+              <p className="mt-0.5 text-xs text-amber-900/80">
+                Everything fills in by itself the day your site goes live with Axeon&apos;s tracking line: visits, who reached out, and what it is worth. Until then this page shows what is coming.
+              </p>
+            </div>
+            {!setupDone ? (
+              <a href={setupUrl} className="shrink-0 rounded-lg bg-amber-950 px-3 py-1.5 text-center text-xs font-semibold text-white hover:bg-amber-900">
+                Finish setup
+              </a>
+            ) : null}
+          </div>
+        ) : null}
+
         {tab !== 'overview' ? (
           tab === 'leads' ? (
             <div className="mt-6">
@@ -352,7 +395,7 @@ export function ProofDashboard({
               )}
             </div>
           ) : tabLocked(proofTab(tab), onboarding.tier) ? (
-            <UpgradePanel tab={proofTab(tab)} tier={onboarding.tier} traffic={traffic} avgJobValue={avgJobValue} request={upgradeRequest} preview={!!preview} bookUrl={`${SITE_ORIGIN}/book`} />
+            <UpgradePanel tab={proofTab(tab)} tier={onboarding.tier} traffic={traffic} period={period} avgJobValue={avgJobValue} request={upgradeRequest} preview={!!preview} bookUrl={`${SITE_ORIGIN}/book`} />
           ) : (
             <FeatureTab tab={proofTab(tab)} reports={reports} traffic={traffic} />
           )
@@ -362,7 +405,7 @@ export function ProofDashboard({
         {traffic ? (
           <div className="mt-6 grid grid-cols-1 gap-4 lg:gap-5 sm:grid-cols-2 xl:grid-cols-4">
             {WEB_METRICS.map(({ key, label, icon: Icon, hint }) => {
-              const m = webMetric(key, traffic, prevTraffic, avgJobValue);
+              const m = webMetric(key, traffic, prevTraffic, avgJobValue, prevLabel);
               return (
                 <Card key={label} className="p-5">
                   <div className="flex items-center justify-between">
@@ -382,7 +425,7 @@ export function ProofDashboard({
                     </p>
                   </div>
                   <div className="mt-3 border-t border-dashed border-neutral-200 pt-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">{monthLabel(latest!.month)}</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">{trafficLabel}</p>
                   </div>
                 </Card>
               );
@@ -448,7 +491,10 @@ export function ProofDashboard({
                         <div className="bg-blue-300" style={{ flexGrow: leads }} title={`${leads} leads`} />
                         <div className="bg-blue-600" style={{ flexGrow: calls }} title={`${calls} calls`} />
                       </div>
-                      <span className="text-[11px] text-neutral-500">{monthLabel(r.month).slice(0, 3)}</span>
+                      <span className="text-[11px] text-neutral-500">
+                        {monthLabel(r.month).slice(0, 3)}
+                        {r.live ? <span className="block text-[10px] text-neutral-400">so far</span> : null}
+                      </span>
                     </div>
                   );
                 })}
@@ -624,7 +670,7 @@ export function ProofDashboard({
           <div className="mt-4 grid grid-cols-1 gap-4 lg:gap-5 lg:grid-cols-3">
             <Card className="p-6">
               <h2 className="text-base font-semibold text-neutral-950">Most clicked buttons</h2>
-              <p className="mt-0.5 text-xs text-neutral-500">{monthLabel(latest!.month)}</p>
+              <p className="mt-0.5 text-xs text-neutral-500">{trafficLabel}</p>
               <ul className="mt-4 space-y-2 text-sm">
                 {traffic.buttons.slice(0, 6).map((b) => (
                   <li key={b.name} className="flex items-center justify-between gap-3">
