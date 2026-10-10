@@ -8,6 +8,8 @@ import { AxeonLogo } from '@/components/brand/AxeonLogo';
 import { FeedbackForm } from '@/components/feedback/FeedbackForm';
 import { getFeedback, isFeedbackRating, questionsByKeys, readFeedbackToken, recordFeedback, type FeedbackRating } from '@/lib/feedback';
 import { getMonthlyReport } from '@/lib/projects';
+import { referralMailto, referralSentence } from '@/lib/referral';
+import { CLIENT_REPLY_TO } from '@/lib/email';
 import { getOnboardingById } from '@/lib/onboarding';
 
 export const dynamic = 'force-dynamic';
@@ -77,6 +79,13 @@ export default async function FeedbackPage({ params, searchParams }: { params: P
               </a>
             ) : null}
             <FeedbackForm token={token} rating={rating} questions={remaining} />
+            <p className="mt-8 border-t border-neutral-100 pt-5 text-xs leading-relaxed text-neutral-500">
+              {referralSentence()}{' '}
+              <a href={referralMailto(CLIENT_REPLY_TO, onboarding?.businessName ?? null)} className="font-semibold text-blue-600 hover:text-blue-700">
+                Send us a name
+              </a>
+              .
+            </p>
           </>
         ) : (
           <>

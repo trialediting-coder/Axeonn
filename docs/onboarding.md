@@ -372,3 +372,11 @@ last month, what they marked and their own close rate, every survey answer in
 words (latest per question) plus the last "was this useful" tap, and flags:
 tracker quiet, an attention answer, a report marked not useful, a low marked
 close rate. Flagged clients sort first. Read live each time; nothing stored.
+
+## The referral offer
+
+`lib/referral.ts` holds the one offer, said the same way everywhere a client
+reads: $300 to whoever refers, paid when the referred business pays its first
+invoice, and a month free for the referred. It appears as a block at the end
+of every monthly report, a card on the AxeonPROOF overview, and a line on the
+feedback page, each with a "Send us a name" mailto to the reply-to address.

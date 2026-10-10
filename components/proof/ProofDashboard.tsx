@@ -16,6 +16,7 @@ import {
   Clock,
   ExternalLink,
   FileText,
+  Gift,
   Globe,
   LayoutDashboard,
   LogOut,
@@ -32,6 +33,7 @@ import { UpgradePanel } from '@/components/proof/UpgradePanel';
 import { PROOF_TABS, TIER_SHORT, proofTab, tabLocked, type ProofTabKey } from '@/lib/proofTabs';
 import type { UpgradeRequest } from '@/lib/upgrades';
 import type { BillingSummary } from '@/lib/clientBilling';
+import { REFERRAL, referralMailto } from '@/lib/referral';
 import { SITE_ORIGIN } from '@/lib/hostRouting';
 import type { OnboardingItem } from '@/data/onboardingItems';
 import type { ItemState, Onboarding, Progress } from '@/lib/onboarding';
@@ -611,6 +613,26 @@ export function ProofDashboard({
             </a>
           </Card>
         </div>
+
+        <Card className="mt-5 flex flex-col gap-3 px-6 py-5 sm:flex-row sm:items-center sm:justify-between" delay={150}>
+          <div className="flex items-start gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-700 to-blue-500 text-white shadow-md shadow-blue-600/30">
+              <Gift size={18} />
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-neutral-950">Know a business owner who needs this?</p>
+              <p className="mt-0.5 text-sm text-neutral-600">
+                Refer them and you get <b className="text-neutral-900">{REFERRAL.reward}</b> {REFERRAL.when}. They get <b className="text-neutral-900">{REFERRAL.friendGets}</b>.
+              </p>
+            </div>
+          </div>
+          <a
+            href={referralMailto(ownerEmail, name)}
+            className="inline-flex h-10 shrink-0 items-center justify-center rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+          >
+            Send us a name
+          </a>
+        </Card>
 
         <div className="mt-5 grid grid-cols-1 gap-4 lg:gap-5 lg:grid-cols-3">
           <Card className="p-6" delay={180}>
