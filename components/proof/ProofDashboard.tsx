@@ -151,8 +151,51 @@ function SignOut({ className }: { className: string }) {
   );
 }
 
-function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <section className={`rounded-xl border border-neutral-200/80 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04)] ${className}`}>{children}</section>;
+/** A white card that rises in on load (globals.css .proof-rise); `delay` staggers a row of them. */
+function Card({ children, className = '', delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
+  return (
+    <section
+      className={`proof-rise rounded-2xl bg-white shadow-[0_2px_12px_-2px_rgba(16,24,40,0.08),0_1px_2px_rgba(16,24,40,0.04)] transition-shadow duration-300 hover:shadow-[0_12px_28px_-8px_rgba(16,24,40,0.16)] ${className}`}
+      style={delay ? { animationDelay: `${delay}ms` } : undefined}
+    >
+      {children}
+    </section>
+  );
+}
+
+/** One number with its icon floating off the top edge, the way the dashboards people already know do it. */
+function StatCard({
+  label,
+  value,
+  sub,
+  tone = 'neutral',
+  footer,
+  icon: Icon,
+  muted = false,
+  delay = 0,
+}: {
+  label: string;
+  value: string;
+  sub: string | null;
+  tone?: 'up' | 'down' | 'neutral';
+  footer: string;
+  icon: Icon;
+  muted?: boolean;
+  delay?: number;
+}) {
+  return (
+    <Card className="relative px-5 pb-4 pt-5" delay={delay}>
+      <span className="absolute -top-4 left-5 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-700 to-blue-500 text-white shadow-lg shadow-blue-600/30">
+        <Icon size={22} />
+      </span>
+      <div className="text-right">
+        <p className="text-sm font-medium text-neutral-500">{label}</p>
+        <p className={`mt-1 text-3xl font-bold tracking-tight ${muted ? 'text-neutral-300' : 'text-neutral-950'}`}>{value}</p>
+        <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">{footer}</p>
+      </div>
+      <p className={`mt-4 border-t border-neutral-100 pt-3 text-xs leading-relaxed ${tone === 'up' ? 'font-semibold text-emerald-600' : tone === 'down' ? 'font-semibold text-red-600' : 'text-neutral-500'}`}>{sub}</p>
+    </Card>
+  );
 }
 
 function ProgressRing({ percent }: { percent: number }) {
@@ -172,6 +215,8 @@ function ProgressRing({ percent }: { percent: number }) {
           strokeLinecap="round"
           strokeDasharray={c}
           strokeDashoffset={c * (1 - percent / 100)}
+          className="proof-ring"
+          style={{ ['--proof-c' as string]: c }}
         />
       </svg>
       <span className="absolute inset-0 flex items-center justify-center text-lg font-extrabold text-neutral-950">{percent}%</span>
@@ -281,7 +326,7 @@ export function ProofDashboard({
   const firstName = onboarding.clientName?.split(' ')[0];
 
   return (
-    <div className={`min-h-screen bg-[#F6F7F9] lg:pl-64 ${preview ? 'pt-10' : ''}`}>
+    <div className={`min-h-screen bg-[#F3F5F8] lg:pl-72 ${preview ? 'pt-10' : ''}`}>
       {preview ? (
         <div className="fixed inset-x-0 top-0 z-50 flex h-10 items-center justify-center gap-3 bg-amber-400 px-4 text-xs font-semibold text-amber-950">
           <span className="truncate">{preview.label}. This is exactly what the client sees; nothing has been sent to them.</span>
@@ -291,11 +336,13 @@ export function ProofDashboard({
         </div>
       ) : null}
       {/* Sidebar (desktop) */}
-      <aside className={`fixed inset-y-0 left-0 hidden w-64 flex-col bg-[#0B0D12] text-white lg:flex ${preview ? 'top-10' : ''}`}>
-        <div className="px-5 pb-6 pt-6">
-          <AxeonLogo product="PROOF" tone="light" />
+      <aside
+        className={`fixed bottom-4 left-4 hidden w-64 flex-col rounded-2xl bg-white shadow-[0_10px_40px_-12px_rgba(16,24,40,0.2)] lg:flex ${preview ? 'top-14' : 'top-4'}`}
+      >
+        <div className="px-6 pb-4 pt-6">
+          <AxeonLogo product="PROOF" />
         </div>
-        <nav aria-label="AxeonPROOF" className="flex-1 space-y-0.5 px-3">
+        <nav aria-label="AxeonPROOF" className="flex-1 space-y-1 overflow-y-auto px-4">
           {PROOF_TABS.map((t) => {
             const Icon = TAB_ICONS[t.key];
             const locked = tabLocked(t, onboarding.tier);
@@ -305,37 +352,37 @@ export function ProofDashboard({
                 key={t.key}
                 href={`?tab=${t.key}`}
                 aria-current={active ? 'page' : undefined}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] font-medium ${
-                  active ? 'bg-white/[0.07] text-white' : 'text-neutral-300 hover:bg-white/[0.05] hover:text-white'
+                className={`flex items-center gap-3 rounded-lg px-4 py-3 text-[15px] font-medium transition-colors ${
+                  active ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-neutral-600 hover:bg-blue-50 hover:text-neutral-950'
                 }`}
               >
-                <Icon size={18} className={active ? 'text-blue-400' : 'text-neutral-500'} />
+                <Icon size={18} className={active ? 'text-white' : 'text-neutral-500'} />
                 {t.label}
                 {locked ? (
-                  <span className="ml-auto rounded-full bg-blue-500/15 px-1.5 py-px text-[10px] font-bold uppercase tracking-wide text-blue-300">{TIER_SHORT[t.tier]}</span>
+                  <span className={`ml-auto rounded-full px-1.5 py-px text-[10px] font-bold uppercase tracking-wide ${active ? 'bg-white/15 text-white' : 'bg-blue-50 text-blue-700'}`}>{TIER_SHORT[t.tier]}</span>
                 ) : null}
               </a>
             );
           })}
           <a
             href={setupUrl}
-            className="mt-2 flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] font-medium text-neutral-300 hover:bg-white/[0.05] hover:text-white"
+            className="mt-2 flex items-center gap-3 rounded-lg px-4 py-3 text-[15px] font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-950"
           >
             <ClipboardList size={18} className="text-neutral-500" />
             Setup
-            {!setupDone ? <span className="ml-auto text-xs font-semibold text-blue-400">{progress.percent}%</span> : null}
+            {!setupDone ? <span className="ml-auto text-xs font-semibold text-blue-600">{progress.percent}%</span> : null}
           </a>
         </nav>
-        <div className="border-t border-white/10 p-4">
+        <div className="border-t border-neutral-100 p-4">
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-xs font-bold">{initials || 'A'}</span>
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-tr from-blue-700 to-blue-500 text-xs font-bold text-white">{initials || 'A'}</span>
             <div className="min-w-0">
-              <p className="truncate text-[15px] font-semibold">{name}</p>
+              <p className="truncate text-[15px] font-semibold text-neutral-950">{name}</p>
               <p className="truncate text-[13px] text-neutral-500">{email}</p>
             </div>
           </div>
           {!preview ? (
-            <SignOut className="mt-3 inline-flex h-8 w-full items-center justify-center gap-1.5 rounded-lg border border-white/10 text-xs font-semibold text-neutral-300 hover:bg-white/[0.05] hover:text-white" />
+            <SignOut className="mt-3 inline-flex h-8 w-full items-center justify-center gap-1.5 rounded-lg border border-neutral-200 text-xs font-semibold text-neutral-700 hover:bg-neutral-50" />
           ) : null}
         </div>
       </aside>
@@ -359,11 +406,11 @@ export function ProofDashboard({
               href={`?tab=${t.key}`}
               aria-current={active ? 'page' : undefined}
               className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${
-                active ? 'bg-neutral-950 text-white' : 'bg-neutral-100 text-neutral-700'
+                active ? 'bg-blue-600 text-white' : 'bg-neutral-100 text-neutral-700'
               }`}
             >
               {t.label}
-              {locked ? <span className={`rounded-full px-1.5 py-px text-[10px] font-bold uppercase ${active ? 'bg-white/20' : 'bg-blue-100 text-blue-700'}`}>{TIER_SHORT[t.tier]}</span> : null}
+              {locked ? <span className={`rounded-full px-1.5 py-px text-[10px] font-bold uppercase ${active ? 'bg-white/20' : 'bg-blue-50 text-blue-700'}`}>{TIER_SHORT[t.tier]}</span> : null}
             </a>
           );
         })}
@@ -372,7 +419,10 @@ export function ProofDashboard({
       <main className="mx-auto max-w-[1920px] px-4 pb-20 pt-8 sm:px-8 xl:px-12 2xl:px-16">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-sm text-neutral-500">{firstName ? `Welcome back, ${firstName}` : 'Welcome back'}</p>
+            <p className="text-xs text-neutral-400">
+              AxeonPROOF <span className="mx-1">/</span> <span className="font-medium text-neutral-700">{proofTab(tab).label}</span>
+            </p>
+            <p className="mt-2 text-sm text-neutral-500">{firstName ? `Welcome back, ${firstName}` : 'Welcome back'}</p>
             <h1 className="mt-0.5 text-2xl font-bold tracking-tight text-neutral-950">{name}</h1>
           </div>
           <div className="flex items-center gap-2">
@@ -434,32 +484,10 @@ export function ProofDashboard({
 
         {tab === 'overview' ? (<>
         {traffic ? (
-          <div className="mt-6 grid grid-cols-1 gap-4 lg:gap-5 sm:grid-cols-2 xl:grid-cols-4">
-            {WEB_METRICS.map(({ key, label, icon: Icon, hint }) => {
+          <div className="mt-10 grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 lg:gap-x-5 xl:grid-cols-4">
+            {WEB_METRICS.map(({ key, label, icon, hint }, i) => {
               const m = webMetric(key, traffic, prevTraffic, avgJobValue, prevLabel);
-              return (
-                <Card key={label} className="p-5">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-neutral-600">{label}</p>
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                      <Icon size={16} />
-                    </span>
-                  </div>
-                  <p className="mt-4 text-3xl font-bold tracking-tight text-neutral-950">{m.value}</p>
-                  <div className="mt-3 flex items-center justify-between">
-                    <p
-                      className={`text-xs ${
-                        m.tone === 'up' ? 'font-semibold text-emerald-600' : m.tone === 'down' ? 'font-semibold text-red-600' : 'text-neutral-500'
-                      }`}
-                    >
-                      {m.sub ?? hint}
-                    </p>
-                  </div>
-                  <div className="mt-3 border-t border-dashed border-neutral-200 pt-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">{trafficLabel}</p>
-                  </div>
-                </Card>
-              );
+              return <StatCard key={label} label={label} value={m.value} sub={m.sub ?? hint} tone={m.tone} footer={trafficLabel} icon={icon} delay={i * 70} />;
             })}
           </div>
         ) : null}
@@ -467,98 +495,102 @@ export function ProofDashboard({
 
         {leads.some((m) => m.rows.length > 0) ? <LeadLog months={leads} api={leadApi} /> : null}
 
-        <div className={`${traffic ? 'mt-4' : 'mt-6'} grid grid-cols-1 gap-4 lg:gap-5 sm:grid-cols-2 xl:grid-cols-4`}>
-          {METRICS.map(({ key, label, icon: Icon, hint }) => {
+        <div className={`${traffic ? 'mt-8' : 'mt-10'} grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 lg:gap-x-5 xl:grid-cols-4`}>
+          {METRICS.map(({ key, label, icon, hint }, i) => {
             const m = metric(key, latest, prev);
             // Once the site reports, a typed figure Axeon has not entered is left out rather than shown as a dash.
             if (traffic && m.value === '—') return null;
             return (
-            <Card key={label} className="p-5">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-neutral-600">{label}</p>
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
-                  <Icon size={16} />
-                </span>
-              </div>
-              <p className={`mt-4 text-3xl font-bold tracking-tight ${m.value === '—' ? 'text-neutral-300' : 'text-neutral-950'}`}>{m.value}</p>
-              <div className="mt-3 flex items-center justify-between">
-                <p
-                  className={`text-xs ${
-                    m.tone === 'up' ? 'font-semibold text-emerald-600' : m.tone === 'down' ? 'font-semibold text-red-600' : 'text-neutral-500'
-                  }`}
-                >
-                  {m.sub ?? (key === 'rank' && latest?.keyword ? `“${latest.keyword}”` : hint)}
-                </p>
-              </div>
-              <div className="mt-3 border-t border-dashed border-neutral-200 pt-3">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
-                  {latest ? monthLabel(latest.month) : 'Live after launch'}
-                </p>
-              </div>
-            </Card>
+              <StatCard
+                key={label}
+                label={label}
+                value={m.value}
+                sub={m.sub ?? (key === 'rank' && latest?.keyword ? `“${latest.keyword}”` : hint)}
+                tone={m.tone}
+                footer={latest ? monthLabel(latest.month) : 'Live after launch'}
+                icon={icon}
+                muted={m.value === '—'}
+                delay={(traffic ? 4 : 0) * 70 + i * 70}
+              />
             );
           })}
         </div>
 
-        <div className="mt-4 grid grid-cols-1 gap-4 lg:gap-5 lg:grid-cols-3">
-          <Card className="p-6 lg:col-span-2">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-neutral-950">{typedChart ? 'Calls and leads' : 'People who reached out'}</h2>
-              <span className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-500">
-                {live ? 'By month' : 'Last 30 days'}
-              </span>
-            </div>
-            {live ? (
-              <div className="mt-6 flex h-52 items-end gap-3">
-                {chart.map((r) => {
-                  const calls = typedChart ? (r.calls ?? 0) : (r.traffic?.conversions ?? 0);
-                  const leads = typedChart ? (r.leads ?? 0) : 0;
-                  return (
-                    <div key={r.month} className="flex h-full flex-1 flex-col items-center justify-end gap-2">
-                      <span className="text-xs font-semibold text-neutral-700">{calls + leads}</span>
-                      <div
-                        className="flex w-full max-w-14 flex-col justify-end overflow-hidden rounded-t"
-                        style={{ height: `${((calls + leads) / chartMax) * 80}%` }}
-                      >
-                        <div className="bg-blue-300" style={{ flexGrow: leads }} title={`${leads} leads`} />
-                        <div className="bg-blue-600" style={{ flexGrow: calls }} title={`${calls} calls`} />
+        <div className="mt-9 grid grid-cols-1 gap-4 lg:gap-5 lg:grid-cols-3">
+          <Card className="lg:col-span-2" delay={60}>
+            <div className="mx-4 -mt-5 rounded-xl bg-white px-4 pb-3 pt-4 shadow-[0_10px_30px_-10px_rgba(16,24,40,0.22)] ring-1 ring-neutral-100">
+              {live ? (
+                <div className="relative h-56">
+                  {/* Gridlines with their values, from the top down. */}
+                  <div aria-hidden className="absolute inset-0 flex flex-col justify-between pb-6 pl-8">
+                    {[1, 0.75, 0.5, 0.25, 0].map((k) => (
+                      <div key={k} className="relative border-t border-dashed border-neutral-200">
+                        <span className="absolute -left-8 -top-2 w-7 text-right text-[10px] text-neutral-400">{Math.round(chartMax * k)}</span>
                       </div>
-                      <span className="text-[11px] text-neutral-500">
-                        {monthLabel(r.month).slice(0, 3)}
-                        {r.live ? <span className="block text-[10px] text-neutral-400">so far</span> : null}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-            <div className="relative mt-6 h-52">
-              <div aria-hidden className="absolute inset-0 flex items-end gap-2">
-                {[30, 45, 38, 55, 48, 62, 52, 70, 60, 74, 66, 80].map((h, i) => (
-                  <div key={i} className="flex-1 rounded-t bg-neutral-100" style={{ height: `${h}%` }} />
-                ))}
-              </div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="rounded-xl border border-neutral-200 bg-white/95 px-5 py-4 text-center shadow-sm">
-                  <p className="text-sm font-semibold text-neutral-900">Your chart starts the day you launch</p>
-                  <p className="mt-1 text-xs text-neutral-500">Every call and lead will show up here, with where it came from.</p>
+                    ))}
+                  </div>
+                  <div className="absolute inset-0 flex items-end gap-3 pb-6 pl-8">
+                    {chart.map((r, i) => {
+                      const calls = typedChart ? (r.calls ?? 0) : (r.traffic?.conversions ?? 0);
+                      const leads = typedChart ? (r.leads ?? 0) : 0;
+                      return (
+                        <div key={r.month} className="relative flex h-full flex-1 flex-col items-center justify-end">
+                          <span className="mb-1 text-xs font-semibold text-neutral-700">{calls + leads}</span>
+                          <div
+                            className="proof-grow flex w-full max-w-10 flex-col justify-end overflow-hidden rounded-md"
+                            style={{ height: `${Math.max(2, ((calls + leads) / chartMax) * 82)}%`, animationDelay: `${150 + i * 80}ms` }}
+                          >
+                            <div className="bg-blue-300" style={{ flexGrow: leads }} title={`${leads} leads`} />
+                            <div className="bg-blue-600" style={{ flexGrow: calls }} title={`${calls} calls`} />
+                          </div>
+                          <span className="absolute -bottom-6 text-[11px] text-neutral-500">
+                            {monthLabel(r.month).slice(0, 3)}
+                            {r.live ? <span className="ml-1 text-[10px] text-neutral-400">so far</span> : null}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="relative h-56">
+                  <div aria-hidden className="absolute inset-0 flex items-end gap-2">
+                    {[30, 45, 38, 55, 48, 62, 52, 70, 60, 74, 66, 80].map((h, i) => (
+                      <div key={i} className="proof-grow flex-1 rounded-md bg-neutral-100" style={{ height: `${h}%`, animationDelay: `${i * 50}ms` }} />
+                    ))}
+                  </div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="rounded-xl border border-neutral-200 bg-white/95 px-5 py-4 text-center shadow-sm">
+                      <p className="text-sm font-semibold text-neutral-900">Your chart starts the day you launch</p>
+                      <p className="mt-1 text-xs text-neutral-500">Every call and lead will show up here, with where it came from.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-            )}
-            {live && typedChart && (
-              <p className="mt-3 flex gap-4 text-xs text-neutral-500">
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-sm bg-blue-600" /> Calls
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-sm bg-blue-300" /> Leads
-                </span>
+            <div className="px-6 pb-4 pt-5">
+              <h2 className="text-base font-semibold text-neutral-950">{typedChart ? 'Calls and leads' : 'People who reached out'}</h2>
+              <p className="mt-0.5 text-sm text-neutral-500">
+                {live ? (typedChart ? 'By month, as Axeon enters them' : 'By month, straight from your site') : 'Every call and lead, with where it came from'}
               </p>
-            )}
+              {live && typedChart ? (
+                <p className="mt-3 flex gap-4 text-xs text-neutral-500">
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-sm bg-blue-600" /> Calls
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-sm bg-blue-300" /> Leads
+                  </span>
+                </p>
+              ) : null}
+            </div>
+            <p className="flex items-center gap-1.5 border-t border-neutral-100 px-6 py-3 text-xs text-neutral-500">
+              <Clock size={13} className="text-neutral-400" />
+              {liveTraffic ? 'updated just now' : latest ? `updated with the ${monthLabel(latest.month)} report` : 'live after launch'}
+            </p>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-6" delay={120}>
             <h2 className="text-base font-semibold text-neutral-950">Your setup</h2>
             <div className="mt-5 flex items-center gap-5">
               <ProgressRing percent={progress.percent} />
@@ -580,8 +612,8 @@ export function ProofDashboard({
           </Card>
         </div>
 
-        <div className="mt-4 grid grid-cols-1 gap-4 lg:gap-5 lg:grid-cols-3">
-          <Card className="p-6">
+        <div className="mt-5 grid grid-cols-1 gap-4 lg:gap-5 lg:grid-cols-3">
+          <Card className="p-6" delay={180}>
             <h2 className="text-base font-semibold text-neutral-950">Your project</h2>
             <dl className="mt-4 space-y-3 text-sm">
               <div className="flex justify-between gap-4">
@@ -603,7 +635,7 @@ export function ProofDashboard({
               <div className="mt-5 rounded-lg bg-blue-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">90-day guarantee · Day {guaranteeDay} of 90</p>
                 <div className="mt-2 h-1.5 rounded-full bg-blue-100">
-                  <div className="h-1.5 rounded-full bg-blue-600" style={{ width: `${(guaranteeDay / 90) * 100}%` }} />
+                  <div className="proof-width h-1.5 rounded-full bg-blue-600" style={{ width: `${(guaranteeDay / 90) * 100}%` }} />
                 </div>
                 {latest && baseline != null ? (
                   <p className="mt-2 text-xs text-blue-900">
@@ -624,7 +656,7 @@ export function ProofDashboard({
             </div>
           </Card>
 
-          <Card className="lg:col-span-2">
+          <Card className="lg:col-span-2" delay={240}>
             <div className="flex items-center justify-between border-b border-neutral-100 px-6 py-4">
               <h2 className="text-base font-semibold text-neutral-950">Updates and reports</h2>
               {feed.length ? <span className="text-sm text-neutral-500">{feed.length} total</span> : null}
@@ -699,8 +731,8 @@ export function ProofDashboard({
         </div>
 
         {traffic ? (
-          <div className="mt-4 grid grid-cols-1 gap-4 lg:gap-5 lg:grid-cols-3">
-            <Card className="p-6">
+          <div className="mt-5 grid grid-cols-1 gap-4 lg:gap-5 lg:grid-cols-3">
+            <Card className="p-6" delay={300}>
               <h2 className="text-base font-semibold text-neutral-950">Most clicked buttons</h2>
               <p className="mt-0.5 text-xs text-neutral-500">{trafficLabel}</p>
               <ul className="mt-4 space-y-2 text-sm">
@@ -713,7 +745,7 @@ export function ProofDashboard({
                 {traffic.buttons.length === 0 ? <li className="text-neutral-500">No button clicks yet.</li> : null}
               </ul>
             </Card>
-            <Card className="p-6">
+            <Card className="p-6" delay={360}>
               <h2 className="text-base font-semibold text-neutral-950">Where visitors came from</h2>
               <p className="mt-0.5 text-xs text-neutral-500">{traffic.visitors} visitors</p>
               <ul className="mt-4 space-y-2 text-sm">
@@ -725,7 +757,7 @@ export function ProofDashboard({
                 ))}
               </ul>
             </Card>
-            <Card className="p-6">
+            <Card className="p-6" delay={420}>
               <h2 className="text-base font-semibold text-neutral-950">Most visited pages</h2>
               <p className="mt-0.5 text-xs text-neutral-500">{traffic.views} page views</p>
               <ul className="mt-4 space-y-2 text-sm">

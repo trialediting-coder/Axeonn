@@ -403,3 +403,32 @@ html, #root {
   font-family: var(--font-plus-jakarta-sans), system-ui, -apple-system, sans-serif;
   font-weight: 600;
 }
+
+/* AxeonPROOF dashboard (components/proof/ProofDashboard.tsx): cards rise in,
+   bars grow from the baseline, rings and progress bars fill. Pure CSS so the
+   server HTML animates without waiting for hydration. */
+@keyframes proofRise {
+  from { opacity: 0; transform: translate3d(0, 14px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+.proof-rise { animation: proofRise 0.55s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+@keyframes proofGrow {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+.proof-grow { transform-origin: bottom; animation: proofGrow 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+@keyframes proofWidth {
+  from { width: 0; }
+}
+.proof-width { animation: proofWidth 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+@keyframes proofRing {
+  from { stroke-dashoffset: var(--proof-c); }
+}
+.proof-ring { animation: proofRing 1.1s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .proof-rise, .proof-grow, .proof-width, .proof-ring { animation: none; }
+}
