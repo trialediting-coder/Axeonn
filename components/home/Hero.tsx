@@ -294,7 +294,7 @@ export function Hero() {
 
           <div
             style={{ animationDelay: '0.25s' }}
-            className="hero-rise mt-8 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4"
+            className="hero-rise mt-12 sm:mt-8 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4"
           >
             {/* Primary: the dedicated intake page (same form as the contact section) */}
             <Link
@@ -323,7 +323,7 @@ export function Hero() {
 
           <div
             style={{ animationDelay: '0.35s' }}
-            className="hero-rise mt-8"
+            className="hero-rise mt-6 sm:mt-8"
           >
             <TrustBadges variant="dark" size="lg" />
           </div>

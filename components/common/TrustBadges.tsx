@@ -23,10 +23,11 @@ export function TrustBadges({ variant = 'dark', size = 'md' }: TrustBadgesProps)
   const iconClass = variant === 'dark' ? 'text-blue-400' : 'text-blue-600';
 
   if (isLg) {
+    const dividerClass = variant === 'dark' ? 'border-white/15' : 'border-neutral-200';
     return (
-      // Phones: centered 3-column strip (icon over a short label) to match the
-      // centered CTAs. From sm up: one inline row, sized to fit the hero's max-w-3xl column.
-      <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-3">
+      // Phones: centered 3-column strip (icon over a short label) under a thin divider,
+      // to match the centered CTAs. From sm up: one inline row, sized to fit the hero's max-w-3xl column.
+      <div className={`grid grid-cols-3 gap-2 border-t pt-5 sm:flex sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-3 sm:border-t-0 sm:pt-0 ${dividerClass}`}>
         {BADGES.map(({ icon: Icon, label, short }) => (
           <span
             key={label}
