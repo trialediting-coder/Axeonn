@@ -70,12 +70,12 @@ function webMetric(key: WebKey, t: TrafficSummary, prev: TrafficSummary | null, 
   const value = key === 'estimatedCustomers' ? `~${now}` : String(now);
   const before = prev?.[key] ?? null;
   const worth = avgJobValue && t.estimatedCustomers > 0 ? `about $${Math.round(t.estimatedCustomers * avgJobValue).toLocaleString('en-US')} in work · ` : '';
-  const confirmed = t.markedWon ? `${t.markedWon} confirmed by you · ` : '';
+  const confirmed = t.markedWon ? `${t.markedWon} booked, marked by you · ` : '';
   const estimateSub =
     worth +
     confirmed +
     (t.observedCloseRate
-      ? `${t.closeRate}% close rate from your marked leads`
+      ? `${t.closeRate}% close rate ${t.observedCloseRate.weight >= 1 ? 'from the leads you marked' : 'from your marks and our estimate'}`
       : t.closeRateEstimate && t.customersLow != null && t.customersHigh != null && t.conversions > 0
         ? `likely ${t.customersLow} to ${t.customersHigh} · ${t.closeRate}% close rate`
         : `${t.closeRate}% of who reached out`);
@@ -208,7 +208,8 @@ export function ProofDashboard({
   const hourMax = detail ? Math.max(1, ...detail.conversionHours) : 1;
   const dayMax = detail ? Math.max(1, ...detail.conversionDays) : 1;
   const chart = reports.slice(0, 6).reverse();
-  const chartMax = Math.max(1, ...chart.map((r) => (r.calls ?? 0) + (r.leads ?? 0)));
+  const typedChart = chart.some((r) => r.calls != null || r.leads != null);
+  const chartMax = Math.max(1, ...chart.map((r) => (typedChart ? (r.calls ?? 0) + (r.leads ?? 0) : (r.traffic?.conversions ?? 0))));
   const baseline = details.baselineCalls != null || details.baselineLeads != null ? (details.baselineCalls ?? 0) + (details.baselineLeads ?? 0) : null;
   const feed = [
     ...updates.map((u) => ({ kind: 'update' as const, at: u.createdAt, u })),
@@ -340,7 +341,7 @@ export function ProofDashboard({
             <div className="mt-6">
               <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-200">Included in your plan</span>
               <h2 className="mt-3 text-2xl font-bold tracking-tight text-neutral-950">Leads</h2>
-              <p className="mt-2 max-w-2xl text-sm text-neutral-600">Every call, text, email, form and booking from your site, the day it happens. Tell us who became a customer and your numbers get more exact every month.</p>
+              <p className="mt-2 max-w-2xl text-sm text-neutral-600">Every call, text, email, form and booking from your site, the day it happens. Tap Booked on the ones that turned into a job and your numbers get more exact every month.</p>
               {leads.some((m) => m.rows.length > 0) ? (
                 <LeadLog months={leads} api={leadApi} />
               ) : (
@@ -394,6 +395,8 @@ export function ProofDashboard({
         <div className={`${traffic ? 'mt-4' : 'mt-6'} grid grid-cols-1 gap-4 lg:gap-5 sm:grid-cols-2 xl:grid-cols-4`}>
           {METRICS.map(({ key, label, icon: Icon, hint }) => {
             const m = metric(key, latest, prev);
+            // Once the site reports, a typed figure Axeon has not entered is left out rather than shown as a dash.
+            if (traffic && m.value === '—') return null;
             return (
             <Card key={label} className="p-5">
               <div className="flex items-center justify-between">
@@ -425,7 +428,7 @@ export function ProofDashboard({
         <div className="mt-4 grid grid-cols-1 gap-4 lg:gap-5 lg:grid-cols-3">
           <Card className="p-6 lg:col-span-2">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-neutral-950">Calls and leads</h2>
+              <h2 className="text-base font-semibold text-neutral-950">{typedChart ? 'Calls and leads' : 'People who reached out'}</h2>
               <span className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-500">
                 {live ? 'By month' : 'Last 30 days'}
               </span>
@@ -433,8 +436,8 @@ export function ProofDashboard({
             {live ? (
               <div className="mt-6 flex h-52 items-end gap-3">
                 {chart.map((r) => {
-                  const calls = r.calls ?? 0;
-                  const leads = r.leads ?? 0;
+                  const calls = typedChart ? (r.calls ?? 0) : (r.traffic?.conversions ?? 0);
+                  const leads = typedChart ? (r.leads ?? 0) : 0;
                   return (
                     <div key={r.month} className="flex h-full flex-1 flex-col items-center justify-end gap-2">
                       <span className="text-xs font-semibold text-neutral-700">{calls + leads}</span>
@@ -465,7 +468,7 @@ export function ProofDashboard({
               </div>
             </div>
             )}
-            {live && (
+            {live && typedChart && (
               <p className="mt-3 flex gap-4 text-xs text-neutral-500">
                 <span className="inline-flex items-center gap-1.5">
                   <span className="h-2 w-2 rounded-sm bg-blue-600" /> Calls
@@ -690,7 +693,7 @@ export function ProofDashboard({
                   </dd>
                   <dt className="text-neutral-500">Pages per visit</dt>
                   <dd className="text-right font-semibold text-neutral-950">{detail.pagesPerSession}</dd>
-                  <dt className="text-neutral-500">Left after one page</dt>
+                  <dt className="text-neutral-500">One-page visits</dt>
                   <dd className="text-right font-semibold text-neutral-950">{detail.bounceRate}%</dd>
                   {detail.speedMs ? (
                     <>
@@ -704,6 +707,12 @@ export function ProofDashboard({
                     <p className="text-xs font-semibold text-neutral-700">
                       How we estimate customers: {estimate.low}% to {estimate.high}% of people who reach out
                     </p>
+                    {traffic?.observedCloseRate ? (
+                      <p className="mt-1 text-xs text-neutral-600">
+                        Blended with your own marks: {traffic.observedCloseRate.won} of {traffic.observedCloseRate.won + traffic.observedCloseRate.lost} booked
+                        {traffic.observedCloseRate.weight >= 1 ? ', which now sets the rate.' : `, counting for ${Math.round(traffic.observedCloseRate.weight * 100)}% until you have marked 20.`}
+                      </p>
+                    ) : null}
                     <ul className="mt-1.5 space-y-0.5 text-xs text-neutral-500">
                       {estimate.factors.map((f) => (
                         <li key={f.label}>

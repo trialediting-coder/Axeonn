@@ -540,7 +540,7 @@ export function usageSentence(t: TrafficSummary, d: TrafficDetail): string {
     out += ` A typical visit lasted about ${t2} over ${d.pagesPerSession} ${d.pagesPerSession === 1 ? 'page' : 'pages'}`;
     out += d.avgScroll ? `, reading about ${d.avgScroll}% of the way down.` : '.';
   }
-  if (d.sessions >= 10) out += ` ${d.bounceRate}% left after one page without pressing anything.`;
+  if (d.sessions >= 10) out += ` ${d.bounceRate}% looked at one page and left.`;
   if (d.speedMs) out += ` Pages loaded in about ${(d.speedMs / 1000).toFixed(1)} seconds for a typical visitor.`;
   return out;
 }
@@ -774,11 +774,15 @@ export function closeRateNote(t: TrafficSummary): string {
   if (o && t.conversions > 0) {
     const marked = (t.markedWon ?? 0) + (t.markedLost ?? 0);
     const thisMonth = marked
-      ? ` This month you have marked ${marked} so far (${t.markedWon ?? 0} became ${t.markedWon === 1 ? 'a customer' : 'customers'}); the rest are counted at ${o.rate}%.`
+      ? ` This month you have marked ${marked} so far, ${t.markedWon ?? 0} as booked; the rest are counted at ${t.closeRate}%.`
       : '';
+    const how =
+      o.weight >= 1
+        ? `you marked ${o.won} of ${o.won + o.lost} leads in AxeonPROOF as booked, so that is the rate we use.`
+        : `you marked ${o.won} of ${o.won + o.lost} leads in AxeonPROOF as booked (${o.rate}%). Until you have marked 20, we blend that with what the data says${e ? ` (${e.rate}%)` : ''}, your marks counting for ${Math.round(o.weight * 100)}%.`;
     return `
     <div class="ax-box" style="margin:22px 0 0;padding:14px 16px;background:${BRAND.wash};border-radius:12px">
-      <p class="ax-muted" style="margin:0 0 6px;font-size:13px;color:${BRAND.muted}">How we got to ${o.rate}%: you told us ${o.won} of the ${o.won + o.lost} leads you marked in AxeonPROOF became customers, so we use your real rate instead of an estimate.${thisMonth}</p>
+      <p class="ax-muted" style="margin:0 0 6px;font-size:13px;color:${BRAND.muted}">How we got to ${t.closeRate}%: ${how}${thisMonth}</p>
       <p class="ax-muted" style="margin:0;font-size:13px;color:${BRAND.muted}">Keep marking leads in AxeonPROOF and this number stays yours.</p>
     </div>
   `;
@@ -977,6 +981,23 @@ export async function sendFeedbackNotification(input: {
       <p><a href="https://app.axeonstudio.co/admin/onboarding/${input.token}">Open their page</a> (the Feedback card keeps every answer).</p>
     `,
   });
+}
+
+/** To the owner: a client's own marks say few leads are booking (lib/leadHealth.ts). Once per 30 days per client. */
+export async function sendLowCloseRateNotification(input: { businessName: string; token: string; rate: number; won: number; marked: number; months: number }): Promise<boolean> {
+  const resend = getClient();
+  if (!resend || !ADMIN_NOTIFICATION_EMAIL) return false;
+  await sendChecked(resend, {
+    from: FROM_ADDRESS,
+    to: ADMIN_NOTIFICATION_EMAIL,
+    subject: `${input.businessName}: only ${input.won} of ${input.marked} marked leads booked`,
+    html: `
+      <p><b>${escapeHtml(input.businessName)}</b> has marked ${input.marked} leads in AxeonPROOF over the last ${input.months} months and ${input.won} of them as booked, a ${input.rate}% rate.</p>
+      <p>We are sending them people and they are not closing. Call them before it becomes "the site is not working": ask what happens when the phone rings, who answers, how fast a form gets a reply. This is usually the AxeonCORE conversation (missed-call text-back, instant call-back, booking).</p>
+      <p><a href="https://app.axeonstudio.co/admin/onboarding/${input.token}">Open their page</a>. You will not get this again for 30 days.</p>
+    `,
+  });
+  return true;
 }
 
 /** To the owner: a client pressed "Move me to <plan>" on a locked tab (lib/upgrades.ts). */

@@ -297,6 +297,8 @@ export function ensureSchema(): Promise<void> {
       // A client asked, from their dashboard, to move to a bigger plan (lib/upgrades.ts).
       await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS upgrade_requested_tier TEXT;`;
       await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS upgrade_requested_at TIMESTAMPTZ;`;
+      // When the owner was last told this client's marked close rate is low (lib/leadHealth.ts).
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS low_close_alerted_at TIMESTAMPTZ;`;
       // The call deck (/admin/calls, lib/callLeads.ts): prospects imported from the
       // Iowa detailer spreadsheet, plus the owner's notes and call outcomes.
       await sql`

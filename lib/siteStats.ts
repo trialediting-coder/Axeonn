@@ -13,7 +13,7 @@ import { createHash, createHmac, randomInt } from 'node:crypto';
 import { sql, ensureSchema, isDatabaseConfigured } from '@/lib/db';
 import { SITE_ORIGIN } from '@/lib/hostRouting';
 import { CONVERSION_NAMES, type CloseRateEstimate, type TrafficDetail, type TrafficSummary } from '@/lib/projectsShared';
-import { OBSERVED_MIN_MARKED, OBSERVED_MONTHS, type LeadOutcome, type LeadRow, type ObservedCloseRate } from '@/lib/projectsShared';
+import { OBSERVED_FULL_MARKED, OBSERVED_MIN_MARKED, OBSERVED_MONTHS, type LeadOutcome, type LeadRow, type ObservedCloseRate } from '@/lib/projectsShared';
 
 /** Month boundaries for reports follow the clients' clock (Iowa). */
 export const REPORT_TIME_ZONE = 'America/Chicago';
@@ -420,8 +420,11 @@ export function summarize(input: {
   const won = Math.max(0, input.marked?.won ?? 0);
   const lost = Math.max(0, input.marked?.lost ?? 0);
   const observed = input.closeRate == null ? (input.observed ?? null) : null;
-  const estimate = input.closeRate == null && !observed ? estimateCloseRate({ buttons: input.buttons, detail: input.detail }) : null;
-  const closeRate = input.closeRate != null ? input.closeRate : observed ? observed.rate : (estimate as CloseRateEstimate).rate;
+  const estimate = input.closeRate == null ? estimateCloseRate({ buttons: input.buttons, detail: input.detail }) : null;
+  // The client's own marks are blended in from OBSERVED_MIN_MARKED and take over at OBSERVED_FULL_MARKED,
+  // so one rough stretch of "not yet" taps cannot swing the headline number on its own.
+  const blend = (ours: number) => (observed ? Math.round(observed.weight * observed.rate + (1 - observed.weight) * ours) : ours);
+  const closeRate = input.closeRate != null ? input.closeRate : blend((estimate as CloseRateEstimate).rate);
   // Leads the client already marked are facts; the rate only applies to the rest.
   const unmarked = Math.max(0, conversions - won - lost);
   return {
@@ -438,8 +441,8 @@ export function summarize(input: {
     estimatedCustomers: won + estimateCustomers(unmarked, closeRate),
     detail: input.detail ?? null,
     closeRateEstimate: estimate,
-    customersLow: estimate ? won + Math.floor((unmarked * estimate.low) / 100) : undefined,
-    customersHigh: estimate ? won + Math.ceil((unmarked * estimate.high) / 100) : undefined,
+    customersLow: estimate ? won + Math.floor((unmarked * blend(estimate.low)) / 100) : undefined,
+    customersHigh: estimate ? won + Math.ceil((unmarked * blend(estimate.high)) / 100) : undefined,
     markedWon: won,
     markedLost: lost,
     observedCloseRate: observed,
@@ -779,8 +782,9 @@ export async function markedForMonth(onboardingId: number, month: string): Promi
 
 /**
  * The client's own close rate: won / (won + lost) over the leads they marked in
- * the last OBSERVED_MONTHS, once at least OBSERVED_MIN_MARKED are marked. Null
- * until then, and the data-driven estimate stays in charge.
+ * the last OBSERVED_MONTHS, once at least OBSERVED_MIN_MARKED are marked, with
+ * a weight that rises to 1 at OBSERVED_FULL_MARKED (summarize blends it with
+ * the estimate). Null until then, and the data-driven estimate stays in charge.
  */
 export async function observedCloseRate(onboardingId: number): Promise<ObservedCloseRate | null> {
   if (!isDatabaseConfigured()) return null;
@@ -792,8 +796,9 @@ export async function observedCloseRate(onboardingId: number): Promise<ObservedC
       AND created_at >= now() - make_interval(months => ${OBSERVED_MONTHS});
   `;
   const { won, lost } = res.rows[0] ?? { won: 0, lost: 0 };
-  if (won + lost < OBSERVED_MIN_MARKED) return null;
-  return { rate: Math.round((won / (won + lost)) * 100), won, lost, months: OBSERVED_MONTHS };
+  const marked = won + lost;
+  if (marked < OBSERVED_MIN_MARKED) return null;
+  return { rate: Math.round((won / marked) * 100), won, lost, months: OBSERVED_MONTHS, weight: Math.min(1, marked / OBSERVED_FULL_MARKED) };
 }
 
 const EMPTY_INPUT = { views: 0, visitors: 0, clicks: 0, buttons: [], pages: [], sources: [] };

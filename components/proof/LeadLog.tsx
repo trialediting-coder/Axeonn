@@ -2,13 +2,14 @@
 
 // components/proof/LeadLog.tsx
 // "People who reached out": every contact click on the client's site this month
-// and last, with the page and campaign behind it, and two taps per lead so the
-// client can tell us who became a customer. Once OBSERVED_MIN_MARKED are marked
-// their real close rate replaces the estimate (lib/siteStats.ts). Works as a
+// and last, with the page and campaign behind it, and two taps per lead:
+// Booked, or Not yet (a lead that has not booked is pending, not lost). From
+// OBSERVED_MIN_MARKED marks the client's own rate is blended into the estimate,
+// and from OBSERVED_FULL_MARKED it sets the rate (lib/siteStats.ts). Works as a
 // stacked list on a phone, a row per lead on wider screens.
 import { useState } from 'react';
 import { Check, X } from 'lucide-react';
-import { DEVICE_LABELS, OBSERVED_MIN_MARKED, buttonLabel, campaignLabel, type LeadOutcome, type LeadRow } from '@/lib/projectsShared';
+import { DEVICE_LABELS, OBSERVED_FULL_MARKED, OBSERVED_MIN_MARKED, buttonLabel, campaignLabel, type LeadOutcome, type LeadRow } from '@/lib/projectsShared';
 
 export interface LeadMonth {
   month: string;
@@ -72,15 +73,18 @@ export function LeadLog({ months, api }: { months: LeadMonth[]; api: string | nu
           <h2 className="text-base font-semibold text-neutral-950">People who reached out</h2>
           <span className="text-sm text-neutral-500">
             {total} {total === 1 ? 'lead' : 'leads'}
-            {marked ? ` · ${won} ${won === 1 ? 'customer' : 'customers'} marked` : ''}
+            {won ? ` · ${won} booked` : ''}
           </span>
         </div>
         <p className="mt-1 text-xs leading-relaxed text-neutral-500">
           Every call, text, email, form and booking from your site, with the page and campaign behind it. Tap{' '}
-          <span className="font-semibold text-neutral-700">Customer</span> or <span className="font-semibold text-neutral-700">Not</span> on each one.
+          <span className="font-semibold text-neutral-700">Booked</span> on the ones that turned into a job and{' '}
+          <span className="font-semibold text-neutral-700">Not yet</span> on the rest.
           {toGo > 0
-            ? ` Mark ${toGo} more and we use your real close rate instead of our estimate.`
-            : ' We now use your real close rate instead of our estimate.'}
+            ? ` After ${OBSERVED_MIN_MARKED} marks your own rate starts counting toward the estimate; after ${OBSERVED_FULL_MARKED} it sets it.`
+            : marked >= OBSERVED_FULL_MARKED
+              ? ' Your own rate now sets the estimate.'
+              : ` Your own rate now counts toward the estimate; after ${OBSERVED_FULL_MARKED} marks it sets it.`}
         </p>
       </div>
       {months.map((m) =>
@@ -111,7 +115,7 @@ export function LeadLog({ months, api }: { months: LeadMonth[]; api: string | nu
                             : 'border-neutral-200 bg-white text-neutral-700 hover:border-emerald-300 hover:text-emerald-700'
                         } disabled:opacity-60`}
                       >
-                        <Check size={14} /> Customer
+                        <Check size={14} /> Booked
                       </button>
                       <button
                         type="button"
@@ -124,7 +128,7 @@ export function LeadLog({ months, api }: { months: LeadMonth[]; api: string | nu
                             : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400'
                         } disabled:opacity-60`}
                       >
-                        <X size={14} /> Not
+                        <X size={14} /> Not yet
                       </button>
                     </div>
                   </li>
