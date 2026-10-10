@@ -1,6 +1,7 @@
 // lib/email.ts
 import { questionsByKeys } from '@/lib/feedbackShared';
 import { RAMP_REPORTS } from '@/lib/reportPlan';
+import { REFERRAL, referralMailto } from '@/lib/referral';
 import { Resend } from 'resend';
 import { WEEKDAY_LABELS, buttonLabel, campaignLabel, hourLabel, sourceLabel, type TrafficDetail, type TrafficSummary } from '@/lib/projectsShared';
 import { TAGLINE, alwaysOnSentence, headlineSentence, reportHighlights } from '@/lib/reportCopy';
@@ -875,6 +876,15 @@ export function feedbackLine(url: string, asked: readonly string[] = []): string
   return `${block}<p class="ax-muted" style="margin:18px 0 22px;font-family:${FONT};font-size:13px;color:${BRAND.muted}">Was this report useful? ${link('yes', 'Yes')} &nbsp;·&nbsp; ${link('sortof', 'Sort of')} &nbsp;·&nbsp; ${link('no', 'No')}</p>`;
 }
 
+/** The referral offer at the end of every report: the reward, what the friend gets, and a one-tap way to send a name. */
+export function referralBlock(businessName: string | null): string {
+  const href = referralMailto(CLIENT_REPLY_TO, businessName);
+  return `<div class="ax-tile" style="margin:0 0 22px;padding:16px 18px;border-radius:12px;border:1px solid ${BRAND.line};background:#ffffff">
+    <p class="ax-ink" style="margin:0;font-family:${FONT};font-size:15px;font-weight:700;line-height:1.4;color:${BRAND.ink}">Know a business owner who needs this?</p>
+    <p class="ax-body" style="margin:6px 0 0;font-family:${FONT};font-size:14px;line-height:1.5;color:${BRAND.body}">Refer them and you get <b>${REFERRAL.reward}</b> ${REFERRAL.when}. They get <b>${REFERRAL.friendGets}</b>. <a href="${escapeHtml(href)}" style="color:${BRAND.blueText};font-weight:700">Send us a name</a>, or just reply to this email.</p>
+  </div>`;
+}
+
 /** Call presses an Essentials client needs in a month before the report points at the Calls tab. */
 export const CALLS_NUDGE_MIN = 15;
 
@@ -974,6 +984,7 @@ export function renderMonthlyReportEmail(input: MonthlyReportEmailInput): { subj
     ${t ? closeRateNote(t) : ''}
     <div style="margin:26px 0 20px">${rButton(input.proofUrl, 'See it all in AxeonPROOF')}</div>
     ${upgradeNudge(input)}
+    ${referralBlock(input.businessName ?? null)}
     ${input.feedbackUrl ? feedbackLine(input.feedbackUrl, input.plan?.asked ?? []) : ''}
   `;
   const footerHtml = `
