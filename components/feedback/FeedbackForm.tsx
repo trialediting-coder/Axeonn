@@ -8,14 +8,15 @@ import { useState, type FormEvent } from 'react';
 import { btn } from '@/components/admin/ui';
 import type { FeedbackAnswers, FeedbackRating, SurveyQuestion } from '@/lib/feedbackShared';
 
-export function FeedbackForm({ token, rating, questions = [] }: { token: string; rating: FeedbackRating | null; questions?: readonly SurveyQuestion[] }) {
+export function FeedbackForm({ token, rating, questions = [], askReferrer = false }: { token: string; rating: FeedbackRating | null; questions?: readonly SurveyQuestion[]; askReferrer?: boolean }) {
   const [comment, setComment] = useState('');
   const [picked, setPicked] = useState<FeedbackRating | null>(rating);
   const [answers, setAnswers] = useState<FeedbackAnswers>({});
+  const [referredBy, setReferredBy] = useState('');
   const [state, setState] = useState<'idle' | 'busy' | 'done' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
   const survey = questions.length > 0;
-  const canSend = Boolean(comment.trim()) || Boolean(picked && !rating) || Object.keys(answers).length > 0;
+  const canSend = Boolean(comment.trim()) || Boolean(picked && !rating) || Object.keys(answers).length > 0 || Boolean(referredBy.trim());
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -25,7 +26,7 @@ export function FeedbackForm({ token, rating, questions = [] }: { token: string;
       const res = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, rating: picked, comment, answers }),
+        body: JSON.stringify({ token, rating: picked, comment, answers, referredBy: referredBy.trim() || undefined }),
       });
       const data = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) throw new Error(data.error ?? `Request failed (${res.status})`);
@@ -43,6 +44,15 @@ export function FeedbackForm({ token, rating, questions = [] }: { token: string;
     `min-h-11 rounded-full border px-4 text-sm font-semibold transition-colors ${on ? 'border-blue-600 bg-blue-600 text-white' : 'border-neutral-200 bg-white text-neutral-800 hover:border-neutral-400'}`;
   return (
     <form onSubmit={submit} className="mt-5 space-y-5">
+      {askReferrer ? (
+        <input
+          value={referredBy}
+          onChange={(e) => setReferredBy(e.target.value)}
+          maxLength={120}
+          placeholder="Name or business, e.g. Mike at A-1 Auto Detailing"
+          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-base text-neutral-900 placeholder:text-neutral-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+        />
+      ) : null}
       {questions.map((q, i) => (
         <fieldset key={q.key}>
           <legend className="text-[11px] font-bold uppercase tracking-wide text-neutral-400">

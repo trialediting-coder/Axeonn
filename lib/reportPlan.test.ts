@@ -23,6 +23,8 @@ test('the first report asks the three onboarding taps, the third asks for a reco
   assert.deepEqual(reportQuestions(6, '2027-01', 2), ['jobs'], 'two quiet reports in a row: fewer buttons');
   assert.deepEqual(reportQuestions(6, '2027-01', 1), ['jobs', 'clear']);
   assert.deepEqual(reportQuestions(3, '2026-11', 5), ['jobs', 'recommend'], 'the third report always asks');
+  assert.deepEqual(reportQuestions(1, '2026-09', 0, { askFound: true }), ['found', 'job', 'pickup', 'worth'], '"how did you find us" goes first when never answered');
+  assert.deepEqual(reportQuestions(5, '2026-12', 0, { askFound: true }), ['found', 'jobs', 'source']);
 });
 
 test('quiet streak counts the latest emailed reports with no tap, stopping at the first that got one', () => {

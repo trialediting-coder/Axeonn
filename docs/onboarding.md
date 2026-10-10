@@ -386,4 +386,8 @@ Who sent a client comes from the onboarding question "How did you find us?"
 is a row on the Data page's Referrals card (`lib/referrals.ts`): pending until
 the webhook has recorded a paid invoice or checkout for their email, then owed,
 then paid when the owner presses "Mark $300 paid" (`referral_paid_at`). The
-Data table also shows each client's source.
+Data table also shows each client's source. A client who never answered the
+step (everyone who onboarded before it existed) gets the question once as the
+first tap on their next report (`reportQuestions` with `askFound`); the tap
+writes the same onboarding answer (`recordHowFound`), and a "Someone referred
+me" tap opens the landing page with a "Who sent you?" box.

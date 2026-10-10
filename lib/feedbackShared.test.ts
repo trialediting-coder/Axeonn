@@ -5,8 +5,8 @@ import assert from 'node:assert/strict';
 import { SURVEYS, answerLabel, cleanAnswers, questionsByKeys, surveyFor } from './feedbackShared';
 
 test('every report tap question has three or four answers and the right ones reach the owner', () => {
-  assert.deepEqual(SURVEYS.report!.map((q) => q.key), ['job', 'pickup', 'worth', 'recommend', 'jobs', 'clear', 'next', 'source']);
-  for (const q of surveyFor('report')) assert.ok(q.options.length >= 3 && q.options.length <= 4, q.key);
+  assert.deepEqual(SURVEYS.report!.map((q) => q.key), ['found', 'job', 'pickup', 'worth', 'recommend', 'jobs', 'clear', 'next', 'source']);
+  for (const q of surveyFor('report')) assert.ok(q.options.length >= 3 && q.options.length <= 6, q.key);
   const attention = (key: string, value: string) => surveyFor('report').find((q) => q.key === key)!.options.find((o) => o.value === value)!.attention;
   assert.ok(attention('job', 'notyet') && attention('pickup', 'rarely') && attention('worth', 'notyet') && attention('recommend', 'notyet') && attention('jobs', '0') && attention('clear', 'no'));
   assert.ok(!attention('job', 'yes') && !attention('pickup', 'half'));

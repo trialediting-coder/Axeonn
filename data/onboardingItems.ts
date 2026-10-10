@@ -1,3 +1,4 @@
+import { FOUND_OPTIONS } from '@/lib/feedbackShared';
 // data/onboardingItems.ts
 // Single source of truth for the client onboarding portal (/welcome/<token>):
 // every checklist item, which plan it belongs to, who does it, and the fields
@@ -119,7 +120,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
         label: 'How did you hear about Axeon?',
         type: 'select',
         required: true,
-        options: ['Someone referred me', 'Google search', 'Facebook or Instagram', 'Saw a site you built', 'An ad', 'Other'],
+        options: FOUND_OPTIONS,
       },
       { key: 'referredBy', label: 'Who sent you? (name or business)', type: 'text', placeholder: 'Mike at A-1 Auto Detailing', hint: 'Only if someone referred you.' },
     ],

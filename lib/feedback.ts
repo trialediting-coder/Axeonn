@@ -9,6 +9,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 import { ensureSchema, isDatabaseConfigured, sql } from '@/lib/db';
 import { sendFeedbackNotification } from '@/lib/email';
 import { SITE_ORIGIN } from '@/lib/hostRouting';
+import { foundLabel, recordHowFound } from '@/lib/referrals';
 
 export { FEEDBACK_KINDS, KIND_LABELS, RATING_LABELS, REPORT_ROTATION, SURVEYS, answerLabel, cleanAnswers, isFeedbackKind, isFeedbackRating, questionsByKeys, surveyFor } from '@/lib/feedbackShared';
 export type { FeedbackAnswers, FeedbackEntry, FeedbackKind, FeedbackRating, SurveyQuestion } from '@/lib/feedbackShared';
@@ -97,7 +98,7 @@ export async function getFeedback(ref: FeedbackRef): Promise<FeedbackEntry | nul
  */
 export async function recordFeedback(
   ref: FeedbackRef,
-  input: { rating?: unknown; comment?: unknown; answers?: unknown },
+  input: { rating?: unknown; comment?: unknown; answers?: unknown; referredBy?: unknown },
   who: { businessName: string; token: string }
 ): Promise<FeedbackEntry | null> {
   if (!isDatabaseConfigured()) return null;
@@ -105,7 +106,14 @@ export async function recordFeedback(
   const rating = isFeedbackRating(input.rating) ? input.rating : null;
   const comment = cleanComment(input.comment);
   const answers = cleanAnswers(ref.kind, input.answers);
-  if (!rating && !comment && Object.keys(answers).length === 0) return null;
+  const referredBy = typeof input.referredBy === 'string' ? input.referredBy.replace(/[\u0000-\u001F\u007F]/g, '').trim().slice(0, 120) : '';
+  // "How did you find us?" and "who sent you?" belong to the onboarding step, so the Data page and the referral card see them.
+  if (answers.found || referredBy) {
+    await recordHowFound(ref.onboardingId, { source: answers.found ? foundLabel(answers.found) : null, referredBy: referredBy || null }).catch((err) =>
+      console.error('[feedback] how-found write failed', err instanceof Error ? err.message : err)
+    );
+  }
+  if (!rating && !comment && Object.keys(answers).length === 0) return referredBy ? await getFeedback(ref) : null;
   const before = Object.keys(answers).length ? await getFeedback(ref) : null;
   const res = await sql<Row>`
     INSERT INTO client_feedback (onboarding_id, kind, month, rating, comment, answers)
