@@ -33,6 +33,8 @@ import {
 import { effectiveCloseRate, firstEventAt, getTrackingSettings, hasTraffic, monthTraffic, REPORT_TIME_ZONE, type TrackingSettings } from '@/lib/siteStats';
 import { feedbackUrl, listFeedback } from '@/lib/feedback';
 import { MIN_FIRST_MONTH_DAYS, RAMP_REPORTS, RAMP_SEND_DAY, baselineTotal, isRamp, reportNumber, reportQuestions, trackedDays } from '@/lib/reportPlan';
+import { getItemStates } from '@/lib/onboarding';
+import { readHowFound } from '@/lib/referrals';
 
 export type AutoReportOutcome =
   | { status: 'sent'; report: MonthlyReport }
@@ -195,7 +197,8 @@ export async function sendAutoReport(onboarding: Onboarding, month: string, opts
   // Attach the numbers even when the site sent nothing, so the report says so honestly.
   const report = await attachTrafficToReport(onboarding.id, month, traffic);
   const answered = new Set((await listFeedback(onboarding.id)).filter((f) => f.kind === 'report' && f.month && (f.rating || f.comment || Object.keys(f.answers).length)).map((f) => f.month as string));
-  const plan = existing?.survey ?? { number, asked: reportQuestions(number, month, quietStreak(all, answered, month)) };
+  const askFound = !readHowFound(await getItemStates(onboarding.id)).source;
+  const plan = existing?.survey ?? { number, asked: reportQuestions(number, month, quietStreak(all, answered, month), { askFound }) };
   await setReportSurvey(report.id, plan);
   const fresh = { ...report, survey: plan };
   const input = await buildInput(onboarding, fresh, all, details, settings, plan);

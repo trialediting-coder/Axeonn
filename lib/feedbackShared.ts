@@ -36,8 +36,25 @@ export interface SurveyQuestion {
   text: string;
   options: readonly SurveyOption[];
 }
+/** The "how did you find us" options, shared with the onboarding step so one answer fits both. */
+export const FOUND_OPTIONS = ['Someone referred me', 'Google search', 'Facebook or Instagram', 'Saw a site you built', 'An ad', 'Other'] as const;
+export const FOUND_REFERRED = 'referred';
+
 export const SURVEYS: Partial<Record<FeedbackKind, readonly SurveyQuestion[]>> = {
   report: [
+    {
+      // Asked once, on the next report of any client who never answered it at onboarding (lib/reportPlan.ts).
+      key: 'found',
+      text: 'How did you find us?',
+      options: [
+        { value: FOUND_REFERRED, label: FOUND_OPTIONS[0] },
+        { value: 'google', label: FOUND_OPTIONS[1] },
+        { value: 'social', label: FOUND_OPTIONS[2] },
+        { value: 'site', label: FOUND_OPTIONS[3] },
+        { value: 'ad', label: FOUND_OPTIONS[4] },
+        { value: 'other', label: FOUND_OPTIONS[5] },
+      ],
+    },
     {
       key: 'job',
       text: 'Has the site brought you a job you would not have gotten otherwise?',

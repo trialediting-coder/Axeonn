@@ -8,7 +8,10 @@ import { AxeonLogo } from '@/components/brand/AxeonLogo';
 import { FeedbackForm } from '@/components/feedback/FeedbackForm';
 import { getFeedback, isFeedbackRating, questionsByKeys, readFeedbackToken, recordFeedback, type FeedbackRating } from '@/lib/feedback';
 import { getMonthlyReport } from '@/lib/projects';
-import { referralMailto, referralSentence } from '@/lib/referral';
+import { REFERRAL, referralMailto, referralSentence } from '@/lib/referral';
+import { FOUND_REFERRED } from '@/lib/feedbackShared';
+import { getItemStates } from '@/lib/onboarding';
+import { readHowFound } from '@/lib/referrals';
 import { CLIENT_REPLY_TO } from '@/lib/email';
 import { getOnboardingById } from '@/lib/onboarding';
 
@@ -39,6 +42,9 @@ export default async function FeedbackPage({ params, searchParams }: { params: P
   const answered = existing?.answers ?? {};
   const remaining = questions.filter((x) => !answered[x.key]);
   const recommended = answered.recommend === 'yes';
+  // Tapped "Someone referred me" and no name on file yet: ask who, so the referrer gets their reward.
+  const found = valid ? readHowFound(await getItemStates(ref!.onboardingId).catch(() => ({}))) : { source: null, referredBy: null };
+  const askReferrer = (answered.found === FOUND_REFERRED || tapped?.found === FOUND_REFERRED) && !found.referredBy;
   const first = onboarding?.clientName?.trim().split(/\s+/)[0];
   return (
     <main className="min-h-screen bg-[#F6F7F9] px-4 py-10">
@@ -78,7 +84,13 @@ export default async function FeedbackPage({ params, searchParams }: { params: P
                 Leave a Google review
               </a>
             ) : null}
-            <FeedbackForm token={token} rating={rating} questions={remaining} />
+            {askReferrer ? (
+              <div className="mt-5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
+                <p className="text-sm font-semibold text-blue-950">Who sent you?</p>
+                <p className="mt-0.5 text-xs text-blue-900/80">They get {REFERRAL.reward} {REFERRAL.when}, so a name or a business is all we need.</p>
+              </div>
+            ) : null}
+            <FeedbackForm token={token} rating={rating} questions={remaining} askReferrer={askReferrer} />
             <p className="mt-8 border-t border-neutral-100 pt-5 text-xs leading-relaxed text-neutral-500">
               {referralSentence()}{' '}
               <a href={referralMailto(CLIENT_REPLY_TO, onboarding?.businessName ?? null)} className="font-semibold text-blue-600 hover:text-blue-700">

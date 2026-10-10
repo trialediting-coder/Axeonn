@@ -142,7 +142,7 @@ export function sampleMonthlyReportInput(to: string, kind: 'regular' | 'first' =
     stats: reportStats(report, first ? null : prev, details, { avgJobValue: 300 }),
     traffic,
     prevTraffic: first ? null : prevTraffic,
-    plan: first ? { number: 1, asked: ['job', 'pickup', 'worth'] } : { number: 5, asked: ['jobs', 'source'] },
+    plan: first ? { number: 1, asked: ['found', 'job', 'pickup', 'worth'] } : { number: 5, asked: ['jobs', 'source'] },
     baseline: 13,
     avgJobValue: 300,
     rank: report.rank,

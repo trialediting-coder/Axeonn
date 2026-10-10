@@ -6,6 +6,7 @@
 // The offer itself is in lib/referral.ts.
 import { ensureSchema, isDatabaseConfigured, sql } from '@/lib/db';
 import { getItemStates, listOnboardings, type ItemState } from '@/lib/onboarding';
+import { SURVEYS } from '@/lib/feedbackShared';
 
 export const HOW_FOUND_KEY = 'how-found';
 export const REFERRED_OPTION = 'Someone referred me';
@@ -70,6 +71,31 @@ export async function listReferrals(): Promise<ReferralRow[]> {
   }
   return out;
 }
+
+/**
+ * Writes the "how did you find us" answer the way the onboarding step does, so
+ * a tap in a report and a tap in onboarding land in the same place. Keeps a
+ * referrer already on file when the new call brings none.
+ */
+export async function recordHowFound(onboardingId: number, input: { source?: string | null; referredBy?: string | null }): Promise<void> {
+  await ensureSchema();
+  const current = readHowFound(await getItemStates(onboardingId));
+  const source = input.source?.trim() || current.source;
+  const referredBy = input.referredBy?.trim().slice(0, 120) || current.referredBy;
+  if (!source && !referredBy) return;
+  const data = { source, referredBy };
+  await sql`
+    INSERT INTO onboarding_items (onboarding_id, item_key, status, data, completed_by, completed_at)
+    VALUES (${onboardingId}, ${HOW_FOUND_KEY}, 'done', ${JSON.stringify(data)}::jsonb, 'client', now())
+    ON CONFLICT (onboarding_id, item_key) DO UPDATE SET data = EXCLUDED.data, status = 'done', completed_at = coalesce(onboarding_items.completed_at, now()), updated_at = now();
+  `;
+}
+
+/** The option's words for a "found" tap value, matching the onboarding select. */
+export const foundLabel = (value: string): string | null => {
+  const q = SURVEYS.report?.find((x) => x.key === 'found');
+  return q?.options.find((o) => o.value === value)?.label ?? null;
+};
 
 /** The owner paid (or un-paid) the reward for this client's referrer. */
 export async function setReferralPaid(onboardingId: number, paid: boolean): Promise<void> {

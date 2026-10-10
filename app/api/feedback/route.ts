@@ -19,8 +19,8 @@ export async function POST(req: Request) {
     if (!ref) throw new Error('This link has expired');
     const onboarding = await getOnboardingById(ref.onboardingId);
     if (!onboarding) throw new Error('This link has expired');
-    const entry = await recordFeedback(ref, { rating: body.rating, comment: body.comment, answers: body.answers }, { businessName: onboarding.businessName || onboarding.clientEmail, token: onboarding.token });
-    if (!entry) throw new Error('Write a sentence or pick an answer first');
+    const entry = await recordFeedback(ref, { rating: body.rating, comment: body.comment, answers: body.answers, referredBy: body.referredBy }, { businessName: onboarding.businessName || onboarding.clientEmail, token: onboarding.token });
+    if (!entry && typeof body.referredBy !== 'string') throw new Error('Write a sentence or pick an answer first');
     return NextResponse.json({ ok: true });
   } catch (err) {
     return jsonError(err);

@@ -847,11 +847,13 @@ export interface MonthlyReportEmailInput {
 
 /** "Was this report useful? Yes · Sort of · No": three one-tap links, recorded on arrival. */
 /** One tap-able answer: a rounded button that is a link, so it works in every mail app. */
+// Inline blocks, not table cells, so a long row of answers wraps on a phone instead of widening the email.
 const tapButton = (href: string, label: string) =>
-  `<td style="padding:0 8px 8px 0"><a href="${escapeHtml(href)}" class="ax-tile" style="display:inline-block;padding:11px 16px;border:1px solid ${BRAND.line};border-radius:999px;background:#ffffff;font-family:${FONT};font-size:14px;font-weight:700;color:${BRAND.ink};text-decoration:none;white-space:nowrap">${escapeHtml(label)}</a></td>`;
+  `<a href="${escapeHtml(href)}" class="ax-tile" style="display:inline-block;margin:0 8px 8px 0;padding:11px 16px;border:1px solid ${BRAND.line};border-radius:999px;background:#ffffff;font-family:${FONT};font-size:14px;font-weight:700;color:${BRAND.ink};text-decoration:none;white-space:nowrap">${escapeHtml(label)}</a>`;
 
-const tapRow = (buttons: string[]) =>
-  `<table role="presentation" cellspacing="0" cellpadding="0" style="margin:10px 0 4px"><tr>${buttons.join('')}</tr></table>`;
+const tapRow = (buttons: string[]) => `<div style="margin:10px 0 4px">${buttons.join('')}</div>`;
+
+const COUNT_WORDS = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six'];
 
 /**
  * The end of the report: this report's tap questions (lib/reportPlan.ts decides
@@ -863,7 +865,7 @@ export function feedbackLine(url: string, asked: readonly string[] = []): string
   const questions = questionsByKeys('report', asked);
   const n = questions.length;
   const block = n
-    ? `${rH2(n === 1 ? 'One tap for you' : n === 2 ? 'Two taps for you' : `${n === 3 ? 'Three' : n} taps for you`)}
+    ? `${rH2(n === 1 ? 'One tap for you' : `${COUNT_WORDS[n] ?? n} taps for you`)}
       <p class="ax-muted" style="margin:0 0 6px;font-family:${FONT};font-size:13px;line-height:1.5;color:${BRAND.muted}">What you pick decides what we work on next. Each tap opens a short page; nothing else to fill in.</p>
       ${questions
         .map(
@@ -879,9 +881,10 @@ export function feedbackLine(url: string, asked: readonly string[] = []): string
 /** The referral offer at the end of every report: the reward, what the friend gets, and a one-tap way to send a name. */
 export function referralBlock(businessName: string | null): string {
   const href = referralMailto(CLIENT_REPLY_TO, businessName);
-  return `<div class="ax-tile" style="margin:0 0 22px;padding:16px 18px;border-radius:12px;border:1px solid ${BRAND.line};background:#ffffff">
-    <p class="ax-ink" style="margin:0;font-family:${FONT};font-size:15px;font-weight:700;line-height:1.4;color:${BRAND.ink}">Know a business owner who needs this?</p>
-    <p class="ax-body" style="margin:6px 0 0;font-family:${FONT};font-size:14px;line-height:1.5;color:${BRAND.body}">Refer them and you get <b>${REFERRAL.reward}</b> ${REFERRAL.when}. They get <b>${REFERRAL.friendGets}</b>. <a href="${escapeHtml(href)}" style="color:${BRAND.blueText};font-weight:700">Send us a name</a>, or just reply to this email.</p>
+  return `<div class="ax-hero" style="margin:0 0 22px;padding:18px 20px;border-radius:12px;border:1px solid #cfe0ff;background:${BRAND.blueTint}">
+    <p class="ax-muted" style="margin:0;font-family:${FONT};font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:${BRAND.muted}">Referral reward</p>
+    <p class="ax-ink" style="margin:6px 0 0;font-family:${FONT};font-size:17px;font-weight:700;line-height:1.35;color:${BRAND.ink}">${REFERRAL.reward} for every business you send us.</p>
+    <p class="ax-body" style="margin:8px 0 0;font-family:${FONT};font-size:14px;line-height:1.55;color:${BRAND.body}">Paid ${REFERRAL.when}. They get ${REFERRAL.friendGets}. No limit, no forms: reply to this email with a name, or <a href="${escapeHtml(href)}" style="color:${BRAND.blueText};font-weight:700">tap here to send one</a>.</p>
   </div>`;
 }
 
@@ -990,7 +993,7 @@ export function renderMonthlyReportEmail(input: MonthlyReportEmailInput): { subj
   const footerHtml = `
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr>
       <td style="vertical-align:middle"><img src="${LOCKUP_WHITE}" width="98" height="26" alt="Axeon" style="display:block;border:0;font-family:${FONT};font-size:20px;font-weight:800;color:#ffffff"></td>
-      <td style="vertical-align:middle;text-align:right;font-family:${FONT};font-size:14px;font-weight:800;color:#ffffff;letter-spacing:-.01em">${TAGLINE}</td>
+      <td style="vertical-align:middle;text-align:right;font-family:${FONT};font-size:14px;font-weight:600;color:#ffffff">${TAGLINE}</td>
     </tr></table>
     <p style="margin:14px 0 0;font-family:${FONT};font-size:13px;color:#ffffff">Questions? Reply to this email or call <a href="tel:+15154938017" style="color:#ffffff;font-weight:700;text-decoration:underline">(515) 493-8017</a>.</p>
   `;

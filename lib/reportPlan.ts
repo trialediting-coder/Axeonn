@@ -30,13 +30,15 @@ export const isRamp = (number: number) => number <= RAMP_REPORTS;
  * The tap questions a report carries, by its number. `quietStreak` is how
  * many of the latest emailed reports went by with no tap at all.
  */
-export function reportQuestions(number: number, month: string, quietStreak = 0): string[] {
-  if (number === 1) return ['job', 'pickup', 'worth'];
-  if (number === RAMP_REPORTS) return ['jobs', 'recommend'];
-  if (quietStreak >= QUIET_REPORTS_BEFORE_FEWER_TAPS) return ['jobs'];
+export function reportQuestions(number: number, month: string, quietStreak = 0, opts: { askFound?: boolean } = {}): string[] {
+  // "How did you find us?" goes first, once, for a client who never answered it at onboarding.
+  const lead = opts.askFound ? ['found'] : [];
+  if (number === 1) return [...lead, 'job', 'pickup', 'worth'];
+  if (number === RAMP_REPORTS) return [...lead, 'jobs', 'recommend'];
+  if (quietStreak >= QUIET_REPORTS_BEFORE_FEWER_TAPS) return [...lead, 'jobs'];
   const m = Number(month.slice(5, 7));
   const rotating = REPORT_ROTATION[(Number.isFinite(m) ? m - 1 : 0) % REPORT_ROTATION.length];
-  return ['jobs', rotating];
+  return [...lead, 'jobs', rotating];
 }
 
 /** Days of `month` ("YYYY-MM") on or after the first tracked event; the whole month when tracking predates it. */
