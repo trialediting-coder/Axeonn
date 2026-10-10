@@ -423,9 +423,9 @@ export function reportStats(r: ReportBody, prev: ReportBody | null, d: ProjectDe
       value: `~${t.estimatedCustomers}`,
       sub: [
         value != null ? `about $${Math.round(value).toLocaleString('en-US')} in work` : null,
-        t.markedWon ? `${t.markedWon} confirmed by you` : null,
+        t.markedWon ? `${t.markedWon} booked, marked by you` : null,
         t.observedCloseRate
-          ? `${t.closeRate}% close rate from the leads you marked`
+          ? `${t.closeRate}% close rate ${t.observedCloseRate.weight >= 1 ? 'from the leads you marked' : 'from your marks and our estimate'}`
           : t.closeRateEstimate && t.customersLow != null && t.customersHigh != null && t.conversions > 0
             ? `likely ${t.customersLow} to ${t.customersHigh} · ${t.closeRate}% close rate from how they reached out`
             : `${t.closeRate}% of those who reached out`,

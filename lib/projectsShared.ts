@@ -53,7 +53,7 @@ export interface TrafficSummary {
   detail?: TrafficDetail | null;
   /** Present when closeRate was estimated from the data rather than typed in. */
   closeRateEstimate?: CloseRateEstimate | null;
-  /** Leads the client marked in AxeonPROOF this month: became a customer / did not. */
+  /** Leads the client marked in AxeonPROOF this month: booked / not yet. */
   markedWon?: number;
   markedLost?: number;
   /** Present when closeRate is the client's own rate from marked leads, not an estimate. */
@@ -67,17 +67,22 @@ export interface TrafficSummary {
  * How the close rate was arrived at, so the email and dashboard can show the
  * reasoning. `rate` is the headline figure; `low`..`high` is the likely range.
  */
-/** Marked leads needed before the client's own close rate replaces the estimate. */
-export const OBSERVED_MIN_MARKED = 5;
+/** Marked leads before the client's own close rate starts counting toward the estimate. */
+export const OBSERVED_MIN_MARKED = 10;
+/** Marked leads at which the client's own rate is used outright. Between the two it is blended in. */
+export const OBSERVED_FULL_MARKED = 20;
 /** How far back marked leads count towards that rate. */
 export const OBSERVED_MONTHS = 6;
 
 /** The client's real close rate, from the leads they marked over the last OBSERVED_MONTHS. */
 export interface ObservedCloseRate {
+  /** won / (won + lost), as marked. */
   rate: number;
   won: number;
   lost: number;
   months: number;
+  /** How much of the final rate it supplies, 0.5 at OBSERVED_MIN_MARKED rising to 1 at OBSERVED_FULL_MARKED. */
+  weight: number;
 }
 
 export type LeadOutcome = 'won' | 'lost';

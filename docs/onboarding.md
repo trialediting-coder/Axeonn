@@ -276,11 +276,17 @@ No names: the tracker never has any. Each lead has two taps, **Customer** and
 project API with `kind: 'lead-outcome'` (View as client). They land in
 `site_events.outcome`.
 
-Marked leads are facts: the month's estimate is `won + rate × unmarked`. Once
-a client has marked five or more leads in the last six months, their own rate
-(`observedCloseRate`) replaces the data-driven estimate whenever the close
-rate is on Auto; a rate typed in by hand still wins. The report tile and the
-"How we got to N%" note say which one was used.
+The taps are **Booked** and **Not yet** (owner decision 2026-10-10): a lead
+that has not booked is pending, not a verdict. Marked leads are facts: the
+month's estimate is `won + rate × unmarked`. From ten marked leads in the last
+six months the client's own rate (`observedCloseRate`) is blended into the
+data-driven estimate, its weight rising from 50% at ten to 100% at twenty, so
+one rough stretch cannot swing the headline number; a rate typed in by hand
+still wins. The report tile and the "How we got to N%" note say how the rate
+was reached. When ten or more leads are marked and under 25% are booked, the
+owner gets one email per 30 days from the daily tracker-health cron
+(`lib/leadHealth.ts`): we are sending people and they are not closing, which
+is the call to make before it becomes a cancellation.
 
 ### Feedback: one-tap in the report, two notes from the owner
 
