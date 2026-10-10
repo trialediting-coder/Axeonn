@@ -89,11 +89,21 @@ export function normalizeReportBody(raw: Partial<ReportBody> | null | undefined)
   };
 }
 
+/** What the monthly job decided for this report (lib/reportPlan.ts): its number and the tap questions it carried. */
+export interface ReportSurvey {
+  number: number;
+  asked: string[];
+}
+
 export interface MonthlyReport extends ReportBody {
   id: number;
   month: string; // YYYY-MM
   emailedAt: string | null;
   createdAt: string;
+  survey: ReportSurvey | null;
+  /** Ramp reports: when the owner's preview went out; the client copy follows on the 3rd unless held. */
+  previewSentAt: string | null;
+  heldAt: string | null;
 }
 
 // ───────────────────────────── Pure helpers ─────────────────────────────
@@ -309,7 +319,17 @@ interface ReportRow {
   body: ReportBody;
   emailed_at: string | null;
   created_at: string;
+  survey: ReportSurvey | null;
+  preview_sent_at: string | null;
+  held_at: string | null;
 }
+
+const surveyOf = (v: unknown): ReportSurvey | null => {
+  if (!v || typeof v !== 'object') return null;
+  const o = v as Partial<ReportSurvey>;
+  if (typeof o.number !== 'number' || !Array.isArray(o.asked)) return null;
+  return { number: o.number, asked: o.asked.filter((k): k is string => typeof k === 'string') };
+};
 
 export async function listMonthlyReports(onboardingId: number, limit = 24): Promise<MonthlyReport[]> {
   if (!isDatabaseConfigured()) return [];
@@ -323,6 +343,9 @@ export async function listMonthlyReports(onboardingId: number, limit = 24): Prom
     month: r.month,
     emailedAt: isoOrNull(r.emailed_at),
     createdAt: new Date(r.created_at).toISOString(),
+    survey: surveyOf(r.survey),
+    previewSentAt: isoOrNull(r.preview_sent_at),
+    heldAt: isoOrNull(r.held_at),
   }));
 }
 
@@ -369,6 +392,20 @@ export async function attachTrafficToReport(onboardingId: number, month: string,
 
 export async function markReportEmailed(id: number): Promise<void> {
   await sql`UPDATE monthly_reports SET emailed_at = now() WHERE id = ${id};`;
+}
+
+/** Records the report's number and tap questions, so the landing page asks exactly what the email did. */
+export async function setReportSurvey(id: number, survey: ReportSurvey): Promise<void> {
+  await sql`UPDATE monthly_reports SET survey = ${JSON.stringify(survey)}::jsonb WHERE id = ${id};`;
+}
+
+export async function markReportPreviewed(id: number): Promise<void> {
+  await sql`UPDATE monthly_reports SET preview_sent_at = now() WHERE id = ${id};`;
+}
+
+/** The owner's hold on a ramp report: held, the client copy waits; released, it goes out on the next daily run. */
+export async function setReportHold(onboardingId: number, id: number, held: boolean): Promise<void> {
+  await sql`UPDATE monthly_reports SET held_at = ${held ? new Date().toISOString() : null} WHERE id = ${id} AND onboarding_id = ${onboardingId};`;
 }
 
 export async function deleteMonthlyReport(onboardingId: number, id: number): Promise<void> {

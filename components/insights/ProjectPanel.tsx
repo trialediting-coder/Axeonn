@@ -15,8 +15,6 @@ interface Data {
   tracking: TrackingOverview;
   /** What the client told us (lib/feedback.ts), newest first. */
   feedback: FeedbackEntry[];
-  /** When the owner's day-30 and day-90 notes went out (lib/clientNotes.ts). */
-  notes: { note30SentAt: string | null; note90SentAt: string | null };
 }
 
 type Notice = { ok: boolean; text: string } | null;
@@ -53,7 +51,6 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
       reports: json.reports ?? [],
       tracking: json.tracking ?? data.tracking,
       feedback: json.feedback ?? data.feedback,
-      notes: json.notes ?? data.notes,
     });
     setNotice(
       json.emailError
@@ -443,8 +440,18 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
                   <span className="flex-1 text-neutral-900">{monthLabel(r.month)}</span>
                   <span className="text-xs text-neutral-500">
                     {r.traffic ? `${r.traffic.views} visits · ${r.traffic.clicks} clicks · ` : ''}
-                    {str(r.calls) || '—'} calls · {str(r.leads) || '—'} leads {r.emailedAt ? (r.auto ? '· emailed automatically' : '· emailed') : ''}
+                    {str(r.calls) || '—'} calls · {str(r.leads) || '—'} leads{r.survey ? ` · report ${r.survey.number}` : ''}
+                    {r.emailedAt ? (r.auto ? ' · emailed automatically' : ' · emailed') : r.previewSentAt ? (r.heldAt ? ' · held' : ' · previewed, goes out on the 3rd') : ''}
                   </span>
+                  {r.previewSentAt && !r.emailedAt ? (
+                    <button
+                      type="button"
+                      className={btn(r.heldAt ? 'primary' : 'secondary', 'sm')}
+                      onClick={() => void call('POST', { kind: 'report-hold', id: r.id, held: !r.heldAt }, r.heldAt ? 'Released. It goes out on the next daily run.' : 'Held. It stays with you until you release it.', `hold-${r.id}`)}
+                    >
+                      {r.heldAt ? 'Release' : 'Hold'}
+                    </button>
+                  ) : null}
                   <button type="button" className={btn('ghost', 'sm')} onClick={() => editReport(r)}>
                     Edit
                   </button>
@@ -466,15 +473,10 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
       <div className={card}>
         <h3 className="font-bold text-neutral-950">Feedback</h3>
         <p className="mt-1 text-sm text-neutral-600">
-          Every &ldquo;Was this report useful?&rdquo; tap and sentence, the day-30 survey answers, and the day-90 reply. A &ldquo;No&rdquo;, a
-          sentence, or a survey answer that needs attention also emails you the moment it lands.
+          Every tap and sentence from the end of a report: the first report&apos;s three onboarding questions, the third&apos;s &ldquo;would you
+          recommend us&rdquo;, and the jobs-from-the-site count every month. A &ldquo;No&rdquo;, a sentence, or an answer that needs attention
+          also emails you the moment it lands.
         </p>
-        <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-          <dt className="text-neutral-500">Day-30 note</dt>
-          <dd className="font-semibold text-neutral-950">{data.notes.note30SentAt ? `sent ${new Date(data.notes.note30SentAt).toLocaleDateString('en-US')}` : 'not yet'}</dd>
-          <dt className="text-neutral-500">Day-90 note</dt>
-          <dd className="font-semibold text-neutral-950">{data.notes.note90SentAt ? `sent ${new Date(data.notes.note90SentAt).toLocaleDateString('en-US')}` : 'not yet'}</dd>
-        </dl>
         {data.feedback.length ? (
           <ul className="mt-4 divide-y divide-neutral-100 border-t border-neutral-100">
             {data.feedback.map((f) => (

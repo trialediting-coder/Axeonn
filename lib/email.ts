@@ -1,5 +1,6 @@
 // lib/email.ts
-import { SURVEYS, askedQuestions } from '@/lib/feedbackShared';
+import { questionsByKeys } from '@/lib/feedbackShared';
+import { RAMP_REPORTS } from '@/lib/reportPlan';
 import { Resend } from 'resend';
 import { WEEKDAY_LABELS, buttonLabel, campaignLabel, hourLabel, sourceLabel, type TrafficDetail, type TrafficSummary } from '@/lib/projectsShared';
 import { TAGLINE, alwaysOnSentence, headlineSentence, reportHighlights } from '@/lib/reportCopy';
@@ -811,8 +812,18 @@ export interface MonthlyReportEmailInput {
   businessName?: string | null;
   tier?: OnboardingTier | null;
   monthLabel: string;
-  /** "YYYY-MM", which picks this month's rotating tap question (lib/feedbackShared.ts askedQuestions). */
+  /** "YYYY-MM". */
   month?: string | null;
+  /**
+   * Which report this is and what it asks (lib/reportPlan.ts). Reports 1 to 3
+   * are the ramp: framed as the starting line, compared to the baseline from
+   * before Axeon, no "vs last month". `asked` are the tap questions at the end.
+   */
+  plan?: { number: number; asked: string[] } | null;
+  /** Calls plus leads a month before Axeon, from onboarding; shown on ramp reports. */
+  baseline?: number | null;
+  /** The owner's preview copy: a banner at the top saying when it goes to the client and how to hold it. */
+  preview?: { sendsOn: string; adminUrl: string } | null;
   prevMonthLabel?: string | null;
   stats: Array<{ label: string; value: string; sub?: string | null }>;
   traffic?: TrafficSummary | null;
@@ -842,17 +853,17 @@ const tapRow = (buttons: string[]) =>
   `<table role="presentation" cellspacing="0" cellpadding="0" style="margin:10px 0 4px"><tr>${buttons.join('')}</tr></table>`;
 
 /**
- * The end of the report: two tap questions for this month (jobs from the site
- * every month, plus the one that rotates: lib/feedbackShared.ts askedQuestions),
- * then the one-line "was this useful". Every tap is a link into /f/<token>.
+ * The end of the report: this report's tap questions (lib/reportPlan.ts decides
+ * which), then the one-line "was this useful". Every tap is a link into /f/<token>.
  */
-export function feedbackLine(url: string, month: string | null = null): string {
+export function feedbackLine(url: string, asked: readonly string[] = []): string {
   const link = (r: 'yes' | 'sortof' | 'no', label: string) =>
     `<a href="${url}?r=${r}" style="color:${BRAND.blueText};font-weight:700;text-decoration:underline">${label}</a>`;
-  const questions = askedQuestions('report', month);
-  const block = questions.length
-    ? `${rH2('Two taps for you')}
-      <p class="ax-muted" style="margin:0 0 6px;font-family:${FONT};font-size:13px;line-height:1.5;color:${BRAND.muted}">Your answers tune next month's numbers and what we work on. Each tap opens a short page; nothing else to fill in.</p>
+  const questions = questionsByKeys('report', asked);
+  const n = questions.length;
+  const block = n
+    ? `${rH2(n === 1 ? 'One tap for you' : n === 2 ? 'Two taps for you' : `${n === 3 ? 'Three' : n} taps for you`)}
+      <p class="ax-muted" style="margin:0 0 6px;font-family:${FONT};font-size:13px;line-height:1.5;color:${BRAND.muted}">What you pick decides what we work on next. Each tap opens a short page; nothing else to fill in.</p>
       ${questions
         .map(
           (q) => `
@@ -890,7 +901,13 @@ export function renderMonthlyReportEmail(input: MonthlyReportEmailInput): { subj
   const t = input.traffic ?? null;
   const business = input.businessName?.trim() || 'your business';
   const typed = { rank: input.rank ?? null, keyword: input.keyword ?? '', reviews: input.reviews ?? null, rating: input.rating ?? null };
-  const headline = t
+  const number = input.plan?.number ?? null;
+  const ramp = number != null && number <= RAMP_REPORTS;
+  const headline = ramp
+    ? number === 1
+      ? 'Google takes two to three months to trust a new site, so this first report is the starting line, not the verdict. Here is what we built and what the site did.'
+      : `Month ${number} of the ramp. Google is still learning the site; the numbers below are the trend taking shape, not the ceiling.`
+    : t
     ? headlineSentence({
         business,
         monthLabel: input.monthLabel,
@@ -901,23 +918,55 @@ export function renderMonthlyReportEmail(input: MonthlyReportEmailInput): { subj
       })
     : `Calls, leads and booked jobs for ${input.monthLabel}, and what we are doing next.`;
   const wins = t ? reportHighlights({ traffic: t, prev: input.prevTraffic, report: typed, prevReport: input.prevRank != null ? { rank: input.prevRank } : null }) : [];
-  const subject = t && t.conversions > 0
-    ? `${t.conversions} ${t.conversions === 1 ? 'person' : 'people'} reached out to ${business} in ${input.monthLabel}. Here is how.`
-    : `What Axeon did for ${business} in ${input.monthLabel}`;
+  const subject = ramp
+    ? number === 1
+      ? `${business}: month one with Axeon, the starting line`
+      : `${business}: month ${number} of the ramp, ${input.monthLabel}`
+    : t && t.conversions > 0
+      ? `${t.conversions} ${t.conversions === 1 ? 'person' : 'people'} reached out to ${business} in ${input.monthLabel}. Here is how.`
+      : `What Axeon did for ${business} in ${input.monthLabel}`;
   const didSomething = input.done.length > 0;
+  const kicker = ramp
+    ? `<p style="margin:22px 0 0;font-family:${FONT};font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#cfe0ff">Month ${number} of your 90-day ramp · ${escapeHtml(input.monthLabel)}</p>`
+    : '';
   const headerHtml = `
     <img src="${LOCKUP_WHITE_PROOF}" width="203" height="30" alt="AxeonPROOF" style="display:block;border:0;font-family:${FONT};font-size:22px;font-weight:800;color:#ffffff">
-    <h1 style="margin:26px 0 0;font-family:${FONT};font-size:28px;line-height:1.15;font-weight:800;letter-spacing:-.02em;color:#ffffff">Here is what Axeon did for you in ${escapeHtml(input.monthLabel)}.</h1>
+    ${kicker}
+    <h1 style="margin:${ramp ? 6 : 26}px 0 0;font-family:${FONT};font-size:28px;line-height:1.15;font-weight:800;letter-spacing:-.02em;color:#ffffff">${
+      ramp ? (number === 1 ? `${escapeHtml(business)} is live. Here is the starting line.` : `Here is what Axeon did for you in ${escapeHtml(input.monthLabel)}.`) : `Here is what Axeon did for you in ${escapeHtml(input.monthLabel)}.`
+    }</h1>
     <p style="margin:14px 0 0;font-family:${FONT};font-size:16px;line-height:1.5;color:#ffffff">${escapeHtml(headline)}</p>
   `;
-  const bodyHtml = `
-    <p class="ax-body" style="margin:10px 0 14px;font-size:15px;color:${BRAND.body}">${firstName(input.clientName)}</p>
-    ${rTiles(input.stats)}
-    ${input.note ? rPara(input.note, 'margin-top:6px;font-weight:600', 'ax-ink') : ''}
-    ${wins.length ? rH2("This month's wins") + rWins(wins) : ''}
-    ${rH2('What Axeon did this month')}
+  const previewBanner = input.preview
+    ? `<div class="ax-hero" style="margin:16px 0 4px;padding:14px 16px;border-radius:12px;background:#fff7e6;border:1px solid #f5d08a">
+        <p class="ax-ink" style="margin:0;font-family:${FONT};font-size:14px;line-height:1.5;color:${BRAND.ink}"><b>Your preview.</b> This goes to the client on ${escapeHtml(input.preview.sendsOn)}. Add a sentence in the report's note box, or hold it, on <a href="${escapeHtml(input.preview.adminUrl)}" style="color:${BRAND.blueText};font-weight:700">their admin page</a>. Nothing below has been sent.</p>
+      </div>`
+    : '';
+  const baselineBox =
+    ramp && input.baseline != null && t
+      ? `<div class="ax-hero" style="margin:4px 0 18px;padding:16px 18px;border-radius:12px;background:${BRAND.blueTint};border:1px solid #cfe0ff">
+        <p class="ax-muted" style="margin:0;font-family:${FONT};font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:${BRAND.muted}">Before and after</p>
+        <p class="ax-ink" style="margin:6px 0 0;font-family:${FONT};font-size:15px;line-height:1.5;color:${BRAND.ink}">Before Axeon, you told us about <b>${input.baseline}</b> calls and leads a month. In ${escapeHtml(input.monthLabel)}, <b>${t.conversions}</b> ${t.conversions === 1 ? 'person' : 'people'} reached out through the site.</p>
+      </div>`
+      : '';
+  const ownerLine = ramp
+    ? `<p class="ax-muted" style="margin:0 0 18px;font-family:${FONT};font-size:13px;line-height:1.5;color:${BRAND.muted}">${escapeHtml(OWNER_NAME)} reads every one of these before it goes out. Reply and it goes straight to ${escapeHtml(OWNER_NAME)}.</p>`
+    : '';
+  const work = `${rH2(ramp ? 'What we built this month' : 'What Axeon did this month')}
     ${didSomething ? rSteps(input.done) : ''}
-    ${input.tier ? `<p class="ax-muted" style="margin:0 0 12px;font-size:13px;line-height:1.5;color:${BRAND.muted}">${escapeHtml(alwaysOnSentence(input.tier))}</p>` : ''}
+    ${input.tier ? `<p class="ax-muted" style="margin:0 0 12px;font-size:13px;line-height:1.5;color:${BRAND.muted}">${escapeHtml(alwaysOnSentence(input.tier))}</p>` : ''}`;
+  const numbers = `${ramp ? rH2(number === 1 ? 'Your starting point' : `The numbers, month ${number}`) : ''}
+    ${rTiles(input.stats)}`;
+  const bodyHtml = `
+    ${previewBanner}
+    <p class="ax-body" style="margin:10px 0 14px;font-size:15px;color:${BRAND.body}">${firstName(input.clientName)}</p>
+    ${input.note ? rPara(input.note, 'margin-top:6px;font-weight:600', 'ax-ink') : ''}
+    ${ownerLine}
+    ${ramp ? work : ''}
+    ${baselineBox}
+    ${numbers}
+    ${wins.length && !ramp ? rH2("This month's wins") + rWins(wins) : ''}
+    ${ramp ? '' : work}
     ${t ? producedSections(t) : ''}
     ${t ? audienceSections(t) : ''}
     ${input.next.length ? rH2('What we are doing next month') + rSteps(input.next) : ''}
@@ -925,7 +974,7 @@ export function renderMonthlyReportEmail(input: MonthlyReportEmailInput): { subj
     ${t ? closeRateNote(t) : ''}
     <div style="margin:26px 0 20px">${rButton(input.proofUrl, 'See it all in AxeonPROOF')}</div>
     ${upgradeNudge(input)}
-    ${input.feedbackUrl ? feedbackLine(input.feedbackUrl, input.month ?? null) : ''}
+    ${input.feedbackUrl ? feedbackLine(input.feedbackUrl, input.plan?.asked ?? []) : ''}
   `;
   const footerHtml = `
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr>
@@ -942,93 +991,26 @@ export async function sendMonthlyReportEmail(input: MonthlyReportEmailInput): Pr
   await sendChecked(requireClient(), { from: CLIENT_FROM_ADDRESS, replyTo: CLIENT_REPLY_TO, to: input.to, subject, html });
 }
 
-const OWNER_NAME = process.env.OWNER_NAME || 'Hayder';
-
 /**
- * A short personal note from the owner, sent once at day 30 and once at day 90
- * (lib/clientNotes.ts). Plain paragraphs on purpose: it should read like a
- * person typed it. Returns false when mail is not configured.
+ * A ramp report's preview to the owner: the client's exact email with a banner
+ * on top saying when it goes out and where to add a sentence or hold it.
+ * Returns false when mail or ADMIN_EMAIL is not configured.
  */
-export interface ClientNoteEmailInput {
-  to: string;
-  clientName: string | null;
-  businessName: string | null;
-  kind: 'note30' | 'note90';
-  /** /f/<token> for this client and note; the taps add ?q=&a= or ?r=. Null: plain reply only. */
-  feedbackUrl: string | null;
-}
-
-/**
- * Day 30: a three-question, tap-to-answer survey branded like the report.
- * Every option is a link into /f/<token>, so one tap in the inbox records an
- * answer and the page asks the rest. The questions are framed as "what should
- * we do for you next", so answering changes what Axeon works on.
- * Day 90: one question, would you recommend us, with the review ask on a yes.
- */
-export function renderClientNoteEmail(input: ClientNoteEmailInput): { subject: string; html: string } {
-  const business = input.businessName?.trim() || 'your business';
-  const first = firstName(input.clientName);
-  const owner = escapeHtml(OWNER_NAME);
-  const url = input.feedbackUrl;
-  const header = (kicker: string, title: string, sub: string) => `
-    <img src="${LOCKUP_WHITE}" width="98" height="26" alt="Axeon" style="display:block;border:0;height:26px;width:auto">
-    <p style="margin:18px 0 0;font-family:${FONT};font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#cfe0ff">${escapeHtml(kicker)}</p>
-    <h1 style="margin:6px 0 0;font-family:${FONT};font-size:26px;line-height:1.2;font-weight:800;color:#ffffff;letter-spacing:-.02em">${escapeHtml(title)}</h1>
-    <p style="margin:10px 0 0;font-family:${FONT};font-size:15px;line-height:1.5;color:#e4edff">${escapeHtml(sub)}</p>`;
-  const footer = `
-    <p style="margin:0;font-family:${FONT};font-size:14px;line-height:1.5;color:#ffffff"><b>${owner}</b> · Axeon<br>
-    <span style="color:#cfe0ff">Reply to this email any time; it comes straight to me.</span></p>`;
-
-  if (input.kind === 'note30') {
-    const questions = SURVEYS.note30 ?? [];
-    const blocks = questions.map(
-      (q, i) => `
-      <p class="ax-muted" style="margin:${i === 0 ? 22 : 26}px 0 4px;font-family:${FONT};font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:${BRAND.muted}">${i + 1} of ${questions.length}</p>
-      <p class="ax-ink" style="margin:0;font-family:${FONT};font-size:17px;font-weight:700;line-height:1.35;color:${BRAND.ink}">${escapeHtml(q.text)}</p>
-      ${
-        url
-          ? tapRow(q.options.map((o) => tapButton(`${url}?q=${q.key}&a=${o.value}`, o.label)))
-          : `<p class="ax-body" style="margin:8px 0 0;font-family:${FONT};font-size:14px;color:${BRAND.body}">${q.options.map((o) => escapeHtml(o.label)).join(' · ')}</p>`
-      }`
-    );
-    const body = `
-      <p class="ax-ink" style="margin:22px 0 0;font-family:${FONT};font-size:15px;line-height:1.55;color:${BRAND.ink}">${first} ${escapeHtml(business)} has been live with us for a month. Three taps below and we tune the site and the plan to what you want more of. One answer each, about ten seconds, and every answer changes what we do next.</p>
-      ${blocks.join('')}
-      <p class="ax-muted" style="margin:28px 0 22px;font-family:${FONT};font-size:13px;line-height:1.5;color:${BRAND.muted}">Each tap opens a short page where you can add one sentence if you want to. Your answers go to ${owner} directly, not into a pile.</p>`;
-    return {
-      subject: `${business}: 30 days in, three taps and we tune it to you`,
-      html: brandDocument({
-        subject: '30 days in',
-        headerHtml: header('30 days in', `${first.replace(/,$/, '')}, three taps and we tune ${business} to you.`, 'What you pick decides what we work on next.'),
-        bodyHtml: body,
-        footerHtml: footer,
-      }),
-    };
-  }
-
-  const body = `
-    <p class="ax-ink" style="margin:22px 0 0;font-family:${FONT};font-size:15px;line-height:1.55;color:${BRAND.ink}">${first} it has been three months since ${escapeHtml(business)} went live. One honest question, one tap.</p>
-    <p class="ax-ink" style="margin:18px 0 0;font-family:${FONT};font-size:17px;font-weight:700;line-height:1.35;color:${BRAND.ink}">Would you recommend Axeon to another business owner?</p>
-    ${url ? tapRow([tapButton(`${url}?r=yes`, 'Yes'), tapButton(`${url}?r=sortof`, 'Maybe'), tapButton(`${url}?r=no`, 'Not yet')]) : ''}
-    <p class="ax-muted" style="margin:22px 0 22px;font-family:${FONT};font-size:13px;line-height:1.5;color:${BRAND.muted}">On a yes, a Google review would mean a lot and the next page has the link. On anything else, tell me why in one sentence and I will fix it.</p>`;
-  return {
-    subject: `${business}: three months in, one tap`,
-    html: brandDocument({
-      subject: 'Three months in',
-      headerHtml: header('Three months in', 'Would you recommend us?', 'One tap, and then a sentence if you feel like it.'),
-      bodyHtml: body,
-      footerHtml: footer,
-    }),
-  };
-}
-
-export async function sendClientNoteEmail(input: ClientNoteEmailInput): Promise<boolean> {
+export async function sendReportPreviewToOwner(input: MonthlyReportEmailInput & { preview: { sendsOn: string; adminUrl: string }; businessName: string | null }): Promise<boolean> {
   const resend = getClient();
-  if (!resend) return false;
-  const { subject, html } = renderClientNoteEmail(input);
-  await sendChecked(resend, { from: CLIENT_FROM_ADDRESS, replyTo: CLIENT_REPLY_TO, to: input.to, subject, html });
+  if (!resend || !ADMIN_NOTIFICATION_EMAIL) return false;
+  const { html } = renderMonthlyReportEmail(input);
+  const who = input.businessName?.trim() || input.to;
+  await sendChecked(resend, {
+    from: FROM_ADDRESS,
+    to: ADMIN_NOTIFICATION_EMAIL,
+    subject: `Preview: ${who}'s report ${input.plan?.number ?? ''} goes out ${input.preview.sendsOn}`.replace('report  goes', 'report goes'),
+    html,
+  });
   return true;
 }
+
+const OWNER_NAME = process.env.OWNER_NAME || 'Hayder';
 
 /** To the owner: a client tapped "No" or wrote a sentence (lib/feedback.ts). Never for a plain "Yes". */
 export async function sendFeedbackNotification(input: {
@@ -1101,6 +1083,8 @@ export async function sendUpgradeRequestNotification(input: { businessName: stri
 export async function sendMonthlyReportsDigest(input: {
   monthLabel: string;
   sent: string[];
+  /** Ramp reports whose preview went to the owner today; the client copy follows on the 3rd. */
+  previewed?: string[];
   skipped: Array<{ name: string; reason: string }>;
   failed: Array<{ name: string; error: string }>;
   adminUrl: string;
@@ -1108,9 +1092,12 @@ export async function sendMonthlyReportsDigest(input: {
   const resend = getClient();
   if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
   const list = (items: string[]) => (items.length ? `<ul>${items.map((i) => `<li>${escapeHtml(i)}</li>`).join('')}</ul>` : '<p>None.</p>');
+  const previewed = input.previewed ?? [];
   const subject = input.failed.length
     ? `${input.monthLabel} client reports: ${input.sent.length} sent, ${input.failed.length} failed`
-    : `${input.monthLabel} client reports: ${input.sent.length} sent`;
+    : previewed.length && !input.sent.length
+      ? `${input.monthLabel} client reports: ${previewed.length} waiting for your look`
+      : `${input.monthLabel} client reports: ${input.sent.length} sent${previewed.length ? `, ${previewed.length} previewed` : ''}`;
   await sendChecked(resend, {
     from: FROM_ADDRESS,
     to: ADMIN_NOTIFICATION_EMAIL,
@@ -1118,6 +1105,7 @@ export async function sendMonthlyReportsDigest(input: {
     html: `
       <p>The automatic ${escapeHtml(input.monthLabel)} reports went out this morning.</p>
       <p><b>Sent (${input.sent.length})</b></p>${list(input.sent)}
+      ${previewed.length ? `<p><b>Previewed to you (${previewed.length})</b>: ramp reports, in your inbox now. They go to the client on the 3rd unless you hold them on their admin page.</p>${list(previewed)}` : ''}
       <p><b>Skipped (${input.skipped.length})</b></p>${list(input.skipped.map((s) => `${s.name}: ${s.reason}`))}
       ${input.failed.length ? `<p><b>Failed (${input.failed.length})</b></p>${list(input.failed.map((f) => `${f.name}: ${f.error}`))}` : ''}
       <p>A skipped client has no website numbers for the month (snippet not installed yet) and nothing typed in. Add the snippet or type their report on their admin page and press “Send now”.</p>

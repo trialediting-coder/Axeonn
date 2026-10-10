@@ -13,18 +13,18 @@ export const RATING_LABELS: Record<FeedbackRating, string> = { yes: 'Yes', sorto
 export const KIND_LABELS: Record<FeedbackKind, string> = { report: 'Monthly report', note30: 'Day-30 survey', note90: 'Day-90 note' };
 
 /**
- * Tap-to-answer questions. Every option is a link, so one tap in the inbox
- * records an answer; the landing page then offers the rest of what that email
- * asked. `attention` options email the owner the first time they land.
+ * Tap-to-answer questions at the end of the monthly report. Every option is a
+ * link, so one tap in the inbox records an answer; the landing page then
+ * offers the rest of what that report asked. `attention` options email the
+ * owner the first time they land.
  *
- * Day 30 is three taps, each one a number that predicts whether the client
- * stays: did the site bring a job they would not have had, does anyone pick
- * up when it rings (explains most results and is the honest case for
- * AxeonCORE), and is it worth the price so far.
- *
- * The monthly report asks "how many jobs came from the site" every month, a
- * series that calibrates the estimated-customers number per client, plus one
- * question that rotates with the month (REPORT_ROTATION).
+ * Which questions a report carries is decided by its number
+ * (lib/reportPlan.ts): the first full report asks the three that predict
+ * whether the client stays (did the site bring a job they would not have had,
+ * does anyone pick up when it rings, is it worth the price so far); the third
+ * asks "would you recommend us"; every other report asks "how many jobs came
+ * from the site" (a series that calibrates the estimate) plus one that
+ * rotates with the month.
  */
 export interface SurveyOption {
   value: string;
@@ -37,7 +37,7 @@ export interface SurveyQuestion {
   options: readonly SurveyOption[];
 }
 export const SURVEYS: Partial<Record<FeedbackKind, readonly SurveyQuestion[]>> = {
-  note30: [
+  report: [
     {
       key: 'job',
       text: 'Has the site brought you a job you would not have gotten otherwise?',
@@ -65,8 +65,15 @@ export const SURVEYS: Partial<Record<FeedbackKind, readonly SurveyQuestion[]>> =
         { value: 'notyet', label: 'Not yet', attention: true },
       ],
     },
-  ],
-  report: [
+    {
+      key: 'recommend',
+      text: 'Would you recommend Axeon to another business owner?',
+      options: [
+        { value: 'yes', label: 'Yes' },
+        { value: 'maybe', label: 'Maybe' },
+        { value: 'notyet', label: 'Not yet', attention: true },
+      ],
+    },
     {
       key: 'jobs',
       text: 'Roughly how many jobs came from the site this month?',
@@ -109,19 +116,16 @@ export const SURVEYS: Partial<Record<FeedbackKind, readonly SurveyQuestion[]>> =
   ],
 };
 
-/** The report's second question, by month: "2026-10" asks the first, "2026-11" the second, and round again. */
+/** The regular report's second question, by calendar month: "2026-10" asks the first, "2026-11" the second, and round again. */
 export const REPORT_ROTATION: readonly string[] = ['clear', 'next', 'source'];
 
 /** Every question that exists for a kind (what an answer may name). */
 export const surveyFor = (kind: FeedbackKind): readonly SurveyQuestion[] => SURVEYS[kind] ?? [];
 
-/** The questions one email actually asked: all of the day-30 survey; for a report, jobs plus the month's rotating one. */
-export function askedQuestions(kind: FeedbackKind, month: string | null): readonly SurveyQuestion[] {
+/** The questions behind a list of keys, in that order; unknown keys are dropped. */
+export function questionsByKeys(kind: FeedbackKind, keys: readonly string[]): SurveyQuestion[] {
   const all = surveyFor(kind);
-  if (kind !== 'report') return all;
-  const m = month ? Number(month.slice(5, 7)) : 1;
-  const rotating = REPORT_ROTATION[(Number.isFinite(m) ? m - 1 : 0) % REPORT_ROTATION.length];
-  return all.filter((q) => q.key === 'jobs' || q.key === rotating);
+  return keys.map((k) => all.find((q) => q.key === k)).filter((q): q is SurveyQuestion => Boolean(q));
 }
 
 /** Answers keyed by question: { job: 'yes', pickup: 'half' }. */

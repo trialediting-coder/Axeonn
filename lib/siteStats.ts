@@ -926,6 +926,15 @@ export async function lastEventAt(onboardingId: number): Promise<string | null> 
   return at ? new Date(at).toISOString() : null;
 }
 
+/** When the site first sent anything: the day tracking went live (lib/reportPlan.ts trackedDays). */
+export async function firstEventAt(onboardingId: number): Promise<string | null> {
+  if (!isDatabaseConfigured()) return null;
+  await ensureSchema();
+  const res = await sql<{ at: string | null }>`SELECT min(created_at) AS at FROM site_events WHERE onboarding_id = ${onboardingId};`;
+  const at = res.rows[0]?.at;
+  return at ? new Date(at).toISOString() : null;
+}
+
 /** Drops raw events past the retention window. Reports keep their summaries. */
 export async function pruneOldEvents(): Promise<number> {
   if (!isDatabaseConfigured()) return 0;

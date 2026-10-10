@@ -196,7 +196,7 @@ test('eligibility: closed, opted out, already emailed or too new are skipped', (
 });
 
 test('a report counts as typed in when any box is filled', () => {
-  const base: MonthlyReport = { ...emptyReportBody(), id: 1, month: '2026-09', emailedAt: null, createdAt: '2026-10-01T00:00:00Z' };
+  const base: MonthlyReport = { ...emptyReportBody(), id: 1, month: '2026-09', emailedAt: null, createdAt: '2026-10-01T00:00:00Z', survey: null, previewSentAt: null, heldAt: null };
   assert.equal(reportHasContent(null), false);
   assert.equal(reportHasContent(base), false);
   assert.equal(reportHasContent({ ...base, done: [{ title: 'New page', body: 'Roof repair' }] }), true);
@@ -639,27 +639,6 @@ test('feedback tokens round-trip, reject tampering, and the report carries the t
   for (const r of ['yes', 'sortof', 'no']) assert.match(html, new RegExp(`href="https://axeonstudio.co/f/x\\?r=${r}"`));
   const { html: without } = renderMonthlyReportEmail({ ...sampleMonthlyReportInput('a@b.c'), feedbackUrl: null });
   assert.doesNotMatch(without, /Was this report useful/);
-});
-
-test("the owner's notes are due at day 30 and day 90 after launch, once each, never for quiet or closed clients", async () => {
-  const { noteDue, launchDate } = await import('./clientNotes');
-  const DAY = 86_400_000;
-  const live = { status: 'active' as const, welcomeSentAt: '2026-06-01T00:00:00Z', createdAt: '2026-05-20T00:00:00Z' };
-  const d = { kickoffAt: '2026-06-01', targetLaunchAt: '2026-06-20' };
-  const launch = launchDate(live, d);
-  const none = { note30SentAt: null, note90SentAt: null };
-  assert.equal(noteDue(live, d, none, launch + 10 * DAY), null);
-  assert.equal(noteDue(live, d, none, launch + 30 * DAY), 'note30');
-  assert.equal(noteDue(live, d, none, launch + 45 * DAY), 'note30');
-  assert.equal(noteDue(live, d, { ...none, note30SentAt: 'x' }, launch + 45 * DAY), null, 'sent once');
-  assert.equal(noteDue(live, d, none, launch + 70 * DAY), null, 'missed the window: skipped, not sent late');
-  assert.equal(noteDue(live, d, none, launch + 90 * DAY), 'note90');
-  assert.equal(noteDue(live, d, { ...none, note90SentAt: 'x' }, launch + 100 * DAY), null);
-  assert.equal(noteDue({ ...live, welcomeSentAt: null }, d, none, launch + 30 * DAY), null, 'quiet client');
-  assert.equal(noteDue({ ...live, status: 'closed' }, d, none, launch + 30 * DAY), null, 'closed client');
-  // Without project dates, launch is the sign-up day.
-  assert.equal(launchDate(live, { kickoffAt: null, targetLaunchAt: null }), new Date(live.createdAt).getTime());
-  assert.equal(noteDue(live, { kickoffAt: null, targetLaunchAt: null }, none, new Date(live.createdAt).getTime() + 31 * DAY), 'note30');
 });
 
 // ---- AxeonPROOF tabs and the upgrade page ---------------------------------------
