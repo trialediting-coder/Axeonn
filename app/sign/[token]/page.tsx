@@ -34,12 +34,15 @@ export default async function SignPage({ params }: { params: Promise<{ token: st
   if (agreement.status === 'void')
     return <Message title="This agreement was withdrawn" body="Axeon replaced or cancelled it. Call us if you expected to sign something here." />;
 
-  const fees = `${money(agreement.setupCents)} today + ${money(agreement.monthlyCents)}/month`;
+  // Stripe's first invoice carries the setup fee and the first month together (lib/billing.ts createAgreementCheckout).
+  const dueToday = money(agreement.setupCents + agreement.monthlyCents);
+  const breakdown = `${money(agreement.setupCents)} to start + your first month, then ${money(agreement.monthlyCents)}/month`;
+  const fees = `${dueToday} today (${breakdown})`;
   let panel: React.ReactNode;
   if (agreement.status === 'sent') {
     panel = <SignPanel token={agreement.token} signerName={agreement.signerName} signerTitle={agreement.signerTitle} fees={fees} />;
   } else if (agreement.status === 'signed') {
-    panel = <PayPanel token={agreement.token} fees={fees} />;
+    panel = <PayPanel token={agreement.token} dueToday={dueToday} breakdown={breakdown} />;
   } else {
     panel = (
       <div className="rounded-[20px] border border-emerald-200 bg-emerald-50 p-6 text-emerald-900">

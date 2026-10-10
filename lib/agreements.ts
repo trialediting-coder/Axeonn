@@ -79,7 +79,7 @@ export function agreementValues(a: AgreementFields) {
     axeonEntity: a.axeonEntity,
     hourlyRate: a.hourlyRate,
     plan: TIER_LABELS[a.tier],
-    fees: `${money(a.setupCents)} to start · ${money(a.monthlyCents)} / month`,
+    fees: `${money(a.setupCents)} to start + ${money(a.monthlyCents)} / month; the first month is billed with the setup fee, so ${money(a.setupCents + a.monthlyCents)} is due at signing`,
     addOns: a.addOns.trim() || 'None',
   };
 }
