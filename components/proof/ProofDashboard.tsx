@@ -313,14 +313,16 @@ export function ProofDashboard({
         })}
       </nav>
 
-      <main className="mx-auto max-w-6xl px-4 pb-20 pt-8 sm:px-8">
+      <main className="mx-auto max-w-[1440px] px-4 pb-20 pt-8 sm:px-8 2xl:px-12">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-sm text-neutral-500">{firstName ? `Welcome back, ${firstName}` : 'Welcome back'}</p>
             <h1 className="mt-0.5 text-2xl font-bold tracking-tight text-neutral-950">{name}</h1>
           </div>
           <div className="flex items-center gap-2">
-            <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-neutral-700 ring-1 ring-neutral-200">{planLabel}</span>
+            <span className="inline-flex items-center rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-neutral-700 ring-1 ring-neutral-200">
+              {onboarding.tier === 'essentials' ? planLabel : <AxeonLogo product={TIER_SHORT[onboarding.tier]} size="sm" mark={false} />}
+            </span>
             {live ? (
               <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-200">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Live
@@ -357,7 +359,7 @@ export function ProofDashboard({
 
         {tab === 'overview' ? (<>
         {traffic ? (
-          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-6 grid grid-cols-1 gap-4 lg:gap-5 sm:grid-cols-2 xl:grid-cols-4">
             {WEB_METRICS.map(({ key, label, icon: Icon, hint }) => {
               const m = webMetric(key, traffic, prevTraffic, avgJobValue);
               return (
@@ -389,7 +391,7 @@ export function ProofDashboard({
 
         {leads.some((m) => m.rows.length > 0) ? <LeadLog months={leads} api={leadApi} /> : null}
 
-        <div className={`${traffic ? 'mt-4' : 'mt-6'} grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4`}>
+        <div className={`${traffic ? 'mt-4' : 'mt-6'} grid grid-cols-1 gap-4 lg:gap-5 sm:grid-cols-2 xl:grid-cols-4`}>
           {METRICS.map(({ key, label, icon: Icon, hint }) => {
             const m = metric(key, latest, prev);
             return (
@@ -420,7 +422,7 @@ export function ProofDashboard({
           })}
         </div>
 
-        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="mt-4 grid grid-cols-1 gap-4 lg:gap-5 lg:grid-cols-3">
           <Card className="p-6 lg:col-span-2">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-semibold text-neutral-950">Calls and leads</h2>
@@ -497,7 +499,7 @@ export function ProofDashboard({
           </Card>
         </div>
 
-        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="mt-4 grid grid-cols-1 gap-4 lg:gap-5 lg:grid-cols-3">
           <Card className="p-6">
             <h2 className="text-base font-semibold text-neutral-950">Your project</h2>
             <dl className="mt-4 space-y-3 text-sm">
@@ -616,7 +618,7 @@ export function ProofDashboard({
         </div>
 
         {traffic ? (
-          <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <div className="mt-4 grid grid-cols-1 gap-4 lg:gap-5 lg:grid-cols-3">
             <Card className="p-6">
               <h2 className="text-base font-semibold text-neutral-950">Most clicked buttons</h2>
               <p className="mt-0.5 text-xs text-neutral-500">{monthLabel(latest!.month)}</p>
@@ -659,7 +661,7 @@ export function ProofDashboard({
 
         {detail ? (
           <>
-            <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+            <div className="mt-4 grid grid-cols-1 gap-4 lg:gap-5 lg:grid-cols-3">
               <Card className="p-6">
                 <h2 className="text-base font-semibold text-neutral-950">How people visit</h2>
                 <p className="mt-0.5 text-xs text-neutral-500">

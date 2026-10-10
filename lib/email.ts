@@ -832,6 +832,23 @@ export function feedbackLine(url: string): string {
   return `<p class="ax-muted" style="margin:0 0 22px;font-family:${FONT};font-size:13px;color:${BRAND.muted}">Was this report useful? ${link('yes', 'Yes')} &nbsp;·&nbsp; ${link('sortof', 'Sort of')} &nbsp;·&nbsp; ${link('no', 'No')}</p>`;
 }
 
+/** Call presses an Essentials client needs in a month before the report points at the Calls tab. */
+export const CALLS_NUDGE_MIN = 15;
+
+/**
+ * One sentence at the end of an Essentials client's report, only in a month
+ * with CALLS_NUDGE_MIN or more call presses: the number, what AxeonCORE does
+ * about a call that rings out, and a link to the Calls tab. One report a month,
+ * so at most one nudge a month, and none when the number does not earn it.
+ */
+export function upgradeNudge(input: Pick<MonthlyReportEmailInput, 'tier' | 'traffic' | 'proofUrl'>): string {
+  if (input.tier !== 'essentials' || !input.traffic) return '';
+  const calls = input.traffic.buttons.find((b) => b.name === 'call')?.count ?? 0;
+  if (calls < CALLS_NUDGE_MIN) return '';
+  const url = `${input.proofUrl}${input.proofUrl.includes('?') ? '&' : '?'}tab=calls`;
+  return `<p class="ax-muted" style="margin:0 0 18px;font-family:${FONT};font-size:13px;line-height:1.5;color:${BRAND.muted}">${calls} people pressed Call this month. On AxeonCORE, a call that rings out gets a text back within a minute. <a href="${url}" style="color:${BRAND.blueText};font-weight:700">See the Calls tab in AxeonPROOF</a>.</p>`;
+}
+
 /**
  * The report email as subject + HTML, with no sending, so a sample can be
  * rendered anywhere. Framed as "here is what Axeon did for you": outcome first,
@@ -875,6 +892,7 @@ export function renderMonthlyReportEmail(input: MonthlyReportEmailInput): { subj
     ${input.fromYou ? rH2('One thing we need from you') + rPara(input.fromYou) : ''}
     ${t ? closeRateNote(t) : ''}
     <div style="margin:26px 0 20px">${rButton(input.proofUrl, 'See it all in AxeonPROOF')}</div>
+    ${upgradeNudge(input)}
     ${input.feedbackUrl ? feedbackLine(input.feedbackUrl) : ''}
   `;
   const footerHtml = `

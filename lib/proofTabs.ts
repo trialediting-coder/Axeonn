@@ -204,6 +204,38 @@ export function upgradeMath(current: OnboardingTier, target: OnboardingTier, avg
   return { delta, line: `For most shops that is one or two extra jobs a month.${adSpend}` };
 }
 
+/** Rule-of-thumb rates the loss line uses. Stated on screen, never presented as the client's own measurement. */
+export const RINGS_OUT_SHARE = 0.2;
+export const PREFER_BOOKING_SHARE = 0.3;
+
+/**
+ * The cost of not having the feature, from the client's real contact counts and
+ * a stated rule of thumb. Null when the numbers are too small to say anything.
+ */
+export function lossLine(tab: ProofTab, t: TrafficSummary | null): { text: string; basis: string } | null {
+  if (!t) return null;
+  const plan = TIER_LABELS[tab.tier];
+  if (tab.key === 'calls') {
+    const calls = t.buttons.find((b) => b.name === 'call')?.count ?? 0;
+    if (calls < 5) return null;
+    const lost = Math.max(1, Math.round(calls * RINGS_OUT_SHARE));
+    return {
+      text: `${calls} people pressed Call last month. If one in five of those calls rang out, that is roughly ${lost} ${lost === 1 ? 'person' : 'people'} who may have called the next shop. That is the gap ${plan} closes.`,
+      basis: 'One in five is a rule of thumb for a busy shop line, not your measured pick-up rate. AxeonCORE measures it.',
+    };
+  }
+  if (tab.key === 'bookings') {
+    const n = t.conversions;
+    if (n < 5) return null;
+    const ready = Math.max(1, Math.round(n * PREFER_BOOKING_SHARE));
+    return {
+      text: `${n} people reached out last month. If a third of them would rather tap a time than call, about ${ready} were ready to book themselves. On ${plan} they can, at 9pm too.`,
+      basis: 'A third is a rule of thumb from how people book services online, not a measurement of your customers.',
+    };
+  }
+  return null;
+}
+
 /** The first sentence on a locked tab, with the client's own numbers when there are any. */
 export function lockedHeadline(tab: ProofTab, t: TrafficSummary | null): string {
   const n = t?.conversions ?? 0;

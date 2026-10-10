@@ -16,19 +16,22 @@ export function AxeonLogo({
   product,
   tone = 'dark',
   size = 'md',
+  mark = true,
 }: {
   /** Adds a product name after the wordmark, e.g. "PROOF" -> AxeonPROOF. */
   product?: string;
   /** "dark" text for light backgrounds, "light" text for dark backgrounds. */
   tone?: 'dark' | 'light';
   size?: 'sm' | 'md' | 'lg';
+  /** false: the lettering only, no bars-and-dot mark (plan names inside a sentence). */
+  mark?: boolean;
 }) {
   const text = { sm: 'text-base', md: 'text-lg', lg: 'text-3xl' }[size];
-  const mark = { sm: 'h-[18px]', md: 'h-[22px]', lg: 'h-8' }[size];
+  const markSize = { sm: 'h-[18px]', md: 'h-[22px]', lg: 'h-8' }[size];
   const ink = tone === 'light' ? 'text-white' : 'text-neutral-950';
   return (
     <span className="inline-flex items-center gap-2.5">
-      <AxeonMark className={`${mark} w-auto shrink-0 text-blue-600`} />
+      {mark ? <AxeonMark className={`${markSize} w-auto shrink-0 text-blue-600`} /> : null}
       <span className={`${text} font-extrabold leading-none tracking-tight ${ink}`}>
         Axeon
         {product ? <span className="font-black tracking-[0.02em] text-blue-500">{product}</span> : null}
