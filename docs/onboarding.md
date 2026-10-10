@@ -262,7 +262,8 @@ An Essentials client whose report shows 15 or more call presses in a month
 gets one sentence at the end of that report pointing at the Calls tab
 (`upgradeNudge` in `lib/email.ts`). One report a month, so one nudge at most,
 and none when the number does not earn it. Wherever the page names the plan
-it shows the lockup (`AxeonLogo product="CORE"`), not just the word.
+it shows the lettering (`AxeonLogo product="CORE" mark={false}`), the styled
+wordmark without the bars-and-dot mark.
 
 ### Leads, outcomes and the client's own close rate
 

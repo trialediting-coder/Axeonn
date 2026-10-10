@@ -321,7 +321,7 @@ export function ProofDashboard({
           </div>
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-neutral-700 ring-1 ring-neutral-200">
-              {onboarding.tier === 'essentials' ? planLabel : <AxeonLogo product={TIER_SHORT[onboarding.tier]} size="sm" />}
+              {onboarding.tier === 'essentials' ? planLabel : <AxeonLogo product={TIER_SHORT[onboarding.tier]} size="sm" mark={false} />}
             </span>
             {live ? (
               <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-200">

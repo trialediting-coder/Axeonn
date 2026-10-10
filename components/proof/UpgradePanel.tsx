@@ -38,7 +38,7 @@ export function UpgradePanel({
     <div className="mt-6">
       <div className="flex flex-wrap items-center gap-3">
         <span className="inline-flex items-center gap-2 rounded-full bg-blue-50 py-1.5 pl-3 pr-2.5 text-xs font-semibold text-blue-700 ring-1 ring-blue-200">
-          Included in <AxeonLogo product={TIER_SHORT[tab.tier]} size="sm" />
+          Included in <AxeonLogo product={TIER_SHORT[tab.tier]} size="sm" mark={false} />
         </span>
       </div>
       <h2 className="mt-3 text-2xl font-bold tracking-tight text-neutral-950">{tab.label}</h2>
@@ -55,7 +55,7 @@ export function UpgradePanel({
           {/* An example month, readable and labelled as such: it shows what the screen does, never the client's own results. */}
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-100 px-4 py-3 sm:px-5">
             <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold text-neutral-900">
-              An example month on <AxeonLogo product={TIER_SHORT[tab.tier]} size="sm" />
+              An example month on <AxeonLogo product={TIER_SHORT[tab.tier]} size="sm" mark={false} />
               <span className="font-normal text-neutral-500">· not your numbers yet; yours start the day it is switched on</span>
             </p>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-950 px-3 py-1 text-xs font-semibold text-white">
@@ -115,7 +115,7 @@ export function UpgradePanel({
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="rounded-2xl border border-neutral-200 bg-white p-5">
           <p className="flex flex-wrap items-center gap-x-2 text-sm font-semibold text-neutral-900">
-            What <AxeonLogo product={TIER_SHORT[tab.tier]} size="sm" /> adds
+            What <AxeonLogo product={TIER_SHORT[tab.tier]} size="sm" mark={false} /> adds
           </p>
           <ul className="mt-3 space-y-2.5 text-sm text-neutral-700">
             {tab.includes.map((line) => (
