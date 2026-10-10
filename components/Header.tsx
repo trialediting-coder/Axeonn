@@ -603,7 +603,7 @@ export function Header() {
             href="/get-started"
             data-track="cta_click"
             data-track-cta="get_started_nav"
-            className="inline-flex items-center justify-center px-4 py-3 md:px-6 rounded-full bg-blue-600 text-white text-xs md:text-sm font-semibold"
+            className="inline-flex items-center justify-center px-6 py-3.5 rounded-full bg-blue-600 text-white text-[15px] md:text-sm font-semibold"
           >
             Get Started
           </Link>

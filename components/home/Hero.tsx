@@ -264,6 +264,9 @@ export function Hero() {
         </div>
 
         <div className="relative z-10 w-full max-w-3xl flex-1 flex flex-col justify-center sm:ml-16 lg:ml-24 xl:ml-32">
+          {/* Phones: the two flex-1 spacers center the headline + CTAs and pin the
+              badges to the bottom of the hero, right above the "Helping 50+" band. */}
+          <div aria-hidden="true" className="flex-1 sm:hidden" />
           <h1 className="hero-rise text-center sm:text-left text-[min(3.25rem,13.5vw)] sm:text-6xl lg:text-7xl xl:text-8xl font-black tracking-[-0.03em] [word-spacing:0.12em] leading-[1.05] font-display text-white">
             Get More
             {/* The rotating word always sits on its own line. */}
@@ -321,9 +324,11 @@ export function Hero() {
             </button>
           </div>
 
+          <div aria-hidden="true" className="flex-1 min-h-6 sm:hidden" />
+
           <div
             style={{ animationDelay: '0.35s' }}
-            className="hero-rise mt-6 sm:mt-8"
+            className="hero-rise sm:mt-8"
           >
             <TrustBadges variant="dark" size="lg" />
           </div>
