@@ -212,7 +212,7 @@ export const PREFER_BOOKING_SHARE = 0.3;
  * The cost of not having the feature, from the client's real contact counts and
  * a stated rule of thumb. Null when the numbers are too small to say anything.
  */
-export function lossLine(tab: ProofTab, t: TrafficSummary | null): { text: string; basis: string } | null {
+export function lossLine(tab: ProofTab, t: TrafficSummary | null, period = 'last month'): { text: string; basis: string } | null {
   if (!t) return null;
   const plan = TIER_LABELS[tab.tier];
   if (tab.key === 'calls') {
@@ -220,7 +220,7 @@ export function lossLine(tab: ProofTab, t: TrafficSummary | null): { text: strin
     if (calls < 5) return null;
     const lost = Math.max(1, Math.round(calls * RINGS_OUT_SHARE));
     return {
-      text: `${calls} people pressed Call last month. If one in five of those calls rang out, that is roughly ${lost} ${lost === 1 ? 'person' : 'people'} who may have called the next shop. That is the gap ${plan} closes.`,
+      text: `${calls} people pressed Call ${period}. If one in five of those calls rang out, that is roughly ${lost} ${lost === 1 ? 'person' : 'people'} who may have called the next shop. That is the gap ${plan} closes.`,
       basis: 'One in five is a rule of thumb for a busy shop line, not your measured pick-up rate. AxeonCORE measures it.',
     };
   }
@@ -229,7 +229,7 @@ export function lossLine(tab: ProofTab, t: TrafficSummary | null): { text: strin
     if (n < 5) return null;
     const ready = Math.max(1, Math.round(n * PREFER_BOOKING_SHARE));
     return {
-      text: `${n} people reached out last month. If a third of them would rather tap a time than call, about ${ready} were ready to book themselves. On ${plan} they can, at 9pm too.`,
+      text: `${n} people reached out ${period}. If a third of them would rather tap a time than call, about ${ready} were ready to book themselves. On ${plan} they can, at 9pm too.`,
       basis: 'A third is a rule of thumb from how people book services online, not a measurement of your customers.',
     };
   }
@@ -237,10 +237,10 @@ export function lossLine(tab: ProofTab, t: TrafficSummary | null): { text: strin
 }
 
 /** The first sentence on a locked tab, with the client's own numbers when there are any. */
-export function lockedHeadline(tab: ProofTab, t: TrafficSummary | null): string {
+export function lockedHeadline(tab: ProofTab, t: TrafficSummary | null, period = 'last month'): string {
   const n = t?.conversions ?? 0;
   const calls = t?.buttons.find((b) => b.name === 'call')?.count ?? 0;
-  const people = `${n} ${n === 1 ? 'person' : 'people'} reached out through your site last month`;
+  const people = `${n} ${n === 1 ? 'person' : 'people'} reached out through your site ${period}`;
   switch (tab.key) {
     case 'calls':
       return n > 0

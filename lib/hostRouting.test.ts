@@ -11,6 +11,7 @@ const route = (host: string, pathname: string, search = '') =>
 
 test('the bare app address shows AxeonPROOF without changing the URL', () => {
   assert.deepEqual(route('app.axeonstudio.co', '/'), { type: 'rewrite', path: '/proof' });
+  assert.deepEqual(route('app.axeonstudio.co', '/', '?tab=calls'), { type: 'rewrite', path: '/proof?tab=calls' });
   assert.deepEqual(route('app.axeonstudio.co', '/proof'), { type: 'redirect', url: `${APP}/`, permanent: false });
 });
 

@@ -7,7 +7,7 @@ import { agreementUrl, latestSignedAgreementFor } from '@/lib/agreements';
 import { computeProgress, getItemStates, orderedItems, welcomeUrl, type Onboarding } from '@/lib/onboarding';
 import { getProjectDetails, guaranteeDay, listMonthlyReports, listProjectUpdates, tierHasGuarantee } from '@/lib/projects';
 import { monthLabel } from '@/lib/projectsShared';
-import { getTrackingSettings, leadRows, monthOf, previousMonth } from '@/lib/siteStats';
+import { effectiveCloseRate, getTrackingSettings, hasTraffic, leadRows, monthOf, monthTraffic, previousMonth } from '@/lib/siteStats';
 import { getUpgradeRequest } from '@/lib/upgrades';
 import type { ProofDashboard } from '@/components/proof/ProofDashboard';
 import type { ComponentProps } from 'react';
@@ -27,6 +27,12 @@ export async function loadDashboardData(onboarding: Onboarding): Promise<Dashboa
     leadRows(onboarding.id, month),
     leadRows(onboarding.id, previous),
     getUpgradeRequest(onboarding.id),
+  ]);
+  // This month straight from the tracker, so the overview is never blank between reports
+  // (and never blank before the first report, which is the first thing a new client sees).
+  const [thisMonth, lastMonth] = await Promise.all([
+    monthTraffic(onboarding.id, month, effectiveCloseRate(tracking)),
+    monthTraffic(onboarding.id, previous, effectiveCloseRate(tracking)),
   ]);
   return {
     onboarding,
@@ -48,5 +54,6 @@ export async function loadDashboardData(onboarding: Onboarding): Promise<Dashboa
       { month: previous, label: monthLabel(previous), rows: lastLeads },
     ],
     upgradeRequest,
+    live: hasTraffic(thisMonth) ? { month, traffic: thisMonth, prev: hasTraffic(lastMonth) ? lastMonth : null } : null,
   };
 }
