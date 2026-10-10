@@ -6,7 +6,7 @@
 import type { Metadata } from 'next';
 import { AxeonLogo } from '@/components/brand/AxeonLogo';
 import { FeedbackForm } from '@/components/feedback/FeedbackForm';
-import { getFeedback, isFeedbackRating, readFeedbackToken, recordFeedback, surveyFor, type FeedbackRating } from '@/lib/feedback';
+import { askedQuestions, getFeedback, isFeedbackRating, readFeedbackToken, recordFeedback, type FeedbackRating } from '@/lib/feedback';
 import { getOnboardingById } from '@/lib/onboarding';
 
 export const dynamic = 'force-dynamic';
@@ -29,7 +29,7 @@ export default async function FeedbackPage({ params, searchParams }: { params: P
     );
   }
   const valid = !!(ref && onboarding);
-  const questions = ref ? surveyFor(ref.kind) : [];
+  const questions = ref ? askedQuestions(ref.kind, ref.month) : [];
   const existing = valid && questions.length ? await getFeedback(ref!).catch(() => null) : null;
   const answered = existing?.answers ?? {};
   const remaining = questions.filter((x) => !answered[x.key]);

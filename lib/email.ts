@@ -1,5 +1,5 @@
 // lib/email.ts
-import { SURVEYS } from '@/lib/feedbackShared';
+import { SURVEYS, askedQuestions } from '@/lib/feedbackShared';
 import { Resend } from 'resend';
 import { WEEKDAY_LABELS, buttonLabel, campaignLabel, hourLabel, sourceLabel, type TrafficDetail, type TrafficSummary } from '@/lib/projectsShared';
 import { TAGLINE, alwaysOnSentence, headlineSentence, reportHighlights } from '@/lib/reportCopy';
@@ -811,6 +811,8 @@ export interface MonthlyReportEmailInput {
   businessName?: string | null;
   tier?: OnboardingTier | null;
   monthLabel: string;
+  /** "YYYY-MM", which picks this month's rotating tap question (lib/feedbackShared.ts askedQuestions). */
+  month?: string | null;
   prevMonthLabel?: string | null;
   stats: Array<{ label: string; value: string; sub?: string | null }>;
   traffic?: TrafficSummary | null;
@@ -832,10 +834,34 @@ export interface MonthlyReportEmailInput {
 }
 
 /** "Was this report useful? Yes · Sort of · No": three one-tap links, recorded on arrival. */
-export function feedbackLine(url: string): string {
+/** One tap-able answer: a rounded button that is a link, so it works in every mail app. */
+const tapButton = (href: string, label: string) =>
+  `<td style="padding:0 8px 8px 0"><a href="${escapeHtml(href)}" class="ax-tile" style="display:inline-block;padding:11px 16px;border:1px solid ${BRAND.line};border-radius:999px;background:#ffffff;font-family:${FONT};font-size:14px;font-weight:700;color:${BRAND.ink};text-decoration:none;white-space:nowrap">${escapeHtml(label)}</a></td>`;
+
+const tapRow = (buttons: string[]) =>
+  `<table role="presentation" cellspacing="0" cellpadding="0" style="margin:10px 0 4px"><tr>${buttons.join('')}</tr></table>`;
+
+/**
+ * The end of the report: two tap questions for this month (jobs from the site
+ * every month, plus the one that rotates: lib/feedbackShared.ts askedQuestions),
+ * then the one-line "was this useful". Every tap is a link into /f/<token>.
+ */
+export function feedbackLine(url: string, month: string | null = null): string {
   const link = (r: 'yes' | 'sortof' | 'no', label: string) =>
     `<a href="${url}?r=${r}" style="color:${BRAND.blueText};font-weight:700;text-decoration:underline">${label}</a>`;
-  return `<p class="ax-muted" style="margin:0 0 22px;font-family:${FONT};font-size:13px;color:${BRAND.muted}">Was this report useful? ${link('yes', 'Yes')} &nbsp;·&nbsp; ${link('sortof', 'Sort of')} &nbsp;·&nbsp; ${link('no', 'No')}</p>`;
+  const questions = askedQuestions('report', month);
+  const block = questions.length
+    ? `${rH2('Two taps for you')}
+      <p class="ax-muted" style="margin:0 0 6px;font-family:${FONT};font-size:13px;line-height:1.5;color:${BRAND.muted}">Your answers tune next month's numbers and what we work on. Each tap opens a short page; nothing else to fill in.</p>
+      ${questions
+        .map(
+          (q) => `
+      <p class="ax-ink" style="margin:14px 0 0;font-family:${FONT};font-size:15px;font-weight:700;line-height:1.35;color:${BRAND.ink}">${escapeHtml(q.text)}</p>
+      ${tapRow(q.options.map((o) => tapButton(`${url}?q=${q.key}&a=${o.value}`, o.label)))}`
+        )
+        .join('')}`
+    : '';
+  return `${block}<p class="ax-muted" style="margin:18px 0 22px;font-family:${FONT};font-size:13px;color:${BRAND.muted}">Was this report useful? ${link('yes', 'Yes')} &nbsp;·&nbsp; ${link('sortof', 'Sort of')} &nbsp;·&nbsp; ${link('no', 'No')}</p>`;
 }
 
 /** Call presses an Essentials client needs in a month before the report points at the Calls tab. */
@@ -899,7 +925,7 @@ export function renderMonthlyReportEmail(input: MonthlyReportEmailInput): { subj
     ${t ? closeRateNote(t) : ''}
     <div style="margin:26px 0 20px">${rButton(input.proofUrl, 'See it all in AxeonPROOF')}</div>
     ${upgradeNudge(input)}
-    ${input.feedbackUrl ? feedbackLine(input.feedbackUrl) : ''}
+    ${input.feedbackUrl ? feedbackLine(input.feedbackUrl, input.month ?? null) : ''}
   `;
   const footerHtml = `
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr>
@@ -931,13 +957,6 @@ export interface ClientNoteEmailInput {
   /** /f/<token> for this client and note; the taps add ?q=&a= or ?r=. Null: plain reply only. */
   feedbackUrl: string | null;
 }
-
-/** One tap-able answer: a rounded button that is a link, so it works in every mail app. */
-const tapButton = (href: string, label: string) =>
-  `<td style="padding:0 8px 8px 0"><a href="${escapeHtml(href)}" class="ax-tile" style="display:inline-block;padding:11px 16px;border:1px solid ${BRAND.line};border-radius:999px;background:#ffffff;font-family:${FONT};font-size:14px;font-weight:700;color:${BRAND.ink};text-decoration:none;white-space:nowrap">${escapeHtml(label)}</a></td>`;
-
-const tapRow = (buttons: string[]) =>
-  `<table role="presentation" cellspacing="0" cellpadding="0" style="margin:10px 0 4px"><tr>${buttons.join('')}</tr></table>`;
 
 /**
  * Day 30: a three-question, tap-to-answer survey branded like the report.
@@ -973,14 +992,14 @@ export function renderClientNoteEmail(input: ClientNoteEmailInput): { subject: s
       }`
     );
     const body = `
-      <p class="ax-ink" style="margin:22px 0 0;font-family:${FONT};font-size:15px;line-height:1.55;color:${BRAND.ink}">${first} ${escapeHtml(business)} has been live with us for a month. Six quick taps below and we tune the site and the plan to what you want more of. One answer each, under a minute, and every answer changes what we do next.</p>
+      <p class="ax-ink" style="margin:22px 0 0;font-family:${FONT};font-size:15px;line-height:1.55;color:${BRAND.ink}">${first} ${escapeHtml(business)} has been live with us for a month. Three taps below and we tune the site and the plan to what you want more of. One answer each, about ten seconds, and every answer changes what we do next.</p>
       ${blocks.join('')}
       <p class="ax-muted" style="margin:28px 0 22px;font-family:${FONT};font-size:13px;line-height:1.5;color:${BRAND.muted}">Each tap opens a short page where you can add one sentence if you want to. Your answers go to ${owner} directly, not into a pile.</p>`;
     return {
-      subject: `${business}: 30 days in, six taps and we tune it to you`,
+      subject: `${business}: 30 days in, three taps and we tune it to you`,
       html: brandDocument({
         subject: '30 days in',
-        headerHtml: header('30 days in', `${first.replace(/,$/, '')}, six taps and we tune ${business} to you.`, 'What you pick decides what we work on next, and what we charge for.'),
+        headerHtml: header('30 days in', `${first.replace(/,$/, '')}, three taps and we tune ${business} to you.`, 'What you pick decides what we work on next.'),
         bodyHtml: body,
         footerHtml: footer,
       }),

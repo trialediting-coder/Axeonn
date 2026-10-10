@@ -101,6 +101,7 @@ export async function sendAutoReport(onboarding: Onboarding, month: string, opts
       businessName: onboarding.businessName,
       tier: onboarding.tier,
       monthLabel: monthLabel(month),
+      month,
       prevMonthLabel: prev ? monthLabel(prev.month) : null,
       stats: reportStats(report, prev, details, { avgJobValue: settings.avgJobValue }),
       traffic: hasTraffic(report.traffic) ? report.traffic : null,
