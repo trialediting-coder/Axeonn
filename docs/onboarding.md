@@ -293,78 +293,38 @@ owner gets one email per 30 days from the daily tracker-health cron
 (`lib/leadHealth.ts`): we are sending people and they are not closing, which
 is the call to make before it becomes a cancellation.
 
-### Feedback: one-tap in the report, two notes from the owner
+### Reports: the ramp, the hold, and the taps
 
-The report ends with **Was this report useful? Yes · Sort of · No**. Each is a
-link to `/f/<token>` where the token names the client, the kind (`report`,
-`note30`, `note90`) and the month, signed with `TRACKING_SALT` (or
-`AUTH_SECRET`), so there is no login and nothing to guess (`lib/feedback.ts`).
-The tap is recorded on arrival, then the page offers a box for one sentence
-(`POST /api/feedback`). One row per client, kind and month in
-`client_feedback`; a later tap or sentence updates it. A "No" or any sentence
-emails `ADMIN_EMAIL` at once; a plain "Yes" does not.
+`/api/cron/monthly-reports` runs daily (`lib/autoReports.ts`). Each run moves
+every open client's report for last month one step. A report is numbered by
+the months already emailed (`lib/reportPlan.ts` `reportNumber`); the first
+three are the **ramp**: Google takes two to three months to trust a new site,
+so those reports headline what was built and the starting point, compare to the
+baseline from onboarding (calls plus leads before Axeon) instead of to last
+month, and carry no "vs last month" lines. A ramp report is built on the 1st
+and **previewed to `ADMIN_EMAIL`** with a banner; it goes to the client on the
+3rd unless the owner presses Hold on the client's admin page (released, it goes
+on the next daily run). Reports from the fourth on go straight out on the 1st.
+A first month with under 14 tracked days (`trackedDays`) is skipped: the first
+report is the first full month. "Send now" on the admin page still sends at
+once, previewed or not.
 
-`/api/cron/client-notes` runs daily (`lib/clientNotes.ts`) and sends two
-branded emails signed by `OWNER_NAME`, each once. Day 30 is a three-tap survey
-(`SURVEYS.note30` in `lib/feedbackShared.ts`): did the site bring a job you
-would not have had, how often someone picks up when it rings, is it worth the
-price so far. Every option is a link carrying `?q=<question>&a=<answer>`, so one
-tap in the inbox records an answer and `/f/<token>` asks the rest of what that
-email asked (`askedQuestions`), then offers a sentence. The monthly report ends
-with two taps of its own: "how many jobs came from the site this month" every
-month (a series that calibrates the estimate per client) plus one question that
-rotates with the month (`REPORT_ROTATION`: numbers clear, what to work on next,
-where the best customer came from). Answers merge by question into
-`client_feedback.answers` (JSONB) on the one row per client, kind and month;
-the admin Feedback card lists them in words, and an answer marked `attention`
-("Not yet", "Rarely", "None", "Confusing") emails the owner the first time it
-lands. Day 90 asks "would you recommend us?" with Yes / Maybe / Not yet taps,
-and on a yes offers the Google review link from `GOOGLE_REVIEW_URL`. The admin
-board's "Email me a sample" sends any of the three to an address of your
-choosing.
-Launch is the project's target launch date, else
-kickoff, else sign-up. A note that misses its 30-day window is skipped, not
-sent late. Quiet clients (no welcome sent) and closed clients never get one.
-Replies go to the client reply-to address; the link in each note lands on the
-same `/f/<token>` page.
-
-Everything shows on the client's admin page in the **Feedback** card: when
-each note went out, and every tap and sentence, newest first.
-
-### Quiet trackers
-
-`/api/cron/tracker-health` runs daily (`lib/trackerHealth.ts`). A keyed site
-that has reported before but sent nothing for 7 days gets one email to
-`ADMIN_EMAIL` with a link to the client's page. The alert is remembered in
-`onboardings.tracker_alerted_at` and fires again only after the site reports
-in and goes quiet a second time.
-
-### Axeon's own site in AxeonPROOF
-
-axeonstudio.co loads the same `t.js` every client installs (see `app/layout.tsx`),
-with a fixed key, `ax_axeonstudioown`, and `data-host="axeonstudio.co"` so
-previews, localhost and app.axeonstudio.co never report. `lib/selfTracking.ts`
-creates the matching onboarding record ("Axeon Studio", status complete, no
-checklist or nudges, tracker key and site address filled in) the first time the
-tracker reports or the admin onboarding board is opened. The board shows it at
-the top as **Our own site** with "Open our dashboard" (View as client) and
-"Settings" (close rate, average job, report on/off). Calls, emails, form
-sends and confirmed Cal.com bookings count as people reaching out; the 1st-of-
-the-month report goes to `ADMIN_EMAIL`. Section 3 of the privacy policy
-discloses the script.
-
-### Seeing the report yourself
-
-The admin onboarding board has an **Email me a sample report** box. It sends a
-made-up month for a fictional detailing shop (`lib/sampleReport.ts`) through
-Resend, the same path the real reports take, to whatever address you type.
-Nothing is saved and no client is involved. Use it rather than forwarding the
-HTML through another mail account: Gmail's compose path strips `<img>`,
-`<style>` and background colours, so a forwarded copy loses the logo and looks
-washed out while the real email does not.
-
-To see a real client's numbers, open their onboarding and use **View as client**
-(the dashboard) or **Send report now** on the tracking card (emails the client).
+Every report ends with tap questions (`SURVEYS.report` in
+`lib/feedbackShared.ts`, chosen by `reportQuestions`): the first report asks
+did the site bring a job you would not have had, how often someone picks up
+when it rings, is it worth the price so far; the third asks would you recommend
+us (a yes offers `GOOGLE_REVIEW_URL` on the landing page); every other report
+asks how many jobs came from the site (a series that calibrates the estimate)
+plus one that rotates with the calendar month (`REPORT_ROTATION`). After two
+reports in a row with no tap at all, only the jobs question is asked. The keys
+a report carried are stored on `monthly_reports.survey`, so `/f/<token>` asks
+exactly those. Every option is a link carrying `?q=<question>&a=<answer>`; one
+tap in the inbox records an answer and the page asks the rest, then offers a
+sentence. Answers merge by question into `client_feedback.answers` (JSONB) on
+the one row per client and month; the admin Feedback card lists them in words,
+and an answer marked `attention` ("Not yet", "Rarely", "None", "Confusing")
+emails the owner the first time it lands. The admin board's "Email me a
+sample" sends a regular report or the first ramp report.
 
 ## Environment variables
 

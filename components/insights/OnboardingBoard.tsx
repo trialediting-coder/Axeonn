@@ -249,7 +249,7 @@ function SelfSiteCard({ token }: { token: string }) {
  */
 function SampleReport({ disabled }: { disabled: boolean }) {
   const [to, setTo] = useState('');
-  const [kind, setKind] = useState<'report' | 'note30' | 'note90'>('report');
+  const [kind, setKind] = useState<'regular' | 'first'>('regular');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState<string | null>(null);
@@ -279,15 +279,15 @@ function SampleReport({ disabled }: { disabled: boolean }) {
     <section className="bg-white rounded-2xl border border-neutral-200 p-6">
       <h2 className="text-lg font-bold text-neutral-950">Email me a sample</h2>
       <p className="mt-1 text-sm text-neutral-600">
-        The monthly report clients get on the 1st, the day-30 survey, or the day-90 note, filled in for a fictional detailing shop. It goes
-        out through the same email service as the real ones, so what you see is what they see. Nothing is saved and no client is involved.
+        The monthly report clients get on the 1st, or the first ramp report with its three onboarding taps, filled in for a fictional
+        detailing shop. It goes out through the same email service as the real ones, so what you see is what they see. Nothing is saved and
+        no client is involved.
       </p>
       <div className="mt-4 flex flex-wrap gap-2">
         {(
           [
-            ['report', 'Monthly report'],
-            ['note30', 'Day-30 survey'],
-            ['note90', 'Day-90 note'],
+            ['regular', 'Monthly report'],
+            ['first', 'First report (ramp)'],
           ] as const
         ).map(([k, label]) => (
           <button

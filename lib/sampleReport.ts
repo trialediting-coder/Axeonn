@@ -5,7 +5,7 @@
 // what lands in the inbox is byte-for-byte what a client would get. Sample
 // emails sent through other channels (Gmail, for one) strip images, <style>
 // and background colours, which is why this exists.
-import type { ClientNoteEmailInput, MonthlyReportEmailInput } from '@/lib/email';
+import type { MonthlyReportEmailInput } from '@/lib/email';
 import { emptyReportBody, reportStats } from '@/lib/projects';
 import type { TrafficDetail } from '@/lib/projectsShared';
 import { summarize } from '@/lib/siteStats';
@@ -55,7 +55,9 @@ const detail: TrafficDetail = {
 };
 
 /** Everything renderMonthlyReportEmail needs, addressed to `to`. Pure; safe to call from tests. */
-export function sampleMonthlyReportInput(to: string): MonthlyReportEmailInput {
+/** `first` renders the first ramp report: starting-line framing, baseline box, the three onboarding taps, no "vs last month". */
+export function sampleMonthlyReportInput(to: string, kind: 'regular' | 'first' = 'regular'): MonthlyReportEmailInput {
+  const first = kind === 'first';
   const traffic = summarize({
     views: 2120,
     visitors: 912,
@@ -136,26 +138,23 @@ export function sampleMonthlyReportInput(to: string): MonthlyReportEmailInput {
     tier: 'axeoncore',
     monthLabel: 'September 2026',
     month: '2026-09',
-    prevMonthLabel: 'August',
-    stats: reportStats(report, prev, details, { avgJobValue: 300 }),
+    prevMonthLabel: first ? null : 'August',
+    stats: reportStats(report, first ? null : prev, details, { avgJobValue: 300 }),
     traffic,
-    prevTraffic,
+    prevTraffic: first ? null : prevTraffic,
+    plan: first ? { number: 1, asked: ['job', 'pickup', 'worth'] } : { number: 5, asked: ['jobs', 'source'] },
+    baseline: 13,
     avgJobValue: 300,
     rank: report.rank,
     keyword: report.keyword,
     reviews: report.reviews,
     rating: report.rating,
-    prevRank: prev.rank,
+    prevRank: first ? null : prev.rank,
     done: report.done,
     next: report.next,
     fromYou: report.fromYou,
-    note: report.note,
+    note: first ? 'The site is live and Google has started indexing it. Calls build over the next few weeks; the ads are already bringing people in.' : report.note,
     proofUrl: `${APP_ORIGIN}/`,
     feedbackUrl: `${APP_ORIGIN}/f/sample`,
   };
-}
-
-/** The day-30 survey or day-90 note for the same fictional shop. The taps open /f/sample, which says the link is not a real client's. */
-export function sampleNoteInput(to: string, kind: 'note30' | 'note90'): ClientNoteEmailInput {
-  return { to, clientName: 'Mike', businessName: SAMPLE_BUSINESS, kind, feedbackUrl: `${APP_ORIGIN}/f/sample` };
 }

@@ -20,7 +20,6 @@ import { sendAutoReport } from '@/lib/autoReports';
 import { getTrackingSettings, hasTraffic, isValidMonth, setLeadOutcome, setTrackingSettings, trackingOverview, validateAvgJobValue, validateCloseRate, validateCloseRateMode, validateSiteUrl } from '@/lib/siteStats';
 import { isLeadOutcome } from '@/lib/projectsShared';
 import { feedbackUrl, listFeedback } from '@/lib/feedback';
-import { noteStatus } from '@/lib/clientNotes';
 import {
   createProjectUpdate,
   deleteMonthlyReport,
@@ -34,6 +33,7 @@ import {
   previousReport,
   reportStats,
   saveMonthlyReport,
+  setReportHold,
   setProjectDetails,
   validateDetailsInput,
   validateReportInput,
@@ -52,15 +52,14 @@ async function load(token: string): Promise<Onboarding> {
 }
 
 async function present(onboardingId: number) {
-  const [details, updates, reports, tracking, feedback, notes] = await Promise.all([
+  const [details, updates, reports, tracking, feedback] = await Promise.all([
     getProjectDetails(onboardingId),
     listProjectUpdates(onboardingId),
     listMonthlyReports(onboardingId),
     trackingOverview(onboardingId),
     listFeedback(onboardingId),
-    noteStatus(onboardingId),
   ]);
-  return { details, updates, reports, tracking, feedback, notes };
+  return { details, updates, reports, tracking, feedback };
 }
 
 export async function GET(req: Request, ctx: { params: Promise<{ token: string }> }) {
@@ -121,6 +120,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
             reviews: report.reviews,
             rating: report.rating,
             prevRank: prev?.rank ?? null,
+            plan: report.survey,
             done: report.done,
             next: report.next,
             fromYou: report.fromYou,
@@ -148,6 +148,11 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
       if (outcome !== null && !isLeadOutcome(outcome)) throw new Error('Mark a lead as a customer or not');
       if (!(await setLeadOutcome(onboarding.id, id, outcome))) throw new Error('That lead is not on this site');
       return NextResponse.json({ ok: true, id, outcome });
+    } else if (body.kind === 'report-hold') {
+      // The owner's hold on a previewed ramp report: held, the client copy waits; released, it goes out on the next daily run.
+      const id = Number(body.id);
+      if (!Number.isInteger(id) || id <= 0) throw new Error('Which report?');
+      await setReportHold(onboarding.id, id, body.held !== false);
     } else if (body.kind === 'auto-report') {
       if (!isValidMonth(body.month)) throw new Error('Pick the month to send');
       const outcome = await sendAutoReport(onboarding, body.month, { force: true });

@@ -9,7 +9,6 @@ import { ProjectPanel } from '@/components/insights/ProjectPanel';
 import { getProjectDetails, listMonthlyReports, listProjectUpdates, tierHasGuarantee } from '@/lib/projects';
 import { trackingOverview } from '@/lib/siteStats';
 import { listFeedback } from '@/lib/feedback';
-import { noteStatus } from '@/lib/clientNotes';
 import { getUpgradeRequest } from '@/lib/upgrades';
 import { TIER_LABELS } from '@/data/onboardingItems';
 
@@ -22,14 +21,13 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
   const { token } = await params;
   const onboarding = await getOnboardingByToken(token).catch(() => null);
   if (!onboarding) notFound();
-  const [states, details, updates, reports, tracking, feedback, notes, upgrade] = await Promise.all([
+  const [states, details, updates, reports, tracking, feedback, upgrade] = await Promise.all([
     getItemStates(onboarding.id),
     getProjectDetails(onboarding.id),
     listProjectUpdates(onboarding.id),
     listMonthlyReports(onboarding.id),
     trackingOverview(onboarding.id),
     listFeedback(onboarding.id),
-    noteStatus(onboarding.id),
     getUpgradeRequest(onboarding.id),
   ]);
 
@@ -53,7 +51,7 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
           }}
           items={orderedItems(onboarding.tier)}
         />
-        <ProjectPanel token={onboarding.token} initial={{ details, updates, reports, tracking, feedback, notes }} guarantee={tierHasGuarantee(onboarding.tier)} />
+        <ProjectPanel token={onboarding.token} initial={{ details, updates, reports, tracking, feedback }} guarantee={tierHasGuarantee(onboarding.tier)} />
       </div>
     </main>
   );

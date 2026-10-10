@@ -6,13 +6,14 @@
 import type { Metadata } from 'next';
 import { AxeonLogo } from '@/components/brand/AxeonLogo';
 import { FeedbackForm } from '@/components/feedback/FeedbackForm';
-import { askedQuestions, getFeedback, isFeedbackRating, readFeedbackToken, recordFeedback, type FeedbackRating } from '@/lib/feedback';
+import { getFeedback, isFeedbackRating, questionsByKeys, readFeedbackToken, recordFeedback, type FeedbackRating } from '@/lib/feedback';
+import { getMonthlyReport } from '@/lib/projects';
 import { getOnboardingById } from '@/lib/onboarding';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Thanks', robots: { index: false, follow: false } };
 
-/** Axeon's own Google review link (GOOGLE_REVIEW_URL). Without it the day-90 "yes" page just says thanks. */
+/** Axeon's own Google review link (GOOGLE_REVIEW_URL), offered when a client taps "would recommend: yes". Without it the page just says thanks. */
 const REVIEW_URL = process.env.GOOGLE_REVIEW_URL || null;
 
 export default async function FeedbackPage({ params, searchParams }: { params: Promise<{ token: string }>; searchParams: Promise<{ r?: string; q?: string; a?: string }> }) {
@@ -29,10 +30,13 @@ export default async function FeedbackPage({ params, searchParams }: { params: P
     );
   }
   const valid = !!(ref && onboarding);
-  const questions = ref ? askedQuestions(ref.kind, ref.month) : [];
-  const existing = valid && questions.length ? await getFeedback(ref!).catch(() => null) : null;
+  // The report row remembers which taps its email carried, so the page asks exactly those.
+  const sent = valid && ref!.kind === 'report' && ref!.month ? await getMonthlyReport(ref!.onboardingId, ref!.month).catch(() => null) : null;
+  const questions = ref ? questionsByKeys(ref.kind, sent?.survey?.asked ?? []) : [];
+  const existing = valid ? await getFeedback(ref!).catch(() => null) : null;
   const answered = existing?.answers ?? {};
   const remaining = questions.filter((x) => !answered[x.key]);
+  const recommended = answered.recommend === 'yes';
   const first = onboarding?.clientName?.trim().split(/\s+/)[0];
   return (
     <main className="min-h-screen bg-[#F6F7F9] px-4 py-10">
@@ -64,7 +68,7 @@ export default async function FeedbackPage({ params, searchParams }: { params: P
                       ? 'Anything you would like more of, or less of? Optional.'
                       : 'Anything about the site, the numbers or how we are working together? One sentence is plenty.'}
             </p>
-            {ref?.kind === 'note90' && rating === 'yes' && REVIEW_URL ? (
+            {recommended && REVIEW_URL ? (
               <a
                 href={REVIEW_URL}
                 className="mt-4 inline-flex h-11 items-center justify-center rounded-lg bg-blue-600 px-5 text-sm font-semibold text-white hover:bg-blue-700"

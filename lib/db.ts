@@ -222,6 +222,12 @@ export function ensureSchema(): Promise<void> {
         );
       `;
 
+      // Ramp reports (lib/reportPlan.ts): which taps the report carried, when the
+      // owner's preview went out, and whether the owner is holding it back.
+      await sql`ALTER TABLE monthly_reports ADD COLUMN IF NOT EXISTS survey JSONB;`;
+      await sql`ALTER TABLE monthly_reports ADD COLUMN IF NOT EXISTS preview_sent_at TIMESTAMPTZ;`;
+      await sql`ALTER TABLE monthly_reports ADD COLUMN IF NOT EXISTS held_at TIMESTAMPTZ;`;
+
       // Website tracking and automatic monthly reports (lib/siteStats.ts,
       // lib/autoReports.ts). site_key is what the client's site sends with every
       // event; close_rate is the percent of calls/texts/forms we count as a
