@@ -56,6 +56,21 @@ test('the signed text fills every placeholder and its hash changes with any fiel
   assert.notEqual(h1, hashAgreementText(agreementText({ ...a, monthlyCents: 29800 })));
 });
 
+test('no minimum swaps in month-to-month terms; default text is unchanged', () => {
+  const a = { ...validateAgreementInput(RAW), number: 'AX-2026-001' };
+  assert.equal(a.noMinimum, false);
+  const legacy = { ...a };
+  delete (legacy as { noMinimum?: boolean }).noMinimum;
+  assert.equal(agreementText(legacy), agreementText(a), 'older agreements keep their signed text');
+  assert.ok(agreementText(a).includes('initial term of three (3) months'));
+  const m = { ...validateAgreementInput({ ...RAW, noMinimum: true }), number: 'AX-2026-001' };
+  const text = agreementText(m);
+  assert.ok(text.includes('Initial Term: Month-to-month, no minimum'));
+  assert.ok(text.includes('one (1) month'));
+  assert.ok(!text.includes('initial term of three (3) months'));
+  assert.ok(!text.includes('may not terminate for convenience during the Initial Term'));
+});
+
 test('money formats cents', () => {
   assert.equal(money(9900), '$99');
   assert.equal(money(150000), '$1,500');

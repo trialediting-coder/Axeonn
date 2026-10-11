@@ -139,6 +139,26 @@ export const AGREEMENT_SECTIONS: AgreementSection[] = [
   },
 ];
 
+/**
+ * "No minimum" agreements (a checkbox in the admin) swap these paragraphs in:
+ * the Initial Term becomes one month and the client can cancel any month with
+ * the 30-day notice in Sec. 2.2. Unchecked agreements read exactly as above.
+ */
+const NO_MINIMUM_PARAGRAPHS: Record<string, string> = {
+  '2.1': '2.1 Initial Term. This Agreement begins on the Effective Date and continues for an initial term of one (1) month beginning on the date the Services go live or thirty (30) days after the Effective Date, whichever comes first (the “Initial Term”). There is no minimum commitment beyond the Initial Term.',
+  '10.1': '10.1 By Client for convenience. Client may terminate this Agreement for any reason by giving written notice under Section 2.2, effective at the end of the then-current term. If Client stops payment or abandons the project, all Fees for the then-current term become immediately due.',
+};
+
+export const agreementSections = (noMinimum: boolean): AgreementSection[] =>
+  noMinimum
+    ? AGREEMENT_SECTIONS.map((sec) => ({
+        ...sec,
+        paragraphs: sec.paragraphs.map((p) => NO_MINIMUM_PARAGRAPHS[p.slice(0, p.indexOf(' '))] ?? p),
+      }))
+    : AGREEMENT_SECTIONS;
+
+export const termSummary = (noMinimum: boolean) => (noMinimum ? 'Month-to-month, no minimum' : '3 months, then month-to-month');
+
 /** Schedule A: only the selected Plan's column is shown, as the template instructs. */
 export const SCHEDULE_A: Record<OnboardingTier, { title: string; lead?: string; items: string[] }> = {
   essentials: {

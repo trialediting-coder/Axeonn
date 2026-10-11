@@ -11,11 +11,12 @@ import { createHash, randomInt } from 'node:crypto';
 import { sql, ensureSchema, isDatabaseConfigured } from '@/lib/db';
 import {
   AGREEMENT_INTRO,
-  AGREEMENT_SECTIONS,
   AGREEMENT_VERSION,
   PLAN_DEFAULT_FEES,
   SCHEDULE_A,
   SCHEDULE_A_DEFINITIONS,
+  agreementSections,
+  termSummary,
 } from '@/data/agreementTemplate';
 import { TIER_LABELS, isOnboardingTier, type OnboardingTier } from '@/data/onboardingItems';
 import { APP_ORIGIN } from '@/lib/hostRouting';
@@ -40,6 +41,8 @@ export interface AgreementFields {
   hourlyRate: string;
   axeonEntity: string;
   effectiveDate: string; // YYYY-MM-DD
+  /** Month-to-month with no 3-month minimum. Missing on older agreements = false. */
+  noMinimum?: boolean;
 }
 
 export interface Agreement extends AgreementFields {
@@ -99,9 +102,9 @@ export function agreementText(a: AgreementFields & { number: string }): string {
     `Business address: ${a.address}`,
     `Plan: ${v.plan}`,
     `Fees: ${v.fees}`,
-    'Initial Term: 3 months, then month-to-month',
+    `Initial Term: ${termSummary(!!a.noMinimum)}`,
     `Add-ons: ${v.addOns}`,
-    ...AGREEMENT_SECTIONS.flatMap((sec) => [sec.heading, ...sec.paragraphs.map((p) => fillTemplate(p, v))]),
+    ...agreementSections(!!a.noMinimum).flatMap((sec) => [sec.heading, ...sec.paragraphs.map((p) => fillTemplate(p, v))]),
     'Schedule A · Services included in the Plan',
     s.title,
     ...(s.lead ? [s.lead] : []),
@@ -140,6 +143,7 @@ export function validateAgreementInput(raw: Record<string, unknown>): AgreementF
     addOns: s('addOns', 500),
     hourlyRate: s('hourlyRate', 40),
     axeonEntity: s('axeonEntity', 80),
+    noMinimum: raw.noMinimum === true,
     effectiveDate: /^\d{4}-\d{2}-\d{2}$/.test(s('effectiveDate')) ? s('effectiveDate') : new Date().toISOString().slice(0, 10),
   };
   for (const [key, label] of [
