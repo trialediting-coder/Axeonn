@@ -169,7 +169,11 @@ function Card({ children, className = '', delay = 0 }: { children: ReactNode; cl
   );
 }
 
-/** One number with its icon floating off the top edge, the way the dashboards people already know do it. */
+/**
+ * One number with its icon floating off the top edge, the way the dashboards people
+ * already know do it. On phones the cards stack one per row, where a tile hanging off
+ * every card looks loose, so there the icon sits inside the card next to the label.
+ */
 function StatCard({
   label,
   value,
@@ -190,9 +194,9 @@ function StatCard({
   delay?: number;
 }) {
   return (
-    <Card className="relative px-5 pb-4 pt-5" delay={delay}>
-      <span className="absolute -top-4 left-5 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-700 to-blue-500 text-white shadow-lg shadow-blue-600/30">
-        <Icon size={22} />
+    <Card className="relative flex flex-col px-5 pb-4 pt-5 sm:block" delay={delay}>
+      <span className="absolute left-5 top-5 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-700 to-blue-500 text-white shadow-md shadow-blue-600/25 sm:-top-4 sm:h-14 sm:w-14 sm:shadow-lg sm:shadow-blue-600/30">
+        <Icon size={20} />
       </span>
       <div className="text-right">
         <p className="text-sm font-medium text-neutral-500">{label}</p>
@@ -495,7 +499,7 @@ export function ProofDashboard({
 
         {tab === 'overview' ? (<>
         {traffic ? (
-          <div className="mt-10 grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 lg:gap-x-5 xl:grid-cols-4">
+          <div className="mt-6 sm:mt-10 grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2 sm:gap-y-8 lg:gap-x-5 xl:grid-cols-4">
             {WEB_METRICS.map(({ key, label, icon, hint }, i) => {
               const m = webMetric(key, traffic, prevTraffic, avgJobValue, prevLabel);
               return <StatCard key={label} label={label} value={m.value} sub={m.sub ?? hint} tone={m.tone} footer={trafficLabel} icon={icon} delay={i * 70} />;
@@ -506,7 +510,7 @@ export function ProofDashboard({
 
         {leads.some((m) => m.rows.length > 0) ? <LeadLog months={leads} api={leadApi} /> : null}
 
-        <div className={`${traffic ? 'mt-8' : 'mt-10'} grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 lg:gap-x-5 xl:grid-cols-4`}>
+        <div className={`${traffic ? 'mt-4 sm:mt-8' : 'mt-6 sm:mt-10'} grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2 sm:gap-y-8 lg:gap-x-5 xl:grid-cols-4`}>
           {METRICS.map(({ key, label, icon, hint }, i) => {
             const m = metric(key, latest, prev);
             // Once the site reports, a typed figure Axeon has not entered is left out rather than shown as a dash.
@@ -527,9 +531,9 @@ export function ProofDashboard({
           })}
         </div>
 
-        <div className="mt-9 grid grid-cols-1 gap-4 lg:gap-5 lg:grid-cols-3">
+        <div className="mt-4 sm:mt-9 grid grid-cols-1 gap-4 lg:gap-5 lg:grid-cols-3">
           <Card className="lg:col-span-2" delay={60}>
-            <div className="mx-4 -mt-5 rounded-xl bg-white px-4 pb-3 pt-4 shadow-[0_10px_30px_-10px_rgba(16,24,40,0.22)] ring-1 ring-neutral-100">
+            <div className="mx-3 mt-3 rounded-xl bg-white px-4 pb-3 pt-4 ring-1 ring-neutral-100 sm:mx-4 sm:-mt-5 sm:shadow-[0_10px_30px_-10px_rgba(16,24,40,0.22)]">
               {live ? (
                 <div className="relative h-56">
                   {/* Gridlines with their values, from the top down. */}
