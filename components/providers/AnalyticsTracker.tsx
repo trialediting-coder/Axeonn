@@ -21,6 +21,7 @@ const GA_MEASUREMENT_ID = 'G-2EDMD31CEP';
  *   booking_completed   — a strategy call was actually booked (fires from the
  *                         Cal.com booking calendar embed)
  *   phone_click         — tap/click on a tel: link
+ *   text_click          — tap/click on an sms: link (the "Text us" bubble)
  *   book_call_click     — any "Book My Free Call" CTA (link to /book or the
  *                         calendar modal opening); the top-of-funnel intent event
  *
@@ -30,6 +31,7 @@ export const EVENTS = {
   bookingCompleted: 'booking_completed',
   bookCallClick: 'book_call_click',
   phoneClick: 'phone_click',
+  textClick: 'text_click',
   emailClick: 'email_click',
   leadModalOpened: 'lead_modal_opened',
   popupShown: 'popup_shown',
@@ -159,6 +161,10 @@ export function AnalyticsTracker() {
         const href = anchor.getAttribute('href') || '';
         if (href.startsWith('tel:')) {
           trackPhoneClick(resolveLocation(anchor), href.replace('tel:', ''));
+          return;
+        }
+        if (href.startsWith('sms:')) {
+          trackEvent(EVENTS.textClick, { cta_location: resolveLocation(anchor), phone: href.replace('sms:', '') });
           return;
         }
         if (href.startsWith('mailto:')) {

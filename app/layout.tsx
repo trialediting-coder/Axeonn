@@ -11,6 +11,7 @@ import { SideTabCTA } from '@/components/common/SideTabCTA';
 import { HideOnAdFunnel } from '@/components/common/HideOnAdFunnel';
 import { FreeWebsiteOfferPopup } from '@/components/common/FreeWebsiteOfferPopup';
 import { CaseStudyBadge } from '@/components/common/CaseStudyBadge';
+import { TextUsButton } from '@/components/common/TextUsButton';
 import { buildMetadata } from '@/lib/metadata';
 import { JsonLd } from '@/components/common/JsonLd';
 import { siteGraphJsonLd } from '@/lib/seo';
@@ -131,6 +132,7 @@ document.head.appendChild(o)}if(navigator.globalPrivacyControl!==true){initApoll
             <SideTabCTA />
             <FreeWebsiteOfferPopup />
             <CaseStudyBadge />
+            <TextUsButton />
           </HideOnAdFunnel>
         </LeadModalProvider>
       </body>
