@@ -30,18 +30,23 @@ local-only.
   month-to-month. A year paid up front gets 2 months free.
 - Essentials: $149/month. The entry tier: up to 4 pages, SEO/AEO/GEO, Google
   Business Profile upkeep, quote form with instant lead alerts, hosting and
-  security, 2 small edits a month, a monthly calls & leads email report.
+  security, 2 small edits a month, a monthly calls & leads email report,
+  1 business email at the client's domain, uptime monitoring.
 - AxeonCORE: $299/month. The middle tier and the one we sell ("Recommended";
   only switch to "Most Popular" once real sales show it outsells the other
   two combined). Adds AxeonPROOF (Axeon's own client dashboard), the 90-day
   customer guarantee, missed-call text-back, speed-to-lead call connect, AI
   chat & scheduling, automated SMS/email follow-up and CRM pipeline, call
-  tracking, review requests, exit-intent offers, 5-7 pages, 5 edits a month.
+  tracking with call recording, a unified inbox (SMS, email, Facebook,
+  Instagram, Google), quote follow-up (3 touches), appointment reminders, a
+  quarterly past-customer reactivation text, review requests, exit-intent
+  offers, 5-7 pages, 5 edits a month.
 - AxeonGROWTH: $999/month plus ad spend. The premium tier. Adds Google & Meta
   ads management, Google Local Services Ads management (GROWTH only, added
   2026-10-06; only where Google offers LSA for the client's trade, and Google
   runs its own screening, so never promise the Google Guaranteed badge), an AI phone receptionist, a half-day on-site video shoot
-  (hero film, 3 vertical cuts, photo set), AxeonPROOF ad reporting, a new
+  (hero film, 3 vertical cuts, photo set), ongoing social reels cut from the
+  shoot footage and posted to Facebook & Instagram, AxeonPROOF ad reporting, a new
   service page every month, full review campaigns, a monthly strategy call,
   same-day priority support.
 - Ad spend: $500/month minimum, paid on the client's own card into their own
