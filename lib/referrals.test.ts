@@ -3,6 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { HOW_FOUND_KEY, readHowFound, referralStatus } from './referrals';
+import { referralHeadline } from './referral';
 import { ONBOARDING_ITEMS } from '@/data/onboardingItems';
 
 test('the "how did you find us" item exists for every plan with a referrer field', () => {
@@ -22,4 +23,11 @@ test('a referral is pending until the first invoice is paid, owed after, paid wh
   assert.equal(referralStatus({ firstInvoicePaid: false, rewardPaidAt: null }), 'pending');
   assert.equal(referralStatus({ firstInvoicePaid: true, rewardPaidAt: null }), 'owed');
   assert.equal(referralStatus({ firstInvoicePaid: true, rewardPaidAt: '2026-10-10T00:00:00Z' }), 'paid');
+});
+
+test('the AxeonPROOF referral card leads with the client\'s month only when it is worth saying', () => {
+  assert.equal(referralHeadline({ estimatedCustomers: 38, conversions: 74 }, 'so far this month'), '~38 likely new customers so far this month.');
+  assert.equal(referralHeadline({ estimatedCustomers: 2, conversions: 9 }, 'last month'), '9 people reached out last month.');
+  assert.equal(referralHeadline({ estimatedCustomers: 1, conversions: 3 }, 'last month'), null);
+  assert.equal(referralHeadline(null, 'last month'), null);
 });
