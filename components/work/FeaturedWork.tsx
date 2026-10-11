@@ -54,12 +54,35 @@ export function FeaturedWork() {
             A-1 Auto Detailing: Page 2 to #1 on Google
           </h2>
           <p className="mt-5 text-base sm:text-lg text-neutral-600 leading-relaxed">
-            25 years in Pleasant Hill. Now he’s the first detailer local customers find.
+            25 years in Pleasant Hill. Now he’s the first detailer local customers find, on Google and in Google’s AI answers.
           </p>
         </div>
 
-        {/* 2. The proof: a real Google search (competitor listings blurred) */}
+        {/* 2a. The proof, AI first: Google AI Mode recommends A-1 first (competitor blurred) */}
         <figure className="mt-10 sm:mt-14 max-w-[820px] mx-auto">
+          <div className="rounded-[20px] sm:rounded-[28px] overflow-hidden bg-[#202124] p-2 sm:p-3 shadow-2xl shadow-neutral-900/20 ring-1 ring-neutral-200">
+            {/* Phones get the answer column only (A-1 listing + write-up) so the text stays legible. */}
+            <picture>
+              <source media="(max-width: 639px)" srcSet="/images/case-studies/a1/ai-mode-1-mobile.webp" width={785} height={462} />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/case-studies/a1/ai-mode-1.webp"
+                width={1125}
+                height={812}
+                loading="lazy"
+                decoding="async"
+                alt="Google AI Mode answer for “pleasant hill iowa auto detailing”: A-1 Auto Detailing is the first shop recommended, 5.0 stars from 181 reviews, described as the premier option in Pleasant Hill, with its website cited first."
+                className="w-full h-auto rounded-xl sm:rounded-2xl"
+              />
+            </picture>
+          </div>
+          <figcaption className="mt-4 text-center text-sm sm:text-base text-neutral-500">
+            Google AI Mode, asked “pleasant hill iowa auto detailing”, October 2026. A-1 is the first recommendation. Other businesses blurred.
+          </figcaption>
+        </figure>
+
+        {/* 2b. The proof: a real Google search (competitor listings blurred) */}
+        <figure className="mt-12 sm:mt-16 max-w-[820px] mx-auto">
           <div className="rounded-[20px] sm:rounded-[28px] overflow-hidden bg-[#202124] p-2 sm:p-3 shadow-2xl shadow-neutral-900/20 ring-1 ring-neutral-200">
             {/* Phones get a tighter crop (listing + #1 result, no map) so the text stays legible. */}
             <picture>
