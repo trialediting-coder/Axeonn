@@ -25,9 +25,16 @@ test('a referral is pending until the first invoice is paid, owed after, paid wh
   assert.equal(referralStatus({ firstInvoicePaid: true, rewardPaidAt: '2026-10-10T00:00:00Z' }), 'paid');
 });
 
-test('the AxeonPROOF referral card leads with the client\'s month only when it is worth saying', () => {
-  assert.equal(referralHeadline({ estimatedCustomers: 38, conversions: 74 }, 'so far this month'), '~38 likely new customers so far this month.');
-  assert.equal(referralHeadline({ estimatedCustomers: 2, conversions: 9 }, 'last month'), '9 people reached out last month.');
-  assert.equal(referralHeadline({ estimatedCustomers: 1, conversions: 3 }, 'last month'), null);
-  assert.equal(referralHeadline(null, 'last month'), null);
+test('the AxeonPROOF referral card points at the better month, or does not show', () => {
+  const now = (c: number, e: number) => ({ traffic: { conversions: c, estimatedCustomers: e }, period: 'so far this month' });
+  const sep = (c: number, e: number) => ({ traffic: { conversions: c, estimatedCustomers: e }, period: 'in September' });
+  assert.equal(referralHeadline([now(74, 38), sep(80, 41)]), '~41 new customers in September.');
+  assert.equal(referralHeadline([now(74, 38), sep(10, 5)]), '~38 new customers so far this month.');
+  // Early in the month: this month is near zero, last month carries the card.
+  assert.equal(referralHeadline([now(1, 0), sep(60, 30)]), '~30 new customers in September.');
+  assert.equal(referralHeadline([now(9, 2)]), '9 people reached out so far this month.');
+  // Nothing to point at: no card.
+  assert.equal(referralHeadline([now(3, 1), sep(4, 2)]), null);
+  assert.equal(referralHeadline([{ traffic: null, period: 'in September' }]), null);
+  assert.equal(referralHeadline([]), null);
 });

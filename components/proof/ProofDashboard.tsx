@@ -206,11 +206,11 @@ function StatCard({
 }
 
 /**
- * The referral offer, right under the numbers once the site is live: the moment a
- * client is looking at what Axeon brought them. Leads with their own month when it
- * is worth saying (lib/referral.ts referralHeadline), the plain offer otherwise.
+ * The referral ask, right under the numbers, shown only when there is a result to
+ * point at (lib/referral.ts referralHeadline): two short lines and one button. The
+ * payout condition stays, small, so nobody expects $300 the day they send a name.
  */
-function ReferralCard({ headline, href }: { headline: string | null; href: string }) {
+function ReferralCard({ headline, href }: { headline: string; href: string }) {
   return (
     <Card className="mt-5 flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6" delay={300}>
       <div className="flex items-start gap-3">
@@ -218,20 +218,21 @@ function ReferralCard({ headline, href }: { headline: string | null; href: strin
           <Gift size={18} />
         </span>
         <div>
-          <p className="text-sm font-semibold text-neutral-950">
-            {headline ? `${headline} Know another business owner who would want that?` : 'Know a business owner who needs this?'}
-          </p>
+          <p className="text-sm font-semibold text-neutral-950">{headline} Know someone who&apos;d want that?</p>
           <p className="mt-0.5 text-sm text-neutral-600">
-            Refer them and you get <b className="text-neutral-900">{REFERRAL.reward}</b> {REFERRAL.when}. They get <b className="text-neutral-900">{REFERRAL.friendGets}</b>.
+            You get <b className="text-neutral-900">{REFERRAL.reward}</b>, they get <b className="text-neutral-900">{REFERRAL.friendGets}</b>.
           </p>
         </div>
       </div>
-      <a
-        href={href}
-        className="inline-flex h-10 shrink-0 items-center justify-center rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
-      >
-        Send us a name
-      </a>
+      <div className="shrink-0 sm:text-right">
+        <a
+          href={href}
+          className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 sm:w-auto"
+        >
+          Send us a name
+        </a>
+        <p className="mt-1.5 text-center text-[11px] text-neutral-400 sm:text-right">Paid {REFERRAL.when}.</p>
+      </div>
     </Card>
   );
 }
@@ -361,6 +362,11 @@ export function ProofDashboard({
     .map((w) => w[0]?.toUpperCase())
     .join('');
   const setupDone = progress.clientDone >= progress.clientTotal;
+  // The better of this month so far and the latest report, so the ask does not vanish on the 2nd of every month.
+  const referral = referralHeadline([
+    ...(liveTraffic ? [{ traffic: liveTraffic.traffic, period: 'so far this month' }] : []),
+    ...(latest ? [{ traffic: reportTraffic, period: `in ${monthLabel(latest.month).split(' ')[0]}` }] : []),
+  ]);
   const firstName = onboarding.clientName?.split(' ')[0];
 
   return (
@@ -533,7 +539,7 @@ export function ProofDashboard({
           </div>
         ) : null}
         {traffic && ownVisitsUrl ? <OwnVisitsLine url={ownVisitsUrl} className="mt-3" /> : null}
-        {live ? <ReferralCard headline={referralHeadline(traffic, period)} href={referralMailto(ownerEmail, name)} /> : null}
+        {referral ? <ReferralCard headline={referral} href={referralMailto(ownerEmail, name)} /> : null}
 
         {leads.some((m) => m.rows.length > 0) ? <LeadLog months={leads} api={leadApi} /> : null}
 

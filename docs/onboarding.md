@@ -379,8 +379,8 @@ close rate. Flagged clients sort first. Read live each time; nothing stored.
 reads: $300 to whoever refers, paid when the referred business pays its first
 invoice, and a month free for the referred. It appears as a block at the end
 of every monthly report, a card on the AxeonPROOF overview (right under the
-numbers, once the site is live; it leads with the client's own month when
-`referralHeadline` finds it worth saying), and a line on the feedback page, each with a "Send us a name" mailto to the reply-to address.
+numbers, and only when this month so far or the latest report has a result
+to point at, per `referralHeadline`; with nothing to show there is no card), and a line on the feedback page, each with a "Send us a name" mailto to the reply-to address.
 
 Who sent a client comes from the onboarding question "How did you find us?"
 (`how-found`: a source and an optional referrer). A client who names someone
