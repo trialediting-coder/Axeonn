@@ -143,3 +143,27 @@ test('the setup card asks for addresses and where Google sends sign-ins, never a
   assert.throws(() => validateItemData(card, { domainStatus: 'Not sure', currentEmail: 'Not sure', signInEmails: 'x' }), /addresses you want/);
   assert.equal(getItem('business-email')?.kind, 'axeon');
 });
+
+test('mailbox allowance is 1 / 3 / 5 by plan, extras counted at the add-on price', async () => {
+  const { EXTRA_MAILBOX_PRICE, MAILBOXES_INCLUDED, mailboxAllowance } = await import('./businessEmailShared');
+  const { allowanceLine } = await import('./businessEmail');
+  assert.deepEqual(MAILBOXES_INCLUDED, { essentials: 1, axeoncore: 3, axeongrowth: 5 });
+  const box = (n: number) => ({ mailboxes: Array.from({ length: n }, (_, i) => ({ address: `p${i}@a1detail.com`, person: '', status: 'active' as const })) });
+  assert.deepEqual(mailboxAllowance('essentials', null), { included: 1, used: 0, extra: 0, left: 1, extraMonthly: 0 });
+  assert.deepEqual(mailboxAllowance('essentials', box(3)), { included: 1, used: 3, extra: 2, left: 0, extraMonthly: 2 * EXTRA_MAILBOX_PRICE });
+  assert.equal(mailboxAllowance('axeoncore', box(2)).left, 1);
+  assert.equal(mailboxAllowance('axeongrowth', box(5)).extra, 0);
+  assert.match(allowanceLine({ tier: 'axeoncore' }, normalizeSetup(box(1))), /1 of 3 .*free/);
+  assert.match(allowanceLine({ tier: 'essentials' }, normalizeSetup(box(1))), /\$10\/mo/);
+});
+
+test('the pricing page states the same mailbox counts and add-on price', async () => {
+  const { pricingTiers, addOns } = await import('../data/pricingData');
+  const { EXTRA_MAILBOX_PRICE, MAILBOXES_INCLUDED } = await import('./businessEmailShared');
+  const tierOf = { 'core-web-build': 'essentials', axeoncore: 'axeoncore', axeongrowth: 'axeongrowth' } as const;
+  for (const t of pricingTiers) {
+    const n = MAILBOXES_INCLUDED[tierOf[t.id as keyof typeof tierOf]];
+    assert.ok(t.features.some((f) => f.startsWith(`${n} business email`)), `${t.name} card should say ${n} business email(s)`);
+  }
+  assert.ok(addOns.some((a) => /mailbox/i.test(a.name) && a.price.includes(`$${EXTRA_MAILBOX_PRICE}`)));
+});

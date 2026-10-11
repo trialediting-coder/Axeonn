@@ -41,6 +41,7 @@ export interface AddOn {
 // AxeonPROOF. Flat monthly prices (no "from"), $99 to start ($1,500 on GROWTH,
 // which covers the video shoot), 3-month minimum matched to the 90-day
 // guarantee, then month-to-month; a year paid up front gets 2 months free.
+// Business email: 1 / 3 / 5 mailboxes, extras $10/mo (MAILBOXES_INCLUDED in lib/businessEmailShared.ts).
 // Keep in sync with content/brand-guardrails.md, lib/postValidation.ts,
 // data/getStartedPackages.ts and priceRange in lib/seo.ts.
 export const MINIMUM_TERM = '3-month minimum, then month-to-month';
@@ -66,7 +67,7 @@ export const pricingTiers: PricingTier[] = [
       'Quote request form with instant lead alerts — every request lands in your inbox and on your phone',
       'Hosting, security, and 2 small edits a month',
       'A monthly calls & leads report by email',
-      'A business email at your own domain (you@yourbusiness.com)',
+      '1 business email at your own domain (you@yourbusiness.com)',
       'Uptime monitoring — if your site ever goes down, we know before your customers do',
       'You own 100% of the site, code, and design files',
     ],
@@ -101,6 +102,7 @@ export const pricingTiers: PricingTier[] = [
       'Review requests after every job, so your Google rating keeps climbing',
       '5–7 pages written to turn visitors into calls',
       'A last-chance offer — visitors about to leave your site see a deal on the service they were looking at',
+      '3 business emails at your own domain',
       '5 edits a month',
     ],
     highlightFeatures: [
@@ -133,6 +135,7 @@ export const pricingTiers: PricingTier[] = [
       'A new service page every month, so you keep climbing on Google and in AI answers',
       'Full review campaigns to grow your Google rating faster',
       'A monthly strategy call',
+      '5 business emails at your own domain',
       'Same-day priority support',
     ],
     highlightFeatures: [
@@ -161,6 +164,7 @@ export const addOns: AddOn[] = [
   { name: 'AI Phone Receptionist', price: '+$199 / mo' },
   { name: 'Extra Service Page (rank for another service)', price: '+$450 / page' },
   { name: 'Custom On-Site Videography', price: '+$1,500' },
+  { name: 'Extra Business Email Mailbox', price: '+$10 / mo' },
 ];
 
 export interface PricingFaq {

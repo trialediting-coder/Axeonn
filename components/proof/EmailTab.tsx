@@ -12,12 +12,16 @@ import {
   SETUP_GUIDES,
   activeMailboxes,
   dnsSummary,
+  EXTRA_MAILBOX_PRICE,
   gmailUrl,
+  mailboxAllowance,
+  mailboxCount,
   openRequests,
   type BusinessEmailSetup,
   type CheckStatus,
 } from '@/lib/businessEmailShared';
 import { EmailRequestForm } from '@/components/proof/EmailRequestForm';
+import { TIER_LABELS, type OnboardingTier } from '@/data/onboardingItems';
 
 const day = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
@@ -34,11 +38,12 @@ const SUMMARY: Record<ReturnType<typeof dnsSummary>, { title: string; body: stri
   unknown: { title: 'Checks start once your domain is connected', body: 'Nothing for you to do; this updates by itself.', cls: 'bg-neutral-50 text-neutral-800 ring-neutral-200' },
 };
 
-export function EmailTab({ setup, preview }: { setup: BusinessEmailSetup | null; preview: boolean }) {
+export function EmailTab({ setup, tier, preview }: { setup: BusinessEmailSetup | null; tier: OnboardingTier; preview: boolean }) {
   const mailboxes = setup?.mailboxes ?? [];
   const live = setup ? activeMailboxes(setup) : [];
   const open = setup ? openRequests(setup) : [];
   const summary = SUMMARY[dnsSummary(setup?.dns ?? null)];
+  const allowance = mailboxAllowance(tier, setup);
 
   return (
     <div className="mt-6">
@@ -90,6 +95,11 @@ export function EmailTab({ setup, preview }: { setup: BusinessEmailSetup | null;
               We are setting up your mailbox from the addresses on your setup page. When it is ready you will get an email from us, and a separate sign-in email from Google.
             </p>
           )}
+          <p className="mt-3 text-xs text-neutral-500">
+            {TIER_LABELS[tier]} includes {mailboxCount(allowance.included)}
+            {allowance.used > 0 ? `; you are using ${allowance.used}` : ''}.
+            {allowance.extra > 0 ? ` ${allowance.extra} extra at $${EXTRA_MAILBOX_PRICE}/mo each.` : allowance.left > 0 && allowance.used > 0 ? ` ${allowance.left} more included at no cost.` : ''} Addresses like info@ that deliver into a mailbox are always free.
+          </p>
           {live.length > 0 ? (
             <p className="mt-3 rounded-lg bg-neutral-50 px-3 py-2 text-xs leading-relaxed text-neutral-600">
               First time? Look for the sign-in email from Google in the personal inbox you gave us (check spam too). It lets you choose your own password.
@@ -163,7 +173,7 @@ export function EmailTab({ setup, preview }: { setup: BusinessEmailSetup | null;
               ))}
             </ul>
           ) : null}
-          <EmailRequestForm preview={preview} />
+          <EmailRequestForm preview={preview} included={allowance.left > 0} />
         </div>
       </div>
     </div>

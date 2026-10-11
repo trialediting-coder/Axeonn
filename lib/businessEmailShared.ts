@@ -11,6 +11,29 @@
 //   3. Axeon marks the mailbox Active here and sends the "your email is live" email.
 //   4. AxeonPROOF's Email tab shows the mailboxes, the spam-protection checks, and
 //      takes requests (new mailbox, locked out), which email the owner.
+//
+// Mailboxes by plan (owner decision 2026-10-11): 1 / 3 / 5, each extra $10/mo,
+// approved by Axeon before it is billed. Aliases (info@ delivering into a
+// mailbox) are free in Google Workspace, so they never count. Keep in sync
+// with data/pricingData.ts and content/brand-guardrails.md.
+import type { OnboardingTier } from '@/data/onboardingItems';
+
+export const MAILBOXES_INCLUDED: Record<OnboardingTier, number> = { essentials: 1, axeoncore: 3, axeongrowth: 5 };
+export const EXTRA_MAILBOX_PRICE = 10;
+
+/** Every mailbox counts once it is on the list, Active or still being set up. */
+export function mailboxAllowance(tier: OnboardingTier, setup: Pick<BusinessEmailSetup, 'mailboxes'> | null) {
+  const included = MAILBOXES_INCLUDED[tier];
+  const used = setup?.mailboxes.length ?? 0;
+  const extra = Math.max(0, used - included);
+  return { included, used, extra, left: Math.max(0, included - used), extraMonthly: extra * EXTRA_MAILBOX_PRICE };
+}
+
+/** "1 mailbox" / "3 mailboxes". */
+export const mailboxCount = (n: number) => `${n} ${n === 1 ? 'mailbox' : 'mailboxes'}`;
+
+/** The setup-card hint, one line for every plan. */
+export const MAILBOX_HINT = `Included: ${MAILBOXES_INCLUDED.essentials} on Essentials, ${MAILBOXES_INCLUDED.axeoncore} on AxeonCORE, ${MAILBOXES_INCLUDED.axeongrowth} on AxeonGROWTH (extra ones $${EXTRA_MAILBOX_PRICE}/mo). Addresses like info@ or sales@ can deliver into a mailbox for free.`;
 
 export type MailboxStatus = 'pending' | 'active';
 

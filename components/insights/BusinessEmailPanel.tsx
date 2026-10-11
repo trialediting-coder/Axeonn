@@ -7,9 +7,13 @@
 // open requests. Calls /api/admin/onboarding/<token>/email.
 import { useState } from 'react';
 import { adminInput, adminLabel, btn } from '@/components/admin/ui';
+import { TIER_LABELS, type OnboardingTier } from '@/data/onboardingItems';
 import {
   DNS_CHECKS,
+  EXTRA_MAILBOX_PRICE,
   REQUEST_KINDS,
+  mailboxAllowance,
+  mailboxCount,
   activeMailboxes,
   normalizeDomain,
   openRequests,
@@ -33,10 +37,12 @@ const STEPS = [
 
 export function BusinessEmailPanel({
   token,
+  tier,
   initial,
   asked,
 }: {
   token: string;
+  tier: OnboardingTier;
   initial: BusinessEmailSetup;
   /** What the client typed on the setup page's domain card. */
   asked: { domainName: string; mailboxes: string; signInEmails: string; currentEmail: string };
@@ -72,6 +78,7 @@ export function BusinessEmailPanel({
   const update = (i: number, patch: Partial<Mailbox>) => setRows((r) => r.map((m, j) => (j === i ? { ...m, ...patch } : m)));
   const live = activeMailboxes(setup);
   const open = openRequests(setup);
+  const allowance = mailboxAllowance(tier, { mailboxes: rows.filter((m) => m.address.trim()) });
 
   return (
     <section className="mt-6 bg-white rounded-2xl border border-neutral-200 p-5 sm:p-6">
@@ -136,7 +143,14 @@ export function BusinessEmailPanel({
       </div>
 
       <div className="mt-4">
-        <p className={adminLabel}>Mailboxes</p>
+        <p className={adminLabel}>
+          Mailboxes · {allowance.used} of {mailboxCount(allowance.included)} included on {TIER_LABELS[tier]}
+        </p>
+        {allowance.extra > 0 ? (
+          <p className="mb-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900 ring-1 ring-amber-200">
+            {allowance.extra} over the plan: bill ${allowance.extraMonthly}/mo (${EXTRA_MAILBOX_PRICE} each) once the client has said yes. An alias (info@ into an existing mailbox) is free if that is all they need.
+          </p>
+        ) : null}
         <div className="space-y-2">
           {rows.map((m, i) => (
             <div key={i} className="flex flex-wrap items-center gap-2">

@@ -9,8 +9,10 @@ import { APP_ORIGIN } from '@/lib/hostRouting';
 import { sendBusinessEmailLiveEmail, sendEmailRequestNotification } from '@/lib/email';
 import { checkDomainEmail } from '@/lib/emailDns';
 import {
+  EXTRA_MAILBOX_PRICE,
   MAX_OPEN_REQUESTS,
   REQUEST_KINDS,
+  mailboxAllowance,
   activeMailboxes,
   dnsIsStale,
   normalizeSetup,
@@ -114,8 +116,17 @@ export async function addEmailRequest(onboarding: Onboarding, raw: Record<string
     token: onboarding.token,
     kind: REQUEST_KINDS.find((k) => k.kind === kind)!.label,
     detail,
+    allowance: kind === 'add' ? allowanceLine(onboarding, setup) : null,
   }).catch((err) => console.error('[business-email] owner email failed', err instanceof Error ? err.message : err));
   return request;
+}
+
+/** For the owner: is a new mailbox free on this plan, or the first paid extra? */
+export function allowanceLine(onboarding: Pick<Onboarding, 'tier'>, setup: BusinessEmailSetup): string {
+  const a = mailboxAllowance(onboarding.tier, setup);
+  return a.left > 0
+    ? `They have ${a.used} of ${a.included} mailboxes included, so this one is free.`
+    : `They already use all ${a.included} included mailboxes${a.extra ? ` plus ${a.extra} extra` : ''}, so this one is $${EXTRA_MAILBOX_PRICE}/mo. They were told you confirm before billing; offer a free alias if that is all they need.`;
 }
 
 /** The admin marks a request handled; it leaves the client's open list. */

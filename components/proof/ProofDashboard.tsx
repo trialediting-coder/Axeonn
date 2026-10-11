@@ -483,7 +483,7 @@ export function ProofDashboard({
               )}
             </div>
           ) : tab === 'email' ? (
-            <EmailTab setup={businessEmail} preview={!!preview} />
+            <EmailTab setup={businessEmail} tier={onboarding.tier} preview={!!preview} />
           ) : tab === 'billing' ? (
             <BillingTab billing={billing} tier={onboarding.tier} agreementUrl={agreementUrl} preview={!!preview} ownerEmail={ownerEmail} />
           ) : tabLocked(proofTab(tab), onboarding.tier) ? (

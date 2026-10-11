@@ -58,6 +58,7 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
         />
         <BusinessEmailPanel
           token={onboarding.token}
+          tier={onboarding.tier}
           initial={businessEmail}
           asked={{ domainName: asked('domainName'), mailboxes: asked('mailboxes'), signInEmails: asked('signInEmails'), currentEmail: asked('currentEmail') }}
         />

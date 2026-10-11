@@ -7,9 +7,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Check } from 'lucide-react';
-import { REQUEST_KINDS, type EmailRequestKind } from '@/lib/businessEmailShared';
+import { EXTRA_MAILBOX_PRICE, REQUEST_KINDS, type EmailRequestKind } from '@/lib/businessEmailShared';
 
-export function EmailRequestForm({ preview }: { preview: boolean }) {
+/** `included`: the plan still has a free mailbox left, so a new one costs nothing. */
+export function EmailRequestForm({ preview, included }: { preview: boolean; included: boolean }) {
   const router = useRouter();
   const [kind, setKind] = useState<EmailRequestKind>('add');
   const [detail, setDetail] = useState('');
@@ -73,6 +74,13 @@ export function EmailRequestForm({ preview }: { preview: boolean }) {
         maxLength={500}
         className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400"
       />
+      {kind === 'add' ? (
+        <p className="rounded-md bg-neutral-50 px-2.5 py-1.5 text-[11px] text-neutral-600">
+          {included
+            ? 'Included in your plan, no extra cost.'
+            : `Your plan's mailboxes are in use, so this one is $${EXTRA_MAILBOX_PRICE}/mo. We confirm with you before anything is billed. Need an info@ or sales@ instead? That is free.`}
+        </p>
+      ) : null}
       <p className="text-[11px] text-neutral-500">Never type a password here. If someone is locked out, Google emails them a fresh sign-in.</p>
       <button
         type="submit"

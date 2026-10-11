@@ -1,4 +1,5 @@
 import { FOUND_OPTIONS } from '@/lib/feedbackShared';
+import { MAILBOX_HINT } from '@/lib/businessEmailShared';
 // data/onboardingItems.ts
 // Single source of truth for the client onboarding portal (/welcome/<token>):
 // every checklist item, which plan it belongs to, who does it, and the fields
@@ -228,7 +229,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
         type: 'textarea',
         required: true,
         placeholder: 'mike@ for Mike (owner), info@ as a shared inbox',
-        hint: 'Your plan includes one mailbox. Extra addresses like info@ or sales@ can deliver into it at no cost.',
+        hint: MAILBOX_HINT,
       },
       {
         key: 'signInEmails',

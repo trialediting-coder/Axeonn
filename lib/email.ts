@@ -1141,7 +1141,7 @@ export async function sendBusinessEmailLiveEmail(input: {
 }
 
 /** A client asked for something from the Email tab in AxeonPROOF (lib/businessEmail.ts). */
-export async function sendEmailRequestNotification(input: { businessName: string; clientEmail: string; token: string; kind: string; detail: string }): Promise<void> {
+export async function sendEmailRequestNotification(input: { businessName: string; clientEmail: string; token: string; kind: string; detail: string; allowance?: string | null }): Promise<void> {
   const resend = getClient();
   if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
   await sendChecked(resend, {
@@ -1151,6 +1151,7 @@ export async function sendEmailRequestNotification(input: { businessName: string
     html: `
       <p><b>${escapeHtml(input.businessName)}</b> (${escapeHtml(input.clientEmail)}) asked from their Email tab: <b>${escapeHtml(input.kind)}</b>.</p>
       <blockquote style="margin:0 0 12px;padding-left:12px;border-left:3px solid #e5e5e5">${escapeHtml(input.detail)}</blockquote>
+      ${input.allowance ? `<p><b>${escapeHtml(input.allowance)}</b></p>` : ''}
       <p>They were told you will handle it within one business day. Locked out: reset the password in Google Admin and choose to email the sign-in instructions to their recovery address, never to yourself. New mailbox: create it in Google Admin with "Send sign-in instructions", add it in their Business email card, then mark the request done.</p>
       <p><a href="https://app.axeonstudio.co/admin/onboarding/${input.token}">Open their page</a></p>
     `,
