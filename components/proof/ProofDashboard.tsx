@@ -20,6 +20,7 @@ import {
   Globe,
   LayoutDashboard,
   LogOut,
+  Mail,
   MapPin,
   MousePointerClick,
   PhoneCall,
@@ -29,6 +30,8 @@ import { AxeonLogo } from '@/components/brand/AxeonLogo';
 import { LeadLog, type LeadMonth } from '@/components/proof/LeadLog';
 import { BillingTab } from '@/components/proof/BillingTab';
 import { FeatureTab } from '@/components/proof/FeatureTab';
+import { EmailTab } from '@/components/proof/EmailTab';
+import type { BusinessEmailSetup } from '@/lib/businessEmailShared';
 import { UpgradePanel } from '@/components/proof/UpgradePanel';
 import { PROOF_TABS, TIER_SHORT, proofTab, tabLocked, type ProofTabKey } from '@/lib/proofTabs';
 import type { UpgradeRequest } from '@/lib/upgrades';
@@ -61,6 +64,7 @@ const TAB_ICONS: Record<ProofTabKey, Icon> = {
   reviews: Star,
   ads: Megaphone,
   receptionist: Bot,
+  email: Mail,
   billing: CreditCard,
 };
 
@@ -249,6 +253,7 @@ export function ProofDashboard({
   live: liveTraffic = null,
   ownVisitsUrl = null,
   billing = null,
+  businessEmail = null,
   ownerEmail = 'hello@axeonstudio.co',
 }: {
   email: string;
@@ -282,6 +287,8 @@ export function ProofDashboard({
   ownVisitsUrl?: string | null;
   /** Plan, card and invoices from Stripe; loaded only for the Billing tab (lib/clientBilling.ts). Null: nothing on file yet. */
   billing?: BillingSummary | null;
+  /** Mailboxes, DNS checks and requests; loaded only for the Email tab (lib/businessEmail.ts). */
+  businessEmail?: BusinessEmailSetup | null;
   /** Where billing questions go before the first invoice exists. */
   ownerEmail?: string;
 }) {
@@ -475,6 +482,8 @@ export function ProofDashboard({
                 </Card>
               )}
             </div>
+          ) : tab === 'email' ? (
+            <EmailTab setup={businessEmail} preview={!!preview} />
           ) : tab === 'billing' ? (
             <BillingTab billing={billing} tier={onboarding.tier} agreementUrl={agreementUrl} preview={!!preview} ownerEmail={ownerEmail} />
           ) : tabLocked(proofTab(tab), onboarding.tier) ? (

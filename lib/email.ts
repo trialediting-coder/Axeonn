@@ -6,6 +6,7 @@ import { Resend } from 'resend';
 import { WEEKDAY_LABELS, buttonLabel, campaignLabel, hourLabel, sourceLabel, type TrafficDetail, type TrafficSummary } from '@/lib/projectsShared';
 import { TAGLINE, alwaysOnSentence, headlineSentence, reportHighlights } from '@/lib/reportCopy';
 import { TIER_LABELS, type OnboardingTier } from '@/data/onboardingItems';
+import { OUTLOOK_NOTE, SETUP_GUIDES, gmailUrl, type Mailbox } from '@/lib/businessEmailShared';
 
 const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_EMAIL;
 // Resend rejects sends from a domain that hasn't been verified in the
@@ -1088,6 +1089,69 @@ export async function sendUpgradeRequestNotification(input: { businessName: stri
     html: `
       <p><b>${escapeHtml(input.businessName)}</b> (${escapeHtml(input.clientEmail)}) pressed "Ask us about ${TIER_LABELS[input.to]}" in AxeonPROOF. They are on ${TIER_LABELS[input.from]} today.</p>
       <p>They were told you will reach out within one business day to walk them through it, and that nothing changes until they say yes. Call or email them, and if they go ahead, set up billing and change their plan.</p>
+      <p><a href="https://app.axeonstudio.co/admin/onboarding/${input.token}">Open their page</a></p>
+    `,
+  });
+}
+
+/**
+ * "Your business email is live." Sent from the admin once the mailboxes exist in
+ * Google Workspace. It announces; Google's own email carries the sign-in, so no
+ * password ever passes through Axeon.
+ */
+export async function sendBusinessEmailLiveEmail(input: {
+  to: string;
+  clientName: string | null;
+  domain: string | null;
+  mailboxes: Mailbox[];
+  dashboardUrl: string;
+}): Promise<boolean> {
+  const resend = getClient();
+  if (!resend) return false;
+  const first = input.clientName?.split(' ')[0];
+  const greeting = first ? `Hi ${escapeHtml(first)},` : 'Hi there,';
+  const one = input.mailboxes.length === 1;
+  const rows = input.mailboxes
+    .map((m) => `<li style="margin:0 0 6px"><b>${escapeHtml(m.address)}</b>${m.person ? ` <span style="color:#525252">(${escapeHtml(m.person)})</span>` : ''}</li>`)
+    .join('');
+  const guides = SETUP_GUIDES.map((g) => `<li style="margin:0 0 6px"><a href="${escapeHtml(g.href)}" style="color:#2563eb">${escapeHtml(g.label)}</a>: ${escapeHtml(g.note)}</li>`).join('');
+  await sendChecked(resend, {
+    from: CLIENT_FROM_ADDRESS,
+    replyTo: CLIENT_REPLY_TO,
+    to: input.to,
+    subject: one ? `Your business email is live: ${input.mailboxes[0].address}` : `Your business email is live (${input.mailboxes.length} mailboxes)`,
+    html: clientLayout(
+      'Your business email is live.',
+      `
+        <p style="margin:0 0 12px">${greeting}</p>
+        <p style="margin:0 0 12px">${one ? 'This address is' : 'These addresses are'} ready to use, on Google Workspace (the business version of Gmail):</p>
+        <ul style="margin:0 0 16px;padding-left:20px">${rows}</ul>
+        ${h2('Signing in for the first time')}
+        <p style="margin:0 0 12px">Google sends each person their own sign-in email, titled something like <b>"Welcome to your new Google account"</b>, to the personal address you gave us. Open it, sign in, and choose a new password. Not there in a few minutes? Check spam, then reply here.</p>
+        <p style="margin:0 0 12px">We never see or store your password, and we will never ask you for it.</p>
+        ${button(gmailUrl(input.domain), 'Open my inbox')}
+        ${h2('On your phone and computer')}
+        <ul style="margin:0 0 12px;padding-left:20px">${guides}<li style="margin:0 0 6px">${escapeHtml(OUTLOOK_NOTE)}</li></ul>
+        ${h2('Already set up for you')}
+        <p style="margin:0 0 12px">Spam protection (SPF, DKIM and DMARC) is switched on, so your emails land in inboxes, not spam folders. You can see those checks, add a mailbox, or tell us someone is locked out in <a href="${escapeHtml(input.dashboardUrl)}" style="color:#2563eb">your dashboard's Email tab</a>.</p>
+      `
+    ),
+  });
+  return true;
+}
+
+/** A client asked for something from the Email tab in AxeonPROOF (lib/businessEmail.ts). */
+export async function sendEmailRequestNotification(input: { businessName: string; clientEmail: string; token: string; kind: string; detail: string }): Promise<void> {
+  const resend = getClient();
+  if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
+  await sendChecked(resend, {
+    from: FROM_ADDRESS,
+    to: ADMIN_NOTIFICATION_EMAIL,
+    subject: `${input.businessName}: business email request (${input.kind})`,
+    html: `
+      <p><b>${escapeHtml(input.businessName)}</b> (${escapeHtml(input.clientEmail)}) asked from their Email tab: <b>${escapeHtml(input.kind)}</b>.</p>
+      <blockquote style="margin:0 0 12px;padding-left:12px;border-left:3px solid #e5e5e5">${escapeHtml(input.detail)}</blockquote>
+      <p>They were told you will handle it within one business day. Locked out: reset the password in Google Admin and choose to email the sign-in instructions to their recovery address, never to yourself. New mailbox: create it in Google Admin with "Send sign-in instructions", add it in their Business email card, then mark the request done.</p>
       <p><a href="https://app.axeonstudio.co/admin/onboarding/${input.token}">Open their page</a></p>
     `,
   });

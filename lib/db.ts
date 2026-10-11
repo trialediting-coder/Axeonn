@@ -309,6 +309,8 @@ export function ensureSchema(): Promise<void> {
       await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS low_close_alerted_at TIMESTAMPTZ;`;
       // When the owner paid the $300 to whoever referred this client (lib/referrals.ts).
       await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS referral_paid_at TIMESTAMPTZ;`;
+      // The business email every plan includes: domain, mailboxes, DNS checks, client requests (lib/businessEmail.ts).
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS email_setup JSONB;`;
       // The call deck (/admin/calls, lib/callLeads.ts): prospects imported from the
       // Iowa detailer spreadsheet, plus the owner's notes and call outcomes.
       await sql`
