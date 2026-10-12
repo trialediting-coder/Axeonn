@@ -172,7 +172,8 @@ function Card({ children, className = '', delay = 0 }: { children: ReactNode; cl
 /**
  * One number with its icon floating off the top edge, the way the dashboards people
  * already know do it. On phones the cards stack one per row, where a tile hanging off
- * every card looks loose, so there the icon sits inside the card next to the label.
+ * every card looks loose, so there the icon sits inside the card, beside and centred on
+ * the label and number.
  */
 function StatCard({
   label,
@@ -194,14 +195,17 @@ function StatCard({
   delay?: number;
 }) {
   return (
-    <Card className="relative flex flex-col px-5 pb-4 pt-5 sm:block" delay={delay}>
-      <span className="absolute left-5 top-5 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-700 to-blue-500 text-white shadow-md shadow-blue-600/25 sm:-top-4 sm:h-14 sm:w-14 sm:shadow-lg sm:shadow-blue-600/30">
-        <Icon size={20} />
-      </span>
-      <div className="text-right">
-        <p className="text-sm font-medium text-neutral-500">{label}</p>
-        <p className={`mt-1 text-3xl font-bold tracking-tight ${muted ? 'text-neutral-300' : 'text-neutral-950'}`}>{value}</p>
-        <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">{footer}</p>
+    <Card className="relative px-5 pb-4 pt-5" delay={delay}>
+      {/* Phones: icon and numbers side by side, centred on each other. sm and up: the icon floats off the top edge. */}
+      <div className="flex items-center gap-4 sm:block">
+        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-700 to-blue-500 text-white shadow-lg shadow-blue-600/30 sm:absolute sm:-top-4 sm:left-5">
+          <Icon size={24} />
+        </span>
+        <div className="min-w-0 flex-1 text-left sm:text-right">
+          <p className="text-sm font-medium text-neutral-500">{label}</p>
+          <p className={`mt-1 text-3xl font-bold leading-none tracking-tight sm:leading-[1.2] ${muted ? 'text-neutral-300' : 'text-neutral-950'}`}>{value}</p>
+          <p className="mt-1.5 text-[11px] font-semibold uppercase tracking-wide text-neutral-400 sm:mt-1">{footer}</p>
+        </div>
       </div>
       <p className={`mt-4 border-t border-neutral-100 pt-3 text-xs leading-relaxed ${tone === 'up' ? 'font-semibold text-emerald-600' : tone === 'down' ? 'font-semibold text-red-600' : 'text-neutral-500'}`}>{sub}</p>
     </Card>
