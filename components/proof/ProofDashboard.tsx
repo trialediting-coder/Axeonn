@@ -20,6 +20,7 @@ import {
   Globe,
   LayoutDashboard,
   LogOut,
+  Mail,
   MapPin,
   MousePointerClick,
   PhoneCall,
@@ -30,6 +31,8 @@ import { ActiveTabIntoView } from '@/components/proof/ActiveTabIntoView';
 import { LeadLog, type LeadMonth } from '@/components/proof/LeadLog';
 import { BillingTab } from '@/components/proof/BillingTab';
 import { FeatureTab } from '@/components/proof/FeatureTab';
+import { EmailTab } from '@/components/proof/EmailTab';
+import type { BusinessEmailSetup } from '@/lib/businessEmailShared';
 import { UpgradePanel } from '@/components/proof/UpgradePanel';
 import { PROOF_TABS, TIER_SHORT, proofTab, tabLocked, type ProofTabKey } from '@/lib/proofTabs';
 import type { UpgradeRequest } from '@/lib/upgrades';
@@ -62,6 +65,7 @@ const TAB_ICONS: Record<ProofTabKey, Icon> = {
   reviews: Star,
   ads: Megaphone,
   receptionist: Bot,
+  email: Mail,
   billing: CreditCard,
 };
 
@@ -286,6 +290,7 @@ export function ProofDashboard({
   live: liveTraffic = null,
   ownVisitsUrl = null,
   billing = null,
+  businessEmail = null,
   ownerEmail = 'hello@axeonstudio.co',
 }: {
   email: string;
@@ -319,6 +324,8 @@ export function ProofDashboard({
   ownVisitsUrl?: string | null;
   /** Plan, card and invoices from Stripe; loaded only for the Billing tab (lib/clientBilling.ts). Null: nothing on file yet. */
   billing?: BillingSummary | null;
+  /** Mailboxes, DNS checks and requests; loaded only for the Email tab (lib/businessEmail.ts). */
+  businessEmail?: BusinessEmailSetup | null;
   /** Where billing questions go before the first invoice exists. */
   ownerEmail?: string;
 }) {
@@ -519,6 +526,8 @@ export function ProofDashboard({
                 </Card>
               )}
             </div>
+          ) : tab === 'email' ? (
+            <EmailTab setup={businessEmail} tier={onboarding.tier} preview={!!preview} />
           ) : tab === 'billing' ? (
             <BillingTab billing={billing} tier={onboarding.tier} agreementUrl={agreementUrl} preview={!!preview} ownerEmail={ownerEmail} />
           ) : tabLocked(proofTab(tab), onboarding.tier) ? (
@@ -569,9 +578,9 @@ export function ProofDashboard({
           })}
         </div>
 
-        <div className="mt-9 grid grid-cols-1 gap-4 lg:gap-5 lg:grid-cols-3">
+        <div className="mt-4 sm:mt-9 grid grid-cols-1 gap-4 lg:gap-5 lg:grid-cols-3">
           <Card className="lg:col-span-2" delay={60}>
-            <div className="mx-4 -mt-5 rounded-xl bg-white px-4 pb-3 pt-4 shadow-[0_10px_30px_-10px_rgba(16,24,40,0.22)] ring-1 ring-neutral-100">
+            <div className="mx-3 mt-3 rounded-xl bg-white px-4 pb-3 pt-4 ring-1 ring-neutral-100 sm:mx-4 sm:-mt-5 sm:shadow-[0_10px_30px_-10px_rgba(16,24,40,0.22)]">
               {live ? (
                 <div className="relative h-56">
                   {/* Gridlines with their values, from the top down. */}

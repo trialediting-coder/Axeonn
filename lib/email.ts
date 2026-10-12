@@ -3,9 +3,12 @@ import { questionsByKeys } from '@/lib/feedbackShared';
 import { RAMP_REPORTS } from '@/lib/reportPlan';
 import { REFERRAL, referralMailto } from '@/lib/referral';
 import { Resend } from 'resend';
+import { recordEmail } from '@/lib/emailLog';
+import type { EmailKind } from '@/lib/emailLogShared';
 import { WEEKDAY_LABELS, buttonLabel, campaignLabel, hourLabel, sourceLabel, type TrafficDetail, type TrafficSummary } from '@/lib/projectsShared';
 import { TAGLINE, alwaysOnSentence, headlineSentence, reportHighlights } from '@/lib/reportCopy';
 import { TIER_LABELS, type OnboardingTier } from '@/data/onboardingItems';
+import { OUTLOOK_NOTE, SETUP_GUIDES, gmailUrl, type Mailbox } from '@/lib/businessEmailShared';
 
 const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_EMAIL;
 // Resend rejects sends from a domain that hasn't been verified in the
@@ -14,9 +17,32 @@ const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_EMAIL;
 // domain that was never actually set up.
 const FROM_ADDRESS = process.env.RESEND_FROM_EMAIL || 'Axeon Insights <insights@axeonstudio.co>';
 
-function getClient(): Resend | null {
+type SendPayload = Parameters<Resend['emails']['send']>[0];
+type SendResult = Awaited<ReturnType<Resend['emails']['send']>>;
+
+/** The one Resend call we make, with every send written to the admin email log (lib/emailLog.ts). */
+interface Mailer {
+  emails: { send(payload: SendPayload): Promise<SendResult> };
+}
+
+function getClient(kind: EmailKind): Mailer | null {
   if (!process.env.RESEND_API_KEY) return null;
-  return new Resend(process.env.RESEND_API_KEY);
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  return {
+    emails: {
+      async send(payload) {
+        let result: SendResult;
+        try {
+          result = await resend.emails.send(payload);
+        } catch (err) {
+          await recordEmail({ kind, to: payload.to, subject: payload.subject, error: err instanceof Error ? err.message : String(err) });
+          throw err;
+        }
+        await recordEmail({ kind, to: payload.to, subject: payload.subject, resendId: result.data?.id, error: result.error?.message });
+        return result;
+      },
+    },
+  };
 }
 
 // post.title and critique reasons ultimately derive from Task 12's
@@ -33,7 +59,7 @@ function escapeHtml(value: string): string {
 
 /** The weekly post passed the automatic checks and is waiting for a person to approve it. */
 export async function sendDraftReadyNotification(post: { title: string; id: number }): Promise<void> {
-  const resend = getClient();
+  const resend = getClient('blog_draft_ready');
   if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
 
   await resend.emails.send({
@@ -51,7 +77,7 @@ export async function sendDraftReadyNotification(post: { title: string; id: numb
 
 /** A client's site reported for a while and then stopped (lib/trackerHealth.ts). Returns false when mail is not configured. */
 export async function sendTrackerQuietNotification(input: { businessName: string; token: string; lastEventAt: string; days: number }): Promise<boolean> {
-  const resend = getClient();
+  const resend = getClient('tracker_quiet');
   if (!resend || !ADMIN_NOTIFICATION_EMAIL) return false;
   const since = new Date(input.lastEventAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', timeZone: 'America/Chicago' });
   await resend.emails.send({
@@ -75,7 +101,7 @@ export async function sendFailedGenerationNotification(
   reasons: string[],
   postWasCreated: boolean = true
 ): Promise<void> {
-  const resend = getClient();
+  const resend = getClient('blog_generation_failed');
   if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
 
   const body = postWasCreated
@@ -105,7 +131,7 @@ export async function sendBillingNotification(input: {
   lines: string[];
   link?: { label: string; href: string };
 }): Promise<void> {
-  const resend = getClient();
+  const resend = getClient('billing_alert');
   if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
 
   const items = input.lines.map((line) => `<li>${escapeHtml(line)}</li>`).join('');
@@ -131,15 +157,12 @@ const CLIENT_FROM_ADDRESS = process.env.RESEND_CLIENT_FROM_EMAIL || 'Axeon Studi
 /** Where clients write back: the reply-to on every client email and the billing contact on the dashboard. */
 export const CLIENT_REPLY_TO = process.env.RESEND_CLIENT_REPLY_TO || 'hello@axeonstudio.co';
 
-
-type SendPayload = Parameters<Resend['emails']['send']>[0];
-
 /**
  * Resend reports rejections (unverified domain, bad address, rate limit) in the
  * returned `error`, not by throwing. Client-facing mail must surface that, or the
  * admin would show "welcome sent" for an email that never left.
  */
-async function sendChecked(resend: Resend, payload: SendPayload): Promise<void> {
+async function sendChecked(resend: Mailer, payload: SendPayload): Promise<void> {
   const { error } = await resend.emails.send(payload);
   if (error) throw new Error(`Resend rejected the email: ${error.message}`);
 }
@@ -174,7 +197,7 @@ export async function sendWelcomeEmail(input: {
   /** Rough minutes for the client's part, shown in the copy. */
   minutes: number;
 }): Promise<boolean> {
-  const resend = getClient();
+  const resend = getClient('welcome');
   if (!resend) return false;
   const first = input.clientName?.split(' ')[0];
   const greeting = first ? `Hi ${escapeHtml(first)},` : 'Hi there,';
@@ -213,7 +236,7 @@ export async function sendDashboardInviteEmail(input: {
   /** True when they already chose a password: the copy says "sign in" instead of "choose a password". */
   hasAccount: boolean;
 }): Promise<boolean> {
-  const resend = getClient();
+  const resend = getClient('dashboard_invite');
   if (!resend) return false;
   const first = input.clientName?.split(' ')[0];
   const biz = input.businessName ? escapeHtml(input.businessName) : 'your business';
@@ -243,7 +266,7 @@ export async function sendDashboardInviteEmail(input: {
 
 /** The one-time code for the portal. Throws when mail is not configured, since the client cannot proceed without it. */
 export async function sendVerificationCodeEmail(input: { to: string; code: string }): Promise<void> {
-  const resend = getClient();
+  const resend = getClient('verification_code');
   if (!resend) throw new Error('Email is not configured (RESEND_API_KEY)');
   await sendChecked(resend, {
     from: CLIENT_FROM_ADDRESS,
@@ -270,7 +293,7 @@ export async function sendNudgeEmail(input: {
   url: string;
   openItems: string[];
 }): Promise<boolean> {
-  const resend = getClient();
+  const resend = getClient('onboarding_nudge');
   if (!resend) return false;
   const first = input.clientName?.split(' ')[0];
   const items = input.openItems.map((t) => `<li style="margin:0 0 6px">${escapeHtml(t)}</li>`).join('');
@@ -294,7 +317,7 @@ export async function sendNudgeEmail(input: {
 
 /** AxeonPROOF "forgot password" link. Throws when mail is not configured or Resend refuses it. */
 export async function sendPasswordResetEmail(input: { to: string; url: string }): Promise<void> {
-  const resend = getClient();
+  const resend = getClient('password_reset');
   if (!resend) throw new Error('Email is not configured (RESEND_API_KEY)');
   await sendChecked(resend, {
     from: CLIENT_FROM_ADDRESS,
@@ -329,7 +352,7 @@ export async function sendLeadNotification(input: {
   goal: string;
   savedTo: 'airtable' | 'nowhere';
 }): Promise<void> {
-  const resend = getClient();
+  const resend = getClient('lead_alert');
   if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
   const who = input.businessName || input.contactName || input.email;
   const saved =
@@ -362,7 +385,7 @@ export async function sendOnboardingCompleteNotification(input: {
   planLabel: string;
   adminUrl: string;
 }): Promise<void> {
-  const resend = getClient();
+  const resend = getClient('onboarding_complete');
   if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
   await sendChecked(resend, {
     from: FROM_ADDRESS,
@@ -377,8 +400,8 @@ export async function sendOnboardingCompleteNotification(input: {
 
 // ───────────────────────────── Agreements ─────────────────────────────
 
-function requireClient(): Resend {
-  const resend = getClient();
+function requireClient(kind: EmailKind): Mailer {
+  const resend = getClient(kind);
   if (!resend) throw new Error('Email is not configured (RESEND_API_KEY)');
   return resend;
 }
@@ -397,7 +420,7 @@ export async function sendAgreementEmail(input: {
   number: string;
   url: string;
 }): Promise<void> {
-  await sendChecked(requireClient(), {
+  await sendChecked(requireClient('agreement_sent'), {
     from: CLIENT_FROM_ADDRESS,
     replyTo: CLIENT_REPLY_TO,
     to: input.to,
@@ -425,7 +448,7 @@ export async function sendAgreementSignedEmails(input: {
   url: string;
   signedName: string;
 }): Promise<void> {
-  const resend = requireClient();
+  const resend = requireClient('agreement_signed');
   await sendChecked(resend, {
     from: CLIENT_FROM_ADDRESS,
     replyTo: CLIENT_REPLY_TO,
@@ -442,7 +465,7 @@ export async function sendAgreementSignedEmails(input: {
     ),
   });
   if (ADMIN_NOTIFICATION_EMAIL) {
-    await sendChecked(resend, {
+    await sendChecked(requireClient('agreement_signed_alert'), {
       from: FROM_ADDRESS,
       to: ADMIN_NOTIFICATION_EMAIL,
       subject: `${input.businessName} signed agreement ${input.number}`,
@@ -483,7 +506,7 @@ export async function sendProjectUpdateEmail(input: {
   nextUp: string;
   proofUrl: string;
 }): Promise<void> {
-  await sendChecked(requireClient(), {
+  await sendChecked(requireClient('project_update'), {
     from: CLIENT_FROM_ADDRESS,
     replyTo: CLIENT_REPLY_TO,
     to: input.to,
@@ -1002,7 +1025,7 @@ export function renderMonthlyReportEmail(input: MonthlyReportEmailInput): { subj
 
 export async function sendMonthlyReportEmail(input: MonthlyReportEmailInput): Promise<void> {
   const { subject, html } = renderMonthlyReportEmail(input);
-  await sendChecked(requireClient(), { from: CLIENT_FROM_ADDRESS, replyTo: CLIENT_REPLY_TO, to: input.to, subject, html });
+  await sendChecked(requireClient('monthly_report'), { from: CLIENT_FROM_ADDRESS, replyTo: CLIENT_REPLY_TO, to: input.to, subject, html });
 }
 
 /**
@@ -1011,7 +1034,7 @@ export async function sendMonthlyReportEmail(input: MonthlyReportEmailInput): Pr
  * Returns false when mail or ADMIN_EMAIL is not configured.
  */
 export async function sendReportPreviewToOwner(input: MonthlyReportEmailInput & { preview: { sendsOn: string; adminUrl: string }; businessName: string | null }): Promise<boolean> {
-  const resend = getClient();
+  const resend = getClient('report_preview');
   if (!resend || !ADMIN_NOTIFICATION_EMAIL) return false;
   const { html } = renderMonthlyReportEmail(input);
   const who = input.businessName?.trim() || input.to;
@@ -1037,7 +1060,7 @@ export async function sendFeedbackNotification(input: {
   /** Survey answers so far, in words (lib/feedbackShared.ts answerLabel). */
   answers?: Array<{ question: string; answer: string; attention: boolean }>;
 }): Promise<void> {
-  const resend = getClient();
+  const resend = getClient('feedback_alert');
   if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
   const what = input.kind === 'report' ? `the ${input.month ?? ''} report`.replace('the  report', 'the report') : input.kind === 'note30' ? 'the day-30 survey' : 'the day-90 note';
   const flagged = (input.answers ?? []).filter((x) => x.attention);
@@ -1062,7 +1085,7 @@ export async function sendFeedbackNotification(input: {
 
 /** To the owner: a client's own marks say few leads are booking (lib/leadHealth.ts). Once per 30 days per client. */
 export async function sendLowCloseRateNotification(input: { businessName: string; token: string; rate: number; won: number; marked: number; months: number }): Promise<boolean> {
-  const resend = getClient();
+  const resend = getClient('low_close_rate');
   if (!resend || !ADMIN_NOTIFICATION_EMAIL) return false;
   await sendChecked(resend, {
     from: FROM_ADDRESS,
@@ -1079,7 +1102,7 @@ export async function sendLowCloseRateNotification(input: { businessName: string
 
 /** To the owner: a client pressed "Move me to <plan>" on a locked tab (lib/upgrades.ts). */
 export async function sendUpgradeRequestNotification(input: { businessName: string; clientEmail: string; token: string; from: OnboardingTier; to: OnboardingTier }): Promise<void> {
-  const resend = getClient();
+  const resend = getClient('upgrade_request');
   if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
   await sendChecked(resend, {
     from: FROM_ADDRESS,
@@ -1088,6 +1111,70 @@ export async function sendUpgradeRequestNotification(input: { businessName: stri
     html: `
       <p><b>${escapeHtml(input.businessName)}</b> (${escapeHtml(input.clientEmail)}) pressed "Ask us about ${TIER_LABELS[input.to]}" in AxeonPROOF. They are on ${TIER_LABELS[input.from]} today.</p>
       <p>They were told you will reach out within one business day to walk them through it, and that nothing changes until they say yes. Call or email them, and if they go ahead, set up billing and change their plan.</p>
+      <p><a href="https://app.axeonstudio.co/admin/onboarding/${input.token}">Open their page</a></p>
+    `,
+  });
+}
+
+/**
+ * "Your business email is live." Sent from the admin once the mailboxes exist in
+ * Google Workspace. It announces; Google's own email carries the sign-in, so no
+ * password ever passes through Axeon.
+ */
+export async function sendBusinessEmailLiveEmail(input: {
+  to: string;
+  clientName: string | null;
+  domain: string | null;
+  mailboxes: Mailbox[];
+  dashboardUrl: string;
+}): Promise<boolean> {
+  const resend = getClient('business_email_live');
+  if (!resend) return false;
+  const first = input.clientName?.split(' ')[0];
+  const greeting = first ? `Hi ${escapeHtml(first)},` : 'Hi there,';
+  const one = input.mailboxes.length === 1;
+  const rows = input.mailboxes
+    .map((m) => `<li style="margin:0 0 6px"><b>${escapeHtml(m.address)}</b>${m.person ? ` <span style="color:#525252">(${escapeHtml(m.person)})</span>` : ''}</li>`)
+    .join('');
+  const guides = SETUP_GUIDES.map((g) => `<li style="margin:0 0 6px"><a href="${escapeHtml(g.href)}" style="color:#2563eb">${escapeHtml(g.label)}</a>: ${escapeHtml(g.note)}</li>`).join('');
+  await sendChecked(resend, {
+    from: CLIENT_FROM_ADDRESS,
+    replyTo: CLIENT_REPLY_TO,
+    to: input.to,
+    subject: one ? `Your business email is live: ${input.mailboxes[0].address}` : `Your business email is live (${input.mailboxes.length} mailboxes)`,
+    html: clientLayout(
+      'Your business email is live.',
+      `
+        <p style="margin:0 0 12px">${greeting}</p>
+        <p style="margin:0 0 12px">${one ? 'This address is' : 'These addresses are'} ready to use, on Google Workspace (the business version of Gmail):</p>
+        <ul style="margin:0 0 16px;padding-left:20px">${rows}</ul>
+        ${h2('Signing in for the first time')}
+        <p style="margin:0 0 12px">Google sends each person their own sign-in email, titled something like <b>"Welcome to your new Google account"</b>, to the personal address you gave us. Open it, sign in, and choose a new password. Not there in a few minutes? Check spam, then reply here.</p>
+        <p style="margin:0 0 12px">We never see or store your password, and we will never ask you for it.</p>
+        ${button(gmailUrl(input.domain), 'Open my inbox')}
+        ${h2('On your phone and computer')}
+        <ul style="margin:0 0 12px;padding-left:20px">${guides}<li style="margin:0 0 6px">${escapeHtml(OUTLOOK_NOTE)}</li></ul>
+        ${h2('Already set up for you')}
+        <p style="margin:0 0 12px">Spam protection (SPF, DKIM and DMARC) is switched on, so your emails land in inboxes, not spam folders. You can see those checks, add a mailbox, or tell us someone is locked out in <a href="${escapeHtml(input.dashboardUrl)}" style="color:#2563eb">your dashboard's Email tab</a>.</p>
+      `
+    ),
+  });
+  return true;
+}
+
+/** A client asked for something from the Email tab in AxeonPROOF (lib/businessEmail.ts). */
+export async function sendEmailRequestNotification(input: { businessName: string; clientEmail: string; token: string; kind: string; detail: string; allowance?: string | null }): Promise<void> {
+  const resend = getClient('business_email_request');
+  if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
+  await sendChecked(resend, {
+    from: FROM_ADDRESS,
+    to: ADMIN_NOTIFICATION_EMAIL,
+    subject: `${input.businessName}: business email request (${input.kind})`,
+    html: `
+      <p><b>${escapeHtml(input.businessName)}</b> (${escapeHtml(input.clientEmail)}) asked from their Email tab: <b>${escapeHtml(input.kind)}</b>.</p>
+      <blockquote style="margin:0 0 12px;padding-left:12px;border-left:3px solid #e5e5e5">${escapeHtml(input.detail)}</blockquote>
+      ${input.allowance ? `<p><b>${escapeHtml(input.allowance)}</b></p>` : ''}
+      <p>They were told you will handle it within one business day. Locked out: reset the password in Google Admin and choose to email the sign-in instructions to their recovery address, never to yourself. New mailbox: create it in Google Admin with "Send sign-in instructions", add it in their Business email card, then mark the request done.</p>
       <p><a href="https://app.axeonstudio.co/admin/onboarding/${input.token}">Open their page</a></p>
     `,
   });
@@ -1103,7 +1190,7 @@ export async function sendMonthlyReportsDigest(input: {
   failed: Array<{ name: string; error: string }>;
   adminUrl: string;
 }): Promise<void> {
-  const resend = getClient();
+  const resend = getClient('reports_digest');
   if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
   const list = (items: string[]) => (items.length ? `<ul>${items.map((i) => `<li>${escapeHtml(i)}</li>`).join('')}</ul>` : '<p>None.</p>');
   const previewed = input.previewed ?? [];

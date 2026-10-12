@@ -233,6 +233,20 @@ async function main() {
   await sql`ALTER TABLE site_events DROP CONSTRAINT IF EXISTS site_events_kind_check;`;
   await sql`ALTER TABLE site_events ADD CONSTRAINT site_events_kind_check CHECK (kind IN ('view', 'click', 'leave'));`;
   await sql`CREATE INDEX IF NOT EXISTS site_events_visitor_idx ON site_events (onboarding_id, visitor, created_at);`;
+  // Every email handed to Resend, sent or rejected (lib/emailLog.ts, /admin/emails).
+  await sql`
+    CREATE TABLE IF NOT EXISTS email_log (
+      id BIGSERIAL PRIMARY KEY,
+      kind TEXT NOT NULL,
+      recipient TEXT NOT NULL DEFAULT '',
+      subject TEXT NOT NULL DEFAULT '',
+      status TEXT NOT NULL CHECK (status IN ('sent', 'failed')),
+      error TEXT,
+      resend_id TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS email_log_time_idx ON email_log (created_at DESC);`;
   console.log('Schema ready.');
 }
 

@@ -18,6 +18,7 @@ const TABS = [
   { href: '/admin/onboarding', label: 'Onboarding', match: (p: string) => p.startsWith('/admin/onboarding') },
   { href: '/admin/data', label: 'Data', match: (p: string) => p.startsWith('/admin/data') },
   { href: '/admin/billing', label: 'Billing', match: (p: string) => p.startsWith('/admin/billing') },
+  { href: '/admin/emails', label: 'Emails', match: (p: string) => p.startsWith('/admin/emails') },
   { href: '/admin', label: 'Posts', match: (p: string) => p === '/admin' || p.startsWith('/admin/posts') },
 ];
 
