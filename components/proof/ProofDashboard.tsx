@@ -27,6 +27,7 @@ import {
   Users,
 } from 'lucide-react';
 import { AxeonLogo } from '@/components/brand/AxeonLogo';
+import { ActiveTabIntoView } from '@/components/proof/ActiveTabIntoView';
 import { LeadLog, type LeadMonth } from '@/components/proof/LeadLog';
 import { BillingTab } from '@/components/proof/BillingTab';
 import { FeatureTab } from '@/components/proof/FeatureTab';
@@ -36,7 +37,7 @@ import { UpgradePanel } from '@/components/proof/UpgradePanel';
 import { PROOF_TABS, TIER_SHORT, proofTab, tabLocked, type ProofTabKey } from '@/lib/proofTabs';
 import type { UpgradeRequest } from '@/lib/upgrades';
 import type { BillingSummary } from '@/lib/clientBilling';
-import { REFERRAL, referralMailto } from '@/lib/referral';
+import { REFERRAL, referralHeadline, referralMailto } from '@/lib/referral';
 import { SITE_ORIGIN } from '@/lib/hostRouting';
 import type { OnboardingItem } from '@/data/onboardingItems';
 import type { ItemState, Onboarding, Progress } from '@/lib/onboarding';
@@ -170,9 +171,8 @@ function Card({ children, className = '', delay = 0 }: { children: ReactNode; cl
 }
 
 /**
- * One number with its icon floating off the top edge, the way the dashboards people
- * already know do it. On phones the cards stack one per row, where a tile hanging off
- * every card looks loose, so there the icon sits inside the card next to the label.
+ * One number with its icon floating off the top edge, the way the dashboards people already know do it.
+ * On a phone the cards sit two to a row with the icon inline, so four numbers fit on one screen.
  */
 function StatCard({
   label,
@@ -194,16 +194,49 @@ function StatCard({
   delay?: number;
 }) {
   return (
-    <Card className="relative flex flex-col px-5 pb-4 pt-5 sm:block" delay={delay}>
-      <span className="absolute left-5 top-5 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-700 to-blue-500 text-white shadow-md shadow-blue-600/25 sm:-top-4 sm:h-14 sm:w-14 sm:shadow-lg sm:shadow-blue-600/30">
-        <Icon size={20} />
+    <Card className="relative flex flex-col p-4 sm:px-5 sm:pb-4 sm:pt-5" delay={delay}>
+      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-tr from-blue-700 to-blue-500 text-white shadow-md shadow-blue-600/30 sm:absolute sm:-top-4 sm:left-5 sm:h-14 sm:w-14 sm:rounded-xl sm:shadow-lg">
+        <Icon size={18} className="sm:hidden" />
+        <Icon size={22} className="hidden sm:block" />
       </span>
-      <div className="text-right">
-        <p className="text-sm font-medium text-neutral-500">{label}</p>
-        <p className={`mt-1 text-3xl font-bold tracking-tight ${muted ? 'text-neutral-300' : 'text-neutral-950'}`}>{value}</p>
-        <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">{footer}</p>
+      <div className="mt-3 sm:mt-0 sm:text-right">
+        <p className="text-xs font-medium leading-snug text-neutral-500 sm:text-sm">{label}</p>
+        <p className={`mt-1 text-2xl font-bold tracking-tight sm:text-3xl ${muted ? 'text-neutral-300' : 'text-neutral-950'}`}>{value}</p>
+        <p className="mt-1 hidden text-[11px] font-semibold uppercase tracking-wide text-neutral-400 sm:block">{footer}</p>
       </div>
-      <p className={`mt-4 border-t border-neutral-100 pt-3 text-xs leading-relaxed ${tone === 'up' ? 'font-semibold text-emerald-600' : tone === 'down' ? 'font-semibold text-red-600' : 'text-neutral-500'}`}>{sub}</p>
+      <p className={`mt-2 border-neutral-100 text-[11px] leading-snug sm:mt-4 sm:border-t sm:pt-3 sm:text-xs sm:leading-relaxed ${tone === 'up' ? 'font-semibold text-emerald-600' : tone === 'down' ? 'font-semibold text-red-600' : 'text-neutral-500'}`}>{sub}</p>
+    </Card>
+  );
+}
+
+/**
+ * The referral ask, right under the numbers, shown only when there is a result to
+ * point at (lib/referral.ts referralHeadline): two short lines and one button. The
+ * payout condition stays, small, so nobody expects $300 the day they send a name.
+ */
+function ReferralCard({ headline, href }: { headline: string; href: string }) {
+  return (
+    <Card className="mt-5 flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6" delay={300}>
+      <div className="flex items-start gap-3">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-700 to-blue-500 text-white shadow-md shadow-blue-600/30">
+          <Gift size={18} />
+        </span>
+        <div>
+          <p className="text-sm font-semibold text-neutral-950">{headline} Know someone who&apos;d want that?</p>
+          <p className="mt-0.5 text-sm text-neutral-600">
+            You get <b className="text-neutral-900">{REFERRAL.reward}</b>, they get <b className="text-neutral-900">{REFERRAL.friendGets}</b>.
+          </p>
+        </div>
+      </div>
+      <div className="shrink-0 sm:text-right">
+        <a
+          href={href}
+          className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 sm:w-auto"
+        >
+          Send us a name
+        </a>
+        <p className="mt-1.5 text-center text-[11px] text-neutral-400 sm:text-right">Paid {REFERRAL.when}.</p>
+      </div>
     </Card>
   );
 }
@@ -336,6 +369,11 @@ export function ProofDashboard({
     .map((w) => w[0]?.toUpperCase())
     .join('');
   const setupDone = progress.clientDone >= progress.clientTotal;
+  // The better of this month so far and the latest report, so the ask does not vanish on the 2nd of every month.
+  const referral = referralHeadline([
+    ...(liveTraffic ? [{ traffic: liveTraffic.traffic, period: 'so far this month' }] : []),
+    ...(latest ? [{ traffic: reportTraffic, period: `in ${monthLabel(latest.month).split(' ')[0]}` }] : []),
+  ]);
   const firstName = onboarding.clientName?.split(' ')[0];
 
   return (
@@ -427,16 +465,18 @@ export function ProofDashboard({
             </a>
           );
         })}
+        <ActiveTabIntoView />
       </nav>
 
-      <main className="mx-auto max-w-[1920px] px-4 pb-20 pt-8 sm:px-8 xl:px-12 2xl:px-16">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-xs text-neutral-400">
+      <main className="mx-auto max-w-[1920px] px-4 pb-16 pt-6 sm:px-8 sm:pb-20 sm:pt-8 xl:px-12 2xl:px-16">
+        <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
+          <div className="min-w-0">
+            {/* On a phone the tab chips above already say where you are. */}
+            <p className="hidden text-xs text-neutral-400 sm:block">
               AxeonPROOF <span className="mx-1">/</span> <span className="font-medium text-neutral-700">{proofTab(tab).label}</span>
             </p>
-            <p className="mt-2 text-sm text-neutral-500">{firstName ? `Welcome back, ${firstName}` : 'Welcome back'}</p>
-            <h1 className="mt-0.5 text-2xl font-bold tracking-tight text-neutral-950">{name}</h1>
+            <p className="text-sm text-neutral-500 sm:mt-2">{firstName ? `Welcome back, ${firstName}` : 'Welcome back'}</p>
+            <h1 className="mt-0.5 text-xl font-bold leading-tight tracking-tight text-neutral-950 sm:text-2xl">{name}</h1>
           </div>
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-neutral-700 ring-1 ring-neutral-200">
@@ -498,8 +538,9 @@ export function ProofDashboard({
         ) : null}
 
         {tab === 'overview' ? (<>
+        {traffic ? <p className="mt-6 text-[11px] font-semibold uppercase tracking-wide text-neutral-400 sm:hidden">{trafficLabel}</p> : null}
         {traffic ? (
-          <div className="mt-6 sm:mt-10 grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2 sm:gap-y-8 lg:gap-x-5 xl:grid-cols-4">
+          <div className="mt-2 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-x-4 sm:gap-y-8 lg:gap-x-5 xl:grid-cols-4">
             {WEB_METRICS.map(({ key, label, icon, hint }, i) => {
               const m = webMetric(key, traffic, prevTraffic, avgJobValue, prevLabel);
               return <StatCard key={label} label={label} value={m.value} sub={m.sub ?? hint} tone={m.tone} footer={trafficLabel} icon={icon} delay={i * 70} />;
@@ -507,10 +548,16 @@ export function ProofDashboard({
           </div>
         ) : null}
         {traffic && ownVisitsUrl ? <OwnVisitsLine url={ownVisitsUrl} className="mt-3" /> : null}
+        {referral ? <ReferralCard headline={referral} href={referralMailto(ownerEmail, name)} /> : null}
 
         {leads.some((m) => m.rows.length > 0) ? <LeadLog months={leads} api={leadApi} /> : null}
 
-        <div className={`${traffic ? 'mt-4 sm:mt-8' : 'mt-6 sm:mt-10'} grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2 sm:gap-y-8 lg:gap-x-5 xl:grid-cols-4`}>
+        {!traffic || METRICS.some(({ key }) => metric(key, latest, prev).value !== '—') ? (
+          <p className={`${traffic ? 'mt-5' : 'mt-6'} text-[11px] font-semibold uppercase tracking-wide text-neutral-400 sm:hidden`}>
+            {latest ? monthLabel(latest.month) : 'Live after launch'}
+          </p>
+        ) : null}
+        <div className={`${traffic ? 'sm:mt-8' : 'sm:mt-10'} mt-2 grid grid-cols-2 gap-3 sm:gap-x-4 sm:gap-y-8 lg:gap-x-5 xl:grid-cols-4`}>
           {METRICS.map(({ key, label, icon, hint }, i) => {
             const m = metric(key, latest, prev);
             // Once the site reports, a typed figure Axeon has not entered is left out rather than shown as a dash.
@@ -583,7 +630,7 @@ export function ProofDashboard({
                 </div>
               )}
             </div>
-            <div className="px-6 pb-4 pt-5">
+            <div className="px-5 pb-4 pt-5 sm:px-6">
               <h2 className="text-base font-semibold text-neutral-950">{typedChart ? 'Calls and leads' : 'People who reached out'}</h2>
               <p className="mt-0.5 text-sm text-neutral-500">
                 {live ? (typedChart ? 'By month, as Axeon enters them' : 'By month, straight from your site') : 'Every call and lead, with where it came from'}
@@ -599,13 +646,13 @@ export function ProofDashboard({
                 </p>
               ) : null}
             </div>
-            <p className="flex items-center gap-1.5 border-t border-neutral-100 px-6 py-3 text-xs text-neutral-500">
+            <p className="flex items-center gap-1.5 border-t border-neutral-100 px-5 py-3 text-xs sm:px-6 text-neutral-500">
               <Clock size={13} className="text-neutral-400" />
               {liveTraffic ? 'updated just now' : latest ? `updated with the ${monthLabel(latest.month)} report` : 'live after launch'}
             </p>
           </Card>
 
-          <Card className="p-6" delay={120}>
+          <Card className="p-5 sm:p-6" delay={120}>
             <h2 className="text-base font-semibold text-neutral-950">Your setup</h2>
             <div className="mt-5 flex items-center gap-5">
               <ProgressRing percent={progress.percent} />
@@ -627,28 +674,8 @@ export function ProofDashboard({
           </Card>
         </div>
 
-        <Card className="mt-5 flex flex-col gap-3 px-6 py-5 sm:flex-row sm:items-center sm:justify-between" delay={150}>
-          <div className="flex items-start gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-700 to-blue-500 text-white shadow-md shadow-blue-600/30">
-              <Gift size={18} />
-            </span>
-            <div>
-              <p className="text-sm font-semibold text-neutral-950">Know a business owner who needs this?</p>
-              <p className="mt-0.5 text-sm text-neutral-600">
-                Refer them and you get <b className="text-neutral-900">{REFERRAL.reward}</b> {REFERRAL.when}. They get <b className="text-neutral-900">{REFERRAL.friendGets}</b>.
-              </p>
-            </div>
-          </div>
-          <a
-            href={referralMailto(ownerEmail, name)}
-            className="inline-flex h-10 shrink-0 items-center justify-center rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
-          >
-            Send us a name
-          </a>
-        </Card>
-
         <div className="mt-5 grid grid-cols-1 gap-4 lg:gap-5 lg:grid-cols-3">
-          <Card className="p-6" delay={180}>
+          <Card className="p-5 sm:p-6" delay={180}>
             <h2 className="text-base font-semibold text-neutral-950">Your project</h2>
             <dl className="mt-4 space-y-3 text-sm">
               <div className="flex justify-between gap-4">
@@ -692,19 +719,19 @@ export function ProofDashboard({
           </Card>
 
           <Card className="lg:col-span-2" delay={240}>
-            <div className="flex items-center justify-between border-b border-neutral-100 px-6 py-4">
+            <div className="flex items-center justify-between border-b border-neutral-100 px-5 py-4 sm:px-6">
               <h2 className="text-base font-semibold text-neutral-950">Updates and reports</h2>
               {feed.length ? <span className="text-sm text-neutral-500">{feed.length} total</span> : null}
             </div>
             {feed.length === 0 ? (
-              <p className="px-6 py-10 text-center text-sm text-neutral-500">
+              <p className="px-5 py-10 sm:px-6 text-center text-sm text-neutral-500">
                 Every time we ship something, and every month, you get an update here and by email.
               </p>
             ) : (
               <ul className="max-h-[520px] divide-y divide-neutral-100 overflow-y-auto">
                 {feed.slice(0, 20).map((f) =>
                   f.kind === 'update' ? (
-                    <li key={`u${f.u.id}`} className="px-6 py-4">
+                    <li key={`u${f.u.id}`} className="px-5 py-4 sm:px-6">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700">Update #{f.u.number}</span>
                         <span className="text-xs text-neutral-500">
@@ -730,7 +757,7 @@ export function ProofDashboard({
                       ) : null}
                     </li>
                   ) : (
-                    <li key={`r${f.r.id}`} className="px-6 py-4">
+                    <li key={`r${f.r.id}`} className="px-5 py-4 sm:px-6">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">Monthly report</span>
                         <span className="text-xs text-neutral-500">{monthLabel(f.r.month)}</span>
@@ -767,7 +794,7 @@ export function ProofDashboard({
 
         {traffic ? (
           <div className="mt-5 grid grid-cols-1 gap-4 lg:gap-5 lg:grid-cols-3">
-            <Card className="p-6" delay={300}>
+            <Card className="p-5 sm:p-6" delay={300}>
               <h2 className="text-base font-semibold text-neutral-950">Most clicked buttons</h2>
               <p className="mt-0.5 text-xs text-neutral-500">{trafficLabel}</p>
               <ul className="mt-4 space-y-2 text-sm">
@@ -780,7 +807,7 @@ export function ProofDashboard({
                 {traffic.buttons.length === 0 ? <li className="text-neutral-500">No button clicks yet.</li> : null}
               </ul>
             </Card>
-            <Card className="p-6" delay={360}>
+            <Card className="p-5 sm:p-6" delay={360}>
               <h2 className="text-base font-semibold text-neutral-950">Where visitors came from</h2>
               <p className="mt-0.5 text-xs text-neutral-500">{traffic.visitors} visitors</p>
               <ul className="mt-4 space-y-2 text-sm">
@@ -792,7 +819,7 @@ export function ProofDashboard({
                 ))}
               </ul>
             </Card>
-            <Card className="p-6" delay={420}>
+            <Card className="p-5 sm:p-6" delay={420}>
               <h2 className="text-base font-semibold text-neutral-950">Most visited pages</h2>
               <p className="mt-0.5 text-xs text-neutral-500">{traffic.views} page views</p>
               <ul className="mt-4 space-y-2 text-sm">
@@ -810,7 +837,7 @@ export function ProofDashboard({
         {detail ? (
           <>
             <div className="mt-4 grid grid-cols-1 gap-4 lg:gap-5 lg:grid-cols-3">
-              <Card className="p-6">
+              <Card className="p-5 sm:p-6">
                 <h2 className="text-base font-semibold text-neutral-950">How people visit</h2>
                 <p className="mt-0.5 text-xs text-neutral-500">
                   {detail.sessions} visits · {detail.returningVisitors} came back
@@ -869,7 +896,7 @@ export function ProofDashboard({
                   </div>
                 ) : null}
               </Card>
-              <Card className="p-6">
+              <Card className="p-5 sm:p-6">
                 <h2 className="text-base font-semibold text-neutral-950">Pages that bring customers</h2>
                 <p className="mt-0.5 text-xs text-neutral-500">First page of the visit, and how many reached out</p>
                 <ul className="mt-4 space-y-2 text-sm">
@@ -898,7 +925,7 @@ export function ProofDashboard({
                   </>
                 ) : null}
               </Card>
-              <Card className="p-6">
+              <Card className="p-5 sm:p-6">
                 <h2 className="text-base font-semibold text-neutral-950">Where visitors are</h2>
                 <p className="mt-0.5 text-xs text-neutral-500">City and area only, never who</p>
                 <ul className="mt-4 space-y-2 text-sm">
@@ -916,14 +943,14 @@ export function ProofDashboard({
             </div>
 
             {traffic && traffic.conversions > 0 ? (
-              <Card className="mt-4 p-6">
+              <Card className="mt-4 p-5 sm:p-6">
                 <h2 className="text-base font-semibold text-neutral-950">When customers reach out</h2>
                 <p className="mt-0.5 text-xs text-neutral-500">Calls, texts, emails, forms and bookings by time of day and day of week</p>
                 <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr]">
                   <div>
                     <div className="flex h-24 items-end gap-1">
                       {detail.conversionHours.map((n, h) => (
-                        <div key={h} className="flex flex-1 flex-col items-center justify-end" title={`${hourLabel(h)}: ${n}`}>
+                        <div key={h} className="flex h-full flex-1 flex-col items-center justify-end" title={`${hourLabel(h)}: ${n}`}>
                           <div className={`w-full rounded-t ${n ? 'bg-blue-600' : 'bg-neutral-100'}`} style={{ height: `${Math.max(4, (n / hourMax) * 100)}%` }} />
                         </div>
                       ))}
@@ -939,7 +966,7 @@ export function ProofDashboard({
                   <div>
                     <div className="flex h-24 items-end gap-1.5">
                       {detail.conversionDays.map((n, d) => (
-                        <div key={d} className="flex flex-1 flex-col items-center justify-end" title={`${WEEKDAY_LABELS[d]}: ${n}`}>
+                        <div key={d} className="flex h-full flex-1 flex-col items-center justify-end" title={`${WEEKDAY_LABELS[d]}: ${n}`}>
                           <div className={`w-full rounded-t ${n ? 'bg-blue-600' : 'bg-neutral-100'}`} style={{ height: `${Math.max(4, (n / dayMax) * 100)}%` }} />
                         </div>
                       ))}
@@ -957,7 +984,7 @@ export function ProofDashboard({
         ) : null}
 
         <Card className="mt-4">
-          <div className="flex items-center justify-between border-b border-neutral-100 px-6 py-4">
+          <div className="flex items-center justify-between border-b border-neutral-100 px-5 py-4 sm:px-6">
             <h2 className="text-base font-semibold text-neutral-950">What Axeon is building</h2>
             <span className="text-sm text-neutral-500">
               {progress.axeonDone} of {progress.axeonTotal} done
@@ -967,7 +994,7 @@ export function ProofDashboard({
             {axeonItems.map((item) => {
               const done = states[item.key]?.status === 'done';
               return (
-                <li key={item.key} className="flex items-center gap-4 px-6 py-3.5">
+                <li key={item.key} className="flex items-center gap-3 px-5 py-3.5 sm:gap-4 sm:px-6">
                   <span
                     className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
                       done ? 'bg-emerald-50 text-emerald-600' : 'bg-neutral-100 text-neutral-400'
@@ -977,7 +1004,7 @@ export function ProofDashboard({
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-neutral-900">{item.title}</p>
-                    <p className="truncate text-sm text-neutral-500">{item.description}</p>
+                    <p className="line-clamp-2 text-sm text-neutral-500 sm:line-clamp-none sm:truncate">{item.description}</p>
                   </div>
                   <span
                     className={`shrink-0 rounded-md px-2 py-0.5 text-xs font-semibold ${
