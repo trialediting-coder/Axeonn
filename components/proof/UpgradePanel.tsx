@@ -50,12 +50,12 @@ export function UpgradePanel({
       ) : null}
 
       {tab.ghost ? (
-        <div className="relative mt-6 max-h-[460px] overflow-hidden rounded-2xl border border-neutral-200 bg-white sm:max-h-[560px]">
+        <div className="relative mt-6 max-h-[640px] overflow-hidden rounded-2xl border border-neutral-200 bg-white sm:max-h-[560px]">
           {/* An example month, readable and labelled as such: it shows what the screen does, never the client's own results. */}
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-100 px-4 py-3 sm:px-5">
             <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold text-neutral-900">
               An example month on <AxeonLogo product={TIER_SHORT[tab.tier]} size="sm" mark={false} />
-              <span className="font-normal text-neutral-500">· not your numbers yet; yours start the day it is switched on</span>
+              <span className="basis-full text-xs font-normal text-neutral-500">Not your numbers yet; yours start the day it is switched on.</span>
             </p>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-950 px-3 py-1 text-xs font-semibold text-white">
               <Lock size={12} /> {plan}

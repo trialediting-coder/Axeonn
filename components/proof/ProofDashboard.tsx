@@ -55,6 +55,17 @@ const previousMonth = (month: string) => {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
 };
 
+/**
+ * The chart's top value: a round number with room above the tallest bar for its
+ * label, so the four gridlines read 0 / 15 / 30 / 45 / 60 rather than 12 / 23 / 35 / 46.
+ */
+function niceScale(max: number): number {
+  const raw = (max * 1.15) / 4;
+  const mag = 10 ** Math.max(0, Math.floor(Math.log10(raw)));
+  const step = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10].map((m) => m * mag).find((s) => s >= raw && Number.isInteger(s)) ?? 10 * mag;
+  return 4 * step;
+}
+
 /** Every tab is visible to every client; a tab outside their plan opens the upgrade page (lib/proofTabs.ts). */
 const TAB_ICONS: Record<ProofTabKey, Icon> = {
   overview: LayoutDashboard,
@@ -110,7 +121,7 @@ function webMetric(key: WebKey, t: TrafficSummary, prev: TrafficSummary | null, 
   const diff = now - before;
   return {
     value,
-    sub: `${diff > 0 ? '+' : diff < 0 ? '−' : ''}${Math.abs(diff)} vs ${prevLabel}`,
+    sub: diff === 0 ? `Same as ${prevLabel}` : `${diff > 0 ? '+' : '−'}${Math.abs(diff)} vs ${prevLabel}`,
     tone: diff > 0 ? ('up' as const) : diff < 0 ? ('down' as const) : ('neutral' as const),
   };
 }
@@ -326,7 +337,7 @@ export function ProofDashboard({
     chart.push({ month: liveTraffic.month, calls: null, leads: null, traffic: liveTraffic.traffic, live: true });
     if (chart.length > 6) chart.shift();
   }
-  const chartMax = Math.max(1, ...chart.map((r) => (typedChart ? (r.calls ?? 0) + (r.leads ?? 0) : (r.traffic?.conversions ?? 0))));
+  const chartMax = niceScale(Math.max(1, ...chart.map((r) => (typedChart ? (r.calls ?? 0) + (r.leads ?? 0) : (r.traffic?.conversions ?? 0)))));
   const baseline = details.baselineCalls != null || details.baselineLeads != null ? (details.baselineCalls ?? 0) + (details.baselineLeads ?? 0) : null;
   const feed = [
     ...updates.map((u) => ({ kind: 'update' as const, at: u.createdAt, u })),
@@ -557,7 +568,7 @@ export function ProofDashboard({
                           <span className="mb-1 text-xs font-semibold text-neutral-700">{calls + leads}</span>
                           <div
                             className="proof-grow flex w-full max-w-10 flex-col justify-end overflow-hidden rounded-md"
-                            style={{ height: `${Math.max(2, ((calls + leads) / chartMax) * 82)}%`, animationDelay: `${150 + i * 80}ms` }}
+                            style={{ height: `${Math.max(2, ((calls + leads) / chartMax) * 100)}%`, animationDelay: `${150 + i * 80}ms` }}
                           >
                             <div className="bg-blue-300" style={{ flexGrow: leads }} title={`${leads} leads`} />
                             <div className="bg-blue-600" style={{ flexGrow: calls }} title={`${calls} calls`} />
@@ -981,7 +992,7 @@ export function ProofDashboard({
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-neutral-900">{item.title}</p>
-                    <p className="truncate text-sm text-neutral-500">{item.description}</p>
+                    <p className="text-sm text-neutral-500">{item.description}</p>
                   </div>
                   <span
                     className={`shrink-0 rounded-md px-2 py-0.5 text-xs font-semibold ${
