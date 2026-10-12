@@ -340,6 +340,20 @@ export function ensureSchema(): Promise<void> {
       await sql`CREATE UNIQUE INDEX IF NOT EXISTS call_leads_key_idx ON call_leads (lower(business), phone);`;
       await sql`ALTER TABLE call_leads ADD COLUMN IF NOT EXISTS niche TEXT NOT NULL DEFAULT '';`;
       await sql`ALTER TABLE call_leads ADD COLUMN IF NOT EXISTS contact TEXT NOT NULL DEFAULT '';`;
+      // Every email handed to Resend, sent or rejected (lib/emailLog.ts, /admin/emails).
+      await sql`
+        CREATE TABLE IF NOT EXISTS email_log (
+          id BIGSERIAL PRIMARY KEY,
+          kind TEXT NOT NULL,
+          recipient TEXT NOT NULL DEFAULT '',
+          subject TEXT NOT NULL DEFAULT '',
+          status TEXT NOT NULL CHECK (status IN ('sent', 'failed')),
+          error TEXT,
+          resend_id TEXT,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        );
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS email_log_time_idx ON email_log (created_at DESC);`;
     })().catch((err) => {
       schemaReady = null; // let the next request retry
       throw err;
