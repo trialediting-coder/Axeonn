@@ -157,17 +157,15 @@ export default function BookClient() {
               </div>
 
               {/* Minimal Session Attributes */}
-              <div className="flex flex-wrap items-center gap-3 sm:gap-5 text-xs text-zinc-500 pt-3 border-t border-zinc-100">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:gap-x-5 text-xs text-zinc-500 pt-3 border-t border-zinc-100">
                 <div className="flex items-center gap-1.5 font-medium">
                   <Clock size={14} className="text-blue-600" />
                   <span>30 Minutes</span>
                 </div>
-                <span>&bull;</span>
                 <div className="flex items-center gap-1.5 font-medium">
                   <CalendarCheck size={14} className="text-blue-600" />
                   <span>Google Meet / Zoom</span>
                 </div>
-                <span>&bull;</span>
                 <div className="flex items-center gap-1.5 font-medium">
                   <ShieldCheck size={14} className="text-blue-600" />
                   <span>Zero Obligation</span>

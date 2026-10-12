@@ -228,7 +228,7 @@ export default function AboutClient() {
                   <a href="tel:5154938017" className="hover:text-blue-600 transition-colors">
                     (515) 493-8017
                   </a>
-                  <span className="text-neutral-300">•</span>
+                  <span className="hidden text-neutral-300 sm:inline">•</span>
                   <a
                     href="mailto:hello@axeonstudio.co"
                     className="text-blue-600 hover:text-blue-700 hover:underline transition-colors"
@@ -275,7 +275,7 @@ export default function AboutClient() {
                     </blockquote>
                     <figcaption className="mt-3 flex flex-wrap items-center gap-2 text-xs font-mono uppercase tracking-wider text-neutral-400">
                       <span className="text-blue-400 font-bold">{LEVI_QUOTE.name}</span>
-                      <span>•</span>
+                      <span className="hidden sm:inline">•</span>
                       <span>
                         {LEVI_QUOTE.role}, {LEVI_QUOTE.place}
                       </span>
@@ -353,7 +353,7 @@ export default function AboutClient() {
             <a href="mailto:hello@axeonstudio.co" className="hover:text-neutral-900 transition-colors underline">
               hello@axeonstudio.co
             </a>
-            <span>•</span>
+            <span className="hidden sm:inline">•</span>
             <span>West Des Moines, Iowa</span>
           </div>
         </div>

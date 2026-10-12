@@ -151,7 +151,7 @@ export function VerifyCode({ token, maskedEmail, businessName }: { token: string
             type="button"
             onClick={requestCode}
             disabled={sending || cooldown > 0}
-            className="font-semibold text-blue-600 hover:text-blue-700 disabled:text-neutral-400 disabled:cursor-not-allowed"
+            className="shrink-0 whitespace-nowrap font-semibold text-blue-600 hover:text-blue-700 disabled:text-neutral-400 disabled:cursor-not-allowed"
           >
             {sending ? 'Sending…' : cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend code'}
           </button>

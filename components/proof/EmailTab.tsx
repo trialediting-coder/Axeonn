@@ -73,17 +73,21 @@ export function EmailTab({ setup, tier, preview }: { setup: BusinessEmailSetup |
           {mailboxes.length > 0 ? (
             <ul className="mt-3 divide-y divide-neutral-100">
               {mailboxes.map((m) => (
-                <li key={m.address} className="flex flex-wrap items-center justify-between gap-2 py-3">
+                <li key={m.address} className="flex items-center justify-between gap-3 py-3">
                   <div className="min-w-0">
-                    <p className="truncate text-[15px] font-semibold text-neutral-950">{m.address}</p>
+                    <p className="break-words text-[15px] font-semibold text-neutral-950">
+                      {/* A long address wraps after the @, never mid-word. */}
+                      {m.address.split('@')[0]}@<wbr />
+                      {m.address.split('@')[1]}
+                    </p>
                     {m.person ? <p className="text-xs text-neutral-500">{m.person}</p> : null}
                   </div>
                   {m.status === 'active' ? (
-                    <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
+                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Active
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800 ring-1 ring-amber-200">
+                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800 ring-1 ring-amber-200">
                       <span className="h-1.5 w-1.5 rounded-full bg-amber-500" /> Setting up
                     </span>
                   )}

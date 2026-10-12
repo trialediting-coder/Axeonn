@@ -148,7 +148,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
             <div className="mt-8 grid grid-cols-3 max-w-lg rounded-2xl border border-white/15 divide-x divide-white/15 text-center">
               {[
                 { v: '$99', l: 'to start' },
-                { v: 'from $149', l: 'per month' },
+                { v: '$149+', l: 'per month' },
                 { v: '90-day', l: 'guarantee with AxeonCORE' },
               ].map((o) => (
                 <div key={o.l} className="px-3 py-4">

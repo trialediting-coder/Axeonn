@@ -269,16 +269,17 @@ export function Hero() {
           <div aria-hidden="true" className="flex-1 sm:hidden" />
           <h1 className="hero-rise text-center sm:text-left text-[min(3.25rem,13.5vw)] sm:text-6xl lg:text-7xl xl:text-8xl font-black tracking-[-0.03em] [word-spacing:0.12em] leading-[1.05] font-display text-white">
             Get More
-            {/* The rotating word always sits on its own line. */}
+            {/* The rotating word always sits on its own line. Old and new words share one
+                grid cell and cross-fade, so the line is never empty between words. */}
             <span className="grid">
-              <AnimatePresence mode="wait" initial={false}>
+              <AnimatePresence initial={false}>
                 <motion.span
                   key={reducedMotion ? 'static' : ROTATING_WORDS[wordIndex]}
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -16 }}
                   transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                  className="text-blue-400"
+                  className="text-blue-400 [grid-area:1/1]"
                 >
                   {reducedMotion ? ROTATING_WORDS[0] : ROTATING_WORDS[wordIndex]}
                 </motion.span>

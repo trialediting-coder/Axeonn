@@ -55,6 +55,17 @@ const previousMonth = (month: string) => {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
 };
 
+/**
+ * The chart's top value: a round number with room above the tallest bar for its
+ * label, so the four gridlines read 0 / 15 / 30 / 45 / 60 rather than 12 / 23 / 35 / 46.
+ */
+function niceScale(max: number): number {
+  const raw = (max * 1.15) / 4;
+  const mag = 10 ** Math.max(0, Math.floor(Math.log10(raw)));
+  const step = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10].map((m) => m * mag).find((s) => s >= raw && Number.isInteger(s)) ?? 10 * mag;
+  return 4 * step;
+}
+
 /** Every tab is visible to every client; a tab outside their plan opens the upgrade page (lib/proofTabs.ts). */
 const TAB_ICONS: Record<ProofTabKey, Icon> = {
   overview: LayoutDashboard,
@@ -110,7 +121,7 @@ function webMetric(key: WebKey, t: TrafficSummary, prev: TrafficSummary | null, 
   const diff = now - before;
   return {
     value,
-    sub: `${diff > 0 ? '+' : diff < 0 ? '−' : ''}${Math.abs(diff)} vs ${prevLabel}`,
+    sub: diff === 0 ? `Same as ${prevLabel}` : `${diff > 0 ? '+' : '−'}${Math.abs(diff)} vs ${prevLabel}`,
     tone: diff > 0 ? ('up' as const) : diff < 0 ? ('down' as const) : ('neutral' as const),
   };
 }
@@ -172,7 +183,8 @@ function Card({ children, className = '', delay = 0 }: { children: ReactNode; cl
 /**
  * One number with its icon floating off the top edge, the way the dashboards people
  * already know do it. On phones the cards stack one per row, where a tile hanging off
- * every card looks loose, so there the icon sits inside the card next to the label.
+ * every card looks loose, so there the icon sits inside the card, beside and centred on
+ * the label and number.
  */
 function StatCard({
   label,
@@ -194,14 +206,17 @@ function StatCard({
   delay?: number;
 }) {
   return (
-    <Card className="relative flex flex-col px-5 pb-4 pt-5 sm:block" delay={delay}>
-      <span className="absolute left-5 top-5 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-700 to-blue-500 text-white shadow-md shadow-blue-600/25 sm:-top-4 sm:h-14 sm:w-14 sm:shadow-lg sm:shadow-blue-600/30">
-        <Icon size={20} />
-      </span>
-      <div className="text-right">
-        <p className="text-sm font-medium text-neutral-500">{label}</p>
-        <p className={`mt-1 text-3xl font-bold tracking-tight ${muted ? 'text-neutral-300' : 'text-neutral-950'}`}>{value}</p>
-        <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">{footer}</p>
+    <Card className="relative px-5 pb-4 pt-5" delay={delay}>
+      {/* Phones: icon and numbers side by side, centred on each other. sm and up: the icon floats off the top edge. */}
+      <div className="flex items-center gap-4 sm:block">
+        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-700 to-blue-500 text-white shadow-lg shadow-blue-600/30 sm:absolute sm:-top-4 sm:left-5">
+          <Icon size={24} />
+        </span>
+        <div className="min-w-0 flex-1 text-left sm:text-right">
+          <p className="text-sm font-medium text-neutral-500">{label}</p>
+          <p className={`mt-1 text-3xl font-bold leading-none tracking-tight sm:leading-[1.2] ${muted ? 'text-neutral-300' : 'text-neutral-950'}`}>{value}</p>
+          <p className="mt-1.5 text-[11px] font-semibold uppercase tracking-wide text-neutral-400 sm:mt-1">{footer}</p>
+        </div>
       </div>
       <p className={`mt-4 border-t border-neutral-100 pt-3 text-xs leading-relaxed ${tone === 'up' ? 'font-semibold text-emerald-600' : tone === 'down' ? 'font-semibold text-red-600' : 'text-neutral-500'}`}>{sub}</p>
     </Card>
@@ -322,7 +337,7 @@ export function ProofDashboard({
     chart.push({ month: liveTraffic.month, calls: null, leads: null, traffic: liveTraffic.traffic, live: true });
     if (chart.length > 6) chart.shift();
   }
-  const chartMax = Math.max(1, ...chart.map((r) => (typedChart ? (r.calls ?? 0) + (r.leads ?? 0) : (r.traffic?.conversions ?? 0))));
+  const chartMax = niceScale(Math.max(1, ...chart.map((r) => (typedChart ? (r.calls ?? 0) + (r.leads ?? 0) : (r.traffic?.conversions ?? 0)))));
   const baseline = details.baselineCalls != null || details.baselineLeads != null ? (details.baselineCalls ?? 0) + (details.baselineLeads ?? 0) : null;
   const feed = [
     ...updates.map((u) => ({ kind: 'update' as const, at: u.createdAt, u })),
@@ -553,7 +568,7 @@ export function ProofDashboard({
                           <span className="mb-1 text-xs font-semibold text-neutral-700">{calls + leads}</span>
                           <div
                             className="proof-grow flex w-full max-w-10 flex-col justify-end overflow-hidden rounded-md"
-                            style={{ height: `${Math.max(2, ((calls + leads) / chartMax) * 82)}%`, animationDelay: `${150 + i * 80}ms` }}
+                            style={{ height: `${Math.max(2, ((calls + leads) / chartMax) * 100)}%`, animationDelay: `${150 + i * 80}ms` }}
                           >
                             <div className="bg-blue-300" style={{ flexGrow: leads }} title={`${leads} leads`} />
                             <div className="bg-blue-600" style={{ flexGrow: calls }} title={`${calls} calls`} />
@@ -977,7 +992,7 @@ export function ProofDashboard({
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-neutral-900">{item.title}</p>
-                    <p className="truncate text-sm text-neutral-500">{item.description}</p>
+                    <p className="text-sm text-neutral-500">{item.description}</p>
                   </div>
                   <span
                     className={`shrink-0 rounded-md px-2 py-0.5 text-xs font-semibold ${

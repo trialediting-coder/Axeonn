@@ -68,7 +68,7 @@ export function Footer({ year }: FooterProps) {
   // Pages that already end with their own closing CTA skip the footer card, so
   // the page never ends with two calls to action back to back.
   const pageHasCloser =
-    ['/', '/pricing', '/process', '/why-axeon', '/des-moines-web-design', '/about', '/marketing-solutions', '/partners', '/nonprofits', '/book', '/faq', '/insights'].includes(pathname) ||
+    ['/', '/pricing', '/process', '/why-axeon', '/des-moines-web-design', '/about', '/marketing-solutions', '/partners', '/nonprofits', '/book', '/faq', '/insights', '/solutions', '/work'].includes(pathname) ||
     pathname.startsWith('/marketing-solutions/') ||
     pathname.startsWith('/solutions/');
 
@@ -113,7 +113,7 @@ export function Footer({ year }: FooterProps) {
         </div>
 
         {/* Contact + link columns */}
-        <div className="mt-14 lg:mt-20 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+        <div className={`${pageHasCloser ? '' : 'mt-14 lg:mt-20'} grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16`}>
           <div className="lg:col-span-4">
             <div className="flex items-center gap-4">
               <picture>
@@ -155,7 +155,10 @@ export function Footer({ year }: FooterProps) {
           <div className="lg:col-span-8 grid grid-cols-2 sm:grid-cols-3 gap-8 sm:gap-10">
             <FooterColumn title="Company" links={COMPANY_LINKS} />
             <FooterColumn title="Who We Help" links={WHO_WE_HELP_LINKS} />
-            <FooterColumn title="Solutions" links={SOLUTION_LINKS} />
+            {/* Full width on phones: these names are long and wrap badly in half a column. */}
+            <div className="col-span-2 sm:col-span-1">
+              <FooterColumn title="Solutions" links={SOLUTION_LINKS} />
+            </div>
           </div>
         </div>
 

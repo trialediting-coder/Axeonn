@@ -30,7 +30,7 @@ export function NicheClosingCTA({ niche }: { niche: Niche }) {
             <Phone size={17} /> Call (515) 493-8017
           </a>
         </div>
-        <p className="mt-6 text-xs text-neutral-500 max-w-xl mx-auto leading-relaxed">
+        <p className="mt-6 text-xs text-neutral-400 max-w-xl mx-auto leading-relaxed">
           Included with AxeonCORE and AxeonGROWTH. Baseline set together on your kickoff call. Applies while you&apos;re
           on your plan and answering new leads within one business day.
         </p>
