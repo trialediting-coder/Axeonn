@@ -354,7 +354,7 @@ export function CallDeck({ initialLeads, dbError }: { initialLeads: CallLead[]; 
             onChange={(e) => setCsvText(e.target.value)}
             rows={5}
             placeholder="Priority,Business,City,Region,Phone,Website,Site status,Google rating,Reviews,Axeon status,Source,Maps URL,Why this priority,Notes"
-            className={`${adminInput} mt-3 font-mono text-xs`}
+            className={`${adminInput} mt-3 font-mono sm:text-xs!`}
           />
           <div className="mt-3 flex gap-2">
             <button type="button" onClick={runImport} disabled={importing || !csvText.trim()} className={btn('primary')}>
@@ -384,7 +384,7 @@ export function CallDeck({ initialLeads, dbError }: { initialLeads: CallLead[]; 
             </button>
           ))}
         </div>
-        <select value={region} onChange={(e) => setRegion(e.target.value)} className={`${adminInput} h-8 w-auto py-0 text-xs`}>
+        <select value={region} onChange={(e) => setRegion(e.target.value)} className={`${adminInput} h-9 w-auto py-0 sm:h-8 sm:text-xs!`}>
           <option value="all">All regions</option>
           {regions.map((r) => (
             <option key={r} value={r}>
@@ -392,7 +392,7 @@ export function CallDeck({ initialLeads, dbError }: { initialLeads: CallLead[]; 
             </option>
           ))}
         </select>
-        <select value={niche} onChange={(e) => setNiche(e.target.value)} className={`${adminInput} h-8 w-auto py-0 text-xs`}>
+        <select value={niche} onChange={(e) => setNiche(e.target.value)} className={`${adminInput} h-9 w-auto py-0 sm:h-8 sm:text-xs!`}>
           <option value="all">All niches</option>
           {niches.map((n) => (
             <option key={n} value={n}>
@@ -404,9 +404,9 @@ export function CallDeck({ initialLeads, dbError }: { initialLeads: CallLead[]; 
           <input type="checkbox" checked={hideDone} onChange={(e) => setHideDone(e.target.checked)} className="h-4 w-4 accent-blue-600" />
           Hide not-a-fit, booked, clients
         </label>
-        <div className="relative ml-auto min-w-[180px]">
+        <div className="relative w-full sm:ml-auto sm:w-auto sm:min-w-[180px]">
           <Search size={13} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-neutral-400" />
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, city, notes" className={`${adminInput} h-8 pl-7 text-xs`} />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, city, notes" className={`${adminInput} h-9 pl-7 sm:h-8 sm:text-xs!`} />
         </div>
         <span className="text-xs font-semibold text-neutral-500">{queue.length} in queue</span>
       </div>
@@ -434,8 +434,8 @@ export function CallDeck({ initialLeads, dbError }: { initialLeads: CallLead[]; 
                     </span>
                   )}
                 </div>
-                <h2 className="mt-2 text-2xl font-bold leading-tight text-neutral-950 sm:text-3xl">{lead.business}</h2>
-                <p className="mt-1 flex items-center gap-1.5 text-sm text-neutral-600">
+                <h2 className="mt-2 text-2xl font-bold leading-tight break-words text-neutral-950 sm:text-3xl">{lead.business}</h2>
+                <p className="mt-1 flex flex-wrap items-center gap-x-1.5 text-sm text-neutral-600">
                   <MapPin size={14} className="text-neutral-400" />
                   {lead.city || 'City unknown'}
                   {lead.region && <span className="text-neutral-400">· {lead.region}</span>}
@@ -536,7 +536,7 @@ export function CallDeck({ initialLeads, dbError }: { initialLeads: CallLead[]; 
                       className={`${btn(b.variant, 'sm')} ${lead.outcome === b.value ? 'ring-2 ring-blue-600/40' : ''}`}
                       title={`Press ${b.key}`}
                     >
-                      <kbd className="rounded bg-black/10 px-1 text-[10px] font-bold">{b.key}</kbd> {b.label}
+                      <kbd className="hidden rounded bg-black/10 px-1 text-[10px] font-bold sm:inline">{b.key}</kbd> {b.label}
                     </button>
                   ))}
                 </div>
@@ -560,7 +560,7 @@ export function CallDeck({ initialLeads, dbError }: { initialLeads: CallLead[]; 
                   <button type="button" onClick={saveNotes} disabled={!dirty || saving} className={btn('primary', 'sm')}>
                     {dirty ? <Save size={13} /> : <Check size={13} />} {saving ? 'Saving…' : dirty ? 'Save notes' : 'Saved'}
                   </button>
-                  <span className="text-[11px] text-neutral-500">Ctrl+S saves · N jumps here · ← → flip cards · 1-7 set the outcome</span>
+                  <span className="hidden text-[11px] text-neutral-500 sm:inline">Ctrl+S saves · N jumps here · ← → flip cards · 1-7 set the outcome</span>
                 </div>
               </div>
             </div>

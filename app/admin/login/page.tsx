@@ -37,8 +37,8 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main className="w-full min-h-screen flex items-center justify-center px-6 bg-neutral-50">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm bg-white rounded-2xl border border-neutral-200 p-8 shadow-sm">
+    <main className="w-full min-h-screen flex items-center justify-center px-4 sm:px-6 bg-neutral-50">
+      <form onSubmit={handleSubmit} className="w-full max-w-sm bg-white rounded-2xl border border-neutral-200 p-6 sm:p-8 shadow-sm">
         <h1 className="text-2xl font-bold text-neutral-950 mb-6">Axeon Admin</h1>
         <div className="flex flex-col gap-4">
           <div>

@@ -72,7 +72,7 @@ export default async function EmailLogPage({ searchParams }: { searchParams: Pro
         <form action="/admin/emails" className="mb-5 flex flex-wrap items-center gap-2">
           {category && <input type="hidden" name="category" value={category} />}
           {status && <input type="hidden" name="status" value={status} />}
-          <input name="q" defaultValue={q} placeholder="Search recipient or subject" className={`${adminInput} max-w-xs`} />
+          <input name="q" defaultValue={q} placeholder="Search recipient or subject" className={`${adminInput} min-w-0 flex-1 sm:max-w-xs sm:flex-none`} />
           <button type="submit" className={btn('secondary', 'md')}>
             Search
           </button>
@@ -93,9 +93,10 @@ export default async function EmailLogPage({ searchParams }: { searchParams: Pro
             {category || status || q ? 'No emails match.' : 'No emails logged yet. Sends show up here from now on.'}
           </p>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-neutral-200 bg-white">
-            <table className="w-full text-sm">
-              <thead className="bg-neutral-50 text-left text-xs font-semibold uppercase tracking-wide text-neutral-500">
+          <div className="rounded-xl border border-neutral-200 bg-white sm:overflow-x-auto">
+            {/* Below sm each send is a card; from sm up it's a regular table. */}
+            <table className="block w-full text-sm sm:table">
+              <thead className="hidden bg-neutral-50 text-left text-xs font-semibold uppercase tracking-wide text-neutral-500 sm:table-header-group">
                 <tr>
                   <th className="px-4 py-2.5">When</th>
                   <th className="px-4 py-2.5">Type</th>
@@ -104,28 +105,34 @@ export default async function EmailLogPage({ searchParams }: { searchParams: Pro
                   <th className="px-4 py-2.5">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-100">
+              <tbody className="block divide-y divide-neutral-100 sm:table-row-group">
                 {entries.map((e) => (
-                  <tr key={e.id} className="align-top">
-                    <td className="px-4 py-2.5 whitespace-nowrap text-neutral-600">{when(e.createdAt)}</td>
-                    <td className="px-4 py-2.5">
-                      <div className="font-medium text-neutral-900 whitespace-nowrap">{emailKindLabel(e.kind)}</div>
+                  <tr key={e.id} className="relative block px-4 py-3 align-top sm:table-row sm:p-0">
+                    <td className="block pr-16 text-xs text-neutral-500 sm:table-cell sm:whitespace-nowrap sm:px-4 sm:py-2.5 sm:pr-4 sm:text-sm sm:text-neutral-600">{when(e.createdAt)}</td>
+                    <td className="mt-1 block sm:mt-0 sm:table-cell sm:px-4 sm:py-2.5">
+                      <div className="font-medium text-neutral-900 sm:whitespace-nowrap">{emailKindLabel(e.kind)}</div>
                       {Object.hasOwn(EMAIL_KINDS, e.kind) && (
                         <div className="text-xs text-neutral-500">{EMAIL_CATEGORIES[EMAIL_KINDS[e.kind as EmailKind].category]}</div>
                       )}
                     </td>
-                    <td className="px-4 py-2.5 text-neutral-800 break-all">{owner && e.recipient === owner ? 'You' : e.recipient}</td>
-                    <td className="px-4 py-2.5 text-neutral-800">{e.subject}</td>
-                    <td className="px-4 py-2.5">
+                    <td className="mt-1 block text-neutral-800 break-all sm:mt-0 sm:table-cell sm:px-4 sm:py-2.5">
+                      <span className="text-neutral-500 sm:hidden">To </span>
+                      {owner && e.recipient === owner ? 'You' : e.recipient}
+                    </td>
+                    <td className="mt-0.5 block text-neutral-800 break-words sm:mt-0 sm:table-cell sm:px-4 sm:py-2.5">{e.subject}</td>
+                    <td className="absolute right-4 top-3 sm:static sm:table-cell sm:px-4 sm:py-2.5">
                       {e.status === 'sent' ? (
                         <span className="inline-flex rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">Sent</span>
                       ) : (
                         <>
                           <span className="inline-flex rounded-full bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700">Failed</span>
-                          {e.error && <div className="mt-1 max-w-xs text-xs text-red-700">{e.error}</div>}
+                          {e.error && <div className="mt-1 hidden max-w-xs text-xs text-red-700 sm:block">{e.error}</div>}
                         </>
                       )}
                     </td>
+                    {e.status !== 'sent' && e.error && (
+                      <td className="mt-1 block text-xs text-red-700 sm:hidden">{e.error}</td>
+                    )}
                   </tr>
                 ))}
               </tbody>

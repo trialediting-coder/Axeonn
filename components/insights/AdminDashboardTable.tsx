@@ -47,44 +47,52 @@ export function AdminDashboardTable({ initialPosts }: { initialPosts: Post[] }) 
       {error && (
         <p className="mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>
       )}
+      {/* Below sm each row stacks into a card; from sm up it's a regular table. */}
       <table className="w-full text-sm">
-      <thead>
-        <tr className="text-left text-neutral-500 border-b border-neutral-200">
-          <th className="py-3 pr-4">Title</th>
-          <th className="py-3 pr-4">Status</th>
-          <th className="py-3 pr-4">Author</th>
-          <th className="py-3 pr-4">Scheduled for</th>
-          <th className="py-3 text-right">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {posts.map((post) => (
-          <tr key={post.id} className="border-b border-neutral-100">
-            <td className="py-3 pr-4 font-medium text-neutral-900">{post.title}</td>
-            <td className="py-3 pr-4">{statusBadge(post.status)}</td>
-            <td className="py-3 pr-4 text-neutral-500">{post.author}</td>
-            <td className="py-3 pr-4 text-neutral-500">
-              {post.scheduledPublishAt ? new Date(post.scheduledPublishAt).toLocaleString() : '—'}
-            </td>
-            <td className="py-3">
-              <div className="flex items-center justify-end gap-2">
-                <Link href={`/admin/posts/${post.id}/edit`} className={btn('secondary', 'sm')}>
-                  Edit
-                </Link>
-                {post.status !== 'published' && (
-                  <button type="button" onClick={() => handlePublishNow(post.id)} className={btn('success', 'sm')}>
-                    Publish now
-                  </button>
-                )}
-                <button type="button" onClick={() => handleDelete(post.id)} className={btn('danger', 'sm')}>
-                  Delete
-                </button>
-              </div>
-            </td>
+        <thead className="hidden sm:table-header-group">
+          <tr className="text-left text-neutral-500 border-b border-neutral-200">
+            <th className="py-3 pr-4">Title</th>
+            <th className="py-3 pr-4">Status</th>
+            <th className="py-3 pr-4">Author</th>
+            <th className="py-3 pr-4">Scheduled for</th>
+            <th className="py-3 text-right">Actions</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody className="block sm:table-row-group">
+          {posts.map((post) => (
+            <tr key={post.id} className="block border-b border-neutral-100 py-4 first:pt-0 last:border-b-0 sm:table-row sm:py-0 sm:last:border-b">
+              <td className="block font-medium text-neutral-900 sm:table-cell sm:py-3 sm:pr-4">{post.title}</td>
+              <td className="mt-2 mr-2 inline-block align-middle sm:mt-0 sm:mr-0 sm:table-cell sm:py-3 sm:pr-4">{statusBadge(post.status)}</td>
+              <td className="inline align-middle text-neutral-500 sm:table-cell sm:py-3 sm:pr-4">{post.author}</td>
+              <td className="mt-1 block text-xs text-neutral-500 sm:mt-0 sm:table-cell sm:py-3 sm:pr-4 sm:text-sm">
+                {post.scheduledPublishAt ? (
+                  <>
+                    <span className="sm:hidden">Scheduled for </span>
+                    {new Date(post.scheduledPublishAt).toLocaleString()}
+                  </>
+                ) : (
+                  <span className="hidden sm:inline">—</span>
+                )}
+              </td>
+              <td className="mt-3 block sm:mt-0 sm:table-cell sm:py-3">
+                <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                  <Link href={`/admin/posts/${post.id}/edit`} className={btn('secondary', 'sm')}>
+                    Edit
+                  </Link>
+                  {post.status !== 'published' && (
+                    <button type="button" onClick={() => handlePublishNow(post.id)} className={btn('success', 'sm')}>
+                      Publish now
+                    </button>
+                  )}
+                  <button type="button" onClick={() => handleDelete(post.id)} className={btn('danger', 'sm')}>
+                    Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

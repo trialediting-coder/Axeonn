@@ -90,7 +90,7 @@ const ghostButtonClass = btn('secondary', 'sm');
 
 function Card({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
   return (
-    <section className="bg-white rounded-2xl border border-neutral-200 p-6">
+    <section className="bg-white rounded-2xl border border-neutral-200 p-4 sm:p-6">
       <h2 className="text-lg font-bold text-neutral-950">{title}</h2>
       <p className="mt-1 mb-5 text-sm text-neutral-600">{subtitle}</p>
       {children}
@@ -333,9 +333,10 @@ function PayLinksTable({ links, databaseConfigured }: { links: PayLinkItem[]; da
       {!databaseConfigured && <p className="text-sm text-neutral-600">Links appear here once the database is attached.</p>}
       {databaseConfigured && links.length === 0 && <p className="text-sm text-neutral-600">No links yet.</p>}
       {links.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
+        <div className="sm:overflow-x-auto">
+          {/* Below sm each link is a card; from sm up it's a regular table. */}
+          <table className="block w-full text-sm sm:table">
+            <thead className="hidden sm:table-header-group">
               <tr className="text-left text-xs uppercase tracking-wide text-neutral-500 border-b border-neutral-200">
                 <th className="py-2 pr-4">Link</th>
                 <th className="py-2 pr-4">Client</th>
@@ -345,15 +346,15 @@ function PayLinksTable({ links, databaseConfigured }: { links: PayLinkItem[]; da
                 <th className="py-2">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="block sm:table-row-group">
               {links.map((l) => (
-                <tr key={l.token} className="border-b border-neutral-100 align-top">
-                  <td className="py-2 pr-4 whitespace-nowrap font-mono text-neutral-900">{l.token}</td>
-                  <td className="py-2 pr-4">
+                <tr key={l.token} className="relative block border-b border-neutral-100 py-3 align-top first:pt-0 last:border-b-0 sm:table-row sm:py-0 sm:last:border-b">
+                  <td className="block pr-24 font-mono text-xs text-neutral-500 sm:table-cell sm:py-2 sm:pr-4 sm:whitespace-nowrap sm:text-sm sm:text-neutral-900">{l.token}</td>
+                  <td className="mt-1 block sm:mt-0 sm:table-cell sm:py-2 sm:pr-4">
                     <div className="font-medium text-neutral-900">{l.clientName ?? 'Unknown'}</div>
-                    <div className="text-neutral-500">{l.clientEmail}</div>
+                    <div className="text-neutral-500 break-all">{l.clientEmail}</div>
                   </td>
-                  <td className="py-2 pr-4 text-neutral-700">
+                  <td className="mt-1 block text-neutral-700 sm:mt-0 sm:table-cell sm:py-2 sm:pr-4">
                     {KIND_LABELS[l.kind]}
                     {l.tier ? ` / ${l.tier}` : ''}
                     {l.planKey ? ` / ${l.planKey}` : ''}
@@ -363,15 +364,16 @@ function PayLinksTable({ links, databaseConfigured }: { links: PayLinkItem[]; da
                     {l.addOns.length > 0 ? ` + ${l.addOns.length} add-on${l.addOns.length > 1 ? 's' : ''}` : ''}
                     {l.note && <div className="text-xs text-neutral-500">{l.note}</div>}
                   </td>
-                  <td className="py-2 pr-4">
+                  <td className="absolute right-0 top-3 sm:static sm:table-cell sm:py-2 sm:pr-4">
                     <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${statusTone(l.state)}`}>
                       {l.state}
                     </span>
                   </td>
-                  <td className="py-2 pr-4 whitespace-nowrap text-neutral-600">
+                  <td className="mt-1 block text-xs text-neutral-600 sm:mt-0 sm:table-cell sm:py-2 sm:pr-4 sm:whitespace-nowrap sm:text-sm">
+                    <span className="sm:hidden">Expires </span>
                     {new Date(l.expiresAt).toLocaleDateString('en-US', { timeZone: 'America/Chicago' })}
                   </td>
-                  <td className="py-2">
+                  <td className="mt-2 block sm:mt-0 sm:table-cell sm:py-2">
                     <div className="flex flex-wrap gap-2">
                       <CopyButton value={l.url} />
                       <a href={l.url} target="_blank" rel="noreferrer" className={ghostButtonClass}>
@@ -748,9 +750,10 @@ function RecordsTable({
         <p className="text-sm text-neutral-600">Nothing yet. Activity appears here once the webhook receives events.</p>
       )}
       {records.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
+        <div className="sm:overflow-x-auto">
+          {/* Below sm each record is a card; from sm up it's a regular table. */}
+          <table className="block w-full text-sm sm:table">
+            <thead className="hidden sm:table-header-group">
               <tr className="text-left text-xs uppercase tracking-wide text-neutral-500 border-b border-neutral-200">
                 <th className="py-2 pr-4">When</th>
                 <th className="py-2 pr-4">Client</th>
@@ -760,30 +763,30 @@ function RecordsTable({
                 <th className="py-2">Link</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="block sm:table-row-group">
               {records.map((r) => (
-                <tr key={r.id} className="border-b border-neutral-100 align-top">
-                  <td className="py-2 pr-4 whitespace-nowrap text-neutral-600">
+                <tr key={r.id} className="relative block border-b border-neutral-100 py-3 align-top first:pt-0 last:border-b-0 sm:table-row sm:py-0 sm:last:border-b">
+                  <td className="block pr-24 text-xs text-neutral-500 sm:table-cell sm:py-2 sm:pr-4 sm:whitespace-nowrap sm:text-sm sm:text-neutral-600">
                     {new Date(r.updatedAt).toLocaleString('en-US', { timeZone: 'America/Chicago' })}
                   </td>
-                  <td className="py-2 pr-4">
+                  <td className="mt-1 block sm:mt-0 sm:table-cell sm:py-2 sm:pr-4">
                     <div className="font-medium text-neutral-900">{r.customerName ?? 'Unknown'}</div>
-                    <div className="text-neutral-500">{r.customerEmail ?? ''}</div>
+                    <div className="text-neutral-500 break-all">{r.customerEmail ?? ''}</div>
                   </td>
-                  <td className="py-2 pr-4 text-neutral-700">
+                  <td className="mt-1 mr-2 inline-block text-neutral-700 sm:mt-0 sm:mr-0 sm:table-cell sm:py-2 sm:pr-4">
                     {r.objectType.replace('_', ' ')}
                     {r.kind ? ` / ${r.kind}` : ''}
                     {r.tier ? ` / ${r.tier}` : ''}
                   </td>
-                  <td className="py-2 pr-4 whitespace-nowrap text-neutral-900">
+                  <td className="mt-1 mr-2 inline-block font-semibold whitespace-nowrap text-neutral-900 sm:mt-0 sm:mr-0 sm:table-cell sm:py-2 sm:pr-4 sm:font-normal">
                     {r.amountCents != null ? formatCents(r.amountCents, r.currency ?? 'usd') : ''}
                   </td>
-                  <td className="py-2 pr-4">
+                  <td className="absolute right-0 top-3 sm:static sm:table-cell sm:py-2 sm:pr-4">
                     <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${statusTone(r.status)}`}>
                       {r.status}
                     </span>
                   </td>
-                  <td className="py-2">
+                  <td className="inline-block sm:table-cell sm:py-2">
                     {r.hostedUrl ? (
                       <a href={r.hostedUrl} target="_blank" rel="noreferrer" className="underline text-blue-700">
                         Open
