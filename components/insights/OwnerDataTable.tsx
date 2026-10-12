@@ -87,11 +87,13 @@ export function OwnerDataTable({ data }: { data: OwnerOverview }) {
           </div>
         ) : null}
 
-        <div className="mt-6 overflow-x-auto rounded-2xl border border-neutral-200 bg-white">
+        <p className="mt-6 text-xs text-neutral-500 sm:hidden">Swipe the table sideways for every column.</p>
+        <div className="mt-2 overflow-x-auto rounded-2xl border border-neutral-200 bg-white sm:mt-6">
           <table className="w-full min-w-[1100px] text-sm">
             <thead className="bg-neutral-50 text-left text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
               <tr>
-                <th className="px-4 py-3">Client</th>
+                {/* The client column stays put while the rest scrolls sideways. */}
+                <th className="sticky left-0 z-10 bg-neutral-50 px-4 py-3">Client</th>
                 <th className="px-3 py-3">Stage</th>
                 <th className="px-3 py-3">Found us</th>
                 <th className="px-3 py-3">Reports</th>
@@ -107,7 +109,7 @@ export function OwnerDataTable({ data }: { data: OwnerOverview }) {
             <tbody className="divide-y divide-neutral-100 align-top">
               {data.rows.map((r) => (
                 <tr key={r.id} className={r.flags.length ? 'bg-amber-50/40' : ''}>
-                  <td className="px-4 py-3">
+                  <td className={`sticky left-0 z-10 max-w-[10rem] px-4 py-3 shadow-[1px_0_0_var(--color-neutral-200)] sm:max-w-none ${r.flags.length ? 'bg-amber-50' : 'bg-white'}`}>
                     <Link href={`/admin/onboarding/${r.token}`} className="font-semibold text-neutral-950 hover:text-blue-700">
                       {r.name}
                     </Link>

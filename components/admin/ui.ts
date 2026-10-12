@@ -12,7 +12,8 @@ const BASE =
   'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none';
 
 const SIZES: Record<ButtonSize, string> = {
-  sm: 'h-8 px-3 text-xs',
+  // Phones get a 36px tap target; desktop keeps the compact 32px.
+  sm: 'h-9 px-3 text-xs sm:h-8',
   md: 'h-10 px-4 text-sm',
 };
 
@@ -31,10 +32,11 @@ export function btn(variant: ButtonVariant = 'secondary', size: ButtonSize = 'md
 }
 
 export const adminInput =
-  'w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 ' +
+  // text-base below sm: iOS Safari zooms the page into any field under 16px.
+  'w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-base sm:text-sm text-neutral-900 placeholder:text-neutral-400 ' +
   'focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 disabled:bg-neutral-100';
 
 export const adminLabel = 'block text-xs font-semibold uppercase tracking-wide text-neutral-500 mb-1';
 
 /** Page wrapper below the admin top bar. */
-export const adminMain = 'w-full min-h-screen pt-8 pb-24 px-4 sm:px-8 bg-neutral-50';
+export const adminMain = 'w-full min-h-screen pt-6 sm:pt-8 pb-24 px-4 sm:px-8 bg-neutral-50';

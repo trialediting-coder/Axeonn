@@ -109,9 +109,10 @@ export function OnboardingBoard({
         {rows.length === 0 ? (
           <p className="px-5 py-8 text-sm text-neutral-500">No onboardings yet. The first paid Checkout creates one automatically, or mint one below.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-500">
+          <div className="sm:overflow-x-auto">
+            {/* Below sm each client is a card; from sm up it's a regular table. */}
+            <table className="block w-full text-sm sm:table">
+              <thead className="hidden bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-500 sm:table-header-group">
                 <tr>
                   <th className="px-5 py-3 font-semibold">Client</th>
                   <th className="px-3 py-3 font-semibold">Plan</th>
@@ -122,16 +123,20 @@ export function OnboardingBoard({
                   <th className="px-5 py-3" />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-100">
+              <tbody className="block divide-y divide-neutral-100 sm:table-row-group">
                 {rows.map((row) => (
-                  <tr key={row.token} className="hover:bg-neutral-50/70">
-                    <td className="px-5 py-3.5">
-                      <div className="font-semibold text-neutral-900">{row.businessName ?? row.clientName ?? row.clientEmail}</div>
-                      <div className="text-xs text-neutral-500">{row.clientEmail}</div>
+                  <tr key={row.token} className="relative block px-5 py-4 hover:bg-neutral-50/70 sm:table-row sm:p-0">
+                    <td className="block pr-20 sm:table-cell sm:px-5 sm:py-3.5">
+                      <div className="font-semibold text-neutral-900 break-words">{row.businessName ?? row.clientName ?? row.clientEmail}</div>
+                      <div className="text-xs text-neutral-500 break-all">{row.clientEmail}</div>
                     </td>
-                    <td className="px-3 py-3.5 text-neutral-700">{TIER_LABELS[row.tier]}</td>
-                    <td className="px-3 py-3.5 min-w-[160px]">
+                    <td className="mt-2 mr-2 inline-block align-middle text-neutral-700 sm:mt-0 sm:mr-0 sm:table-cell sm:px-3 sm:py-3.5">{TIER_LABELS[row.tier]}</td>
+                    <td className="mt-2 inline-block align-middle sm:mt-0 sm:hidden">
+                      <StatusBadge row={row} />
+                    </td>
+                    <td className="mt-3 block sm:mt-0 sm:table-cell sm:min-w-[160px] sm:px-3 sm:py-3.5">
                       <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-neutral-500 sm:hidden">Client</span>
                         <div className="h-2 flex-1 rounded-full bg-neutral-100 overflow-hidden">
                           <div className="h-full rounded-full bg-blue-600" style={{ width: `${row.progress.percent}%` }} />
                         </div>
@@ -140,17 +145,19 @@ export function OnboardingBoard({
                         </span>
                       </div>
                     </td>
-                    <td className="px-3 py-3.5 text-xs font-mono text-neutral-600">
+                    <td className="mt-1 mr-3 inline-block text-xs font-mono text-neutral-600 sm:mt-0 sm:mr-0 sm:table-cell sm:px-3 sm:py-3.5">
+                      <span className="font-sans font-semibold text-neutral-500 sm:hidden">Axeon </span>
                       {row.progress.axeonDone}/{row.progress.axeonTotal}
                     </td>
-                    <td className="px-3 py-3.5 text-neutral-600">
+                    <td className="mt-1 inline-block text-xs text-neutral-600 sm:mt-0 sm:table-cell sm:px-3 sm:py-3.5 sm:text-sm">
+                      <span className="font-semibold text-neutral-500 sm:hidden">Last activity </span>
                       {relative(row.lastClientActivityAt)}
                       {!row.welcomeSentAt && <span className="ml-2 text-xs font-semibold text-amber-700">welcome not sent</span>}
                     </td>
-                    <td className="px-3 py-3.5">
+                    <td className="hidden sm:table-cell sm:px-3 sm:py-3.5">
                       <StatusBadge row={row} />
                     </td>
-                    <td className="px-5 py-3.5 text-right">
+                    <td className="absolute right-5 top-4 sm:static sm:table-cell sm:px-5 sm:py-3.5 sm:text-right">
                       <Link href={`/admin/onboarding/${row.token}`} className={btn('secondary', 'sm')}>
                         Open
                       </Link>
@@ -276,7 +283,7 @@ function SampleReport({ disabled }: { disabled: boolean }) {
   }
 
   return (
-    <section className="bg-white rounded-2xl border border-neutral-200 p-6">
+    <section className="bg-white rounded-2xl border border-neutral-200 p-4 sm:p-6">
       <h2 className="text-lg font-bold text-neutral-950">Email me a sample</h2>
       <p className="mt-1 text-sm text-neutral-600">
         The monthly report clients get on the 1st, or the first ramp report with its three onboarding taps, filled in for a fictional

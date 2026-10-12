@@ -23,7 +23,7 @@ export default async function AdminDashboardPage() {
   if (!isDatabaseConfigured()) {
     return (
       <main className={adminMain}>
-        <div className="max-w-2xl mx-auto bg-white rounded-2xl border border-amber-200 p-8">
+        <div className="max-w-2xl mx-auto bg-white rounded-2xl border border-amber-200 p-5 sm:p-8">
           <h1 className="text-2xl font-bold text-neutral-950">Axeon Admin</h1>
           <p className="mt-3 text-neutral-700 leading-relaxed">
             You&apos;re signed in, but no database is attached to this project yet, so posts have nowhere to live.
@@ -64,7 +64,7 @@ export default async function AdminDashboardPage() {
             <strong>Database error:</strong> {dbError}
           </div>
         )}
-        <div className="bg-white rounded-2xl border border-neutral-200 p-6">
+        <div className="bg-white rounded-2xl border border-neutral-200 p-4 sm:p-6">
           {posts.length === 0 ? (
             <p className="text-neutral-500">No posts yet.</p>
           ) : (

@@ -194,7 +194,7 @@ function ItemList({
           const state = states[item.key];
           const done = state?.status === 'done';
           return (
-            <li key={item.key} className="px-5 py-4 flex items-start gap-4">
+            <li key={item.key} className="px-4 py-4 flex flex-wrap items-start gap-x-4 gap-y-3 sm:px-5 sm:flex-nowrap">
               <span className={`mt-0.5 h-5 w-5 shrink-0 rounded-full ${done ? 'bg-green-600' : 'border-2 border-neutral-300'}`} />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -219,7 +219,7 @@ function ItemList({
                 type="button"
                 disabled={busy !== null}
                 onClick={() => onToggle(item.key, !done)}
-                className={`${btn(done ? 'secondary' : 'success', 'sm')} shrink-0 min-w-[92px]`}
+                className={`${btn(done ? 'secondary' : 'success', 'sm')} ml-9 shrink-0 min-w-[92px] sm:ml-0`}
               >
                 {busy === item.key ? '…' : done ? 'Reopen' : 'Mark done'}
               </button>

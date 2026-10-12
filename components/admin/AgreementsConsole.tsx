@@ -114,8 +114,8 @@ export function AgreementsConsole({ initialRows, options, dbError }: { initialRo
   );
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,420px)_1fr]">
-      <form onSubmit={create} className="rounded-xl border border-neutral-200 bg-white p-5 shadow-sm space-y-4 h-fit">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,420px)_1fr]">
+      <form onSubmit={create} className="rounded-xl border border-neutral-200 bg-white p-4 sm:p-5 shadow-sm space-y-4 h-fit">
         <div>
           <h2 className="text-base font-bold text-neutral-950">New agreement</h2>
           <p className="text-xs text-neutral-500 mt-0.5">The client gets an email to read, sign and pay. Payment starts onboarding by itself.</p>

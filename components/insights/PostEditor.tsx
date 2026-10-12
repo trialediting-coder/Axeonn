@@ -83,7 +83,7 @@ export function PostEditor({ initialPost }: PostEditorProps) {
   }
 
   return (
-    <div className="grid lg:grid-cols-2 gap-8">
+    <div className="grid grid-cols-[minmax(0,1fr)] lg:grid-cols-2 gap-8">
       <div className="flex flex-col gap-4">
         <div>
           <label className="block text-sm font-medium text-neutral-700 mb-1">Title</label>
@@ -274,7 +274,7 @@ export function PostEditor({ initialPost }: PostEditorProps) {
           </button>
         </div>
       </div>
-      <div className="border border-neutral-200 rounded-2xl p-6 bg-white overflow-y-auto max-h-[80vh]">
+      <div className="border border-neutral-200 rounded-2xl p-4 sm:p-6 bg-white overflow-y-auto max-h-[80vh]">
         <p className="text-xs font-mono uppercase text-neutral-400 mb-4">Preview</p>
         <div className="prose prose-neutral max-w-none">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>{content || '*Nothing to preview yet.*'}</ReactMarkdown>

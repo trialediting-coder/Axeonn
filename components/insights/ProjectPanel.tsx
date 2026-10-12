@@ -261,7 +261,7 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
         </div>
 
         <form
-          className="mt-4 grid gap-3 sm:grid-cols-[1fr_170px_110px_130px_auto_auto] sm:items-end"
+          className="mt-4 grid gap-3 sm:grid-cols-2 sm:items-end lg:grid-cols-[1fr_170px_110px_130px_auto_auto]"
           onSubmit={(e) => {
             e.preventDefault();
             void call('POST', { kind: 'tracking', ...tracking }, 'Tracking settings saved.', 'tracking');
@@ -288,7 +288,7 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
               title: 'Share of calls, texts, emails, forms and bookings counted as a new customer',
             })
           ) : (
-            <div className="hidden sm:block" />
+            <div className="hidden lg:block" />
           )}
           {input(tracking.avgJobValue, (e) => setTracking((x) => ({ ...x, avgJobValue: e.target.value })), 'Avg job $', {
             inputMode: 'numeric',
@@ -334,7 +334,7 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-2">
         <form
           className={`${card} space-y-3 h-fit`}
           onSubmit={async (e) => {
@@ -375,9 +375,9 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
           {data.updates.length > 0 && (
             <ul className="pt-3 border-t border-neutral-200 divide-y divide-neutral-100">
               {data.updates.map((u) => (
-                <li key={u.id} className="py-2 flex items-center gap-2 text-sm">
+                <li key={u.id} className="py-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                   <span className="text-neutral-400">#{u.number}</span>
-                  <span className="flex-1 truncate text-neutral-900">{u.title}</span>
+                  <span className="min-w-0 flex-1 truncate text-neutral-900">{u.title}</span>
                   <span className="text-xs text-neutral-500">
                     {new Date(u.createdAt).toLocaleDateString()} {u.emailedAt ? '· emailed' : '· not emailed'}
                   </span>
@@ -436,7 +436,7 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
           {data.reports.length > 0 && (
             <ul className="pt-3 border-t border-neutral-200 divide-y divide-neutral-100">
               {data.reports.map((r) => (
-                <li key={r.id} className="py-2 flex items-center gap-2 text-sm">
+                <li key={r.id} className="py-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                   <span className="flex-1 text-neutral-900">{monthLabel(r.month)}</span>
                   <span className="text-xs text-neutral-500">
                     {r.traffic ? `${r.traffic.views} visits · ${r.traffic.clicks} clicks · ` : ''}
@@ -528,13 +528,13 @@ function TrafficBox({ title, traffic }: { title: string; traffic: TrafficSummary
   const n = (label: string, value: string | number) => (
     <div>
       <div className="text-[11px] font-semibold uppercase tracking-wide text-neutral-500">{label}</div>
-      <div className={`text-lg font-extrabold ${empty ? 'text-neutral-300' : 'text-neutral-950'}`}>{value}</div>
+      <div className={`text-lg font-extrabold break-words ${empty ? 'text-neutral-300' : 'text-neutral-950'}`}>{value}</div>
     </div>
   );
   return (
     <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-3">
       <div className="text-xs font-semibold text-neutral-700">{title}</div>
-      <div className="mt-2 grid grid-cols-4 gap-2">
+      <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {n('Visits', traffic.views)}
         {n('Visitors', traffic.visitors)}
         {n('Clicks', traffic.clicks)}
