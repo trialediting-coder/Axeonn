@@ -132,7 +132,7 @@ export default function PrivacyClient() {
               <h2 className="text-sm font-bold uppercase tracking-wider text-gray-900">
                 Key Principles &amp; Plain English Summary
               </h2>
-              <ul className="mt-2.5 space-y-2 text-xs sm:text-sm text-gray-700 leading-relaxed list-disc list-inside">
+              <ul className="mt-2.5 space-y-2 text-xs sm:text-sm text-gray-700 leading-relaxed list-disc list-outside pl-5">
                 <li>
                   <strong>We do not sell your personal data for money.</strong> Your contact details are never brokered, rented, or traded. Our business visitor-identification tool (Section 3) may be considered &ldquo;sharing&rdquo; under some state privacy laws, and you can opt out of it at any time (Section 4).
                 </li>
@@ -172,7 +172,7 @@ export default function PrivacyClient() {
                   <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
                     When you schedule a session through our booking calendar, we collect:
                   </p>
-                  <ul className="mt-2 space-y-1 text-xs sm:text-sm text-gray-700 list-disc list-inside">
+                  <ul className="mt-2 space-y-1 text-xs sm:text-sm text-gray-700 list-disc list-outside pl-5">
                     <li>Full Name</li>
                     <li>Email Address</li>
                     <li>Phone Number</li>
@@ -189,7 +189,7 @@ export default function PrivacyClient() {
                   <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
                     When you navigate our website, our servers and third-party monitoring tools automatically collect pseudonymous technical metrics:
                   </p>
-                  <ul className="mt-2 space-y-1 text-xs sm:text-sm text-gray-700 list-disc list-inside">
+                  <ul className="mt-2 space-y-1 text-xs sm:text-sm text-gray-700 list-disc list-outside pl-5">
                     <li>Browser type, version, and language</li>
                     <li>Operating system and device category</li>
                     <li>Referring URL and exit pages</li>
@@ -211,7 +211,7 @@ export default function PrivacyClient() {
               <p>
                 We use the information we collect strictly for commercial, communication, and operational purposes:
               </p>
-              <ul className="space-y-2 list-disc list-inside text-gray-700">
+              <ul className="space-y-2 list-disc list-outside pl-5 text-gray-700">
                 <li>
                   <strong>Client Discovery &amp; Proposals:</strong> Responding to client inquiries, scheduling 30-minute discovery calls, analyzing website architectures, and delivering tailored digital proposals.
                 </li>
@@ -349,7 +349,7 @@ export default function PrivacyClient() {
               <p>
                 Our website utilizes standard HTTP cookies and similar client-side script technologies to maintain security, preserve user preferences, and collect anonymous aggregate analytics:
               </p>
-              <ul className="space-y-2.5 list-disc list-inside text-gray-700">
+              <ul className="space-y-2.5 list-disc list-outside pl-5 text-gray-700">
                 <li>
                   <strong>Essential Cookies:</strong> Required for fundamental site features, CSRF protection, and responsive viewport sizing.
                 </li>
@@ -380,7 +380,7 @@ export default function PrivacyClient() {
                     href="https://tools.google.com/dlpage/gaoptout"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="py-2 text-[#2563EB] font-semibold hover:underline inline-flex items-center gap-0.5"
+                    className="text-[#2563EB] font-semibold hover:underline inline-flex items-center gap-0.5"
                   >
                     <span>Google Analytics Opt-Out Browser Add-on</span>
                     <ExternalLink size={11} />
@@ -392,7 +392,7 @@ export default function PrivacyClient() {
                     href="https://account.microsoft.com/privacy"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="py-2 text-[#2563EB] font-semibold hover:underline inline-flex items-center gap-0.5"
+                    className="text-[#2563EB] font-semibold hover:underline inline-flex items-center gap-0.5"
                   >
                     <span>Microsoft Privacy Dashboard</span>
                     <ExternalLink size={11} />
@@ -418,7 +418,7 @@ export default function PrivacyClient() {
               <p>
                 We apply modern industry-standard administrative and technical safeguards to secure your personal data, including:
               </p>
-              <ul className="space-y-1.5 list-disc list-inside text-gray-700">
+              <ul className="space-y-1.5 list-disc list-outside pl-5 text-gray-700">
                 <li>End-to-end HTTPS encryption (TLS/SSL) for all website transmission</li>
                 <li>Restricted, authenticated administrative access to contact inquiries</li>
                 <li>Zero storage of payment card numbers or sensitive financial credentials on our servers</li>
@@ -436,7 +436,7 @@ export default function PrivacyClient() {
               <p>
                 Regardless of where you reside, Axeon Studio honors fundamental privacy rights regarding your personal information:
               </p>
-              <ul className="space-y-2 list-disc list-inside text-gray-700">
+              <ul className="space-y-2 list-disc list-outside pl-5 text-gray-700">
                 <li>
                   <strong>Right to Access:</strong> You may request confirmation of whether we hold personal data about you and obtain a clear copy.
                 </li>

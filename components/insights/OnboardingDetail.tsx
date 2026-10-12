@@ -81,7 +81,7 @@ export function OnboardingDetail({ initial, items }: { initial: Detail; items: {
               ) : null}
             </p>
           </div>
-          <div className="text-right">
+          <div className="sm:text-right">
             <div className="text-3xl font-extrabold text-neutral-950">{progress.percent}%</div>
             <div className="text-xs text-neutral-500">
               client {progress.clientDone}/{progress.clientTotal} · Axeon {progress.axeonDone}/{progress.axeonTotal}

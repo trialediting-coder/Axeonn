@@ -120,11 +120,12 @@ export function PricingSection({
           <h3 className="text-2xl sm:text-3xl font-bold font-display text-neutral-950 mb-8 text-center">
             Add More Ways to Win Customers
           </h3>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-[1560px] mx-auto">
+          {/* Flex, not grid: whatever count the add-ons come to, a short last row sits centred instead of one card stranded on the left. */}
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 max-w-[1560px] mx-auto">
             {addOns.map((addOn) => (
               <div
                 key={addOn.name}
-                className="p-5 sm:p-7 rounded-2xl border border-neutral-200 bg-white text-center shadow-xs"
+                className="flex w-full flex-col justify-between p-5 sm:p-7 rounded-2xl border border-neutral-200 bg-white text-center shadow-xs sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] xl:w-[calc(20%-19.2px)]"
               >
                 <div className="text-base sm:text-lg text-neutral-700 font-medium mb-2 leading-snug">{addOn.name}</div>
                 <div className="text-xl sm:text-2xl font-black text-blue-600">{addOn.price}</div>
@@ -265,7 +266,8 @@ function PlanCard({ tier }: { tier: PricingTier }) {
       </p>
       {tier.bestFor && (
         <p
-          className={`text-sm sm:text-base leading-relaxed mb-6 rounded-xl px-4 py-3 ${
+          // One height across the row on wide screens, so the three prices below line up.
+          className={`text-sm sm:text-base leading-relaxed mb-6 rounded-xl px-4 py-3 xl:min-h-[10rem] ${
             isPlain
               ? 'bg-white border border-neutral-200 text-neutral-700'
               : isPremium

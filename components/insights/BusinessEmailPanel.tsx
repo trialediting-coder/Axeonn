@@ -206,7 +206,7 @@ export function BusinessEmailPanel({
               const r = setup.dns!.checks[c.key];
               return (
                 <li key={c.key} className="flex flex-wrap items-start gap-3 px-4 py-2.5 text-sm">
-                  <span className={`mt-0.5 rounded-md px-2 py-0.5 text-[11px] font-bold uppercase ring-1 ${STATUS_CLS[r?.status ?? 'fail']}`}>{r?.status ?? 'fail'}</span>
+                  <span className={`mt-0.5 w-12 shrink-0 rounded-md py-0.5 text-center text-[11px] font-bold uppercase ring-1 ${STATUS_CLS[r?.status ?? 'fail']}`}>{r?.status ?? 'fail'}</span>
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold text-neutral-900">{c.label}</p>
                     <p className="break-words text-xs text-neutral-600">{r?.note}</p>

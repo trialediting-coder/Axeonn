@@ -95,10 +95,10 @@ export default function WorkPage() {
                     </div>
                   ))}
                 </dl>
-                <div className="mt-8 lg:mt-auto lg:pt-8 flex flex-col sm:flex-row gap-3">
+                <div className="mt-8 lg:mt-auto lg:pt-8 flex flex-col sm:flex-row sm:flex-wrap gap-3">
                   <Link
                     href={CASE_STUDY}
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm transition-colors"
+                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap px-6 py-3 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm transition-colors"
                   >
                     Read how A-1 went from page 2 to #1 <ArrowRight size={16} />
                   </Link>
@@ -106,7 +106,7 @@ export default function WorkPage() {
                     href={featured.url}
                     target="_blank"
                     rel="noopener"
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full border border-white/25 hover:bg-white/10 text-white font-semibold text-sm transition-colors"
+                    className="inline-flex items-center justify-center gap-2 whitespace-nowrap px-6 py-3 rounded-full border border-white/25 hover:bg-white/10 text-white font-semibold text-sm transition-colors"
                   >
                     See the live site <ArrowUpRight size={16} />
                   </a>

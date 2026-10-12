@@ -72,7 +72,8 @@ export function ServiceHero({
             className="absolute inset-0"
             style={{ backgroundImage: `url(${image})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/85 to-neutral-950/50" />
+          {/* Strong enough at the top that text inside the screenshot never shows through the headline and nav. */}
+          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/90 to-neutral-950/75" />
         </>
       ) : (
         <div
@@ -268,7 +269,8 @@ export function DeliverablesSection({ detail }: { detail: SolutionDetail }) {
         <div className="mt-10 sm:mt-12 rounded-2xl bg-white border border-neutral-200/80 divide-y divide-neutral-200/80">
           <div className="p-5 sm:p-6 flex flex-col md:flex-row md:items-center gap-3 md:gap-6">
             <p className="shrink-0 text-xs font-mono font-bold tracking-widest uppercase text-neutral-500">How it works</p>
-            <ol className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            {/* Phones: a numbered list, one step per line. md and up: one row joined by arrows. */}
+            <ol className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:gap-x-3">
               {timeline.map((step, i) => (
                 <li key={step} className="flex items-center gap-3 text-sm sm:text-[15px] font-semibold">
                   <span className="flex items-center gap-2">
@@ -277,7 +279,7 @@ export function DeliverablesSection({ detail }: { detail: SolutionDetail }) {
                     </span>
                     {step}
                   </span>
-                  {i < timeline.length - 1 && <ArrowRight size={14} aria-hidden="true" className="text-neutral-300" />}
+                  {i < timeline.length - 1 && <ArrowRight size={14} aria-hidden="true" className="hidden text-neutral-300 md:block" />}
                 </li>
               ))}
             </ol>

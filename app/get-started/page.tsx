@@ -29,7 +29,7 @@ export default function GetStartedPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 xl:gap-20 items-start">
           {/* Left: what this is and what happens next */}
           <div className="lg:col-span-5 lg:sticky lg:top-32">
-            <p className="text-sm font-mono uppercase tracking-wider text-blue-600 mb-4">Get started</p>
+            <p className="text-sm font-mono uppercase tracking-wider text-blue-600 mb-4">[ Get started ]</p>
             <h1 className="text-4xl sm:text-5xl xl:text-6xl font-extrabold tracking-tight leading-[1.08]">
               Find your plan in about a minute.
             </h1>

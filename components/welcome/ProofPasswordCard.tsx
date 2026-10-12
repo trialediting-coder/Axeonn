@@ -44,7 +44,8 @@ export function ProofPasswordCard({ token, email, hasAccount }: { token: string;
 
   return (
     <section className="mt-10 rounded-[24px] border border-neutral-200 bg-white p-6 sm:p-7 shadow-xs">
-      <div className="flex items-start gap-3.5">
+      {/* Phones: the lock sits above the text, so the form gets the card's full width. */}
+      <div className="flex flex-col items-start gap-3 sm:flex-row sm:gap-3.5">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600">
           <LockKeyhole size={18} />
         </span>

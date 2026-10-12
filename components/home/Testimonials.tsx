@@ -71,7 +71,7 @@ export function Testimonials() {
           The fastest answer wins the customer
         </h2>
 
-        <div className="mt-12 sm:mt-14 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-end">
+        <div className="mt-12 sm:mt-14 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
           <div className="lg:col-span-7 border-t-4 border-blue-600 pt-6">
             <p className="text-[96px] sm:text-[150px] lg:text-[180px] leading-[0.85] font-black font-display tracking-tighter text-neutral-950">
               {UNANSWERED_STAT.value}

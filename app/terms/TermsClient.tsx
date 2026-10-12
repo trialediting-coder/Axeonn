@@ -167,7 +167,7 @@ export default function TermsClient() {
               <p>
                 Axeon Studio provides bespoke digital agency, design, and engineering services to businesses, including but not limited to:
               </p>
-              <ul className="space-y-1.5 list-disc list-inside text-gray-700">
+              <ul className="space-y-1.5 list-disc list-outside pl-5 text-gray-700">
                 <li>Visual brand identity, typography, design systems, and art direction</li>
                 <li>Custom responsive UI/UX web design and conversion funnel architecture</li>
                 <li>High-performance web development (React, Next.js, Vite, TypeScript, Tailwind CSS)</li>
@@ -247,7 +247,7 @@ export default function TermsClient() {
               <p>
                 When accessing our website or utilizing our communication channels, you agree not to:
               </p>
-              <ul className="space-y-1.5 list-disc list-inside text-gray-700">
+              <ul className="space-y-1.5 list-disc list-outside pl-5 text-gray-700">
                 <li>Engage in automated scraping, spidering, or harvesting of our proprietary articles, case studies, or brand graphics without prior written consent</li>
                 <li>Probe, scan, or conduct unauthorized vulnerability testing against our infrastructure or hosting platforms</li>
                 <li>Submit misleading, malicious, automated spam, or fraudulent project audit inquiries</li>
@@ -281,10 +281,10 @@ export default function TermsClient() {
                 Important Legal Disclaimer
               </p>
               <p>
-                EXCEPT AS EXPRESSLY SET FORTH IN A WRITTEN STATEMENT OF WORK SIGNED BY BOTH PARTIES, THE WEBSITE AND ALL SERVICES PROVIDED BY AXEONSTUDIO ARE FURNISHED ON AN &ldquo;AS-IS&rdquo; AND &ldquo;AS-AVAILABLE&rdquo; BASIS WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+                EXCEPT AS EXPRESSLY SET FORTH IN A WRITTEN STATEMENT OF WORK SIGNED BY BOTH PARTIES, THE WEBSITE AND ALL SERVICES PROVIDED BY AXEON STUDIO ARE FURNISHED ON AN &ldquo;AS-IS&rdquo; AND &ldquo;AS-AVAILABLE&rdquo; BASIS WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED.
               </p>
               <p>
-                AXEONSTUDIO SPECIFICALLY DISCLAIMS ALL IMPLIED WARRANTIES, INCLUDING WITHOUT LIMITATION WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT. WE DO NOT GUARANTEE THAT THE SITE OR THIRD-PARTY HOSTING INTEGRATIONS WILL BE UNINTERRUPTED, BUG-FREE, OR FREE OF TEMPORARY DOWNTIME CAUSED BY THIRD-PARTY CLOUD PROVIDERS.
+                AXEON STUDIO SPECIFICALLY DISCLAIMS ALL IMPLIED WARRANTIES, INCLUDING WITHOUT LIMITATION WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT. WE DO NOT GUARANTEE THAT THE SITE OR THIRD-PARTY HOSTING INTEGRATIONS WILL BE UNINTERRUPTED, BUG-FREE, OR FREE OF TEMPORARY DOWNTIME CAUSED BY THIRD-PARTY CLOUD PROVIDERS.
               </p>
             </div>
           </section>
@@ -297,10 +297,10 @@ export default function TermsClient() {
             </h2>
             <div className="mt-3.5 space-y-3 text-gray-700 text-[15px] sm:text-base">
               <p>
-                TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL AXEONSTUDIO, ITS FOUNDER, EMPLOYEES, CONTRACTORS, OR AGENTS BE LIABLE TO YOU OR ANY THIRD PARTY FOR ANY INDIRECT, INCIDENTAL, CONSEQUENTIAL, SPECIAL, PUNITIVE, OR EXEMPLARY DAMAGES (INCLUDING LOST REVENUE, LOST PROFITS, BUSINESS INTERRUPTION, LOSS OF DATA, OR GOODWILL) ARISING OUT OF OR IN CONNECTION WITH YOUR USE OF OUR WEBSITE OR CONTRACTED DIGITAL SERVICES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+                TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL AXEON STUDIO, ITS FOUNDER, EMPLOYEES, CONTRACTORS, OR AGENTS BE LIABLE TO YOU OR ANY THIRD PARTY FOR ANY INDIRECT, INCIDENTAL, CONSEQUENTIAL, SPECIAL, PUNITIVE, OR EXEMPLARY DAMAGES (INCLUDING LOST REVENUE, LOST PROFITS, BUSINESS INTERRUPTION, LOSS OF DATA, OR GOODWILL) ARISING OUT OF OR IN CONNECTION WITH YOUR USE OF OUR WEBSITE OR CONTRACTED DIGITAL SERVICES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
               </p>
               <p>
-                IN ALL CIRCUMSTANCES, AXEONSTUDIO&apos;S AGGREGATE CUMULATIVE MONETARY LIABILITY UNDER THESE TERMS OR ANY ASSOCIATED SOW SHALL BE STRICTLY LIMITED TO THE ACTUAL FEES PAID BY YOU TO AXEONSTUDIO FOR THE SPECIFIC SERVICE AT ISSUE DURING THE THREE (3) MONTHS IMMEDIATELY PRECEDING THE CLAIM.
+                IN ALL CIRCUMSTANCES, AXEON STUDIO&apos;S AGGREGATE CUMULATIVE MONETARY LIABILITY UNDER THESE TERMS OR ANY ASSOCIATED SOW SHALL BE STRICTLY LIMITED TO THE ACTUAL FEES PAID BY YOU TO AXEON STUDIO FOR THE SPECIFIC SERVICE AT ISSUE DURING THE THREE (3) MONTHS IMMEDIATELY PRECEDING THE CLAIM.
               </p>
             </div>
           </section>

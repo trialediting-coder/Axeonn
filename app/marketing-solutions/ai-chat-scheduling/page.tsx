@@ -64,7 +64,7 @@ export default function AIChatSchedulingPage() {
             Want your phone answered the same way? Hear a real recorded call from Axeon&apos;s AI receptionist next to a
             typical agency&apos;s, and judge the difference yourself.
           </p>
-          <div className="mt-10 grid sm:grid-cols-2 gap-10 sm:gap-16 justify-items-center items-center">
+          <div className="mt-10 grid sm:grid-cols-2 gap-10 sm:gap-16 justify-items-center items-end">
             <AudioOrbPlayer variant="flat" src="/audio/competitor-ai-call.mp3" label="Typical Agency AI" />
             <AudioOrbPlayer variant="orb" src="/audio/axeon-ai-call.mp3" label="Axeon's AI" />
           </div>

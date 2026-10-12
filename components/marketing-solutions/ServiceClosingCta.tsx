@@ -38,7 +38,7 @@ export function ServiceClosingCta({ trackId }: { trackId?: string }) {
               Compare plans <ArrowRight size={16} />
             </Link>
           </div>
-          <p className="mt-8 text-xs sm:text-sm text-neutral-500 max-w-xl mx-auto leading-relaxed">{GUARANTEE_TERMS}</p>
+          <p className="mt-8 text-xs sm:text-sm text-neutral-400 max-w-xl mx-auto leading-relaxed">{GUARANTEE_TERMS}</p>
         </div>
       </div>
     </section>

@@ -5,6 +5,23 @@ html {
   scroll-behavior: smooth;
 }
 
+/*
+ * No single word stranded on a heading's last line ("Questions People Ask Before
+ * / Booking"), and no lone "]" under a "[ LABEL ]" eyebrow. Paragraphs avoid a
+ * one-word last line too. Browsers without support simply wrap as before.
+ */
+@layer base {
+  h1, h2, h3, h4 {
+    text-wrap: balance;
+  }
+  p, li, dd {
+    text-wrap: pretty;
+  }
+  .font-mono.uppercase.tracking-widest {
+    text-wrap: balance;
+  }
+}
+
 html.lenis, html.lenis body {
   height: auto;
 }

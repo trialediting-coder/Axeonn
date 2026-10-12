@@ -156,7 +156,7 @@ export function FeaturedWork() {
               See all projects <ArrowRight size={15} />
             </Link>
           </div>
-          <div className="-mx-4 px-4 sm:mx-0 sm:px-0 flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8 overflow-x-auto snap-x snap-mandatory sm:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="-mx-4 px-4 sm:mx-0 sm:px-0 flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8 overflow-x-auto snap-x snap-mandatory scroll-pl-4 sm:scroll-pl-0 sm:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {more.map((project) => (
               <a
                 key={project.name}

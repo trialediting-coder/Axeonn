@@ -22,7 +22,10 @@ export function NicheProof({ niche }: { niche: Niche }) {
             Page 2 &rarr; #1
           </p>
           <h2 className="mt-6 max-w-2xl text-2xl font-extrabold font-display tracking-tight leading-tight text-balance sm:text-3xl">
-            {sameIndustry ? 'A-1 went from page 2 to #1.' : 'Same system took A-1 from page 2 to #1.'}
+            {sameIndustry ? '' : 'Same system took '}
+            {/* Kept whole: a phone wrapped it as "A-" / "1". */}
+            <span className="whitespace-nowrap">A-1</span>
+            {sameIndustry ? ' went from page 2 to #1.' : ' from page 2 to #1.'}
           </h2>
           <p className="mt-4 max-w-xl text-base leading-relaxed text-blue-100">
             A-1 Auto Detailing, for &ldquo;Pleasant Hill auto detailing,&rdquo; with a 5.0 Google rating from 180+

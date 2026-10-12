@@ -383,7 +383,7 @@ export default function DesMoinesWebDesignPage() {
               <PhoneCall size={18} /> {BUSINESS.telephoneDisplay}
             </a>
           </div>
-          <p className="mt-6 text-xs text-neutral-500 max-w-xl mx-auto leading-relaxed">
+          <p className="mt-6 text-xs text-neutral-400 max-w-xl mx-auto leading-relaxed">
             Baseline set together on your kickoff call. Applies while you&apos;re on a monthly plan and answering new
             leads within one business day.
           </p>
