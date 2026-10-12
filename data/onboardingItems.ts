@@ -1,4 +1,5 @@
 import { FOUND_OPTIONS } from '@/lib/feedbackShared';
+import { MAILBOX_HINT } from '@/lib/businessEmailShared';
 // data/onboardingItems.ts
 // Single source of truth for the client onboarding portal (/welcome/<token>):
 // every checklist item, which plan it belongs to, who does it, and the fields
@@ -201,9 +202,11 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     key: 'domain',
     kind: 'confirm',
     tier: 'essentials',
-    title: 'Your website address',
-    description: 'Tell us where your domain lives, or let us register one for you. Never type a password here; we will send a secure invite instead.',
-    minutes: 1,
+    // Also collects the business email every plan includes (lib/businessEmailShared.ts):
+    // Google emails each person their own sign-in, so no field here is ever a login.
+    title: 'Your website address and business email',
+    description: 'Tell us where your domain lives, or let us register one for you, and which email addresses you want on it. Never type a password here; we will send a secure invite instead.',
+    minutes: 2,
     fields: [
       {
         key: 'domainStatus',
@@ -219,6 +222,29 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
         type: 'select',
         options: ['GoDaddy', 'Google Domains / Squarespace', 'Namecheap', 'Wix', 'Network Solutions', 'Other', "I don't know"],
         hint: 'We will send a delegate invite for that registrar so you never share a login.',
+      },
+      {
+        key: 'mailboxes',
+        label: 'Business email addresses you want, and who uses each',
+        type: 'textarea',
+        required: true,
+        placeholder: 'mike@ for Mike (owner), info@ as a shared inbox',
+        hint: MAILBOX_HINT,
+      },
+      {
+        key: 'signInEmails',
+        label: "Where should Google send each person's sign-in email?",
+        type: 'textarea',
+        required: true,
+        placeholder: 'Mike: mike.smith@gmail.com',
+        hint: 'A personal address they check today. Google sends the sign-in straight there, so we never handle a password.',
+      },
+      {
+        key: 'currentEmail',
+        label: 'Do you use email at this domain today?',
+        type: 'select',
+        required: true,
+        options: ['No, this is new', 'Yes, move my old email over', 'I use Gmail, Yahoo or similar now; start fresh', 'Not sure'],
       },
     ],
   },
@@ -271,6 +297,13 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     tier: 'essentials',
     title: 'Hosting and security',
     description: 'Fast hosting, SSL, backups, and monitoring.',
+  },
+  {
+    key: 'business-email',
+    kind: 'axeon',
+    tier: 'essentials',
+    title: 'Business email at your domain',
+    description: 'Set up on Google Workspace with spam protection switched on. Google emails each person their own sign-in; we never see a password.',
   },
   {
     key: 'quote-form',

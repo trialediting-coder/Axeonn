@@ -31,7 +31,9 @@ local-only.
 - Essentials: $149/month. The entry tier: up to 4 pages, SEO/AEO/GEO, Google
   Business Profile upkeep, quote form with instant lead alerts, hosting and
   security, 2 small edits a month, a monthly calls & leads email report,
-  1 business email at the client's domain, uptime monitoring.
+  1 business email at the client's domain, uptime monitoring. Business
+  email by plan: Essentials 1, AxeonCORE 3, AxeonGROWTH 5 mailboxes;
+  extra mailboxes $10/mo each; aliases (info@, sales@) are always free.
 - AxeonCORE: $299/month. The middle tier and the one we sell ("Recommended";
   only switch to "Most Popular" once real sales show it outsells the other
   two combined). Adds AxeonPROOF (Axeon's own client dashboard), the 90-day

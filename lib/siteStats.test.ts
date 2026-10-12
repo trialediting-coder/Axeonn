@@ -645,7 +645,7 @@ test('feedback tokens round-trip, reject tampering, and the report carries the t
 
 test('every tab is visible, tabs outside the plan are locked, and the price reads as extra jobs', async () => {
   const { PROOF_TABS, isProofTab, proofTab, tabLocked, upgradeMath, lockedHeadline } = await import('./proofTabs');
-  assert.deepEqual(PROOF_TABS.map((t) => t.key), ['overview', 'leads', 'calls', 'bookings', 'reviews', 'ads', 'receptionist', 'billing']);
+  assert.deepEqual(PROOF_TABS.map((t) => t.key), ['overview', 'leads', 'calls', 'bookings', 'reviews', 'ads', 'receptionist', 'email', 'billing']);
   assert.ok(isProofTab('calls') && isProofTab('billing') && !isProofTab('settings'));
   assert.equal(tabLocked(proofTab('billing'), 'essentials'), false, 'billing is on every plan');
   const locked = (tier: 'essentials' | 'axeoncore' | 'axeongrowth') => PROOF_TABS.filter((t) => tabLocked(t, tier)).map((t) => t.key);
