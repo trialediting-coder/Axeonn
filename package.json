@@ -12,6 +12,7 @@
     "db:init": "node --env-file=.env.local scripts/init-db.mjs",
     "db:verify": "node --env-file=.env.local scripts/verify-db-schema.mjs",
     "stripe:seed": "node --env-file=.env.local scripts/stripe-seed.mjs",
+    "email-log:backfill": "node --env-file=.env.local --import tsx scripts/backfill-email-log.ts",
     "test:billing": "tsx --test lib/billingMath.test.ts",
     "test:paylinks": "tsx --test lib/payLinks.test.ts",
     "test:get-started": "tsx --test lib/getStarted.test.ts",

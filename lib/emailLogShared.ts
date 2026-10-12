@@ -50,7 +50,43 @@ export function kindsInCategory(category: EmailCategory): EmailKind[] {
 }
 
 export function emailKindLabel(kind: string): string {
+  if (kind === 'other') return 'Other';
   return Object.hasOwn(EMAIL_KINDS, kind) ? EMAIL_KINDS[kind as EmailKind].label : kind;
+}
+
+/**
+ * Resend's history has no kind, only the subject, so the one-time import
+ * (scripts/backfill-email-log.ts) reads it back from the subject lines in
+ * lib/email.ts and the Stripe webhook. Order matters where two could match.
+ */
+const SUBJECT_KINDS: Array<[RegExp, EmailKind]> = [
+  [/is your Axeon setup code$/, 'verification_code'],
+  [/^Welcome to Axeon: /, 'welcome'],
+  [/^Your AxeonPROOF dashboard is ready$/, 'dashboard_invite'],
+  [/left to finish your Axeon setup$/, 'onboarding_nudge'],
+  [/^Reset your AxeonPROOF password$/, 'password_reset'],
+  [/^Your Axeon agreement is ready to sign/, 'agreement_sent'],
+  [/^Signed: your Axeon agreement/, 'agreement_signed'],
+  [/ signed agreement \S+$/, 'agreement_signed_alert'],
+  [/^Update #\d+: /, 'project_update'],
+  [/^Preview: .+ goes out /, 'report_preview'],
+  [/ client reports: /, 'reports_digest'],
+  [/: month one with Axeon, the starting line$|: month \d+ of the ramp, |reached out to .+ in .+\. Here is how\.$|^What Axeon did for .+ in /, 'monthly_report'],
+  [/^Your business email is live/, 'business_email_live'],
+  [/: business email request \(/, 'business_email_request'],
+  [/^(New website lead|Returning lead): /, 'lead_alert'],
+  [/ finished their setup$/, 'onboarding_complete'],
+  [/^(Payment (received|processing|failed): |.+ (paid|payment failed): .+ from |Recurring plan (started|ended): )/, 'billing_alert'],
+  [/ on (the .*report|the day-30 survey|the day-90 note)$/, 'feedback_alert'],
+  [/: only \d+ of \d+ marked leads booked$/, 'low_close_rate'],
+  [/ asked about /, 'upgrade_request'],
+  [/website tracker has gone quiet$/, 'tracker_quiet'],
+  [/^Blog draft ready for your review: /, 'blog_draft_ready'],
+  [/^Weekly post generation did not pass review$/, 'blog_generation_failed'],
+];
+
+export function kindFromSubject(subject: string): EmailKind | 'other' {
+  return SUBJECT_KINDS.find(([re]) => re.test(subject))?.[1] ?? 'other';
 }
 
 /** Resend takes one address or a list; the log keeps one comma-separated, lowercased string. */
@@ -60,6 +96,6 @@ export function recipientsText(to: string | string[] | undefined): string {
 }
 
 /** The log is readable by anyone with admin access, so one-time codes never go in it. */
-export function loggedSubject(kind: EmailKind, subject: string): string {
+export function loggedSubject(kind: EmailKind | 'other', subject: string): string {
   return kind === 'verification_code' ? subject.replace(/\d{4,}/g, '••••••') : subject;
 }
