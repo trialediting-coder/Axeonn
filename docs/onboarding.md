@@ -326,6 +326,123 @@ and an answer marked `attention` ("Not yet", "Rarely", "None", "Confusing")
 emails the owner the first time it lands. The admin board's "Email me a
 sample" sends a regular report or the first ramp report.
 
+## Website forms into PROOF (every plan)
+
+Built 2026-10-13 (slice 2 of `docs/superpowers/specs/2026-10-12-proof-lead-system-design.md`).
+Client-site forms post to `https://axeonstudio.co/api/lead` instead of Formspree. The
+lead is in `form_submissions` within a second, the client gets an email with it
+(reply goes to the lead), and the Leads tab in AxeonPROOF lists it. On AxeonCORE and
+up the owner also gets a text and a call connect call (see the phone section).
+
+Every client site carries two snippets, both with the same site key. Copy the real
+key from the client's admin page (it starts `ax_`); the `ax_xxxxxxxxxxxxxx` below is
+a stand-in that the form will refuse.
+
+Tracking, on every page (before `</body>`):
+
+```html
+<script defer src="https://axeonstudio.co/t.js" data-site="ax_xxxxxxxxxxxxxx"></script>
+```
+
+The form, on the contact or quote page:
+
+```html
+<form action="https://axeonstudio.co/api/lead" method="POST">
+  <input type="hidden" name="site" value="ax_xxxxxxxxxxxxxx">
+  <input type="hidden" name="redirect" value="/thanks">
+  <!-- Honeypot: off-screen for people, filled by bots. Keep it empty. -->
+  <div style="position:absolute;left:-9999px" aria-hidden="true">
+    <label>Leave this empty <input type="text" name="company_website" tabindex="-1" autocomplete="off"></label>
+  </div>
+  <label>Name <input name="name" autocomplete="name" required></label>
+  <label>Phone <input name="phone" type="tel" autocomplete="tel" required></label>
+  <label>Email <input name="email" type="email" autocomplete="email"></label>
+  <label>How can we help? <textarea name="message"></textarea></label>
+  <button type="submit">Send</button>
+</form>
+```
+
+A site that sends with `fetch` posts JSON to the same URL and gets `{ "ok": true }` back:
+
+```js
+await fetch('https://axeonstudio.co/api/lead', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ site: 'ax_xxxxxxxxxxxxxx', name, phone, email, message, page: location.pathname }),
+});
+```
+
+**Field rules.** A phone or an email is required; a phone that is not a 10-digit US
+number is kept in the message as typed ("Phone as typed: ...") and never dialed.
+Accepted names, first one filled wins:
+
+| Lead field | Accepted names |
+| --- | --- |
+| Name | `name`, `full_name`, `fullname`, `your_name`, or `first_name` + `last_name` |
+| Phone | `phone`, `tel`, `telephone`, `phone_number` |
+| Email | `email`, `email_address`, `_replyto` |
+| Message | `message`, `details`, `comments`, `description` |
+
+Any other field (a service select, square footage) is added to the message as
+`label: value`, up to ten, each cut at 300 characters; names starting with `_` are
+skipped. The message is capped at 2,000 characters. `page` and `utm_source` /
+`utm_medium` / `utm_campaign` are optional; without `page` the referring page's path
+is used.
+
+**Honeypot.** `company_website` (the snippet's field) or `_gotcha` (Formspree's name,
+so a switched form can keep it) must be empty. If either has anything in it the
+visitor still sees the normal "thanks", but nothing is saved or sent.
+
+**No file uploads.** `/api/lead` takes text fields only. A body over 16 KB (16,384
+bytes) is refused with "That form could not be read. Please call us instead.", which
+is what a form with a photo upload will hit; file inputs in a multipart post are
+dropped. Client forms must not include file inputs. A photo-upload alternative
+(a link in the message, or a separate upload) comes later.
+
+**What the visitor sees.** A plain form is sent (303) to `redirect` or, without one, a
+short "Thanks, we got your message." page. `redirect` must be on the same site as the
+form (matched on the post's Origin, else Referer, ignoring `www`; a path like
+`/thanks` works); anything else is ignored and they get the thank-you page. A problem
+(no usable phone or email, more than 5 sends from one connection in 10 minutes, a
+wrong or unknown site key, an unreadable or oversized post) shows one plain sentence
+and, where it fits, asks them to call. JSON posts get `{ "ok": false, "error": "..." }`
+with the same wording.
+
+**Quiet hours.** 8 pm to 8 am in the client's time zone (set on the Phone card,
+default Central). In those hours the owner still gets the email right away; the owner
+text and the call connect call are skipped, and the follow-up to the lead is held
+until 8 am by slice 3's sequences (not built yet, so nothing goes to the lead at
+night until then).
+
+**Switching an existing site off Formspree.** Change the form's `action` to
+`https://axeonstudio.co/api/lead`, add the hidden `site` input and the honeypot
+block, replace Formspree's `_next` with `redirect`, keep the field names (the
+common ones are accepted as they are), deploy, send one test from your phone, and
+confirm the email and the Leads tab row before deleting the Formspree form.
+
+**Smoke test.** From a terminal, with the real site key copied from the client's
+admin page in place of `<site key>`:
+
+```bash
+curl -i -X POST https://axeonstudio.co/api/lead \
+  -H 'content-type: application/json' \
+  -d '{"site":"<site key>","name":"Smoke Test","phone":"<your cell>","message":"smoke test"}'
+```
+
+`{"ok":true}` means it was saved; a 404 means the key is wrong. This creates a real
+lead (it shows in the client's Leads tab and emails them), so prefer the Phone
+card's "Send test lead", which is marked as a test and hidden from the client.
+
+| Piece | Where |
+| --- | --- |
+| Validation, quiet hours, alert and whisper wording | `lib/leadShared.ts` |
+| Storage, rate limit, delivery, test lead | `lib/leads.ts` |
+| Intake route | `app/api/lead/route.ts` |
+| Client email | `renderClientLeadAlert` in `lib/email.ts` |
+| Client list | `components/proof/FormLeads.tsx` via `lib/proofDashboardData.ts` |
+| Table | `form_submissions` |
+| Tests | `npm run test:leads` |
+
 ## The tracked phone number (AxeonCORE and up)
 
 Built 2026-10-12 (slice 1 of `docs/superpowers/specs/2026-10-12-proof-lead-system-design.md`).
@@ -341,8 +458,9 @@ records the call (after a short notice), and texts back any call they miss.
 | Webhooks | `app/api/phone/{voice,voice/status,recording,sms}` |
 | Admin card | `components/insights/PhonePanel.tsx`, `/api/admin/onboarding/<token>/phone` |
 | Client tab | `components/proof/CallsTab.tsx` via `lib/proofDashboardData.ts` |
+| Call connect and call screening webhooks | `app/api/phone/connect{,/status,/notice}`, `app/api/phone/voice/screen{,/accept}` |
 | Tables | `phone_lines`, `phone_calls`, `phone_messages`, `phone_opt_outs` |
-| Tests | `npm run test:phone` |
+| Tests | `npm run test:phone`, `npm run test:leads` |
 
 **Provisioning.** The admin's Phone card reads the portal's `phone-setup` answers,
 takes an area code, and buys the first available local number with voice and SMS
@@ -367,6 +485,36 @@ Replying from PROOF is slice 4.
 calls with masked numbers, recordings) and the monthly report's `calls` figure,
 filled only when Axeon has not typed one. A month with zero calls is left
 blank on the report rather than filled with 0.
+
+**Call screening** (on by default, slice 2). The forwarded leg says "Call for
+<business>. Press 1 to accept." before the caller is connected. A person presses 1;
+voicemail never does, so a declined call, a dead battery or a voicemail pickup is
+recorded as Missed and gets the missed-call text-back. Turn it off on the admin card
+only if the owner hates it; then a voicemail pickup counts as Answered again.
+
+**Lead alerts and call connect** (AxeonCORE and up, slice 2). For every website form
+lead: the client gets an email (every plan); the owner's cell gets a text through
+their own line (`kind = 'alert'`, only once 10DLC is approved and the owner has not
+texted STOP); and if the lead left a US phone, Twilio calls the owner from the
+tracked number: "New lead from your website: <name>. Press 1 to call them now."
+On 1 we dial the lead with the tracked number as caller ID, recorded and with the
+recording notice per the card's Record calls and Play recording notice settings.
+No key: "Okay. We texted you their details." when the text went out, otherwise "Okay.
+We emailed you their details." Call connect calls are kept out of the Calls tab and
+the monthly report's call count (they are the owner calling out); the Leads tab marks
+the lead "Called back" when the owner pressed 1.
+
+**Quiet hours.** 8 pm to 8 am in the line's time zone (admin card, default Central):
+the owner gets the email right away, but the text and the call connect call are
+skipped. The follow-up to the lead is held until 8 am by slice 3's sequences; until
+those ship, nothing is sent later. The missed-call text-back ignores quiet hours,
+because the caller just called.
+
+**Testing a client's setup.** "Send test lead" on the Phone card posts a fake lead
+for that client and shows what happened on one line (email, text, call connect, and
+why anything was skipped). The client's email is marked [Test]; test leads never
+show in their dashboard. Use a second phone as the test lead's number, not the
+forward-to.
 
 **Cost.** The admin card estimates the month from the two tables at the rates in
 the spec. There are no subaccounts; usage is attributed by number.
