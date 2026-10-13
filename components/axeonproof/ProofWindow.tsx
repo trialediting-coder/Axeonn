@@ -8,6 +8,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { MousePointer2 } from 'lucide-react';
+import { LiveFeed } from '@/components/axeonproof/LiveFeed';
 
 export function ProofWindow({ children, caption }: { children: ReactNode; caption: string }) {
   const figureRef = useRef<HTMLElement>(null);
@@ -131,6 +132,7 @@ export function ProofWindow({ children, caption }: { children: ReactNode; captio
           </span>
         </div>
         <div className="relative">
+          <LiveFeed />
           <div
             ref={scrollerRef}
             tabIndex={0}

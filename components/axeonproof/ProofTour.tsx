@@ -6,6 +6,7 @@
 // the example business. Arrow keys move between tabs; the sidebar inside the
 // frame is clickable too.
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Monitor, Smartphone } from 'lucide-react';
 import { ArrowLeft, ArrowRight, Activity, Bot, CalendarCheck, CreditCard, LayoutGrid, Mail, Megaphone, PhoneCall, Star } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { PROOF_TABS, TIER_SHORT, type ProofTabKey } from '@/lib/proofTabs';
@@ -33,6 +34,7 @@ const CHIP_STYLE: Record<string, string> = {
 
 export function ProofTour() {
   const [index, setIndex] = useState(0);
+  const [device, setDevice] = useState<'desktop' | 'phone'>('desktop');
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const tab = PROOF_TABS[index];
 
@@ -58,8 +60,13 @@ export function ProofTour() {
     }
   };
 
-  // Keep the active chip in view on the phone's horizontal strip.
+  // Keep the active chip in view on the phone's horizontal strip (not on first paint, or the page would jump here).
+  const mounted = useRef(false);
   useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
+    }
     tabRefs.current[index]?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
   }, [index]);
 
@@ -105,23 +112,54 @@ export function ProofTour() {
       </div>
 
       <div id="proof-tour-panel" role="tabpanel" aria-labelledby={`proof-tab-${tab.key}`} className="min-w-0">
-        <div className="overflow-hidden rounded-2xl bg-[#f3f4f7] shadow-[0_24px_80px_-30px_rgba(16,24,40,0.45)] ring-1 ring-neutral-200">
-          <div className="flex items-center gap-3 border-b border-neutral-200 bg-white px-3 py-2 sm:px-4">
-            <span className="flex gap-1.5" aria-hidden>
-              <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
-              <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
-              <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
-            </span>
-            <span className="mx-auto flex h-7 w-full max-w-xs items-center justify-center rounded-md bg-neutral-100 text-[11px] font-medium text-neutral-500 sm:text-xs">
-              app.axeonstudio.co/?tab={tab.key}
-            </span>
-          </div>
-          <div key={tab.key} className="max-h-[640px] overflow-y-auto overscroll-contain">
-            <DashboardShell tab={tab.key} onTab={(k) => setIndex(PROOF_TABS.findIndex((t) => t.key === k))}>
-              <ScreenFor tab={tab.key} full={false} />
-            </DashboardShell>
-          </div>
+        <div className="mb-3 flex items-center justify-end gap-1 rounded-full bg-neutral-100 p-1 text-xs font-semibold text-neutral-600 sm:ml-auto sm:w-fit" role="group" aria-label="Screen size">
+          {(['desktop', 'phone'] as const).map((d) => (
+            <button
+              key={d}
+              type="button"
+              onClick={() => setDevice(d)}
+              aria-pressed={device === d}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-colors ${device === d ? 'bg-white text-neutral-950 shadow-sm' : 'hover:text-neutral-950'}`}
+            >
+              {d === 'desktop' ? <Monitor size={14} /> : <Smartphone size={14} />}
+              {d === 'desktop' ? 'Desktop' : 'Phone'}
+            </button>
+          ))}
         </div>
+        {device === 'desktop' ? (
+          <div className="overflow-hidden rounded-2xl bg-[#f3f4f7] shadow-[0_24px_80px_-30px_rgba(16,24,40,0.45)] ring-1 ring-neutral-200">
+            <div className="flex items-center gap-3 border-b border-neutral-200 bg-white px-3 py-2 sm:px-4">
+              <span className="flex gap-1.5" aria-hidden>
+                <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
+                <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
+                <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
+              </span>
+              <span className="mx-auto flex h-7 w-full max-w-xs items-center justify-center rounded-md bg-neutral-100 text-[11px] font-medium text-neutral-500 sm:text-xs">
+                app.axeonstudio.co/?tab={tab.key}
+              </span>
+            </div>
+            <div key={tab.key} className="max-h-[640px] overflow-y-auto overscroll-contain">
+              <DashboardShell tab={tab.key} onTab={(k) => setIndex(PROOF_TABS.findIndex((t) => t.key === k))}>
+                <ScreenFor tab={tab.key} full={false} />
+              </DashboardShell>
+            </div>
+          </div>
+        ) : (
+          <div className="mx-auto w-full max-w-[390px] rounded-[2.5rem] bg-neutral-950 p-2.5 shadow-[0_30px_80px_-30px_rgba(16,24,40,0.6)]">
+            <div className="relative overflow-hidden rounded-[2rem] bg-[#f3f4f7]">
+              <div className="flex items-center justify-between bg-white px-6 pb-1 pt-3 text-[11px] font-semibold text-neutral-900">
+                <span>9:41</span>
+                <span className="h-5 w-24 rounded-full bg-neutral-950" aria-hidden />
+                <span>100%</span>
+              </div>
+              <div key={tab.key} className="h-[640px] overflow-y-auto overscroll-contain">
+                <DashboardShell tab={tab.key} onTab={(k) => setIndex(PROOF_TABS.findIndex((t) => t.key === k))}>
+                  <ScreenFor tab={tab.key} full={false} />
+                </DashboardShell>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">

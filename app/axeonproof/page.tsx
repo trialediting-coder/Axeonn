@@ -13,6 +13,8 @@ import { ServiceClosingCta, GUARANTEE_LINE, GUARANTEE_TERMS } from '@/components
 import { ProofWindow } from '@/components/axeonproof/ProofWindow';
 import { ProofTour } from '@/components/axeonproof/ProofTour';
 import { ProofHotspots } from '@/components/axeonproof/ProofHotspots';
+import { HeroGrid } from '@/components/axeonproof/HeroGrid';
+import { GuaranteeScrubber } from '@/components/axeonproof/GuaranteeScrubber';
 import { DashboardShell } from '@/components/axeonproof/DashboardShell';
 import { OverviewScreen } from '@/components/axeonproof/screens';
 import { EXAMPLE } from '@/data/proofPage';
@@ -85,12 +87,8 @@ export default function AxeonProofPage() {
 
       {/* Hero: the headline, then the dashboard standing up out of the dark. */}
       <section className="relative overflow-hidden bg-neutral-950 px-4 pb-20 pt-28 text-white sm:px-8 sm:pb-28 sm:pt-36 lg:px-16">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0"
-          style={{ backgroundImage: 'radial-gradient(ellipse 60% 50% at 50% 20%, rgba(37,99,235,0.35), transparent 70%)' }}
-        />
-        <div className="relative mx-auto max-w-4xl text-center">
+        <HeroGrid />
+        <div className="pointer-events-none relative mx-auto max-w-4xl text-center [&_a]:pointer-events-auto">
           <Eyebrow label="AxeonPROOF" onDark className="mb-5" />
           <h1 className="hero-rise text-balance font-display text-4xl font-black leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
             Every call, lead and booked job. One screen.
@@ -180,6 +178,9 @@ export default function AxeonProofPage() {
                 </li>
               ))}
             </ol>
+          </div>
+          <div className="mt-10 sm:mt-14">
+            <GuaranteeScrubber />
           </div>
         </div>
       </section>
