@@ -7,7 +7,7 @@
 import { readTwilioRequest } from '@/lib/phoneWebhook';
 import { lineForNumber, markConnectEnded, recordCall } from '@/lib/phoneLines';
 import { getSubmission } from '@/lib/leads';
-import { emptyTwiml, hangupTwiml, TWIML_HEADERS } from '@/lib/phoneTwiml';
+import { connectLeadNoAnswerTwiml, emptyTwiml, hangupTwiml, TWIML_HEADERS } from '@/lib/phoneTwiml';
 import { callOutcome, normalizePhone } from '@/lib/phoneShared';
 import { parseId } from '@/lib/leadShared';
 
@@ -28,6 +28,7 @@ export async function POST(req: Request) {
     const line = await lineForNumber(from);
     if (!line) return twiml(hangupTwiml());
     if (p.DialCallStatus) {
+      const outcome = callOutcome(p.DialCallStatus, p.DialBridged);
       const lead = await getSubmission(line.onboardingId, leadId);
       if (lead?.phone) {
         const seconds = p.DialCallDuration ? Number.parseInt(p.DialCallDuration, 10) : null;
@@ -36,14 +37,15 @@ export async function POST(req: Request) {
           callSid: p.CallSid,
           fromNumber: lead.phone,
           toNumber: line.phoneNumber,
-          outcome: callOutcome(p.DialCallStatus),
+          outcome,
           dialStatus: p.DialCallStatus,
           durationSeconds: seconds !== null && Number.isFinite(seconds) ? seconds : null,
           direction: 'connect',
           leadId,
         });
       }
-      return twiml(hangupTwiml());
+      // The owner is still on the line: tell them the lead did not pick up before hanging up.
+      return twiml(outcome === 'missed' ? connectLeadNoAnswerTwiml() : hangupTwiml());
     }
     if (p.CallStatus) await markConnectEnded(p.CallSid, p.CallStatus);
   } catch (err) {

@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  LEAD_ALERT_MAX, backLink, connectDecision, connectWhisperText, describeDelivery, detailsWereTexted, isQuietHours, leadAlertText, pagePath, parseId, planLeadDelivery,
+  LEAD_ALERT_MAX, backLink, connectDecision, connectWhisperText, describeDelivery, detailsWereTexted, isQuietHours, isRecentDuplicate, leadAlertText, pagePath, parseId, planLeadDelivery,
   replyPage, safeRedirect, spokenName, toDashboardSubmission, validateLeadInput, type FormSubmission, type LeadLineView,
 } from './leadShared';
 
@@ -59,6 +59,16 @@ test('validateLeadInput caps long fields and never keeps control characters', ()
     assert.ok(!v.lead.name.includes('\u0000'));
     assert.equal(v.lead.message.length, 2000);
   }
+});
+
+test('validateLeadInput leaves captcha and form-builder fields out of the message', () => {
+  const v = validateLeadInput({
+    name: 'Ana', phone: '515-555-0134', message: 'Patio',
+    'g-recaptcha-response': 'tok', 'h-captcha-response': 'tok', form_name: 'Quote', 'form-id': '7', formId: '8', budget: '5000',
+  });
+  assert.ok(v.ok);
+  if (!v.ok) return;
+  assert.equal(v.lead.message, 'Patio\nbudget: 5000');
 });
 
 test('pagePath keeps only the path of a page URL', () => {
@@ -209,4 +219,22 @@ test('detailsWereTexted is true only when the owner text was recorded as sent (S
   for (const s of [null, undefined, '', 'failed', 'quiet_hours', 'sms_pending', 'opted_out', 'bad_number', 'plan', 'no_line', 'SENT']) {
     assert.equal(detailsWereTexted(s), false, String(s));
   }
+});
+
+test('isRecentDuplicate: same phone or same email within 5 minutes is the same person (S2-R16)', () => {
+  const now = new Date('2026-10-13T15:00:00Z');
+  const ago = (m: number) => new Date(now.getTime() - m * 60_000).toISOString();
+  const base = { phone: '+15155550134', email: 'ana@example.com', now };
+  // match by phone
+  assert.equal(isRecentDuplicate({ ...base, email: null, candidates: [{ phone: '+15155550134', email: null, createdAt: ago(2) }] }), true);
+  // match by email, case ignored
+  assert.equal(isRecentDuplicate({ ...base, phone: null, candidates: [{ phone: null, email: 'Ana@Example.com', createdAt: ago(4) }] }), true);
+  // outside the window
+  assert.equal(isRecentDuplicate({ ...base, candidates: [{ phone: '+15155550134', email: 'ana@example.com', createdAt: ago(6) }] }), false);
+  assert.equal(isRecentDuplicate({ ...base, windowMinutes: 10, candidates: [{ phone: '+15155550134', email: null, createdAt: ago(6) }] }), true);
+  // no overlap
+  assert.equal(isRecentDuplicate({ ...base, candidates: [{ phone: '+15155550199', email: 'bo@example.com', createdAt: ago(1) }] }), false);
+  // both null on both sides never match
+  assert.equal(isRecentDuplicate({ phone: null, email: null, now, candidates: [{ phone: null, email: null, createdAt: ago(1) }] }), false);
+  assert.equal(isRecentDuplicate({ ...base, candidates: [] }), false);
 });

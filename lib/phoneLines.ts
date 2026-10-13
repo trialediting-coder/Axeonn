@@ -385,7 +385,7 @@ export async function startConnectCall(line: PhoneLine, lead: { id: number; phon
     await recordCall(line.onboardingId, { callSid: sid, fromNumber: leadPhone, toNumber: line.phoneNumber, outcome: 'missed', dialStatus: 'queued', durationSeconds: null, direction: 'connect', leadId: lead.id });
   } catch (err) {
     // The call is already ringing; the connect webhooks upsert the row if this write was lost.
-    console.error('phone: connect row not recorded', sid, err);
+    console.error('phone: connect row not recorded', sid, errText(err));
   }
   return { sid };
 }

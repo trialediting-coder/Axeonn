@@ -31,7 +31,7 @@ export async function POST(req: Request) {
   if (!line || !p.CallSid) return twiml(emptyTwiml());
 
   const from = callerKey(p.From);
-  const outcome = callOutcome(p.DialCallStatus);
+  const outcome = callOutcome(p.DialCallStatus, p.DialBridged);
   const seconds = p.DialCallDuration ? Number.parseInt(p.DialCallDuration, 10) : null;
   try {
     await recordCall(line.onboardingId, {

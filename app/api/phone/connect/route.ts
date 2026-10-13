@@ -11,13 +11,13 @@ import { connectDialTwiml, connectNoAnswerTwiml, connectWhisperTwiml, hangupTwim
 import { webhookUrl } from '@/lib/twilio';
 import { normalizePhone } from '@/lib/phoneShared';
 import { connectDecision, detailsWereTexted, parseId } from '@/lib/leadShared';
+import { errText } from '@/lib/dbRows';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const PATH = '/api/phone/connect';
 const twiml = (xml: string) => new Response(xml, { status: 200, headers: TWIML_HEADERS });
-const errText = (err: unknown) => (err instanceof Error ? err.message : err);
 
 export async function POST(req: Request) {
   const read = await readTwilioRequest(req, PATH, { withQuery: true });

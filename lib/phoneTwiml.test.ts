@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  acceptTwiml, afterDialTwiml, connectDialTwiml, connectNoAnswerTwiml, connectWhisperTwiml, emptyTwiml, escapeXml, forwardTwiml,
+  acceptTwiml, afterDialTwiml, connectDialTwiml, connectLeadNoAnswerTwiml, connectNoAnswerTwiml, connectWhisperTwiml, emptyTwiml, escapeXml, forwardTwiml,
   hangupTwiml, recordingNoticeTwiml, screenTwiml,
 } from './phoneTwiml';
 
@@ -75,6 +75,10 @@ test('connectWhisperTwiml says the lead name safely inside a Gather and falls th
 test('connectNoAnswerTwiml says where the details went and hangs up', () => {
   assert.equal(connectNoAnswerTwiml({ textedDetails: true }), `${XML}<Response><Say voice="Polly.Joanna">Okay. We texted you their details.</Say><Hangup/></Response>`);
   assert.equal(connectNoAnswerTwiml({ textedDetails: false }), `${XML}<Response><Say voice="Polly.Joanna">Okay. We emailed you their details.</Say><Hangup/></Response>`);
+});
+
+test('connectLeadNoAnswerTwiml tells the owner the lead did not pick up and hangs up', () => {
+  assert.equal(connectLeadNoAnswerTwiml(), `${XML}<Response><Say voice="Polly.Joanna">They didn't pick up. Their details are in your email.</Say><Hangup/></Response>`);
 });
 
 test('connectDialTwiml dials the lead from the tracked number, recorded with the notice to the lead, or plain', () => {

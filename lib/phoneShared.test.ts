@@ -69,6 +69,13 @@ test('callOutcome treats only a completed dial as answered', () => {
   for (const s of ['busy', 'no-answer', 'failed', 'canceled', undefined, 42]) assert.equal(callOutcome(s), 'missed', String(s));
 });
 
+test('callOutcome: DialBridged=false is missed even when the dial reports completed (screening hang-up, voicemail)', () => {
+  assert.equal(callOutcome('completed', 'false'), 'missed');
+  assert.equal(callOutcome('completed', 'true'), 'answered');
+  assert.equal(callOutcome('completed'), 'answered');
+  assert.equal(callOutcome('no-answer', 'false'), 'missed');
+});
+
 test('callerKey keeps any E.164 caller and falls back to unknown', () => {
   assert.equal(callerKey('(515) 555-0134'), '+15155550134');
   assert.equal(callerKey('+447700900123'), '+447700900123');

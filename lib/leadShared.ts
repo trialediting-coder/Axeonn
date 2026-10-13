@@ -42,6 +42,8 @@ const RESERVED = new Set<string>([
   ...ALIASES.name, ...ALIASES.phone, ...ALIASES.email, ...ALIASES.message,
 ]);
 const MAX_EXTRA_FIELDS = 10;
+/** Spam-check and form-builder plumbing (g-recaptcha-response, form_name, form-id) that would read as noise in the message. */
+const PLUMBING_KEY = /recaptcha|captcha|form[-_]?name|form[-_]?id/i;
 const EMAIL_RE = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/;
 
 /** A form value as trimmed text with control characters turned into spaces. Multiline keeps single line breaks. */
@@ -93,7 +95,7 @@ export function validateLeadInput(raw: Record<string, unknown>): LeadValidation 
   if (phoneTyped && !phone) lines.push(`Phone as typed: ${phoneTyped}`);
   let extras = 0;
   for (const [key, value] of Object.entries(raw)) {
-    if (extras >= MAX_EXTRA_FIELDS || RESERVED.has(key) || key.startsWith('_')) continue;
+    if (extras >= MAX_EXTRA_FIELDS || RESERVED.has(key) || key.startsWith('_') || PLUMBING_KEY.test(key)) continue;
     const v = clean(value, 300);
     const label = clean(key.replace(/[_-]+/g, ' '), 40);
     if (!v || !label) continue;
@@ -166,11 +168,37 @@ export function planLeadDelivery(input: { tier: OnboardingTier; line: LeadLineVi
   return { text, connect };
 }
 
+/** A lead that repeats one from the last few minutes rings and texts nobody: one lead, one ring (S2-R16). */
+export const DUPLICATE_WINDOW_MINUTES = 5;
+
+/**
+ * Whether this lead is the same person writing again: a recent submission with
+ * the same non-null phone, or the same non-null email (case ignored), within the
+ * window. Pure; lib/leads.ts supplies the candidates.
+ */
+export function isRecentDuplicate(input: {
+  candidates: { phone: string | null; email: string | null; createdAt: string }[];
+  phone: string | null;
+  email: string | null;
+  now: Date;
+  windowMinutes?: number;
+}): boolean {
+  const windowMs = (input.windowMinutes ?? DUPLICATE_WINDOW_MINUTES) * 60_000;
+  const email = input.email?.trim().toLowerCase() || null;
+  const now = input.now.getTime();
+  return input.candidates.some((c) => {
+    const at = Date.parse(c.createdAt);
+    if (!Number.isFinite(at) || now - at > windowMs) return false;
+    if (input.phone && c.phone === input.phone) return true;
+    return Boolean(email && c.email && c.email.trim().toLowerCase() === email);
+  });
+}
+
 /** What actually happened to one lead; the admin's "Send test lead" shows it. */
 export interface DeliveryReport {
   email: 'sent' | 'off' | 'failed';
-  text: SmsSkip | 'sent' | 'opted_out' | 'bad_number' | 'failed';
-  connect: ConnectSkip | 'started' | 'failed';
+  text: SmsSkip | 'sent' | 'opted_out' | 'bad_number' | 'failed' | 'duplicate';
+  connect: ConnectSkip | 'started' | 'failed' | 'duplicate' | 'cooldown';
 }
 
 const EMAIL_WORDS: Record<DeliveryReport['email'], string> = {
@@ -187,6 +215,7 @@ const TEXT_WORDS: Record<DeliveryReport['text'], string> = {
   opted_out: "skipped, the owner's cell texted STOP",
   bad_number: 'skipped, forward-to is not a US number',
   failed: 'failed, see the Vercel log',
+  duplicate: 'duplicate: same person wrote again within 5 minutes',
 };
 const CONNECT_WORDS: Record<DeliveryReport['connect'], string> = {
   started: "calling the owner's cell now",
@@ -197,6 +226,8 @@ const CONNECT_WORDS: Record<DeliveryReport['connect'], string> = {
   same_number: "the lead's phone is the owner's own number",
   quiet_hours: 'skipped, quiet hours (8 pm to 8 am)',
   failed: 'failed, see the Vercel log',
+  duplicate: 'duplicate: same person wrote again within 5 minutes',
+  cooldown: 'cooldown: another call connect just started',
 };
 
 export function describeDelivery(r: DeliveryReport): string {

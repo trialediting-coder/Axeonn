@@ -70,6 +70,11 @@ export function connectNoAnswerTwiml(input: { textedDetails: boolean }): string 
   return `${HEAD}<Response>${detailsSay(input.textedDetails)}<Hangup/></Response>`;
 }
 
+/** Call connect, the owner pressed 1 but the lead's leg ended without a bridge (no answer, busy, voicemail screen): say so, then hang up. */
+export function connectLeadNoAnswerTwiml(): string {
+  return `${HEAD}<Response><Say voice="${VOICE}">They didn't pick up. Their details are in your email.</Say><Hangup/></Response>`;
+}
+
 /**
  * Call connect, the owner pressed 1: dial the lead from the tracked number, so
  * the lead sees the business calling. noticeUrl plays the recording notice to

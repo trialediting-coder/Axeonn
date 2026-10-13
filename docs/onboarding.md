@@ -429,7 +429,7 @@ curl -i -X POST https://axeonstudio.co/api/lead \
   -d '{"site":"<site key>","name":"Smoke Test","phone":"<your cell>","message":"smoke test"}'
 ```
 
-`{"ok":true}` means it was saved; a 404 means the key is wrong. This creates a real
+`{"ok":true}` means it was saved; a 404 (or a 400 for a malformed key) means the key is wrong. This creates a real
 lead (it shows in the client's Leads tab and emails them), so prefer the Phone
 card's "Send test lead", which is marked as a test and hidden from the client.
 
@@ -489,7 +489,8 @@ blank on the report rather than filled with 0.
 **Call screening** (on by default, slice 2). The forwarded leg says "Call for
 <business>. Press 1 to accept." before the caller is connected. A person presses 1;
 voicemail never does, so a declined call, a dead battery or a voicemail pickup is
-recorded as Missed and gets the missed-call text-back. Turn it off on the admin card
+recorded as Missed and gets the missed-call text-back. Twilio reports such a call as
+"completed" but never connected, and the system counts never-connected as Missed. Turn it off on the admin card
 only if the owner hates it; then a voicemail pickup counts as Answered again.
 
 **Lead alerts and call connect** (AxeonCORE and up, slice 2). For every website form

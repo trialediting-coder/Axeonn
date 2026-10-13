@@ -107,8 +107,14 @@ export function textBackMessage(businessName: string | null, custom: string | nu
   return TEXT_BACK_DEFAULT.replace('{business}', businessName?.trim() || 'us');
 }
 
-/** Twilio's DialCallStatus: only "completed" means a person picked up. */
-export function callOutcome(dialStatus: unknown): CallOutcome {
+/**
+ * Twilio's DialCallStatus: only "completed" means a person picked up. Since Twilio's
+ * 2020-12-09 TwiML change a hang-up in a <Number url> screening document reports
+ * "completed" too, with DialBridged=false: the legs never bridged, so it is missed.
+ * Without DialBridged (absent from the request) the status alone decides.
+ */
+export function callOutcome(dialStatus: unknown, dialBridged?: unknown): CallOutcome {
+  if (String(dialBridged) === 'false') return 'missed';
   return dialStatus === 'completed' ? 'answered' : 'missed';
 }
 

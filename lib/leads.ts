@@ -12,7 +12,7 @@ import { sendClientLeadAlert } from '@/lib/email';
 import { getLine, sendOwnerAlert, startConnectCall } from '@/lib/phoneLines';
 import { REPORT_TIME_ZONE, isValidMonth } from '@/lib/siteStats';
 import { normalizePhone } from '@/lib/phoneShared';
-import { leadAlertText, planLeadDelivery, type DeliveryReport, type FormSubmission, type LeadInput } from '@/lib/leadShared';
+import { DUPLICATE_WINDOW_MINUTES, isRecentDuplicate, leadAlertText, planLeadDelivery, type DeliveryReport, type FormSubmission, type LeadInput } from '@/lib/leadShared';
 import type { Onboarding } from '@/lib/onboarding';
 
 /** At most this many submissions per IP hash per site in the window (spec, "Slice 2 design"). */
@@ -86,6 +86,46 @@ export async function recentSubmissionCount(onboardingId: number, ipHash: string
   return Number(rows[0]?.n ?? 0);
 }
 
+/** How long after one call connect call starts for a client before another may ring the owner (S2-R16). */
+export const CONNECT_COOLDOWN_MINUTES = 2;
+
+/**
+ * This client's real (non-test) submissions in the last `minutes` with the same
+ * phone or the same email (case ignored), other than `excludeId` (the lead being
+ * delivered). isRecentDuplicate makes the call; this only narrows the rows.
+ */
+export async function recentSubmissionsForContact(
+  onboardingId: number,
+  contact: { phone: string | null; email: string | null; excludeId: number },
+  minutes: number,
+): Promise<{ phone: string | null; email: string | null; createdAt: string }[]> {
+  if (!contact.phone && !contact.email) return [];
+  await ensureSchema();
+  const { rows } = await sql<{ phone: string | null; email: string | null; created_at: DbTime }>`
+    SELECT phone, email, created_at FROM form_submissions
+    WHERE onboarding_id = ${onboardingId} AND is_test = false AND id <> ${contact.excludeId}
+      AND created_at > now() - make_interval(mins => ${Math.round(minutes)})
+      AND ((${contact.phone}::text IS NOT NULL AND phone = ${contact.phone})
+        OR (${contact.email}::text IS NOT NULL AND lower(email) = lower(${contact.email})))
+    ORDER BY created_at DESC
+    LIMIT 20;
+  `;
+  return rows.map((r) => ({ phone: r.phone, email: r.email, createdAt: iso(r.created_at) }));
+}
+
+/** When the latest call connect call for this client started, if one started in the last `minutes`; else null. */
+export async function recentConnectCallStartedAt(onboardingId: number, minutes: number): Promise<string | null> {
+  await ensureSchema();
+  const { rows } = await sql<{ started_at: DbTime }>`
+    SELECT started_at FROM phone_calls
+    WHERE onboarding_id = ${onboardingId} AND direction = 'connect'
+      AND started_at > now() - make_interval(mins => ${Math.round(minutes)})
+    ORDER BY started_at DESC
+    LIMIT 1;
+  `;
+  return rows[0] ? iso(rows[0].started_at) : null;
+}
+
 /** A lead as the connect webhooks read it: plus what happened to the owner text (S2-R1; null = unknown). */
 export interface StoredSubmission extends FormSubmission {
   alertTextStatus: string | null;
@@ -147,6 +187,24 @@ export async function deliverLead(owner: LeadOwner, lead: FormSubmission, opts: 
       return 'failed';
     });
 
+  const now = opts.now ?? new Date();
+
+  // One lead, one ring (S2-R16): the same person writing again within the window gets the email only.
+  let duplicate = false;
+  try {
+    const candidates = await recentSubmissionsForContact(owner.id, { phone: lead.phone, email: lead.email, excludeId: lead.id }, DUPLICATE_WINDOW_MINUTES);
+    duplicate = isRecentDuplicate({ candidates, phone: lead.phone, email: lead.email, now });
+  } catch (err) {
+    // Cannot tell, so deliver as new: a second ring beats a lost lead.
+    console.error('[lead] duplicate check failed', lead.id, errText(err));
+  }
+  if (duplicate) {
+    const report: DeliveryReport = { email: await email, text: 'duplicate', connect: 'duplicate' };
+    await noteAlertText(owner.id, lead.id, report.text).catch((err) => console.error('[lead] alert status not saved', lead.id, errText(err)));
+    console.info('[lead] delivered', lead.id, report);
+    return report;
+  }
+
   let line: Awaited<ReturnType<typeof getLine>>;
   try {
     line = await getLine(owner.id);
@@ -157,7 +215,7 @@ export async function deliverLead(owner: LeadOwner, lead: FormSubmission, opts: 
     await noteAlertText(owner.id, lead.id, report.text).catch((e) => console.error('[lead] alert status not saved', lead.id, errText(e)));
     return report;
   }
-  const plan = planLeadDelivery({ tier: owner.tier, line, leadPhone: lead.phone, now: opts.now ?? new Date() });
+  const plan = planLeadDelivery({ tier: owner.tier, line, leadPhone: lead.phone, now });
 
   // The text goes before the call, so "we texted you their details" is already true when the owner hears it.
   let text: DeliveryReport['text'];
@@ -174,9 +232,20 @@ export async function deliverLead(owner: LeadOwner, lead: FormSubmission, opts: 
   }
   await noteAlertText(owner.id, lead.id, text).catch((err) => console.error('[lead] alert status not saved', lead.id, errText(err)));
 
+  // Another lead just rang the owner: two calls at once would collide, and the email and text already carry this one.
+  let cooldown = false;
+  if (plan.connect === 'call') {
+    try {
+      cooldown = (await recentConnectCallStartedAt(owner.id, CONNECT_COOLDOWN_MINUTES)) !== null;
+    } catch (err) {
+      console.error('[lead] cooldown check failed', lead.id, errText(err));
+    }
+  }
+
   let connect: DeliveryReport['connect'];
   if (plan.connect !== 'call') connect = plan.connect;
   else if (!line || !lead.phone) connect = 'no_phone';
+  else if (cooldown) connect = 'cooldown';
   else {
     try {
       const { sid } = await startConnectCall(line, { id: lead.id, phone: lead.phone });
