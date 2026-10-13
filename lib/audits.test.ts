@@ -7,7 +7,7 @@ import { gridSearch, type SourceResult, type Sources } from './auditSources';
 import { section, type AuditSubject, type MapsItem } from './auditShared';
 
 const item = (o: Partial<MapsItem> & { rank: number; name: string }): MapsItem => ({
-  domain: null, url: null, rating: null, reviews: null, placeId: null, cid: null, lat: null, lng: null, categories: [], gbpUrl: null, ...o,
+  domain: null, url: null, rating: null, reviews: null, placeId: null, cid: null, lat: null, lng: null, categories: [], gbpUrl: null, photos: null, claimed: null, booking: false, phone: null, openDays: null, stars: null, ...o,
 });
 const subject: AuditSubject = { business: 'Joes Auto Spa', city: 'Ankeny', state: 'IA', website: 'https://subjectspa.com', keyword: 'auto detailing', placeId: null, cid: null, lat: null, lng: null };
 const mapsItems = [

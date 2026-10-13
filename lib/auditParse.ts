@@ -2,6 +2,7 @@
 // DataForSEO result shapes → our MapsItem / organic rows. Pure, so the parsers
 // are tested on saved fixtures (lib/__fixtures__/dataforseo) without network.
 import type { MapsItem } from '@/lib/auditShared';
+import { parseMapsProfile } from '@/lib/auditDeepParse';
 
 type Rec = Record<string, unknown>;
 const rec = (v: unknown): Rec | null => (v && typeof v === 'object' && !Array.isArray(v) ? (v as Rec) : null);
@@ -35,6 +36,7 @@ function toMapsItem(i: Rec, rank: number): MapsItem | null {
     lng: num(i.longitude),
     categories,
     gbpUrl: cid ? `https://maps.google.com/?cid=${cid}` : null,
+    ...parseMapsProfile(i),
   };
 }
 

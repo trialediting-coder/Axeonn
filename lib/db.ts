@@ -386,6 +386,32 @@ export function ensureSchema(): Promise<void> {
       await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS audits_enabled BOOLEAN NOT NULL DEFAULT true;`;
       await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS client_scan_cap INTEGER;`;
       await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS baseline_audit_id INTEGER;`;
+      // Phase 2: deep audits and the 90-day plan (lib/plans.ts).
+      await sql`ALTER TABLE audits ADD COLUMN IF NOT EXISTS deep BOOLEAN NOT NULL DEFAULT false;`;
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS deep_refresh_days INTEGER NOT NULL DEFAULT 90;`;
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS last_deep_at TIMESTAMPTZ;`;
+      await sql`
+        CREATE TABLE IF NOT EXISTS plan_items (
+          id SERIAL PRIMARY KEY,
+          onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+          key TEXT NOT NULL,
+          title TEXT NOT NULL,
+          why TEXT NOT NULL DEFAULT '',
+          owner TEXT NOT NULL CHECK (owner IN ('axeon', 'client')),
+          metric TEXT,
+          target JSONB,
+          current JSONB,
+          impact INTEGER NOT NULL DEFAULT 2,
+          status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'on_track', 'slipping', 'done', 'dropped')),
+          edited BOOLEAN NOT NULL DEFAULT false,
+          due_at DATE,
+          source_audit_id INTEGER,
+          done_at TIMESTAMPTZ,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          UNIQUE (onboarding_id, key)
+        );
+      `;
     })().catch((err) => {
       schemaReady = null; // let the next request retry
       throw err;

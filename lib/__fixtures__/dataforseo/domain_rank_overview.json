@@ -1,0 +1,61 @@
+{
+ "version": "0.1.20260917",
+ "status_code": 20000,
+ "status_message": "Ok.",
+ "time": "0.1515 sec.",
+ "cost": 0.01212,
+ "tasks_count": 1,
+ "tasks_error": 0,
+ "tasks": [
+  {
+   "id": "10130715-2789-0388-0000-90e73c7d2364",
+   "status_code": 20000,
+   "status_message": "Ok.",
+   "time": "0.0767 sec.",
+   "cost": 0.01212,
+   "result_count": 1,
+   "path": [
+    "v3",
+    "dataforseo_labs",
+    "google",
+    "domain_rank_overview",
+    "live"
+   ],
+   "data": {
+    "api": "dataforseo_labs",
+    "function": "domain_rank_overview",
+    "se_type": "google",
+    "target": "collegehunkshaulingjunk.com",
+    "location_name": "United States",
+    "language_name": "English"
+   },
+   "result": [
+    {
+     "se_type": "google",
+     "target": "collegehunkshaulingjunk.com",
+     "location_code": 2840,
+     "language_code": "en",
+     "total_count": 1,
+     "items_count": 1,
+     "items": [
+      {
+       "se_type": "google",
+       "location_code": 2840,
+       "language_code": "en",
+       "metrics": {
+        "organic": {
+         "count": 16954,
+         "etv": 38912.13949175959,
+         "estimated_paid_traffic_cost": 534013.7888417146,
+         "pos_1": 870,
+         "pos_2_3": 1451,
+         "pos_4_10": 4427
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

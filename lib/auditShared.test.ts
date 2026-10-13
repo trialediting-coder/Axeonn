@@ -27,7 +27,7 @@ import {
 } from './auditShared';
 
 const item = (o: Partial<MapsItem> & { rank: number; name: string }): MapsItem => ({
-  domain: null, url: null, rating: null, reviews: null, placeId: null, cid: null, lat: null, lng: null, categories: [], gbpUrl: null, ...o,
+  domain: null, url: null, rating: null, reviews: null, placeId: null, cid: null, lat: null, lng: null, categories: [], gbpUrl: null, photos: null, claimed: null, booking: false, phone: null, openDays: null, stars: null, ...o,
 });
 const subject = { business: "Joe's Auto Spa, LLC", website: 'subjectspa.com', placeId: null, cid: null };
 

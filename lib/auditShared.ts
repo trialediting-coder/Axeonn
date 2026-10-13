@@ -41,6 +41,13 @@ export interface MapsItem {
   lng: number | null;
   categories: string[];
   gbpUrl: string | null;
+  /** Profile fields the Maps item carries for free (phase 2); null/false when the response lacks them. */
+  photos: number | null;
+  claimed: boolean | null;
+  booking: boolean;
+  phone: string | null;
+  openDays: number | null;
+  stars: Record<1 | 2 | 3 | 4 | 5, number> | null;
 }
 
 export interface Competitor { rank: number; name: string; rating: number | null; reviews: number | null; website: string | null; self?: true }
@@ -72,6 +79,82 @@ export interface SiteResult {
 export type WebsiteResult = { none: true } | SiteResult;
 export const isNoSite = (w: WebsiteResult): w is { none: true } => 'none' in w && w.none === true;
 
+// ── Deep audit sections (phase 2; spec 2026-10-13 §2.1) ──
+export interface MarketKeyword {
+  keyword: string;
+  /** Local monthly searches (Google Ads, the client's city); null when Ads has no number. */
+  volume: number | null;
+  cpc: number | null;
+  competition: 'LOW' | 'MEDIUM' | 'HIGH' | null;
+  mapsRank: number | null;
+  organicRank: number | null;
+  /** True when ranks were actually checked for this keyword (only the top 8 by volume are). */
+  measured: boolean;
+}
+export interface MarketResult {
+  city: string;
+  keywords: MarketKeyword[];
+  /** Σ volume of measured keywords where the business is not in the Maps top 3. */
+  missedSearches: number;
+  /** Σ volume × cpc for those keywords: what that traffic costs in ads per month. */
+  missedAdValue: number;
+  measuredAt: string;
+}
+export interface CompetitorProfile {
+  name: string;
+  rank: number;
+  domain: string | null;
+  rating: number | null;
+  reviews: number | null;
+  photos: number | null;
+  claimed: boolean | null;
+  booking: boolean;
+  openDays: number | null;
+  organicKeywords: number | null;
+  estTraffic: number | null;
+  self?: true;
+}
+export interface CompetitorsResult { items: CompetitorProfile[] }
+export interface ProfileResult {
+  photos: number | null;
+  claimed: boolean | null;
+  booking: boolean;
+  phone: boolean;
+  website: boolean;
+  openDays: number | null;
+  categories: string[];
+  stars: Record<1 | 2 | 3 | 4 | 5, number> | null;
+}
+export interface ReviewsResult {
+  sampled: number;
+  /** Reviews per month over the last 90 days; null when the sample is too small to say. */
+  perMonth90d: number | null;
+  responseRate: number | null;
+  lowStarShare: number | null;
+  /** The words reviewers use most (not sentiment). */
+  words: Array<{ word: string; count: number }>;
+  newestAt: string | null;
+  oldestAt: string | null;
+}
+export interface CrawlPage {
+  url: string;
+  status: number;
+  title: string | null;
+  h1: string | null;
+  words: number;
+  clickToCall: boolean;
+  form: boolean;
+  schema: string[];
+  ms: number;
+}
+export interface CrawlResult {
+  pages: CrawlPage[];
+  broken: string[];
+  coverage: Array<{ keyword: string; covered: boolean; url: string | null }>;
+  thin: number;
+  untitled: number;
+}
+
 export type SectionError = { error: string };
 export type Section<T> = T | SectionError;
 export const isSectionError = (s: unknown): s is SectionError => Boolean(s) && typeof s === 'object' && typeof (s as SectionError).error === 'string';
@@ -86,6 +169,12 @@ export interface AuditResults {
   reputation?: Section<ReputationResult>;
   grid?: Section<GridResult>;
   website?: Section<WebsiteResult>;
+  // Deep audit only (phase 2); absent on quick audits.
+  market?: Section<MarketResult>;
+  competitors?: Section<CompetitorsResult>;
+  profile?: Section<ProfileResult>;
+  reviews?: Section<ReviewsResult>;
+  crawl?: Section<CrawlResult>;
 }
 
 export type LeakSeverity = 'high' | 'medium' | 'low';
@@ -103,6 +192,8 @@ export interface AuditRow {
   errors: Record<string, string>;
   costUsd: number;
   createdAt: string;
+  /** True when the deep sections were requested (market, competitors, profile, reviews, crawl). */
+  deep: boolean;
 }
 
 /** One line per audit for history tables and call-deck cards. */

@@ -225,6 +225,7 @@ interface Row {
   raw?: unknown;
   cost_usd: string | number;
   created_at: string;
+  deep?: boolean | null;
 }
 
 const toRow = (r: Row): AuditRow => ({
@@ -239,13 +240,14 @@ const toRow = (r: Row): AuditRow => ({
   errors: r.errors ?? {},
   costUsd: Number(r.cost_usd),
   createdAt: new Date(r.created_at).toISOString(),
+  deep: Boolean(r.deep),
 });
 
 export async function getAudit(id: number, withRaw = false): Promise<(AuditRow & { raw?: unknown }) | null> {
   await ensureSchema();
   const res = withRaw
     ? await sql<Row>`SELECT * FROM audits WHERE id = ${id} LIMIT 1;`
-    : await sql<Row>`SELECT id, onboarding_id, call_lead_id, subject, trigger, status, results, leaks, errors, cost_usd, created_at FROM audits WHERE id = ${id} LIMIT 1;`;
+    : await sql<Row>`SELECT id, onboarding_id, call_lead_id, subject, trigger, status, results, leaks, errors, cost_usd, created_at, deep FROM audits WHERE id = ${id} LIMIT 1;`;
   const r = res.rows[0];
   if (!r) return null;
   return withRaw ? { ...toRow(r), raw: r.raw ?? null } : toRow(r);
@@ -255,7 +257,7 @@ export async function listAuditsForOnboarding(onboardingId: number, limit = 60):
   if (!isDatabaseConfigured()) return [];
   await ensureSchema();
   const res = await sql<Row>`
-    SELECT id, onboarding_id, call_lead_id, subject, trigger, status, results, leaks, errors, cost_usd, created_at
+    SELECT id, onboarding_id, call_lead_id, subject, trigger, status, results, leaks, errors, cost_usd, created_at, deep
     FROM audits WHERE onboarding_id = ${onboardingId} ORDER BY created_at DESC, id DESC LIMIT ${limit};
   `;
   return res.rows.map(toRow);
@@ -267,7 +269,7 @@ export async function listProspectAudits(q = '', limit = 100): Promise<AuditRow[
   await ensureSchema();
   const like = `%${q.trim()}%`;
   const res = await sql<Row>`
-    SELECT id, onboarding_id, call_lead_id, subject, trigger, status, results, leaks, errors, cost_usd, created_at
+    SELECT id, onboarding_id, call_lead_id, subject, trigger, status, results, leaks, errors, cost_usd, created_at, deep
     FROM audits
     WHERE onboarding_id IS NULL AND (${q.trim() === ''} OR subject->>'business' ILIKE ${like} OR subject->>'city' ILIKE ${like})
     ORDER BY created_at DESC, id DESC LIMIT ${limit};
@@ -286,7 +288,7 @@ export async function latestAuditByLead(): Promise<Map<number, AuditSummary>> {
   if (!isDatabaseConfigured()) return out;
   await ensureSchema();
   const res = await sql<Row>`
-    SELECT DISTINCT ON (call_lead_id) id, onboarding_id, call_lead_id, subject, trigger, status, results, leaks, errors, cost_usd, created_at
+    SELECT DISTINCT ON (call_lead_id) id, onboarding_id, call_lead_id, subject, trigger, status, results, leaks, errors, cost_usd, created_at, deep
     FROM audits WHERE call_lead_id IS NOT NULL ORDER BY call_lead_id, created_at DESC;
   `;
   for (const r of res.rows) if (r.call_lead_id) out.set(r.call_lead_id, summarize(toRow(r)));
@@ -298,7 +300,7 @@ export async function latestOfficialAuditInMonth(onboardingId: number, month: st
   if (!isDatabaseConfigured()) return null;
   await ensureSchema();
   const res = await sql<Row>`
-    SELECT id, onboarding_id, call_lead_id, subject, trigger, status, results, leaks, errors, cost_usd, created_at
+    SELECT id, onboarding_id, call_lead_id, subject, trigger, status, results, leaks, errors, cost_usd, created_at, deep
     FROM audits
     WHERE onboarding_id = ${onboardingId} AND trigger IN ('schedule', 'admin') AND status <> 'failed'
       AND to_char(created_at AT TIME ZONE 'America/Chicago', 'YYYY-MM') = ${month}
