@@ -44,8 +44,10 @@ export function hangupTwiml(): string {
 
 /**
  * Call screening, on the owner's leg of a forwarded call. A person presses 1 and
- * the Gather action bridges; voicemail never does, so the leg hangs up and the
- * parent <Dial> reports no-answer: a real missed call, and the text-back fires.
+ * the Gather action bridges; voicemail never does, so the leg hangs up. Since
+ * Twilio's December 2020 change a hang-up in the screening URL reports
+ * DialCallStatus=completed with DialBridged=false, and the status route treats
+ * that as missed: a real missed call, and the text-back fires.
  */
 export function screenTwiml(input: { businessName: string | null; acceptUrl: string }): string {
   const name = input.businessName?.trim();
