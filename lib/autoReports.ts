@@ -24,12 +24,15 @@ import {
   markReportEmailed,
   markReportPreviewed,
   monthLabel,
+  normalizeReportBody,
   previousReport,
   reportStats,
+  saveMonthlyReport,
   setReportSurvey,
   type MonthlyReport,
   type ProjectDetails,
 } from '@/lib/projects';
+import { callsSummary, getLine } from '@/lib/phoneLines';
 import { effectiveCloseRate, firstEventAt, getTrackingSettings, hasTraffic, monthTraffic, REPORT_TIME_ZONE, type TrackingSettings } from '@/lib/siteStats';
 import { feedbackUrl, listFeedback } from '@/lib/feedback';
 import { MIN_FIRST_MONTH_DAYS, RAMP_REPORTS, RAMP_SEND_DAY, baselineTotal, isRamp, reportNumber, reportQuestions, trackedDays } from '@/lib/reportPlan';
@@ -181,7 +184,13 @@ export async function sendAutoReport(onboarding: Onboarding, month: string, opts
   }
 
   const traffic = await monthTraffic(onboarding.id, month, effectiveCloseRate(settings));
-  if (!hasTraffic(traffic) && !reportHasContent(existing)) {
+  // Calls from the tracked number fill the blank only: a number Axeon typed in wins.
+  let calls: number | null = null;
+  if ((existing?.calls ?? null) === null && (await getLine(onboarding.id))) {
+    const phone = await callsSummary(onboarding.id, month);
+    if (phone.calls > 0) calls = phone.calls;
+  }
+  if (!hasTraffic(traffic) && !reportHasContent(existing) && calls == null) {
     const reason = settings.siteKey
       ? 'no website numbers for the month and nothing typed in'
       : 'tracking snippet not installed and nothing typed in';
@@ -195,7 +204,8 @@ export async function sendAutoReport(onboarding: Onboarding, month: string, opts
   }
 
   // Attach the numbers even when the site sent nothing, so the report says so honestly.
-  const report = await attachTrafficToReport(onboarding.id, month, traffic);
+  let report = await attachTrafficToReport(onboarding.id, month, traffic);
+  if (calls != null) report = await saveMonthlyReport(onboarding.id, { month, body: { ...normalizeReportBody(report), calls } });
   const answered = new Set((await listFeedback(onboarding.id)).filter((f) => f.kind === 'report' && f.month && (f.rating || f.comment || Object.keys(f.answers).length)).map((f) => f.month as string));
   const askFound = !readHowFound(await getItemStates(onboarding.id)).source;
   const plan = existing?.survey ?? { number, asked: reportQuestions(number, month, quietStreak(all, answered, month), { askFound }) };

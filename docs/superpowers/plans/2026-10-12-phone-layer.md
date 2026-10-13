@@ -1821,3 +1821,4 @@ No files. These are the steps only the owner can do, in order, after the branch 
 - [ ] Press "Mark 10DLC approved", miss a call, confirm the text arrives and the row reads "Missed · texted back". Reply STOP from the caller, confirm `phone_opt_outs` has the row and a second missed call sends nothing.
 - [ ] Check the monthly report preview on the 1st shows the calls count.
 - [ ] Release the test number from the Twilio console when done (or keep it as the demo line).
+- [ ] Start the Meta Tech Provider App Review application now (slice 6, the Facebook/Instagram inbox, needs it and it takes weeks).

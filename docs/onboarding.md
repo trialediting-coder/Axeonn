@@ -326,6 +326,50 @@ and an answer marked `attention` ("Not yet", "Rarely", "None", "Confusing")
 emails the owner the first time it lands. The admin board's "Email me a
 sample" sends a regular report or the first ramp report.
 
+## The tracked phone number (AxeonCORE and up)
+
+Built 2026-10-12 (slice 1 of `docs/superpowers/specs/2026-10-12-proof-lead-system-design.md`).
+Every AxeonCORE client gets a local Twilio number that forwards to their cell,
+records the call (after a short notice), and texts back any call they miss.
+
+| Piece | Where |
+| --- | --- |
+| Number helpers, text-back copy | `lib/phoneShared.ts` |
+| Twilio REST + signature check | `lib/twilio.ts` |
+| TwiML | `lib/phoneTwiml.ts` |
+| Provisioning, settings, calls, messages, opt-outs, month summary, cost | `lib/phoneLines.ts` |
+| Webhooks | `app/api/phone/{voice,voice/status,recording,sms}` |
+| Admin card | `components/insights/PhonePanel.tsx`, `/api/admin/onboarding/<token>/phone` |
+| Client tab | `components/proof/CallsTab.tsx` via `lib/proofDashboardData.ts` |
+| Tables | `phone_lines`, `phone_calls`, `phone_messages`, `phone_opt_outs` |
+| Tests | `npm run test:phone` |
+
+**Provisioning.** The admin's Phone card reads the portal's `phone-setup` answers,
+takes an area code, and buys the first available local number with voice and SMS
+webhooks pointed at `PHONE_WEBHOOK_ORIGIN`. A Messaging Service is created first;
+the number is attached to it. The service is where the client's A2P 10DLC brand
+and campaign are registered, by hand in the Twilio console for now. Until the
+admin presses "Mark 10DLC approved", `sms_status` is `pending` and no automated
+text leaves.
+
+**Calls.** Inbound → `/api/phone/voice` answers TwiML that plays the recording
+notice (if on) and dials the forward number with a 20-second timeout, dual-channel
+recording from answer. The dial's `action` hits `/api/phone/voice/status`, which
+writes the call (upsert on CallSid, since Twilio retries) and, on a miss, sends the
+text-back if texting is approved, the caller has not opted out, and they were not
+texted in the last 24 hours. `/api/phone/recording` attaches the recording URL.
+
+**Texts.** Inbound texts land in `phone_messages`. STOP words are mirrored into
+`phone_opt_outs` (Twilio's Advanced Opt-Out already blocks sends and confirms).
+Replying from PROOF is slice 4.
+
+**Where the numbers show.** The client's Calls tab (this month vs last, recent
+calls with masked numbers, recordings) and the monthly report's `calls` figure,
+filled only when Axeon has not typed one.
+
+**Cost.** The admin card estimates the month from the two tables at the rates in
+the spec. There are no subaccounts; usage is attributed by number.
+
 ## Environment variables
 
 | Variable | Purpose |
@@ -339,6 +383,9 @@ sample" sends a regular report or the first ramp report.
 | `CRON_SECRET` | Required for the daily nudge job, the monthly reports and the blog crons. |
 | `TRACKING_SALT` | Optional. Salts the visitor hash for site tracking; falls back to `AUTH_SECRET`. |
 | `ADMIN_EMAIL` | Where lead and "client finished" alerts go. |
+| `TWILIO_ACCOUNT_SID` | Twilio master account SID; signs the REST calls for the tracked phone numbers. |
+| `TWILIO_AUTH_TOKEN` | Signs Twilio webhooks and REST calls. Never pasted anywhere but Vercel. |
+| `PHONE_WEBHOOK_ORIGIN` | Optional. The public origin Twilio calls for the phone webhooks. Default `https://axeonstudio.co`. |
 
 ## Not built yet
 

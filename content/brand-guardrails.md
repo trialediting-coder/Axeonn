@@ -39,8 +39,8 @@ local-only.
   two combined). Adds AxeonPROOF (Axeon's own client dashboard), the 90-day
   customer guarantee, missed-call text-back, speed-to-lead call connect, AI
   chat & scheduling, automated SMS/email follow-up and CRM pipeline, call
-  tracking with call recording, a unified inbox (SMS, email, Facebook,
-  Instagram, Google), quote follow-up (3 touches), appointment reminders, a
+  tracking with call recording, a unified inbox (SMS, email, website
+  chat), quote follow-up (3 touches), appointment reminders, a
   quarterly past-customer reactivation text, review requests, exit-intent
   offers, 5-7 pages, 5 edits a month.
 - AxeonGROWTH: $999/month plus ad spend. The premium tier. Adds Google & Meta
