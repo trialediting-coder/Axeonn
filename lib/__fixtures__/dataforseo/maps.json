@@ -1,0 +1,10 @@
+{
+  "status_code": 20000, "status_message": "Ok.", "cost": 0.002,
+  "tasks": [{ "status_code": 20000, "status_message": "Ok.", "cost": 0.002, "result": [{ "keyword": "auto detailing", "items": [
+    { "type": "maps_paid_item", "rank_group": 1, "rank_absolute": 1, "title": "Sponsored Shine", "domain": "ads.test" },
+    { "type": "maps_search", "rank_group": 1, "rank_absolute": 2, "title": "Example Shine Co", "domain": "example-shine.test", "url": "https://example-shine.test/", "rating": { "value": 4.9, "votes_count": 212 }, "place_id": "ChIJex1", "cid": "111", "latitude": 41.731, "longitude": -93.601, "category": "Car detailing service", "additional_categories": ["Car wash"] },
+    { "type": "maps_search", "rank_group": 2, "rank_absolute": 3, "title": "Sample Detail Works", "domain": null, "url": null, "rating": { "value": 4.8, "votes_count": 140 }, "place_id": "ChIJex2", "cid": 222, "latitude": 41.72, "longitude": -93.61, "category": "Car detailing service" },
+    { "type": "maps_search", "rank_group": 3, "rank_absolute": 4, "title": "Demo Mobile Detail", "domain": "demo-detail.test", "rating": { "value": 4.7, "votes_count": 98 }, "place_id": "ChIJex3", "cid": "333", "latitude": 41.74, "longitude": -93.59, "category": "Car detailing service" },
+    { "type": "maps_search", "rank_group": 7, "rank_absolute": 8, "title": "Joes Auto Spa", "domain": "www.subjectspa.com", "url": "https://www.subjectspa.com/", "rating": { "value": 4.6, "votes_count": 18 }, "place_id": "ChIJsubj", "cid": "777", "latitude": 41.735, "longitude": -93.605, "category": "Car detailing service" }
+  ] }] }]
+}

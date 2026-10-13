@@ -1,0 +1,8 @@
+{
+  "status_code": 20000, "status_message": "Ok.", "cost": 0.002,
+  "tasks": [{ "status_code": 20000, "status_message": "Ok.", "cost": 0.002, "result": [{ "keyword": "auto detailing", "items": [
+    { "type": "local_pack", "rank_group": 1, "rank_absolute": 1, "title": "Example Shine Co" },
+    { "type": "organic", "rank_group": 1, "rank_absolute": 2, "domain": "yelp.test", "title": "Top 10 Best Auto Detailing in Ankeny", "url": "https://yelp.test/x" },
+    { "type": "organic", "rank_group": 2, "rank_absolute": 3, "domain": "www.subjectspa.com", "title": "Joe's Auto Spa | Ankeny", "url": "https://www.subjectspa.com/" }
+  ] }] }]
+}
