@@ -25,6 +25,11 @@ test('validateLeadInput treats a filled honeypot as spam and needs a phone or an
   assert.ok(!none.ok && none.reason === 'invalid' && /phone number or email/.test(none.error));
 });
 
+test('validateLeadInput treats a filled _gotcha as spam and ignores an empty one', () => {
+  assert.deepEqual(validateLeadInput({ name: 'Bot', email: 'a@b.co', _gotcha: 'x' }), { ok: false, reason: 'spam' });
+  assert.ok(validateLeadInput({ name: 'Jane', email: 'a@b.co', _gotcha: '' }).ok);
+});
+
 test('validateLeadInput keeps a lead whose phone is not a US number when there is an email, with the phone as typed in the message', () => {
   const v = validateLeadInput({ name: 'Ann', phone: '+44 7700 900123', email: 'ann@example.co.uk', message: 'Hello' });
   assert.ok(v.ok);

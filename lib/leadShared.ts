@@ -75,7 +75,8 @@ export function pagePath(raw: unknown): string {
  * still read it) but never stored as the lead's phone, so it is never dialed.
  */
 export function validateLeadInput(raw: Record<string, unknown>): LeadValidation {
-  if (clean(raw[HONEYPOT_FIELD], 200)) return { ok: false, reason: 'spam' };
+  // _gotcha is Formspree's honeypot name; sites switching over may keep it.
+  if (clean(raw[HONEYPOT_FIELD], 200) || clean(raw._gotcha, 200)) return { ok: false, reason: 'spam' };
   const name = clean(firstOf(raw, ALIASES.name), 100) || clean(`${clean(raw.first_name, 50)} ${clean(raw.last_name, 50)}`, 100);
   const phoneTyped = clean(firstOf(raw, ALIASES.phone), 40);
   const phone = normalizePhone(phoneTyped);
@@ -214,11 +215,11 @@ export function leadAlertText(lead: { name: string; phone: string | null; email:
   const ascii = (v: string) =>
     v
       .normalize('NFKD')
-      .replace(/[̀-ͯ]/g, '')
-      .replace(/[‘’]/g, "'")
-      .replace(/[“”]/g, '"')
-      .replace(/[–—]/g, '-')
-      .replace(/…/g, '...')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[\u2018\u2019]/g, "'")
+      .replace(/[\u201C\u201D]/g, '"')
+      .replace(/[\u2013\u2014]/g, '-')
+      .replace(/\u2026/g, '...')
       .replace(/\s+/g, ' ')
       .replace(/[^\x20-\x7E]/g, '')
       .trim();

@@ -447,7 +447,12 @@ export function ensureSchema(): Promise<void> {
       await sql`ALTER TABLE phone_calls ADD COLUMN IF NOT EXISTS direction TEXT NOT NULL DEFAULT 'inbound' CHECK (direction IN ('inbound', 'connect'));`;
       await sql`ALTER TABLE phone_calls ADD COLUMN IF NOT EXISTS lead_id BIGINT REFERENCES form_submissions(id) ON DELETE SET NULL;`;
       await sql`ALTER TABLE phone_messages DROP CONSTRAINT IF EXISTS phone_messages_kind_check;`;
-      await sql`ALTER TABLE phone_messages ADD CONSTRAINT phone_messages_kind_check CHECK (kind IN ('text_back', 'manual', 'inbound', 'alert', 'sequence', 'confirm', 'reminder'));`;
+      // Two cold-starting instances can both drop, then both add; the loser gets duplicate_object (42710), which is fine.
+      try {
+        await sql`ALTER TABLE phone_messages ADD CONSTRAINT phone_messages_kind_check CHECK (kind IN ('text_back', 'manual', 'inbound', 'alert', 'sequence', 'confirm', 'reminder'));`;
+      } catch (err) {
+        if ((err as { code?: string }).code !== '42710') throw err;
+      }
       // Business audits (lib/audits.ts): one dated snapshot of a business's Google
       // and website standing, for clients (schedule / admin / client scans) and prospects.
       await sql`
