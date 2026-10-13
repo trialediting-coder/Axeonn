@@ -4,6 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   delta,
+  normalizeReportBody,
   guaranteeDay,
   monthLabel,
   parseLines,
@@ -77,4 +78,9 @@ test('previous report and month labels', () => {
   assert.equal(previousReport(all, '2026-09')?.month, '2026-08');
   assert.equal(previousReport(all, '2026-07'), null);
   assert.equal(monthLabel('2026-09'), 'September 2026');
+});
+
+test('normalizeReportBody carries the audit note and defaults it to null', () => {
+  assert.equal(normalizeReportBody({ rank: 3 }).audit, null);
+  assert.deepEqual(normalizeReportBody({ audit: { id: 9, at: '2026-10-26T14:00:00.000Z' } }).audit, { id: 9, at: '2026-10-26T14:00:00.000Z' });
 });

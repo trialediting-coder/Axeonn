@@ -567,6 +567,7 @@ export function ProjectPanel({ token, initial, guarantee, tier }: { token: strin
                     {r.traffic ? `${r.traffic.views} visits · ${r.traffic.clicks} clicks · ` : ''}
                     {str(r.calls) || '—'} calls · {str(r.leads) || '—'} leads{r.survey ? ` · report ${r.survey.number}` : ''}
                     {r.emailedAt ? (r.auto ? ' · emailed automatically' : ' · emailed') : r.previewSentAt ? (r.heldAt ? ' · held' : ' · previewed, goes out on the 3rd') : ''}
+                    {r.audit ? ` · rank & reviews from the audit on ${new Date(r.audit.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : ''}
                   </span>
                   {r.previewSentAt && !r.emailedAt ? (
                     <button

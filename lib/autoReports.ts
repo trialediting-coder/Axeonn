@@ -16,7 +16,9 @@
 import { sendMonthlyReportEmail, sendReportPreviewToOwner, type MonthlyReportEmailInput } from '@/lib/email';
 import { APP_ORIGIN } from '@/lib/hostRouting';
 import type { Onboarding } from '@/lib/onboarding';
+import { latestOfficialAuditInMonth } from '@/lib/audits';
 import {
+  attachAuditToReport,
   attachTrafficToReport,
   getMonthlyReport,
   getProjectDetails,
@@ -180,8 +182,13 @@ export async function sendAutoReport(onboarding: Onboarding, month: string, opts
     }
   }
 
+  // Measured numbers for the month beat blanks: fill rank / reviews / rating from the latest audit, never over what Axeon typed.
+  const audit = await latestOfficialAuditInMonth(onboarding.id, month);
+  const filled = audit ? await attachAuditToReport(onboarding.id, month, audit) : null;
+  const current = filled ?? existing;
+
   const traffic = await monthTraffic(onboarding.id, month, effectiveCloseRate(settings));
-  if (!hasTraffic(traffic) && !reportHasContent(existing)) {
+  if (!hasTraffic(traffic) && !reportHasContent(current)) {
     const reason = settings.siteKey
       ? 'no website numbers for the month and nothing typed in'
       : 'tracking snippet not installed and nothing typed in';
@@ -189,7 +196,7 @@ export async function sendAutoReport(onboarding: Onboarding, month: string, opts
     return { status: 'failed', error: `Nothing to send: ${reason}.` };
   }
   // The first month is skipped when tracking covered under two weeks of it: a six-day report reads as a verdict.
-  if (!opts.force && number === 1 && hasTraffic(traffic) && !reportHasContent(existing)) {
+  if (!opts.force && number === 1 && hasTraffic(traffic) && !reportHasContent(current)) {
     const days = trackedDays(month, first);
     if (days < MIN_FIRST_MONTH_DAYS) return { status: 'skipped', reason: `tracking covered ${days} days of ${monthLabel(month)}; the first report is the first full month` };
   }
