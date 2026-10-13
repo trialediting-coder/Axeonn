@@ -111,7 +111,7 @@ export function AuditReadout({ audit, variant = 'admin' }: { audit: Audit; varia
                         {c.name}
                         {c.self ? ' (you)' : ''}
                       </td>
-                      <td className="py-1 text-right tabular-nums text-neutral-600">
+                      <td className="whitespace-nowrap py-1 pl-2 text-right tabular-nums text-neutral-600">
                         {c.rating ?? '–'} ★ · {c.reviews ?? '–'}
                       </td>
                     </tr>

@@ -10,6 +10,7 @@ import { btn } from '@/components/admin/ui';
 import { pitchNumbers, pitchText } from '@/lib/pitch';
 import type { PlanDraft } from '@/lib/planRules';
 import { section, type AuditRow } from '@/lib/auditShared';
+import { CompetitorTable } from '@/components/admin/CompetitorTable';
 
 const usd = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
 
@@ -66,28 +67,7 @@ export function PitchSheet({ audit, drafts }: { audit: Pick<AuditRow, 'results' 
         />
       </div>
       {comps && comps.items.length ? (
-        <table className="w-full text-sm">
-          <thead className="text-left text-[11px] uppercase tracking-wide text-neutral-500">
-            <tr>
-              <th className="py-1 pr-2">Business</th>
-              <th className="py-1 pr-2 text-right">Reviews</th>
-              <th className="py-1 pr-2 text-right">Photos</th>
-              <th className="py-1 pr-2 text-right">Site keywords</th>
-              <th className="py-1 text-right">Site visits/mo</th>
-            </tr>
-          </thead>
-          <tbody>
-            {comps.items.map((c) => (
-              <tr key={`${c.rank}-${c.name}`} className={`border-t border-neutral-100 ${c.self ? 'font-semibold text-blue-800' : ''}`}>
-                <td className="py-1 pr-2">#{c.rank} {c.name}{c.self ? ' (them)' : ''}</td>
-                <td className="py-1 pr-2 text-right tabular-nums">{c.reviews ?? '–'}</td>
-                <td className="py-1 pr-2 text-right tabular-nums">{c.photos ?? '–'}</td>
-                <td className="py-1 pr-2 text-right tabular-nums">{c.organicKeywords ?? '–'}</td>
-                <td className="py-1 text-right tabular-nums">{c.estTraffic === null ? '–' : Math.round(c.estTraffic).toLocaleString('en-US')}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <CompetitorTable items={comps.items} selfLabel="them" />
       ) : maps && maps.top.length ? (
         <p className="text-sm text-neutral-700">Top 3: {maps.top.filter((c) => !c.self).map((c) => `${c.name} (${c.reviews ?? '–'})`).join(', ')}</p>
       ) : null}
