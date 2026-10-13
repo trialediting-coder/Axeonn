@@ -513,7 +513,7 @@ export function validateSubjectInput(raw: Record<string, unknown>): AuditSubject
   return { business, city: split.city, state, website: normalizeWebsite(websiteRaw), keyword, placeId: null, cid: null, lat: null, lng: null };
 }
 
-export interface AuditSettingsInput { city: string | null; website: string | null; grid: boolean; intervalDays: number; enabled: boolean; clientScanCap: number | null }
+export interface AuditSettingsInput { city: string | null; website: string | null; grid: boolean; intervalDays: number; deepRefreshDays: number; enabled: boolean; clientScanCap: number | null }
 
 export function validateAuditSettingsInput(raw: Record<string, unknown>): AuditSettingsInput {
   const city = text(raw, 'city', 80) || null;
@@ -521,11 +521,13 @@ export function validateAuditSettingsInput(raw: Record<string, unknown>): AuditS
   if (websiteRaw && !domainOf(websiteRaw)) throw new Error('That website address does not look right.');
   const intervalRaw = raw.intervalDays === undefined || raw.intervalDays === '' ? DEFAULT_AUDIT_INTERVAL_DAYS : Number(raw.intervalDays);
   if (!Number.isInteger(intervalRaw) || intervalRaw < 1 || intervalRaw > 90) throw new Error('Audit every N days must be between 1 and 90');
+  const deepRaw = raw.deepRefreshDays === undefined || raw.deepRefreshDays === '' ? 90 : Number(raw.deepRefreshDays);
+  if (!Number.isInteger(deepRaw) || deepRaw < 7 || deepRaw > 365) throw new Error('Deep audit every N days must be between 7 and 365');
   let clientScanCap: number | null = null;
   if (raw.clientScanCap !== undefined && raw.clientScanCap !== null && raw.clientScanCap !== '') {
     const n = Number(raw.clientScanCap);
     if (!Number.isInteger(n) || n < 0 || n > 30) throw new Error('Scans per month must be between 0 and 30');
     clientScanCap = n;
   }
-  return { city, website: normalizeWebsite(websiteRaw), grid: raw.grid !== false && raw.grid !== 'false', intervalDays: intervalRaw, enabled: raw.enabled !== false && raw.enabled !== 'false', clientScanCap };
+  return { city, website: normalizeWebsite(websiteRaw), grid: raw.grid !== false && raw.grid !== 'false', intervalDays: intervalRaw, deepRefreshDays: deepRaw, enabled: raw.enabled !== false && raw.enabled !== 'false', clientScanCap };
 }

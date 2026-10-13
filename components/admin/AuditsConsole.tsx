@@ -7,6 +7,8 @@ import { useMemo, useState } from 'react';
 import { Search } from 'lucide-react';
 import { adminInput, adminLabel, btn } from '@/components/admin/ui';
 import { AuditReadout } from '@/components/admin/AuditReadout';
+import { PitchSheet } from '@/components/admin/PitchSheet';
+import { planFromAudit } from '@/lib/planRules';
 import { summarize, type AuditRow } from '@/lib/auditShared';
 
 export interface ClientOption { id: number; label: string }
@@ -16,7 +18,8 @@ const when = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month:
 export function AuditsConsole({ initial, clients, openId = null }: { initial: AuditRow[]; clients: ClientOption[]; openId?: number | null }) {
   const [audits, setAudits] = useState(initial);
   const [open, setOpen] = useState<number | null>(openId ?? initial[0]?.id ?? null);
-  const [form, setForm] = useState({ business: '', city: '', state: 'IA', keyword: '', website: '', grid: false });
+  const [form, setForm] = useState({ business: '', city: '', state: 'IA', keyword: '', website: '', grid: false, deep: true });
+  const [view, setView] = useState<'pitch' | 'full'>('pitch');
   const [q, setQ] = useState('');
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
@@ -55,6 +58,17 @@ export function AuditsConsole({ initial, clients, openId = null }: { initial: Au
     setNotice({ ok: true, text: json.baselineSet ? 'Attached, and it set their 90-day baseline.' : 'Attached to the client.' });
   }
 
+  async function fetchReviews(id: number) {
+    setBusy(true);
+    const res = await fetch(`/api/admin/audits/${id}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ action: 'reviews-fetch' }) });
+    const json = (await res.json().catch(() => ({}))) as { audit?: AuditRow; error?: string };
+    setBusy(false);
+    if (!res.ok || !json.audit) return setNotice({ ok: false, text: json.error ?? 'Could not fetch reviews.' });
+    const saved = json.audit;
+    setAudits((all) => all.map((a) => (a.id === saved.id ? saved : a)));
+    setNotice({ ok: true, text: saved.errors.reviews ? 'Still processing at DataForSEO; try again in a minute.' : 'Reviews added.' });
+  }
+
   async function remove() {
     if (!current || !window.confirm(`Delete the audit of ${current.subject.business}?`)) return;
     const res = await fetch(`/api/admin/audits/${current.id}`, { method: 'DELETE' });
@@ -63,7 +77,7 @@ export function AuditsConsole({ initial, clients, openId = null }: { initial: Au
     setOpen(null);
   }
 
-  const field = (k: Exclude<keyof typeof form, 'grid'>, label: string, props: React.InputHTMLAttributes<HTMLInputElement> = {}) => (
+  const field = (k: Exclude<keyof typeof form, 'grid' | 'deep'>, label: string, props: React.InputHTMLAttributes<HTMLInputElement> = {}) => (
     <label className="block">
       <span className={adminLabel}>{label}</span>
       <input className={adminInput} value={form[k]} onChange={set(k)} {...props} />
@@ -84,11 +98,14 @@ export function AuditsConsole({ initial, clients, openId = null }: { initial: Au
             {field('keyword', 'What they want to rank for', { placeholder: 'auto detailing', required: true })}
             {field('website', 'Website (optional)', { placeholder: 'joesautospa.com', inputMode: 'url' })}
             <label className="flex items-center gap-2 text-sm text-neutral-700">
+              <input type="checkbox" checked={form.deep} onChange={set('deep')} /> Deep audit: market, competitors, profile, reviews, site crawl (~$0.25, 2–3 min)
+            </label>
+            <label className="flex items-center gap-2 text-sm text-neutral-700">
               <input type="checkbox" checked={form.grid} onChange={set('grid')} /> Include the 5×5 city grid (+$0.05, ~1 min)
             </label>
           </div>
           <button type="submit" disabled={busy} className={`${btn('primary')} mt-4 w-full`}>
-            {busy ? 'Measuring…' : 'Run audit'}
+            {busy ? (form.deep ? 'Measuring… (2–3 minutes)' : 'Measuring…') : 'Run audit'}
           </button>
           {notice ? <p className={`mt-2 text-sm font-semibold ${notice.ok ? 'text-emerald-700' : 'text-red-600'}`}>{notice.text}</p> : null}
         </form>
@@ -121,7 +138,20 @@ export function AuditsConsole({ initial, clients, openId = null }: { initial: Au
       <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4 shadow-sm">
         {current ? (
           <>
-            <AuditReadout audit={current} variant="admin" />
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <button type="button" onClick={() => setView('pitch')} className={btn(view === 'pitch' ? 'primary' : 'secondary', 'sm')}>
+                Pitch
+              </button>
+              <button type="button" onClick={() => setView('full')} className={btn(view === 'full' ? 'primary' : 'secondary', 'sm')}>
+                Full
+              </button>
+              {current.errors.reviews && /processing/.test(current.errors.reviews) ? (
+                <button type="button" onClick={() => void fetchReviews(current.id)} disabled={busy} className={btn('ghost', 'sm')}>
+                  Fetch reviews
+                </button>
+              ) : null}
+            </div>
+            {view === 'pitch' ? <PitchSheet audit={current} drafts={planFromAudit(current)} /> : <AuditReadout audit={current} variant="admin" />}
             <div className="mt-5 flex flex-wrap items-end gap-2 border-t border-neutral-200 pt-4">
               <label className="block min-w-[220px] flex-1">
                 <span className={adminLabel}>They signed? Attach to a client</span>

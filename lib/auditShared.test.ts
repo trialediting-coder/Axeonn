@@ -181,7 +181,7 @@ test('defaultKeyword and input validation', () => {
   assert.throws(() => validateSubjectInput({ business: '', city: 'Ankeny', keyword: 'k' }), /business/i);
   assert.throws(() => validateSubjectInput({ business: 'x', city: 'Ankeny', keyword: '' }), /keyword/i);
   const a = validateAuditSettingsInput({ city: 'Ankeny, IA', website: 'old-site.com', grid: false, intervalDays: '7', enabled: true, clientScanCap: '' });
-  assert.deepEqual(a, { city: 'Ankeny, IA', website: 'https://old-site.com', grid: false, intervalDays: 7, enabled: true, clientScanCap: null });
+  assert.deepEqual(a, { city: 'Ankeny, IA', website: 'https://old-site.com', grid: false, intervalDays: 7, deepRefreshDays: 90, enabled: true, clientScanCap: null });
   assert.throws(() => validateAuditSettingsInput({ intervalDays: '0' }), /between 1 and 90/);
   assert.throws(() => validateAuditSettingsInput({ clientScanCap: '99' }), /between 0 and 30/);
 });

@@ -4,7 +4,8 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/adminAuth';
 import { jsonError, readBody } from '@/lib/billingApi';
-import { attachAuditToOnboarding, deleteAudit, getAudit } from '@/lib/audits';
+import { attachAuditToOnboarding, completePendingReviews, deleteAudit, getAudit } from '@/lib/audits';
+import { planFromAudit } from '@/lib/planRules';
 import { getOnboardingById } from '@/lib/onboarding';
 
 export const runtime = 'nodejs';
@@ -22,7 +23,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
   try {
     const audit = await getAudit(await idOf(ctx), new URL(req.url).searchParams.get('raw') === '1');
     if (!audit) return NextResponse.json({ error: 'Audit not found' }, { status: 404 });
-    return NextResponse.json({ audit });
+    return NextResponse.json({ audit, plan: planFromAudit(audit) });
   } catch (err) {
     return jsonError(err);
   }
@@ -33,6 +34,11 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
   try {
     const id = await idOf(ctx);
     const body = await readBody(req);
+    if (body.action === 'reviews-fetch') {
+      const audit = await completePendingReviews(id);
+      if (!audit) return NextResponse.json({ error: 'Audit not found' }, { status: 404 });
+      return NextResponse.json({ audit, plan: planFromAudit(audit) });
+    }
     if (body.action !== 'attach') throw new Error('Unknown action');
     const onboardingId = Number(body.onboardingId);
     if (!Number.isInteger(onboardingId) || onboardingId <= 0) throw new Error('Pick the client to attach this audit to');

@@ -11,6 +11,8 @@ import { AuditReadout } from '@/components/admin/AuditReadout';
 import type { AuditSettings } from '@/lib/audits';
 import { TIER_SCAN_CAP, summarize, type AuditRow } from '@/lib/auditShared';
 import type { OnboardingTier } from '@/data/onboardingItems';
+import { PlanPanel } from '@/components/admin/PlanPanel';
+import type { PlanItem } from '@/lib/plans';
 
 interface Data {
   details: ProjectDetails;
@@ -22,6 +24,8 @@ interface Data {
   /** Every audit of this client, newest first, and the settings that drive the scheduled ones (lib/audits.ts). */
   audits: AuditRow[];
   auditSettings: AuditSettings;
+  /** The 90-day plan (lib/plans.ts). */
+  plan: PlanItem[];
 }
 
 type Notice = { ok: boolean; text: string } | null;
@@ -60,6 +64,7 @@ export function ProjectPanel({ token, initial, guarantee, tier }: { token: strin
       feedback: json.feedback ?? data.feedback,
       audits: json.audits ?? data.audits,
       auditSettings: json.auditSettings ?? data.auditSettings,
+      plan: json.plan ?? data.plan,
     });
     setNotice(
       json.emailError
@@ -138,6 +143,7 @@ export function ProjectPanel({ token, initial, guarantee, tier }: { token: strin
     website: a.website ?? '',
     grid: a.grid,
     intervalDays: String(a.intervalDays),
+    deepRefreshDays: String(a.deepRefreshDays),
     enabled: a.enabled,
     clientScanCap: a.clientScanCap === null ? '' : String(a.clientScanCap),
   });
@@ -238,9 +244,14 @@ export function ProjectPanel({ token, initial, guarantee, tier }: { token: strin
               </p>
             ) : null}
           </div>
-          <button type="button" onClick={() => void call('POST', { kind: 'audit' }, 'Audit saved.', 'audit')} disabled={busy === 'audit' || !a.city || !d.baselineKeyword} className={btn('primary')}>
-            {busy === 'audit' ? 'Measuring… (up to a minute with the grid)' : 'Run audit now'}
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={() => void call('POST', { kind: 'audit' }, 'Audit saved.', 'audit')} disabled={busy === 'audit' || busy === 'deep-audit' || !a.city || !d.baselineKeyword} className={btn('secondary')}>
+              {busy === 'audit' ? 'Measuring…' : 'Run quick audit'}
+            </button>
+            <button type="button" onClick={() => void call('POST', { kind: 'deep-audit' }, 'Deep audit saved; the plan is drafted below.', 'deep-audit')} disabled={busy === 'audit' || busy === 'deep-audit' || !a.city || !d.baselineKeyword} className={btn('primary')}>
+              {busy === 'deep-audit' ? 'Measuring… (2–3 minutes)' : 'Run deep audit'}
+            </button>
+          </div>
         </div>
 
         <form
@@ -252,7 +263,8 @@ export function ProjectPanel({ token, initial, guarantee, tier }: { token: strin
         >
           {input(auditForm.city, setA('city'), 'City (for the search)', { placeholder: 'Ankeny, IA' })}
           {input(auditForm.website, setA('website'), 'Website to measure', { placeholder: 'their old site before launch', inputMode: 'url' })}
-          {input(auditForm.intervalDays, setA('intervalDays'), 'Audit every N days', { inputMode: 'numeric' })}
+          {input(auditForm.intervalDays, setA('intervalDays'), 'Quick audit every N days', { inputMode: 'numeric' })}
+          {input(auditForm.deepRefreshDays, setA('deepRefreshDays'), 'Deep audit every N days', { inputMode: 'numeric' })}
           {input(auditForm.clientScanCap, setA('clientScanCap'), `Client scans / month (blank = ${TIER_SCAN_CAP[tier]} for this plan)`, { inputMode: 'numeric' })}
           <label className="flex items-center gap-2 self-end pb-2 text-sm text-neutral-700">
             <input type="checkbox" checked={auditForm.grid} onChange={setA('grid')} /> 5×5 grid (+$0.05 per audit)
@@ -288,7 +300,10 @@ export function ProjectPanel({ token, initial, guarantee, tier }: { token: strin
                   return (
                     <tr key={x.id} className="border-t border-neutral-100">
                       <td className="py-1.5 pr-3 whitespace-nowrap">{new Date(x.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</td>
-                      <td className="py-1.5 pr-3">{x.trigger}</td>
+                      <td className="py-1.5 pr-3">
+                        {x.trigger}
+                        {x.deep ? <span className="ml-1 rounded bg-blue-50 px-1.5 py-0.5 text-[10px] font-semibold text-blue-700">deep</span> : null}
+                      </td>
                       <td className="py-1.5 pr-3 font-semibold tabular-nums">{s.found === false ? 'not found' : s.mapsRank !== null ? `#${s.mapsRank}` : '–'}</td>
                       <td className="py-1.5 pr-3 tabular-nums">
                         {s.rating ?? '–'} · {s.reviews ?? '–'}
@@ -300,6 +315,11 @@ export function ProjectPanel({ token, initial, guarantee, tier }: { token: strin
                         <button type="button" onClick={() => setOpenAudit(openAudit === x.id ? null : x.id)} className={btn('ghost', 'sm')}>
                           {openAudit === x.id ? 'Hide' : 'View'}
                         </button>
+                        {x.errors.reviews && /processing/.test(x.errors.reviews) ? (
+                          <button type="button" onClick={() => void call('POST', { kind: 'reviews-fetch', id: x.id }, 'Reviews fetched.', `reviews-${x.id}`)} disabled={busy === `reviews-${x.id}`} className={btn('ghost', 'sm')}>
+                            Fetch reviews
+                          </button>
+                        ) : null}
                         {x.trigger !== 'client' && s.found ? (
                           <button type="button" onClick={() => void call('POST', { kind: 'audit-baseline', id: x.id }, 'Baseline updated.', 'audit-baseline')} className={btn('ghost', 'sm')}>
                             Use as baseline
@@ -322,6 +342,8 @@ export function ProjectPanel({ token, initial, guarantee, tier }: { token: strin
           </div>
         ) : null}
       </div>
+
+      <PlanPanel token={token} items={data.plan} onPlan={(plan) => setData((cur) => ({ ...cur, plan }))} />
 
       <div className={card}>
         <div className="flex flex-wrap items-start justify-between gap-3">

@@ -1,17 +1,18 @@
 // app/api/admin/audits/route.ts
 // Admin-only prospect audits (lib/audits.ts).
 //   GET  ?q=&limit=                                   audits not attached to a client, newest first
-//   POST { business, city, state?, keyword, website?, grid?, callLeadId? }   run one now and save it
+//   POST { business, city, state?, keyword, website?, grid?, deep?, callLeadId? }   run one now and save it; returns { audit, plan } (plan = what we'd do, not stored)
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/adminAuth';
 import { jsonError, readBody } from '@/lib/billingApi';
 import { isDatabaseConfigured } from '@/lib/db';
 import { listProspectAudits, runAudit } from '@/lib/audits';
 import { validateSubjectInput } from '@/lib/auditShared';
+import { planFromAudit } from '@/lib/planRules';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-export const maxDuration = 120;
+export const maxDuration = 300;
 
 const unauthorized = () => NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 const noDb = () => NextResponse.json({ error: 'Audits need the database (POSTGRES_URL).' }, { status: 503 });
@@ -35,8 +36,8 @@ export async function POST(req: Request) {
     const body = await readBody(req);
     const subject = validateSubjectInput(body);
     const callLeadId = Number.isInteger(Number(body.callLeadId)) && Number(body.callLeadId) > 0 ? Number(body.callLeadId) : null;
-    const audit = await runAudit(subject, { trigger: 'admin', callLeadId, grid: body.grid === true || body.grid === 'true' });
-    return NextResponse.json({ audit });
+    const audit = await runAudit(subject, { trigger: 'admin', callLeadId, grid: body.grid === true || body.grid === 'true', deep: body.deep === true || body.deep === 'true' });
+    return NextResponse.json({ audit, plan: planFromAudit(audit) });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Audit failed';
     const status = /budget/.test(message) ? 409 : 400;

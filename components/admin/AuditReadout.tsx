@@ -5,6 +5,7 @@
 // 'client' hides cost, match method, raw errors and the location string.
 import type { ReactNode } from 'react';
 import { isNoSite, isSectionError, section, type AuditResults, type AuditRow, type GridResult, type Leak, type Section } from '@/lib/auditShared';
+import { AuditDeepBlocks } from '@/components/admin/AuditDeepBlocks';
 
 type Audit = Pick<AuditRow, 'subject' | 'results' | 'leaks' | 'errors' | 'status' | 'costUsd' | 'createdAt' | 'trigger'>;
 
@@ -174,6 +175,8 @@ export function AuditReadout({ audit, variant = 'admin' }: { audit: Audit; varia
           {grid ? <GridMap grid={grid} caption={`${grid.size}×${grid.size} points, ${grid.spacingMiles} mile apart`} /> : null}
         </Block>
       ) : null}
+
+      <AuditDeepBlocks results={r} city={s.city} variant={variant} />
 
       {admin && Object.keys(audit.errors).length ? (
         <details className="text-xs text-neutral-500">
