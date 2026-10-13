@@ -235,13 +235,17 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { formParams, twilioSignature, verifyTwilioSignature, webhookUrl } from './twilio';
 
-// Worked example from Twilio's "Validating requests" doc: this URL + params + token give this signature.
+// The inputs from Twilio's "Validating requests" doc. EXPECTED was computed once with
+// node:crypto from the documented algorithm (URL, then each POST param sorted by key
+// as key+value with no delimiters, HMAC-SHA1 with the auth token, base64) and pinned
+// here so a refactor cannot change the scheme silently. Task 9 proves the scheme
+// against a real Twilio request; if that fails, the algorithm is wrong, not this number.
 const URL = 'https://mycompany.com/myapp.php?foo=1&bar=2';
 const PARAMS = { CallSid: 'CA1234567890ABCDE', Caller: '+12349013030', Digits: '1234', From: '+12349013030', To: '+18005551212' };
 const TOKEN = '12345';
-const EXPECTED = 'RSOYDt4T1cUTdK1PDd93/VVr8B8=';
+const EXPECTED = '0/KCTR6DLpKmkAf8muzZqo1nDgQ=';
 
-test('twilioSignature reproduces the documented example', () => {
+test('twilioSignature follows the documented algorithm', () => {
   assert.equal(twilioSignature(URL, PARAMS, TOKEN), EXPECTED);
 });
 
@@ -392,7 +396,7 @@ PHONE_WEBHOOK_ORIGIN=
 - [ ] **Step 4: Run the test to verify it passes**
 
 Run: `npx tsx --test lib/twilio.test.ts`
-Expected: PASS, 4 tests. If the documented-example test fails, re-check that the sorted concatenation has no separators between key and value (Twilio's scheme is `url + k1 + v1 + k2 + v2 …`).
+Expected: PASS, 4 tests. If the algorithm test fails, re-check that the sorted concatenation has no separators between key and value (Twilio's scheme is `url + k1 + v1 + k2 + v2 …`).
 
 - [ ] **Step 5: Commit**
 
@@ -1803,7 +1807,7 @@ No files. These are the steps only the owner can do, in order, after the branch 
 - [ ] Add `TWILIO_ACCOUNT_SID` and `TWILIO_AUTH_TOKEN` to Vercel (Production and Preview). Never paste them in chat.
 - [ ] Set `PHONE_WEBHOOK_ORIGIN=https://axeonstudio.co` in Production. For a preview deployment, set it to that preview's URL or signatures fail.
 - [ ] In the Twilio console, confirm Advanced Opt-Out is on for US messaging (it is by default).
-- [ ] Provision a line for a test client (your own onboarding row), forward to your cell, call it: hear the notice, phone rings, answer, hang up; confirm a row in the admin Phone card with a recording within a minute.
+- [ ] Provision a line for a test client (your own onboarding row), forward to your cell, call it: hear the notice, phone rings, answer, hang up; confirm a row in the admin Phone card with a recording within a minute. If the phone never rings and the Vercel log shows `403` on `/api/phone/voice`, the signature scheme is wrong for real traffic: compare `PHONE_WEBHOOK_ORIGIN` with the Voice URL on the number in the Twilio console first, then the algorithm in `lib/twilio.ts`.
 - [ ] Call again and don't answer: confirm "Missed" and no text (10DLC still pending).
 - [ ] Register the 10DLC brand and campaign for that Messaging Service (Trust Hub → A2P 10DLC). Standard low-volume: about $4.50 brand + $15 campaign vetting, then $1.50/mo. Wait for approval (one to seven days).
 - [ ] Press "Mark 10DLC approved", miss a call, confirm the text arrives and the row reads "Missed · texted back". Reply STOP from the caller, confirm `phone_opt_outs` has the row and a second missed call sends nothing.
