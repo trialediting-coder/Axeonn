@@ -538,6 +538,10 @@ export function Header() {
           <Link href="/pricing" className={`${navHoverClass} transition-colors py-1`}>
             Pricing
           </Link>
+          <Link href="/axeonproof" className={`${navHoverClass} inline-flex items-center gap-1.5 transition-colors py-1`}>
+            Axeon<span className="font-black text-blue-500">PROOF</span>
+            <span className="rounded-full bg-blue-600 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white">New</span>
+          </Link>
 
           {/* About Dropdown */}
           <div
@@ -789,6 +793,16 @@ export function Header() {
                 className="flex items-center min-h-[52px] py-3 border-b border-neutral-100 text-[15px] font-semibold text-neutral-900"
               >
                 Pricing
+              </Link>
+              <Link
+                href="/axeonproof"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 min-h-[52px] py-3 border-b border-neutral-100 text-[15px] font-semibold text-neutral-900"
+              >
+                <span>
+                  Axeon<span className="font-black text-blue-600">PROOF</span>
+                </span>
+                <span className="rounded-full bg-blue-600 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white">New</span>
               </Link>
               <MobileGroup
                 label="About"

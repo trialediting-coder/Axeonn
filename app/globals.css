@@ -444,6 +444,7 @@ html, #root {
   --animate-proof-draw: proofDraw 1.6s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-proof-pop: proofPop 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-proof-slide: proofSlide 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-proof-curtain: proofCurtain 0.65s cubic-bezier(0.76, 0, 0.24, 1) both;
 }
 @keyframes proofDraw {
   from { stroke-dashoffset: 1; }
@@ -457,9 +458,17 @@ html, #root {
   from { opacity: 0; transform: translateX(-10px); }
   to { opacity: 1; transform: translateX(0); }
 }
+@keyframes proofCurtain {
+  from { transform: translateY(0); }
+  to { transform: translateY(-100%); }
+}
+/* The page's own cursor (components/axeonproof/CustomCursor.tsx) replaces the native one. */
+.proof-cursor-page, .proof-cursor-page body, .proof-cursor-page a, .proof-cursor-page button, .proof-cursor-page input, .proof-cursor-page [role="tab"] { cursor: none; }
 .proof-paused, .proof-paused * { animation-play-state: paused !important; }
+/* When the entry curtain is skipped (seen this session, reduced motion) the hero does not wait for it. */
+.proof-no-intro .proof-hero-stagger { animation-delay: 0ms !important; }
 @media (prefers-reduced-motion: reduce) {
-  .animate-proof-rise, .animate-proof-grow, .animate-proof-width, .animate-proof-draw, .animate-proof-pop, .animate-proof-slide { animation: none; }
+  .animate-proof-rise, .animate-proof-grow, .animate-proof-width, .animate-proof-draw, .animate-proof-pop, .animate-proof-slide, .animate-proof-curtain { animation: none; }
 }
 
 /* /axeonproof hero window: on touch screens the dashboard pans by itself and

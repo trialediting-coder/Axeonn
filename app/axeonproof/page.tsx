@@ -15,6 +15,8 @@ import { ProofTour } from '@/components/axeonproof/ProofTour';
 import { ProofHotspots } from '@/components/axeonproof/ProofHotspots';
 import { HeroGrid } from '@/components/axeonproof/HeroGrid';
 import { GuaranteeScrubber } from '@/components/axeonproof/GuaranteeScrubber';
+import { PageIntro } from '@/components/axeonproof/PageIntro';
+import { CustomCursor } from '@/components/axeonproof/CustomCursor';
 import { DashboardShell } from '@/components/axeonproof/DashboardShell';
 import { OverviewScreen } from '@/components/axeonproof/screens';
 import { EXAMPLE } from '@/data/proofPage';
@@ -84,19 +86,23 @@ export default function AxeonProofPage() {
     <main className="w-full bg-white text-neutral-950">
       <JsonLd data={jsonLd} />
       <BreadcrumbJsonLd items={[{ name: 'AxeonPROOF', path: '/axeonproof' }]} />
+      <PageIntro />
+      <CustomCursor />
 
       {/* Hero: the headline, then the dashboard standing up out of the dark. */}
       <section className="relative overflow-hidden bg-neutral-950 px-4 pb-20 pt-28 text-white sm:px-8 sm:pb-28 sm:pt-36 lg:px-16">
         <HeroGrid />
         <div className="pointer-events-none relative mx-auto max-w-4xl text-center [&_a]:pointer-events-auto">
-          <Eyebrow label="AxeonPROOF" onDark className="mb-5" />
-          <h1 className="hero-rise text-balance font-display text-4xl font-black leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
+          <div className="proof-hero-stagger animate-proof-rise" style={{ animationDelay: '1050ms' }}>
+            <Eyebrow label="AxeonPROOF" onDark className="mb-5" />
+          </div>
+          <h1 style={{ animationDelay: '1150ms' }} className="proof-hero-stagger animate-proof-rise text-balance font-display text-4xl font-black leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
             Every call, lead and booked job. One screen.
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-neutral-300 sm:text-xl">
+          <p style={{ animationDelay: '1300ms' }} className="mx-auto mt-6 max-w-2xl proof-hero-stagger animate-proof-rise text-lg leading-relaxed text-neutral-300 sm:text-xl">
             The dashboard every Axeon client signs into. See what your marketing brought in this month, where each customer came from, and what we are building next. No report to decode.
           </p>
-          <div className="mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
+          <div style={{ animationDelay: '1450ms' }} className="mt-9 flex proof-hero-stagger animate-proof-rise flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
             <Link
               href="/book"
               data-track="cta_click"
