@@ -6,8 +6,11 @@
 // Every outbound text goes through sendClientSms, the one gated send path.
 import { ensureSchema, sql } from '@/lib/db';
 import { errText, iso, type DbId, type DbTime } from '@/lib/dbRows';
-import { attachNumberToService, buyNumber, createMessagingService, isTwilioConfigured, releaseNumber, searchLocalNumbers, sendSms, webhookUrl } from '@/lib/twilio';
-import { callerKey, normalizePhone, textBackMessage, SMS_MAX_CHARS, type CallOutcome, type CallsSummary, type PhoneCall, type PhoneLine, type PhoneLineSettings, type SmsStatus } from '@/lib/phoneShared';
+import { attachNumberToService, buyNumber, createCall, createMessagingService, isTwilioConfigured, releaseNumber, searchLocalNumbers, sendSms, webhookUrl } from '@/lib/twilio';
+import {
+  callerKey, DEFAULT_TIME_ZONE, isUsTimeZone, normalizePhone, textBackMessage, SMS_MAX_CHARS,
+  type CallDirection, type CallOutcome, type CallsSummary, type MessageKind, type PhoneCall, type PhoneLine, type PhoneLineSettings, type SmsStatus,
+} from '@/lib/phoneShared';
 
 export type { PhoneLine, PhoneCall, CallsSummary, SmsStatus, PhoneLineSettings } from '@/lib/phoneShared';
 
@@ -29,6 +32,9 @@ interface LineRow {
   text_back_enabled: boolean;
   text_back_message: string | null;
   sms_status: SmsStatus;
+  screen_calls: boolean;
+  call_connect_enabled: boolean;
+  time_zone: string;
   status: 'active' | 'released';
   created_at: DbTime;
   updated_at: DbTime;
@@ -47,6 +53,9 @@ const toLine = (r: LineRow): PhoneLine => ({
   textBackEnabled: r.text_back_enabled,
   textBackMessage: r.text_back_message,
   smsStatus: r.sms_status,
+  screenCalls: r.screen_calls,
+  callConnectEnabled: r.call_connect_enabled,
+  timeZone: r.time_zone,
   status: r.status,
   createdAt: iso(r.created_at),
   updatedAt: iso(r.updated_at),
@@ -64,6 +73,7 @@ interface CallRow {
   has_recording: boolean;
   recording_seconds: number | null;
   text_back_sent_at: DbTime | null;
+  direction: CallDirection;
 }
 
 const toCall = (r: CallRow): PhoneCall => ({
@@ -78,6 +88,7 @@ const toCall = (r: CallRow): PhoneCall => ({
   hasRecording: Boolean(r.has_recording),
   recordingSeconds: r.recording_seconds === null ? null : Number(r.recording_seconds),
   textBackSentAt: r.text_back_sent_at ? iso(r.text_back_sent_at) : null,
+  direction: r.direction,
 });
 
 const bool = (v: unknown, fallback: boolean) => (v === undefined || v === null ? fallback : v === true || v === 'true' || v === 'yes' || v === 'on' || v === 1);
@@ -95,12 +106,17 @@ export function validateLineSettings(raw: Record<string, unknown>, phoneNumber: 
   if (phoneNumber && forwardTo === phoneNumber) throw new Error('The line cannot forward to itself');
   const msg = typeof raw.textBackMessage === 'string' ? raw.textBackMessage.trim() : '';
   if (msg.length > SMS_MAX_CHARS) throw new Error(`The text-back must be ${SMS_MAX_CHARS} characters or fewer`);
+  const timeZone = raw.timeZone === undefined || raw.timeZone === null || raw.timeZone === '' ? DEFAULT_TIME_ZONE : raw.timeZone;
+  if (!isUsTimeZone(timeZone)) throw new Error('Pick a US time zone from the list');
   return {
     forwardTo,
     recordCalls: bool(raw.recordCalls, true),
     consentNotice: bool(raw.consentNotice, true),
     textBackEnabled: bool(raw.textBackEnabled, true),
     textBackMessage: msg || null,
+    screenCalls: bool(raw.screenCalls, true),
+    callConnectEnabled: bool(raw.callConnectEnabled, true),
+    timeZone,
   };
 }
 
@@ -120,6 +136,13 @@ export async function getLine(onboardingId: number): Promise<PhoneLine | null> {
 export async function lineForNumber(e164: string): Promise<PhoneLine | null> {
   await ensureSchema();
   const { rows } = await sql<LineRow>`SELECT * FROM phone_lines WHERE phone_number = ${e164} AND status = 'active' LIMIT 1;`;
+  return rows[0] ? toLine(rows[0]) : null;
+}
+
+/** The screen route's lookup: the line id rides in the signed screen URL. */
+export async function getLineById(id: number): Promise<PhoneLine | null> {
+  await ensureSchema();
+  const { rows } = await sql<LineRow>`SELECT * FROM phone_lines WHERE id = ${id} AND status = 'active' LIMIT 1;`;
   return rows[0] ? toLine(rows[0]) : null;
 }
 
@@ -171,7 +194,8 @@ export async function updateLineSettings(onboardingId: number, s: PhoneLineSetti
   const { rows } = await sql<LineRow>`
     UPDATE phone_lines
     SET forward_to = ${s.forwardTo}, record_calls = ${s.recordCalls}, consent_notice = ${s.consentNotice},
-        text_back_enabled = ${s.textBackEnabled}, text_back_message = ${s.textBackMessage}, updated_at = now()
+        text_back_enabled = ${s.textBackEnabled}, text_back_message = ${s.textBackMessage},
+        screen_calls = ${s.screenCalls}, call_connect_enabled = ${s.callConnectEnabled}, time_zone = ${s.timeZone}, updated_at = now()
     WHERE onboarding_id = ${onboardingId} AND status = 'active'
     RETURNING *;
   `;
@@ -186,12 +210,19 @@ export async function setSmsStatus(onboardingId: number, status: SmsStatus): Pro
   return toLine(rows[0]);
 }
 
-/** Twilio retries webhooks, so the same CallSid can arrive twice: an upsert keeps one row. */
-export async function recordCall(onboardingId: number, c: { callSid: string; fromNumber: string; toNumber: string; outcome: CallOutcome; dialStatus: string; durationSeconds: number | null }): Promise<void> {
+/**
+ * Twilio retries webhooks, so the same CallSid can arrive twice: an upsert keeps one row.
+ * Call connect rows (direction 'connect') are inserted when the call starts and updated
+ * by the connect webhooks; direction and lead_id are set on insert and never changed.
+ */
+export async function recordCall(
+  onboardingId: number,
+  c: { callSid: string; fromNumber: string; toNumber: string; outcome: CallOutcome; dialStatus: string; durationSeconds: number | null; direction?: CallDirection; leadId?: number | null },
+): Promise<void> {
   await ensureSchema();
   await sql`
-    INSERT INTO phone_calls (onboarding_id, call_sid, from_number, to_number, outcome, dial_status, duration_seconds)
-    VALUES (${onboardingId}, ${c.callSid}, ${c.fromNumber}, ${c.toNumber}, ${c.outcome}, ${c.dialStatus}, ${c.durationSeconds})
+    INSERT INTO phone_calls (onboarding_id, call_sid, from_number, to_number, outcome, dial_status, duration_seconds, direction, lead_id)
+    VALUES (${onboardingId}, ${c.callSid}, ${c.fromNumber}, ${c.toNumber}, ${c.outcome}, ${c.dialStatus}, ${c.durationSeconds}, ${c.direction ?? 'inbound'}, ${c.leadId ?? null})
     ON CONFLICT (call_sid) DO UPDATE SET
       -- A retried or late webhook must never turn an answered call back into a missed one.
       outcome = CASE WHEN phone_calls.outcome = 'answered' THEN 'answered' ELSE EXCLUDED.outcome END,
@@ -212,7 +243,7 @@ export async function recordingUrlForCall(onboardingId: number, callSid: string)
   return rows[0]?.recording_url ?? null;
 }
 
-export async function recordMessage(onboardingId: number, m: { messageSid: string; direction: 'inbound' | 'outbound'; fromNumber: string; toNumber: string; body: string; kind: 'text_back' | 'manual' | 'inbound'; status: string }): Promise<void> {
+export async function recordMessage(onboardingId: number, m: { messageSid: string; direction: 'inbound' | 'outbound'; fromNumber: string; toNumber: string; body: string; kind: MessageKind; status: string }): Promise<void> {
   await ensureSchema();
   await sql`
     INSERT INTO phone_messages (onboarding_id, message_sid, direction, from_number, to_number, body, kind, status)
@@ -256,7 +287,7 @@ export type ClientSmsResult = { sent: true; sid: string } | { sent: false; reaso
  * campaign approved (sms_status 'ready'), and the recipient not opted out.
  * Records the outbound message on success. A throw means nothing was sent.
  */
-export async function sendClientSms(line: PhoneLine, to: string, body: string, kind: 'text_back' | 'manual'): Promise<ClientSmsResult> {
+export async function sendClientSms(line: PhoneLine, to: string, body: string, kind: Exclude<MessageKind, 'inbound'>): Promise<ClientSmsResult> {
   // The 10DLC campaign is US-only, so only US numbers are texted.
   const recipient = normalizePhone(to);
   if (!recipient) return { sent: false, reason: 'bad_number' };
@@ -325,6 +356,51 @@ export async function sendTextBack(line: PhoneLine, businessName: string | null,
   return true;
 }
 
+/**
+ * A new-lead text to the owner's own cell, through their line. Same gates as
+ * every automated text (10DLC ready, not opted out, US number) because it goes
+ * through sendClientSms. Quiet hours are the caller's job (planLeadDelivery).
+ * The result says what happened: sent, or why not (sms_pending, opted_out, bad_number).
+ */
+export async function sendOwnerAlert(line: PhoneLine, body: string): Promise<ClientSmsResult> {
+  return sendClientSms(line, line.forwardTo, body, 'alert');
+}
+
+/**
+ * Call connect: ring the owner's cell from their tracked number. When they pick
+ * up, Twilio fetches /api/phone/connect?lead=<id> (the lead's name, press 1).
+ * The call row is written here, so the webhooks only ever update it. Its
+ * from_number is the lead's phone: that is the contact the call is about.
+ */
+export async function startConnectCall(line: PhoneLine, lead: { id: number; phone: string }): Promise<{ sid: string }> {
+  const leadPhone = normalizePhone(lead.phone);
+  if (!leadPhone) throw new Error('Call connect needs a US phone number for the lead');
+  const { sid } = await createCall({
+    from: line.phoneNumber,
+    to: line.forwardTo,
+    url: webhookUrl(`/api/phone/connect?lead=${lead.id}`),
+    statusCallback: webhookUrl(`/api/phone/connect/status?lead=${lead.id}`),
+  });
+  try {
+    await recordCall(line.onboardingId, { callSid: sid, fromNumber: leadPhone, toNumber: line.phoneNumber, outcome: 'missed', dialStatus: 'queued', durationSeconds: null, direction: 'connect', leadId: lead.id });
+  } catch (err) {
+    // The call is already ringing; the connect webhooks upsert the row if this write was lost.
+    console.error('phone: connect row not recorded', sid, err);
+  }
+  return { sid };
+}
+
+/**
+ * The owner's leg of a call connect call ended (Twilio's call status callback).
+ * Only a call that never reached the lead (dial_status still 'queued') takes the
+ * owner's status, so a lead's "no-answer" from the dial is never overwritten.
+ */
+export async function markConnectEnded(callSid: string, callStatus: string): Promise<void> {
+  await ensureSchema();
+  const status = `owner-${callStatus.toLowerCase().replace(/[^a-z-]/g, '').slice(0, 20) || 'unknown'}`;
+  await sql`UPDATE phone_calls SET dial_status = ${status} WHERE call_sid = ${callSid} AND direction = 'connect' AND dial_status = 'queued';`;
+}
+
 /** Month is YYYY-MM in America/Chicago, the same key the reports use (monthOf in lib/siteStats.ts). */
 export async function callsSummary(onboardingId: number, month: string): Promise<CallsSummary> {
   await ensureSchema();
@@ -335,7 +411,7 @@ export async function callsSummary(onboardingId: number, month: string): Promise
            count(*) FILTER (WHERE text_back_sent_at IS NOT NULL)::text AS texted,
            avg(duration_seconds) FILTER (WHERE outcome = 'answered')::text AS avg
     FROM phone_calls
-    WHERE onboarding_id = ${onboardingId}
+    WHERE onboarding_id = ${onboardingId} AND direction = 'inbound' -- call connect calls are the owner calling out
       AND to_char(started_at AT TIME ZONE 'America/Chicago', 'YYYY-MM') = ${month};
   `;
   const r = rows[0];
@@ -349,14 +425,17 @@ export async function callsSummary(onboardingId: number, month: string): Promise
   };
 }
 
-/** Newest first. The recording URL never leaves the server; hasRecording says one exists. */
-export async function recentCalls(onboardingId: number, limit = 30): Promise<PhoneCall[]> {
+/**
+ * Newest first. The recording URL never leaves the server; hasRecording says one exists.
+ * Inbound calls only by default (client Calls tab, report); includeConnect adds call connect calls for the admin card.
+ */
+export async function recentCalls(onboardingId: number, limit = 30, opts: { includeConnect?: boolean } = {}): Promise<PhoneCall[]> {
   await ensureSchema();
   const { rows } = await sql<CallRow>`
     SELECT id, call_sid, from_number, to_number, outcome, dial_status, started_at, duration_seconds,
-           recording_url IS NOT NULL AS has_recording, recording_seconds, text_back_sent_at
+           recording_url IS NOT NULL AS has_recording, recording_seconds, text_back_sent_at, direction
     FROM phone_calls
-    WHERE onboarding_id = ${onboardingId}
+    WHERE onboarding_id = ${onboardingId} AND (direction = 'inbound' OR ${opts.includeConnect === true})
     ORDER BY started_at DESC
     LIMIT ${limit};
   `;

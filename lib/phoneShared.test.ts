@@ -103,7 +103,7 @@ test('callResultLabel says answered, missed, or missed and texted back', () => {
 test('toDashboardCall keeps only the safe fields and masks the caller', () => {
   const d = toDashboardCall({
     id: 1, callSid: 'CA1', fromNumber: '+15155550134', toNumber: '+15155559999', outcome: 'missed', dialStatus: 'no-answer',
-    startedAt: '2026-10-12T19:05:00Z', durationSeconds: null, hasRecording: false, recordingSeconds: null, textBackSentAt: null,
+    startedAt: '2026-10-12T19:05:00Z', durationSeconds: null, hasRecording: false, recordingSeconds: null, textBackSentAt: null, direction: 'inbound',
   });
   assert.deepEqual(Object.keys(d).sort(), ['callSid', 'caller', 'durationSeconds', 'hasRecording', 'id', 'outcome', 'startedAt', 'textBackSentAt']);
   assert.equal(d.caller, '(515) 555-01··');

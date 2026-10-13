@@ -38,6 +38,12 @@ export interface PhoneLineSettings {
   textBackEnabled: boolean;
   /** Null = use TEXT_BACK_DEFAULT with the business name. */
   textBackMessage: string | null;
+  /** Call screening: the owner presses 1 to accept, so voicemail counts as missed. */
+  screenCalls: boolean;
+  /** Call connect: ring the owner and bridge to a new website lead on 1. */
+  callConnectEnabled: boolean;
+  /** IANA zone from US_TIME_ZONES; quiet hours follow it. */
+  timeZone: string;
 }
 
 /** Two SMS segments. Longer automated texts read as spam and cost double. */
@@ -156,6 +162,8 @@ export interface PhoneCall {
   hasRecording: boolean;
   recordingSeconds: number | null;
   textBackSentAt: string | null;
+  /** 'inbound' = a customer called in; 'connect' = we rang the owner for a website lead. */
+  direction: CallDirection;
 }
 
 /** A month (YYYY-MM, America/Chicago) of calls on one line. */
