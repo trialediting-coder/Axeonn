@@ -12,6 +12,7 @@ import {
   Copy,
   ExternalLink,
   FileText,
+  Gauge,
   Globe,
   MapPin,
   Phone,
@@ -22,6 +23,7 @@ import {
 } from 'lucide-react';
 import { adminInput, adminLabel, btn } from '@/components/admin/ui';
 import type { CallLead, Outcome, Priority } from '@/lib/callLeads';
+import { defaultKeyword, summarize, type AuditRow, type AuditSummary } from '@/lib/auditShared';
 
 const PRIORITY_STYLE: Record<Priority, { label: string; cls: string }> = {
   A: { label: 'A · best fit', cls: 'bg-orange-100 text-orange-900 border-orange-200' },
@@ -96,8 +98,11 @@ const NICHE_WORDS: Record<string, { who: string; search: string }> = {
 const nicheWords = (niche: string) => NICHE_WORDS[(niche || 'auto detailing').toLowerCase()] ?? { who: 'local businesses', search: 'near me' };
 const firstName = (contact: string) => contact.trim().split(/[\s,(]/)[0] ?? '';
 
-export function CallDeck({ initialLeads, dbError }: { initialLeads: CallLead[]; dbError: string | null }) {
+export function CallDeck({ initialLeads, dbError, initialAudits = {} }: { initialLeads: CallLead[]; dbError: string | null; initialAudits?: Record<string, AuditSummary> }) {
   const [leads, setLeads] = useState<CallLead[]>(initialLeads);
+  // Latest business audit per lead id (lib/audits.ts), for the card's one-line summary.
+  const [audits, setAudits] = useState<Record<string, AuditSummary>>(initialAudits);
+  const [auditing, setAuditing] = useState(false);
   const [priorities, setPriorities] = useState<Set<Priority>>(new Set(['A', 'B']));
   const [region, setRegion] = useState('all');
   const [niche, setNiche] = useState('all');
@@ -250,9 +255,33 @@ export function CallDeck({ initialLeads, dbError }: { initialLeads: CallLead[]; 
     return () => window.removeEventListener('keydown', onKey);
   }, [go, saveNotes, setOutcome]);
 
+  const runAudit = useCallback(async () => {
+    if (!lead || auditing) return;
+    setAuditing(true);
+    try {
+      const res = await fetch('/api/admin/audits', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ business: lead.business, city: lead.city, state: 'IA', keyword: defaultKeyword(lead.niche, lead.city), website: lead.website, grid: false, callLeadId: lead.id }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { audit?: AuditRow; error?: string };
+      if (!res.ok || !data.audit) throw new Error(data.error ?? 'Audit failed');
+      const saved = data.audit;
+      setAudits((all) => ({ ...all, [String(lead.id)]: summarize(saved) }));
+      flash(true, 'Audited');
+    } catch (err) {
+      flash(false, err instanceof Error ? err.message : 'Audit failed');
+    } finally {
+      setAuditing(false);
+    }
+  }, [lead, auditing]);
+
   async function refresh() {
     const res = await fetch('/api/admin/calls');
-    if (res.ok) setLeads(((await res.json()) as { leads: CallLead[] }).leads);
+    if (!res.ok) return;
+    const data = (await res.json()) as { leads: CallLead[]; audits?: Record<string, AuditSummary> };
+    setLeads(data.leads);
+    if (data.audits) setAudits(data.audits);
   }
 
   async function runImport() {
@@ -514,6 +543,32 @@ export function CallDeck({ initialLeads, dbError }: { initialLeads: CallLead[]; 
                 </Fact>
                 <Fact label="Axeon status">{lead.axeonStatus || 'Not contacted'}</Fact>
                 <Fact label="Source">{lead.source || '–'}</Fact>
+                <Fact label="Audit">
+                  {(() => {
+                    const s = audits[String(lead.id)];
+                    return (
+                      <span className="inline-flex flex-wrap items-center gap-2">
+                        {s ? (
+                          <>
+                            <span className="font-semibold text-neutral-900">
+                              {s.found === false ? 'Not on Maps' : s.mapsRank !== null ? `Maps #${s.mapsRank}` : 'Maps –'}
+                              {s.reviews !== null ? ` · ${s.reviews} reviews` : ''}
+                              {s.pagespeed !== null ? ` · speed ${s.pagespeed}` : ''}
+                            </span>
+                            <a href={`/admin/audits?id=${s.id}`} className="text-xs text-blue-700 hover:underline">
+                              View
+                            </a>
+                          </>
+                        ) : (
+                          <span className="text-neutral-500">Not audited</span>
+                        )}
+                        <button type="button" onClick={runAudit} disabled={auditing || !lead.city} className={btn('secondary', 'sm')}>
+                          <Gauge size={13} /> {auditing ? 'Measuring…' : s ? 'Re-run' : 'Run audit'}
+                        </button>
+                      </span>
+                    );
+                  })()}
+                </Fact>
               </dl>
 
               {lead.why && (

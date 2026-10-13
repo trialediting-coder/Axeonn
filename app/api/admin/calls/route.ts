@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/adminAuth';
 import { jsonError, readBody } from '@/lib/billingApi';
 import { csvToImportRows, importCallLeads, listCallLeads } from '@/lib/callLeads';
+import { latestAuditByLead } from '@/lib/audits';
 import { isDatabaseConfigured } from '@/lib/db';
 
 export const runtime = 'nodejs';
@@ -16,7 +17,8 @@ export async function GET(req: Request) {
   if (!(await requireAdmin(req))) return unauthorized();
   if (!isDatabaseConfigured()) return NextResponse.json({ error: 'The call deck needs the database (POSTGRES_URL).' }, { status: 503 });
   try {
-    return NextResponse.json({ leads: await listCallLeads() });
+    const [leads, audits] = await Promise.all([listCallLeads(), latestAuditByLead()]);
+    return NextResponse.json({ leads, audits: Object.fromEntries(audits) });
   } catch (err) {
     return jsonError(err);
   }
