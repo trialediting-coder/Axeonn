@@ -18,45 +18,93 @@ export interface PastCustomerInput {
 
 export interface ParsedCustomers {
   rows: PastCustomerInput[];
+  /** `line` is the physical 1-based line of the file where the row starts (blank lines count). */
   skipped: { line: number; reason: string }[];
+}
+
+interface RawRow {
+  cells: string[];
+  /** Physical line where the row starts. */
+  line: number;
+  /** A quote opened on this row never closed before the next line break. */
+  unclosed: boolean;
+  /** A line with nothing on it (or only spaces): dropped, not reported. */
+  blankLine: boolean;
+}
+
+const LINE_BREAK = /\r\n|\n|\r/g;
+
+/**
+ * RFC 4180 scan. Quoted fields may hold commas, line breaks and doubled quotes.
+ * A quote still open at the end of its row ends the row at its first line break
+ * (flagged `unclosed`), and the text after that break is scanned as normal rows.
+ */
+function scanCsv(text: string): RawRow[] {
+  const s = text.replace(/^﻿/, '');
+  const out: RawRow[] = [];
+  let i = 0;
+  let line = 1;
+  while (i < s.length) {
+    const rowLine = line;
+    const rowStart = i;
+    const cells: string[] = [];
+    let field = '';
+    let quoted = false;
+    let sawQuote = false;
+    while (i < s.length) {
+      const ch = s[i];
+      if (quoted) {
+        if (ch === '"') {
+          if (s[i + 1] === '"') {
+            field += '"';
+            i += 2;
+          } else {
+            quoted = false;
+            i++;
+          }
+          continue;
+        }
+        if (ch === '\n') line++;
+        field += ch;
+        i++;
+        continue;
+      }
+      if (ch === '"' && field === '') {
+        quoted = true;
+        sawQuote = true;
+        i++;
+      } else if (ch === ',') {
+        cells.push(field);
+        field = '';
+        i++;
+      } else if (ch === '\n' || ch === '\r') {
+        i += ch === '\r' && s[i + 1] === '\n' ? 2 : 1;
+        line++;
+        break;
+      } else {
+        field += ch;
+        i++;
+      }
+    }
+    if (quoted) {
+      LINE_BREAK.lastIndex = rowStart;
+      const nl = LINE_BREAK.exec(s);
+      i = nl ? nl.index + nl[0].length : s.length;
+      out.push({ cells: [], line: rowLine, unclosed: true, blankLine: false });
+      line = rowLine + 1;
+      continue;
+    }
+    cells.push(field);
+    out.push({ cells, line: rowLine, unclosed: false, blankLine: cells.length === 1 && cells[0].trim() === '' && !sawQuote });
+  }
+  return out;
 }
 
 /** RFC 4180: quoted fields may hold commas, newlines and doubled quotes. Blank lines are dropped. */
 export function parseCsv(text: string): string[][] {
-  const s = text.replace(/^﻿/, '');
-  const rows: string[][] = [];
-  let row: string[] = [];
-  let field = '';
-  let quoted = false;
-  for (let i = 0; i < s.length; i++) {
-    const ch = s[i];
-    if (quoted) {
-      if (ch === '"') {
-        if (s[i + 1] === '"') {
-          field += '"';
-          i++;
-        } else quoted = false;
-      } else field += ch;
-      continue;
-    }
-    if (ch === '"' && field === '') {
-      quoted = true;
-    } else if (ch === ',') {
-      row.push(field);
-      field = '';
-    } else if (ch === '\n' || ch === '\r') {
-      if (ch === '\r' && s[i + 1] === '\n') i++;
-      row.push(field);
-      rows.push(row);
-      row = [];
-      field = '';
-    } else field += ch;
-  }
-  if (field !== '' || row.length) {
-    row.push(field);
-    rows.push(row);
-  }
-  return rows.filter((r) => r.some((c) => c.trim() !== ''));
+  return scanCsv(text)
+    .filter((r) => !r.unclosed && r.cells.some((c) => c.trim() !== ''))
+    .map((r) => r.cells);
 }
 
 export function columnsFor(header: string[]): { name?: number; phone?: number; email?: number; lastJob?: number } {
@@ -101,24 +149,48 @@ export function parseJobDate(raw: string): string | null {
 }
 
 export function parsePastCustomers(text: string): ParsedCustomers {
-  const all = parseCsv(text);
+  const all = scanCsv(text).filter((r) => !r.blankLine);
   if (!all.length) return { rows: [], skipped: [] };
-  const head = columnsFor(all[0]);
-  const hasHeader = head.phone !== undefined && !normalizePhone(all[0][head.phone] ?? '');
-  const cols = hasHeader ? head : { name: 0, phone: 1, email: 2, lastJob: 3 };
+  const first = all[0];
+  // A header is a first row with no number in it at all. A row that holds a number is data.
+  const hasHeader = !first.unclosed && !first.cells.every((c) => c.trim() === '') && !first.cells.some((c) => normalizePhone(c));
+  let cols: { name?: number; phone?: number; email?: number; lastJob?: number };
+  if (hasHeader) {
+    cols = columnsFor(first.cells);
+    if (cols.phone === undefined) return { rows: [], skipped: [{ line: first.line, reason: 'no phone column' }] };
+  } else {
+    cols = { name: 0, phone: 1, email: 2, lastJob: 3 };
+  }
   const body = hasHeader ? all.slice(1) : all;
   const rows: PastCustomerInput[] = [];
   const skipped: { line: number; reason: string }[] = [];
   const seen = new Set<string>();
-  body.forEach((r, i) => {
-    const line = i + (hasHeader ? 2 : 1);
-    const cell = (c: number | undefined) => (c === undefined ? '' : (r[c] ?? '').trim());
+  for (const r of body) {
+    const line = r.line;
+    if (r.unclosed) {
+      skipped.push({ line, reason: 'unclosed quote' });
+      continue;
+    }
+    if (r.cells.every((c) => c.trim() === '')) {
+      skipped.push({ line, reason: 'blank row' });
+      continue;
+    }
+    const cell = (c: number | undefined) => (c === undefined ? '' : (r.cells[c] ?? '').trim());
     const phone = normalizePhone(cell(cols.phone));
-    if (!phone) return void skipped.push({ line, reason: 'no US cell number' });
-    if (seen.has(phone)) return void skipped.push({ line, reason: 'same number as an earlier row' });
-    if (rows.length >= PAST_CUSTOMERS_MAX_ROWS) return void skipped.push({ line, reason: `over ${PAST_CUSTOMERS_MAX_ROWS} rows` });
+    if (!phone) {
+      skipped.push({ line, reason: 'no US cell number' });
+      continue;
+    }
+    if (seen.has(phone)) {
+      skipped.push({ line, reason: 'same number as an earlier row' });
+      continue;
+    }
+    if (rows.length >= PAST_CUSTOMERS_MAX_ROWS) {
+      skipped.push({ line, reason: `over ${PAST_CUSTOMERS_MAX_ROWS} rows` });
+      continue;
+    }
     seen.add(phone);
     rows.push({ name: cell(cols.name).slice(0, 80), phone, email: normalizeEmail(cell(cols.email)), lastJobAt: parseJobDate(cell(cols.lastJob)) });
-  });
+  }
   return { rows, skipped };
 }

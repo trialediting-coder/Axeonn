@@ -63,3 +63,55 @@ test('parsePastCustomers stops at the row cap', () => {
   assert.equal(out.skipped.length, 1);
   assert.match(out.skipped[0].reason, /2000/);
 });
+
+test('a headerless first row with a name containing cell or mobile is data', () => {
+  assert.deepEqual(parsePastCustomers('Cell Jones,5155550134\nMobile Bob,5155550135'), {
+    rows: [
+      { name: 'Cell Jones', phone: '+15155550134', email: null, lastJobAt: null },
+      { name: 'Mobile Bob', phone: '+15155550135', email: null, lastJobAt: null },
+    ],
+    skipped: [],
+  });
+});
+
+test('an unclosed quote skips only its own row and keeps the rows after it', () => {
+  const csv = 'name,phone\nBob,5155550100\n"Smith,5155550134\nAnn,5155550199';
+  assert.deepEqual(parsePastCustomers(csv), {
+    rows: [
+      { name: 'Bob', phone: '+15155550100', email: null, lastJobAt: null },
+      { name: 'Ann', phone: '+15155550199', email: null, lastJobAt: null },
+    ],
+    skipped: [{ line: 3, reason: 'unclosed quote' }],
+  });
+});
+
+test('line numbers are physical and count blank lines', () => {
+  const csv = 'name,phone\n\nA,5155550134\n\nB,5155550134\nC,123';
+  assert.deepEqual(parsePastCustomers(csv), {
+    rows: [{ name: 'A', phone: '+15155550134', email: null, lastJobAt: null }],
+    skipped: [
+      { line: 5, reason: 'same number as an earlier row' },
+      { line: 6, reason: 'no US cell number' },
+    ],
+  });
+});
+
+test('a header with no phone column reports one skip and no rows', () => {
+  assert.deepEqual(parsePastCustomers('Name,Email\nMike,mike@x.co\nAnn,ann@x.co'), {
+    rows: [],
+    skipped: [{ line: 1, reason: 'no phone column' }],
+  });
+});
+
+test('a row of only commas is reported as a blank row, not dropped', () => {
+  assert.deepEqual(parsePastCustomers('name,phone\n,,\nMike,5155550134'), {
+    rows: [{ name: 'Mike', phone: '+15155550134', email: null, lastJobAt: null }],
+    skipped: [{ line: 2, reason: 'blank row' }],
+  });
+});
+
+test('a quoted field may hold a line break', () => {
+  assert.deepEqual(parsePastCustomers('name,phone\n"Smith\nJones","(515) 555-0134"').rows, [
+    { name: 'Smith\nJones', phone: '+15155550134', email: null, lastJobAt: null },
+  ]);
+});
