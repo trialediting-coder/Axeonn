@@ -46,7 +46,7 @@ This feature measures them. A **business audit** is a dated snapshot of where a 
     "top": [ { "rank": 1, "domain": "yelp.com", "title": "Top 10 Best Auto Detailing in Ankeny" } ]
   },
   "reputation": { "rating": 4.6, "reviews": 18, "categories": ["Car detailing service"], "gbpUrl": "https://maps.google.com/?cid=…", "placeId": "ChIJ…" },
-  "grid": {                          // optional, admin toggle per client; never on client self-scans
+  "grid": {                          // on by default for clients (admin can switch off); never on client self-scans
     "spacingMiles": 1, "size": 5,
     "points": [ { "lat": 41.73, "lng": -93.60, "rank": 3 } /* …25 */ ],
     "top3Share": 0.32,               // share of points where the subject is in the top 3
@@ -98,7 +98,7 @@ ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS audit_place_id        TEXT;    
 ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS audit_cid             TEXT;
 ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS audit_lat             DOUBLE PRECISION;  -- the business's own pin, for the grid
 ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS audit_lng             DOUBLE PRECISION;
-ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS audit_grid            BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS audit_grid            BOOLEAN NOT NULL DEFAULT true;   -- owner 2026-10-12: grid is standard, toggle is an off switch
 ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS audit_interval_days   INTEGER NOT NULL DEFAULT 14;
 ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS audits_enabled        BOOLEAN NOT NULL DEFAULT true;
 ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS client_scan_cap       INTEGER;           -- NULL = tier default (3 / 10 / 0)
@@ -118,7 +118,7 @@ Each source is a function returning `{ ok: true, data, cost, raw } | { ok: false
 | `mapsRank` | DataForSEO `POST /v3/serp/google/maps/live/advanced` — `keyword`, `location_name` ("Ankeny,Iowa,United States") or `location_coordinate` ("lat,lng,14z") once the pin is known, `language_code: en`, `depth: 20` | Subject matched per §5.1. Learns `place_id`, `cid`, `latitude`, `longitude`, rating and review count from the matched row. |
 | `organicRank` | `POST /v3/serp/google/organic/live/advanced` — same keyword and `location_name`, `depth: 20` | Rank = first `organic` item whose domain equals the subject's domain (www stripped). Skipped when the subject has no website. |
 | `businessInfo` | `POST /v3/business_data/google/my_business_info/live` — `keyword: "<business> <city>"` | Only when `mapsRank` did not find the subject (so we still get rating/reviews/GBP link). |
-| `gridRank` | 25 × `mapsRank` with `location_coordinate` on a 5×5 grid centred on the subject's pin, `spacingMiles` 1 (constant, changeable later) | Requires a known pin; otherwise errors "run one audit first so we know where the business is". Admin toggle per client; never on client scans. |
+| `gridRank` | 25 × `mapsRank` with `location_coordinate` on a 5×5 grid centred on the subject's pin, `spacingMiles` 1 (constant, changeable later) | Requires a known pin, so on a client's very first audit it runs right after `mapsRank` learns the pin (same run). On by default for every client (`audit_grid`), admin can switch it off; prospect audits have a checkbox; never on client self-scans (too slow to wait for). |
 | `pageSpeed` | Google PageSpeed Insights v5, `strategy=mobile`, `category=performance`, optional `PAGESPEED_API_KEY` | Free. Records performance score and LCP. |
 | `siteCheck` | Our own fetch of the homepage | https (final URL after ≤3 redirects), any `tel:` link, any `<form>`, `<title>`, `meta[name=description]`, JSON-LD `@type` values. User-agent `AxeonAuditBot/1.0 (+https://axeonstudio.co)`, 10 s timeout, 2 MB cap, **http(s) only, private/loopback/link-local addresses refused** (SSRF guard). |
 
@@ -130,7 +130,7 @@ In order: (1) stored `place_id` or `cid`; (2) website domain equals a result's d
 
 ### 5.2 Cost (DataForSEO list prices as of 2026-10, approximate)
 
-~$0.002 per maps/organic task, ~$0.003 for business info → **≈ $0.01 per audit, ≈ $0.06 with the grid**. Ten clients, twice a month, grid on: ≈ $1.20 / month. Prices are read from the response, never hard-coded.
+~$0.002 per maps/organic task, ~$0.003 for business info → **≈ $0.01 per audit, ≈ $0.06 with the grid (the client default)**. Ten clients, twice a month, grid on: ≈ $1.20 / month. Client self-scans are grid-less, so a GROWTH client using all 10 adds ≈ $0.10. Prices are read from the response, never hard-coded.
 
 ## 6. Money leaks (`lib/auditShared.ts`, pure, tested)
 
@@ -176,7 +176,7 @@ When the job builds the report for month M, any of `rank`, `keyword`, `reviews`,
 
 A **Ranking** card (`components/proof/RankingCard.tsx`), shown only when the client's cap > 0 and city + keyword are set:
 
-- Latest Maps rank for "{keyword} in {city}", rating and review count, and a small line chart of every audit since kickoff with the baseline marked.
+- Latest Maps rank for "{keyword} in {city}", rating and review count, a small line chart of every audit since kickoff with the baseline marked, and the 5×5 grid map from the latest `schedule` or `admin` audit ("where you show up across {city}, measured Oct 12").
 - Fixed copy: "Rankings move a spot or two day to day. The line is what matters."
 - **Scan now — 2 of 3 left this month** → `POST /api/proof/scan` (proof session required; acts only on the session's own onboarding). Server checks `count(trigger='client' AND created_at in current month) < cap`, runs a `client` audit **without grid**, returns the readout. Cap resets with the calendar month. Over cap → button disabled with "Next scans unlock Nov 1".
 - Tier defaults: `essentials 0`, `axeoncore 3`, `axeongrowth 10`; `client_scan_cap` overrides. The client never types a keyword or city.
@@ -224,7 +224,7 @@ Pure logic under `node:test` (repo convention): subject matching (place_id, doma
 1. Owner adds to Vercel: `DATAFORSEO_LOGIN`, `DATAFORSEO_PASSWORD`, optional `AUDIT_MONTHLY_CAP_USD`, optional `PAGESPEED_API_KEY`. Local `.env.local` points `DATAFORSEO_BASE` at the sandbox until funded.
 2. Build order (each step shippable): (a) `dataforseo.ts` + sources + shared + tests; (b) Audits tab for prospects; (c) client audit section + baseline rule + cron; (d) monthly report fill; (e) PROOF Ranking card + scan; (f) call-deck button + attach-to-client.
 3. `vercel.json` cron entry ships with (c).
-4. First live run: audit the first signed client with the grid on, confirm the baseline lands, then enable the schedule.
+4. First live run: audit the first signed client (grid on by default), confirm the baseline and the grid land, then enable the schedule.
 
 ## 13. Out of scope (v1)
 
