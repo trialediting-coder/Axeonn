@@ -13,6 +13,7 @@ import { getUpgradeRequest } from '@/lib/upgrades';
 import { TIER_LABELS } from '@/data/onboardingItems';
 import { BusinessEmailPanel } from '@/components/insights/BusinessEmailPanel';
 import { getBusinessEmail } from '@/lib/businessEmail';
+import { getAuditSettings, listAuditsForOnboarding } from '@/lib/audits';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,7 +24,7 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
   const { token } = await params;
   const onboarding = await getOnboardingByToken(token).catch(() => null);
   if (!onboarding) notFound();
-  const [states, details, updates, reports, tracking, feedback, upgrade, businessEmail] = await Promise.all([
+  const [states, details, updates, reports, tracking, feedback, upgrade, businessEmail, audits, auditSettings] = await Promise.all([
     getItemStates(onboarding.id),
     getProjectDetails(onboarding.id),
     listProjectUpdates(onboarding.id),
@@ -32,6 +33,8 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
     listFeedback(onboarding.id),
     getUpgradeRequest(onboarding.id),
     getBusinessEmail(onboarding.id),
+    listAuditsForOnboarding(onboarding.id),
+    getAuditSettings(onboarding.id),
   ]);
   const domainCard = states.domain?.data ?? {};
   const asked = (key: string) => (typeof domainCard[key] === 'string' ? (domainCard[key] as string) : '');
@@ -62,7 +65,7 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
           initial={businessEmail}
           asked={{ domainName: asked('domainName'), mailboxes: asked('mailboxes'), signInEmails: asked('signInEmails'), currentEmail: asked('currentEmail') }}
         />
-        <ProjectPanel token={onboarding.token} initial={{ details, updates, reports, tracking, feedback }} guarantee={tierHasGuarantee(onboarding.tier)} />
+        <ProjectPanel token={onboarding.token} initial={{ details, updates, reports, tracking, feedback, audits, auditSettings }} guarantee={tierHasGuarantee(onboarding.tier)} tier={onboarding.tier} />
       </div>
     </main>
   );

@@ -7,6 +7,10 @@ import type { MonthlyReport, ProjectDetails, ProjectUpdate } from '@/lib/project
 import type { TrackingOverview } from '@/lib/siteStats';
 import { KIND_LABELS, RATING_LABELS, answerLabel, type FeedbackEntry } from '@/lib/feedbackShared';
 import { UPDATE_STATUSES, UPDATE_TYPES, buttonLabel, linesToText, monthLabel, type TrafficSummary } from '@/lib/projectsShared';
+import { AuditReadout } from '@/components/admin/AuditReadout';
+import type { AuditSettings } from '@/lib/audits';
+import { TIER_SCAN_CAP, summarize, type AuditRow } from '@/lib/auditShared';
+import type { OnboardingTier } from '@/data/onboardingItems';
 
 interface Data {
   details: ProjectDetails;
@@ -15,6 +19,9 @@ interface Data {
   tracking: TrackingOverview;
   /** What the client told us (lib/feedback.ts), newest first. */
   feedback: FeedbackEntry[];
+  /** Every audit of this client, newest first, and the settings that drive the scheduled ones (lib/audits.ts). */
+  audits: AuditRow[];
+  auditSettings: AuditSettings;
 }
 
 type Notice = { ok: boolean; text: string } | null;
@@ -29,7 +36,7 @@ const lastMonth = () => {
 const str = (v: number | string | null | undefined) => (v == null ? '' : String(v));
 
 /** Admin: project dates + baseline, Project Updates and Monthly Reports for one client. */
-export function ProjectPanel({ token, initial, guarantee }: { token: string; initial: Data; guarantee: boolean }) {
+export function ProjectPanel({ token, initial, guarantee, tier }: { token: string; initial: Data; guarantee: boolean; tier: OnboardingTier }) {
   const [data, setData] = useState(initial);
   const [notice, setNotice] = useState<Notice>(null);
   const [busy, setBusy] = useState<string | null>(null);
@@ -51,6 +58,8 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
       reports: json.reports ?? [],
       tracking: json.tracking ?? data.tracking,
       feedback: json.feedback ?? data.feedback,
+      audits: json.audits ?? data.audits,
+      auditSettings: json.auditSettings ?? data.auditSettings,
     });
     setNotice(
       json.emailError
@@ -121,6 +130,23 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
     autoReports: t.autoReports,
     avgJobValue: t.avgJobValue == null ? '' : String(t.avgJobValue),
   });
+
+  // ── Audit ──
+  const a = data.auditSettings;
+  const [auditForm, setAuditForm] = useState({
+    city: a.city ?? '',
+    website: a.website ?? '',
+    grid: a.grid,
+    intervalDays: String(a.intervalDays),
+    enabled: a.enabled,
+    clientScanCap: a.clientScanCap === null ? '' : String(a.clientScanCap),
+  });
+  const setA = (k: keyof typeof auditForm) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setAuditForm((s) => ({ ...s, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
+  const [openAudit, setOpenAudit] = useState<number | null>(null);
+  const baselineAudit = data.audits.find((x) => x.id === a.baselineAuditId) ?? null;
+  const shownAudit = openAudit === null ? null : (data.audits.find((x) => x.id === openAudit) ?? null);
+
   const autoRate = t.lastMonth.conversions > 0 ? t.lastMonth.closeRate : t.thisMonth.closeRate;
   const autoEstimate = t.lastMonth.conversions > 0 ? t.lastMonth.closeRateEstimate : t.thisMonth.closeRateEstimate;
   const [copied, setCopied] = useState(false);
@@ -197,6 +223,105 @@ export function ProjectPanel({ token, initial, guarantee }: { token: string; ini
           {busy === 'details' ? 'Saving…' : 'Save details'}
         </button>
       </form>
+
+      <div className={card}>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h3 className="font-bold text-neutral-950">Business audit</h3>
+            <p className="mt-1 text-xs text-neutral-500">
+              Maps rank, reviews, their site and the 5×5 grid, measured on Google every {auditForm.intervalDays || '14'} days from kickoff. The first one that finds them sets the
+              baseline rank above. Keyword: <b>{d.baselineKeyword ? `“${d.baselineKeyword}”` : 'set the Main keyword above first'}</b>.
+            </p>
+            {baselineAudit ? (
+              <p className="mt-1 text-xs font-semibold text-emerald-700">
+                Baseline set from the audit on {new Date(baselineAudit.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}.
+              </p>
+            ) : null}
+          </div>
+          <button type="button" onClick={() => void call('POST', { kind: 'audit' }, 'Audit saved.', 'audit')} disabled={busy === 'audit' || !a.city || !d.baselineKeyword} className={btn('primary')}>
+            {busy === 'audit' ? 'Measuring… (up to a minute with the grid)' : 'Run audit now'}
+          </button>
+        </div>
+
+        <form
+          className="mt-4 grid gap-3 sm:grid-cols-3"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void call('POST', { kind: 'audit-settings', ...auditForm }, 'Audit settings saved.', 'audit-settings');
+          }}
+        >
+          {input(auditForm.city, setA('city'), 'City (for the search)', { placeholder: 'Ankeny, IA' })}
+          {input(auditForm.website, setA('website'), 'Website to measure', { placeholder: 'their old site before launch', inputMode: 'url' })}
+          {input(auditForm.intervalDays, setA('intervalDays'), 'Audit every N days', { inputMode: 'numeric' })}
+          {input(auditForm.clientScanCap, setA('clientScanCap'), `Client scans / month (blank = ${TIER_SCAN_CAP[tier]} for this plan)`, { inputMode: 'numeric' })}
+          <label className="flex items-center gap-2 self-end pb-2 text-sm text-neutral-700">
+            <input type="checkbox" checked={auditForm.grid} onChange={setA('grid')} /> 5×5 grid (+$0.05 per audit)
+          </label>
+          <label className="flex items-center gap-2 self-end pb-2 text-sm text-neutral-700">
+            <input type="checkbox" checked={auditForm.enabled} onChange={setA('enabled')} /> Scheduled audits on
+          </label>
+          <div className="sm:col-span-3">
+            <button type="submit" disabled={busy === 'audit-settings'} className={btn('secondary')}>
+              {busy === 'audit-settings' ? 'Saving…' : 'Save audit settings'}
+            </button>
+          </div>
+        </form>
+
+        {data.audits.length > 0 ? (
+          <div className="mt-5 overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="text-left text-xs uppercase tracking-wide text-neutral-500">
+                <tr>
+                  <th className="py-1 pr-3">Date</th>
+                  <th className="py-1 pr-3">By</th>
+                  <th className="py-1 pr-3">Maps</th>
+                  <th className="py-1 pr-3">Rating</th>
+                  <th className="py-1 pr-3">Speed</th>
+                  <th className="py-1 pr-3">Status</th>
+                  <th className="py-1 pr-3">Cost</th>
+                  <th className="py-1" />
+                </tr>
+              </thead>
+              <tbody>
+                {data.audits.map((x) => {
+                  const s = summarize(x);
+                  return (
+                    <tr key={x.id} className="border-t border-neutral-100">
+                      <td className="py-1.5 pr-3 whitespace-nowrap">{new Date(x.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</td>
+                      <td className="py-1.5 pr-3">{x.trigger}</td>
+                      <td className="py-1.5 pr-3 font-semibold tabular-nums">{s.found === false ? 'not found' : s.mapsRank !== null ? `#${s.mapsRank}` : '–'}</td>
+                      <td className="py-1.5 pr-3 tabular-nums">
+                        {s.rating ?? '–'} · {s.reviews ?? '–'}
+                      </td>
+                      <td className="py-1.5 pr-3 tabular-nums">{s.pagespeed ?? '–'}</td>
+                      <td className="py-1.5 pr-3">{x.status}</td>
+                      <td className="py-1.5 pr-3 tabular-nums">${x.costUsd.toFixed(3)}</td>
+                      <td className="py-1.5 whitespace-nowrap">
+                        <button type="button" onClick={() => setOpenAudit(openAudit === x.id ? null : x.id)} className={btn('ghost', 'sm')}>
+                          {openAudit === x.id ? 'Hide' : 'View'}
+                        </button>
+                        {x.trigger !== 'client' && s.found ? (
+                          <button type="button" onClick={() => void call('POST', { kind: 'audit-baseline', id: x.id }, 'Baseline updated.', 'audit-baseline')} className={btn('ghost', 'sm')}>
+                            Use as baseline
+                          </button>
+                        ) : null}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="mt-4 text-sm text-neutral-500">No audits yet. Set the city and keyword, then run one — or wait for the schedule once kickoff is set.</p>
+        )}
+
+        {shownAudit ? (
+          <div className="mt-4 rounded-xl border border-neutral-200 bg-neutral-50 p-4">
+            <AuditReadout audit={shownAudit} variant="admin" />
+          </div>
+        ) : null}
+      </div>
 
       <div className={card}>
         <div className="flex flex-wrap items-start justify-between gap-3">

@@ -9,6 +9,9 @@
 //   POST   { kind: 'tracking', ... }      website address, close rate, automatic reports on/off
 //   POST   { kind: 'auto-report', month } build and email the month's report now (lib/autoReports.ts)
 //   POST   { kind: 'lead-outcome', id, outcome } mark a lead won / lost / null on the client's behalf (View as client)
+//   POST   { kind: 'audit' }              measure the client on Google now (lib/audits.ts); the first hit sets the baseline
+//   POST   { kind: 'audit-settings', city, website, grid, intervalDays, enabled, clientScanCap }
+//   POST   { kind: 'audit-baseline', id } make that audit the 90-day baseline
 //   DELETE { kind, id }                   remove an update or report
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/adminAuth';
@@ -21,6 +24,8 @@ import { setReferralPaid } from '@/lib/referrals';
 import { getTrackingSettings, hasTraffic, isValidMonth, setLeadOutcome, setTrackingSettings, trackingOverview, validateAvgJobValue, validateCloseRate, validateCloseRateMode, validateSiteUrl } from '@/lib/siteStats';
 import { isLeadOutcome } from '@/lib/projectsShared';
 import { feedbackUrl, listFeedback } from '@/lib/feedback';
+import { applyBaseline, getAudit, getAuditSettings, listAuditsForOnboarding, runAudit, setAuditSettings, subjectForOnboarding } from '@/lib/audits';
+import { validateAuditSettingsInput } from '@/lib/auditShared';
 import {
   createProjectUpdate,
   deleteMonthlyReport,
@@ -42,6 +47,8 @@ import {
 } from '@/lib/projects';
 
 export const runtime = 'nodejs';
+// An audit with the grid is ~30 DataForSEO calls.
+export const maxDuration = 120;
 
 const PROOF_URL = `${APP_ORIGIN}/`;
 const unauthorized = () => NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -53,14 +60,16 @@ async function load(token: string): Promise<Onboarding> {
 }
 
 async function present(onboardingId: number) {
-  const [details, updates, reports, tracking, feedback] = await Promise.all([
+  const [details, updates, reports, tracking, feedback, audits, auditSettings] = await Promise.all([
     getProjectDetails(onboardingId),
     listProjectUpdates(onboardingId),
     listMonthlyReports(onboardingId),
     trackingOverview(onboardingId),
     listFeedback(onboardingId),
+    listAuditsForOnboarding(onboardingId),
+    getAuditSettings(onboardingId),
   ]);
-  return { details, updates, reports, tracking, feedback };
+  return { details, updates, reports, tracking, feedback, audits, auditSettings };
 }
 
 export async function GET(req: Request, ctx: { params: Promise<{ token: string }> }) {
@@ -161,6 +170,21 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
       if (!isValidMonth(body.month)) throw new Error('Pick the month to send');
       const outcome = await sendAutoReport(onboarding, body.month, { force: true });
       if (outcome.status === 'failed') emailError = outcome.error;
+    } else if (body.kind === 'audit-settings') {
+      await setAuditSettings(onboarding.id, validateAuditSettingsInput(body));
+    } else if (body.kind === 'audit') {
+      const settings = await getAuditSettings(onboarding.id);
+      const subject = subjectForOnboarding(onboarding, settings);
+      try {
+        await runAudit(subject, { trigger: 'admin', onboardingId: onboarding.id, grid: settings.grid });
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Audit failed';
+        return NextResponse.json({ error: message }, { status: /budget/.test(message) ? 409 : 400 });
+      }
+    } else if (body.kind === 'audit-baseline') {
+      const audit = await getAudit(Number(body.id));
+      if (!audit || audit.onboardingId !== onboarding.id) throw new Error('That audit is not this client’s');
+      if (!(await applyBaseline(onboarding.id, audit, true))) throw new Error('That audit did not find the business on Maps, so it cannot be the baseline');
     } else {
       throw new Error('Unknown kind');
     }
