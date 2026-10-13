@@ -354,6 +354,69 @@ export function ensureSchema(): Promise<void> {
         );
       `;
       await sql`CREATE INDEX IF NOT EXISTS email_log_time_idx ON email_log (created_at DESC);`;
+      // AxeonCORE phone layer (lib/phoneLines.ts): one tracked number per client,
+      // every call and text on it, and who asked us to stop texting them.
+      await sql`
+        CREATE TABLE IF NOT EXISTS phone_lines (
+          id SERIAL PRIMARY KEY,
+          onboarding_id INTEGER UNIQUE NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+          phone_number TEXT UNIQUE NOT NULL,
+          phone_number_sid TEXT NOT NULL,
+          messaging_service_sid TEXT NOT NULL,
+          forward_to TEXT NOT NULL,
+          area_code TEXT NOT NULL,
+          record_calls BOOLEAN NOT NULL DEFAULT true,
+          consent_notice BOOLEAN NOT NULL DEFAULT true,
+          text_back_enabled BOOLEAN NOT NULL DEFAULT true,
+          text_back_message TEXT,
+          sms_status TEXT NOT NULL DEFAULT 'pending' CHECK (sms_status IN ('pending', 'ready')),
+          status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'released')),
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        );
+      `;
+      await sql`
+        CREATE TABLE IF NOT EXISTS phone_calls (
+          id BIGSERIAL PRIMARY KEY,
+          onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+          call_sid TEXT UNIQUE NOT NULL,
+          from_number TEXT NOT NULL,
+          to_number TEXT NOT NULL,
+          outcome TEXT NOT NULL CHECK (outcome IN ('answered', 'missed')),
+          dial_status TEXT NOT NULL DEFAULT '',
+          started_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          duration_seconds INTEGER,
+          recording_url TEXT,
+          recording_seconds INTEGER,
+          text_back_sent_at TIMESTAMPTZ,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        );
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS phone_calls_client_time_idx ON phone_calls (onboarding_id, started_at DESC);`;
+      await sql`CREATE INDEX IF NOT EXISTS phone_calls_from_idx ON phone_calls (onboarding_id, from_number, text_back_sent_at);`;
+      await sql`
+        CREATE TABLE IF NOT EXISTS phone_messages (
+          id BIGSERIAL PRIMARY KEY,
+          onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+          message_sid TEXT UNIQUE NOT NULL,
+          direction TEXT NOT NULL CHECK (direction IN ('inbound', 'outbound')),
+          from_number TEXT NOT NULL,
+          to_number TEXT NOT NULL,
+          body TEXT NOT NULL DEFAULT '',
+          kind TEXT NOT NULL CHECK (kind IN ('text_back', 'manual', 'inbound')),
+          status TEXT NOT NULL DEFAULT '',
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        );
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS phone_messages_client_time_idx ON phone_messages (onboarding_id, created_at DESC);`;
+      await sql`
+        CREATE TABLE IF NOT EXISTS phone_opt_outs (
+          onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+          phone_number TEXT NOT NULL,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          PRIMARY KEY (onboarding_id, phone_number)
+        );
+      `;
     })().catch((err) => {
       schemaReady = null; // let the next request retry
       throw err;

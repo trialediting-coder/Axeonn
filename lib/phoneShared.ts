@@ -102,3 +102,46 @@ export function callResultLabel(c: { outcome: CallOutcome; textBackSentAt: strin
 export function callerLabel(fromNumber: string): string {
   return fromNumber === 'unknown' ? 'Unknown' : maskNumber(fromNumber);
 }
+
+/** A client's tracked number as the server returns it (lib/phoneLines.ts). Dates are ISO strings. */
+export interface PhoneLine extends PhoneLineSettings {
+  id: number;
+  onboardingId: number;
+  /** E.164, the tracked number callers dial. */
+  phoneNumber: string;
+  phoneNumberSid: string;
+  messagingServiceSid: string;
+  areaCode: string;
+  /** 'ready' once the 10DLC campaign is approved; nothing is texted before that. */
+  smsStatus: SmsStatus;
+  status: 'active' | 'released';
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** One call on a tracked line. The recording URL stays server-side; hasRecording says one exists. */
+export interface PhoneCall {
+  id: number;
+  callSid: string;
+  /** E.164, or 'unknown' for a withheld caller id. */
+  fromNumber: string;
+  toNumber: string;
+  outcome: CallOutcome;
+  dialStatus: string;
+  startedAt: string;
+  durationSeconds: number | null;
+  hasRecording: boolean;
+  recordingSeconds: number | null;
+  textBackSentAt: string | null;
+}
+
+/** A month (YYYY-MM, America/Chicago) of calls on one line. */
+export interface CallsSummary {
+  month: string;
+  calls: number;
+  answered: number;
+  missed: number;
+  textedBack: number;
+  /** Mean length of answered calls, rounded; null when none were answered. */
+  avgSeconds: number | null;
+}
