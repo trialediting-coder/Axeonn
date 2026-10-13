@@ -3,6 +3,7 @@ import { questionsByKeys } from '@/lib/feedbackShared';
 import { RAMP_REPORTS } from '@/lib/reportPlan';
 import { REFERRAL, referralMailto } from '@/lib/referral';
 import { Resend } from 'resend';
+import { formatPhone } from '@/lib/phoneShared';
 import { recordEmail } from '@/lib/emailLog';
 import type { EmailKind } from '@/lib/emailLogShared';
 import { WEEKDAY_LABELS, buttonLabel, campaignLabel, hourLabel, sourceLabel, type TrafficDetail, type TrafficSummary } from '@/lib/projectsShared';
@@ -170,7 +171,7 @@ async function sendChecked(resend: Mailer, payload: SendPayload): Promise<void> 
 // A PNG, because Gmail and Outlook drop SVG. Served from the main site's /public.
 const EMAIL_LOGO_URL = 'https://axeonstudio.co/email/axeon-mark.png';
 
-function clientLayout(title: string, bodyHtml: string): string {
+function clientLayout(title: string, bodyHtml: string, footer = 'Questions? Reply to this email or call (515) 493-8017.'): string {
   return `
     <div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;color:#0a0a0a;line-height:1.55">
       <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 28px"><tr>
@@ -179,7 +180,7 @@ function clientLayout(title: string, bodyHtml: string): string {
       </tr></table>
       <h1 style="margin:0 0 16px;font-size:24px;line-height:1.2;font-weight:800">${title}</h1>
       ${bodyHtml}
-      <p style="margin:32px 0 0;font-size:13px;color:#737373">Questions? Reply to this email or call (515) 493-8017.</p>
+      <p style="margin:32px 0 0;font-size:13px;color:#737373">${footer}</p>
     </div>
   `;
 }
@@ -377,6 +378,53 @@ export async function sendLeadNotification(input: {
       <p>${saved} Reply to this email to answer them directly.</p>
     `,
   });
+}
+
+export interface ClientLeadAlertInput {
+  businessName: string | null;
+  lead: { name: string; phone: string | null; email: string | null; message: string; page: string };
+  proofUrl: string;
+  test: boolean;
+}
+
+/**
+ * A website form lead, to the client (slice 2, lib/leads.ts). Read on a phone in
+ * five seconds: who, how to reach them, what they said. Every visitor-typed
+ * value is escaped; the subject is one line. Reply-to is the lead when they left
+ * an email, so the footer does not invite questions by reply.
+ */
+export function renderClientLeadAlert(input: ClientLeadAlertInput): { subject: string; html: string } {
+  const name = input.lead.name.replace(/[\r\n]+/g, ' ').trim() || 'Someone';
+  const subject = `${input.test ? '[Test] ' : ''}New website lead: ${name}`.slice(0, 120);
+  const link = (href: string, text: string) => `<a href="${escapeHtml(href)}" style="color:#2563eb">${escapeHtml(text)}</a>`;
+  const phone = input.lead.phone ? link(`tel:${input.lead.phone}`, formatPhone(input.lead.phone)) : 'none left';
+  const email = input.lead.email ? link(`mailto:${input.lead.email}`, input.lead.email) : 'none left';
+  const message = input.lead.message ? escapeHtml(input.lead.message).replace(/\n/g, '<br>') : '<span style="color:#737373">No message.</span>';
+  const where = input.lead.page ? `the ${escapeHtml(input.lead.page)} page` : 'your website';
+  const site = input.businessName ? ` of the ${escapeHtml(input.businessName)} site` : '';
+  const html = clientLayout(
+    input.test ? 'Test lead from your website' : 'New lead from your website',
+    `
+      ${input.test ? '<p style="margin:0 0 12px;color:#92400e">This is a test Axeon sent to check your setup. Nothing to do.</p>' : ''}
+      <p style="margin:0 0 4px;font-size:18px"><b>${escapeHtml(name)}</b></p>
+      <p style="margin:0 0 4px">Phone: ${phone}</p>
+      <p style="margin:0 0 12px">Email: ${email}</p>
+      <p style="margin:0 0 12px;padding:12px 14px;background:#f5f5f5;border-radius:10px">${message}</p>
+      <p style="margin:0 0 12px;font-size:14px;color:#525252">${input.lead.email ? 'Reply to this email to answer them.' : 'They left no email, so call or text them.'} Sent from ${where}${site}.</p>
+      ${button(input.proofUrl, 'See all your leads')}
+    `,
+    'Sent by Axeon from your website form. Questions about these alerts? Call Axeon at (515) 493-8017.',
+  );
+  return { subject, html };
+}
+
+/** Sends renderClientLeadAlert. False when Resend is not configured; throws when Resend rejects it. */
+export async function sendClientLeadAlert(input: ClientLeadAlertInput & { to: string }): Promise<boolean> {
+  const resend = getClient('client_lead_alert');
+  if (!resend) return false;
+  const { subject, html } = renderClientLeadAlert(input);
+  await sendChecked(resend, { from: CLIENT_FROM_ADDRESS, replyTo: input.lead.email ?? CLIENT_REPLY_TO, to: input.to, subject, html });
+  return true;
 }
 
 /** Sent once when a client finishes every item on their onboarding checklist. */

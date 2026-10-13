@@ -11,6 +11,7 @@ export const EMAIL_CATEGORIES = {
   business_email: 'Business email',
   account: 'Codes & passwords',
   alerts: 'Alerts to you',
+  leads: 'Client lead alerts',
 } as const;
 export type EmailCategory = keyof typeof EMAIL_CATEGORIES;
 
@@ -31,6 +32,7 @@ export const EMAIL_KINDS = {
   verification_code: { label: 'Setup code', category: 'account' },
   password_reset: { label: 'Password reset', category: 'account' },
   lead_alert: { label: 'New lead', category: 'alerts' },
+  client_lead_alert: { label: 'Website lead (to client)', category: 'leads' },
   onboarding_complete: { label: 'Setup finished', category: 'alerts' },
   billing_alert: { label: 'Billing', category: 'alerts' },
   feedback_alert: { label: 'Client feedback', category: 'alerts' },
