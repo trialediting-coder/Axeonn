@@ -30,6 +30,8 @@ import { AxeonLogo } from '@/components/brand/AxeonLogo';
 import { ActiveTabIntoView } from '@/components/proof/ActiveTabIntoView';
 import { LeadLog, type LeadMonth } from '@/components/proof/LeadLog';
 import { BillingTab } from '@/components/proof/BillingTab';
+import { CallsTab } from '@/components/proof/CallsTab';
+import type { DashboardPhone } from '@/lib/proofDashboardData';
 import { FeatureTab } from '@/components/proof/FeatureTab';
 import { EmailTab } from '@/components/proof/EmailTab';
 import type { BusinessEmailSetup } from '@/lib/businessEmailShared';
@@ -291,6 +293,7 @@ export function ProofDashboard({
   ownVisitsUrl = null,
   billing = null,
   businessEmail = null,
+  phone = null,
   ownerEmail = 'hello@axeonstudio.co',
 }: {
   email: string;
@@ -326,6 +329,8 @@ export function ProofDashboard({
   billing?: BillingSummary | null;
   /** Mailboxes, DNS checks and requests; loaded only for the Email tab (lib/businessEmail.ts). */
   businessEmail?: BusinessEmailSetup | null;
+  /** The client's tracked number and calls; null until a line is provisioned (lib/proofDashboardData.ts). */
+  phone?: DashboardPhone | null;
   /** Where billing questions go before the first invoice exists. */
   ownerEmail?: string;
 }) {
@@ -532,6 +537,8 @@ export function ProofDashboard({
             <BillingTab billing={billing} tier={onboarding.tier} agreementUrl={agreementUrl} preview={!!preview} ownerEmail={ownerEmail} />
           ) : tabLocked(proofTab(tab), onboarding.tier) ? (
             <UpgradePanel tab={proofTab(tab)} tier={onboarding.tier} traffic={traffic} period={period} avgJobValue={avgJobValue} request={upgradeRequest} preview={!!preview} bookUrl={`${SITE_ORIGIN}/book`} />
+          ) : tab === 'calls' && phone ? (
+            <CallsTab phone={phone} preview={!!preview} />
           ) : (
             <FeatureTab tab={proofTab(tab)} reports={reports} traffic={traffic} />
           )

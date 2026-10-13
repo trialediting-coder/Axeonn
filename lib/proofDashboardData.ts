@@ -12,9 +12,20 @@ import { clientBilling } from '@/lib/clientBilling';
 import { CLIENT_REPLY_TO } from '@/lib/email';
 import { getUpgradeRequest } from '@/lib/upgrades';
 import { businessEmailForDashboard } from '@/lib/businessEmail';
+import { callsSummary, getLine, recentCalls } from '@/lib/phoneLines';
+import type { CallsSummary, PhoneCall } from '@/lib/phoneShared';
 import type { ProofTabKey } from '@/lib/proofTabs';
 import type { ProofDashboard } from '@/components/proof/ProofDashboard';
 import type { ComponentProps } from 'react';
+
+export interface DashboardPhone {
+  number: string;
+  /** True only when texting is approved and switched on, so the copy never promises a text that will not go out. */
+  textBack: boolean;
+  thisMonth: CallsSummary;
+  lastMonth: CallsSummary;
+  recent: PhoneCall[];
+}
 
 export type DashboardData = Omit<ComponentProps<typeof ProofDashboard>, 'email' | 'preview' | 'leadApi' | 'tab'>;
 
@@ -22,7 +33,7 @@ export type DashboardData = Omit<ComponentProps<typeof ProofDashboard>, 'email' 
 export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey = 'overview'): Promise<DashboardData> {
   const month = monthOf();
   const previous = previousMonth(month);
-  const [states, details, updates, reports, agreement, tracking, thisLeads, lastLeads, upgradeRequest, billing, businessEmail] = await Promise.all([
+  const [states, details, updates, reports, agreement, tracking, thisLeads, lastLeads, upgradeRequest, billing, businessEmail, line] = await Promise.all([
     getItemStates(onboarding.id),
     getProjectDetails(onboarding.id),
     listProjectUpdates(onboarding.id),
@@ -34,6 +45,7 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
     getUpgradeRequest(onboarding.id),
     tab === 'billing' ? clientBilling(onboarding) : Promise.resolve(null),
     tab === 'email' ? businessEmailForDashboard(onboarding.id) : Promise.resolve(null),
+    getLine(onboarding.id),
   ]);
   // This month straight from the tracker, so the overview is never blank between reports
   // (and never blank before the first report, which is the first thing a new client sees).
@@ -41,6 +53,12 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
     monthTraffic(onboarding.id, month, effectiveCloseRate(tracking)),
     monthTraffic(onboarding.id, previous, effectiveCloseRate(tracking)),
   ]);
+  const phone: DashboardPhone | null = line
+    ? await (async () => {
+        const [tm, lm, recent] = await Promise.all([callsSummary(onboarding.id, month), callsSummary(onboarding.id, previous), recentCalls(onboarding.id, 20)]);
+        return { number: line.phoneNumber, textBack: line.smsStatus === 'ready' && line.textBackEnabled, thisMonth: tm, lastMonth: lm, recent };
+      })()
+    : null;
   return {
     onboarding,
     progress: computeProgress(onboarding.tier, states),
@@ -65,6 +83,7 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
     billing,
     businessEmail,
     ownerEmail: CLIENT_REPLY_TO,
+    phone,
     live: hasTraffic(thisMonth) ? { month, traffic: thisMonth, prev: hasTraffic(lastMonth) ? lastMonth : null } : null,
   };
 }
