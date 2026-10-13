@@ -16,7 +16,7 @@
     "test:paylinks": "tsx --test lib/payLinks.test.ts",
     "test:get-started": "tsx --test lib/getStarted.test.ts",
     "test:phone": "tsx --test lib/phoneShared.test.ts lib/twilio.test.ts lib/phoneTwiml.test.ts lib/phoneLines.test.ts lib/phoneWebhook.test.ts",
-    "test:sequences": "tsx --test lib/sequenceShared.test.ts lib/sequenceSchedule.test.ts",
+    "test:sequences": "tsx --test lib/sequenceShared.test.ts lib/sequenceSchedule.test.ts lib/pastCustomersShared.test.ts",
     "test:leads": "tsx --test lib/leadShared.test.ts lib/leads.test.ts lib/leadEmail.test.ts",
     "test:onboarding": "tsx --test lib/onboarding.test.ts lib/airtableSync.test.ts lib/hostRouting.test.ts lib/proofAuth.test.ts lib/agreements.test.ts lib/projects.test.ts lib/siteStats.test.ts lib/callLeads.test.ts lib/clientBilling.test.ts lib/feedbackShared.test.ts lib/reportPlan.test.ts lib/ownerData.test.ts lib/referrals.test.ts lib/businessEmail.test.ts lib/emailLog.test.ts lib/auditShared.test.ts lib/auditParse.test.ts lib/auditHtml.test.ts lib/audits.test.ts lib/auditDeepParse.test.ts lib/siteCrawl.test.ts lib/planRules.test.ts lib/pitch.test.ts lib/plans.test.ts"
   },
