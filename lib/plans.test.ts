@@ -44,3 +44,11 @@ test('validatePlanItemInput', () => {
   assert.throws(() => validatePlanItemInput({ title: '', owner: 'client' }), /title/i);
   assert.throws(() => validatePlanItemInput({ title: 'x', owner: 'someone' }), /owner/i);
 });
+
+import { dueFrom } from './plans';
+test('dueFrom: never a date in the past (review Important 7)', () => {
+  const now = Date.parse('2027-02-01T00:00:00Z');
+  assert.equal(dueFrom('2026-10-13', now), '2027-05-02', 'kickoff + 90 is behind us → now + 90');
+  assert.equal(dueFrom('2027-01-01', now), '2027-05-02', 'now + 90 wins when later');
+  assert.equal(dueFrom('2027-03-01', now), '2027-05-30', 'kickoff + 90 wins when later');
+});

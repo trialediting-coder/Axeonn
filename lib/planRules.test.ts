@@ -77,3 +77,12 @@ test('metricValue and targetMet read any audit', () => {
   assert.equal(targetMet('clickToCall', true, true), true);
   assert.equal(targetMet('broken-links', 0, 0), true);
 });
+
+import { fmtPlanValue } from './planRules';
+test('fmtPlanValue never shows the not-found sentinel as a rank (review Important 3)', () => {
+  assert.equal(fmtPlanValue(21, 'mapsRank'), 'not in top 20');
+  assert.equal(fmtPlanValue(7, 'mapsRank'), '#7');
+  assert.equal(fmtPlanValue(0.2, 'responseRate'), '20%');
+  assert.equal(fmtPlanValue(true, 'claimed'), 'yes');
+  assert.equal(fmtPlanValue(null, 'reviews'), '–');
+});

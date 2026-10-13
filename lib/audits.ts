@@ -66,6 +66,8 @@ export interface ComposeOptions {
   /** How long to wait for the async reviews task before leaving it for later (tests pass 0). */
   pollBudgetMs?: number;
   pollMs?: number;
+  /** Keywords with an open "build a page" plan item: crawled for coverage even when they fall out of the top 8. */
+  coverageKeywords?: string[];
 }
 
 export async function composeAudit(subject: AuditSubject, opts: ComposeOptions): Promise<Composed> {
@@ -187,7 +189,7 @@ export async function composeAudit(subject: AuditSubject, opts: ComposeOptions):
     const add = (c: number) => {
       cost += c;
     };
-    await runDeep({ S, D, subject: { ...subject, ...(learned ?? {}) }, location, city, mapsItems: maps.ok ? maps.data : null, self, website, domain, results, errors, raw, add, reviewsPosted, pollBudgetMs: opts.pollBudgetMs ?? 90_000, pollMs: opts.pollMs ?? 5_000 });
+    await runDeep({ S, D, subject: { ...subject, ...(learned ?? {}) }, location, city, mapsItems: maps.ok ? maps.data : null, self, website, domain, results, errors, raw, add, reviewsPosted, pollBudgetMs: opts.pollBudgetMs ?? 90_000, pollMs: opts.pollMs ?? 5_000, coverageKeywords: opts.coverageKeywords ?? [] });
   }
 
   if (opts.grid) {
@@ -457,14 +459,19 @@ export async function applyBaseline(onboardingId: number, audit: AuditRow, force
 
 // ───────────────────────────── Run & attach ─────────────────────────────
 
-export interface RunOptions { trigger: AuditTrigger; onboardingId?: number | null; callLeadId?: number | null; grid: boolean; deep?: boolean }
+export interface RunOptions { trigger: AuditTrigger; onboardingId?: number | null; callLeadId?: number | null; grid: boolean; deep?: boolean; /** Cron passes 0: pending reviews are swept the next day instead of waited for. */ pollBudgetMs?: number }
 
 export async function runAudit(subject: AuditSubject, opts: RunOptions): Promise<AuditRow> {
   if (!isDatabaseConfigured()) throw new Error('Audits need the database (POSTGRES_URL).');
   await ensureSchema();
   await assertBudget();
   const deep = opts.deep === true;
-  const c = await composeAudit(subject, { grid: opts.grid, deep });
+  let coverageKeywords: string[] = [];
+  if (deep && opts.onboardingId) {
+    const { listPlan } = await import('@/lib/plans');
+    coverageKeywords = (await listPlan(opts.onboardingId)).filter((i) => i.metric?.startsWith('coverage:') && i.status !== 'done' && i.status !== 'dropped').map((i) => (i.metric as string).slice('coverage:'.length));
+  }
+  const c = await composeAudit(subject, { grid: opts.grid, deep, pollBudgetMs: opts.pollBudgetMs, coverageKeywords });
   const res = await sql<{ id: number }>`
     INSERT INTO audits (onboarding_id, call_lead_id, subject, trigger, status, results, leaks, errors, raw, cost_usd, deep)
     VALUES (${opts.onboardingId ?? null}, ${opts.callLeadId ?? null}, ${JSON.stringify(c.subject)}::jsonb, ${opts.trigger}, ${c.status},
@@ -478,12 +485,15 @@ export async function runAudit(subject: AuditSubject, opts: RunOptions): Promise
     await applyBaseline(opts.onboardingId, row, false);
     if (deep) await sql`UPDATE onboardings SET last_deep_at = now() WHERE id = ${opts.onboardingId};`;
     // The 90-day plan follows the numbers: a deep audit (re)drafts it, any audit re-checks it (lib/plans.ts).
-    const { recheckPlan, syncPlan } = await import('@/lib/plans');
-    if (deep) {
-      const { getProjectDetails } = await import('@/lib/projects');
-      await syncPlan(opts.onboardingId, row, (await getProjectDetails(opts.onboardingId)).kickoffAt);
-    } else {
-      await recheckPlan(opts.onboardingId, row);
+    // Client scans never feed the plan (same rule as the baseline and the monthly report).
+    if (opts.trigger !== 'client') {
+      const { recheckPlan, syncPlan } = await import('@/lib/plans');
+      if (deep) {
+        const { getProjectDetails } = await import('@/lib/projects');
+        await syncPlan(opts.onboardingId, row, (await getProjectDetails(opts.onboardingId)).kickoffAt);
+      } else {
+        await recheckPlan(opts.onboardingId, row);
+      }
     }
   }
   return row;
@@ -526,6 +536,7 @@ interface DeepCtx {
   reviewsPosted: Promise<Awaited<ReturnType<DeepSources['reviewsPost']>>> | null;
   pollBudgetMs: number;
   pollMs: number;
+  coverageKeywords: string[];
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -558,16 +569,14 @@ async function runDeep(ctx: DeepCtx): Promise<void> {
       await Promise.all(
         top.slice(i, i + 4).map(async (k) => {
           const [m, o] = await Promise.all([S.mapsSearch(k.keyword, { location }), domain ? S.organicSearch(k.keyword, location) : null]);
-          const pair: RankPair = { mapsRank: null, organicRank: null };
-          if (m.ok) {
-            add(m.cost);
-            pair.mapsRank = matchSubject(subject, m.data)?.item.rank ?? null;
-          }
-          if (o && o.ok) {
-            add(o.cost);
-            pair.organicRank = o.data.find((r) => domainOf(r.domain) === domain)?.rank ?? null;
-          }
-          ranks.set(k.keyword, pair);
+          if (o && o.ok) add(o.cost);
+          // A failed Maps search is not "not in the top 20": leave the keyword unmeasured.
+          if (!m.ok) return;
+          add(m.cost);
+          ranks.set(k.keyword, {
+            mapsRank: matchSubject(subject, m.data)?.item.rank ?? null,
+            organicRank: o && o.ok ? (o.data.find((r) => domainOf(r.domain) === domain)?.rank ?? null) : null,
+          });
         })
       );
     }
@@ -602,7 +611,8 @@ async function runDeep(ctx: DeepCtx): Promise<void> {
   const crawl = (async () => {
     const measured = await market;
     if (!website) return fail('crawl', 'No website to crawl');
-    const r = await D.crawl(website, Array.isArray(measured) ? measured : [subject.keyword], city);
+    const forCoverage = [...new Set([...(Array.isArray(measured) ? measured : [subject.keyword]), ...ctx.coverageKeywords])];
+    const r = await D.crawl(website, forCoverage, city);
     if (!r.ok) return fail('crawl', r.error);
     raw.crawl = r.raw;
     results.crawl = r.data;
@@ -649,10 +659,17 @@ export async function completePendingReviews(auditId: number): Promise<AuditRow 
   const nextRaw = { ...rest, reviews: got.raw };
   await sql`
     UPDATE audits SET results = ${JSON.stringify(results)}::jsonb, errors = ${JSON.stringify(errors)}::jsonb, raw = ${JSON.stringify(nextRaw)}::jsonb,
-      status = ${auditStatus(results)}, cost_usd = cost_usd + ${got.cost}
+      leaks = ${JSON.stringify(auditLeaks(results, splitCity(full.subject.city).city))}::jsonb, status = ${auditStatus(results)}, cost_usd = cost_usd + ${got.cost}
     WHERE id = ${auditId};
   `;
-  return getAudit(auditId);
+  const updated = await getAudit(auditId);
+  // The reviews rules (response rate, velocity) can only fire now: re-sync the client's plan.
+  if (updated && updated.onboardingId && updated.deep && updated.trigger !== 'client') {
+    const { syncPlan } = await import('@/lib/plans');
+    const { getProjectDetails } = await import('@/lib/projects');
+    await syncPlan(updated.onboardingId, updated, (await getProjectDetails(updated.onboardingId)).kickoffAt);
+  }
+  return updated;
 }
 
 /** Audits from the last day still waiting on their reviews task. */

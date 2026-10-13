@@ -20,6 +20,9 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
 const CONCURRENCY = 2;
+/** Deep audits take minutes; two per daily run keeps the function inside its 300 s. The rest go deep tomorrow. */
+const MAX_DEEP_PER_RUN = 2;
+const STOP_STARTING_AFTER_MS = 200_000;
 
 async function run(req: Request) {
   const secret = process.env.CRON_SECRET;
@@ -44,6 +47,8 @@ async function run(req: Request) {
   const skipped: { name: string; reason: string }[] = [];
   const failed: { name: string; error: string; token: string }[] = [];
   const capUsd = monthlyCapUsd();
+  const startedAt = Date.now();
+  let deepStarted = 0;
 
   const one = async (o: (typeof onboardings)[number]) => {
     const name = displayName(o);
@@ -55,9 +60,13 @@ async function run(req: Request) {
       if (!(await getProjectDetails(o.id)).kickoffAt) return skipped.push({ name, reason: 'no kickoff date' });
       if (!auditDue(await lastScheduledAt(o.id), settings.intervalDays)) return skipped.push({ name, reason: 'not due yet' });
       if ((await monthSpendUsd()) >= capUsd) return skipped.push({ name, reason: `monthly audit budget ($${capUsd}) used up` });
+      if (Date.now() - startedAt > STOP_STARTING_AFTER_MS) return skipped.push({ name, reason: 'out of time this run; tomorrow' });
       // Deep at kickoff and every deep_refresh_days; quick in between (spec 2026-10-13 §5).
-      const deep = !settings.lastDeepAt || Date.now() - Date.parse(settings.lastDeepAt) >= settings.deepRefreshDays * 86_400_000;
-      await runAudit(subjectForOnboarding(o, settings), { trigger: 'schedule', onboardingId: o.id, grid: settings.grid, deep });
+      const wantsDeep = !settings.lastDeepAt || Date.now() - Date.parse(settings.lastDeepAt) >= settings.deepRefreshDays * 86_400_000;
+      const deep = wantsDeep && deepStarted < MAX_DEEP_PER_RUN;
+      if (wantsDeep && !deep) return skipped.push({ name, reason: 'deep audit queued for tomorrow (two per day)' });
+      if (deep) deepStarted += 1;
+      await runAudit(subjectForOnboarding(o, settings), { trigger: 'schedule', onboardingId: o.id, grid: settings.grid, deep, pollBudgetMs: 0 });
       (deep ? deepRan : ran).push(name);
     } catch (err) {
       failed.push({ name, error: err instanceof Error ? err.message : String(err), token: o.token });

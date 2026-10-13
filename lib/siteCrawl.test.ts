@@ -49,3 +49,27 @@ test('crawlSite: pages, broken links, thin and untitled counts, coverage, with a
   assert.deepEqual(r.data.coverage.map((c) => [c.keyword, c.covered]), [['ceramic coating ankeny', true], ['paint correction', false]]);
   assert.equal(fetched[0], HOME);
 });
+
+// ── Final-review fixes ──
+import { fetchPage } from './auditSources';
+
+test('fetchPage re-checks every redirect hop and refuses a private destination (review Critical 1)', async () => {
+  const seen: string[] = [];
+  const fakeFetch = (async (input: string | URL | Request) => {
+    const u = String(input);
+    seen.push(u);
+    if (u === 'https://subjectspa.com/') return new Response(null, { status: 302, headers: { location: 'http://127.0.0.1:8080/admin' } });
+    return new Response('<html><title>secret</title></html>', { status: 200 });
+  }) as typeof fetch;
+  const check = async (u: URL) => {
+    if (u.hostname === '127.0.0.1') throw new Error('That address is not a public website');
+  };
+  await assert.rejects(() => fetchPage('https://subjectspa.com/', { fetchImpl: fakeFetch, check }), /not a public website/);
+  assert.deepEqual(seen, ['https://subjectspa.com/'], 'the private hop was never fetched');
+  const ok = await fetchPage('https://subjectspa.com/', {
+    fetchImpl: (async (input: string | URL | Request) => (String(input) === 'https://subjectspa.com/' ? new Response(null, { status: 301, headers: { location: 'https://www.subjectspa.com/home' } }) : new Response('<html><title>Home</title></html>', { status: 200 }))) as typeof fetch,
+    check: async () => undefined,
+  });
+  assert.equal(ok.status, 200);
+  assert.equal(ok.finalUrl, 'https://www.subjectspa.com/home');
+});

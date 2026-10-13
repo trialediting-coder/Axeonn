@@ -1,7 +1,7 @@
 // components/proof/PlanChecklist.tsx
 // The client's view of the 90-day plan: what Axeon is doing and what they are
 // doing, with a status chip and "now → target". No competitor numbers, no costs.
-import type { PlanOwner, PlanStatus, PlanValue } from '@/lib/planRules';
+import { fmtPlanValue, type PlanOwner, type PlanStatus, type PlanValue } from '@/lib/planRules';
 
 export interface ClientPlanItem {
   id: number;
@@ -20,12 +20,7 @@ const STATUS: Record<PlanStatus, { label: string; cls: string }> = {
   done: { label: 'Done', cls: 'bg-blue-50 text-blue-700' },
   dropped: { label: '', cls: '' },
 };
-const fmt = (v: PlanValue, metric: string | null): string | null => {
-  if (v === null || typeof v === 'boolean') return null;
-  if (metric === 'responseRate' || metric === 'gridShare') return `${Math.round(v * 100)}%`;
-  if (metric === 'mapsRank') return `#${v}`;
-  return String(v);
-};
+const fmt = (v: PlanValue, metric: string | null): string | null => (v === null || typeof v === 'boolean' ? null : fmtPlanValue(v, metric));
 
 function Group({ title, items }: { title: string; items: ClientPlanItem[] }) {
   if (!items.length) return null;

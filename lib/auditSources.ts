@@ -161,14 +161,32 @@ async function fetchPublic(url: string, hops = 0): Promise<{ finalUrl: string; h
   return { finalUrl: u.toString(), html: await readCapped(res, 2_000_000) };
 }
 
-/** A page fetch for the crawler: same SSRF rules, but 4xx/5xx come back as a status instead of throwing. */
-export async function fetchPage(url: string): Promise<{ status: number; html: string; ms: number }> {
+/**
+ * A page fetch for the crawler: the same SSRF rules as fetchPublic (every redirect
+ * hop re-checked, at most 3), but 4xx/5xx come back as a status instead of
+ * throwing, and the final URL is returned so links resolve against it.
+ */
+export async function fetchPage(
+  url: string,
+  deps: { fetchImpl?: typeof fetch; check?: (u: URL) => Promise<void> } = {}
+): Promise<{ status: number; html: string; ms: number; finalUrl: string }> {
   const t0 = Date.now();
-  const u = new URL(url);
-  await assertPublic(u);
-  const res = await fetch(u, { redirect: 'follow', headers: { 'user-agent': UA, accept: 'text/html,*/*;q=0.8' }, signal: AbortSignal.timeout(8_000) });
-  const html = res.ok ? await readCapped(res, 1_000_000) : '';
-  return { status: res.status, html, ms: Date.now() - t0 };
+  const doFetch = deps.fetchImpl ?? fetch;
+  const check = deps.check ?? assertPublic;
+  let u = new URL(url);
+  for (let hop = 0; hop <= 3; hop += 1) {
+    await check(u);
+    const res = await doFetch(u, { redirect: 'manual', headers: { 'user-agent': UA, accept: 'text/html,*/*;q=0.8' }, signal: AbortSignal.timeout(8_000) });
+    if (res.status >= 300 && res.status < 400) {
+      const loc = res.headers.get('location');
+      if (!loc || hop === 3) return { status: res.status, html: '', ms: Date.now() - t0, finalUrl: u.toString() };
+      u = new URL(loc, u);
+      continue;
+    }
+    const html = res.ok ? await readCapped(res, 1_000_000) : '';
+    return { status: res.status, html, ms: Date.now() - t0, finalUrl: u.toString() };
+  }
+  return { status: 0, html: '', ms: Date.now() - t0, finalUrl: u.toString() };
 }
 
 export async function siteCheck(url: string): Promise<SourceResult<{ finalUrl: string; https: boolean } & HtmlChecks>> {

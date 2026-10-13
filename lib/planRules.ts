@@ -85,6 +85,15 @@ export function metricValue(results: AuditResults, metric: string): PlanValue {
   }
 }
 
+/** How a plan value reads on screen; the not-found sentinel is never shown as a rank. */
+export function fmtPlanValue(v: PlanValue, metric: string | null): string {
+  if (v === null) return '–';
+  if (typeof v === 'boolean') return v ? 'yes' : 'no';
+  if (metric === 'mapsRank') return v >= NOT_FOUND_RANK ? 'not in top 20' : `#${v}`;
+  if (metric === 'responseRate' || metric === 'gridShare') return `${Math.round(v * 100)}%`;
+  return String(v);
+}
+
 export function targetMet(metric: string | null, current: PlanValue, target: PlanValue): boolean {
   if (metric === null || current === null || target === null) return false;
   if (typeof target === 'boolean') return current === target;

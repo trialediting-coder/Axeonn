@@ -89,9 +89,10 @@ export function validatePlanItemInput(raw: Record<string, unknown>): { title: st
   return { title, owner, why };
 }
 
-const dueFrom = (kickoffAt: string | null, now: number): string => {
-  const base = kickoffAt ? Date.parse(`${kickoffAt}T00:00:00Z`) : now;
-  return new Date(base + PLAN_WINDOW_DAYS * DAY).toISOString().slice(0, 10);
+/** 90 days from kickoff, but never earlier than 90 days from now (items added at a later refresh get a real window). */
+export const dueFrom = (kickoffAt: string | null, now: number): string => {
+  const fromKickoff = kickoffAt ? Date.parse(`${kickoffAt}T00:00:00Z`) + PLAN_WINDOW_DAYS * DAY : 0;
+  return new Date(Math.max(fromKickoff, now + PLAN_WINDOW_DAYS * DAY)).toISOString().slice(0, 10);
 };
 
 // ───────────────────────────── Database ─────────────────────────────
@@ -190,10 +191,11 @@ export async function recheckPlan(onboardingId: number, audit: AuditRow, now: nu
   await ensureSchema();
   const items = await listPlan(onboardingId);
   for (const item of items) {
-    if (item.status === 'dropped' || item.status === 'done' || !item.metric) continue;
+    // Dropped items and hand-marked ones stay; measured items follow the numbers, including a done item that slips back.
+    if (item.status === 'dropped' || !item.metric) continue;
     const v = metricValue(audit.results, item.metric);
     if (v === null) continue;
-    const next: PlanItem = { ...item, current: v };
+    const next: PlanItem = { ...item, current: v, status: item.status === 'done' ? 'open' : item.status };
     const status = statusFor(next, now);
     await sql`UPDATE plan_items SET current = ${json(v)}::jsonb, status = ${status}, done_at = ${status === 'done' ? new Date(now).toISOString() : null}, updated_at = now() WHERE id = ${item.id};`;
   }

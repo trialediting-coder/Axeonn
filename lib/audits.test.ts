@@ -174,3 +174,22 @@ test('composeAudit quick: no deep sections when deep is off', async () => {
   assert.equal(c.results.market, undefined);
   assert.equal(c.results.crawl, undefined);
 });
+
+test('deep: a failed rank search leaves the keyword unmeasured instead of "not in top 20" (review Important 2)', async () => {
+  const flakyMaps: Sources['mapsSearch'] = async (keyword) => (keyword === 'ceramic coating ankeny' ? bad('timeout') : ok(selfWithProfile));
+  const c = await composeAudit(subject, { grid: false, deep: true, sources: fakes({ mapsSearch: flakyMaps }), deepSources: deepFakes(), pollBudgetMs: 0 });
+  const m = section(c.results.market)!;
+  assert.equal(m.keywords.find((k) => k.keyword === 'ceramic coating ankeny')?.measured, false);
+  assert.ok(m.keywords.find((k) => k.keyword === 'auto detailing ankeny')?.measured);
+});
+
+test('deep: open coverage keywords from the plan are crawled too (review Important 8)', async () => {
+  let asked: string[] = [];
+  const c = await composeAudit(subject, {
+    grid: false, deep: true, sources: fakes({ mapsSearch: async () => ok(selfWithProfile) }),
+    deepSources: deepFakes({ crawl: async (_u, keywords) => { asked = keywords; return ok({ pages: [], broken: [], coverage: keywords.map((k) => ({ keyword: k, covered: false, url: null })), thin: 0, untitled: 0 }, 0); } }),
+    pollBudgetMs: 0, coverageKeywords: ['paint correction ankeny'],
+  });
+  assert.ok(asked.includes('paint correction ankeny'));
+  assert.ok(section(c.results.crawl)?.coverage.some((x) => x.keyword === 'paint correction ankeny'));
+});

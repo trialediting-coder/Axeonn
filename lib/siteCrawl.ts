@@ -86,7 +86,7 @@ const MAX_PAGES = 15;
 const CONCURRENCY = 4;
 const BUDGET_MS = 60_000;
 
-export type PageFetcher = (url: string) => Promise<{ status: number; html: string; ms: number }>;
+export type PageFetcher = (url: string) => Promise<{ status: number; html: string; ms: number; finalUrl?: string }>;
 
 export async function crawlSite(url: string, keywords: string[], city: string, fetcher: PageFetcher = fetchPage): Promise<SourceResult<CrawlResult>> {
   const started = Date.now();
@@ -96,9 +96,11 @@ export async function crawlSite(url: string, keywords: string[], city: string, f
   };
   try {
     const home = await fetcher(url);
-    if (home.status >= 400) return { ok: false, error: `The site answered ${home.status}` };
-    const pages: CrawlPage[] = [toPage(url, home)];
-    const links = pickInternalLinks(home.html, url, MAX_PAGES);
+    if (home.status >= 400 || home.status === 0) return { ok: false, error: home.status ? `The site answered ${home.status}` : 'The site could not be reached' };
+    // Links resolve against where the homepage actually lives (a redirect to www. or a new domain is common).
+    const base = home.finalUrl ?? url;
+    const pages: CrawlPage[] = [toPage(base, home)];
+    const links = pickInternalLinks(home.html, base, MAX_PAGES);
     for (let i = 0; i < links.length; i += CONCURRENCY) {
       if (Date.now() - started > BUDGET_MS) break;
       const batch = links.slice(i, i + CONCURRENCY);

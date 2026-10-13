@@ -7,7 +7,8 @@
 // (kind: plan-update / plan-add), which returns the refreshed plan.
 import { useState } from 'react';
 import { adminInput, btn } from '@/components/admin/ui';
-import type { PlanItem, PlanOwner, PlanStatus, PlanValue } from '@/lib/plans';
+import type { PlanItem, PlanOwner, PlanStatus } from '@/lib/plans';
+import { fmtPlanValue as fmt } from '@/lib/planRules';
 
 const STATUS: Record<PlanStatus, { label: string; cls: string }> = {
   open: { label: 'Open', cls: 'bg-neutral-100 text-neutral-700' },
@@ -15,13 +16,6 @@ const STATUS: Record<PlanStatus, { label: string; cls: string }> = {
   slipping: { label: 'Slipping', cls: 'bg-amber-50 text-amber-800' },
   done: { label: 'Done', cls: 'bg-blue-50 text-blue-700' },
   dropped: { label: 'Dropped', cls: 'bg-neutral-100 text-neutral-400' },
-};
-const fmt = (v: PlanValue, metric: string | null): string => {
-  if (v === null) return '–';
-  if (typeof v === 'boolean') return v ? 'yes' : 'no';
-  if (metric === 'responseRate' || metric === 'gridShare') return `${Math.round(v * 100)}%`;
-  if (metric === 'mapsRank') return `#${v}`;
-  return String(v);
 };
 const due = (d: string | null) => (d ? new Date(`${d}T00:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }) : '');
 
