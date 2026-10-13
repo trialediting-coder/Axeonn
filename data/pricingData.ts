@@ -94,7 +94,7 @@ export const pricingTiers: PricingTier[] = [
       'AI chat & online scheduling so leads book themselves 24/7',
       'Automatic texts and emails the second a lead comes in, plus one simple list of every lead and where it stands',
       'Tracked phone numbers that show which pages and listings actually make your phone ring',
-      'One inbox for every text, email and website chat, on your phone',
+      'One inbox for every text, email and website chat, on your phone (Facebook and Instagram messages coming soon)',
       'Call recording on your tracked numbers, so you can hear what every caller asked for',
       'Quote follow-up — estimates that haven\'t closed get 3 automatic follow-ups, so fewer jobs slip away',
       'Appointment reminders by text, so fewer people no-show',

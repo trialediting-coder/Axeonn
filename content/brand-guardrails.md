@@ -40,7 +40,10 @@ local-only.
   customer guarantee, missed-call text-back, speed-to-lead call connect, AI
   chat & scheduling, automated SMS/email follow-up and CRM pipeline, call
   tracking with call recording, a unified inbox (SMS, email, website
-  chat), quote follow-up (3 touches), appointment reminders, a
+  chat; Facebook and Instagram messages are "coming soon" and must be
+  labeled that way, never promised as live; Google Business Messages
+  no longer exists and is never mentioned), quote follow-up (3 touches),
+  appointment reminders, a
   quarterly past-customer reactivation text, review requests, exit-intent
   offers, 5-7 pages, 5 edits a month.
 - AxeonGROWTH: $999/month plus ad spend. The premium tier. Adds Google & Meta
