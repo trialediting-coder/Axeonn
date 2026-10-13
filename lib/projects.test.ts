@@ -14,6 +14,7 @@ import {
   validateUpdateInput,
   type MonthlyReport,
 } from './projects';
+import { callsToFill } from './projectsShared';
 
 test('the 90-day guarantee is for AxeonCORE and AxeonGROWTH only', () => {
   assert.equal(tierHasGuarantee('essentials'), false);
@@ -77,4 +78,14 @@ test('previous report and month labels', () => {
   assert.equal(previousReport(all, '2026-09')?.month, '2026-08');
   assert.equal(previousReport(all, '2026-07'), null);
   assert.equal(monthLabel('2026-09'), 'September 2026');
+});
+
+test('callsToFill fills only a blank report from a tracked line with calls', () => {
+  assert.equal(callsToFill(0, true, 12), null);
+  assert.equal(callsToFill(5, true, 12), null);
+  assert.equal(callsToFill(null, false, 12), null);
+  assert.equal(callsToFill(null, true, 0), null);
+  assert.equal(callsToFill(null, true, null), null);
+  assert.equal(callsToFill(undefined, true, 12), 12);
+  assert.equal(callsToFill(null, true, 12), 12);
 });

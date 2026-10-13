@@ -32,6 +32,7 @@ import {
   type MonthlyReport,
   type ProjectDetails,
 } from '@/lib/projects';
+import { callsToFill } from '@/lib/projectsShared';
 import { callsSummary, getLine } from '@/lib/phoneLines';
 import { effectiveCloseRate, firstEventAt, getTrackingSettings, hasTraffic, monthTraffic, REPORT_TIME_ZONE, type TrackingSettings } from '@/lib/siteStats';
 import { feedbackUrl, listFeedback } from '@/lib/feedback';
@@ -186,9 +187,13 @@ export async function sendAutoReport(onboarding: Onboarding, month: string, opts
   const traffic = await monthTraffic(onboarding.id, month, effectiveCloseRate(settings));
   // Calls from the tracked number fill the blank only: a number Axeon typed in wins.
   let calls: number | null = null;
-  if ((existing?.calls ?? null) === null && (await getLine(onboarding.id))) {
-    const phone = await callsSummary(onboarding.id, month);
-    if (phone.calls > 0) calls = phone.calls;
+  try {
+    const hasLine = Boolean(await getLine(onboarding.id));
+    const phone = hasLine ? await callsSummary(onboarding.id, month) : null;
+    calls = callsToFill(existing?.calls, hasLine, phone ? phone.calls : null);
+  } catch (err) {
+    console.error('autoReports: phone lookup failed', onboarding.id, err);
+    calls = null;
   }
   if (!hasTraffic(traffic) && !reportHasContent(existing) && calls == null) {
     const reason = settings.siteKey
@@ -198,7 +203,7 @@ export async function sendAutoReport(onboarding: Onboarding, month: string, opts
     return { status: 'failed', error: `Nothing to send: ${reason}.` };
   }
   // The first month is skipped when tracking covered under two weeks of it: a six-day report reads as a verdict.
-  if (!opts.force && number === 1 && hasTraffic(traffic) && !reportHasContent(existing)) {
+  if (!opts.force && number === 1 && (hasTraffic(traffic) || calls != null) && !reportHasContent(existing)) {
     const days = trackedDays(month, first);
     if (days < MIN_FIRST_MONTH_DAYS) return { status: 'skipped', reason: `tracking covered ${days} days of ${monthLabel(month)}; the first report is the first full month` };
   }

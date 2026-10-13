@@ -365,7 +365,8 @@ Replying from PROOF is slice 4.
 
 **Where the numbers show.** The client's Calls tab (this month vs last, recent
 calls with masked numbers, recordings) and the monthly report's `calls` figure,
-filled only when Axeon has not typed one.
+filled only when Axeon has not typed one. A month with zero calls is left
+blank on the report rather than filled with 0.
 
 **Cost.** The admin card estimates the month from the two tables at the rates in
 the spec. There are no subaccounts; usage is attributed by number.

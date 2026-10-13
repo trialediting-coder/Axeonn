@@ -227,3 +227,10 @@ export function sourceLabel(host: string): string {
   const h = host.toLowerCase().replace(/^www\./, '');
   return KNOWN_SOURCES.find(([re]) => re.test(h))?.[1] ?? h;
 }
+
+/** Tracked-number calls fill a blank report only: a typed number (even 0) wins, and a zero month stays blank. */
+export function callsToFill(existingCalls: number | null | undefined, hasLine: boolean, phoneCalls: number | null): number | null {
+  if ((existingCalls ?? null) !== null) return null;
+  if (!hasLine || phoneCalls == null || phoneCalls <= 0) return null;
+  return phoneCalls;
+}
