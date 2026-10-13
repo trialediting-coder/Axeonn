@@ -213,3 +213,26 @@ test('mapsMeasured / countsAsScan: an errored Maps section is not a measurement 
   assert.equal(countsAsScan(measured), true);
   assert.equal(countsAsScan({ status: 'failed', results: {} }), false);
 });
+
+// ── Phase 2: PROOF progress strip ──
+import { progressFrom } from './auditShared';
+
+test('progressFrom: four tiles, baseline → now, better when it moved the right way', () => {
+  const site = (ok: number) => ({ url: 'https://s.test/', https: ok > 0, pagespeedMobile: ok > 1 ? 60 : 20, lcpMs: null, clickToCall: ok > 2, form: ok > 3, title: ok > 4 ? 't' : null, metaDescription: ok > 4 ? 'd' : null, schema: ok > 5 ? ['LocalBusiness'] : [] });
+  const maps = (rank: number) => ({ found: true, rank, matchedBy: 'name' as const, searched: { keyword: 'k', location: 'l' }, top: [] });
+  const market = (n: number) => ({ city: 'Ankeny', measuredAt: 'x', missedSearches: 0, missedAdValue: 0, keywords: [1, 2, 3, 4].map((i) => ({ keyword: `k${i}`, volume: 10, cpc: 1, competition: null, mapsRank: i <= n ? 2 : 9, organicRank: null, measured: true })) });
+  const baseline = { results: { maps: maps(7), reputation: { rating: 4.6, reviews: 18, categories: [], gbpUrl: null, placeId: null }, website: site(3), market: market(1) } };
+  const latestDeep = { results: { maps: maps(5), reputation: { rating: 4.7, reviews: 22, categories: [], gbpUrl: null, placeId: null }, website: site(5), market: market(3) } };
+  const latestAny = { results: { maps: maps(4), reputation: { rating: 4.7, reviews: 25, categories: [], gbpUrl: null, placeId: null }, website: site(5) } };
+  const tiles = progressFrom(baseline, latestAny, latestDeep);
+  assert.deepEqual(tiles.map((t) => [t.key, t.baseline, t.now, t.better]), [
+    ['rank', 7, 4, true],
+    ['reviews', 18, 25, true],
+    ['showingFor', 1, 3, true],
+    ['siteHealth', 3, 5, true],
+  ]);
+  const none = progressFrom(null, latestAny, null);
+  assert.equal(none[0].baseline, null);
+  assert.equal(none[0].better, null);
+  assert.equal(none[2].now, null, 'no deep audit yet → no keyword count');
+});

@@ -10,7 +10,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MapPin } from 'lucide-react';
 import { GridMap } from '@/components/admin/AuditReadout';
-import type { AuditTrigger, GridResult, Leak } from '@/lib/auditShared';
+import type { AuditTrigger, GridResult, Leak, ProgressTile } from '@/lib/auditShared';
+import { PlanChecklist, type ClientPlanItem } from '@/components/proof/PlanChecklist';
 
 export interface RankingData {
   keyword: string;
@@ -21,6 +22,10 @@ export interface RankingData {
   grid: { at: string; result: GridResult } | null;
   cap: number;
   used: number;
+  /** Baseline (kickoff deep audit) → now, four numbers (lib/auditShared.ts progressFrom). */
+  progress: ProgressTile[];
+  /** The 90-day plan, client view (dropped items left out). */
+  plan: ClientPlanItem[];
 }
 
 const day = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/Chicago' });
@@ -120,6 +125,21 @@ export function RankingCard({ data, api }: { data: RankingData; api: string | nu
         </div>
       ) : null}
 
+      {data.progress.some((t) => t.baseline !== null || t.now !== null) ? (
+        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {data.progress.map((t) => (
+            <div key={t.key} className="rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-neutral-400">{t.label}</p>
+              <p className="mt-0.5 text-lg font-bold text-neutral-950">
+                {t.baseline === null ? '–' : t.key === 'rank' ? `#${t.baseline}` : t.baseline}
+                <span className="mx-1 text-neutral-400">→</span>
+                <span className={t.better === true ? 'text-emerald-700' : t.better === false ? 'text-amber-700' : ''}>{t.now === null ? '–' : t.key === 'rank' ? `#${t.now}` : t.now}</span>
+              </p>
+            </div>
+          ))}
+        </div>
+      ) : null}
+
       {data.points.length > 0 ? (
         <div className="mt-4">
           <Trend points={data.points} baseline={data.baselineRank} />
@@ -139,6 +159,8 @@ export function RankingCard({ data, api }: { data: RankingData; api: string | nu
           </div>
         </div>
       ) : null}
+
+      <PlanChecklist items={data.plan} />
     </section>
   );
 }

@@ -361,6 +361,8 @@ export interface AuditSettings {
   intervalDays: number;
   /** Days between deep audits for this client (phase 2). */
   deepRefreshDays: number;
+  /** When the last deep audit ran for this client; null before the first. */
+  lastDeepAt: string | null;
   enabled: boolean;
   clientScanCap: number | null;
   placeId: string | null;
@@ -377,6 +379,7 @@ interface SettingsRow {
   audit_grid: boolean;
   audit_interval_days: number;
   deep_refresh_days: number | null;
+  last_deep_at: string | null;
   audits_enabled: boolean;
   client_scan_cap: number | null;
   audit_place_id: string | null;
@@ -386,13 +389,13 @@ interface SettingsRow {
   baseline_audit_id: number | null;
 }
 
-const EMPTY_SETTINGS: AuditSettings = { city: null, website: null, keyword: null, grid: true, intervalDays: 14, deepRefreshDays: 90, enabled: true, clientScanCap: null, placeId: null, cid: null, lat: null, lng: null, baselineAuditId: null };
+const EMPTY_SETTINGS: AuditSettings = { city: null, website: null, keyword: null, grid: true, intervalDays: 14, deepRefreshDays: 90, lastDeepAt: null, enabled: true, clientScanCap: null, placeId: null, cid: null, lat: null, lng: null, baselineAuditId: null };
 
 export async function getAuditSettings(onboardingId: number): Promise<AuditSettings> {
   if (!isDatabaseConfigured()) return EMPTY_SETTINGS;
   await ensureSchema();
   const res = await sql<SettingsRow>`
-    SELECT audit_city, audit_website, baseline_keyword, audit_grid, audit_interval_days, deep_refresh_days, audits_enabled, client_scan_cap,
+    SELECT audit_city, audit_website, baseline_keyword, audit_grid, audit_interval_days, deep_refresh_days, last_deep_at, audits_enabled, client_scan_cap,
            audit_place_id, audit_cid, audit_lat, audit_lng, baseline_audit_id
     FROM onboardings WHERE id = ${onboardingId} LIMIT 1;
   `;
@@ -405,6 +408,7 @@ export async function getAuditSettings(onboardingId: number): Promise<AuditSetti
     grid: r.audit_grid,
     intervalDays: r.audit_interval_days,
     deepRefreshDays: r.deep_refresh_days ?? 90,
+    lastDeepAt: r.last_deep_at ? new Date(r.last_deep_at).toISOString() : null,
     enabled: r.audits_enabled,
     clientScanCap: r.client_scan_cap,
     placeId: r.audit_place_id,

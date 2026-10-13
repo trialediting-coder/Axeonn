@@ -14,7 +14,8 @@ import { getUpgradeRequest } from '@/lib/upgrades';
 import { businessEmailForDashboard } from '@/lib/businessEmail';
 import type { ProofTabKey } from '@/lib/proofTabs';
 import { clientScansUsed, getAuditSettings, listAuditsForOnboarding } from '@/lib/audits';
-import { mapsMeasured, scanCapFor, section, splitCity } from '@/lib/auditShared';
+import { mapsMeasured, progressFrom, scanCapFor, section, splitCity } from '@/lib/auditShared';
+import { listPlan } from '@/lib/plans';
 import type { RankingData } from '@/components/proof/RankingCard';
 import type { ProofDashboard } from '@/components/proof/ProofDashboard';
 import type { ComponentProps } from 'react';
@@ -25,7 +26,7 @@ export type DashboardData = Omit<ComponentProps<typeof ProofDashboard>, 'email' 
 export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey = 'overview'): Promise<DashboardData> {
   const month = monthOf();
   const previous = previousMonth(month);
-  const [states, details, updates, reports, agreement, tracking, thisLeads, lastLeads, upgradeRequest, billing, businessEmail, auditSettings, audits, scansUsed] = await Promise.all([
+  const [states, details, updates, reports, agreement, tracking, thisLeads, lastLeads, upgradeRequest, billing, businessEmail, auditSettings, audits, scansUsed, plan] = await Promise.all([
     getItemStates(onboarding.id),
     getProjectDetails(onboarding.id),
     listProjectUpdates(onboarding.id),
@@ -40,6 +41,7 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
     getAuditSettings(onboarding.id),
     listAuditsForOnboarding(onboarding.id, 60),
     clientScansUsed(onboarding.id),
+    listPlan(onboarding.id),
   ]);
   // The Ranking card (components/proof/RankingCard.tsx): shown only when the plan includes scans and the admin set city + keyword.
   const cap = scanCapFor(onboarding.tier, auditSettings.clientScanCap);
@@ -48,6 +50,9 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
   const official = measured.filter((a) => a.trigger !== 'client');
   const latestGrid = official.map((a) => ({ at: a.createdAt, result: section(a.results.grid) })).find((g) => g.result !== null);
   const latest = measured[0] ?? null;
+  const deepOfficial = official.filter((a) => a.deep);
+  const baselineDeep = deepOfficial[deepOfficial.length - 1] ?? null;
+  const latestDeep = deepOfficial[0] ?? null;
   const latestMaps = latest ? section(latest.results.maps) : null;
   const latestRep = latest ? section(latest.results.reputation) : null;
   const ranking: RankingData | null =
@@ -63,6 +68,8 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
           grid: latestGrid && latestGrid.result ? { at: latestGrid.at, result: latestGrid.result } : null,
           cap,
           used: scansUsed,
+          progress: progressFrom(baselineDeep, latest, latestDeep),
+          plan: plan.filter((i) => i.status !== 'dropped').map((i) => ({ id: i.id, title: i.title, owner: i.owner, status: i.status, metric: i.metric, current: i.current, target: i.target })),
         }
       : null;
   // This month straight from the tracker, so the overview is never blank between reports

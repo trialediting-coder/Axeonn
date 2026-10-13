@@ -7,7 +7,7 @@
 //
 // Vercel Cron calls this with GET and `Authorization: Bearer $CRON_SECRET`.
 import { NextResponse } from 'next/server';
-import { getAuditSettings, lastScheduledAt, monthSpendUsd, monthlyCapUsd, runAudit, subjectForOnboarding } from '@/lib/audits';
+import { auditsWithPendingReviews, completePendingReviews, getAuditSettings, lastScheduledAt, monthSpendUsd, monthlyCapUsd, runAudit, subjectForOnboarding } from '@/lib/audits';
 import { auditDue } from '@/lib/auditShared';
 import { displayName } from '@/lib/autoReports';
 import { isDatabaseConfigured } from '@/lib/db';
@@ -30,6 +30,17 @@ async function run(req: Request) {
 
   const onboardings = await listOnboardings(500);
   const ran: string[] = [];
+  const deepRan: string[] = [];
+  // Deep audits whose reviews task was still running last time: collect them now (free).
+  const reviewsCollected: number[] = [];
+  for (const id of await auditsWithPendingReviews()) {
+    try {
+      const a = await completePendingReviews(id);
+      if (a && !a.errors.reviews) reviewsCollected.push(id);
+    } catch (err) {
+      console.error('[cron:audits] reviews fetch failed', id, err instanceof Error ? err.message : err);
+    }
+  }
   const skipped: { name: string; reason: string }[] = [];
   const failed: { name: string; error: string; token: string }[] = [];
   const capUsd = monthlyCapUsd();
@@ -44,8 +55,10 @@ async function run(req: Request) {
       if (!(await getProjectDetails(o.id)).kickoffAt) return skipped.push({ name, reason: 'no kickoff date' });
       if (!auditDue(await lastScheduledAt(o.id), settings.intervalDays)) return skipped.push({ name, reason: 'not due yet' });
       if ((await monthSpendUsd()) >= capUsd) return skipped.push({ name, reason: `monthly audit budget ($${capUsd}) used up` });
-      await runAudit(subjectForOnboarding(o, settings), { trigger: 'schedule', onboardingId: o.id, grid: settings.grid });
-      ran.push(name);
+      // Deep at kickoff and every deep_refresh_days; quick in between (spec 2026-10-13 §5).
+      const deep = !settings.lastDeepAt || Date.now() - Date.parse(settings.lastDeepAt) >= settings.deepRefreshDays * 86_400_000;
+      await runAudit(subjectForOnboarding(o, settings), { trigger: 'schedule', onboardingId: o.id, grid: settings.grid, deep });
+      (deep ? deepRan : ran).push(name);
     } catch (err) {
       failed.push({ name, error: err instanceof Error ? err.message : String(err), token: o.token });
     }
@@ -63,7 +76,7 @@ async function run(req: Request) {
       console.error('[cron:audits] failure email failed', err instanceof Error ? err.message : err);
     }
   }
-  return NextResponse.json({ checked: onboardings.length, ran, skipped, failed: failed.map(({ name, error }) => ({ name, error })), spentUsd: await monthSpendUsd(), capUsd });
+  return NextResponse.json({ checked: onboardings.length, ran, deepRan, reviewsCollected, skipped, failed: failed.map(({ name, error }) => ({ name, error })), spentUsd: await monthSpendUsd(), capUsd });
 }
 
 export async function GET(req: Request) {

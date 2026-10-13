@@ -531,3 +531,53 @@ export function validateAuditSettingsInput(raw: Record<string, unknown>): AuditS
   }
   return { city, website: normalizeWebsite(websiteRaw), grid: raw.grid !== false && raw.grid !== 'false', intervalDays: intervalRaw, deepRefreshDays: deepRaw, enabled: raw.enabled !== false && raw.enabled !== 'false', clientScanCap };
 }
+
+// ───────────────────────────── PROOF progress strip (phase 2) ─────────────────────────────
+
+export interface ProgressTile {
+  key: 'rank' | 'reviews' | 'showingFor' | 'siteHealth';
+  label: string;
+  baseline: number | null;
+  now: number | null;
+  /** True when it moved the right way, false when the wrong way, null when there is nothing to compare. */
+  better: boolean | null;
+}
+
+const siteHealthOf = (results: AuditResults): number | null => {
+  const web = section(results.website);
+  if (!web || isNoSite(web)) return web ? 0 : null;
+  return [web.https, web.clickToCall, web.form, web.pagespeedMobile !== null && web.pagespeedMobile >= 50, web.schema.some((t) => /business|service|organization/i.test(t)), Boolean(web.title && web.metaDescription)].filter(Boolean).length;
+};
+const rankOf = (results: AuditResults): number | null => {
+  const m = section(results.maps);
+  return m && m.found ? m.rank : null;
+};
+const showingForOf = (results: AuditResults): number | null => {
+  const m = section(results.market);
+  return m ? m.keywords.filter((k) => k.measured && k.mapsRank !== null && k.mapsRank <= 3).length : null;
+};
+
+/**
+ * Baseline → now for the four numbers a client can follow: Maps rank and reviews
+ * from the latest audit of any kind, keywords they show in the top 3 for and site
+ * health from the latest deep audit. The baseline is the kickoff deep audit.
+ */
+export function progressFrom(
+  baselineDeep: Pick<AuditRow, 'results'> | null,
+  latestAny: Pick<AuditRow, 'results'> | null,
+  latestDeep: Pick<AuditRow, 'results'> | null
+): ProgressTile[] {
+  const tile = (key: ProgressTile['key'], label: string, baseline: number | null, now: number | null, lowerIsBetter = false): ProgressTile => ({
+    key,
+    label,
+    baseline,
+    now,
+    better: baseline === null || now === null || baseline === now ? null : lowerIsBetter ? now < baseline : now > baseline,
+  });
+  return [
+    tile('rank', 'Google Maps rank', baselineDeep ? rankOf(baselineDeep.results) : null, latestAny ? rankOf(latestAny.results) : null, true),
+    tile('reviews', 'Google reviews', baselineDeep ? (section(baselineDeep.results.reputation)?.reviews ?? null) : null, latestAny ? (section(latestAny.results.reputation)?.reviews ?? null) : null),
+    tile('showingFor', 'Searches you show up for', baselineDeep ? showingForOf(baselineDeep.results) : null, latestDeep ? showingForOf(latestDeep.results) : null),
+    tile('siteHealth', 'Site basics in place (of 6)', baselineDeep ? siteHealthOf(baselineDeep.results) : null, latestAny ? siteHealthOf(latestAny.results) : null),
+  ];
+}
