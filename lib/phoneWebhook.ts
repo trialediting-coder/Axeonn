@@ -4,7 +4,7 @@
 // (webhookUrl), not req.url, because Vercel rewrites the host internally.
 import { formParams, verifyTwilioSignature, webhookUrl } from '@/lib/twilio';
 
-const MAX_BODY = 8192;
+const MAX_BODY = 65536;
 
 export type TwilioRead = { ok: true; params: Record<string, string> } | { ok: false; response: Response };
 

@@ -125,7 +125,10 @@ export function PhonePanel({ token, tier, initial, asked, businessName }: { toke
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
             <button className={btn('primary', 'sm')} disabled={busy} onClick={() => send('PUT', { forwardTo, recordCalls, consentNotice, textBackEnabled, textBackMessage })}>Save settings</button>
-            <button className={btn(line.smsStatus === 'ready' ? 'warning' : 'success', 'sm')} disabled={busy} onClick={() => send('POST', { action: 'sms', status: line.smsStatus === 'ready' ? 'pending' : 'ready' })}>
+            <button className={btn(line.smsStatus === 'ready' ? 'warning' : 'success', 'sm')} disabled={busy} onClick={() => {
+              if (line.smsStatus !== 'ready' && !window.confirm('Mark texting as approved? Automated texts to callers start immediately.')) return;
+              send('POST', { action: 'sms', status: line.smsStatus === 'ready' ? 'pending' : 'ready' });
+            }}>
               {line.smsStatus === 'ready' ? 'Mark texting pending' : 'Mark 10DLC approved'}
             </button>
           </div>

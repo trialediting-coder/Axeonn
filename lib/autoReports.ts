@@ -24,12 +24,12 @@ import {
   markReportEmailed,
   markReportPreviewed,
   monthLabel,
-  normalizeReportBody,
   previousReport,
   reportStats,
   saveMonthlyReport,
   setReportSurvey,
   type MonthlyReport,
+  type ReportBody,
   type ProjectDetails,
 } from '@/lib/projects';
 import { callsToFill } from '@/lib/projectsShared';
@@ -187,8 +187,11 @@ export async function sendAutoReport(onboarding: Onboarding, month: string, opts
   const traffic = await monthTraffic(onboarding.id, month, effectiveCloseRate(settings));
   // Calls from the tracked number fill the blank only: a number Axeon typed in wins.
   let calls: number | null = null;
+  let phoneStart: string | null = null;
   try {
-    const hasLine = Boolean(await getLine(onboarding.id));
+    const line = await getLine(onboarding.id);
+    const hasLine = Boolean(line);
+    phoneStart = line?.createdAt ?? null;
     const phone = hasLine ? await callsSummary(onboarding.id, month) : null;
     calls = callsToFill(existing?.calls, hasLine, phone ? phone.calls : null);
   } catch (err) {
@@ -204,13 +207,15 @@ export async function sendAutoReport(onboarding: Onboarding, month: string, opts
   }
   // The first month is skipped when tracking covered under two weeks of it: a six-day report reads as a verdict.
   if (!opts.force && number === 1 && (hasTraffic(traffic) || calls != null) && !reportHasContent(existing)) {
-    const days = trackedDays(month, first);
+    // A phone-only client has no site events: count from the earlier of the first site event and the line's start.
+    const tracked = first && phoneStart ? (Date.parse(phoneStart) < Date.parse(first) ? phoneStart : first) : (first ?? phoneStart);
+    const days = trackedDays(month, tracked);
     if (days < MIN_FIRST_MONTH_DAYS) return { status: 'skipped', reason: `tracking covered ${days} days of ${monthLabel(month)}; the first report is the first full month` };
   }
 
   // Attach the numbers even when the site sent nothing, so the report says so honestly.
   let report = await attachTrafficToReport(onboarding.id, month, traffic);
-  if (calls != null) report = await saveMonthlyReport(onboarding.id, { month, body: { ...normalizeReportBody(report), calls } });
+  if (calls != null) report = await saveMonthlyReport(onboarding.id, { month, body: { calls } as ReportBody });
   const answered = new Set((await listFeedback(onboarding.id)).filter((f) => f.kind === 'report' && f.month && (f.rating || f.comment || Object.keys(f.answers).length)).map((f) => f.month as string));
   const askFound = !readHowFound(await getItemStates(onboarding.id)).source;
   const plan = existing?.survey ?? { number, asked: reportQuestions(number, month, quietStreak(all, answered, month), { askFound }) };

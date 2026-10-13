@@ -51,7 +51,7 @@ export async function POST(req: Request) {
   let textedBack = false;
   if (from !== 'unknown') {
     try {
-      const onboarding = await getOnboardingById(line.onboardingId);
+      const onboarding = await getOnboardingById(line.onboardingId).catch(() => null);
       textedBack = await sendTextBack(line, onboarding?.businessName ?? null, from, p.CallSid);
     } catch (err) {
       console.error('[phone/status] sendTextBack', err instanceof Error ? err.message : err);

@@ -4,7 +4,6 @@
 // through. The lookup is scoped to the client's onboarding, so another client's
 // call sid returns 404.
 import { NextResponse } from 'next/server';
-import { jsonError } from '@/lib/billingApi';
 import { recordingUrlForCall } from '@/lib/phoneLines';
 import { getSignedInClient } from '@/lib/proofServer';
 import { fetchRecording } from '@/lib/twilio';
@@ -28,6 +27,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ callSid: string
     if (contentLength) headers['Content-Length'] = contentLength;
     return new Response(upstream.body, { status: upstream.status, headers });
   } catch (err) {
-    return jsonError(err);
+    console.error('proof recording', err);
+    return NextResponse.json({ error: 'Recording unavailable right now' }, { status: 502 });
   }
 }

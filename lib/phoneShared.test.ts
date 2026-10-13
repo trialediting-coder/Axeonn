@@ -55,6 +55,11 @@ test('textBackMessage uses the custom text when set, otherwise the default with 
   assert.ok(textBackMessage('A-1', null).length <= 160);
 });
 
+test('the default text-back fits one GSM segment and carries the opt-out wording', () => {
+  assert.ok(textBackMessage('A-1 Auto Detailing', null).length <= 160);
+  assert.ok(TEXT_BACK_DEFAULT.includes('Reply STOP'));
+});
+
 test('textBackMessage never escapes or adds markup to the business name', () => {
   assert.ok(textBackMessage('A & B <Co>', null).includes('A & B <Co>'));
 });

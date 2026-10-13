@@ -20,7 +20,7 @@ export interface PhoneLineSettings {
 /** Two SMS segments. Longer automated texts read as spam and cost double. */
 export const SMS_MAX_CHARS = 320;
 
-export const TEXT_BACK_DEFAULT = "Hi, it's {business}. Sorry we missed your call! Reply here with what you need and we'll get right back to you.";
+export const TEXT_BACK_DEFAULT = "Hi, it's {business}. Sorry we missed your call! Reply here with what you need and we'll get right back to you. Reply STOP to opt out.";
 
 const US_E164 = /^\+1[2-9]\d{2}[2-9]\d{6}$/;
 

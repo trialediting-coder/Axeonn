@@ -33,6 +33,6 @@ test('readTwilioRequest refuses a missing or wrong signature with 403 and an ove
   delete process.env.PHONE_WEBHOOK_ORIGIN;
   assert.equal(await statusOf(readTwilioRequest(post({ CallSid: 'CA1' }, null), PATH)), 403);
   assert.equal(await statusOf(readTwilioRequest(post({ CallSid: 'CA1' }, 'bad'), PATH)), 403);
-  const big = { Body: 'x'.repeat(9000) };
+  const big = { Body: 'x'.repeat(70000) };
   assert.equal(await statusOf(readTwilioRequest(post(big, twilioSignature(`https://axeonstudio.co${PATH}`, big, TOKEN)), PATH)), 413);
 });

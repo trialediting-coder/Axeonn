@@ -287,10 +287,15 @@ export async function sendClientSms(line: PhoneLine, to: string, body: string, k
  * A send that does not happen releases the claim. Returns true only when a text left.
  */
 export async function sendTextBack(line: PhoneLine, businessName: string | null, to: string, callSid: string): Promise<boolean> {
-  if (!line.textBackEnabled || line.smsStatus !== 'ready') return false;
+  const skip = (reason: string) => {
+    console.info('phone: text-back skipped', callSid, reason);
+    return false;
+  };
+  if (!line.textBackEnabled) return skip('disabled');
+  if (line.smsStatus !== 'ready') return skip('sms_pending');
   const caller = callerKey(to);
-  if (caller === 'unknown') return false;
-  if (await textedBackRecently(line.onboardingId, caller)) return false; // cheap fast path; the claim below is the real check
+  if (caller === 'unknown') return skip('unknown_caller');
+  if (await textedBackRecently(line.onboardingId, caller)) return skip('recent_24h'); // cheap fast path; the claim below is the real check
 
   // Atomic: this call is unclaimed AND no other call from the same caller was texted back in the window.
   const claim = await sql`
@@ -303,7 +308,7 @@ export async function sendTextBack(line: PhoneLine, businessName: string | null,
       )
     RETURNING id;
   `;
-  if (claim.rows.length === 0) return false;
+  if (claim.rows.length === 0) return skip('already_claimed');
 
   const release = () => sql`UPDATE phone_calls SET text_back_sent_at = NULL WHERE call_sid = ${callSid};`;
   let result: ClientSmsResult;
@@ -318,8 +323,12 @@ export async function sendTextBack(line: PhoneLine, businessName: string | null,
     throw err; // the send error, never the cleanup error
   }
   if (!result.sent) {
-    await release();
-    return false;
+    try {
+      await release();
+    } catch (releaseErr) {
+      console.error('phone: text-back claim not cleared', callSid, releaseErr);
+    }
+    return skip(result.reason);
   }
   return true;
 }
