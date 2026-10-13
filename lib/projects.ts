@@ -8,6 +8,7 @@
 import { sql, ensureSchema, isDatabaseConfigured } from '@/lib/db';
 import type { OnboardingTier } from '@/data/onboardingItems';
 import { UPDATE_STATUSES, UPDATE_TYPES, buttonLabel, type Line, type TrafficSummary } from '@/lib/projectsShared';
+import { reportFillPatch, type AuditRow } from '@/lib/auditShared';
 
 export { UPDATE_STATUSES, UPDATE_TYPES, linesToText, monthLabel, type Line, type TrafficSummary } from '@/lib/projectsShared';
 
@@ -55,6 +56,8 @@ export interface ReportBody {
   traffic?: TrafficSummary | null;
   /** True when the 1st-of-the-month job built and sent this report. */
   auto?: boolean;
+  /** Set when the monthly job filled rank / reviews / rating from a business audit (lib/audits.ts). */
+  audit?: { id: number; at: string } | null;
 }
 
 /** A report with nothing typed in yet: what the monthly job starts from when Axeon has not saved one. */
@@ -86,6 +89,7 @@ export function normalizeReportBody(raw: Partial<ReportBody> | null | undefined)
     note: raw.note ?? '',
     traffic: raw.traffic ?? null,
     auto: Boolean(raw.auto),
+    audit: raw.audit ?? null,
   };
 }
 
@@ -360,7 +364,7 @@ export async function getMonthlyReport(onboardingId: number, month: string): Pro
  */
 export async function saveMonthlyReport(onboardingId: number, input: { month: string; body: ReportBody }): Promise<MonthlyReport> {
   await ensureSchema();
-  const { traffic: _traffic, auto: _auto, ...typed } = input.body;
+  const { traffic: _traffic, auto: _auto, audit: _audit, ...typed } = input.body;
   await sql`
     INSERT INTO monthly_reports (onboarding_id, month, body)
     VALUES (${onboardingId}, ${input.month}, ${JSON.stringify(typed)}::jsonb)
@@ -388,6 +392,26 @@ export async function attachTrafficToReport(onboardingId: number, month: string,
   const found = await getMonthlyReport(onboardingId, month);
   if (!found) throw new Error('Report was not saved');
   return found;
+}
+
+/**
+ * The monthly job's other write: rank, keyword, reviews and rating from the
+ * month's latest schedule/admin audit, but only into fields Axeon left blank.
+ * Returns null when there was nothing to add and no report row exists yet.
+ */
+export async function attachAuditToReport(onboardingId: number, month: string, audit: Pick<AuditRow, 'id' | 'createdAt' | 'results'>): Promise<MonthlyReport | null> {
+  await ensureSchema();
+  const existing = await getMonthlyReport(onboardingId, month);
+  const patch = reportFillPatch(existing ? { rank: existing.rank, keyword: existing.keyword, reviews: existing.reviews, rating: existing.rating } : null, audit);
+  if (Object.keys(patch).length === 0) return existing;
+  const note = { ...patch, audit: { id: audit.id, at: audit.createdAt } };
+  const fresh: ReportBody = { ...emptyReportBody(), ...note };
+  await sql`
+    INSERT INTO monthly_reports (onboarding_id, month, body)
+    VALUES (${onboardingId}, ${month}, ${JSON.stringify(fresh)}::jsonb)
+    ON CONFLICT (onboarding_id, month) DO UPDATE SET body = monthly_reports.body || ${JSON.stringify(note)}::jsonb, updated_at = now();
+  `;
+  return getMonthlyReport(onboardingId, month);
 }
 
 export async function markReportEmailed(id: number): Promise<void> {

@@ -16,7 +16,9 @@
 import { sendMonthlyReportEmail, sendReportPreviewToOwner, type MonthlyReportEmailInput } from '@/lib/email';
 import { APP_ORIGIN } from '@/lib/hostRouting';
 import type { Onboarding } from '@/lib/onboarding';
+import { latestOfficialAuditInMonth } from '@/lib/audits';
 import {
+  attachAuditToReport,
   attachTrafficToReport,
   getMonthlyReport,
   getProjectDetails,
@@ -183,6 +185,12 @@ export async function sendAutoReport(onboarding: Onboarding, month: string, opts
       return { status: 'failed', error: err instanceof Error ? err.message : 'Email failed', report: existing };
     }
   }
+
+  // Measured numbers for the month beat blanks: fill rank / reviews / rating from the latest audit, never over what
+  // Axeon typed. The fill enriches a report that is going out; it never decides whether one goes out (the skip rules
+  // below look at typed content only, so a six-day first month still waits and a silent site is still "nothing to send").
+  const audit = await latestOfficialAuditInMonth(onboarding.id, month);
+  if (audit) await attachAuditToReport(onboarding.id, month, audit);
 
   const traffic = await monthTraffic(onboarding.id, month, effectiveCloseRate(settings));
   // Calls from the tracked number fill the blank only: a number Axeon typed in wins.

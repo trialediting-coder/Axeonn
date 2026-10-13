@@ -1,0 +1,765 @@
+{
+ "version": "0.1.20260917",
+ "status_code": 20000,
+ "status_message": "Ok.",
+ "time": "51.6850 sec.",
+ "cost": 0.002,
+ "tasks_count": 1,
+ "tasks_error": 0,
+ "tasks": [
+  {
+   "id": "10130718-2789-0139-0000-dc29f5e2ba00",
+   "status_code": 20000,
+   "status_message": "Ok.",
+   "time": "51.4950 sec.",
+   "cost": 0.002,
+   "result_count": 1,
+   "path": [
+    "v3",
+    "serp",
+    "google",
+    "maps",
+    "live",
+    "advanced"
+   ],
+   "data": {
+    "api": "serp",
+    "function": "live",
+    "se": "google",
+    "se_type": "maps",
+    "keyword": "junk removal",
+    "location_name": "Urbandale,Iowa,United States",
+    "language_code": "en",
+    "depth": 20,
+    "device": "desktop",
+    "os": "windows"
+   },
+   "result": [
+    {
+     "keyword": "junk removal",
+     "type": "maps",
+     "se_domain": "google.com",
+     "location_code": 1016077,
+     "language_code": "en",
+     "check_url": "https://google.com/maps/search/junk+removal/@41.6293984,-93.7607411,12z?hl=en&gl=US&uule=w+CAIQIFISCd_dt7rYJuyHEe7SEmVXUs3t",
+     "datetime": "2026-10-13 07:18:57 +00:00",
+     "spell": null,
+     "refinement_chips": null,
+     "item_types": [
+      "maps_search"
+     ],
+     "se_results_count": 0,
+     "items_count": 20,
+     "items": [
+      {
+       "type": "maps_search",
+       "rank_group": 1,
+       "rank_absolute": 1,
+       "title": "Junk King Des Moines",
+       "domain": "www.junk-king.com",
+       "url": "https://www.junk-king.com/locations/des-moines?cid=LSTL_JKG-US000187&utm_source=gmb&utm_campaign=local&utm_medium=organic",
+       "rating": {
+        "rating_type": "Max5",
+        "value": 4.9,
+        "votes_count": 527,
+        "rating_max": null
+       },
+       "rating_distribution": {
+        "1": 7,
+        "2": 2,
+        "3": 3,
+        "4": 24,
+        "5": 491
+       },
+       "place_id": "ChIJl8sftvqZ7ocRPLb5Pa6cgDM",
+       "cid": "3711138365131306556",
+       "latitude": 41.610777,
+       "longitude": -93.7435883,
+       "category": "Junk removal service",
+       "additional_categories": [
+        "Debris removal service",
+        "Dumpster rental service",
+        "Waste management service"
+       ],
+       "total_photos": 82,
+       "is_claimed": true,
+       "book_online_url": "https://www.junk-king.com/schedule-appointment/?utm_source=gmb&utm_medium=organic&utm_campaign=google_reserve&location=30468&rwg_token=AE37R_iRP9QlKN7qMc7ptOgyXruTl-pZkxO1V60pSJlBfQuRMg83rQp1CyKhw1Qfv6S1EPUyfU_GtbBMLAENXrpOYU3FzYewSQ%3D%3D",
+       "phone": "+1515-446-9125",
+       "work_hours": {
+        "timetable": {
+         "sunday": [
+          {
+           "open": {
+            "hour": 6,
+            "minute": 0
+           },
+           "close": {
+            "hour": 23,
+            "minute": 0
+           }
+          }
+         ],
+         "monday": [
+          {
+           "open": {
+            "hour": 6,
+            "minute": 0
+           },
+           "close": {
+            "hour": 23,
+            "minute": 0
+           }
+          }
+         ],
+         "tuesday": [
+          {
+           "open": {
+            "hour": 6,
+            "minute": 0
+           },
+           "close": {
+            "hour": 23,
+            "minute": 0
+           }
+          }
+         ],
+         "wednesday": [
+          {
+           "open": {
+            "hour": 6,
+            "minute": 0
+           },
+           "close": {
+            "hour": 23,
+            "minute": 0
+           }
+          }
+         ],
+         "thursday": [
+          {
+           "open": {
+            "hour": 6,
+            "minute": 0
+           },
+           "close": {
+            "hour": 23,
+            "minute": 0
+           }
+          }
+         ],
+         "friday": [
+          {
+           "open": {
+            "hour": 6,
+            "minute": 0
+           },
+           "close": {
+            "hour": 23,
+            "minute": 0
+           }
+          }
+         ],
+         "saturday": [
+          {
+           "open": {
+            "hour": 6,
+            "minute": 0
+           },
+           "close": {
+            "hour": 23,
+            "minute": 0
+           }
+          }
+         ]
+        },
+        "current_status": "close"
+       }
+      },
+      {
+       "type": "maps_search",
+       "rank_group": 2,
+       "rank_absolute": 2,
+       "title": "College Hunks Hauling Junk and Moving Des Moines",
+       "domain": "www.collegehunkshaulingjunk.com",
+       "url": "https://www.collegehunkshaulingjunk.com/des-moines/?utm_source=GMB&utm_medium=organic&utm_campaign=ia-des-moines-150",
+       "rating": {
+        "rating_type": "Max5",
+        "value": 4.8,
+        "votes_count": 1842,
+        "rating_max": null
+       },
+       "rating_distribution": {
+        "1": 63,
+        "2": 7,
+        "3": 4,
+        "4": 20,
+        "5": 1748
+       },
+       "place_id": "ChIJyS6EDbYg7IcRIlMcVlrIl8A",
+       "cid": "13877781067082781474",
+       "latitude": 41.6140429,
+       "longitude": -93.76278479999999,
+       "category": "Mover",
+       "additional_categories": [
+        "Debris removal service",
+        "Junk removal service",
+        "Moving and storage service"
+       ],
+       "total_photos": 110,
+       "is_claimed": true,
+       "book_online_url": null,
+       "phone": "+1515-619-5486",
+       "work_hours": {
+        "timetable": {
+         "sunday": [
+          {
+           "open": {
+            "hour": 0,
+            "minute": 0
+           },
+           "close": {
+            "hour": 24,
+            "minute": 0
+           }
+          }
+         ],
+         "monday": [
+          {
+           "open": {
+            "hour": 0,
+            "minute": 0
+           },
+           "close": {
+            "hour": 24,
+            "minute": 0
+           }
+          }
+         ],
+         "tuesday": [
+          {
+           "open": {
+            "hour": 0,
+            "minute": 0
+           },
+           "close": {
+            "hour": 24,
+            "minute": 0
+           }
+          }
+         ],
+         "wednesday": [
+          {
+           "open": {
+            "hour": 0,
+            "minute": 0
+           },
+           "close": {
+            "hour": 24,
+            "minute": 0
+           }
+          }
+         ],
+         "thursday": [
+          {
+           "open": {
+            "hour": 0,
+            "minute": 0
+           },
+           "close": {
+            "hour": 24,
+            "minute": 0
+           }
+          }
+         ],
+         "friday": [
+          {
+           "open": {
+            "hour": 0,
+            "minute": 0
+           },
+           "close": {
+            "hour": 24,
+            "minute": 0
+           }
+          }
+         ],
+         "saturday": [
+          {
+           "open": {
+            "hour": 0,
+            "minute": 0
+           },
+           "close": {
+            "hour": 24,
+            "minute": 0
+           }
+          }
+         ]
+        },
+        "current_status": "open"
+       }
+      },
+      {
+       "type": "maps_search",
+       "rank_group": 3,
+       "rank_absolute": 3,
+       "title": "Premier Junk Removers",
+       "domain": "www.premierjunkremovers.com",
+       "url": "https://www.premierjunkremovers.com/",
+       "rating": {
+        "rating_type": "Max5",
+        "value": 5,
+        "votes_count": 294,
+        "rating_max": null
+       },
+       "rating_distribution": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 294
+       },
+       "place_id": "ChIJj36NBJRJtYYRjLnnP2ZQFwI",
+       "cid": "150677512629238156",
+       "latitude": 41.5914668,
+       "longitude": -93.7103815,
+       "category": "Junk removal service",
+       "additional_categories": null,
+       "total_photos": 848,
+       "is_claimed": true,
+       "book_online_url": null,
+       "phone": "+1515-778-2889",
+       "work_hours": {
+        "timetable": {
+         "sunday": [
+          {
+           "open": {
+            "hour": 0,
+            "minute": 0
+           },
+           "close": {
+            "hour": 24,
+            "minute": 0
+           }
+          }
+         ],
+         "monday": [
+          {
+           "open": {
+            "hour": 0,
+            "minute": 0
+           },
+           "close": {
+            "hour": 24,
+            "minute": 0
+           }
+          }
+         ],
+         "tuesday": [
+          {
+           "open": {
+            "hour": 0,
+            "minute": 0
+           },
+           "close": {
+            "hour": 24,
+            "minute": 0
+           }
+          }
+         ],
+         "wednesday": [
+          {
+           "open": {
+            "hour": 0,
+            "minute": 0
+           },
+           "close": {
+            "hour": 24,
+            "minute": 0
+           }
+          }
+         ],
+         "thursday": [
+          {
+           "open": {
+            "hour": 0,
+            "minute": 0
+           },
+           "close": {
+            "hour": 24,
+            "minute": 0
+           }
+          }
+         ],
+         "friday": [
+          {
+           "open": {
+            "hour": 0,
+            "minute": 0
+           },
+           "close": {
+            "hour": 24,
+            "minute": 0
+           }
+          }
+         ],
+         "saturday": [
+          {
+           "open": {
+            "hour": 0,
+            "minute": 0
+           },
+           "close": {
+            "hour": 24,
+            "minute": 0
+           }
+          }
+         ]
+        },
+        "current_status": "open"
+       }
+      },
+      {
+       "type": "maps_search",
+       "rank_group": 4,
+       "rank_absolute": 4,
+       "title": "Richie Bros Junk Removal",
+       "domain": "www.richiebrosjunkremoval.com",
+       "url": "https://www.richiebrosjunkremoval.com/?utm_source=gmb&utm_medium=organic&utm_campaign=gmb",
+       "rating": {
+        "rating_type": "Max5",
+        "value": 5,
+        "votes_count": 318,
+        "rating_max": null
+       },
+       "rating_distribution": {
+        "1": 1,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 317
+       },
+       "place_id": "ChIJwZ0Wxred7ocR4gSKukCMuq0",
+       "cid": "12518472323865117922",
+       "latitude": 41.643147899999995,
+       "longitude": -93.7221891,
+       "category": "Junk removal service",
+       "additional_categories": [
+        "Debris removal service",
+        "Demolition contractor",
+        "Trailer rental service",
+        "Tree service"
+       ],
+       "total_photos": 533,
+       "is_claimed": true,
+       "book_online_url": "https://clienthub.getjobber.com/hubs/0436a146-baaf-4c4a-b4cb-b8215af0d1f9/public/requests/280796/new?rwg_token=AE37R_jw8NLeL5jSReAqHXw1HJvzMKRbRfuorObI5UwHuIMsSSwLzFS6Jcm_7kY8IdrdPOMbklFrQfBR0wm0IyBRBexhute2BA%3D%3D",
+       "phone": "+1515-822-6322",
+       "work_hours": {
+        "timetable": {
+         "sunday": null,
+         "monday": [
+          {
+           "open": {
+            "hour": 7,
+            "minute": 0
+           },
+           "close": {
+            "hour": 18,
+            "minute": 0
+           }
+          }
+         ],
+         "tuesday": [
+          {
+           "open": {
+            "hour": 7,
+            "minute": 0
+           },
+           "close": {
+            "hour": 18,
+            "minute": 0
+           }
+          }
+         ],
+         "wednesday": [
+          {
+           "open": {
+            "hour": 7,
+            "minute": 0
+           },
+           "close": {
+            "hour": 18,
+            "minute": 0
+           }
+          }
+         ],
+         "thursday": [
+          {
+           "open": {
+            "hour": 7,
+            "minute": 0
+           },
+           "close": {
+            "hour": 18,
+            "minute": 0
+           }
+          }
+         ],
+         "friday": [
+          {
+           "open": {
+            "hour": 7,
+            "minute": 0
+           },
+           "close": {
+            "hour": 18,
+            "minute": 0
+           }
+          }
+         ],
+         "saturday": [
+          {
+           "open": {
+            "hour": 7,
+            "minute": 0
+           },
+           "close": {
+            "hour": 18,
+            "minute": 0
+           }
+          }
+         ]
+        },
+        "current_status": "close"
+       }
+      },
+      {
+       "type": "maps_search",
+       "rank_group": 5,
+       "rank_absolute": 5,
+       "title": "Jermaine\u2019s Hauling: Same-Day Fast Junk Removal",
+       "domain": "jermaineshaulinginc.com",
+       "url": "https://jermaineshaulinginc.com/",
+       "rating": {
+        "rating_type": "Max5",
+        "value": 4.9,
+        "votes_count": 223,
+        "rating_max": null
+       },
+       "rating_distribution": {
+        "1": 4,
+        "2": 1,
+        "3": 0,
+        "4": 2,
+        "5": 216
+       },
+       "place_id": "ChIJ15K4GdCZ7ocRxD98UIbP9gY",
+       "cid": "501816584281276356",
+       "latitude": 41.606178,
+       "longitude": -93.60954699999999,
+       "category": "Junk removal service",
+       "additional_categories": [
+        "Debris removal service",
+        "Demolition contractor",
+        "Garbage collection service"
+       ],
+       "total_photos": 10621,
+       "is_claimed": true,
+       "book_online_url": null,
+       "phone": "+1515-809-0159",
+       "work_hours": {
+        "timetable": {
+         "sunday": [
+          {
+           "open": {
+            "hour": 0,
+            "minute": 0
+           },
+           "close": {
+            "hour": 24,
+            "minute": 0
+           }
+          }
+         ],
+         "monday": [
+          {
+           "open": {
+            "hour": 0,
+            "minute": 0
+           },
+           "close": {
+            "hour": 24,
+            "minute": 0
+           }
+          }
+         ],
+         "tuesday": [
+          {
+           "open": {
+            "hour": 0,
+            "minute": 0
+           },
+           "close": {
+            "hour": 24,
+            "minute": 0
+           }
+          }
+         ],
+         "wednesday": [
+          {
+           "open": {
+            "hour": 0,
+            "minute": 0
+           },
+           "close": {
+            "hour": 24,
+            "minute": 0
+           }
+          }
+         ],
+         "thursday": [
+          {
+           "open": {
+            "hour": 0,
+            "minute": 0
+           },
+           "close": {
+            "hour": 24,
+            "minute": 0
+           }
+          }
+         ],
+         "friday": [
+          {
+           "open": {
+            "hour": 0,
+            "minute": 0
+           },
+           "close": {
+            "hour": 24,
+            "minute": 0
+           }
+          }
+         ],
+         "saturday": [
+          {
+           "open": {
+            "hour": 0,
+            "minute": 0
+           },
+           "close": {
+            "hour": 24,
+            "minute": 0
+           }
+          }
+         ]
+        },
+        "current_status": "open"
+       }
+      },
+      {
+       "type": "maps_search",
+       "rank_group": 6,
+       "rank_absolute": 6,
+       "title": "Sparta Waste Services",
+       "domain": null,
+       "url": null,
+       "rating": {
+        "rating_type": "Max5",
+        "value": 2.1,
+        "votes_count": 19,
+        "rating_max": null
+       },
+       "rating_distribution": {
+        "1": 14,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 5
+       },
+       "place_id": "ChIJM9CB-TUn7IcRO_Wu7ot6fuo",
+       "cid": "16897077593364165947",
+       "latitude": 41.624463,
+       "longitude": -93.7642971,
+       "category": "Garbage collection service",
+       "additional_categories": [
+        "Waste management service"
+       ],
+       "total_photos": 1,
+       "is_claimed": true,
+       "book_online_url": null,
+       "phone": "+1515-348-6095",
+       "work_hours": {
+        "timetable": {
+         "sunday": null,
+         "monday": [
+          {
+           "open": {
+            "hour": 9,
+            "minute": 30
+           },
+           "close": {
+            "hour": 17,
+            "minute": 0
+           }
+          }
+         ],
+         "tuesday": [
+          {
+           "open": {
+            "hour": 9,
+            "minute": 30
+           },
+           "close": {
+            "hour": 17,
+            "minute": 0
+           }
+          }
+         ],
+         "wednesday": [
+          {
+           "open": {
+            "hour": 9,
+            "minute": 30
+           },
+           "close": {
+            "hour": 17,
+            "minute": 0
+           }
+          }
+         ],
+         "thursday": [
+          {
+           "open": {
+            "hour": 9,
+            "minute": 30
+           },
+           "close": {
+            "hour": 17,
+            "minute": 0
+           }
+          }
+         ],
+         "friday": [
+          {
+           "open": {
+            "hour": 9,
+            "minute": 30
+           },
+           "close": {
+            "hour": 17,
+            "minute": 0
+           }
+          }
+         ],
+         "saturday": null
+        },
+        "current_status": "close"
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

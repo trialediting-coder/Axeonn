@@ -1,0 +1,6 @@
+{
+  "status_code": 20000, "status_message": "Ok.", "cost": 0.003,
+  "tasks": [{ "status_code": 20000, "status_message": "Ok.", "cost": 0.003, "result": [{ "keyword": "Joes Auto Spa Ankeny", "items": [
+    { "type": "google_business_info", "title": "Joes Auto Spa", "domain": "subjectspa.com", "url": "https://subjectspa.com/", "rating": { "value": 4.6, "votes_count": 18 }, "place_id": "ChIJsubj", "cid": "777", "latitude": 41.735, "longitude": -93.605, "category": "Car detailing service", "additional_categories": ["Car wash"] }
+  ] }] }]
+}

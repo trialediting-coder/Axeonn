@@ -15,6 +15,10 @@ import { businessEmailForDashboard } from '@/lib/businessEmail';
 import { callsSummary, getLine, recentCalls } from '@/lib/phoneLines';
 import { toDashboardCall, type CallsSummary, type DashboardCall } from '@/lib/phoneShared';
 import type { ProofTabKey } from '@/lib/proofTabs';
+import { clientScansUsed, getAuditSettings, listAuditsForOnboarding } from '@/lib/audits';
+import { mapsMeasured, progressFrom, scanCapFor, section, splitCity } from '@/lib/auditShared';
+import { listPlan } from '@/lib/plans';
+import type { RankingData } from '@/components/proof/RankingCard';
 import type { ProofDashboard } from '@/components/proof/ProofDashboard';
 import type { ComponentProps } from 'react';
 
@@ -33,7 +37,7 @@ export type DashboardData = Omit<ComponentProps<typeof ProofDashboard>, 'email' 
 export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey = 'overview'): Promise<DashboardData> {
   const month = monthOf();
   const previous = previousMonth(month);
-  const [states, details, updates, reports, agreement, tracking, thisLeads, lastLeads, upgradeRequest, billing, businessEmail, line] = await Promise.all([
+  const [states, details, updates, reports, agreement, tracking, thisLeads, lastLeads, upgradeRequest, billing, businessEmail, auditSettings, audits, scansUsed, plan, line] = await Promise.all([
     getItemStates(onboarding.id),
     getProjectDetails(onboarding.id),
     listProjectUpdates(onboarding.id),
@@ -45,8 +49,41 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
     getUpgradeRequest(onboarding.id),
     tab === 'billing' ? clientBilling(onboarding) : Promise.resolve(null),
     tab === 'email' ? businessEmailForDashboard(onboarding.id) : Promise.resolve(null),
+    getAuditSettings(onboarding.id),
+    listAuditsForOnboarding(onboarding.id, 60),
+    clientScansUsed(onboarding.id),
+    listPlan(onboarding.id),
     getLine(onboarding.id),
   ]);
+  // The Ranking card (components/proof/RankingCard.tsx): shown only when the plan includes scans and the admin set city + keyword.
+  const cap = scanCapFor(onboarding.tier, auditSettings.clientScanCap);
+  // Only audits whose Maps section came back are measurements; an errored one must not read as "not found".
+  const measured = audits.filter((a) => a.status !== 'failed' && mapsMeasured(a));
+  const official = measured.filter((a) => a.trigger !== 'client');
+  const latestGrid = official.map((a) => ({ at: a.createdAt, result: section(a.results.grid) })).find((g) => g.result !== null);
+  const latest = measured[0] ?? null;
+  const deepOfficial = official.filter((a) => a.deep);
+  const baselineDeep = deepOfficial[deepOfficial.length - 1] ?? null;
+  const latestDeep = deepOfficial[0] ?? null;
+  const latestMaps = latest ? section(latest.results.maps) : null;
+  const latestRep = latest ? section(latest.results.reputation) : null;
+  const ranking: RankingData | null =
+    cap > 0 && auditSettings.city && auditSettings.keyword
+      ? {
+          keyword: auditSettings.keyword,
+          city: splitCity(auditSettings.city).city,
+          baselineRank: details.baselineRank,
+          points: [...measured]
+            .reverse()
+            .map((a) => ({ at: a.createdAt, rank: section(a.results.maps)?.rank ?? null, trigger: a.trigger })),
+          latest: latest ? { at: latest.createdAt, rank: latestMaps?.rank ?? null, found: latestMaps?.found ?? false, rating: latestRep?.rating ?? null, reviews: latestRep?.reviews ?? null } : null,
+          grid: latestGrid && latestGrid.result ? { at: latestGrid.at, result: latestGrid.result } : null,
+          cap,
+          used: scansUsed,
+          progress: progressFrom(baselineDeep, latest, latestDeep),
+          plan: plan.filter((i) => i.status !== 'dropped').map((i) => ({ id: i.id, title: i.title, owner: i.owner, status: i.status, metric: i.metric, current: i.current, target: i.target })),
+        }
+      : null;
   // This month straight from the tracker, so the overview is never blank between reports
   // (and never blank before the first report, which is the first thing a new client sees).
   const [thisMonth, lastMonth] = await Promise.all([
@@ -84,6 +121,7 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
     businessEmail,
     ownerEmail: CLIENT_REPLY_TO,
     phone,
+    ranking,
     live: hasTraffic(thisMonth) ? { month, traffic: thisMonth, prev: hasTraffic(lastMonth) ? lastMonth : null } : null,
   };
 }

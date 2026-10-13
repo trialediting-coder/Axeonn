@@ -417,6 +417,66 @@ export function ensureSchema(): Promise<void> {
           PRIMARY KEY (onboarding_id, phone_number)
         );
       `;
+      // Business audits (lib/audits.ts): one dated snapshot of a business's Google
+      // and website standing, for clients (schedule / admin / client scans) and prospects.
+      await sql`
+        CREATE TABLE IF NOT EXISTS audits (
+          id SERIAL PRIMARY KEY,
+          onboarding_id INTEGER REFERENCES onboardings(id) ON DELETE SET NULL,
+          call_lead_id INTEGER REFERENCES call_leads(id) ON DELETE SET NULL,
+          subject JSONB NOT NULL,
+          trigger TEXT NOT NULL CHECK (trigger IN ('schedule', 'admin', 'client')),
+          status TEXT NOT NULL CHECK (status IN ('complete', 'partial', 'failed')),
+          results JSONB NOT NULL DEFAULT '{}'::jsonb,
+          leaks JSONB NOT NULL DEFAULT '[]'::jsonb,
+          errors JSONB NOT NULL DEFAULT '{}'::jsonb,
+          raw JSONB,
+          cost_usd NUMERIC(8,4) NOT NULL DEFAULT 0,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        );
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS audits_onboarding_idx ON audits (onboarding_id, created_at DESC);`;
+      await sql`CREATE INDEX IF NOT EXISTS audits_lead_idx ON audits (call_lead_id, created_at DESC);`;
+      await sql`CREATE INDEX IF NOT EXISTS audits_month_idx ON audits (created_at);`;
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS audit_city TEXT;`;
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS audit_website TEXT;`;
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS audit_place_id TEXT;`;
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS audit_cid TEXT;`;
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS audit_lat DOUBLE PRECISION;`;
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS audit_lng DOUBLE PRECISION;`;
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS audit_grid BOOLEAN NOT NULL DEFAULT true;`;
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS audit_interval_days INTEGER NOT NULL DEFAULT 14;`;
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS audits_enabled BOOLEAN NOT NULL DEFAULT true;`;
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS client_scan_cap INTEGER;`;
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS baseline_audit_id INTEGER;`;
+      // Phase 2: deep audits and the 90-day plan (lib/plans.ts).
+      await sql`ALTER TABLE audits ADD COLUMN IF NOT EXISTS deep BOOLEAN NOT NULL DEFAULT false;`;
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS deep_refresh_days INTEGER NOT NULL DEFAULT 90;`;
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS last_deep_at TIMESTAMPTZ;`;
+      await sql`
+        CREATE TABLE IF NOT EXISTS plan_items (
+          id SERIAL PRIMARY KEY,
+          onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+          key TEXT NOT NULL,
+          title TEXT NOT NULL,
+          why TEXT NOT NULL DEFAULT '',
+          owner TEXT NOT NULL CHECK (owner IN ('axeon', 'client')),
+          metric TEXT,
+          target JSONB,
+          current JSONB,
+          impact INTEGER NOT NULL DEFAULT 2,
+          status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'on_track', 'slipping', 'done', 'dropped')),
+          edited BOOLEAN NOT NULL DEFAULT false,
+          due_at DATE,
+          source_audit_id INTEGER,
+          done_at TIMESTAMPTZ,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          UNIQUE (onboarding_id, key)
+        );
+      `;
+      await sql`ALTER TABLE plan_items ADD COLUMN IF NOT EXISTS start JSONB;`;
+      await sql`CREATE INDEX IF NOT EXISTS plan_items_onboarding_idx ON plan_items (onboarding_id, status);`;
     })().catch((err) => {
       schemaReady = null; // let the next request retry
       throw err;

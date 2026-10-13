@@ -15,6 +15,8 @@ import { BusinessEmailPanel } from '@/components/insights/BusinessEmailPanel';
 import { getBusinessEmail } from '@/lib/businessEmail';
 import { PhonePanel } from '@/components/insights/PhonePanel';
 import { getLine, monthCost, recentCalls } from '@/lib/phoneLines';
+import { getAuditSettings, listAuditsForOnboarding } from '@/lib/audits';
+import { listPlan } from '@/lib/plans';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +27,7 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
   const { token } = await params;
   const onboarding = await getOnboardingByToken(token).catch(() => null);
   if (!onboarding) notFound();
-  const [states, details, updates, reports, tracking, feedback, upgrade, businessEmail, phoneLine] = await Promise.all([
+  const [states, details, updates, reports, tracking, feedback, upgrade, businessEmail, audits, auditSettings, plan, phoneLine] = await Promise.all([
     getItemStates(onboarding.id),
     getProjectDetails(onboarding.id),
     listProjectUpdates(onboarding.id),
@@ -34,6 +36,9 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
     listFeedback(onboarding.id),
     getUpgradeRequest(onboarding.id),
     getBusinessEmail(onboarding.id),
+    listAuditsForOnboarding(onboarding.id),
+    getAuditSettings(onboarding.id),
+    listPlan(onboarding.id),
     getLine(onboarding.id),
   ]);
   const phone = phoneLine
@@ -77,7 +82,7 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
           businessName={onboarding.businessName}
           asked={{ mainNumber: askedPhone('mainNumber'), trackingPreference: askedPhone('trackingPreference'), answerers: askedPhone('answerers') }}
         />
-        <ProjectPanel token={onboarding.token} initial={{ details, updates, reports, tracking, feedback }} guarantee={tierHasGuarantee(onboarding.tier)} />
+        <ProjectPanel token={onboarding.token} initial={{ details, updates, reports, tracking, feedback, audits, auditSettings, plan }} guarantee={tierHasGuarantee(onboarding.tier)} tier={onboarding.tier} />
       </div>
     </main>
   );

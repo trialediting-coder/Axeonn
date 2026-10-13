@@ -1214,3 +1214,19 @@ export async function sendMonthlyReportsDigest(input: {
     `,
   });
 }
+
+/** The daily audit job hit errors (app/api/cron/audits): one email listing who failed and why. */
+export async function sendAuditFailuresNotification(input: { failed: Array<{ name: string; error: string; token: string }> }): Promise<boolean> {
+  const resend = getClient('audit_failed');
+  if (!resend || !ADMIN_NOTIFICATION_EMAIL || input.failed.length === 0) return false;
+  const rows = input.failed
+    .map((f) => `<li><b>${escapeHtml(f.name)}</b>: ${escapeHtml(f.error)} — <a href="https://app.axeonstudio.co/admin/onboarding/${f.token}">open</a></li>`)
+    .join('');
+  await resend.emails.send({
+    from: FROM_ADDRESS,
+    to: ADMIN_NOTIFICATION_EMAIL,
+    subject: `${input.failed.length} scheduled audit${input.failed.length === 1 ? '' : 's'} failed today`,
+    html: `<p>The daily audit run could not measure:</p><ul>${rows}</ul><p>The job retries tomorrow. A budget message means AUDIT_MONTHLY_CAP_USD is used up; a login message means the DataForSEO keys in Vercel are wrong or the account is out of funds.</p>`,
+  });
+  return true;
+}

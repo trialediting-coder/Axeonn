@@ -36,6 +36,7 @@ import { FeatureTab } from '@/components/proof/FeatureTab';
 import { EmailTab } from '@/components/proof/EmailTab';
 import type { BusinessEmailSetup } from '@/lib/businessEmailShared';
 import { UpgradePanel } from '@/components/proof/UpgradePanel';
+import { RankingCard, type RankingData } from '@/components/proof/RankingCard';
 import { PROOF_TABS, TIER_SHORT, proofTab, tabLocked, type ProofTabKey } from '@/lib/proofTabs';
 import type { UpgradeRequest } from '@/lib/upgrades';
 import type { BillingSummary } from '@/lib/clientBilling';
@@ -295,6 +296,8 @@ export function ProofDashboard({
   businessEmail = null,
   phone = null,
   ownerEmail = 'hello@axeonstudio.co',
+  ranking = null,
+  scanApi = null,
 }: {
   email: string;
   onboarding: Onboarding;
@@ -333,6 +336,10 @@ export function ProofDashboard({
   phone?: DashboardPhone | null;
   /** Where billing questions go before the first invoice exists. */
   ownerEmail?: string;
+  /** The client's Google standing and scan allowance (lib/proofDashboardData.ts); null when their plan has no scans. */
+  ranking?: RankingData | null;
+  /** Where "Scan now" posts; null in the admin preview, which hides the button. */
+  scanApi?: string | null;
 }) {
   const latest = reports[0] ?? null;
   const prev = reports[1] ?? null;
@@ -584,6 +591,8 @@ export function ProofDashboard({
             );
           })}
         </div>
+
+        {ranking ? <RankingCard data={ranking} api={scanApi} /> : null}
 
         <div className="mt-4 sm:mt-9 grid grid-cols-1 gap-4 lg:gap-5 lg:grid-cols-3">
           <Card className="lg:col-span-2" delay={60}>

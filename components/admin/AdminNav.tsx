@@ -15,6 +15,7 @@ import { ActiveTabIntoView } from '@/components/proof/ActiveTabIntoView';
 
 const TABS = [
   { href: '/admin/calls', label: 'Calls', match: (p: string) => p.startsWith('/admin/calls') },
+  { href: '/admin/audits', label: 'Audits', match: (p: string) => p.startsWith('/admin/audits') },
   { href: '/admin/agreements', label: 'Agreements', match: (p: string) => p.startsWith('/admin/agreements') },
   { href: '/admin/onboarding', label: 'Onboarding', match: (p: string) => p.startsWith('/admin/onboarding') },
   { href: '/admin/data', label: 'Data', match: (p: string) => p.startsWith('/admin/data') },

@@ -1,0 +1,101 @@
+{
+ "version": "0.1.20260917",
+ "status_code": 20000,
+ "status_message": "Ok.",
+ "time": "0.7751 sec.",
+ "cost": 0.0138,
+ "tasks_count": 1,
+ "tasks_error": 0,
+ "tasks": [
+  {
+   "id": "10130718-2789-0400-0000-4e5f6fd062c3",
+   "status_code": 20000,
+   "status_message": "Ok.",
+   "time": "0.7680 sec.",
+   "cost": 0.0138,
+   "result_count": 1,
+   "path": [
+    "v3",
+    "dataforseo_labs",
+    "google",
+    "keyword_ideas",
+    "live"
+   ],
+   "data": {
+    "api": "dataforseo_labs",
+    "function": "keyword_ideas",
+    "se_type": "google",
+    "keywords": [
+     "junk removal"
+    ],
+    "location_code": 2840,
+    "language_name": "English",
+    "limit": 15
+   },
+   "result": [
+    {
+     "se_type": "google",
+     "seed_keywords": [
+      "junk removal"
+     ],
+     "location_code": 2840,
+     "language_code": "en",
+     "total_count": 131316,
+     "items_count": 15,
+     "offset": 0,
+     "offset_token": "eyJDdXJyZW50T2Zmc2V0IjoxNSwiUmVxdWVzdERhdGEiOnsia2V5d29yZHMiOlsianVuayByZW1vdmFsIl0sImxvY2F0aW9uIjoyODQwLCJsYW5ndWFnZSI6ImVuIiwiY2xvc2VseV92YXJpYW50cyI6ZmFsc2UsIm5ld2VzdCI6ZmFsc2UsImV4dGVuZGVkIjpmYWxzZSwibG9hZF9zZXJwX2luZm8iOmZhbHNlLCJhdXRvY29ycmVjdCI6dHJ1ZSwic2V0dGluZ3MiOnsidXNlX2NhdGVnb3JpZXMiOnRydWUsImludGVyc2VjdF93aXRoX2NhdGVnb3JpZXMiOmZhbHNlLCJ1c2VfY2x1c3RlcnMiOnRydWUsImNsdXN0ZXJfc2ltcGxpZmllZF9tYXRjaCI6ZmFsc2UsImNsdXN0ZXJzX2NvdW50IjozLCJza2lwX25lYXJlc3RfY2x1c3RlcnNfY291bnQiOjAsInVzZV9kaXN0YW5jZV9zY29yZSI6ZmFsc2UsInVzZV9zdl9zY29yZSI6dHJ1ZX0sIklzT2xkIjpmYWxzZSwic2VhcmNoX2FmdGVyX3Rva2VuIjpudWxsLCJpZ25vcmVfc3lub255bXMiOmZhbHNlLCJzZWFyY2hfZW5naW5lIjoiZ29vZ2xlIiwidXNlX25ld19jYXRlZ29yaWVzIjp0cnVlLCJvcmRlcl9ieSI6eyJvcmRlcl9maWVsZCI6Il9zY29yZSIsIm9yZGVyX3R5cGUiOiJEZXNjIiwibmV4dCI6bnVsbH0sImxpbWl0IjoxNSwib2Zmc2V0IjowLCJhaWQiOjI3ODkxOCwidXNlX2NhY2hlIjp0cnVlLCJ0YXNrX2lkIjoiMTAxMzA3MTgtMjc4OS0wNDAwLTAwMDAtNGU1ZjZmZDA2MmMzIiwiZmxhZ3MiOm51bGx9LCJSYXdRdWVyeSI6bnVsbCwiSWQiOiI0ZDk0NmZlYS01MGY4LTRkZmEtODFiMy1hMmFiZDkzOGY0M2QiLCJTZWFyY2hBZnRlckRhdGEiOlsxODYuNjUzNTMsIjYzOTZiMDgzLWQ1M2YtYTU0NS0zZWVlLTljZTQ0MTU1MmMyMSJdLCJFeGVjdXRvciI6LTY2NTkxMDQ5ODI4MjU2ODAzOTd9",
+     "items": [
+      {
+       "keyword": "junk removal services",
+       "keyword_info": {
+        "search_volume": 49500,
+        "cpc": 14.65,
+        "competition_level": "LOW"
+       }
+      },
+      {
+       "keyword": "junk removal company",
+       "keyword_info": {
+        "search_volume": 33100,
+        "cpc": 14.06,
+        "competition_level": "LOW"
+       }
+      },
+      {
+       "keyword": "roll off dumpster",
+       "keyword_info": {
+        "search_volume": 33100,
+        "cpc": 10.03,
+        "competition_level": "MEDIUM"
+       }
+      },
+      {
+       "keyword": "arc raiders recycling cheat sheet",
+       "keyword_info": {
+        "search_volume": 5400,
+        "cpc": null,
+        "competition_level": "LOW"
+       }
+      },
+      {
+       "keyword": "junk pickup",
+       "keyword_info": {
+        "search_volume": 5400,
+        "cpc": 20.12,
+        "competition_level": "HIGH"
+       }
+      },
+      {
+       "keyword": "commercial junk removal",
+       "keyword_info": {
+        "search_volume": 3600,
+        "cpc": 14.77,
+        "competition_level": "LOW"
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
