@@ -3,8 +3,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  areaCodeOf, callOutcome, callResultLabel, callerKey, callerLabel, formatCallLength, formatCallWhen,
-  formatPhone, isStartWord, isStopWord, maskNumber, normalizePhone, textBackMessage, TEXT_BACK_DEFAULT, toDashboardCall,
+  areaCodeOf, callOutcome, callResultLabel, callerKey, callerLabel, DEFAULT_TIME_ZONE, formatCallLength, formatCallWhen,
+  formatPhone, isStartWord, isStopWord, isUsTimeZone, maskNumber, normalizePhone, textBackMessage, TEXT_BACK_DEFAULT, toDashboardCall, US_TIME_ZONES,
 } from './phoneShared';
 
 test('normalizePhone turns any US spelling into E.164 and rejects the rest', () => {
@@ -108,4 +108,11 @@ test('toDashboardCall keeps only the safe fields and masks the caller', () => {
   assert.deepEqual(Object.keys(d).sort(), ['callSid', 'caller', 'durationSeconds', 'hasRecording', 'id', 'outcome', 'startedAt', 'textBackSentAt']);
   assert.equal(d.caller, '(515) 555-01··');
   assert.equal(JSON.stringify(d).includes('5155550134'), false);
+});
+
+test('isUsTimeZone accepts the seven US zones the admin can pick and nothing else', () => {
+  assert.equal(US_TIME_ZONES.length, 7);
+  for (const z of US_TIME_ZONES) assert.equal(isUsTimeZone(z.id), true, z.id);
+  assert.equal(isUsTimeZone(DEFAULT_TIME_ZONE), true);
+  for (const bad of ['Europe/London', 'CST', '', null, 5]) assert.equal(isUsTimeZone(bad), false, String(bad));
 });

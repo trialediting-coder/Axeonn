@@ -5,6 +5,7 @@
 // functions; PROOF and the monthly report read callsSummary. Server-only.
 // Every outbound text goes through sendClientSms, the one gated send path.
 import { ensureSchema, sql } from '@/lib/db';
+import { errText, iso, type DbId, type DbTime } from '@/lib/dbRows';
 import { attachNumberToService, buyNumber, createMessagingService, isTwilioConfigured, releaseNumber, searchLocalNumbers, sendSms, webhookUrl } from '@/lib/twilio';
 import { callerKey, normalizePhone, textBackMessage, SMS_MAX_CHARS, type CallOutcome, type CallsSummary, type PhoneCall, type PhoneLine, type PhoneLineSettings, type SmsStatus } from '@/lib/phoneShared';
 
@@ -14,13 +15,6 @@ export const TEXT_BACK_WINDOW_HOURS = 24;
 
 // Rates from the spec's cost model; only for the admin card's running estimate.
 const RATE = { number: 1.15, tenDlc: 1.5, inboundMin: 0.0085, outboundMin: 0.014, recordingMin: 0.0025, sms: 0.0113 } as const;
-
-// node-postgres hands back BIGINT/SERIAL ids as strings or numbers and TIMESTAMPTZ as Date;
-// the mappers below turn them into the numbers and ISO strings the interfaces promise.
-type DbId = number | string;
-type DbTime = Date | string;
-
-const iso = (t: DbTime): string => new Date(t).toISOString();
 
 interface LineRow {
   id: DbId;
@@ -128,8 +122,6 @@ export async function lineForNumber(e164: string): Promise<PhoneLine | null> {
   const { rows } = await sql<LineRow>`SELECT * FROM phone_lines WHERE phone_number = ${e164} AND status = 'active' LIMIT 1;`;
   return rows[0] ? toLine(rows[0]) : null;
 }
-
-const errText = (err: unknown) => (err instanceof Error ? err.message : String(err));
 
 /**
  * Buys the client their number. Order matters: the Messaging Service first (it

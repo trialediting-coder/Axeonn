@@ -417,6 +417,37 @@ export function ensureSchema(): Promise<void> {
           PRIMARY KEY (onboarding_id, phone_number)
         );
       `;
+      // Slice 2 (lib/leads.ts): client-site forms post to /api/lead and land here;
+      // call screening, call connect and the client's time zone live on the line.
+      await sql`
+        CREATE TABLE IF NOT EXISTS form_submissions (
+          id BIGSERIAL PRIMARY KEY,
+          onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+          name TEXT NOT NULL DEFAULT '',
+          phone TEXT,
+          email TEXT,
+          message TEXT NOT NULL DEFAULT '',
+          page TEXT NOT NULL DEFAULT '',
+          utm_source TEXT,
+          utm_medium TEXT,
+          utm_campaign TEXT,
+          ip_hash TEXT NOT NULL DEFAULT '',
+          is_test BOOLEAN NOT NULL DEFAULT false,
+          alert_text_status TEXT,
+          connect_call_sid TEXT,
+          connect_pressed_at TIMESTAMPTZ,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        );
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS form_submissions_client_time_idx ON form_submissions (onboarding_id, created_at DESC);`;
+      await sql`CREATE INDEX IF NOT EXISTS form_submissions_rate_idx ON form_submissions (onboarding_id, ip_hash, created_at DESC);`;
+      await sql`ALTER TABLE phone_lines ADD COLUMN IF NOT EXISTS screen_calls BOOLEAN NOT NULL DEFAULT true;`;
+      await sql`ALTER TABLE phone_lines ADD COLUMN IF NOT EXISTS call_connect_enabled BOOLEAN NOT NULL DEFAULT true;`;
+      await sql`ALTER TABLE phone_lines ADD COLUMN IF NOT EXISTS time_zone TEXT NOT NULL DEFAULT 'America/Chicago';`;
+      await sql`ALTER TABLE phone_calls ADD COLUMN IF NOT EXISTS direction TEXT NOT NULL DEFAULT 'inbound' CHECK (direction IN ('inbound', 'connect'));`;
+      await sql`ALTER TABLE phone_calls ADD COLUMN IF NOT EXISTS lead_id BIGINT REFERENCES form_submissions(id) ON DELETE SET NULL;`;
+      await sql`ALTER TABLE phone_messages DROP CONSTRAINT IF EXISTS phone_messages_kind_check;`;
+      await sql`ALTER TABLE phone_messages ADD CONSTRAINT phone_messages_kind_check CHECK (kind IN ('text_back', 'manual', 'inbound', 'alert', 'sequence', 'confirm', 'reminder'));`;
       // Business audits (lib/audits.ts): one dated snapshot of a business's Google
       // and website standing, for clients (schedule / admin / client scans) and prospects.
       await sql`

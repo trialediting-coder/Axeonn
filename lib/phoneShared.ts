@@ -6,6 +6,29 @@
 export type CallOutcome = 'answered' | 'missed';
 export type SmsStatus = 'pending' | 'ready';
 
+
+/** Which way a phone_calls row went: a caller dialing the tracked number, or call connect ringing the owner about a website lead. */
+export type CallDirection = 'inbound' | 'connect';
+
+/** phone_messages.kind. Slice 2 sends 'alert'; slices 3 and 5 send 'sequence', 'confirm' and 'reminder'. */
+export type MessageKind = 'text_back' | 'manual' | 'inbound' | 'alert' | 'sequence' | 'confirm' | 'reminder';
+
+/** Where most Axeon clients are. Quiet hours follow the line's own zone. */
+export const DEFAULT_TIME_ZONE = 'America/Chicago';
+
+/** The zones the admin card offers. IANA ids, so Intl handles daylight saving. */
+export const US_TIME_ZONES: ReadonlyArray<{ id: string; label: string }> = [
+  { id: 'America/New_York', label: 'Eastern' },
+  { id: 'America/Chicago', label: 'Central' },
+  { id: 'America/Denver', label: 'Mountain' },
+  { id: 'America/Phoenix', label: 'Arizona (no daylight saving)' },
+  { id: 'America/Los_Angeles', label: 'Pacific' },
+  { id: 'America/Anchorage', label: 'Alaska' },
+  { id: 'Pacific/Honolulu', label: 'Hawaii' },
+];
+
+export const isUsTimeZone = (v: unknown): v is string => typeof v === 'string' && US_TIME_ZONES.some((z) => z.id === v);
+
 export interface PhoneLineSettings {
   /** E.164. Where inbound calls ring. */
   forwardTo: string;
