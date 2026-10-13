@@ -37,6 +37,7 @@ export const EMAIL_KINDS = {
   upgrade_request: { label: 'Upgrade request', category: 'alerts' },
   low_close_rate: { label: 'Low close rate', category: 'alerts' },
   tracker_quiet: { label: 'Tracker went quiet', category: 'alerts' },
+  audit_failed: { label: 'Scheduled audit failed', category: 'alerts' },
   blog_draft_ready: { label: 'Blog draft ready', category: 'alerts' },
   blog_generation_failed: { label: 'Blog generation failed', category: 'alerts' },
 } as const satisfies Record<string, { label: string; category: EmailCategory }>;
