@@ -19,6 +19,7 @@ export class DataForSeoError extends Error {
 export const dataForSeoConfigured = (): boolean => Boolean(process.env.DATAFORSEO_LOGIN && process.env.DATAFORSEO_PASSWORD);
 
 export interface DfsTask {
+  id?: string;
   status_code: number;
   status_message: string;
   cost: number;
@@ -52,9 +53,25 @@ export async function dfsPost(path: string, tasks: Record<string, unknown>[], ti
   if (json.status_code !== 20000) throw new DataForSeoError(json.status_message || 'DataForSEO error', json.status_code ?? null);
   const task = json.tasks?.[0];
   if (!task) throw new DataForSeoError('DataForSEO returned no task');
-  if (task.status_code !== 20000) throw new DataForSeoError(friendlyTaskError(task), task.status_code);
+  // 20100 = "Task Created" (async endpoints such as reviews).
+  if (task.status_code !== 20000 && task.status_code !== 20100) throw new DataForSeoError(friendlyTaskError(task), task.status_code);
   return { task, raw: json };
 }
+
+/** GET an async task's result. Returns the task whatever its status; callers treat 40601/40602 as "still running". */
+export async function dfsGet(path: string, timeoutMs = 30_000): Promise<{ task: DfsTask; raw: unknown }> {
+  if (!dataForSeoConfigured()) throw new DataForSeoError(NOT_CONFIGURED);
+  const base = (process.env.DATAFORSEO_BASE || 'https://api.dataforseo.com').replace(/\/$/, '');
+  const auth = Buffer.from(`${process.env.DATAFORSEO_LOGIN}:${process.env.DATAFORSEO_PASSWORD}`).toString('base64');
+  const res = await fetch(`${base}${path}`, { headers: { authorization: `Basic ${auth}` }, signal: AbortSignal.timeout(timeoutMs) });
+  const json = (await res.json().catch(() => null)) as DfsResponse | null;
+  if (res.status === 401) throw new DataForSeoError('DataForSEO rejected the login — check DATAFORSEO_LOGIN and DATAFORSEO_PASSWORD', 401);
+  if (!res.ok || !json) throw new DataForSeoError(`DataForSEO HTTP ${res.status}`, res.status);
+  const task = json.tasks?.[0];
+  if (!task) throw new DataForSeoError('DataForSEO returned no task');
+  return { task, raw: json };
+}
+export const DFS_PENDING_CODES = new Set([40601, 40602]);
 
 /** What we store: the task's status and cost, and the first 20 items of its first result. */
 export function trimTask(task: DfsTask): DfsTask {

@@ -161,6 +161,16 @@ async function fetchPublic(url: string, hops = 0): Promise<{ finalUrl: string; h
   return { finalUrl: u.toString(), html: await readCapped(res, 2_000_000) };
 }
 
+/** A page fetch for the crawler: same SSRF rules, but 4xx/5xx come back as a status instead of throwing. */
+export async function fetchPage(url: string): Promise<{ status: number; html: string; ms: number }> {
+  const t0 = Date.now();
+  const u = new URL(url);
+  await assertPublic(u);
+  const res = await fetch(u, { redirect: 'follow', headers: { 'user-agent': UA, accept: 'text/html,*/*;q=0.8' }, signal: AbortSignal.timeout(8_000) });
+  const html = res.ok ? await readCapped(res, 1_000_000) : '';
+  return { status: res.status, html, ms: Date.now() - t0 };
+}
+
 export async function siteCheck(url: string): Promise<SourceResult<{ finalUrl: string; https: boolean } & HtmlChecks>> {
   try {
     const { finalUrl, html } = await fetchPublic(url);

@@ -125,3 +125,52 @@ test('composeAudit: a Facebook page is not a website — no organic, speed or si
   assert.equal(calls, 0);
   assert.equal(section(c.results.maps)?.matchedBy, 'name', 'matched by name, not by the shared host');
 });
+
+// ── Phase 2: deep audit ──
+import type { DeepSources } from './auditDeep';
+
+const deepFakes = (over: Partial<DeepSources> = {}): DeepSources => ({
+  keywordIdeas: async () => ok([{ keyword: 'auto detailing', volume: 49500, cpc: 14 }, { keyword: 'ceramic coating', volume: 5000, cpc: 9 }], 0.014),
+  adsVolume: async (keywords) => ok(keywords.map((k) => ({ keyword: k, volume: k.includes('ceramic') ? 90 : 480, cpc: 11, competition: 'HIGH' as const })), 0.09),
+  domainOverview: async () => ok({ organicKeywords: 100, estTraffic: 500, estPaidValue: 1000 }, 0.012),
+  reviewsPost: async () => ok({ taskId: 't1' }, 0.0015),
+  reviewsGet: async () => ok({ rating: 4.6, total: 18, items: [
+    { at: '2026-10-01T00:00:00.000Z', stars: 5, answered: true, text: 'Great detail' },
+    { at: '2026-08-01T00:00:00.000Z', stars: 4, answered: false, text: 'Good detail' },
+  ] }, 0),
+  crawl: async () => ok({ pages: [{ url: 'https://subjectspa.com/', status: 200, title: 'Home', h1: null, words: 300, clickToCall: false, form: true, schema: [], ms: 5 }], broken: [], coverage: [{ keyword: 'auto detailing ankeny', covered: false, url: null }], thin: 0, untitled: 0 }, 0),
+  ...over,
+});
+const selfWithProfile = mapsItems.map((i) => (i.name === 'Joes Auto Spa' ? { ...i, photos: 31, claimed: true, booking: false, openDays: 6 } : i));
+
+test('composeAudit deep: all five deep sections, reviews collected, costs summed', async () => {
+  const c = await composeAudit(subject, { grid: false, deep: true, sources: fakes({ mapsSearch: async () => ok(selfWithProfile) }), deepSources: deepFakes(), pollBudgetMs: 0 });
+  assert.equal(c.status, 'complete');
+  const market = section(c.results.market);
+  assert.ok(market && market.keywords.length >= 2);
+  assert.ok(market.missedSearches > 0, 'subject is #7, so measured volume is missed');
+  assert.equal(section(c.results.competitors)?.items.length, 4);
+  assert.equal(section(c.results.profile)?.photos, 31);
+  assert.equal(section(c.results.reviews)?.sampled, 2);
+  assert.equal(section(c.results.crawl)?.pages.length, 1);
+  assert.ok(c.costUsd > 0.1 && c.costUsd < 0.3, `cost ${c.costUsd}`);
+  assert.equal(c.raw.reviewsTaskId, undefined);
+});
+
+test('composeAudit deep: a failed Ads call errors only the market section; a pending reviews task is recorded for later', async () => {
+  const c = await composeAudit(subject, {
+    grid: false, deep: true, sources: fakes({ mapsSearch: async () => ok(selfWithProfile) }),
+    deepSources: deepFakes({ adsVolume: async () => bad('Ads quota'), reviewsGet: async () => ok('pending' as const, 0) }), pollBudgetMs: 0,
+  });
+  assert.equal(c.status, 'partial');
+  assert.match(c.errors.market, /Ads quota/);
+  assert.ok(section(c.results.competitors));
+  assert.match(c.errors.reviews, /still processing/);
+  assert.equal(c.raw.reviewsTaskId, 't1');
+});
+
+test('composeAudit quick: no deep sections when deep is off', async () => {
+  const c = await composeAudit(subject, { grid: false, sources: fakes() });
+  assert.equal(c.results.market, undefined);
+  assert.equal(c.results.crawl, undefined);
+});

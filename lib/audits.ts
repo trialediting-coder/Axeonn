@@ -7,6 +7,8 @@ import { ensureSchema, isDatabaseConfigured, sql } from '@/lib/db';
 import type { Onboarding } from '@/lib/onboarding';
 import { monthOf } from '@/lib/siteStats';
 import { defaultSources, type Sources } from '@/lib/auditSources';
+import { defaultDeepSources, type DeepSources } from '@/lib/auditDeep';
+import { competitorProfiles, marketFromParts, profileFromItem, reviewsFromItems, type DomainOverview, type RankPair } from '@/lib/auditDeepParse';
 import {
   auditLeaks,
   auditLocation,
@@ -55,8 +57,20 @@ const FATAL = /location|isn't connected|rejected the login/i;
 const learn = (i: MapsItem): Learned => ({ placeId: i.placeId, cid: i.cid, lat: i.lat, lng: i.lng });
 
 /** The whole measurement, no database: Maps first (it tells us if the location is valid and where the pin is), then the rest in parallel, then the grid. */
-export async function composeAudit(subject: AuditSubject, opts: { grid: boolean; sources?: Partial<Sources> }): Promise<Composed> {
+export interface ComposeOptions {
+  grid: boolean;
+  /** Phase 2: market, competitors, profile, reviews and crawl sections (≈ $0.25). */
+  deep?: boolean;
+  sources?: Partial<Sources>;
+  deepSources?: Partial<DeepSources>;
+  /** How long to wait for the async reviews task before leaving it for later (tests pass 0). */
+  pollBudgetMs?: number;
+  pollMs?: number;
+}
+
+export async function composeAudit(subject: AuditSubject, opts: ComposeOptions): Promise<Composed> {
   const S: Sources = { ...defaultSources, ...opts.sources };
+  const D: DeepSources = { ...defaultDeepSources, ...opts.deepSources };
   const results: AuditResults = {};
   const errors: Record<string, string> = {};
   const raw: Record<string, unknown> = {};
@@ -99,6 +113,8 @@ export async function composeAudit(subject: AuditSubject, opts: { grid: boolean;
     errors.maps = maps.error;
     if (FATAL.test(maps.error)) return finish();
   }
+  // Reviews are an async DataForSEO task: start it now, collect it at the end.
+  const reviewsPosted = opts.deep && maps.ok ? D.reviewsPost(subject.business, location) : null;
 
   // A page on a shared host (Facebook, Yelp…) is not the business's website: nothing to rank or check.
   const domain = matchableDomain(subject.website);
@@ -165,6 +181,13 @@ export async function composeAudit(subject: AuditSubject, opts: { grid: boolean;
       if (ps && !ps.ok) errors.pagespeed = ps.error;
       if (sc && !sc.ok) errors.siteCheck = sc.error;
     }
+  }
+
+  if (opts.deep) {
+    const add = (c: number) => {
+      cost += c;
+    };
+    await runDeep({ S, D, subject: { ...subject, ...(learned ?? {}) }, location, city, mapsItems: maps.ok ? maps.data : null, self, website, domain, results, errors, raw, add, reviewsPosted, pollBudgetMs: opts.pollBudgetMs ?? 90_000, pollMs: opts.pollMs ?? 5_000 });
   }
 
   if (opts.grid) {
@@ -426,17 +449,18 @@ export async function applyBaseline(onboardingId: number, audit: AuditRow, force
 
 // ───────────────────────────── Run & attach ─────────────────────────────
 
-export interface RunOptions { trigger: AuditTrigger; onboardingId?: number | null; callLeadId?: number | null; grid: boolean }
+export interface RunOptions { trigger: AuditTrigger; onboardingId?: number | null; callLeadId?: number | null; grid: boolean; deep?: boolean }
 
 export async function runAudit(subject: AuditSubject, opts: RunOptions): Promise<AuditRow> {
   if (!isDatabaseConfigured()) throw new Error('Audits need the database (POSTGRES_URL).');
   await ensureSchema();
   await assertBudget();
-  const c = await composeAudit(subject, { grid: opts.grid });
+  const deep = opts.deep === true;
+  const c = await composeAudit(subject, { grid: opts.grid, deep });
   const res = await sql<{ id: number }>`
-    INSERT INTO audits (onboarding_id, call_lead_id, subject, trigger, status, results, leaks, errors, raw, cost_usd)
+    INSERT INTO audits (onboarding_id, call_lead_id, subject, trigger, status, results, leaks, errors, raw, cost_usd, deep)
     VALUES (${opts.onboardingId ?? null}, ${opts.callLeadId ?? null}, ${JSON.stringify(c.subject)}::jsonb, ${opts.trigger}, ${c.status},
-            ${JSON.stringify(c.results)}::jsonb, ${JSON.stringify(c.leaks)}::jsonb, ${JSON.stringify(c.errors)}::jsonb, ${JSON.stringify(c.raw)}::jsonb, ${c.costUsd})
+            ${JSON.stringify(c.results)}::jsonb, ${JSON.stringify(c.leaks)}::jsonb, ${JSON.stringify(c.errors)}::jsonb, ${JSON.stringify(c.raw)}::jsonb, ${c.costUsd}, ${deep})
     RETURNING id;
   `;
   const row = await getAudit(res.rows[0].id);
@@ -444,6 +468,7 @@ export async function runAudit(subject: AuditSubject, opts: RunOptions): Promise
   if (opts.onboardingId) {
     if (c.learned) await rememberPin(opts.onboardingId, c.learned);
     await applyBaseline(opts.onboardingId, row, false);
+    if (deep) await sql`UPDATE onboardings SET last_deep_at = now() WHERE id = ${opts.onboardingId};`;
   }
   return row;
 }
@@ -464,4 +489,160 @@ export async function attachAuditToOnboarding(auditId: number, onboardingId: num
   const attached = { ...audit, onboardingId };
   const baselineSet = await applyBaseline(onboardingId, attached, false);
   return { audit: attached, baselineSet };
+}
+
+// ───────────────────────────── Deep audit (phase 2) ─────────────────────────────
+
+interface DeepCtx {
+  S: Sources;
+  D: DeepSources;
+  subject: AuditSubject;
+  location: string;
+  city: string;
+  mapsItems: MapsItem[] | null;
+  self: MapsItem | null;
+  website: string | null;
+  domain: string | null;
+  results: AuditResults;
+  errors: Record<string, string>;
+  raw: Record<string, unknown>;
+  add: (cost: number) => void;
+  reviewsPosted: Promise<Awaited<ReturnType<DeepSources['reviewsPost']>>> | null;
+  pollBudgetMs: number;
+  pollMs: number;
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const TOP_RANKED = 8;
+
+/** Market, competitors, profile, crawl in parallel; reviews collected last. Every section stands or fails alone. */
+async function runDeep(ctx: DeepCtx): Promise<void> {
+  const { S, D, subject, location, city, mapsItems, self, website, domain, results, errors, raw, add } = ctx;
+  const fail = (section: 'market' | 'competitors' | 'profile' | 'reviews' | 'crawl', msg: string) => {
+    results[section] = { error: msg };
+    errors[section] = msg;
+  };
+
+  // Market: ideas (national, to choose) → local volume (city) → ranks for the top 8.
+  const market = (async () => {
+    const ideas = await D.keywordIdeas(subject.keyword);
+    if (!ideas.ok) return fail('market', ideas.error);
+    add(ideas.cost);
+    raw.keywordIdeas = ideas.raw;
+    const picked = [subject.keyword, ...ideas.data.sort((a, b) => (b.volume ?? 0) - (a.volume ?? 0)).map((i) => i.keyword)].filter((k, i, a) => a.indexOf(k) === i).slice(0, 20);
+    const variants = picked.slice(0, 6).map((k) => `${k} ${city.toLowerCase()}`).filter((k) => !picked.includes(k));
+    const list = [...picked, ...variants].slice(0, 30);
+    const local = await D.adsVolume(list, location);
+    if (!local.ok) return fail('market', local.error);
+    add(local.cost);
+    raw.adsVolume = local.raw;
+    const top = [...local.data].filter((k) => k.volume !== null).sort((a, b) => (b.volume ?? 0) - (a.volume ?? 0)).slice(0, TOP_RANKED);
+    const ranks = new Map<string, RankPair>();
+    for (let i = 0; i < top.length; i += 4) {
+      await Promise.all(
+        top.slice(i, i + 4).map(async (k) => {
+          const [m, o] = await Promise.all([S.mapsSearch(k.keyword, { location }), domain ? S.organicSearch(k.keyword, location) : null]);
+          const pair: RankPair = { mapsRank: null, organicRank: null };
+          if (m.ok) {
+            add(m.cost);
+            pair.mapsRank = matchSubject(subject, m.data)?.item.rank ?? null;
+          }
+          if (o && o.ok) {
+            add(o.cost);
+            pair.organicRank = o.data.find((r) => domainOf(r.domain) === domain)?.rank ?? null;
+          }
+          ranks.set(k.keyword, pair);
+        })
+      );
+    }
+    results.market = marketFromParts({ city, local: local.data, ranks });
+    return results.market.keywords.filter((k) => k.measured).map((k) => k.keyword);
+  })();
+
+  // Competitors: the Maps top 3 + self, with domain strength where a domain exists.
+  const competitors = (async () => {
+    if (!mapsItems) return fail('competitors', 'Maps did not come back, so there is no top 3 to compare');
+    const top = mapsItems.filter((i) => i.rank <= 3);
+    const domains = [...new Set([...top, ...(self ? [self] : [])].map((i) => matchableDomain(i.domain ? `https://${i.domain}` : null)).filter((d): d is string => Boolean(d)))];
+    const overviews = new Map<string, DomainOverview | null>();
+    await Promise.all(
+      domains.map(async (d) => {
+        const r = await D.domainOverview(d);
+        if (r.ok) {
+          add(r.cost);
+          overviews.set(d, r.data);
+        }
+      })
+    );
+    raw.domainOverview = Object.fromEntries(overviews);
+    results.competitors = competitorProfiles(top, self, overviews);
+  })();
+
+  // Profile: free, from the subject's own Maps item.
+  if (self) results.profile = profileFromItem(self);
+  else fail('profile', 'The business was not found on Maps, so its profile could not be read');
+
+  // Crawl needs the measured keywords for coverage: wait for market, then crawl.
+  const crawl = (async () => {
+    const measured = await market;
+    if (!website) return fail('crawl', 'No website to crawl');
+    const r = await D.crawl(website, Array.isArray(measured) ? measured : [subject.keyword], city);
+    if (!r.ok) return fail('crawl', r.error);
+    raw.crawl = r.raw;
+    results.crawl = r.data;
+  })();
+
+  await Promise.all([competitors, crawl]);
+
+  // Reviews: collect the task we posted at the start; leave a handle if it is not ready.
+  const posted = ctx.reviewsPosted ? await ctx.reviewsPosted : null;
+  if (!posted) return fail('reviews', 'Reviews need the business on Maps first');
+  if (!posted.ok) return fail('reviews', posted.error);
+  add(posted.cost);
+  const started = Date.now();
+  for (;;) {
+    const got = await D.reviewsGet(posted.data.taskId);
+    if (!got.ok) return fail('reviews', got.error);
+    if (got.data !== 'pending') {
+      add(got.cost);
+      raw.reviews = got.raw;
+      results.reviews = reviewsFromItems(got.data.items);
+      return;
+    }
+    if (Date.now() - started >= ctx.pollBudgetMs) break;
+    await sleep(ctx.pollMs);
+  }
+  raw.reviewsTaskId = posted.data.taskId;
+  fail('reviews', 'Reviews are still processing at DataForSEO — fetched automatically later, or press Fetch reviews');
+}
+
+/** Finishes a deep audit whose reviews task was still running: fetches it and writes the section. */
+export async function completePendingReviews(auditId: number): Promise<AuditRow | null> {
+  await ensureSchema();
+  const full = await getAudit(auditId, true);
+  if (!full) return null;
+  const raw = (full.raw && typeof full.raw === 'object' ? (full.raw as Record<string, unknown>) : {}) as Record<string, unknown>;
+  const taskId = typeof raw.reviewsTaskId === 'string' ? raw.reviewsTaskId : null;
+  if (!taskId) return full;
+  const got = await defaultDeepSources.reviewsGet(taskId);
+  if (!got.ok || got.data === 'pending') return full;
+  const results: AuditResults = { ...full.results, reviews: reviewsFromItems(got.data.items) };
+  const errors = { ...full.errors };
+  delete errors.reviews;
+  const { reviewsTaskId: _done, ...rest } = raw;
+  const nextRaw = { ...rest, reviews: got.raw };
+  await sql`
+    UPDATE audits SET results = ${JSON.stringify(results)}::jsonb, errors = ${JSON.stringify(errors)}::jsonb, raw = ${JSON.stringify(nextRaw)}::jsonb,
+      status = ${auditStatus(results)}, cost_usd = cost_usd + ${got.cost}
+    WHERE id = ${auditId};
+  `;
+  return getAudit(auditId);
+}
+
+/** Audits from the last day still waiting on their reviews task. */
+export async function auditsWithPendingReviews(): Promise<number[]> {
+  if (!isDatabaseConfigured()) return [];
+  await ensureSchema();
+  const res = await sql<{ id: number }>`SELECT id FROM audits WHERE raw ? 'reviewsTaskId' AND created_at > now() - interval '1 day' ORDER BY id;`;
+  return res.rows.map((r) => r.id);
 }
