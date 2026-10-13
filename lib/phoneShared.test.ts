@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   areaCodeOf, callOutcome, callResultLabel, callerKey, callerLabel, formatCallLength, formatCallWhen,
-  formatPhone, isStartWord, isStopWord, maskNumber, normalizePhone, textBackMessage, TEXT_BACK_DEFAULT,
+  formatPhone, isStartWord, isStopWord, maskNumber, normalizePhone, textBackMessage, TEXT_BACK_DEFAULT, toDashboardCall,
 } from './phoneShared';
 
 test('normalizePhone turns any US spelling into E.164 and rejects the rest', () => {
@@ -93,4 +93,14 @@ test('callResultLabel says answered, missed, or missed and texted back', () => {
   assert.equal(callResultLabel({ outcome: 'answered', textBackSentAt: null }), 'Answered');
   assert.equal(callResultLabel({ outcome: 'missed', textBackSentAt: '2026-10-12T19:06:00Z' }), 'Missed · texted back');
   assert.equal(callResultLabel({ outcome: 'missed', textBackSentAt: null }), 'Missed');
+});
+
+test('toDashboardCall keeps only the safe fields and masks the caller', () => {
+  const d = toDashboardCall({
+    id: 1, callSid: 'CA1', fromNumber: '+15155550134', toNumber: '+15155559999', outcome: 'missed', dialStatus: 'no-answer',
+    startedAt: '2026-10-12T19:05:00Z', durationSeconds: null, hasRecording: false, recordingSeconds: null, textBackSentAt: null,
+  });
+  assert.deepEqual(Object.keys(d).sort(), ['callSid', 'caller', 'durationSeconds', 'hasRecording', 'id', 'outcome', 'startedAt', 'textBackSentAt']);
+  assert.equal(d.caller, '(515) 555-01··');
+  assert.equal(JSON.stringify(d).includes('5155550134'), false);
 });

@@ -145,3 +145,29 @@ export interface CallsSummary {
   /** Mean length of answered calls, rounded; null when none were answered. */
   avgSeconds: number | null;
 }
+
+/** What the client dashboard gets per call: pre-masked, with no raw numbers or carrier status in the page payload. */
+export interface DashboardCall {
+  id: number;
+  callSid: string;
+  startedAt: string;
+  durationSeconds: number | null;
+  outcome: CallOutcome;
+  textBackSentAt: string | null;
+  hasRecording: boolean;
+  /** Already masked by callerLabel. */
+  caller: string;
+}
+
+export function toDashboardCall(c: PhoneCall): DashboardCall {
+  return {
+    id: c.id,
+    callSid: c.callSid,
+    startedAt: c.startedAt,
+    durationSeconds: c.durationSeconds,
+    outcome: c.outcome,
+    textBackSentAt: c.textBackSentAt,
+    hasRecording: c.hasRecording,
+    caller: callerLabel(c.fromNumber),
+  };
+}

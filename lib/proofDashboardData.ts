@@ -13,7 +13,7 @@ import { CLIENT_REPLY_TO } from '@/lib/email';
 import { getUpgradeRequest } from '@/lib/upgrades';
 import { businessEmailForDashboard } from '@/lib/businessEmail';
 import { callsSummary, getLine, recentCalls } from '@/lib/phoneLines';
-import type { CallsSummary, PhoneCall } from '@/lib/phoneShared';
+import { toDashboardCall, type CallsSummary, type DashboardCall } from '@/lib/phoneShared';
 import type { ProofTabKey } from '@/lib/proofTabs';
 import type { ProofDashboard } from '@/components/proof/ProofDashboard';
 import type { ComponentProps } from 'react';
@@ -24,7 +24,7 @@ export interface DashboardPhone {
   textBack: boolean;
   thisMonth: CallsSummary;
   lastMonth: CallsSummary;
-  recent: PhoneCall[];
+  recent: DashboardCall[];
 }
 
 export type DashboardData = Omit<ComponentProps<typeof ProofDashboard>, 'email' | 'preview' | 'leadApi' | 'tab'>;
@@ -56,7 +56,7 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
   const phone: DashboardPhone | null = line
     ? await (async () => {
         const [tm, lm, recent] = await Promise.all([callsSummary(onboarding.id, month), callsSummary(onboarding.id, previous), recentCalls(onboarding.id, 20)]);
-        return { number: line.phoneNumber, textBack: line.smsStatus === 'ready' && line.textBackEnabled, thisMonth: tm, lastMonth: lm, recent };
+        return { number: line.phoneNumber, textBack: line.smsStatus === 'ready' && line.textBackEnabled, thisMonth: tm, lastMonth: lm, recent: recent.map(toDashboardCall) };
       })()
     : null;
   return {

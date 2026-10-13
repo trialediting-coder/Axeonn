@@ -3,7 +3,7 @@
 // last, and the latest calls with the caller's last two digits hidden. Recordings
 // play through the signed-in /api/proof/recording route, never a raw Twilio URL.
 import { monthLabel } from '@/lib/projectsShared';
-import { callerLabel, callResultLabel, formatCallLength, formatCallWhen, formatPhone } from '@/lib/phoneShared';
+import { callResultLabel, formatCallLength, formatCallWhen, formatPhone } from '@/lib/phoneShared';
 import type { DashboardPhone } from '@/lib/proofDashboardData';
 
 function Stat({ label, value, sub }: { label: string; value: string; sub?: string | null }) {
@@ -48,7 +48,7 @@ export function CallsTab({ phone, preview = false }: { phone: DashboardPhone; pr
               {phone.recent.map((c) => (
                 <tr key={c.id} className="border-t border-neutral-100">
                   <td className="px-4 py-2 whitespace-nowrap">{formatCallWhen(c.startedAt)}</td>
-                  <td className="px-4 py-2 whitespace-nowrap">{callerLabel(c.fromNumber)}</td>
+                  <td className="px-4 py-2 whitespace-nowrap">{c.caller}</td>
                   <td className="px-4 py-2">{callResultLabel(c)}</td>
                   <td className="px-4 py-2">{formatCallLength(c.durationSeconds)}</td>
                   <td className="px-4 py-2">
