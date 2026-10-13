@@ -23,6 +23,14 @@
 - Tests run with `tsx --test` and need no database or network; SQL functions are not unit-tested, pure helpers are.
 - Commit after every task with a message in the repo's style (`feat:`, `fix:`, short imperative).
 
+## Hooks this slice leaves for the leads inbox (spec, "Slice 4 design")
+
+The spec's slice 4 turns the PROOF Leads tab into a unified leads inbox: one contact per phone number or email, a stage, a timeline of every call, text, form, booking and chat, the recording attached, and a reply box. Nothing in this plan builds that, but three things here are its foundation and must not drift:
+
+- `phone_calls.from_number` and `phone_messages.from_number` are the contact identity. Store E.164 or the literal `'unknown'`, nothing else; slice 4 backfills `contacts` from these columns.
+- `recentCalls()` in Task 4 returns `PhoneCall` rows (`fromNumber`, `outcome`, `startedAt`, `durationSeconds`, `recordingUrl`, `textBackSentAt`). Slice 4 renders the same row in the contact timeline, so keep the shape.
+- `sendSms()` in Task 2 is the only way a text leaves Axeon. Slice 4's reply box and slice 2's lead alerts call it; the opt-out and `sms_status` checks in Task 4's `sendTextBack` are the pattern they copy.
+
 ## Review Focus
 
 1. A caller who dials from a number with no `+1` or with letters (`sip:` URIs, anonymous) must never crash the voice webhook; `normalizePhone` returns `null` and the call is forwarded anyway with `from_number = 'unknown'`. Pinned in Task 1 (`normalizePhone` nulls) and Task 5 (voice route with `From=anonymous`).
