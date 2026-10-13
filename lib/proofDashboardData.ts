@@ -14,6 +14,8 @@ import { getUpgradeRequest } from '@/lib/upgrades';
 import { businessEmailForDashboard } from '@/lib/businessEmail';
 import { callsSummary, getLine, recentCalls } from '@/lib/phoneLines';
 import { toDashboardCall, type CallsSummary, type DashboardCall } from '@/lib/phoneShared';
+import { listSubmissions } from '@/lib/leads';
+import { toDashboardSubmission } from '@/lib/leadShared';
 import type { ProofTabKey } from '@/lib/proofTabs';
 import { clientScansUsed, getAuditSettings, listAuditsForOnboarding } from '@/lib/audits';
 import { mapsMeasured, progressFrom, scanCapFor, section, splitCity } from '@/lib/auditShared';
@@ -86,9 +88,11 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
       : null;
   // This month straight from the tracker, so the overview is never blank between reports
   // (and never blank before the first report, which is the first thing a new client sees).
-  const [thisMonth, lastMonth] = await Promise.all([
+  const [thisMonth, lastMonth, thisForms, lastForms] = await Promise.all([
     monthTraffic(onboarding.id, month, effectiveCloseRate(tracking)),
     monthTraffic(onboarding.id, previous, effectiveCloseRate(tracking)),
+    listSubmissions(onboarding.id, month),
+    listSubmissions(onboarding.id, previous),
   ]);
   const phone: DashboardPhone | null = line
     ? await (async () => {
@@ -115,6 +119,11 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
     leads: [
       { month, label: `${monthLabel(month)} so far`, rows: thisLeads },
       { month: previous, label: monthLabel(previous), rows: lastLeads },
+    ],
+    // Website form messages (slice 2), pre-masked: no raw phone, email or message reaches the page.
+    forms: [
+      { month, label: `${monthLabel(month)} so far`, rows: thisForms.map(toDashboardSubmission) },
+      { month: previous, label: monthLabel(previous), rows: lastForms.map(toDashboardSubmission) },
     ],
     upgradeRequest,
     billing,

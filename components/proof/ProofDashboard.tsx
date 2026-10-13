@@ -29,6 +29,7 @@ import {
 import { AxeonLogo } from '@/components/brand/AxeonLogo';
 import { ActiveTabIntoView } from '@/components/proof/ActiveTabIntoView';
 import { LeadLog, type LeadMonth } from '@/components/proof/LeadLog';
+import { FormLeads, type FormMonth } from '@/components/proof/FormLeads';
 import { BillingTab } from '@/components/proof/BillingTab';
 import { CallsTab } from '@/components/proof/CallsTab';
 import type { DashboardPhone } from '@/lib/proofDashboardData';
@@ -287,6 +288,7 @@ export function ProofDashboard({
   preview = null,
   avgJobValue = null,
   leads = [],
+  forms = [],
   leadApi = null,
   tab = 'overview',
   upgradeRequest = null,
@@ -318,6 +320,8 @@ export function ProofDashboard({
   avgJobValue?: number | null;
   /** This month's and last month's leads (lib/siteStats.ts leadRows), newest first. */
   leads?: LeadMonth[];
+  /** This month's and last month's website form messages (lib/leads.ts listSubmissions), pre-masked. */
+  forms?: FormMonth[];
   /** Where the Customer / Not taps post: the client's own API, or the admin API from View as client. */
   leadApi?: string | null;
   /** Which tab is open (?tab=). Tabs outside the plan show the upgrade page. */
@@ -529,9 +533,10 @@ export function ProofDashboard({
               <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Included in your plan</p>
               <h2 className="mt-3 text-2xl font-bold tracking-tight text-neutral-950">Leads</h2>
               <p className="mt-2 max-w-2xl text-sm text-neutral-600">Every call, text, email, form and booking from your site, the day it happens. Tap Booked on the ones that turned into a job and your numbers get more exact every month.</p>
+              {forms.some((m) => m.rows.length > 0) ? <FormLeads months={forms} /> : null}
               {leads.some((m) => m.rows.length > 0) ? (
                 <LeadLog months={leads} api={leadApi} />
-              ) : (
+              ) : forms.some((m) => m.rows.length > 0) ? null : (
                 <Card className="mt-4 p-8 text-center">
                   <p className="text-sm font-semibold text-neutral-900">No one has reached out yet this month.</p>
                   <p className="mt-1 text-sm text-neutral-500">Calls, texts, forms and bookings from your site show up here within a minute.</p>
