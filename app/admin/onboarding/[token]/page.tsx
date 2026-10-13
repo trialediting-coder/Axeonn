@@ -7,12 +7,14 @@ import { computeProgress, getItemStates, getOnboardingByToken, orderedItems, wel
 import { OnboardingDetail } from '@/components/insights/OnboardingDetail';
 import { ProjectPanel } from '@/components/insights/ProjectPanel';
 import { getProjectDetails, listMonthlyReports, listProjectUpdates, tierHasGuarantee } from '@/lib/projects';
-import { trackingOverview } from '@/lib/siteStats';
+import { monthOf, trackingOverview } from '@/lib/siteStats';
 import { listFeedback } from '@/lib/feedback';
 import { getUpgradeRequest } from '@/lib/upgrades';
 import { TIER_LABELS } from '@/data/onboardingItems';
 import { BusinessEmailPanel } from '@/components/insights/BusinessEmailPanel';
 import { getBusinessEmail } from '@/lib/businessEmail';
+import { PhonePanel } from '@/components/insights/PhonePanel';
+import { getLine, monthCost, recentCalls } from '@/lib/phoneLines';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,7 +25,7 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
   const { token } = await params;
   const onboarding = await getOnboardingByToken(token).catch(() => null);
   if (!onboarding) notFound();
-  const [states, details, updates, reports, tracking, feedback, upgrade, businessEmail] = await Promise.all([
+  const [states, details, updates, reports, tracking, feedback, upgrade, businessEmail, phoneLine] = await Promise.all([
     getItemStates(onboarding.id),
     getProjectDetails(onboarding.id),
     listProjectUpdates(onboarding.id),
@@ -32,7 +34,13 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
     listFeedback(onboarding.id),
     getUpgradeRequest(onboarding.id),
     getBusinessEmail(onboarding.id),
+    getLine(onboarding.id),
   ]);
+  const phone = phoneLine
+    ? { line: phoneLine, calls: await recentCalls(onboarding.id), cost: await monthCost(onboarding.id, monthOf()) }
+    : { line: null, calls: [], cost: null };
+  const phoneCard = states['phone-setup']?.data ?? {};
+  const askedPhone = (key: string) => (typeof phoneCard[key] === 'string' ? (phoneCard[key] as string) : '');
   const domainCard = states.domain?.data ?? {};
   const asked = (key: string) => (typeof domainCard[key] === 'string' ? (domainCard[key] as string) : '');
 
@@ -61,6 +69,13 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
           tier={onboarding.tier}
           initial={businessEmail}
           asked={{ domainName: asked('domainName'), mailboxes: asked('mailboxes'), signInEmails: asked('signInEmails'), currentEmail: asked('currentEmail') }}
+        />
+        <PhonePanel
+          token={onboarding.token}
+          tier={onboarding.tier}
+          initial={phone}
+          businessName={onboarding.businessName}
+          asked={{ mainNumber: askedPhone('mainNumber'), trackingPreference: askedPhone('trackingPreference'), answerers: askedPhone('answerers') }}
         />
         <ProjectPanel token={onboarding.token} initial={{ details, updates, reports, tracking, feedback }} guarantee={tierHasGuarantee(onboarding.tier)} />
       </div>
