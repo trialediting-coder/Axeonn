@@ -35,14 +35,32 @@ export function PhonePanel({ token, tier, initial, asked, businessName }: { toke
 
   if (tier === 'essentials') return null;
 
+  function syncForm(l: PhoneLine) {
+    setForwardTo(formatPhone(l.forwardTo));
+    setRecordCalls(l.recordCalls);
+    setConsentNotice(l.consentNotice);
+    setTextBackEnabled(l.textBackEnabled);
+    setTextBackMessage(l.textBackMessage ?? '');
+  }
+
+  function provision() {
+    if (busy) return;
+    if (!window.confirm(`Buy a local ${areaCode} tracking number for this client? This bills Twilio monthly.`)) return;
+    void send('POST', { action: 'provision', areaCode, forwardTo });
+  }
+
   async function send(method: 'POST' | 'PUT', body: Record<string, unknown>) {
     setBusy(true);
     setError(null);
     try {
       const res = await fetch(`/api/admin/onboarding/${token}/phone`, { method, headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
-      const json = (await res.json()) as PhoneData & { error?: string };
-      if (!res.ok) throw new Error(json.error || 'Request failed');
+      if (!res.ok) {
+        const failed = (await res.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(failed?.error || `Request failed (${res.status})`);
+      }
+      const json = (await res.json()) as PhoneData;
       setData(json);
+      if (json.line) syncForm(json.line);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Request failed');
     } finally {
@@ -72,19 +90,19 @@ export function PhonePanel({ token, tier, initial, asked, businessName }: { toke
         <p className="whitespace-pre-line">Answers calls: {asked.answerers || '—'}</p>
       </div>
 
-      {error ? <p className="mt-3 text-sm text-red-700">{error}</p> : null}
+      {error ? <p role="alert" className="mt-3 text-sm text-red-700">{error}</p> : null}
 
       {!line ? (
         <div className="mt-4 grid gap-3 sm:grid-cols-[8rem_1fr_auto] sm:items-end">
           <div>
-            <label className={adminLabel}>Area code</label>
-            <input className={adminInput} value={areaCode} onChange={(e) => setAreaCode(e.target.value)} inputMode="numeric" maxLength={3} />
+            <label htmlFor="phone-area-code" className={adminLabel}>Area code</label>
+            <input id="phone-area-code" className={adminInput} value={areaCode} onChange={(e) => setAreaCode(e.target.value)} inputMode="numeric" maxLength={3} />
           </div>
           <div>
-            <label className={adminLabel}>Forward calls to</label>
-            <input className={adminInput} value={forwardTo} onChange={(e) => setForwardTo(e.target.value)} placeholder="(515) 555-0134" />
+            <label htmlFor="phone-forward-to" className={adminLabel}>Forward calls to</label>
+            <input id="phone-forward-to" className={adminInput} value={forwardTo} onChange={(e) => setForwardTo(e.target.value)} placeholder="(515) 555-0134" />
           </div>
-          <button className={btn('primary')} disabled={busy} onClick={() => send('POST', { action: 'provision', areaCode, forwardTo })}>
+          <button className={btn('primary')} disabled={busy} onClick={provision}>
             {busy ? 'Buying…' : 'Provision number'}
           </button>
         </div>
@@ -92,8 +110,8 @@ export function PhonePanel({ token, tier, initial, asked, businessName }: { toke
         <>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <div>
-              <label className={adminLabel}>Forward calls to</label>
-              <input className={adminInput} value={forwardTo} onChange={(e) => setForwardTo(e.target.value)} />
+              <label htmlFor="phone-forward-to-edit" className={adminLabel}>Forward calls to</label>
+              <input id="phone-forward-to-edit" className={adminInput} value={forwardTo} onChange={(e) => setForwardTo(e.target.value)} />
             </div>
             <div className="flex flex-wrap items-center gap-4 pt-5 text-sm">
               <label className="flex items-center gap-2"><input type="checkbox" checked={recordCalls} onChange={(e) => setRecordCalls(e.target.checked)} /> Record calls</label>
@@ -101,8 +119,8 @@ export function PhonePanel({ token, tier, initial, asked, businessName }: { toke
               <label className="flex items-center gap-2"><input type="checkbox" checked={textBackEnabled} onChange={(e) => setTextBackEnabled(e.target.checked)} /> Missed-call text-back</label>
             </div>
             <div className="sm:col-span-2">
-              <label className={adminLabel}>Text-back message (blank = default)</label>
-              <textarea className={`${adminInput} min-h-20`} value={textBackMessage} onChange={(e) => setTextBackMessage(e.target.value)} placeholder={textBackPreview(businessName, null)} maxLength={320} />
+              <label htmlFor="phone-text-back" className={adminLabel}>Text-back message (blank = default)</label>
+              <textarea id="phone-text-back" className={`${adminInput} min-h-20`} value={textBackMessage} onChange={(e) => setTextBackMessage(e.target.value)} placeholder={textBackPreview(businessName, null)} maxLength={320} />
             </div>
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -135,7 +153,7 @@ export function PhonePanel({ token, tier, initial, asked, businessName }: { toke
                       <td className="py-1.5 pr-3">{callResultLabel(c)}</td>
                       <td className="py-1.5 pr-3">{formatCallLength(c.durationSeconds)}</td>
                       <td className="py-1.5">
-                        {c.hasRecording ? <audio controls preload="none" className="h-8 w-48" src={`/api/admin/onboarding/${token}/phone/recording/${c.callSid}`} /> : '—'}
+                        {c.hasRecording ? <audio aria-label="Call recording" controls preload="none" className="h-8 w-48" src={`/api/admin/onboarding/${token}/phone/recording/${c.callSid}`} /> : '—'}
                       </td>
                     </tr>
                   ))

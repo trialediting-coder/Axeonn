@@ -112,11 +112,11 @@ export async function releaseNumber(phoneNumberSid: string): Promise<void> {
 }
 
 /** GET a call recording's audio (the Recording URL plus .mp3) with account auth; returns the raw Response so a route can stream it. */
-export async function fetchRecording(recordingUrl: string): Promise<Response> {
+export async function fetchRecording(recordingUrl: string, init?: { range?: string }): Promise<Response> {
   // Only ever send the account credentials to Twilio's API host.
   if (new URL(recordingUrl).origin !== 'https://api.twilio.com') throw new Error('Refusing to fetch a recording from a non-Twilio origin');
   if (!isTwilioConfigured()) throw new Error('Twilio is not configured (TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN)');
-  const res = await fetch(`${recordingUrl}.mp3`, { method: 'GET', headers: { authorization: authHeader() }, cache: 'no-store' });
+  const res = await fetch(`${recordingUrl}.mp3`, { method: 'GET', headers: { authorization: authHeader(), ...(init?.range ? { range: init.range } : {}) }, cache: 'no-store' });
   if (!res.ok) throw new Error(`Twilio recording fetch failed (${res.status})`);
   return res;
 }
