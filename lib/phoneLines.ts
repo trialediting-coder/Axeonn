@@ -8,7 +8,7 @@ import { ensureSchema, sql } from '@/lib/db';
 import { attachNumberToService, buyNumber, createMessagingService, isTwilioConfigured, releaseNumber, searchLocalNumbers, sendSms, webhookUrl } from '@/lib/twilio';
 import { callerKey, normalizePhone, textBackMessage, SMS_MAX_CHARS, type CallOutcome, type CallsSummary, type PhoneCall, type PhoneLine, type PhoneLineSettings, type SmsStatus } from '@/lib/phoneShared';
 
-export type { PhoneLine, PhoneCall, CallsSummary, SmsStatus, PhoneLineSettings } from './phoneShared';
+export type { PhoneLine, PhoneCall, CallsSummary, SmsStatus, PhoneLineSettings } from '@/lib/phoneShared';
 
 export const TEXT_BACK_WINDOW_HOURS = 24;
 
@@ -168,9 +168,9 @@ export async function provisionLine(onboarding: { id: number; businessName: stri
     try {
       await releaseNumber(number.sid);
     } catch (releaseErr) {
-      throw new Error(`Provisioning failed after buying ${number.phoneNumber}, and releasing it failed too (${errText(releaseErr)}); release it in the Twilio console. ${errText(err)}`);
+      throw new Error(`Provisioning failed after buying ${number.phoneNumber}, and releasing it failed too (${errText(releaseErr)}); release it in the Twilio console. Messaging Service ${service.sid} was created and can be deleted in the Twilio console. ${errText(err)}`);
     }
-    throw new Error(`Provisioning failed after buying ${number.phoneNumber}; the number was released. ${errText(err)}`);
+    throw new Error(`Provisioning failed after buying ${number.phoneNumber}; the number was released. Messaging Service ${service.sid} was created and can be deleted in the Twilio console. ${errText(err)}`);
   }
 }
 
@@ -200,7 +200,11 @@ export async function recordCall(onboardingId: number, c: { callSid: string; fro
   await sql`
     INSERT INTO phone_calls (onboarding_id, call_sid, from_number, to_number, outcome, dial_status, duration_seconds)
     VALUES (${onboardingId}, ${c.callSid}, ${c.fromNumber}, ${c.toNumber}, ${c.outcome}, ${c.dialStatus}, ${c.durationSeconds})
-    ON CONFLICT (call_sid) DO UPDATE SET outcome = EXCLUDED.outcome, dial_status = EXCLUDED.dial_status, duration_seconds = COALESCE(EXCLUDED.duration_seconds, phone_calls.duration_seconds);
+    ON CONFLICT (call_sid) DO UPDATE SET
+      -- A retried or late webhook must never turn an answered call back into a missed one.
+      outcome = CASE WHEN phone_calls.outcome = 'answered' THEN 'answered' ELSE EXCLUDED.outcome END,
+      dial_status = CASE WHEN phone_calls.outcome = 'answered' THEN phone_calls.dial_status ELSE EXCLUDED.dial_status END,
+      duration_seconds = COALESCE(EXCLUDED.duration_seconds, phone_calls.duration_seconds);
   `;
 }
 
@@ -256,33 +260,49 @@ export async function textedBackRecently(onboardingId: number, phoneNumber: stri
 export type ClientSmsResult = { sent: true; sid: string } | { sent: false; reason: 'sms_pending' | 'opted_out' | 'bad_number' };
 
 /**
- * The only way a text leaves a client's line. Gates: a number we can text, the
- * 10DLC campaign approved (sms_status 'ready'), and the recipient not opted out.
- * Records the outbound message on success.
+ * The only way a text leaves a client's line. Gates: a US number, the 10DLC
+ * campaign approved (sms_status 'ready'), and the recipient not opted out.
+ * Records the outbound message on success. A throw means nothing was sent.
  */
 export async function sendClientSms(line: PhoneLine, to: string, body: string, kind: 'text_back' | 'manual'): Promise<ClientSmsResult> {
-  const recipient = callerKey(to);
-  if (recipient === 'unknown') return { sent: false, reason: 'bad_number' };
+  // The 10DLC campaign is US-only, so only US numbers are texted.
+  const recipient = normalizePhone(to);
+  if (!recipient) return { sent: false, reason: 'bad_number' };
   if (line.smsStatus !== 'ready') return { sent: false, reason: 'sms_pending' };
   if (await isOptedOut(line.onboardingId, recipient)) return { sent: false, reason: 'opted_out' };
   const { sid, status } = await sendSms({ serviceSid: line.messagingServiceSid, to: recipient, body });
-  await recordMessage(line.onboardingId, { messageSid: sid, direction: 'outbound', fromNumber: line.phoneNumber, toNumber: recipient, body, kind, status });
+  // The text has left; a failed bookkeeping write must not read as "not sent".
+  try {
+    await recordMessage(line.onboardingId, { messageSid: sid, direction: 'outbound', fromNumber: line.phoneNumber, toNumber: recipient, body, kind, status });
+  } catch (err) {
+    console.error('phone: outbound row not recorded', sid, err);
+  }
   return { sent: true, sid };
 }
 
 /**
  * The missed-call text. The line must want it and the caller must not have been
  * texted back in the last day; then the call row is claimed atomically (so a
- * retried webhook cannot text twice) and the send goes through sendClientSms.
+ * retried webhook, or two calls from the same caller, cannot text twice) and the send goes through sendClientSms.
  * A send that does not happen releases the claim. Returns true only when a text left.
  */
 export async function sendTextBack(line: PhoneLine, businessName: string | null, to: string, callSid: string): Promise<boolean> {
-  if (!line.textBackEnabled) return false;
+  if (!line.textBackEnabled || line.smsStatus !== 'ready') return false;
   const caller = callerKey(to);
   if (caller === 'unknown') return false;
-  if (await textedBackRecently(line.onboardingId, caller)) return false;
+  if (await textedBackRecently(line.onboardingId, caller)) return false; // cheap fast path; the claim below is the real check
 
-  const claim = await sql`UPDATE phone_calls SET text_back_sent_at = now() WHERE call_sid = ${callSid} AND text_back_sent_at IS NULL RETURNING id;`;
+  // Atomic: this call is unclaimed AND no other call from the same caller was texted back in the window.
+  const claim = await sql`
+    UPDATE phone_calls SET text_back_sent_at = now()
+    WHERE call_sid = ${callSid} AND text_back_sent_at IS NULL
+      AND NOT EXISTS (
+        SELECT 1 FROM phone_calls p
+        WHERE p.onboarding_id = ${line.onboardingId} AND p.from_number = ${caller} AND p.call_sid <> ${callSid}
+          AND p.text_back_sent_at > now() - interval '24 hours'
+      )
+    RETURNING id;
+  `;
   if (claim.rows.length === 0) return false;
 
   const release = () => sql`UPDATE phone_calls SET text_back_sent_at = NULL WHERE call_sid = ${callSid};`;
@@ -290,8 +310,12 @@ export async function sendTextBack(line: PhoneLine, businessName: string | null,
   try {
     result = await sendClientSms(line, caller, textBackMessage(businessName, line.textBackMessage), 'text_back');
   } catch (err) {
-    await release();
-    throw err;
+    try {
+      await release();
+    } catch (releaseErr) {
+      console.error('phone: text-back claim not cleared', callSid, releaseErr);
+    }
+    throw err; // the send error, never the cleanup error
   }
   if (!result.sent) {
     await release();
