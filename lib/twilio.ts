@@ -107,6 +107,27 @@ export async function sendSms(input: { serviceSid: string; to: string; body: str
   return { sid: r.sid, status: r.status };
 }
 
+/**
+ * An outbound call from a client's tracked number (call connect). Twilio fetches
+ * `url` for TwiML when the callee answers and posts the final status to
+ * `statusCallback`. Rings 20 seconds, short of most carriers' voicemail pickup.
+ */
+export async function createCall(input: { from: string; to: string; url: string; statusCallback: string }): Promise<{ sid: string }> {
+  const r = await call<{ sid: string }>(`${API}/Accounts/${sid()}/Calls.json`, {
+    method: 'POST',
+    form: {
+      From: input.from,
+      To: input.to,
+      Url: input.url,
+      Method: 'POST',
+      StatusCallback: input.statusCallback,
+      StatusCallbackMethod: 'POST',
+      Timeout: '20',
+    },
+  });
+  return { sid: r.sid };
+}
+
 export async function releaseNumber(phoneNumberSid: string): Promise<void> {
   await call(`${API}/Accounts/${sid()}/IncomingPhoneNumbers/${phoneNumberSid}.json`, { method: 'DELETE' });
 }

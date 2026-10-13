@@ -36,3 +36,22 @@ test('readTwilioRequest refuses a missing or wrong signature with 403 and an ove
   const big = { Body: 'x'.repeat(70000) };
   assert.equal(await statusOf(readTwilioRequest(post(big, twilioSignature(`https://axeonstudio.co${PATH}`, big, TOKEN)), PATH)), 413);
 });
+
+test('readTwilioRequest with withQuery checks the signature over the URL including its query', async () => {
+  process.env.TWILIO_AUTH_TOKEN = TOKEN;
+  delete process.env.PHONE_WEBHOOK_ORIGIN;
+  const path = '/api/phone/connect';
+  const params = { CallSid: 'CA9', From: '+15155550199', To: '+15155550100' };
+  const sig = twilioSignature(`https://axeonstudio.co${path}?lead=42`, params, TOKEN);
+  const req = (query: string) =>
+    new Request(`https://axeonstudio.co${path}${query}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded', 'x-twilio-signature': sig },
+      body: new URLSearchParams(params).toString(),
+    });
+  assert.deepEqual(await readTwilioRequest(req('?lead=42'), path, { withQuery: true }), { ok: true, params });
+  // The same signed body replayed against another lead id is refused.
+  assert.equal(await statusOf(readTwilioRequest(req('?lead=43'), path, { withQuery: true })), 403);
+  // Checked without its query, the URL is not the one Twilio signed.
+  assert.equal(await statusOf(readTwilioRequest(req('?lead=42'), path)), 403);
+});

@@ -1,7 +1,7 @@
 // Run with: npm run test:phone. Only the pure parts: signature and form parsing.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { fetchRecording, formParams, redactPath, searchLocalNumbers, twilioSignature, verifyTwilioSignature, webhookUrl } from './twilio';
+import { createCall, fetchRecording, formParams, redactPath, searchLocalNumbers, twilioSignature, verifyTwilioSignature, webhookUrl } from './twilio';
 
 // The inputs from Twilio's "Validating requests" doc. EXPECTED was computed once with
 // node:crypto from the documented algorithm (URL, then each POST param sorted by key
@@ -69,6 +69,41 @@ test('fetchRecording refuses a non-Twilio origin before any request is made', as
   try {
     await assert.rejects(fetchRecording('https://evil.example.com/2010-04-01/Accounts/AC1/Recordings/RE1'), /non-Twilio origin/);
     assert.equal(called, false);
+  } finally {
+    globalThis.fetch = saved.fetch;
+    if (saved.sid === undefined) delete process.env.TWILIO_ACCOUNT_SID; else process.env.TWILIO_ACCOUNT_SID = saved.sid;
+    if (saved.tok === undefined) delete process.env.TWILIO_AUTH_TOKEN; else process.env.TWILIO_AUTH_TOKEN = saved.tok;
+  }
+});
+
+test('createCall posts From, To, the TwiML URL and the status callback to the Calls endpoint, ringing 20 seconds', async () => {
+  const saved = { fetch: globalThis.fetch, sid: process.env.TWILIO_ACCOUNT_SID, tok: process.env.TWILIO_AUTH_TOKEN };
+  process.env.TWILIO_ACCOUNT_SID = 'ACtestsid0123456789';
+  process.env.TWILIO_AUTH_TOKEN = 'tok';
+  const seen: Array<{ url: string; method: string | undefined; body: URLSearchParams }> = [];
+  globalThis.fetch = (async (input: unknown, init?: RequestInit) => {
+    seen.push({ url: String(input), method: init?.method, body: new URLSearchParams(String(init?.body ?? '')) });
+    return new Response(JSON.stringify({ sid: 'CAnew' }), { status: 201, headers: { 'content-type': 'application/json' } });
+  }) as typeof fetch;
+  try {
+    const r = await createCall({
+      from: '+15155550199',
+      to: '+15155550100',
+      url: 'https://axeonstudio.co/api/phone/connect?lead=42',
+      statusCallback: 'https://axeonstudio.co/api/phone/connect/status?lead=42',
+    });
+    assert.deepEqual(r, { sid: 'CAnew' });
+    assert.equal(seen.length, 1);
+    assert.equal(seen[0].url, 'https://api.twilio.com/2010-04-01/Accounts/ACtestsid0123456789/Calls.json');
+    assert.equal(seen[0].method, 'POST');
+    const b = seen[0].body;
+    assert.equal(b.get('From'), '+15155550199');
+    assert.equal(b.get('To'), '+15155550100');
+    assert.equal(b.get('Url'), 'https://axeonstudio.co/api/phone/connect?lead=42');
+    assert.equal(b.get('Method'), 'POST');
+    assert.equal(b.get('StatusCallback'), 'https://axeonstudio.co/api/phone/connect/status?lead=42');
+    assert.equal(b.get('StatusCallbackMethod'), 'POST');
+    assert.equal(b.get('Timeout'), '20');
   } finally {
     globalThis.fetch = saved.fetch;
     if (saved.sid === undefined) delete process.env.TWILIO_ACCOUNT_SID; else process.env.TWILIO_ACCOUNT_SID = saved.sid;
