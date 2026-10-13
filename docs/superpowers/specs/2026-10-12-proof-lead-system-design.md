@@ -185,3 +185,99 @@ Jobber, Housecall Pro and ServiceTitan each have a public API that accepts a new
 - Slice 2 reuses `sendSms()` and the Messaging Service for lead alerts, and adds `<Dial>` with a `<Number url>` whisper for the "press 1" bridge.
 - Slice 3's scheduler is a daily-plus-hourly cron in `vercel.json` that reads `sequence_runs`; it sends through the same `sendSms()` and `lib/email.ts`.
 - The portal needs `accept` items for Facebook page and Instagram connection before slice 6; add them then, not now.
+
+
+## Slices 2 to 6: designs (added 2026-10-13, owner instruction "build every layer")
+
+These sections are the binding design for the remaining slices. Where they revise an earlier line in this document, the later text wins. Decisions marked **Ruling** were made by the executor without the owner, with the reason, and are reversible.
+
+### Cross-slice decisions
+
+- **Ruling: client-site forms post to PROOF, not Formspree.** `POST https://axeonstudio.co/api/lead` accepts form-encoded or JSON with `site` (the client's tracking site key, the same one `t.js` carries), `name`, `phone`, `email`, `message`, optional `page`, `utm_*`, and a honeypot field `company_website` that must be empty. On success it redirects to the form's `redirect` field or returns `{ ok: true }` for JSON. Existing client sites switch by changing the form action and adding the hidden `site` input; new builds ship that way. Reason: call connect, alerts, sequences and the inbox all need the submission in our database within a second, and Formspree cannot do that.
+- **Ruling: no third-party booking.** Cal.com needs an account and an API key per client, which is the per-client-secret problem the Twilio design avoided. Booking is built in-house (slice 5).
+- **Ruling: push via web-push.** `WEB_PUSH_PUBLIC_KEY` / `WEB_PUSH_PRIVATE_KEY` (VAPID, generated once by the owner with `npx web-push generate-vapid-keys`) and a `push_subscriptions` table. Until the keys exist, every alert falls back to an SMS to the owner's cell through the client's own line (`kind = 'alert'`) and an email through Resend.
+- **Ruling: one secrets helper.** `lib/secretBox.ts`: AES-256-GCM with `SECRETS_KEY` (32 bytes, base64, generated once by the owner). Used by slice 6 for Meta page tokens. Nothing else stores a third-party secret per client.
+- **Quiet hours** apply to every automated outbound text except the transactional missed-call text-back: nothing sends between 8 pm and 8 am in the client's time zone (add `phone_lines.time_zone TEXT DEFAULT 'America/Chicago'`, editable on the admin card). A send that falls in quiet hours is held to 8 am.
+- **Kinds.** `phone_messages.kind` grows to `('text_back','manual','inbound','alert','sequence','confirm','reminder')`.
+- **Tier gating.** Call connect, sequences, inbox, booking, chat: AxeonCORE and up. Reels posting: AxeonGROWTH. The admin cards are hidden for Essentials exactly like the Phone card.
+
+### Slice 2 design: call connect, lead intake, alerts, call screening
+
+**Flow.**
+1. A form posts to `/api/lead`. The route resolves the site key to the onboarding (same lookup `/api/t` uses), validates, writes `form_submissions`, and responds. Everything else runs after the response via `after()` from `next/server`.
+2. **Alerts**: email to the client (a lead-notification template with the fields and a link to PROOF), and an SMS to `forward_to` through the client's line (`kind = 'alert'`, obeys the 10DLC gate; if the line is not ready, email only). Push later (slice 4).
+3. **Call connect** (if the line exists, `call_connect_enabled`, the lead left a US phone, and it is not quiet hours): Twilio REST creates an outbound call from the tracking number to `forward_to` with `url = /api/phone/connect?lead=<id>` and a status callback. The TwiML says "New lead from your website: <name>. Press 1 to call them now." in a `<Gather numDigits="1" timeout="8">`. On `1`, the route returns `<Dial callerId="<tracking number>" record="record-from-answer-dual" recordingStatusCallback=…><Number>lead phone</Number></Dial>`. No key: "Okay, we texted you their details" and hang up. The call row is written with `direction = 'connect'` and `lead_id`.
+4. **Call screening** (closes the slice-1 voicemail gap). `forwardTwiml` dials `<Number url="/api/phone/voice/screen">forward_to</Number>` when `screen_calls` is on (default on). The screen route answers the child leg with `<Gather numDigits="1" timeout="5"><Say>Call for <business>. Press 1 to accept.</Say></Gather><Hangup/>`; Gather's action returns an empty `<Response/>`, which bridges. Voicemail never presses 1, so the child leg hangs up and the parent `<Dial>` reports `no-answer`: a real missed call, text-back fires.
+
+**Tables.**
+```
+form_submissions (id BIGSERIAL, onboarding_id FK CASCADE, name TEXT, phone TEXT E.164|null, email TEXT lowercase|null, message TEXT, page TEXT, utm_source/utm_medium/utm_campaign TEXT, ip_hash TEXT, created_at)
+phone_lines + screen_calls BOOL DEFAULT true, call_connect_enabled BOOL DEFAULT true, time_zone TEXT DEFAULT 'America/Chicago'
+phone_calls + direction TEXT CHECK ('inbound','connect') DEFAULT 'inbound', lead_id BIGINT NULL
+phone_messages.kind CHECK widened (see Kinds)
+```
+Rate limit: 5 submissions per IP hash per 10 minutes per site, checked against `form_submissions.ip_hash` and `created_at` (an in-memory map is useless on serverless).
+
+**Twilio additions** (`lib/twilio.ts`): `createCall({ from, to, url, statusCallback }): { sid }`.
+**Admin card**: toggles for screening and call connect, the time zone, and a "Send test lead" button that posts a fake submission for that client.
+**PROOF**: the Leads tab lists form submissions alongside tracker leads (the full inbox is slice 4; here it is a row per submission with name, masked phone, page, time, and whether the owner pressed 1).
+**Docs**: how to switch a client site's form; the `t.js` snippet and the form snippet side by side.
+
+### Slice 3 design: sequences
+
+**What runs.**
+| Sequence | Trigger | Steps (default) | Stops when |
+|---|---|---|---|
+| new_lead | form submission, or a missed call with no reply in 30 min | +5 min SMS "got your request, calling you shortly"; +1 day email; +3 days SMS | contact replies, is marked Contacted/Booked/Won/Lost, or STOP |
+| quote | client taps "Quote sent" on a lead | +1 day SMS; +3 days email; +7 days SMS | reply, Won/Lost, STOP |
+| reminder | a booking (slice 5) | −24 h SMS; −2 h SMS | booking cancelled |
+| review | client taps Won | +2 h SMS with the Google review link | always one step |
+| reactivation | quarterly cron, past-customer list | one SMS per contact, spread over the quarter's first week, max 50/day per client | STOP |
+
+**Tables.**
+```
+sequence_templates (id, onboarding_id FK, kind TEXT, steps JSONB [{ offset_minutes, channel 'sms'|'email', subject?, body }], enabled BOOL DEFAULT false, updated_at, UNIQUE(onboarding_id, kind))
+sequence_runs (id BIGSERIAL, onboarding_id FK, kind, contact_phone TEXT|null, contact_email TEXT|null, contact_name TEXT, ref_table TEXT, ref_id BIGINT, step INT DEFAULT 0, next_at TIMESTAMPTZ, status TEXT CHECK ('active','done','stopped'), stop_reason TEXT, created_at, updated_at; INDEX (status, next_at))
+past_customers (id, onboarding_id FK, name, phone E.164, email, last_job_at DATE, consent_attested_at TIMESTAMPTZ, source TEXT 'csv', created_at; UNIQUE(onboarding_id, phone))
+```
+**Engine.** `app/api/cron/sequences` every 15 minutes (`*/15 * * * *` in vercel.json): select due `active` runs, up to 200 per tick, send the step through `sendClientSms(kind 'sequence')` or `sendSequenceEmail` (Resend, from `"<Business> via Axeon" <leads@axeonstudio.co>`, reply-to the client's email), advance `step`, set `next_at` to the next offset or mark done. Quiet hours shift `next_at` to 8 am local. Templates render `{name}`, `{business}`, `{owner_first}`, `{review_link}`, `{booking_link}` with a strict allow-list; unknown braces render empty.
+**Stops.** The inbound SMS route stops every active run for that `(onboarding_id, from_number)`. A stage change (slice 4; in slice 3 the Leads tab's taps) stops the matching kinds. STOP stops all.
+**Copy.** "Draft with Claude" on the admin Sequences card calls `lib/anthropic.ts` with the portal's `sales-process.*`, `reviews.jobDoneSignal`, `exit-offer.offer` answers and the business name, returns the five templates as JSON (validated against the step schema), saved as a draft the admin edits and enables. Axeon reviews before enabling; nothing sends while a template is `enabled = false`. Every SMS body ends with "Reply STOP to opt out." on the first step of each sequence.
+**Past-customer upload.** Admin uploads a CSV (name, phone, email, last job date) with a required checkbox attesting the client has consent to text these customers; the attestation time is stored per row. The reactivation sequence sends only to rows with `consent_attested_at`.
+
+### Slice 4 additions (leads inbox; design above stands)
+
+- `contact_events.kind` also gets `'alert'`, `'sequence'`, `'reminder'`, `'messenger'`, `'instagram'`.
+- **Backfill** on first deploy: a one-shot admin endpoint `POST /api/admin/contacts/backfill` builds contacts from `phone_calls`, `phone_messages`, `form_submissions` in `created_at` order, idempotent.
+- **Push**: `push_subscriptions (id, account_id FK client_accounts, endpoint TEXT UNIQUE, p256dh, auth, created_at)`; `public/sw.js` service worker; a "Turn on notifications" button in PROOF's header; `lib/push.ts` wraps `web-push`. Fallback when no subscription: SMS alert (slice 2 path).
+- **Stages drive sequences**: Contacted/Booked/Won/Lost stop `new_lead` and `quote`; Won starts `review`; "Quote sent" starts `quote`.
+
+### Slice 5 design: booking and website chat
+
+**Booking (in-house).**
+```
+booking_settings (onboarding_id PK FK, enabled BOOL, slot_minutes INT DEFAULT 60, buffer_minutes INT DEFAULT 15, lead_days INT DEFAULT 14, hours JSONB { mon: [["08:00","17:00"]], … }, service_names TEXT[], confirm_message TEXT, updated_at)
+bookings (id BIGSERIAL, onboarding_id FK, contact_name, phone E.164, email, service TEXT, starts_at TIMESTAMPTZ, ends_at, status CHECK ('booked','cancelled','done'), source CHECK ('widget','chat','manual'), cancel_token TEXT UNIQUE, created_at; INDEX (onboarding_id, starts_at))
+```
+Public: `GET /api/book/<site>/slots?from=&to=` returns open slots from hours minus existing bookings and buffer, in the client's time zone; `POST /api/book/<site>` books (phone required, US only), writes a contact event, sends confirmation SMS + email with an `.ics`, schedules reminders (slice 3), alerts the owner, sets the contact to Booked. Cancel link `/b/<site>/cancel/<token>`. Hosted page `/b/<site>` (server-rendered, mobile-first, brand-neutral) and an embed `public/book.js` that mounts the same UI into `<div data-axeon-book>`. Admin card: hours grid, slot length, services, enable; a list of upcoming bookings with cancel. PROOF Bookings tab becomes real (count this month, next 7 days list, done vs cancelled).
+
+**Chat widget.**
+```
+site_pages (id, onboarding_id FK, url TEXT, title, text TEXT, fetched_at; UNIQUE(onboarding_id, url))
+chat_sessions (id TEXT PK random, onboarding_id FK, visitor TEXT, phone E.164|null, name, created_at, last_at)
+chat_messages (id BIGSERIAL, session_id FK, role CHECK ('user','assistant','tool'), content TEXT, created_at)
+```
+`public/chat.js` injects a bubble; `POST /api/chat/<site>` with `{ session, message }` streams a Claude response (`claude-sonnet-5-5` for cost; `lib/anthropic.ts` already has the client). System prompt: the business name, services, hours, service area and the portal's answers, plus the top 20 `site_pages` texts truncated to 12k chars. Tools: `offer_booking` (returns the next 6 open slots, books on confirmation), `take_message` (requires a phone number; creates a `form_submissions` row, which triggers slice 2 alerts and the new_lead sequence), `handoff` (texts the owner and tells the visitor they will hear back). Guardrails in the prompt: never quote prices not on the site, never promise a time without a booking, always offer to take a number. Rate limit 30 messages per session, 200 per site per hour. Admin card: "Train on site" (crawls the client's sitemap or homepage links, same-origin only, max 40 pages, stores text), greeting, enable, and a transcript viewer. Transcripts land in the inbox as `chat` events once a phone number is known.
+
+### Slice 6 design: Facebook Messenger and Instagram DMs, reels posting
+
+**Gate.** Nothing here can be verified until Meta approves the app for `pages_messaging`, `instagram_manage_messages`, `instagram_content_publish`. Build behind `META_APP_ID`, `META_APP_SECRET`, `META_VERIFY_TOKEN`, `SECRETS_KEY`; every route returns 503 "not configured" without them. Unit tests cover the webhook verify handshake, the `X-Hub-Signature-256` check, and payload parsing from Meta's documented samples.
+
+**Connect.** Portal item (kind `accept`) "Connect your Facebook page and Instagram" → `/api/meta/connect?token=<onboarding token>` → Facebook Login with the three scopes → callback exchanges the code, lists the user's pages, stores each selected page's long-lived page token encrypted in `meta_pages (id, onboarding_id FK, page_id TEXT UNIQUE, page_name, ig_user_id TEXT|null, token_enc TEXT, connected_at)`, and subscribes the page to the app's webhook.
+**Inbound.** `GET /api/meta/webhook` answers the verify challenge; `POST` verifies the signature, maps the page or IG account to the onboarding, upserts a contact keyed by the sender's PSID (`contacts` gains `messenger_psid TEXT`, `instagram_id TEXT` with partial unique indexes), writes a `contact_events` row of kind `messenger` or `instagram`, pushes/alerts like a text.
+**Reply.** The inbox reply box sends through the Send API when the thread's last inbound is a Messenger or IG message (24-hour messaging window enforced; outside it the box says so and offers SMS if a phone is known).
+**Reels (GROWTH).** `social_posts (id, onboarding_id FK, platform CHECK ('instagram','facebook'), kind 'reel', video_url TEXT, caption TEXT, scheduled_at, status CHECK ('draft','scheduled','published','failed'), remote_id, error, created_at)`. Admin: upload a video to Vercel Blob (`@vercel/blob`, `BLOB_READ_WRITE_TOKEN`), caption, schedule. Cron `/api/cron/social` hourly publishes due posts via the IG container → publish flow and the Page video endpoint. The PROOF social area shows published reels with reach pulled daily.
+
+### Execution order and what each slice must leave behind
+
+2 → 3 → 4 → 5 → 6. Slice 2 leaves `form_submissions` and the alert path; slice 3 leaves the engine and `stopRunsFor(onboardingId, phone)`; slice 4 leaves `contacts`, `upsertContactEvent(...)` and push; slice 5 writes bookings and chat through those; slice 6 adds adapters only.
