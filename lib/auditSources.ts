@@ -85,8 +85,11 @@ export async function gridSearch(
       cost += r.cost;
       points[i + j].rank = matchSubject(subject, r.data)?.item.rank ?? null;
     });
-    // A location/credentials error repeats 25 times: stop after the first batch.
-    if (failed === batch.length && i === 0) break;
+    // A location/credentials error repeats 25 times: stop after the first batch and count the rest as failed.
+    if (failed === batch.length && i === 0) {
+      failed = pts.length;
+      break;
+    }
   }
   if (failed > pts.length / 2) return { ok: false, error: `Grid failed at ${failed} of ${pts.length} points: ${errors[0] ?? 'unknown error'}` };
   return { ok: true, data: summarizeGrid(points), cost, raw: { points: pts.length, failed, errors } };
