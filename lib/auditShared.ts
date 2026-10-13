@@ -169,7 +169,21 @@ export function normalizeWebsite(v: string | null | undefined): string | null {
   return /^https?:\/\//i.test(s) ? s : `https://${s}`;
 }
 
-const MIN_CONTAIN = 4;
+/** Hosts many businesses share a domain on: a page there says nothing about which listing is theirs, and is not their website. */
+export const SHARED_HOSTS = [
+  'facebook.com', 'instagram.com', 'tiktok.com', 'x.com', 'twitter.com', 'linkedin.com', 'youtube.com',
+  'yelp.com', 'google.com', 'business.site', 'nextdoor.com', 'yellowpages.com', 'angi.com', 'thumbtack.com', 'linktr.ee',
+];
+export const isSharedHost = (domain: string): boolean => SHARED_HOSTS.some((h) => domain === h || domain.endsWith(`.${h}`));
+/** The domain to match Google results on, or null when the "website" is a page on a shared host. */
+export function matchableDomain(url: string | null | undefined): string | null {
+  const d = domainOf(url);
+  return d && !isSharedHost(d) ? d : null;
+}
+
+const MIN_CONTAIN = 6;
+/** `have` contains `want` as a whole-word sequence ("joes auto spa - ankeny" ⊇ "joes auto spa"; "auto spark plug" ⊉ "auto spa"). */
+const containsWords = (have: string, want: string) => ` ${have} `.includes(` ${want} `);
 
 export function matchSubject(
   subject: Pick<AuditSubject, 'business' | 'website' | 'placeId' | 'cid'>,
@@ -179,23 +193,27 @@ export function matchSubject(
     const hit = items.find((i) => (subject.placeId && i.placeId === subject.placeId) || (subject.cid && i.cid === subject.cid));
     if (hit) return { item: hit, matchedBy: 'placeId' };
   }
-  const dom = domainOf(subject.website);
+  const dom = matchableDomain(subject.website);
   if (dom) {
     const hit = items.find((i) => domainOf(i.domain) === dom);
     if (hit) return { item: hit, matchedBy: 'domain' };
   }
   const want = normalizeName(subject.business);
   if (want) {
+    // Google's listing may carry extra words ("- Ankeny"); a shorter, generic listing may never claim the subject.
     const hit = items.find((i) => {
       const have = normalizeName(i.name);
-      if (have === want) return true;
-      if (want.length < MIN_CONTAIN || have.length < MIN_CONTAIN) return false;
-      return have.includes(want) || want.includes(have);
+      return have === want || (want.length >= MIN_CONTAIN && containsWords(have, want));
     });
     if (hit) return { item: hit, matchedBy: 'name' };
   }
   return null;
 }
+
+/** False when the Maps section errored: nothing was measured, so nothing may be shown as a result. */
+export const mapsMeasured = (a: Pick<AuditRow, 'results'>): boolean => section(a.results.maps) !== null;
+/** A client scan uses one of the month's scans only when it actually measured Google. */
+export const countsAsScan = (a: Pick<AuditRow, 'status' | 'results'>): boolean => a.status !== 'failed' && mapsMeasured(a);
 
 /** The top 3 results, plus the subject's own row when it sits further down. */
 export function competitors(items: MapsItem[], self: MapsItem | null): Competitor[] {

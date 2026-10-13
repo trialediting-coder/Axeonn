@@ -16,6 +16,7 @@ import {
   domainOf,
   isAuditTrigger,
   matchSubject,
+  matchableDomain,
   normalizeWebsite,
   splitCity,
   summarize,
@@ -99,8 +100,9 @@ export async function composeAudit(subject: AuditSubject, opts: { grid: boolean;
     if (FATAL.test(maps.error)) return finish();
   }
 
-  const website = normalizeWebsite(subject.website);
-  const domain = domainOf(website);
+  // A page on a shared host (Facebook, Yelp…) is not the business's website: nothing to rank or check.
+  const domain = matchableDomain(subject.website);
+  const website = domain ? normalizeWebsite(subject.website) : null;
   const [org, ps, sc, bi] = await Promise.all([
     website ? S.organicSearch(subject.keyword, location) : null,
     website ? S.pageSpeed(website) : null,
@@ -126,7 +128,8 @@ export async function composeAudit(subject: AuditSubject, opts: { grid: boolean;
     if (bi.ok) {
       cost += bi.cost;
       raw.businessInfo = bi.raw;
-      const b = bi.data;
+      // The lookup is a free-text search: only trust its hit when it is recognisably this business.
+      const b = bi.data && matchSubject(subject, [bi.data]) ? bi.data : null;
       results.reputation = b
         ? { rating: b.rating, reviews: b.reviews, categories: b.categories, gbpUrl: b.gbpUrl, placeId: b.placeId }
         : { rating: null, reviews: null, categories: [], gbpUrl: null, placeId: null };
@@ -310,6 +313,7 @@ export async function clientScansUsed(onboardingId: number, month: string = mont
   const res = await sql<{ n: number }>`
     SELECT COUNT(*)::int AS n FROM audits
     WHERE onboarding_id = ${onboardingId} AND trigger = 'client' AND status <> 'failed'
+      AND NOT (results->'maps' ? 'error')
       AND to_char(created_at AT TIME ZONE 'America/Chicago', 'YYYY-MM') = ${month};
   `;
   return res.rows[0]?.n ?? 0;
@@ -398,10 +402,11 @@ export function subjectForOnboarding(o: Pick<Onboarding, 'businessName' | 'clien
   return { business: o.businessName || o.clientName || o.clientEmail, city, state, website: s.website, keyword: s.keyword.toLowerCase(), placeId: s.placeId, cid: s.cid, lat: s.lat, lng: s.lng };
 }
 
+/** Fills blanks only: a later audit that matched the wrong listing must not overwrite a pin that was right. */
 async function rememberPin(onboardingId: number, l: Learned): Promise<void> {
   await sql`
-    UPDATE onboardings SET audit_place_id = COALESCE(${l.placeId}, audit_place_id), audit_cid = COALESCE(${l.cid}, audit_cid),
-      audit_lat = COALESCE(${l.lat}, audit_lat), audit_lng = COALESCE(${l.lng}, audit_lng)
+    UPDATE onboardings SET audit_place_id = COALESCE(audit_place_id, ${l.placeId}), audit_cid = COALESCE(audit_cid, ${l.cid}),
+      audit_lat = COALESCE(audit_lat, ${l.lat}), audit_lng = COALESCE(audit_lng, ${l.lng})
     WHERE id = ${onboardingId};
   `;
 }

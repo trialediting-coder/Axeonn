@@ -185,3 +185,31 @@ test('defaultKeyword and input validation', () => {
   assert.throws(() => validateAuditSettingsInput({ intervalDays: '0' }), /between 1 and 90/);
   assert.throws(() => validateAuditSettingsInput({ clientScanCap: '99' }), /between 0 and 30/);
 });
+
+// ── Final-review fixes ──
+import { countsAsScan, mapsMeasured, matchableDomain } from './auditShared';
+
+test('matchSubject name path needs whole words and never lets a shorter generic listing claim the subject', () => {
+  const items = [item({ rank: 1, name: 'Auto Spark Plug' }), item({ rank: 2, name: 'Auto Detailing' }), item({ rank: 3, name: 'Joes Auto Spa - Ankeny' })];
+  assert.equal(matchSubject({ business: 'Auto Spa', website: null, placeId: null, cid: null }, items.slice(0, 2)), null, 'no substring match inside a word');
+  assert.equal(matchSubject({ business: 'Elite Auto Detailing', website: null, placeId: null, cid: null }, items), null, 'a generic competitor is not the subject');
+  assert.equal(matchSubject({ business: 'Joes Auto Spa', website: null, placeId: null, cid: null }, items)?.item.rank, 3, "Google's longer name still matches");
+});
+
+test('matchableDomain ignores shared hosts so a Facebook page never domain-matches', () => {
+  assert.equal(matchableDomain('https://www.facebook.com/joesautospa'), null);
+  assert.equal(matchableDomain('https://m.facebook.com/joesautospa'), null);
+  assert.equal(matchableDomain('subjectspa.com'), 'subjectspa.com');
+  const items = [item({ rank: 1, name: 'Someone Else', domain: 'facebook.com' }), item({ rank: 5, name: 'Joes Auto Spa' })];
+  assert.equal(matchSubject({ business: 'Joes Auto Spa', website: 'https://facebook.com/joesautospa', placeId: null, cid: null }, items)?.item.rank, 5);
+});
+
+test('mapsMeasured / countsAsScan: an errored Maps section is not a measurement and does not use a scan', () => {
+  const errored = { status: 'partial' as const, results: { maps: { error: 'timeout' }, website: { none: true as const } } };
+  const measured = { status: 'complete' as const, results: { maps: { found: false, rank: null, matchedBy: null, searched: { keyword: 'k', location: 'l' }, top: [] } } };
+  assert.equal(mapsMeasured(errored), false);
+  assert.equal(mapsMeasured(measured), true);
+  assert.equal(countsAsScan(errored), false);
+  assert.equal(countsAsScan(measured), true);
+  assert.equal(countsAsScan({ status: 'failed', results: {} }), false);
+});

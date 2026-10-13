@@ -5,7 +5,7 @@
 // override) are not used up. A failed scan is not counted.
 import { NextResponse } from 'next/server';
 import { clientScansUsed, getAuditSettings, runAudit, subjectForOnboarding } from '@/lib/audits';
-import { scanCapFor, section } from '@/lib/auditShared';
+import { countsAsScan, scanCapFor, section } from '@/lib/auditShared';
 import { getOnboardingById } from '@/lib/onboarding';
 import { getSignedInClient } from '@/lib/proofServer';
 
@@ -27,10 +27,11 @@ export async function POST() {
     const audit = await runAudit(subjectForOnboarding(onboarding, settings), { trigger: 'client', onboardingId: onboarding.id, grid: false });
     const maps = section(audit.results.maps);
     const rep = section(audit.results.reputation);
-    const counted = audit.status !== 'failed';
+    // A scan that could not reach Google is not a result and is not used up; `found: null` tells the card so.
+    const counted = countsAsScan(audit);
     return NextResponse.json({
       rank: maps?.rank ?? null,
-      found: maps?.found ?? false,
+      found: maps ? maps.found : null,
       rating: rep?.rating ?? null,
       reviews: rep?.reviews ?? null,
       leaks: audit.leaks,

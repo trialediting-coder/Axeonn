@@ -56,7 +56,8 @@ function Trend({ points, baseline }: { points: RankingData['points']; baseline: 
 export function RankingCard({ data, api }: { data: RankingData; api: string | null }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<{ rank: number | null; found: boolean; leaks: Leak[] } | null>(null);
+  /** `found: null` means the scan could not reach Google; the server did not count it. */
+  const [result, setResult] = useState<{ rank: number | null; found: boolean | null; leaks: Leak[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const left = Math.max(0, data.cap - data.used);
 
@@ -65,10 +66,10 @@ export function RankingCard({ data, api }: { data: RankingData; api: string | nu
     setBusy(true);
     setError(null);
     const res = await fetch(api, { method: 'POST' });
-    const json = (await res.json().catch(() => ({}))) as { rank?: number | null; found?: boolean; leaks?: Leak[]; error?: string };
+    const json = (await res.json().catch(() => ({}))) as { rank?: number | null; found?: boolean | null; leaks?: Leak[]; error?: string };
     setBusy(false);
     if (!res.ok) return setError(json.error ?? 'The scan did not go through. Nothing was used.');
-    setResult({ rank: json.rank ?? null, found: Boolean(json.found), leaks: json.leaks ?? [] });
+    setResult({ rank: json.rank ?? null, found: json.found === undefined ? null : json.found, leaks: json.leaks ?? [] });
     router.refresh();
   }
 
@@ -106,7 +107,9 @@ export function RankingCard({ data, api }: { data: RankingData; api: string | nu
       </div>
 
       {error ? <p className="mt-3 text-sm font-semibold text-red-600">{error}</p> : null}
-      {result ? (
+      {result && result.found === null ? (
+        <p className="mt-3 text-sm font-semibold text-amber-800">We couldn’t check Google just now. Nothing was used; try again in a minute.</p>
+      ) : result ? (
         <div className="mt-3 rounded-xl border border-blue-100 bg-blue-50/60 px-4 py-3 text-sm text-blue-950">
           <p className="font-semibold">Right now: {result.found && result.rank !== null ? `#${result.rank}` : 'not in the top 20'}.</p>
           {result.leaks.slice(0, 3).map((l, i) => (

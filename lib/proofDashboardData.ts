@@ -14,7 +14,7 @@ import { getUpgradeRequest } from '@/lib/upgrades';
 import { businessEmailForDashboard } from '@/lib/businessEmail';
 import type { ProofTabKey } from '@/lib/proofTabs';
 import { clientScansUsed, getAuditSettings, listAuditsForOnboarding } from '@/lib/audits';
-import { scanCapFor, section, splitCity } from '@/lib/auditShared';
+import { mapsMeasured, scanCapFor, section, splitCity } from '@/lib/auditShared';
 import type { RankingData } from '@/components/proof/RankingCard';
 import type { ProofDashboard } from '@/components/proof/ProofDashboard';
 import type { ComponentProps } from 'react';
@@ -43,9 +43,11 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
   ]);
   // The Ranking card (components/proof/RankingCard.tsx): shown only when the plan includes scans and the admin set city + keyword.
   const cap = scanCapFor(onboarding.tier, auditSettings.clientScanCap);
-  const official = audits.filter((a) => a.trigger !== 'client' && a.status !== 'failed');
+  // Only audits whose Maps section came back are measurements; an errored one must not read as "not found".
+  const measured = audits.filter((a) => a.status !== 'failed' && mapsMeasured(a));
+  const official = measured.filter((a) => a.trigger !== 'client');
   const latestGrid = official.map((a) => ({ at: a.createdAt, result: section(a.results.grid) })).find((g) => g.result !== null);
-  const latest = audits.find((a) => a.status !== 'failed') ?? null;
+  const latest = measured[0] ?? null;
   const latestMaps = latest ? section(latest.results.maps) : null;
   const latestRep = latest ? section(latest.results.reputation) : null;
   const ranking: RankingData | null =
@@ -54,8 +56,7 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
           keyword: auditSettings.keyword,
           city: splitCity(auditSettings.city).city,
           baselineRank: details.baselineRank,
-          points: [...audits]
-            .filter((a) => a.status !== 'failed')
+          points: [...measured]
             .reverse()
             .map((a) => ({ at: a.createdAt, rank: section(a.results.maps)?.rank ?? null, trigger: a.trigger })),
           latest: latest ? { at: latest.createdAt, rank: latestMaps?.rank ?? null, found: latestMaps?.found ?? false, rating: latestRep?.rating ?? null, reviews: latestRep?.reviews ?? null } : null,

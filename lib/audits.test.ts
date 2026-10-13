@@ -101,3 +101,27 @@ test('gridSearch: failed points are null; more than half failing fails the secti
   assert.equal(dead.ok, false);
   assert.equal(calls, 5, 'stops after the first batch when every point fails');
 });
+
+// ── Final-review fixes ──
+test('composeAudit: a business-info hit with a different name is not trusted', async () => {
+  const c = await composeAudit(
+    { ...subject, business: 'Nobody Detailing', website: null },
+    { grid: false, sources: fakes({ businessInfo: async () => ok(item({ rank: 0, name: 'Totally Different Shop', rating: 4.9, reviews: 300, placeId: 'pWrong', lat: 1, lng: 2 }), 0.003) }) }
+  );
+  assert.equal(section(c.results.reputation)?.rating, null);
+  assert.equal(c.learned, null);
+  assert.equal(c.costUsd, 0.005, 'the call is still paid for and recorded');
+});
+
+test('composeAudit: a Facebook page is not a website — no organic, speed or site checks', async () => {
+  let calls = 0;
+  const count = async () => { calls += 1; return bad('should not be called'); };
+  const c = await composeAudit(
+    { ...subject, website: 'https://www.facebook.com/joesautospa' },
+    { grid: false, sources: fakes({ organicSearch: count as Sources['organicSearch'], pageSpeed: count as Sources['pageSpeed'], siteCheck: count as Sources['siteCheck'] }) }
+  );
+  assert.deepEqual(c.results.website, { none: true });
+  assert.equal(c.results.organic, undefined);
+  assert.equal(calls, 0);
+  assert.equal(section(c.results.maps)?.matchedBy, 'name', 'matched by name, not by the shared host');
+});
