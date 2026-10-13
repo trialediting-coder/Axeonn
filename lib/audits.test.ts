@@ -1,0 +1,103 @@
+// lib/audits.test.ts
+// Run with: npx tsx --test lib/audits.test.ts   (composeAudit with fake sources; no network, no database)
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { composeAudit } from './audits';
+import { gridSearch, type SourceResult, type Sources } from './auditSources';
+import { section, type AuditSubject, type MapsItem } from './auditShared';
+
+const item = (o: Partial<MapsItem> & { rank: number; name: string }): MapsItem => ({
+  domain: null, url: null, rating: null, reviews: null, placeId: null, cid: null, lat: null, lng: null, categories: [], gbpUrl: null, ...o,
+});
+const subject: AuditSubject = { business: 'Joes Auto Spa', city: 'Ankeny', state: 'IA', website: 'https://subjectspa.com', keyword: 'auto detailing', placeId: null, cid: null, lat: null, lng: null };
+const mapsItems = [
+  item({ rank: 1, name: 'Example Shine Co', rating: 4.9, reviews: 212, placeId: 'p1' }),
+  item({ rank: 2, name: 'Sample Detail Works', rating: 4.8, reviews: 140 }),
+  item({ rank: 3, name: 'Demo Mobile Detail', rating: 4.7, reviews: 98 }),
+  item({ rank: 7, name: 'Joes Auto Spa', domain: 'www.subjectspa.com', rating: 4.6, reviews: 18, placeId: 'ChIJsubj', cid: '777', lat: 41.735, lng: -93.605 }),
+];
+const ok = <T,>(data: T, cost = 0.002): SourceResult<T> => ({ ok: true, data, cost, raw: { fixture: true } });
+const bad = (error: string): SourceResult<never> => ({ ok: false, error });
+
+const fakes = (over: Partial<Sources> = {}): Sources => ({
+  mapsSearch: async () => ok(mapsItems),
+  organicSearch: async () => ok([{ rank: 1, domain: 'yelp.test', title: 'Top 10' }, { rank: 4, domain: 'www.subjectspa.com', title: 'Joes' }]),
+  businessInfo: async () => ok(null, 0.003),
+  gridSearch: async () => ok({ spacingMiles: 1, size: 5, points: [], top3Share: 0.4, avgRank: 5 }, 0.05),
+  pageSpeed: async () => ok({ score: 41, lcpMs: 4800 }, 0),
+  siteCheck: async () => ok({ finalUrl: 'https://subjectspa.com/', https: true, clickToCall: false, form: true, title: 'Home', metaDescription: null, schema: [] }, 0),
+  ...over,
+});
+
+test('composeAudit: every section filled, pin learned, cost summed, leaks built', async () => {
+  const c = await composeAudit(subject, { grid: true, sources: fakes() });
+  assert.equal(c.status, 'complete');
+  assert.equal(section(c.results.maps)?.rank, 7);
+  assert.equal(section(c.results.maps)?.matchedBy, 'domain');
+  assert.equal(section(c.results.organic)?.rank, 4);
+  assert.equal(section(c.results.reputation)?.reviews, 18);
+  assert.equal(section(c.results.grid)?.top3Share, 0.4);
+  const web = section(c.results.website);
+  assert.ok(web && !('none' in web));
+  assert.equal(c.costUsd, 0.054);
+  assert.deepEqual(c.learned, { placeId: 'ChIJsubj', cid: '777', lat: 41.735, lng: -93.605 });
+  assert.equal(c.subject.placeId, 'ChIJsubj');
+  assert.ok(c.leaks.length > 0);
+  assert.deepEqual(Object.keys(c.raw).sort(), ['grid', 'maps', 'organic']);
+});
+
+test('composeAudit: not found → business info fills reputation; no website → website none, no organic/pagespeed calls', async () => {
+  let organicCalls = 0;
+  const c = await composeAudit(
+    { ...subject, business: 'Nobody Detailing', website: null },
+    { grid: false, sources: fakes({ organicSearch: async () => { organicCalls += 1; return ok([]); }, businessInfo: async () => ok(item({ rank: 0, name: 'Nobody Detailing', rating: 4.2, reviews: 5, placeId: 'pX', lat: 1, lng: 2 }), 0.003) }) }
+  );
+  assert.equal(section(c.results.maps)?.found, false);
+  assert.equal(section(c.results.reputation)?.rating, 4.2);
+  assert.deepEqual(c.results.website, { none: true });
+  assert.equal(c.results.organic, undefined);
+  assert.equal(organicCalls, 0);
+  assert.equal(c.results.grid, undefined, 'grid off');
+  assert.deepEqual(c.learned, { placeId: 'pX', cid: null, lat: 1, lng: 2 });
+});
+
+test('composeAudit: a location error stops the run before more paid calls', async () => {
+  let organicCalls = 0;
+  const c = await composeAudit(subject, {
+    grid: true,
+    sources: fakes({ mapsSearch: async () => bad("DataForSEO doesn't know that location — check the city spelling"), organicSearch: async () => { organicCalls += 1; return ok([]); } }),
+  });
+  assert.equal(c.status, 'failed');
+  assert.match(c.errors.maps, /location/);
+  assert.equal(organicCalls, 0);
+  assert.equal(c.costUsd, 0);
+});
+
+test('composeAudit: one failing section makes the audit partial, and a grid without a pin errors cleanly', async () => {
+  const noPin = mapsItems.map((i) => ({ ...i, lat: null, lng: null }));
+  const c = await composeAudit(subject, { grid: true, sources: fakes({ mapsSearch: async () => ok(noPin), pageSpeed: async () => bad('PageSpeed answered 500') }) });
+  assert.equal(c.status, 'partial');
+  assert.match(c.errors.grid, /finds the business first/);
+  assert.equal(c.errors.pagespeed, 'PageSpeed answered 500');
+  const web = section(c.results.website);
+  assert.ok(web && !('none' in web) && web.pagespeedMobile === null && web.form === true, 'site checks still recorded without PageSpeed');
+});
+
+test('gridSearch: failed points are null; more than half failing fails the section; a dead first batch stops early', async () => {
+  let calls = 0;
+  const flaky: Sources['mapsSearch'] = async (_k, where) => {
+    calls += 1;
+    const lng = where.coordinate?.lng ?? 0;
+    return lng < -93.61 ? bad('timeout') : ok(mapsItems); // the two western columns (10 of 25 points) fail
+  };
+  const g = await gridSearch('auto detailing', subject, { lat: 41.735, lng: -93.605 }, flaky);
+  assert.ok(g.ok);
+  assert.equal(g.data.points.length, 25);
+  assert.ok(g.data.points.some((p) => p.rank === null) && g.data.points.some((p) => p.rank === 7));
+  assert.equal(calls, 25);
+
+  calls = 0;
+  const dead = await gridSearch('auto detailing', subject, { lat: 41.735, lng: -93.605 }, async () => { calls += 1; return bad('DataForSEO rejected the login'); });
+  assert.equal(dead.ok, false);
+  assert.equal(calls, 5, 'stops after the first batch when every point fails');
+});
