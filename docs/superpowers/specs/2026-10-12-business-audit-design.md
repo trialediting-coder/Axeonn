@@ -225,6 +225,7 @@ Pure logic under `node:test` (repo convention): subject matching (place_id, doma
 2. Build order (each step shippable): (a) `dataforseo.ts` + sources + shared + tests; (b) Audits tab for prospects; (c) client audit section + baseline rule + cron; (d) monthly report fill; (e) PROOF Ranking card + scan; (f) call-deck button + attach-to-client.
 3. `vercel.json` cron entry ships with (c).
 4. First live run: audit the first signed client (grid on by default), confirm the baseline and the grid land, then enable the schedule.
+5. Implementation note: the canonical Maps rank always uses `location_name` (the city), not the learned pin, so every point on the trend line is measured the same way; the pin is used for the grid only.
 
 ## 13. Out of scope (v1)
 
