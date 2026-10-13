@@ -346,3 +346,12 @@ export function connectDecision(input: {
   if (!input.lead.phone) return { action: 'reject', reason: 'no_phone' };
   return { action: 'dial', phone: input.lead.phone };
 }
+
+/**
+ * Whether the connect whisper may say "We texted you their details": only when
+ * deliverLead stored the owner text as 'sent' (form_submissions.alert_text_status).
+ * NULL means delivery died before the text step finished, so the email is the safe claim.
+ */
+export function detailsWereTexted(alertTextStatus: string | null | undefined): boolean {
+  return alertTextStatus === 'sent';
+}

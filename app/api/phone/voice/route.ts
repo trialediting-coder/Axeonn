@@ -31,6 +31,7 @@ export async function POST(req: Request) {
       recordCalls: line.recordCalls,
       statusUrl: webhookUrl('/api/phone/voice/status'),
       recordingUrl: webhookUrl('/api/phone/recording'),
+      screenUrl: line.screenCalls ? webhookUrl(`/api/phone/voice/screen?line=${line.id}`) : undefined,
     }),
   );
 }

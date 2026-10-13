@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  LEAD_ALERT_MAX, backLink, connectDecision, connectWhisperText, describeDelivery, isQuietHours, leadAlertText, pagePath, parseId, planLeadDelivery,
+  LEAD_ALERT_MAX, backLink, connectDecision, connectWhisperText, describeDelivery, detailsWereTexted, isQuietHours, leadAlertText, pagePath, parseId, planLeadDelivery,
   replyPage, safeRedirect, spokenName, toDashboardSubmission, validateLeadInput, type FormSubmission, type LeadLineView,
 } from './leadShared';
 
@@ -202,4 +202,11 @@ test('connectDecision only dials the lead of this client when the owner pressed 
   assert.deepEqual(connectDecision({ digits: '1', lead: null, lineOnboardingId: 3 }), { action: 'reject', reason: 'missing_lead' });
   assert.deepEqual(connectDecision({ digits: '1', lead: { ...lead, phone: null }, lineOnboardingId: 3 }), { action: 'reject', reason: 'no_phone' });
   for (const digits of [undefined, null, '', '2', '11']) assert.deepEqual(connectDecision({ digits, lead, lineOnboardingId: 3 }), { action: 'no_press' }, String(digits));
+});
+
+test('detailsWereTexted is true only when the owner text was recorded as sent (S2-R1)', () => {
+  assert.equal(detailsWereTexted('sent'), true);
+  for (const s of [null, undefined, '', 'failed', 'quiet_hours', 'sms_pending', 'opted_out', 'bad_number', 'plan', 'no_line', 'SENT']) {
+    assert.equal(detailsWereTexted(s), false, String(s));
+  }
 });

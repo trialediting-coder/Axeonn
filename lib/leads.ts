@@ -39,6 +39,7 @@ interface SubmissionRow {
   utm_campaign: string | null;
   is_test: boolean;
   connect_pressed_at: DbTime | null;
+  alert_text_status: string | null;
   created_at: DbTime;
 }
 
@@ -85,11 +86,16 @@ export async function recentSubmissionCount(onboardingId: number, ipHash: string
   return Number(rows[0]?.n ?? 0);
 }
 
+/** A lead as the connect webhooks read it: plus what happened to the owner text (S2-R1; null = unknown). */
+export interface StoredSubmission extends FormSubmission {
+  alertTextStatus: string | null;
+}
+
 /** One lead, only if it is this client's: the connect webhooks bind ?lead= to the line's onboarding through this. */
-export async function getSubmission(onboardingId: number, id: number): Promise<FormSubmission | null> {
+export async function getSubmission(onboardingId: number, id: number): Promise<StoredSubmission | null> {
   await ensureSchema();
   const { rows } = await sql<SubmissionRow>`SELECT * FROM form_submissions WHERE id = ${id} AND onboarding_id = ${onboardingId} LIMIT 1;`;
-  return rows[0] ? toSubmission(rows[0]) : null;
+  return rows[0] ? { ...toSubmission(rows[0]), alertTextStatus: rows[0].alert_text_status ?? null } : null;
 }
 
 /** The month's real (non-test) form leads, newest first. Month is YYYY-MM in REPORT_TIME_ZONE, like leadRows. */

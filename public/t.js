@@ -206,6 +206,8 @@
     'submit',
     function (ev) {
       var f = ev.target;
+      // Forms that post to /api/lead are counted there as leads; a click here would count them twice.
+      if (f && f.getAttribute && (f.getAttribute('action') || '').indexOf('/api/lead') !== -1) return;
       var n = (f && f.getAttribute && f.getAttribute('data-axeon')) || 'form';
       post({ e: 'click', n: n, p: location.pathname, r: document.referrer || undefined, w: window.innerWidth });
     },

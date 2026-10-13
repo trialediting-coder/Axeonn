@@ -55,3 +55,19 @@ test('readTwilioRequest with withQuery checks the signature over the URL includi
   // Checked without its query, the URL is not the one Twilio signed.
   assert.equal(await statusOf(readTwilioRequest(req('?lead=42'), path)), 403);
 });
+
+test('readTwilioRequest with withQuery binds the screen URL to its line id', async () => {
+  process.env.TWILIO_AUTH_TOKEN = TOKEN;
+  delete process.env.PHONE_WEBHOOK_ORIGIN;
+  const path = '/api/phone/voice/screen';
+  const params = { CallSid: 'CA1', From: '+15155550134', To: '+15155550100' };
+  const sig = twilioSignature(`https://axeonstudio.co${path}?line=1`, params, TOKEN);
+  const req = (query: string) =>
+    new Request(`https://axeonstudio.co${path}${query}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded', 'x-twilio-signature': sig },
+      body: new URLSearchParams(params).toString(),
+    });
+  assert.deepEqual(await readTwilioRequest(req('?line=1'), path, { withQuery: true }), { ok: true, params });
+  assert.equal(await statusOf(readTwilioRequest(req('?line=2'), path, { withQuery: true })), 403);
+});
