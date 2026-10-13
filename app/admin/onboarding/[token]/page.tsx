@@ -42,7 +42,7 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
     getLine(onboarding.id),
   ]);
   const phone = phoneLine
-    ? { line: phoneLine, calls: await recentCalls(onboarding.id), cost: await monthCost(onboarding.id, monthOf()) }
+    ? { line: phoneLine, calls: await recentCalls(onboarding.id, 30, { includeConnect: true }), cost: await monthCost(onboarding.id, monthOf()) }
     : { line: null, calls: [], cost: null };
   const phoneCard = states['phone-setup']?.data ?? {};
   const askedPhone = (key: string) => (typeof phoneCard[key] === 'string' ? (phoneCard[key] as string) : '');

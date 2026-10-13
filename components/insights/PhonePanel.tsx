@@ -7,7 +7,7 @@
 import { useState } from 'react';
 import { adminInput, adminLabel, btn } from '@/components/admin/ui';
 import type { PhoneCall, PhoneLine } from '@/lib/phoneShared';
-import { areaCodeOf, callerLabel, callResultLabel, formatCallLength, formatCallWhen, formatPhone, normalizePhone, textBackMessage as textBackPreview } from '@/lib/phoneShared';
+import { areaCodeOf, callerLabel, callResultLabel, DEFAULT_TIME_ZONE, formatCallLength, formatCallWhen, formatPhone, normalizePhone, textBackMessage as textBackPreview, US_TIME_ZONES } from '@/lib/phoneShared';
 
 export interface PhoneData {
   line: PhoneLine | null;
@@ -32,6 +32,11 @@ export function PhonePanel({ token, tier, initial, asked, businessName }: { toke
   const [consentNotice, setConsentNotice] = useState(data.line?.consentNotice ?? true);
   const [textBackEnabled, setTextBackEnabled] = useState(data.line?.textBackEnabled ?? true);
   const [textBackMessage, setTextBackMessage] = useState(data.line?.textBackMessage ?? '');
+  const [screenCalls, setScreenCalls] = useState(data.line?.screenCalls ?? true);
+  const [callConnectEnabled, setCallConnectEnabled] = useState(data.line?.callConnectEnabled ?? true);
+  const [timeZone, setTimeZone] = useState(data.line?.timeZone ?? DEFAULT_TIME_ZONE);
+  const [testPhone, setTestPhone] = useState('');
+  const [testResult, setTestResult] = useState<string | null>(null);
 
   if (tier === 'essentials') return null;
 
@@ -41,6 +46,9 @@ export function PhonePanel({ token, tier, initial, asked, businessName }: { toke
     setConsentNotice(l.consentNotice);
     setTextBackEnabled(l.textBackEnabled);
     setTextBackMessage(l.textBackMessage ?? '');
+    setScreenCalls(l.screenCalls);
+    setCallConnectEnabled(l.callConnectEnabled);
+    setTimeZone(l.timeZone);
   }
 
   function provision() {
@@ -58,8 +66,9 @@ export function PhonePanel({ token, tier, initial, asked, businessName }: { toke
         const failed = (await res.json().catch(() => null)) as { error?: string } | null;
         throw new Error(failed?.error || `Request failed (${res.status})`);
       }
-      const json = (await res.json()) as PhoneData;
+      const json = (await res.json()) as PhoneData & { testLead?: string };
       setData(json);
+      if (json.testLead) setTestResult(json.testLead);
       if (json.line) syncForm(json.line);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Request failed');
@@ -117,6 +126,16 @@ export function PhonePanel({ token, tier, initial, asked, businessName }: { toke
               <label className="flex items-center gap-2"><input type="checkbox" checked={recordCalls} onChange={(e) => setRecordCalls(e.target.checked)} /> Record calls</label>
               <label className="flex items-center gap-2"><input type="checkbox" checked={consentNotice} onChange={(e) => setConsentNotice(e.target.checked)} /> Play recording notice</label>
               <label className="flex items-center gap-2"><input type="checkbox" checked={textBackEnabled} onChange={(e) => setTextBackEnabled(e.target.checked)} /> Missed-call text-back</label>
+              <label className="flex items-center gap-2"><input type="checkbox" checked={screenCalls} onChange={(e) => setScreenCalls(e.target.checked)} /> Call screening (press 1 to accept)</label>
+              <label className="flex items-center gap-2"><input type="checkbox" checked={callConnectEnabled} onChange={(e) => setCallConnectEnabled(e.target.checked)} /> Call connect on website leads</label>
+            </div>
+            <div>
+              <label htmlFor="phone-time-zone" className={adminLabel}>Client's time zone (quiet hours 8 pm to 8 am)</label>
+              <select id="phone-time-zone" className={adminInput} value={timeZone} onChange={(e) => setTimeZone(e.target.value)}>
+                {US_TIME_ZONES.map((z) => (
+                  <option key={z.id} value={z.id}>{z.label}</option>
+                ))}
+              </select>
             </div>
             <div className="sm:col-span-2">
               <label htmlFor="phone-text-back" className={adminLabel}>Text-back message (blank = default)</label>
@@ -124,7 +143,7 @@ export function PhonePanel({ token, tier, initial, asked, businessName }: { toke
             </div>
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
-            <button className={btn('primary', 'sm')} disabled={busy} onClick={() => send('PUT', { forwardTo, recordCalls, consentNotice, textBackEnabled, textBackMessage })}>Save settings</button>
+            <button className={btn('primary', 'sm')} disabled={busy} onClick={() => send('PUT', { forwardTo, recordCalls, consentNotice, textBackEnabled, textBackMessage, screenCalls, callConnectEnabled, timeZone })}>Save settings</button>
             <button className={btn(line.smsStatus === 'ready' ? 'warning' : 'success', 'sm')} disabled={busy} onClick={() => {
               if (line.smsStatus !== 'ready' && !window.confirm('Mark texting as approved? Automated texts to callers start immediately.')) return;
               send('POST', { action: 'sms', status: line.smsStatus === 'ready' ? 'pending' : 'ready' });
@@ -133,6 +152,30 @@ export function PhonePanel({ token, tier, initial, asked, businessName }: { toke
             </button>
           </div>
           <p className="mt-2 text-xs text-neutral-500">Messaging Service {line.messagingServiceSid}. Submit the 10DLC brand and campaign for it in the Twilio console, then press “Mark 10DLC approved”. No automated text goes out before that.</p>
+
+          <div className="mt-4 rounded-xl border border-neutral-200 p-4">
+            <p className="text-sm font-semibold text-neutral-900">Send test lead</p>
+            <p className="mt-1 text-xs text-neutral-500">
+              Posts a fake website form for this client and delivers it for real: the client gets the lead email marked [Test], the owner gets the text (once 10DLC is approved, 8 am to 8 pm), and call connect rings {formatPhone(line.forwardTo)}. Press 1 there and we dial the number below. Use a second phone you have in hand, not the forward-to number. Test leads never show in the client's dashboard.
+            </p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto] sm:items-end">
+              <div>
+                <label htmlFor="phone-test-lead" className={adminLabel}>Test lead's phone</label>
+                <input id="phone-test-lead" className={adminInput} value={testPhone} onChange={(e) => setTestPhone(e.target.value)} placeholder="(515) 555-0134" inputMode="tel" />
+              </div>
+              <button
+                className={btn('secondary', 'sm')}
+                disabled={busy}
+                onClick={() => {
+                  setTestResult(null);
+                  void send('POST', { action: 'test-lead', phone: testPhone });
+                }}
+              >
+                Send test lead
+              </button>
+            </div>
+            {testResult ? <p role="status" className="mt-2 text-sm text-neutral-700">{testResult}</p> : null}
+          </div>
 
           {data.cost ? (
             <p className="mt-4 text-sm text-neutral-700">
@@ -153,7 +196,7 @@ export function PhonePanel({ token, tier, initial, asked, businessName }: { toke
                     <tr key={c.id} className="border-t border-neutral-100">
                       <td className="py-1.5 pr-3 whitespace-nowrap">{formatCallWhen(c.startedAt)}</td>
                       <td className="py-1.5 pr-3 whitespace-nowrap">{callerLabel(c.fromNumber)}</td>
-                      <td className="py-1.5 pr-3">{callResultLabel(c)}</td>
+                      <td className="py-1.5 pr-3">{c.direction === 'connect' ? 'Call connect' : callResultLabel(c)}</td>
                       <td className="py-1.5 pr-3">{formatCallLength(c.durationSeconds)}</td>
                       <td className="py-1.5">
                         {c.hasRecording ? <audio aria-label="Call recording" controls preload="none" className="h-8 w-48" src={`/api/admin/onboarding/${token}/phone/recording/${c.callSid}`} /> : '—'}
