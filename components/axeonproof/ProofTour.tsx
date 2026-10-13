@@ -1,15 +1,19 @@
 'use client';
 
 // components/axeonproof/ProofTour.tsx
-// Every AxeonPROOF tab, driven by the visitor: a sidebar that mirrors the app's
-// own, and the real screen for the tab they pick. Arrow keys move between tabs.
+// Every AxeonPROOF tab, driven by the visitor: a tab list that mirrors the
+// app's own sidebar, and the live screen for the tab they pick, rendered for
+// the example business. Arrow keys move between tabs; the sidebar inside the
+// frame is clickable too.
 import { useCallback, useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
 import { ArrowLeft, ArrowRight, Activity, Bot, CalendarCheck, CreditCard, LayoutGrid, Mail, Megaphone, PhoneCall, Star } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { PLAN_CHIP, PROOF_SCREENS } from '@/data/proofPage';
+import { PROOF_TABS, TIER_SHORT, type ProofTabKey } from '@/lib/proofTabs';
+import { PLAN_CHIP, TAB_NOTES } from '@/data/proofPage';
+import { DashboardShell } from '@/components/axeonproof/DashboardShell';
+import { ScreenFor } from '@/components/axeonproof/screens';
 
-const ICONS: Record<string, LucideIcon> = {
+const ICONS: Record<ProofTabKey, LucideIcon> = {
   overview: LayoutGrid,
   leads: Activity,
   calls: PhoneCall,
@@ -30,10 +34,10 @@ const CHIP_STYLE: Record<string, string> = {
 export function ProofTour() {
   const [index, setIndex] = useState(0);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const screen = PROOF_SCREENS[index];
+  const tab = PROOF_TABS[index];
 
   const go = useCallback((next: number) => {
-    const n = (next + PROOF_SCREENS.length) % PROOF_SCREENS.length;
+    const n = (next + PROOF_TABS.length) % PROOF_TABS.length;
     setIndex(n);
     tabRefs.current[n]?.focus();
   }, []);
@@ -50,7 +54,7 @@ export function ProofTour() {
       go(0);
     } else if (e.key === 'End') {
       e.preventDefault();
-      go(PROOF_SCREENS.length - 1);
+      go(PROOF_TABS.length - 1);
     }
   };
 
@@ -60,7 +64,7 @@ export function ProofTour() {
   }, [index]);
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[260px_1fr] lg:gap-8">
+    <div className="grid gap-5 lg:grid-cols-[240px_1fr] lg:gap-8">
       <div
         role="tablist"
         aria-label="AxeonPROOF tabs"
@@ -68,17 +72,17 @@ export function ProofTour() {
         onKeyDown={onKeyDown}
         className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0 [&::-webkit-scrollbar]:hidden"
       >
-        {PROOF_SCREENS.map((s, i) => {
-          const Icon = ICONS[s.key] ?? LayoutGrid;
+        {PROOF_TABS.map((t, i) => {
+          const Icon = ICONS[t.key];
           const active = i === index;
           return (
             <button
-              key={s.key}
+              key={t.key}
               ref={(el) => {
                 tabRefs.current[i] = el;
               }}
               role="tab"
-              id={`proof-tab-${s.key}`}
+              id={`proof-tab-${t.key}`}
               aria-selected={active}
               aria-controls="proof-tour-panel"
               tabIndex={active ? 0 : -1}
@@ -89,10 +93,10 @@ export function ProofTour() {
               }`}
             >
               <Icon size={17} className={active ? 'text-white' : 'text-neutral-400'} />
-              <span className="whitespace-nowrap">{s.label}</span>
-              {s.tier !== 'essentials' ? (
+              <span className="whitespace-nowrap">{t.label}</span>
+              {t.tier !== 'essentials' ? (
                 <span className={`ml-auto hidden rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide lg:inline ${active ? 'bg-white/20 text-white' : 'text-blue-600'}`}>
-                  {s.tier === 'axeoncore' ? 'CORE' : 'GROWTH'}
+                  {TIER_SHORT[t.tier]}
                 </span>
               ) : null}
             </button>
@@ -100,7 +104,7 @@ export function ProofTour() {
         })}
       </div>
 
-      <div id="proof-tour-panel" role="tabpanel" aria-labelledby={`proof-tab-${screen.key}`} className="min-w-0">
+      <div id="proof-tour-panel" role="tabpanel" aria-labelledby={`proof-tab-${tab.key}`} className="min-w-0">
         <div className="overflow-hidden rounded-2xl bg-[#f3f4f7] shadow-[0_24px_80px_-30px_rgba(16,24,40,0.45)] ring-1 ring-neutral-200">
           <div className="flex items-center gap-3 border-b border-neutral-200 bg-white px-3 py-2 sm:px-4">
             <span className="flex gap-1.5" aria-hidden>
@@ -109,21 +113,23 @@ export function ProofTour() {
               <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
             </span>
             <span className="mx-auto flex h-7 w-full max-w-xs items-center justify-center rounded-md bg-neutral-100 text-[11px] font-medium text-neutral-500 sm:text-xs">
-              app.axeonstudio.co/?tab={screen.key}
+              app.axeonstudio.co/?tab={tab.key}
             </span>
           </div>
-          <div key={screen.key} className="proof-rise relative aspect-[2000/1011] w-full">
-            <Image src={screen.src} alt={`AxeonPROOF ${screen.label} tab`} width={screen.width} height={screen.height} sizes="(min-width: 1280px) 900px, 100vw" className="block h-auto w-full" />
+          <div key={tab.key} className="max-h-[640px] overflow-y-auto overscroll-contain">
+            <DashboardShell tab={tab.key} onTab={(k) => setIndex(PROOF_TABS.findIndex((t) => t.key === k))}>
+              <ScreenFor tab={tab.key} full={false} />
+            </DashboardShell>
           </div>
         </div>
 
         <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-xl font-extrabold tracking-tight text-neutral-950">{screen.label}</h3>
-              <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${CHIP_STYLE[screen.tier]}`}>{PLAN_CHIP[screen.tier]}</span>
+              <h3 className="text-xl font-extrabold tracking-tight text-neutral-950">{tab.label}</h3>
+              <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${CHIP_STYLE[tab.tier]}`}>{PLAN_CHIP[tab.tier]}</span>
             </div>
-            <p className="mt-1.5 max-w-xl text-base leading-relaxed text-neutral-600">{screen.promise}</p>
+            <p className="mt-1.5 max-w-xl text-base leading-relaxed text-neutral-600">{TAB_NOTES[tab.key]}</p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <button
@@ -135,7 +141,7 @@ export function ProofTour() {
               <ArrowLeft size={16} />
             </button>
             <span className="text-xs font-semibold tabular-nums text-neutral-400">
-              {index + 1} / {PROOF_SCREENS.length}
+              {index + 1} / {PROOF_TABS.length}
             </span>
             <button
               type="button"

@@ -433,6 +433,35 @@ html, #root {
   .proof-rise, .proof-grow, .proof-width, .proof-ring { animation: none; }
 }
 
+/* /axeonproof: the live example dashboard. Tailwind utilities animate-proof-*
+   come from these tokens; proofRise/Grow/Width keyframes are shared with the
+   real app above. `.proof-paused` holds everything inside still until the
+   section scrolls into view (components/axeonproof/motion.tsx). */
+@theme {
+  --animate-proof-rise: proofRise 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-proof-grow: proofGrow 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-proof-width: proofWidth 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-proof-draw: proofDraw 1.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-proof-pop: proofPop 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-proof-slide: proofSlide 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes proofDraw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes proofPop {
+  from { opacity: 0; transform: scale(0.6); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes proofSlide {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.proof-paused, .proof-paused * { animation-play-state: paused !important; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-proof-rise, .animate-proof-grow, .animate-proof-width, .animate-proof-draw, .animate-proof-pop, .animate-proof-slide { animation: none; }
+}
+
 /* /axeonproof hero window: on touch screens the dashboard pans by itself and
    the page scroll stays with the page, so a thumb never gets trapped inside. */
 @media (hover: none) {

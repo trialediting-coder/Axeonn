@@ -60,9 +60,10 @@ local-only.
   on Essentials), AI phone receptionist +$199/month, extra service page $450,
   on-site videography $1,500. Keep CORE + add-ons priced above AxeonGROWTH.
 - The 90-day guarantee comes with AxeonCORE and AxeonGROWTH only.
-- AxeonPROOF (app.axeonstudio.co) is shown off at /axeonproof with real captures
-  of A-1 Auto Detailing's dashboard (public/images/proof/, taken 2026-10-13).
-  Every plan gets a sign-in: Essentials sees Overview, Leads, Email and
+- AxeonPROOF (app.axeonstudio.co) is shown off at /axeonproof as a live render
+  of the dashboard for an example business ("Northside Auto Spa", example
+  month, data in data/proofPage.ts; never a real client's numbers, and the
+  page says so). Every plan gets a sign-in: Essentials sees Overview, Leads, Email and
   Billing; AxeonCORE switches on Calls, Bookings, Reviews and the guarantee
   tracking; AxeonGROWTH adds Ads and the AI receptionist (lib/proofTabs.ts is
   the source of truth). A locked tab shows the app's labelled "example month";

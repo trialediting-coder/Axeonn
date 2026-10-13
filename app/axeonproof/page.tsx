@@ -1,8 +1,8 @@
 // app/axeonproof/page.tsx
-// AxeonPROOF, shown off: the real client dashboard (A-1 Auto Detailing) in a
+// AxeonPROOF, shown off: the dashboard rendered live for an example business in a
 // window the visitor can scroll, every tab to click through, the analytics
 // cards with notes, how the 90-day guarantee is tracked, and what each plan
-// switches on. Screens live in public/images/proof/ (see data/proofPage.ts).
+// switches on. Example data lives in data/proofPage.ts.
 import Link from 'next/link';
 import { ArrowRight, Check, ExternalLink } from 'lucide-react';
 import { buildMetadata } from '@/lib/metadata';
@@ -13,10 +13,12 @@ import { ServiceClosingCta, GUARANTEE_LINE, GUARANTEE_TERMS } from '@/components
 import { ProofWindow } from '@/components/axeonproof/ProofWindow';
 import { ProofTour } from '@/components/axeonproof/ProofTour';
 import { ProofHotspots } from '@/components/axeonproof/ProofHotspots';
-import { PROOF_IMAGES } from '@/data/proofPage';
+import { DashboardShell } from '@/components/axeonproof/DashboardShell';
+import { OverviewScreen } from '@/components/axeonproof/screens';
+import { EXAMPLE } from '@/data/proofPage';
 
 const DESCRIPTION =
-  'AxeonPROOF is the client dashboard every Axeon client signs into: every call, lead and booked job, where each one came from, and how the 90-day guarantee is tracking. See a real client dashboard.';
+  'AxeonPROOF is the client dashboard every Axeon client signs into: every call, lead and booked job, where each one came from, and how the 90-day guarantee is tracking. Click through a live example.';
 
 export const metadata = buildMetadata({
   path: '/axeonproof',
@@ -81,7 +83,7 @@ export default function AxeonProofPage() {
       <JsonLd data={jsonLd} />
       <BreadcrumbJsonLd items={[{ name: 'AxeonPROOF', path: '/axeonproof' }]} />
 
-      {/* Hero: the headline, then the real dashboard standing up out of the dark. */}
+      {/* Hero: the headline, then the dashboard standing up out of the dark. */}
       <section className="relative overflow-hidden bg-neutral-950 px-4 pb-20 pt-28 text-white sm:px-8 sm:pb-28 sm:pt-36 lg:px-16">
         <div
           aria-hidden="true"
@@ -115,13 +117,11 @@ export default function AxeonProofPage() {
       <section className="relative bg-white px-4 pb-16 sm:px-8 sm:pb-24 lg:px-16">
         <div aria-hidden="true" className="absolute inset-x-0 top-0 h-40 bg-neutral-950 sm:h-56" />
         <div className="relative">
-          <ProofWindow
-            src={PROOF_IMAGES.overviewFull.src}
-            width={PROOF_IMAGES.overviewFull.width}
-            height={PROOF_IMAGES.overviewFull.height}
-            alt="AxeonPROOF Overview for A-1 Auto Detailing: reached out, estimated new customers, website visits and button clicks this month, the list of people who reached out, the monthly chart, and the analytics cards"
-            caption="A-1 Auto Detailing's live dashboard, Pleasant Hill, Iowa. October 2026, as they see it. Only their email address is hidden."
-          />
+          <ProofWindow caption={`${EXAMPLE.name} is an example business and this is an example month, not a client's results. The screens are the real app.`}>
+            <DashboardShell tab="overview">
+              <OverviewScreen />
+            </DashboardShell>
+          </ProofWindow>
         </div>
       </section>
 
@@ -150,7 +150,7 @@ export default function AxeonProofPage() {
               Each card answers a question an owner actually asks.
             </h2>
             <p className="mt-5 text-base leading-relaxed text-neutral-600 sm:text-lg">
-              Hover or tap a pin. These are A-1&apos;s real cards, straight from their site.
+              Hover or tap a card. Every number comes straight from the site and the tracked phone number, not from a report someone typed up.
             </p>
           </div>
           <ProofHotspots />

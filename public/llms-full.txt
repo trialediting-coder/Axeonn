@@ -58,7 +58,7 @@
 - AI Chat & Online Scheduling: https://axeonstudio.co/marketing-solutions/ai-chat-scheduling
 - Lead Capture & Follow-Up: https://axeonstudio.co/marketing-solutions/lead-generation
 - Video & Photography: https://axeonstudio.co/marketing-solutions/video-photography
-- AxeonPROOF client dashboard: https://axeonstudio.co/axeonproof (every call, lead and booked job in one screen, shown with a real client's dashboard)
+- AxeonPROOF client dashboard: https://axeonstudio.co/axeonproof (every call, lead and booked job in one screen, shown as a live example for a sample business)
 
 ---
 

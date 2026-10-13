@@ -1,27 +1,15 @@
 'use client';
 
 // components/axeonproof/ProofWindow.tsx
-// The hero of /axeonproof: the client's full Overview inside a browser window.
+// The hero of /axeonproof: the example business's full Overview inside a browser window.
 // The window starts tilted back and stands up as the page scrolls, and the
 // dashboard inside pans slowly down the page by itself until the visitor takes
 // over (wheel, touch or keyboard). Reduced motion: flat and still.
 import { useEffect, useRef, useState } from 'react';
-import Image from 'next/image';
+import type { ReactNode } from 'react';
 import { MousePointer2 } from 'lucide-react';
 
-export function ProofWindow({
-  src,
-  width,
-  height,
-  alt,
-  caption,
-}: {
-  src: string;
-  width: number;
-  height: number;
-  alt: string;
-  caption: string;
-}) {
+export function ProofWindow({ children, caption }: { children: ReactNode; caption: string }) {
   const figureRef = useRef<HTMLElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [flat, setFlat] = useState(0);
@@ -71,7 +59,7 @@ export function ProofWindow({
       last = t;
       const max = el.scrollHeight - el.clientHeight;
       if (max > 0) {
-        el.scrollTop += dir * dt * 0.05;
+        el.scrollTop += dir * dt * 0.035;
         if (el.scrollTop >= max - 1) dir = -1;
         if (el.scrollTop <= 1) dir = 1;
       }
@@ -147,9 +135,9 @@ export function ProofWindow({
             ref={scrollerRef}
             tabIndex={0}
             aria-label="Scroll the dashboard"
-            className="proof-window-scroller relative aspect-[2000/1180] w-full overflow-y-auto overscroll-contain focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500 sm:aspect-[2000/1011]"
+            className="proof-window-scroller relative h-[520px] w-full overflow-y-auto overscroll-contain focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500 sm:h-[600px] lg:h-[660px]"
           >
-            <Image src={src} alt={alt} width={width} height={height} priority sizes="(min-width: 1280px) 1152px, 100vw" className="block h-auto w-full" />
+            {children}
           </div>
           {!driving ? (
             <p className="pointer-events-none absolute bottom-3 right-3 hidden items-center gap-1.5 rounded-full bg-neutral-950/80 px-3 py-1.5 text-[11px] font-semibold text-white backdrop-blur sm:flex">
