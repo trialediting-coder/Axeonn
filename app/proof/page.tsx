@@ -25,5 +25,5 @@ export default async function ProofPage({ searchParams }: { searchParams: Promis
   }
 
   const key = isProofTab(tab) ? tab : 'overview';
-  return <ProofDashboard email={account.email} {...(await loadDashboardData(onboarding, key))} leadApi="/api/proof/leads" tab={key} />;
+  return <ProofDashboard email={account.email} {...(await loadDashboardData(onboarding, key))} leadApi="/api/proof/leads" scanApi="/api/proof/scan" tab={key} />;
 }

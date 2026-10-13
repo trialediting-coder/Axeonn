@@ -13,6 +13,9 @@ import { CLIENT_REPLY_TO } from '@/lib/email';
 import { getUpgradeRequest } from '@/lib/upgrades';
 import { businessEmailForDashboard } from '@/lib/businessEmail';
 import type { ProofTabKey } from '@/lib/proofTabs';
+import { clientScansUsed, getAuditSettings, listAuditsForOnboarding } from '@/lib/audits';
+import { scanCapFor, section, splitCity } from '@/lib/auditShared';
+import type { RankingData } from '@/components/proof/RankingCard';
 import type { ProofDashboard } from '@/components/proof/ProofDashboard';
 import type { ComponentProps } from 'react';
 
@@ -22,7 +25,7 @@ export type DashboardData = Omit<ComponentProps<typeof ProofDashboard>, 'email' 
 export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey = 'overview'): Promise<DashboardData> {
   const month = monthOf();
   const previous = previousMonth(month);
-  const [states, details, updates, reports, agreement, tracking, thisLeads, lastLeads, upgradeRequest, billing, businessEmail] = await Promise.all([
+  const [states, details, updates, reports, agreement, tracking, thisLeads, lastLeads, upgradeRequest, billing, businessEmail, auditSettings, audits, scansUsed] = await Promise.all([
     getItemStates(onboarding.id),
     getProjectDetails(onboarding.id),
     listProjectUpdates(onboarding.id),
@@ -34,7 +37,33 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
     getUpgradeRequest(onboarding.id),
     tab === 'billing' ? clientBilling(onboarding) : Promise.resolve(null),
     tab === 'email' ? businessEmailForDashboard(onboarding.id) : Promise.resolve(null),
+    getAuditSettings(onboarding.id),
+    listAuditsForOnboarding(onboarding.id, 60),
+    clientScansUsed(onboarding.id),
   ]);
+  // The Ranking card (components/proof/RankingCard.tsx): shown only when the plan includes scans and the admin set city + keyword.
+  const cap = scanCapFor(onboarding.tier, auditSettings.clientScanCap);
+  const official = audits.filter((a) => a.trigger !== 'client' && a.status !== 'failed');
+  const latestGrid = official.map((a) => ({ at: a.createdAt, result: section(a.results.grid) })).find((g) => g.result !== null);
+  const latest = audits.find((a) => a.status !== 'failed') ?? null;
+  const latestMaps = latest ? section(latest.results.maps) : null;
+  const latestRep = latest ? section(latest.results.reputation) : null;
+  const ranking: RankingData | null =
+    cap > 0 && auditSettings.city && auditSettings.keyword
+      ? {
+          keyword: auditSettings.keyword,
+          city: splitCity(auditSettings.city).city,
+          baselineRank: details.baselineRank,
+          points: [...audits]
+            .filter((a) => a.status !== 'failed')
+            .reverse()
+            .map((a) => ({ at: a.createdAt, rank: section(a.results.maps)?.rank ?? null, trigger: a.trigger })),
+          latest: latest ? { at: latest.createdAt, rank: latestMaps?.rank ?? null, found: latestMaps?.found ?? false, rating: latestRep?.rating ?? null, reviews: latestRep?.reviews ?? null } : null,
+          grid: latestGrid && latestGrid.result ? { at: latestGrid.at, result: latestGrid.result } : null,
+          cap,
+          used: scansUsed,
+        }
+      : null;
   // This month straight from the tracker, so the overview is never blank between reports
   // (and never blank before the first report, which is the first thing a new client sees).
   const [thisMonth, lastMonth] = await Promise.all([
@@ -65,6 +94,7 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
     billing,
     businessEmail,
     ownerEmail: CLIENT_REPLY_TO,
+    ranking,
     live: hasTraffic(thisMonth) ? { month, traffic: thisMonth, prev: hasTraffic(lastMonth) ? lastMonth : null } : null,
   };
 }
