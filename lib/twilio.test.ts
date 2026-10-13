@@ -1,7 +1,7 @@
 // Run with: npm run test:phone. Only the pure parts: signature and form parsing.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { formParams, twilioSignature, verifyTwilioSignature, webhookUrl } from './twilio';
+import { fetchRecording, formParams, redactPath, searchLocalNumbers, twilioSignature, verifyTwilioSignature, webhookUrl } from './twilio';
 
 // The inputs from Twilio's "Validating requests" doc. EXPECTED was computed once with
 // node:crypto from the documented algorithm (URL, then each POST param sorted by key
@@ -39,4 +39,39 @@ test('webhookUrl uses PHONE_WEBHOOK_ORIGIN when set and the public site otherwis
   assert.equal(webhookUrl('/api/phone/voice'), 'https://preview.example.com/api/phone/voice');
   if (before === undefined) delete process.env.PHONE_WEBHOOK_ORIGIN;
   else process.env.PHONE_WEBHOOK_ORIGIN = before;
+});
+
+test('redactPath masks the account SID segment', () => {
+  assert.equal(redactPath('https://api.twilio.com/2010-04-01/Accounts/AC123secret/Messages.json?x=1'), '/2010-04-01/Accounts/…/Messages.json');
+  assert.equal(redactPath('https://messaging.twilio.com/v1/Services'), '/v1/Services');
+});
+
+test('a 2xx with a non-JSON body throws bad JSON without leaking the account SID', async () => {
+  const saved = { fetch: globalThis.fetch, sid: process.env.TWILIO_ACCOUNT_SID, tok: process.env.TWILIO_AUTH_TOKEN };
+  process.env.TWILIO_ACCOUNT_SID = 'ACtestsid0123456789';
+  process.env.TWILIO_AUTH_TOKEN = 'tok';
+  globalThis.fetch = (async () => new Response('<html>not json</html>', { status: 200 })) as typeof fetch;
+  try {
+    await assert.rejects(searchLocalNumbers('515'), (e: Error) => /bad JSON \(200\)/.test(e.message) && !e.message.includes('ACtestsid0123456789'));
+  } finally {
+    globalThis.fetch = saved.fetch;
+    if (saved.sid === undefined) delete process.env.TWILIO_ACCOUNT_SID; else process.env.TWILIO_ACCOUNT_SID = saved.sid;
+    if (saved.tok === undefined) delete process.env.TWILIO_AUTH_TOKEN; else process.env.TWILIO_AUTH_TOKEN = saved.tok;
+  }
+});
+
+test('fetchRecording refuses a non-Twilio origin before any request is made', async () => {
+  const saved = { fetch: globalThis.fetch, sid: process.env.TWILIO_ACCOUNT_SID, tok: process.env.TWILIO_AUTH_TOKEN };
+  process.env.TWILIO_ACCOUNT_SID = 'ACtestsid0123456789';
+  process.env.TWILIO_AUTH_TOKEN = 'tok';
+  let called = false;
+  globalThis.fetch = (async () => { called = true; return new Response('x'); }) as typeof fetch;
+  try {
+    await assert.rejects(fetchRecording('https://evil.example.com/2010-04-01/Accounts/AC1/Recordings/RE1'), /non-Twilio origin/);
+    assert.equal(called, false);
+  } finally {
+    globalThis.fetch = saved.fetch;
+    if (saved.sid === undefined) delete process.env.TWILIO_ACCOUNT_SID; else process.env.TWILIO_ACCOUNT_SID = saved.sid;
+    if (saved.tok === undefined) delete process.env.TWILIO_AUTH_TOKEN; else process.env.TWILIO_AUTH_TOKEN = saved.tok;
+  }
 });

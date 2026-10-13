@@ -44,9 +44,14 @@ export function formParams(body: string): Record<string, string> {
 
 const authHeader = () => `Basic ${Buffer.from(`${sid()}:${token()}`).toString('base64')}`;
 
+/** Path for error messages with the account SID segment masked, so a thrown error never carries it. */
+export function redactPath(url: string): string {
+  return new URL(url).pathname.replace(/\/Accounts\/[^/]+/, '/Accounts/…');
+}
+
 async function call<T>(url: string, init: { method: 'GET' | 'POST' | 'DELETE'; form?: Record<string, string> }): Promise<T> {
   if (!isTwilioConfigured()) throw new Error('Twilio is not configured (TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN)');
-  const path = new URL(url).pathname;
+  const path = redactPath(url);
   const res = await fetch(url, {
     method: init.method,
     headers: {
@@ -59,7 +64,7 @@ async function call<T>(url: string, init: { method: 'GET' | 'POST' | 'DELETE'; f
   if (res.status === 204) return undefined as T;
   if (!res.ok) {
     const err = (await res.json().catch(() => ({}))) as { message?: string; code?: number };
-    throw new Error(`Twilio ${res.status}${err.code ? ` (${err.code})` : ''}: ${err.message ?? 'request failed'}`);
+    throw new Error(`Twilio ${res.status}${err.code ? ` (${err.code})` : ''}: ${err.message ?? 'request failed'} (${path})`);
   }
   try {
     return (await res.json()) as T;
@@ -108,6 +113,8 @@ export async function releaseNumber(phoneNumberSid: string): Promise<void> {
 
 /** GET a call recording's audio (the Recording URL plus .mp3) with account auth; returns the raw Response so a route can stream it. */
 export async function fetchRecording(recordingUrl: string): Promise<Response> {
+  // Only ever send the account credentials to Twilio's API host.
+  if (new URL(recordingUrl).origin !== 'https://api.twilio.com') throw new Error('Refusing to fetch a recording from a non-Twilio origin');
   if (!isTwilioConfigured()) throw new Error('Twilio is not configured (TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN)');
   const res = await fetch(`${recordingUrl}.mp3`, { method: 'GET', headers: { authorization: authHeader() }, cache: 'no-store' });
   if (!res.ok) throw new Error(`Twilio recording fetch failed (${res.status})`);
