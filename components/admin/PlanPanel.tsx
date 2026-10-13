@@ -118,7 +118,8 @@ export function PlanPanel({ token, items, onPlan }: { token: string; items: Plan
               ) : (
                 <div className="flex flex-wrap items-start gap-x-3 gap-y-1">
                   <span className={`mt-0.5 rounded-md px-2 py-0.5 text-[11px] font-semibold ${i.owner === 'axeon' ? 'bg-blue-50 text-blue-700' : 'bg-amber-50 text-amber-800'}`}>{i.owner === 'axeon' ? 'Axeon' : 'Client'}</span>
-                  <div className="min-w-0 flex-1">
+                  {/* basis-48: on a phone the title keeps a readable column and the chips/buttons wrap under it. */}
+                  <div className="min-w-0 flex-1 basis-48">
                     <p className={`text-sm font-semibold ${i.status === 'done' ? 'text-neutral-400 line-through' : 'text-neutral-900'}`}>{i.title}</p>
                     {i.why ? <p className="text-xs text-neutral-500">{i.why}</p> : null}
                     <p className="mt-0.5 text-xs text-neutral-500">
