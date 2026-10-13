@@ -432,3 +432,9 @@ html, #root {
 @media (prefers-reduced-motion: reduce) {
   .proof-rise, .proof-grow, .proof-width, .proof-ring { animation: none; }
 }
+
+/* /axeonproof hero window: on touch screens the dashboard pans by itself and
+   the page scroll stays with the page, so a thumb never gets trapped inside. */
+@media (hover: none) {
+  .proof-window-scroller { overflow-y: hidden; }
+}

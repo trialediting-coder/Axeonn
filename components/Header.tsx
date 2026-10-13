@@ -518,6 +518,19 @@ export function Header() {
                       </Link>
                     ))}
                   </div>
+                  <Link
+                    href="/axeonproof"
+                    onClick={() => setMarketingOpen(false)}
+                    className="group mt-5 flex items-center justify-between gap-6 rounded-xl border border-neutral-200 px-5 py-3.5 text-left transition-colors hover:border-blue-200 hover:bg-blue-50/50"
+                  >
+                    <span>
+                      <span className="block text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600">AxeonPROOF</span>
+                      <span className="mt-1 block text-[14.5px] font-bold text-neutral-900">
+                        Your dashboard: every call, lead and booked job, and where each one came from
+                      </span>
+                    </span>
+                    <ArrowRight size={18} className="shrink-0 text-blue-600 transition-transform group-hover:translate-x-1" />
+                  </Link>
                 </div>
               </div>
             )}
@@ -759,6 +772,14 @@ export function Header() {
                       </div>
                     </Link>
                   ))}
+                  <Link
+                    href="/axeonproof"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="mt-2 px-3.5 py-3 rounded-xl border border-neutral-200 text-left block"
+                  >
+                    <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-600">AxeonPROOF</div>
+                    <div className="text-sm font-semibold text-neutral-900 mt-0.5">Your dashboard: every call, lead and booked job</div>
+                  </Link>
                 </div>
               </MobileGroup>
 
