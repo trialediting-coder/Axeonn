@@ -412,6 +412,8 @@ export function ensureSchema(): Promise<void> {
           UNIQUE (onboarding_id, key)
         );
       `;
+      await sql`ALTER TABLE plan_items ADD COLUMN IF NOT EXISTS start JSONB;`;
+      await sql`CREATE INDEX IF NOT EXISTS plan_items_onboarding_idx ON plan_items (onboarding_id, status);`;
     })().catch((err) => {
       schemaReady = null; // let the next request retry
       throw err;

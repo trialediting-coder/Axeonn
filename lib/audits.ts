@@ -469,6 +469,14 @@ export async function runAudit(subject: AuditSubject, opts: RunOptions): Promise
     if (c.learned) await rememberPin(opts.onboardingId, c.learned);
     await applyBaseline(opts.onboardingId, row, false);
     if (deep) await sql`UPDATE onboardings SET last_deep_at = now() WHERE id = ${opts.onboardingId};`;
+    // The 90-day plan follows the numbers: a deep audit (re)drafts it, any audit re-checks it (lib/plans.ts).
+    const { recheckPlan, syncPlan } = await import('@/lib/plans');
+    if (deep) {
+      const { getProjectDetails } = await import('@/lib/projects');
+      await syncPlan(opts.onboardingId, row, (await getProjectDetails(opts.onboardingId)).kickoffAt);
+    } else {
+      await recheckPlan(opts.onboardingId, row);
+    }
   }
   return row;
 }
