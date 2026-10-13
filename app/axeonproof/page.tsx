@@ -90,7 +90,7 @@ export default function AxeonProofPage() {
       <CustomCursor />
 
       {/* Hero: the headline, then the dashboard standing up out of the dark. */}
-      <section className="relative overflow-hidden bg-neutral-950 px-4 pb-20 pt-28 text-white sm:px-8 sm:pb-28 sm:pt-36 lg:px-16">
+      <section style={{ animationDelay: '850ms' }} className="proof-hero-stagger animate-proof-settle relative overflow-hidden bg-neutral-950 px-4 pb-20 pt-28 text-white sm:px-8 sm:pb-28 sm:pt-36 lg:px-16">
         <HeroGrid />
         <div className="pointer-events-none relative mx-auto max-w-4xl text-center [&_a]:pointer-events-auto">
           <div className="proof-hero-stagger animate-proof-rise" style={{ animationDelay: '1050ms' }}>
