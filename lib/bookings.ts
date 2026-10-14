@@ -8,7 +8,7 @@ import { randomBytes } from 'node:crypto';
 import { db } from '@vercel/postgres';
 import { ensureSchema, sql } from '@/lib/db';
 import { iso, type DbId, type DbTime } from '@/lib/dbRows';
-import { sendBookingEmail } from '@/lib/email';
+import { sendBookingCancelEmail, sendBookingEmail } from '@/lib/email';
 import { SITE_ORIGIN } from '@/lib/hostRouting';
 import { alertOwner, logContactEvent, ownerEmailFor, startBookingReminders, stopBookingReminders, type Owner } from '@/lib/leadHooks';
 import { getLine, sendClientSms } from '@/lib/phoneLines';
@@ -16,7 +16,7 @@ import { formatPhone } from '@/lib/phoneShared';
 import { safeTimeZone } from '@/lib/sequenceSchedule';
 import { REPORT_TIME_ZONE, getTrackingSettings } from '@/lib/siteStats';
 import {
-  DEFAULT_BOOKING_SETTINGS, confirmationText, formatSlotLabel, generateSlots, icsFor, ownerCancelText, toDashboardBooking,
+  DEFAULT_BOOKING_SETTINGS, confirmationText, customerNotToldText, formatSlotLabel, generateSlots, icsFor, ownerCancelFallback, ownerCancelText, toDashboardBooking,
   type AdminBookingData, type Booking, type BookingHours, type BookingInput, type BookingSettings, type BookingSource, type BookingsMonth,
   type DashboardBookings, type Slot,
 } from '@/lib/bookingShared';
@@ -314,11 +314,46 @@ export async function afterCancel(onboarding: Owner, booking: Booking, timeZone:
     );
     return;
   }
+  // The customer must hear about it: a text, else an email (with a calendar cancel), else the owner is told to call.
+  let texted = false;
   await step(booking.id, 'text', async () => {
     const line = await getLine(onboarding.id);
-    if (!line) return;
-    await sendClientSms(line, booking.phone, ownerCancelText({ business: onboarding.businessName, when, service: booking.service }), 'confirm');
+    if (!line) return void console.info(`booking ${booking.id}: cancel text not sent (no line)`);
+    const result = await sendClientSms(line, booking.phone, ownerCancelText({ business: onboarding.businessName, when, service: booking.service }), 'confirm');
+    texted = result.sent;
+    if (!result.sent) console.info(`booking ${booking.id}: cancel text not sent (${result.reason})`);
   });
+  let emailed = false;
+  const email = booking.email;
+  if (email && ownerCancelFallback({ texted, hasEmail: true }) === 'email') {
+    await step(booking.id, 'cancel email', async () => {
+      await sendBookingCancelEmail({
+        to: email,
+        businessName: onboarding.businessName,
+        replyTo: await ownerEmailFor(onboarding),
+        when,
+        service: booking.service,
+        ics: icsFor({
+          uid: `booking-${booking.id}@axeonstudio.co`,
+          startsAt: booking.startsAt,
+          endsAt: booking.endsAt,
+          summary: `${booking.service || 'Appointment'} with ${onboarding.businessName?.trim() || 'us'}`,
+          description: 'Cancelled by the business.',
+          cancel: true,
+        }),
+      });
+      emailed = true;
+    });
+  }
+  if (!texted && !emailed) {
+    await step(booking.id, 'not-told alert', () =>
+      alertOwner(
+        onboarding,
+        `Call ${booking.contactName}: they were not told about the cancel`,
+        customerNotToldText({ name: booking.contactName, phone: formatPhone(booking.phone), when, service: booking.service })
+      )
+    );
+  }
 }
 
 /** Admin card: mark a live booking done, or cancel it for the client. */

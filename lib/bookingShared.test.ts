@@ -3,10 +3,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  BookingError, confirmationText, formatSlotLabel, generateSlots, groupSlotsByDay, icsFor, isValidTimeZone, localDayStart,
-  ownerCancelText, parseBookingInput, shortName, toDashboardBooking, validateBookingSettings, validateHours, zonedTimeToUtc,
+  BookingError, confirmationText, customerNotToldText, formatSlotLabel, generateSlots, groupSlotsByDay, icsFor, isValidTimeZone, localDayStart,
+  ownerCancelFallback, ownerCancelText, parseBookingInput, shortName, toDashboardBooking, validateBookingSettings, validateHours, zonedTimeToUtc,
   type Booking, type BookingHours,
 } from './bookingShared';
+import { renderBookingCancelEmail } from './email';
 
 const TZ = 'America/Chicago';
 const iso = (ms: number | null) => (ms === null ? null : new Date(ms).toISOString());
@@ -158,6 +159,42 @@ test('icsFor writes a valid, escaped, folded calendar file', () => {
   assert.ok(lines.includes('SUMMARY:Detail\\, interior\\; SUV'));
   assert.ok(lines.every((l) => l.length <= 75));
   assert.ok(ics.replace(/\r\n /g, '').includes('and that is all.'));
+  assert.ok(lines.includes('METHOD:PUBLISH'));
+  assert.ok(lines.includes('STATUS:CONFIRMED'));
+  assert.ok(!lines.some((l) => l.startsWith('SEQUENCE:')));
+});
+
+test('icsFor with cancel is the same event (same UID) as a cancellation calendars remove', () => {
+  const base = { uid: 'booking-7@axeonstudio.co', startsAt: '2026-10-13T19:00:00.000Z', endsAt: '2026-10-13T20:00:00.000Z', summary: 'Detail', description: 'x', now: Date.parse('2026-10-01T12:00:00Z') };
+  const confirm = icsFor(base).split('\r\n');
+  const cancel = icsFor({ ...base, cancel: true }).split('\r\n');
+  assert.ok(cancel.includes('METHOD:CANCEL'));
+  assert.ok(!cancel.includes('METHOD:PUBLISH'));
+  assert.ok(cancel.includes('STATUS:CANCELLED'));
+  assert.ok(!cancel.includes('STATUS:CONFIRMED'));
+  assert.ok(cancel.includes('SEQUENCE:1'), 'one past the confirmation (implicit SEQUENCE 0)');
+  assert.equal(cancel.find((l) => l.startsWith('UID:')), confirm.find((l) => l.startsWith('UID:')));
+  assert.ok(cancel.includes('DTSTART:20261013T190000Z'));
+});
+
+test('owner cancel: an email goes only when the text did not and there is an address; else the owner is told to call', () => {
+  assert.equal(ownerCancelFallback({ texted: true, hasEmail: true }), 'none');
+  assert.equal(ownerCancelFallback({ texted: false, hasEmail: true }), 'email');
+  assert.equal(ownerCancelFallback({ texted: false, hasEmail: false }), 'none');
+  assert.equal(
+    customerNotToldText({ name: 'Mike Robinson', phone: '(515) 555-0134', when: 'Tue, Oct 13 at 2:00 PM', service: '' }),
+    'Mike Robinson was NOT told that their appointment on Tue, Oct 13 at 2:00 PM is cancelled (no text or email could go). Please call them at (515) 555-0134.'
+  );
+});
+
+test('the cancellation email escapes every customer and business value', () => {
+  const r = renderBookingCancelEmail({ businessName: 'A&B <script>x</script>', when: 'Tue, Oct 13 at 2:00 PM', service: '<img src=x onerror=alert(1)>\r\nBcc: a@b.c' });
+  assert.ok(!r.html.includes('<script>'));
+  assert.ok(!r.html.includes('<img'));
+  assert.ok(r.html.includes('A&amp;B &lt;script&gt;'));
+  assert.ok(!/[\r\n]/.test(r.subject), 'no header injection through the subject');
+  assert.match(r.subject, /^Cancelled: /);
+  assert.equal(renderBookingCancelEmail({ businessName: null, when: 'Tue', service: '' }).text.startsWith('We had to cancel your appointment on Tue.'), true);
 });
 
 test('parseBookingInput cleans what a visitor typed and refuses what cannot be booked', () => {

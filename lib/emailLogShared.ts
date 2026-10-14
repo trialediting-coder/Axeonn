@@ -46,6 +46,7 @@ export const EMAIL_KINDS = {
   blog_draft_ready: { label: 'Blog draft ready', category: 'alerts' },
   blog_generation_failed: { label: 'Blog generation failed', category: 'alerts' },
   booking_confirm: { label: 'Booking confirmation (to their customer)', category: 'bookings' },
+  booking_cancel: { label: 'Booking cancelled by the business (to their customer)', category: 'bookings' },
   owner_notice: { label: 'Booking or chat alert (to the client)', category: 'bookings' },
   sequence_start_failed: { label: 'Follow-up did not start', category: 'alerts' },
   sequence_email: { label: 'Follow-up email to a lead', category: 'followups' },

@@ -1412,6 +1412,39 @@ export async function sendBookingEmail(input: {
   });
 }
 
+/** The email to a customer whose booking the business cancelled. Every customer or owner value is escaped. */
+export function renderBookingCancelEmail(input: { businessName: string | null; when: string; service: string }): { subject: string; html: string; text: string } {
+  const business = input.businessName?.trim() || 'We';
+  const what = input.service.trim() || 'Your appointment';
+  const html = `
+    <div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;max-width:520px;margin:0 auto;padding:28px 20px;color:#111827;line-height:1.55">
+      <h1 style="margin:0 0 12px;font-size:22px;line-height:1.25">${escapeHtml(business)} had to cancel your booking</h1>
+      <p style="margin:0 0 4px;font-weight:700">${escapeHtml(what)}</p>
+      <p style="margin:0 0 18px">${escapeHtml(input.when)}</p>
+      <p style="margin:0 0 18px">Sorry about that. Reply to this email to pick a new time. The attached calendar file removes it from your calendar.</p>
+    </div>`;
+  return {
+    subject: `Cancelled: ${what}, ${input.when}`.replace(/[\r\n]+/g, ' '),
+    html,
+    text: `${business} had to cancel your ${input.service.trim() || 'appointment'} on ${input.when}. Sorry about that. Reply to this email to pick a new time.`,
+  };
+}
+
+/** Sends renderBookingCancelEmail with a METHOD:CANCEL .ics (same UID as the confirmation). Throws when it cannot go. */
+export async function sendBookingCancelEmail(input: { to: string; businessName: string | null; replyTo: string | null; when: string; service: string; ics: string }): Promise<void> {
+  const resend = requireClient('booking_cancel');
+  const { subject, html, text } = renderBookingCancelEmail(input);
+  await sendChecked(resend, {
+    from: sequenceFromAddress(input.businessName, SEQUENCE_FROM_ADDRESS),
+    to: input.to,
+    ...(input.replyTo ? { replyTo: input.replyTo } : {}),
+    subject,
+    html,
+    text,
+    attachments: [{ filename: 'cancelled.ics', content: Buffer.from(input.ics, 'utf8'), contentType: 'text/calendar; charset=utf-8; method=CANCEL' }],
+  });
+}
+
 /** A booking or chat alert for a client with no tracked line yet (lib/leadHooks.ts alertOwner). Plain text: it is read on a phone. */
 export async function sendOwnerNoticeEmail(input: { to: string; subject: string; text: string }): Promise<void> {
   const resend = requireClient('owner_notice');

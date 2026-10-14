@@ -301,6 +301,19 @@ export function ownerCancelText(input: { business: string | null; when: string; 
   return `${who} had to cancel your ${input.service.trim() || 'appointment'} on ${input.when}. Sorry about that. Reply here or call to pick a new time.`;
 }
 
+/**
+ * After the owner cancels: the text went, or else an email when they gave one,
+ * or else nobody told the customer and the owner must call.
+ */
+export function ownerCancelFallback(input: { texted: boolean; hasEmail: boolean }): 'none' | 'email' {
+  return !input.texted && input.hasEmail ? 'email' : 'none';
+}
+
+/** The owner's alert when neither a text nor an email reached the customer about a cancel. */
+export function customerNotToldText(input: { name: string; phone: string; when: string; service: string }): string {
+  return `${input.name} was NOT told that their ${input.service.trim() || 'appointment'} on ${input.when} is cancelled (no text or email could go). Please call them at ${input.phone}.`;
+}
+
 const icsTime = (v: string | number) => new Date(v).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
 const icsText = (s: string) => s.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r\n|\r|\n/g, '\\n');
 
@@ -325,22 +338,27 @@ function fold(line: string): string {
   return parts.map((p, i) => (i === 0 ? p : ` ${p}`)).join('\r\n');
 }
 
-/** A one-event calendar file for the confirmation email. */
-export function icsFor(input: { uid: string; startsAt: string; endsAt: string; summary: string; description: string; now?: number }): string {
+/**
+ * A one-event calendar file for the confirmation email. With `cancel`, the
+ * same event (same UID) as a cancellation: METHOD:CANCEL, SEQUENCE one past the
+ * confirmation's (which is 0), STATUS:CANCELLED, so calendars remove it.
+ */
+export function icsFor(input: { uid: string; startsAt: string; endsAt: string; summary: string; description: string; now?: number; cancel?: boolean }): string {
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
     'PRODID:-//Axeon Studio//Online booking//EN',
     'CALSCALE:GREGORIAN',
-    'METHOD:PUBLISH',
+    input.cancel ? 'METHOD:CANCEL' : 'METHOD:PUBLISH',
     'BEGIN:VEVENT',
     `UID:${input.uid}`,
+    ...(input.cancel ? ['SEQUENCE:1'] : []),
     `DTSTAMP:${icsTime(input.now ?? Date.now())}`,
     `DTSTART:${icsTime(input.startsAt)}`,
     `DTEND:${icsTime(input.endsAt)}`,
     `SUMMARY:${icsText(input.summary)}`,
     `DESCRIPTION:${icsText(input.description)}`,
-    'STATUS:CONFIRMED',
+    input.cancel ? 'STATUS:CANCELLED' : 'STATUS:CONFIRMED',
     'END:VEVENT',
     'END:VCALENDAR',
   ];
