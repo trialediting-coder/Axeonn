@@ -6,7 +6,7 @@
 
 **Architecture:** Booking is two tables (`booking_settings`, `bookings`) behind a pure slot engine (`lib/bookingShared.ts`) that computes open times in the client's time zone with `Intl` only. Public endpoints under `app/api/book/[site]` and a hosted page at `/b/<site>` serve the slots. The hosted page is a route handler that emits its own HTML, so none of Axeon's marketing scripts in `app/layout.tsx` (GA, Clarity, Apollo, our own `t.js`) ever run on a client's customers; `public/book.js` mounts that page in an iframe on the client's site. Chat crawls the client's site into `site_pages`, builds a guarded system prompt from those pages and the portal answers, and runs the Messages API with four tools against the booking module and the slice 2–4 hooks; `public/chat.js` is a shadow-DOM bubble that calls `POST /api/chat/<site>`. Everything that touches slices 2, 3 and 4 goes through one seam, `lib/leadHooks.ts`.
 
-**Tech Stack:** Next.js 15 App Router route handlers (`runtime = 'nodejs'`), `@vercel/postgres` via `lib/db.ts` (plus `db.connect()` for the one transaction), `@anthropic-ai/sdk` Messages API with tools (non-streaming), Resend via `lib/email.ts`, Twilio via `sendClientSms` in `lib/phoneLines.ts`, `tsx --test` + `node:assert/strict`, Tailwind + `components/admin/ui.ts` for admin UI, plain ES2017 for the browser scripts.
+**Tech Stack:** Next.js 15 App Router route handlers (`runtime = 'nodejs'`), `@vercel/postgres` via `lib/db.ts` (plus `db.connect()` from `@vercel/postgres` for the one transaction, as `lib/contacts.ts` does), `@anthropic-ai/sdk` Messages API with tools (non-streaming), Resend via `lib/email.ts`, Twilio via `sendClientSms` in `lib/phoneLines.ts`, `tsx --test` + `node:assert/strict`, Tailwind + `components/admin/ui.ts` for admin UI, plain ES2017 for the browser scripts.
 
 **Spec:** `docs/superpowers/specs/2026-10-12-proof-lead-system-design.md` ("Architecture (all slices)", "Cross-slice decisions", "Slice 5 design: booking and website chat", "Execution order").
 
@@ -16,18 +16,20 @@
 
 - Phone numbers are stored E.164 (`+15155550134`); never store a formatted number. A booking requires a phone and it must be a US number (`normalizePhone` from `lib/phoneShared.ts`).
 - No automated text is sent while `phone_lines.sms_status = 'pending'`, and every send checks `phone_opt_outs`: both checks already live inside `sendClientSms`, which is the only way this slice texts anyone (kind `'confirm'` for confirmations and owner-cancel notices).
-- All times are stored UTC (`TIMESTAMPTZ` in SQL, ISO strings in TypeScript) and computed in the client's `phone_lines.time_zone`, falling back to `America/Chicago`, with `Intl` only. No date library.
+- Quiet hours (cross-slice rule: 8 pm to 8 am client-local, `isQuietHours` from `lib/leadShared.ts`, never re-implemented): an owner alert goes by email instead of a text in that window (`alertOwner`), and the customer's confirmation and owner-cancel texts are not sent in it (the confirmation is on screen and in the email). Reminders are slice 3's runs; its engine holds them to 8 am.
+- All times are stored UTC (`TIMESTAMPTZ` in SQL, ISO strings in TypeScript) and computed in the client's `phone_lines.time_zone` (`PhoneLine.timeZone`, through `safeTimeZone`), falling back to `DEFAULT_TIME_ZONE` (`America/Chicago`), with `Intl` only, on top of slice 3's `localParts` / `zonedTime` (`lib/sequenceSchedule.ts`). No date library.
 - Slot generation is one pure, tested function (`generateSlots` in `lib/bookingShared.ts`). The server never books a time that `generateSlots` does not offer at that moment.
 - Public endpoints (`/api/book/*`, `/api/chat/*`, `/b/*`) answer CORS for any origin, are rate-limited (in-memory per IP against floods, database counts for the hard limits), and never reveal anything about other bookings beyond a slot not being offered. An unknown site key, a closed client, an Essentials client and a client with the feature off all get the same answer.
 - Chat never quotes a price that is not in that client's `site_pages`, never says a visit is booked unless `book_slot` created a `bookings` row in that turn, and always offers to take a number when it cannot help. All three are in the prompt; the first two are enforced again on the reply (`finalizeReply`).
-- Chat uses model `claude-sonnet-5-5`, non-streaming in v1 (simpler code: one JSON reply per turn, the widget shows a typing dot). Hard limits: 30 visitor messages per session and 200 visitor messages per site per hour, counted from `chat_messages`.
+- Chat uses model `claude-sonnet-5` (the Sonnet id in the installed `@anthropic-ai/sdk`'s model list, checked the way `lib/anthropic.ts` checks its own), non-streaming in v1 (simpler code: one JSON reply per turn, the widget shows a typing dot). Hard limits: 30 visitor messages per session and 200 visitor messages per site per hour, counted from `chat_messages`.
 - The crawler stays on the start page's origin, keeps at most 40 pages, refuses to crawl at all when `robots.txt` disallows the homepage path (and skips any other disallowed path), gives each page fetch 5 seconds, and stores text only (no HTML, no images).
 - `public/book.js` and `public/chat.js` are plain ES2017 with no dependencies, under 12 KB each, wrap everything in `try`, and leave the host page as it was if Axeon is down.
 - Client-facing copy uses plain language (brand guardrails): "online booking", "website chat", "book a time"; never "AI agent", "workflow", "conversion" or "speed-to-lead".
 - Every new table goes in both `lib/db.ts` `ensureSchema()` and `scripts/init-db.mjs`, `IF NOT EXISTS` only.
-- Client-safe modules (`lib/bookingShared.ts`, `lib/chatShared.ts`, `lib/chatLoop.ts`, `lib/bookingPage.ts`) import nothing from `node:*` or `@/lib/db`.
+- Client-safe modules (`lib/bookingShared.ts`, `lib/chatShared.ts`, `lib/chatLoop.ts`, `lib/bookingPage.ts`) import nothing from `node:*` or `@/lib/db`; `lib/bookingShared.ts` imports only the client-safe `lib/phoneShared.ts`, `lib/sequenceSchedule.ts`, `lib/sequenceShared.ts` and `lib/contactsShared.ts`.
+- Reuse, do not copy: `DbId`, `DbTime`, `iso`, `errText` (`lib/dbRows.ts`); `DEFAULT_TIME_ZONE` (`lib/phoneShared.ts`); `safeTimeZone`, `localParts`, `zonedTime` (`lib/sequenceSchedule.ts`); `normalizeEmail`, `sequenceFromAddress` (`lib/sequenceShared.ts`); `shortName` (`lib/contactsShared.ts`); `REPORT_TIME_ZONE` (`lib/siteStats.ts`); `isQuietHours` (`lib/leadShared.ts`).
 - Tests run with `tsx --test` and need no database or network. The Claude call is injected (`CreateMessage`) and the crawler's fetcher is injected (`CrawlFetcher`), so tests pass fakes. SQL functions are not unit-tested; pure helpers are.
-- Commit after every task with a message in the repo's style (`feat(booking): …`, `feat(chat): …`) and the trailer `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>`.
+- Commit after every task with a message in the repo's style (`feat(booking): …`, `feat(chat): …`) ending with the two trailer lines `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>` and `Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR`.
 
 ## Review Focus
 
@@ -40,6 +42,8 @@
 ## Design choices this plan made where the spec was open
 
 - `lib/leadHooks.ts` is the single seam to slices 2–4 (Task 1), so a signature drift there is a one-file fix.
+- The booking's inbox row is a `kind: 'booking'` event, which moves the contact to Booked through slice 4's own `systemStageFor` (no separate stage call); a cancel is a `kind: 'note'` event on the same booking with `refPart: 1`, so it neither overwrites the "Booked" row nor moves the stage.
+- Reminders are one slice-3 `reminder` run per booking, anchored on `starts_at`; slice 3 allows one active reminder run per person, so a second upcoming booking by the same number is confirmed but not reminded (logged as `already_active`).
 - The hosted page `/b/<site>` is a route handler returning its own HTML, not an `app/` page, because the root layout injects Axeon's GA, Clarity, Apollo and `t.js` into every page.
 - A one-hour minimum notice (`MIN_NOTICE_MINUTES = 60`) and a cap of three upcoming bookings per phone per client (`MAX_ACTIVE_PER_PHONE = 3`).
 - A sixth table, `chat_settings` (enabled, greeting, trained_at), because the spec named the admin controls but no home for them; `chat_messages` also carries `onboarding_id` so the per-site hourly limit is one indexed count.
@@ -51,140 +55,185 @@
 
 ### Task 1: Check the slice 2–4 hooks and write the one seam to them
 
+Slices 2 to 4 were planned in parallel with this one; this plan has been revised against the real slice 1–3 code and the revised slice 4 plan (`docs/superpowers/plans/2026-10-13-slice-4-leads-inbox.md`, whose interfaces are authoritative for `lib/contacts.ts`). Step 1 re-checks each name; nothing in this plan re-implements what those slices own.
+
 **Files:**
 - Create: `lib/leadHooks.ts`
 
 **Interfaces:**
-- Consumes (assumed from slices 2, 3, 4; verified in Step 1):
-  - `lib/leads.ts` (slice 2): `recordFormSubmission(onboardingId: number, input: { name: string; phone: string | null; email: string | null; message: string; page: string | null; utmSource: string | null; utmMedium: string | null; utmCampaign: string | null }, meta: { ipHash: string | null; source?: string }): Promise<{ id: number }>` and `sendOwnerAlert(line: PhoneLine, body: string): Promise<void>` (SMS to `forward_to` with kind `'alert'`, email fallback, push once slice 4 adds it).
-  - `lib/sequences.ts` (slice 3): `startRun(onboardingId: number, kind: 'reminder', contact: { name: string; phone: string | null; email: string | null }, ref: { table: 'bookings'; id: number }): Promise<void>`, with reminder offsets anchored on `bookings.starts_at` read through the ref; table `sequence_runs` with `ref_table`, `ref_id`, `status`, `stop_reason`, `updated_at`.
-  - `lib/contacts.ts` (slice 4): `upsertContactEvent(input: { onboardingId: number; phone: string | null; email: string | null; name: string | null; source: string; kind: 'booking' | 'chat'; refTable: string | null; refId: number | null; summary: string; payload: Record<string, unknown> }): Promise<{ contactId: number }>` and `setStage(contactId: number, stage: 'booked', by: 'system'): Promise<void>`.
-  - Slice 2 widened `phone_messages.kind` and `sendClientSms`'s `kind` to include `'confirm'`, and added `phone_lines.time_zone` exposed as `PhoneLine.timeZone: string`.
-  - `getLine` (`lib/phoneLines.ts`); `getItemStates`, `Onboarding` (`lib/onboarding.ts`); `sql`, `ensureSchema` (`lib/db.ts`).
+- Consumes (real names; verified in Step 1):
+
+| # | What exists (real name and place) | Check |
+|---|---|---|
+| H1 | `lib/leads.ts`: `recordFormSubmission(onboardingId, input: LeadInput, meta: { ipHash: string; isTest?: boolean }): Promise<FormSubmission>` (no fan-out inside it); `deliverLead(owner: LeadOwner, lead: FormSubmission, opts: { now?; test?; contactId?: number \| null })` sends the owner email and text, starts call connect and `startLeadFollowUp` (slice 4 Task 10 adds `contactId`); `type LeadOwner = Pick<Onboarding, 'id' \| 'tier' \| 'businessName' \| 'clientEmail'>`. `/api/lead` calls `recordFormSubmission`, then inside `after()`: `projectForm(saved.id)` and `deliverLead(owner, saved, { contactId })`. | `grep -n "export async function recordFormSubmission\|export async function deliverLead\|export type LeadOwner" lib/leads.ts` |
+| H2 | `lib/leadShared.ts`: `LeadInput { name; phone: string \| null; email: string \| null; message; page: string (a path, or ""); utmSource; utmMedium; utmCampaign }`, `LEAD_MESSAGE_MAX`, `pagePath(raw)`, quiet hours `QUIET_START_HOUR = 20`, `QUIET_END_HOUR = 8`, `isQuietHours(now, timeZone)`. | `grep -n "export interface LeadInput\|LEAD_MESSAGE_MAX =\|export function pagePath\|QUIET_\|export function isQuietHours" lib/leadShared.ts` |
+| H3 | `lib/phoneLines.ts`: `getLine(onboardingId): Promise<PhoneLine \| null>` (active lines only); `sendClientSms(line, to, body, kind: Exclude<MessageKind, 'inbound'>): Promise<ClientSmsResult>` (checks `sms_status` and the opt-out list, not quiet hours); `sendOwnerAlert(line, body): Promise<ClientSmsResult>` (kind `'alert'`, to `forward_to`, no quiet-hours check of its own). `MessageKind` (`lib/phoneShared.ts`) includes `'confirm'` and `'reminder'`; `PhoneLine.timeZone` is `phone_lines.time_zone`. | `grep -n "export async function getLine\|export async function sendClientSms\|export async function sendOwnerAlert" lib/phoneLines.ts` and `grep -n "export type MessageKind\|timeZone" lib/phoneShared.ts` |
+| H4 | `lib/sequences.ts`: `startRun(onboardingId, kind: SequenceKind, contact: RunContact, ref: RunRef, opts: { anchorAt?: Date; notBefore?; startStep?; now? }): Promise<StartResult>`; it **throws for `'reminder'` without `opts.anchorAt`** (the appointment time), and refuses a second active run of one kind for the same phone or email (`already_active`). `stopRunsFor(onboardingId, { phone?, email?, kinds? }, reason: RunStopReason)` matches by phone or email, so a cancel stops only its own booking's runs through `ref_table`/`ref_id` instead. `RunStopReason = StopReason \| \`stage:${string}\``; `StopReason` (`lib/sequenceShared.ts`) includes `'cancelled'`. | `grep -n "export async function startRun\|reminder runs need anchorAt\|export async function stopRunsFor\|export type RunStopReason" lib/sequences.ts` and `grep -n "export type StopReason" lib/sequenceShared.ts` |
+| H5 | `lib/contacts.ts` (slice 4 Task 4): `upsertContactEvent(input: ContactEventInput): Promise<UpsertResult \| null>` with `ContactEventInput { onboardingId; kind: ContactEventKind; refTable: string \| null; refId: number \| null; refPart?: number; phone?; email?; name?; source?; utm?; summary; payload; createdAt: string; createIfMissing?: boolean; replay?: boolean }`, idempotent on `(ref_table, ref_id, kind, ref_part)` (an existing row is updated, never added twice); `projectForm(formId): Promise<UpsertResult \| null>`. A fresh `kind: 'booking'` event moves the contact to Booked by itself (`systemStageFor('booking')` → `advanceStage`, which applies slice 3's `STAGE_EFFECTS.booked` stops); there is no `setStage`. `ContactEventKind` (`lib/contactsShared.ts`) includes `'booking'`, `'chat'` and `'note'` (a note's line is `payload.text`; a note never moves a stage). | `grep -n "export async function upsertContactEvent\|export interface ContactEventInput\|export async function projectForm" lib/contacts.ts` and `grep -n "export function systemStageFor\|export const CONTACT_EVENT_KINDS" lib/contactsShared.ts` |
+| H6 | Pure helpers this plan reuses instead of copying: `safeTimeZone(tz)`, `localParts(at: Date, tz): { year; month; day; hour; minute; second }`, `zonedTime(y, m, d, h, min, tz): Date` (`lib/sequenceSchedule.ts`, client-safe); `DEFAULT_TIME_ZONE`, `normalizePhone`, `maskNumber`, `formatPhone`, `SMS_MAX_CHARS` (`lib/phoneShared.ts`); `normalizeEmail`, `sequenceFromAddress` (`lib/sequenceShared.ts`); `shortName(name: string \| null): string \| null` (`lib/contactsShared.ts`); `DbId`, `DbTime`, `iso`, `errText` (`lib/dbRows.ts`); `REPORT_TIME_ZONE`, `getTrackingSettings`, `isValidSiteKey`, `onboardingIdForSiteKey`, `validateSiteUrl`, `monthOf`, `visitorHash` (`lib/siteStats.ts`); `fetchPage` (`lib/auditSources.ts`, SSRF-safe). | `grep -n "export function safeTimeZone\|export function localParts\|export function zonedTime" lib/sequenceSchedule.ts`, `grep -n "^export" lib/dbRows.ts`, `grep -n "export async function fetchPage" lib/auditSources.ts` |
+| H7 | Transactions: `lib/db.ts` exports only `sql`, `ensureSchema` and `isDatabaseConfigured`; `lib/contacts.ts` takes `db` straight from `@vercel/postgres` for its one transaction, and `lib/bookings.ts` does the same (no change to `lib/db.ts`'s exports). | `grep -n "^export\|^import" lib/db.ts` |
+| H8 | Schema anchor: the last statement in `ensureSchema()` (`lib/db.ts`, before `})().catch(`) and before `console.log('Schema ready.');` (`scripts/init-db.mjs`) is slice 4's ``await sql`CREATE INDEX IF NOT EXISTS held_replies_contact_idx ON held_replies (contact_id);`;`` | `grep -n "held_replies_contact_idx\|})().catch\|Schema ready" lib/db.ts scripts/init-db.mjs` |
+| H9 | `lib/email.ts` private helpers: `requireClient(kind)`, `sendChecked`, `escapeHtml`, `CLIENT_FROM_ADDRESS`, `SEQUENCE_FROM_ADDRESS` (declared above `sendSequenceEmail`); it already imports `sequenceFromAddress`. Email kinds are keys of `EMAIL_KINDS` in `lib/emailLogShared.ts`. | `grep -n "^function requireClient\|^async function sendChecked\|^function escapeHtml\|^const CLIENT_FROM_ADDRESS\|^const SEQUENCE_FROM_ADDRESS\|sequenceFromAddress" lib/email.ts` |
+
 - Produces:
-  - `type Owner = Pick<Onboarding, 'id' | 'businessName' | 'clientEmail'>`
-  - `submitChatLead(onboardingId: number, input: { name: string; phone: string; email: string | null; message: string; page: string | null }): Promise<number>`
-  - `ownerEmailFor(onboarding: Owner): Promise<string>`
-  - `alertOwner(onboarding: Owner, subject: string, body: string): Promise<void>`
-  - `interface ContactEventInput`, `logContactEvent(input: ContactEventInput): Promise<void>`
-  - `startBookingReminders(onboardingId: number, booking: Pick<Booking, 'id' | 'contactName' | 'phone' | 'email'>): Promise<void>`
+  - `type Owner = LeadOwner` (`Pick<Onboarding, 'id' | 'tier' | 'businessName' | 'clientEmail'>`)
+  - `submitChatLead(owner: Owner, input: { name: string; phone: string; email: string | null; message: string; page: string | null; session: string }, defer: (task: () => Promise<void>) => void): Promise<number>`
+  - `ownerEmailFor(owner: Owner): Promise<string>`
+  - `alertOwner(owner: Owner, subject: string, body: string, now?: Date): Promise<void>`
+  - `interface LeadHookEvent`, `logContactEvent(input: LeadHookEvent): Promise<void>`
+  - `startBookingReminders(onboardingId: number, booking: Pick<Booking, 'id' | 'contactName' | 'phone' | 'email' | 'startsAt'>): Promise<StartResult>`
   - `stopBookingReminders(bookingId: number): Promise<void>`
 
-- [ ] **Step 1: Verify the hooks exist with the assumed shapes**
+- [ ] **Step 1: Verify the hooks exist with these shapes**
 
-Run each and read the signature it prints:
-
-```bash
-grep -n "export async function recordFormSubmission\|export async function sendOwnerAlert" lib/leads.ts
-grep -n "export async function startRun" lib/sequences.ts
-grep -n "export async function upsertContactEvent\|export async function setStage" lib/contacts.ts
-grep -n "'confirm'" lib/phoneLines.ts lib/db.ts scripts/init-db.mjs
-grep -n "timeZone" lib/phoneShared.ts lib/phoneLines.ts
-grep -n "ref_table\|stop_reason" lib/db.ts
-```
-
-Expected: every command prints at least one line. If any prints nothing, stop: slices 2 to 4 are not merged yet and this plan waits (spec, "Execution order": 2 → 3 → 4 → 5).
-
-If a function exists but its parameters differ from the "Consumes" list, change only `lib/leadHooks.ts` in Step 2 to call the real signature; nothing else in this plan calls slices 2 to 4 directly. Two known possibilities:
-
-- If slice 2's fan-out (owner alert, call connect, `new_lead` sequence, contact upsert) is a separate export that `/api/lead` calls in `after()` instead of being part of `recordFormSubmission`, call that export right after `recordFormSubmission` inside `submitChatLead`.
-- If slice 3's `startRun` takes an explicit anchor time for `reminder` instead of reading `bookings.starts_at` through the ref, pass `booking.startsAt` (and widen the `Pick` in `startBookingReminders` to include `'startsAt'`).
+Run every command in the "Check" column from the repo root and confirm the real name matches the row. Expected: every command prints at least one line. If `lib/contacts.ts` is missing, stop: slice 4 is not merged yet and this plan waits (spec, "Execution order": 2 → 3 → 4 → 5). If a name differs from the table, change only `lib/leadHooks.ts` in Step 2 (and, for H6, the import line that names it); nothing else in this plan calls slices 2 to 4 directly.
 
 - [ ] **Step 2: Write the seam**
 
 ```ts
 // lib/leadHooks.ts
 // The one place slice 5 (online booking and website chat) calls slices 2, 3
-// and 4: form submissions and owner alerts (lib/leads.ts), reminder sequences
-// (lib/sequences.ts) and the leads inbox (lib/contacts.ts). If one of those
-// signatures changes, this file changes and nothing else does. Server-only.
+// and 4: form submissions and owner alerts (lib/leads.ts, lib/phoneLines.ts),
+// reminder sequences (lib/sequences.ts) and the leads inbox (lib/contacts.ts).
+// If one of those signatures changes, this file changes and nothing else does.
+// Server-only.
 import { ensureSchema, sql } from '@/lib/db';
+import { errText } from '@/lib/dbRows';
+import { projectForm, upsertContactEvent } from '@/lib/contacts';
 import { sendOwnerNoticeEmail } from '@/lib/email';
-import { getItemStates, type Onboarding } from '@/lib/onboarding';
-import { getLine } from '@/lib/phoneLines';
-import { recordFormSubmission, sendOwnerAlert } from '@/lib/leads';
-import { startRun } from '@/lib/sequences';
-import { setStage, upsertContactEvent } from '@/lib/contacts';
+import { deliverLead, recordFormSubmission, type LeadOwner } from '@/lib/leads';
+import { LEAD_MESSAGE_MAX, isQuietHours, pagePath } from '@/lib/leadShared';
+import { getItemStates } from '@/lib/onboarding';
+import { getLine, sendOwnerAlert } from '@/lib/phoneLines';
+import { startRun, type RunStopReason, type StartResult } from '@/lib/sequences';
 import type { Booking } from '@/lib/bookingShared';
 
-export type Owner = Pick<Onboarding, 'id' | 'businessName' | 'clientEmail'>;
+export type Owner = LeadOwner;
 
 /**
- * A chat visitor who left their number. Written as a form submission so the
- * slice-2 path (owner alert, call connect, the new_lead sequence, the inbox)
- * treats it exactly like the site's quote form.
+ * A chat visitor who left their number. Written as a form submission and then
+ * handled exactly as /api/lead handles the site's quote form: into the inbox
+ * (projectForm), then deliverLead (owner email and text, call connect, the
+ * new_lead follow-up). The slow part runs through `defer` (after() in the route).
  */
 export async function submitChatLead(
-  onboardingId: number,
-  input: { name: string; phone: string; email: string | null; message: string; page: string | null }
+  owner: Owner,
+  input: { name: string; phone: string; email: string | null; message: string; page: string | null; session: string },
+  defer: (task: () => Promise<void>) => void
 ): Promise<number> {
-  const { id } = await recordFormSubmission(
-    onboardingId,
-    { name: input.name, phone: input.phone, email: input.email, message: input.message, page: input.page, utmSource: null, utmMedium: null, utmCampaign: null },
-    { ipHash: null, source: 'chat' }
+  const saved = await recordFormSubmission(
+    owner.id,
+    {
+      name: input.name.trim().slice(0, 80) || 'Website chat visitor',
+      phone: input.phone,
+      email: input.email,
+      message: input.message.slice(0, LEAD_MESSAGE_MAX),
+      page: pagePath(input.page),
+      utmSource: null,
+      utmMedium: null,
+      utmCampaign: null,
+    },
+    // Not an IP hash: chat is limited by its own message limits, and this keeps chat leads out of /api/lead's per-IP count.
+    { ipHash: `chat:${input.session}`.slice(0, 32) }
   );
-  return id;
+  defer(async () => {
+    try {
+      const projected = await projectForm(saved.id).catch((err) => {
+        console.error('[chat] inbox', saved.id, errText(err));
+        return null;
+      });
+      await deliverLead(owner, saved, { contactId: projected?.contactId ?? null });
+    } catch (err) {
+      console.error('[chat] deliver', saved.id, errText(err));
+    }
+  });
+  return saved.id;
 }
 
 /** Where the owner wants lead email: the portal's lead-routing answer, else the account email. */
-export async function ownerEmailFor(onboarding: Owner): Promise<string> {
-  const states = await getItemStates(onboarding.id);
+export async function ownerEmailFor(owner: Owner): Promise<string> {
+  const states = await getItemStates(owner.id);
   const v = states['lead-routing']?.data?.alertEmail;
-  return typeof v === 'string' && v.includes('@') ? v.trim() : onboarding.clientEmail;
+  return typeof v === 'string' && v.includes('@') ? v.trim() : owner.clientEmail;
 }
 
-/** Tell the owner something happened: through their line (slice-2 alert path) when they have one, else by email. */
-export async function alertOwner(onboarding: Owner, subject: string, body: string): Promise<void> {
-  const line = await getLine(onboarding.id);
-  if (line) {
-    await sendOwnerAlert(line, body);
-    return;
+/**
+ * Tell the owner something happened: a text through their line (slice 2's alert
+ * path) outside quiet hours (8 pm to 8 am client-local, isQuietHours from
+ * lib/leadShared.ts); otherwise, or when the text cannot go, an email.
+ */
+export async function alertOwner(owner: Owner, subject: string, body: string, now: Date = new Date()): Promise<void> {
+  const line = await getLine(owner.id);
+  if (line && !isQuietHours(now, line.timeZone)) {
+    const r = await sendOwnerAlert(line, body);
+    if (r.sent) return;
   }
-  await sendOwnerNoticeEmail({ to: await ownerEmailFor(onboarding), subject, text: body });
+  await sendOwnerNoticeEmail({ to: await ownerEmailFor(owner), subject, text: body });
 }
 
-export interface ContactEventInput {
+export interface LeadHookEvent {
   onboardingId: number;
   phone: string | null;
   email: string | null;
   name: string | null;
-  kind: 'booking' | 'chat';
+  /** 'booking' moves the contact to Booked by itself (slice 4); 'note' is a plain timeline line (a cancel). */
+  kind: 'booking' | 'chat' | 'note';
   refTable: 'bookings' | 'chat_sessions';
   /** bookings.id; null for a chat (its id is text and rides in payload.session). */
   refId: number | null;
+  /** 0 for the booking itself, 1 for its cancel note: one row each, so a cancel never overwrites "Booked". */
+  refPart?: number;
   summary: string;
   payload: Record<string, unknown>;
-  /** Also move the contact to Booked. */
-  stage?: 'booked';
+  /** When it happened, ISO. Defaults to now. */
+  createdAt?: string;
+  /** False when the event may only attach to an existing contact (a cancel). Default true. */
+  createIfMissing?: boolean;
 }
 
-/** One row on the contact's timeline in the leads inbox (slice 4), plus the stage when asked. */
-export async function logContactEvent(input: ContactEventInput): Promise<void> {
-  const { contactId } = await upsertContactEvent({
+/** One row on the contact's timeline in the leads inbox (slice 4's upsertContactEvent). */
+export async function logContactEvent(input: LeadHookEvent): Promise<void> {
+  await upsertContactEvent({
     onboardingId: input.onboardingId,
-    phone: input.phone,
-    email: input.email,
-    name: input.name,
-    source: input.kind,
     kind: input.kind,
     refTable: input.refTable,
     refId: input.refId,
+    refPart: input.refPart ?? 0,
+    phone: input.phone,
+    email: input.email,
+    name: input.name,
     summary: input.summary,
     payload: input.payload,
+    createdAt: input.createdAt ?? new Date().toISOString(),
+    createIfMissing: input.createIfMissing,
   });
-  if (input.stage) await setStage(contactId, input.stage, 'system');
 }
 
-/** The slice-3 reminder texts (24 h and 2 h before), keyed to the booking so a cancel stops exactly them. */
-export async function startBookingReminders(onboardingId: number, booking: Pick<Booking, 'id' | 'contactName' | 'phone' | 'email'>): Promise<void> {
-  await startRun(onboardingId, 'reminder', { name: booking.contactName, phone: booking.phone, email: booking.email }, { table: 'bookings', id: booking.id });
+/**
+ * Slice 3's reminder texts (24 h and 2 h before), anchored on the appointment
+ * (startRun throws for 'reminder' without anchorAt) and keyed to the booking so
+ * a cancel stops exactly them. startRun allows one active reminder run per
+ * person, so a second upcoming booking by the same number gets 'already_active'.
+ */
+export async function startBookingReminders(
+  onboardingId: number,
+  booking: Pick<Booking, 'id' | 'contactName' | 'phone' | 'email' | 'startsAt'>
+): Promise<StartResult> {
+  return startRun(
+    onboardingId,
+    'reminder',
+    { name: booking.contactName, phone: booking.phone, email: booking.email },
+    { table: 'bookings', id: booking.id },
+    { anchorAt: new Date(booking.startsAt) }
+  );
 }
 
-/** Stops only this booking's reminders, not every sequence the person is in. */
+/** Stops only this booking's reminders (stopRunsFor would match every run for that phone). */
 export async function stopBookingReminders(bookingId: number): Promise<void> {
+  const reason: RunStopReason = 'cancelled';
   await ensureSchema();
   await sql`
-    UPDATE sequence_runs SET status = 'stopped', stop_reason = 'booking_cancelled', updated_at = now()
+    UPDATE sequence_runs SET status = 'stopped', stop_reason = ${reason}, updated_at = now()
     WHERE ref_table = 'bookings' AND ref_id = ${bookingId} AND status = 'active';
   `;
 }
@@ -196,7 +245,8 @@ export async function stopBookingReminders(bookingId: number): Promise<void> {
 
 ```bash
 git add lib/leadHooks.ts
-git commit -m "feat(booking): one seam from booking and chat to the lead, sequence and inbox hooks" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+git commit -m "feat(booking): one seam from booking and chat to the lead, sequence and inbox hooks" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR"
 ```
 
 ---
@@ -209,9 +259,9 @@ git commit -m "feat(booking): one seam from booking and chat to the lead, sequen
 - Modify: `package.json` (add `test:booking`)
 
 **Interfaces:**
-- Consumes: `normalizePhone`, `maskNumber`, `SMS_MAX_CHARS` (`lib/phoneShared.ts`).
+- Consumes: `DEFAULT_TIME_ZONE`, `normalizePhone`, `maskNumber`, `SMS_MAX_CHARS` (`lib/phoneShared.ts`); `localParts`, `zonedTime`, `safeTimeZone` (`lib/sequenceSchedule.ts`); `normalizeEmail` (`lib/sequenceShared.ts`); `shortName` (`lib/contactsShared.ts`, slice 4).
 - Produces (all client-safe):
-  - Constants: `DEFAULT_TIME_ZONE`, `WEEKDAYS`, `WEEKDAY_NAMES`, `DEFAULT_HOURS`, `DEFAULT_BOOKING_SETTINGS`, `MIN_NOTICE_MINUTES = 60`, `MAX_QUERY_DAYS = 62`, `MAX_RANGES_PER_DAY = 3`, `MAX_SERVICES = 12`, `CONFIRM_NOTE_MAX = 120`.
+  - Constants: `DEFAULT_TIME_ZONE` (re-exported from `lib/phoneShared.ts`), `WEEKDAYS`, `WEEKDAY_NAMES`, `DEFAULT_HOURS`, `DEFAULT_BOOKING_SETTINGS`, `MIN_NOTICE_MINUTES = 60`, `MAX_QUERY_DAYS = 62`, `MAX_RANGES_PER_DAY = 3`, `MAX_SERVICES = 12`, `CONFIRM_NOTE_MAX = 120`.
   - Types: `Weekday`, `BookingHours`, `BookingSettings`, `Slot`, `BookingStatus`, `BookingSource`, `Booking`, `BookingInput`, `SlotQuery`, `SlotDay`, `BookingsMonth`, `DashboardBooking`, `DashboardBookings`, `AdminBookingData`; class `BookingError`.
   - `localParts(ms: number, timeZone: string): { y: number; m: number; d: number; minutes: number }`
   - `zonedTimeToUtc(y: number, m: number, d: number, minutes: number, timeZone: string): number | null`
@@ -444,10 +494,13 @@ Expected: FAIL with `Cannot find module './bookingShared'`.
 // Client-safe: no Node imports. Every time is a UTC ISO string; the client's own
 // time zone (phone_lines.time_zone, else America/Chicago) is applied here with
 // Intl only, so there is no date library and DST comes from the platform's
-// time-zone database.
-import { maskNumber, normalizePhone, SMS_MAX_CHARS } from '@/lib/phoneShared';
+// time-zone database. The wall-clock math is slice 3's (lib/sequenceSchedule.ts).
+import { shortName as inboxShortName } from '@/lib/contactsShared';
+import { DEFAULT_TIME_ZONE, maskNumber, normalizePhone, SMS_MAX_CHARS } from '@/lib/phoneShared';
+import { localParts as wallClock, safeTimeZone, zonedTime } from '@/lib/sequenceSchedule';
+import { normalizeEmail } from '@/lib/sequenceShared';
 
-export const DEFAULT_TIME_ZONE = 'America/Chicago';
+export { DEFAULT_TIME_ZONE };
 
 export const WEEKDAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as const;
 export type Weekday = (typeof WEEKDAYS)[number];
@@ -528,55 +581,25 @@ export class BookingError extends Error {}
 
 // ───────────────────────── Time zones, with Intl only ─────────────────────────
 
-const partsFormatters = new Map<string, Intl.DateTimeFormat>();
-function partsFormatter(timeZone: string): Intl.DateTimeFormat {
-  let f = partsFormatters.get(timeZone);
-  if (!f) {
-    f = new Intl.DateTimeFormat('en-US', { timeZone, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-    partsFormatters.set(timeZone, f);
-  }
-  return f;
-}
-
 /** The wall-clock date and minute of the day an instant shows in a time zone. */
 export function localParts(ms: number, timeZone: string): { y: number; m: number; d: number; minutes: number } {
-  const p: Record<string, number> = {};
-  for (const part of partsFormatter(timeZone).formatToParts(new Date(ms))) {
-    if (part.type !== 'literal') p[part.type] = Number(part.value);
-  }
-  return { y: p.year, m: p.month, d: p.day, minutes: (p.hour % 24) * 60 + p.minute };
-}
-
-/** Minutes the zone is ahead of UTC at that instant (Chicago: -360 in winter, -300 in summer). */
-function offsetMinutes(ms: number, timeZone: string): number {
-  const p = localParts(ms, timeZone);
-  return Math.round((Date.UTC(p.y, p.m - 1, p.d, 0, p.minutes) - Math.floor(ms / MINUTE) * MINUTE) / MINUTE);
+  const p = wallClock(new Date(ms), timeZone);
+  return { y: p.year, m: p.month, d: p.day, minutes: p.hour * 60 + p.minute };
 }
 
 /**
  * The instant a local wall time happens, or null when it never does (the hour
  * skipped when clocks spring forward, or a date like Feb 31). On the fall-back
- * day an hour that happens twice resolves to its first occurrence.
+ * day an hour that happens twice resolves to its first occurrence (zonedTime).
  */
 export function zonedTimeToUtc(y: number, m: number, d: number, minutes: number, timeZone: string): number | null {
-  const guess = Date.UTC(y, m - 1, d, 0, minutes);
-  const first = offsetMinutes(guess, timeZone);
-  let utc = guess - first * MINUTE;
-  const second = offsetMinutes(utc, timeZone);
-  if (second !== first) utc = guess - second * MINUTE;
+  const utc = zonedTime(y, m, d, 0, minutes, timeZone).getTime();
   const back = localParts(utc, timeZone);
   return back.y === y && back.m === m && back.d === d && back.minutes === minutes ? utc : null;
 }
 
-export function isValidTimeZone(tz: unknown): tz is string {
-  if (typeof tz !== 'string' || !tz) return false;
-  try {
-    new Intl.DateTimeFormat('en-US', { timeZone: tz });
-    return true;
-  } catch {
-    return false;
-  }
-}
+/** A zone Intl knows (safeTimeZone falls back to Central for anything else). */
+export const isValidTimeZone = (tz: unknown): tz is string => typeof tz === 'string' && tz !== '' && safeTimeZone(tz) === tz;
 
 // ───────────────────────── Settings ─────────────────────────
 
@@ -806,21 +829,18 @@ export function parseBookingInput(raw: Record<string, unknown>, serviceNames: re
   if (name.length < 2 || name.length > 80) throw new BookingError('Please enter your name');
   const phone = normalizePhone(raw.phone);
   if (!phone) throw new BookingError('Please enter a 10-digit US phone number');
-  const email = typeof raw.email === 'string' ? raw.email.trim().toLowerCase() : '';
-  if (email && (email.length > 200 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) throw new BookingError('That email address does not look right');
+  const typedEmail = typeof raw.email === 'string' ? raw.email.trim() : '';
+  const email = typedEmail ? normalizeEmail(typedEmail) : null;
+  if (typedEmail && !email) throw new BookingError('That email address does not look right');
   const service = typeof raw.service === 'string' ? raw.service.trim() : '';
   if (serviceNames.length > 0 && !serviceNames.includes(service)) throw new BookingError('Please pick a service');
   const t = typeof raw.startsAt === 'string' ? Date.parse(raw.startsAt) : NaN;
   if (!Number.isFinite(t)) throw new BookingError('Please pick a time');
-  return { name, phone, email: email || null, service: serviceNames.length > 0 ? service : '', startsAt: new Date(t).toISOString() };
+  return { name, phone, email, service: serviceNames.length > 0 ? service : '', startsAt: new Date(t).toISOString() };
 }
 
 /** "Mike R.": enough for the owner to recognise, not enough to identify from a screenshot. */
-export function shortName(full: string): string {
-  const parts = full.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return 'Someone';
-  return parts.length === 1 ? parts[0] : `${parts[0]} ${parts[parts.length - 1][0].toUpperCase()}.`;
-}
+export const shortName = (full: string): string => inboxShortName(full) ?? 'Someone';
 
 // ───────────────────────── Shapes the screens get ─────────────────────────
 
@@ -878,7 +898,8 @@ If the label test fails with a narrow no-break space (U+202F) before "PM", the `
 
 ```bash
 git add lib/bookingShared.ts lib/bookingShared.test.ts package.json
-git commit -m "feat(booking): pure slot engine in the client's time zone, labels, confirmation text and .ics" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+git commit -m "feat(booking): pure slot engine in the client's time zone, labels, confirmation text and .ics" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR"
 ```
 
 ---
@@ -886,35 +907,22 @@ git commit -m "feat(booking): pure slot engine in the client's time zone, labels
 ### Task 3: Tables
 
 **Files:**
-- Modify: `lib/db.ts` (export `db`; six tables inside `ensureSchema()`)
+- Modify: `lib/db.ts` (six tables inside `ensureSchema()`)
 - Modify: `scripts/init-db.mjs` (the same six tables)
 
 **Interfaces:**
-- Consumes: nothing.
-- Produces: `db` from `lib/db.ts` (the `@vercel/postgres` pool, for `db.connect()` transactions); tables `booking_settings`, `bookings`, `site_pages`, `chat_settings`, `chat_sessions`, `chat_messages`.
+- Consumes: `onboardings(id)` (existing). `lib/db.ts`'s exports do not change: the one transaction (`createBooking`) takes `db` from `@vercel/postgres` directly, as slice 4's `lib/contacts.ts` does (Task 1, H7).
+- Produces: tables `booking_settings`, `bookings`, `site_pages`, `chat_settings`, `chat_sessions`, `chat_messages`.
 
-- [ ] **Step 1: Export the pool**
+- [ ] **Step 1: Add the tables to `ensureSchema()`**
 
-In `lib/db.ts` replace:
-
-```ts
-import { sql } from '@vercel/postgres';
-
-export { sql };
-```
-
-with:
+In `lib/db.ts`, inside `ensureSchema()`, directly after slice 4's last statement
 
 ```ts
-import { db, sql } from '@vercel/postgres';
-
-// db.connect() gives one client for a transaction (lib/bookings.ts createBooking); everything else uses sql.
-export { db, sql };
+      await sql`CREATE INDEX IF NOT EXISTS held_replies_contact_idx ON held_replies (contact_id);`;
 ```
 
-- [ ] **Step 2: Add the tables to `ensureSchema()`**
-
-In `lib/db.ts`, inside the async block, after the last statement (`CREATE INDEX IF NOT EXISTS plan_items_onboarding_idx …`) and before the closing `})().catch(`, add:
+and before the closing `})().catch((err) => {`, add:
 
 ```ts
       // Online booking (lib/bookings.ts): one settings row per client and every booking.
@@ -1000,20 +1008,27 @@ In `lib/db.ts`, inside the async block, after the last statement (`CREATE INDEX 
       await sql`CREATE INDEX IF NOT EXISTS chat_messages_client_time_idx ON chat_messages (onboarding_id, created_at);`;
 ```
 
-- [ ] **Step 3: Mirror them in `scripts/init-db.mjs`**
+- [ ] **Step 2: Mirror them in `scripts/init-db.mjs`**
 
-In `scripts/init-db.mjs`, before `console.log('Schema ready.');`, add the same eleven statements with two-space indentation (copy the block from Step 2, same SQL, each as `await sql\`…\`;`).
+Directly after
 
-- [ ] **Step 4: Type-check**
+```js
+  await sql`CREATE INDEX IF NOT EXISTS held_replies_contact_idx ON held_replies (contact_id);`;
+```
+
+and before `console.log('Schema ready.');`, add the same eleven statements with that file's two-space indentation (copy the block from Step 1, same SQL and comments, each as `await sql\`…\`;`).
+
+- [ ] **Step 3: Type-check**
 
 Run: `npm run lint`
 Expected: errors only from `lib/leadHooks.ts` about `sendOwnerNoticeEmail` (Task 4 adds it). No errors in `lib/db.ts`.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 4: Commit**
 
 ```bash
 git add lib/db.ts scripts/init-db.mjs
-git commit -m "feat(booking): tables for booking settings, bookings, site pages and chat" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+git commit -m "feat(booking): tables for booking settings, bookings, site pages and chat" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR"
 ```
 
 ---
@@ -1026,7 +1041,7 @@ git commit -m "feat(booking): tables for booking settings, bookings, site pages 
 - Modify: `lib/emailLogShared.ts` (one category, two kinds)
 
 **Interfaces:**
-- Consumes: everything from Task 2; `db`, `sql`, `ensureSchema` (Task 3); `alertOwner`, `logContactEvent`, `ownerEmailFor`, `startBookingReminders`, `stopBookingReminders`, `Owner` (Task 1); `getLine`, `sendClientSms` (`lib/phoneLines.ts`, `kind 'confirm'` per Task 1); `formatPhone`; `getTrackingSettings` (`lib/siteStats.ts`); `SITE_ORIGIN`, `APP_ORIGIN` (`lib/hostRouting.ts`); `requireClient`, `sendChecked`, `escapeHtml`, `CLIENT_FROM_ADDRESS`, `CLIENT_REPLY_TO` (private to `lib/email.ts`).
+- Consumes: everything from Task 2; `db` (`@vercel/postgres`), `sql`, `ensureSchema` (`lib/db.ts`); Task 3's tables; `DbId`, `DbTime`, `iso` (`lib/dbRows.ts`); `alertOwner`, `logContactEvent`, `ownerEmailFor`, `startBookingReminders`, `stopBookingReminders`, `Owner` (Task 1); `getLine`, `sendClientSms` (`lib/phoneLines.ts`, kind `'confirm'`); `isQuietHours` (`lib/leadShared.ts`); `formatPhone`; `getTrackingSettings`, `REPORT_TIME_ZONE` (`lib/siteStats.ts`); `SITE_ORIGIN`, `APP_ORIGIN` (`lib/hostRouting.ts`); `requireClient`, `sendChecked`, `escapeHtml`, `CLIENT_FROM_ADDRESS`, `SEQUENCE_FROM_ADDRESS`, `CLIENT_REPLY_TO` and the imported `sequenceFromAddress` (inside `lib/email.ts`).
 - Produces:
   - `MAX_ACTIVE_PER_PHONE = 3`
   - `bookingUrl(siteKey: string): string`, `cancelUrl(siteKey: string, token: string): string`
@@ -1064,27 +1079,22 @@ and to `EMAIL_KINDS` after the `blog_generation_failed` line:
 
 - [ ] **Step 2: Add the two emails**
 
-In `lib/email.ts`, add an import next to the others:
+In `lib/email.ts`, add an import next to the others (skip it if `APP_ORIGIN` is already imported there):
 
 ```ts
 import { APP_ORIGIN } from '@/lib/hostRouting';
 ```
 
-and append at the end of the file:
+and append at the end of the file (after `sendSequenceEmail`, so `SEQUENCE_FROM_ADDRESS` is declared above it):
 
 ```ts
 // ───────────────────────── Online booking and website chat (lib/bookings.ts, lib/leadHooks.ts) ─────────────────────────
 
-/** "A-1 Auto Detailing via Axeon": a sender the customer recognises, on the domain Resend has verified. */
-function viaAxeon(businessName: string | null): string {
-  const clean = (businessName ?? '').replace(/["<>\r\n]/g, '').trim().slice(0, 60);
-  return `${clean || 'Your booking'} via Axeon <leads@axeonstudio.co>`;
-}
-
 /**
  * To the person who booked: what, when, a cancel link, and an .ics file so it
  * lands in their phone's calendar. Brand-neutral (no Axeon logo): it is the
- * client's customer reading it. Replies go to the client.
+ * client's customer reading it. From "<Business> via Axeon", the follow-up
+ * sender (sequenceFromAddress); replies go to the client.
  */
 export async function sendBookingEmail(input: {
   to: string;
@@ -1107,7 +1117,7 @@ export async function sendBookingEmail(input: {
       <p style="margin:0;font-size:14px;color:#6b7280">Need to cancel? <a href="${escapeHtml(input.cancelUrl)}" style="color:#111827">Cancel this booking</a>.</p>
     </div>`;
   await sendChecked(resend, {
-    from: viaAxeon(input.businessName),
+    from: sequenceFromAddress(input.businessName, SEQUENCE_FROM_ADDRESS),
     to: input.to,
     ...(input.replyTo ? { replyTo: input.replyTo } : {}),
     subject: `You're booked: ${what}, ${input.when}`,
@@ -1140,15 +1150,19 @@ export async function sendOwnerNoticeEmail(input: { to: string; subject: string;
 // alert, the inbox row. Times are UTC; the client's time zone comes from their
 // phone line (America/Chicago without one). Server-only.
 import { randomBytes } from 'node:crypto';
-import { db, ensureSchema, sql } from '@/lib/db';
+import { db } from '@vercel/postgres';
+import { ensureSchema, sql } from '@/lib/db';
+import { iso, type DbId, type DbTime } from '@/lib/dbRows';
 import { sendBookingEmail } from '@/lib/email';
 import { SITE_ORIGIN } from '@/lib/hostRouting';
 import { alertOwner, logContactEvent, ownerEmailFor, startBookingReminders, stopBookingReminders, type Owner } from '@/lib/leadHooks';
+import { isQuietHours } from '@/lib/leadShared';
 import { getLine, sendClientSms } from '@/lib/phoneLines';
 import { formatPhone } from '@/lib/phoneShared';
-import { getTrackingSettings } from '@/lib/siteStats';
+import { safeTimeZone } from '@/lib/sequenceSchedule';
+import { REPORT_TIME_ZONE, getTrackingSettings } from '@/lib/siteStats';
 import {
-  DEFAULT_BOOKING_SETTINGS, DEFAULT_TIME_ZONE, confirmationText, formatSlotLabel, generateSlots, icsFor, isValidTimeZone, ownerCancelText, toDashboardBooking,
+  DEFAULT_BOOKING_SETTINGS, confirmationText, formatSlotLabel, generateSlots, icsFor, ownerCancelText, toDashboardBooking,
   type AdminBookingData, type Booking, type BookingHours, type BookingInput, type BookingSettings, type BookingSource, type BookingsMonth,
   type DashboardBookings, type Slot,
 } from '@/lib/bookingShared';
@@ -1158,10 +1172,6 @@ export const MAX_ACTIVE_PER_PHONE = 3;
 /** First key of the advisory lock (the second is the client id). Unused anywhere else. */
 const BOOKING_LOCK = 5150;
 const TOKEN_RE = /^[A-Za-z0-9_-]{24}$/;
-
-type DbId = number | string;
-type DbTime = Date | string;
-const iso = (t: DbTime): string => new Date(t).toISOString();
 
 interface SettingsRow {
   enabled: boolean;
@@ -1242,10 +1252,10 @@ export async function saveBookingSettings(onboardingId: number, s: BookingSettin
   return toSettings(rows[0]);
 }
 
-/** The client's zone: their phone line's (slice 2), else Central. */
+/** The client's zone: their phone line's (slice 2), else Central (safeTimeZone). */
 export async function bookingTimeZone(onboardingId: number): Promise<string> {
   const line = await getLine(onboardingId);
-  return line && isValidTimeZone(line.timeZone) ? line.timeZone : DEFAULT_TIME_ZONE;
+  return safeTimeZone(line?.timeZone);
 }
 
 async function takenRanges(onboardingId: number, fromIso: string, toIso: string): Promise<Slot[]> {
@@ -1335,9 +1345,10 @@ async function step(bookingId: number, label: string, fn: () => Promise<unknown>
 
 /**
  * Everything after the row exists, run from after() so the visitor is not kept
- * waiting: the inbox row (and stage Booked), reminders, the confirmation text
- * (only through an approved line, via sendClientSms), the email with the .ics
- * when they gave one, and the owner alert.
+ * waiting: the inbox row (a 'booking' event, which moves the contact to Booked
+ * in slice 4), reminders (slice 3, anchored on the appointment), the
+ * confirmation text (only through an approved line, via sendClientSms, and not
+ * in quiet hours), the email with the .ics when they gave one, and the owner alert.
  */
 export async function afterBooking(onboarding: Owner, siteKey: string, booking: Booking, timeZone: string): Promise<void> {
   const when = formatSlotLabel(booking, timeZone);
@@ -1355,13 +1366,18 @@ export async function afterBooking(onboarding: Owner, siteKey: string, booking: 
       refId: booking.id,
       summary: `Booked ${booking.service ? `${booking.service}, ` : ''}${when}`,
       payload: { startsAt: booking.startsAt, endsAt: booking.endsAt, service: booking.service, source: booking.source },
-      stage: 'booked',
+      createdAt: booking.createdAt,
     })
   );
-  await step(booking.id, 'reminders', () => startBookingReminders(onboarding.id, booking));
+  await step(booking.id, 'reminders', async () => {
+    const r = await startBookingReminders(onboarding.id, booking);
+    if (!r.started) console.info(`booking ${booking.id}: reminders not started (${r.reason})`);
+  });
   await step(booking.id, 'text', async () => {
     const line = await getLine(onboarding.id);
     if (!line) return;
+    // Quiet hours (8 pm to 8 am client-local) hold every automated text; the visitor already has it on screen and by email.
+    if (isQuietHours(new Date(), line.timeZone)) return console.info(`booking ${booking.id}: confirmation text skipped (quiet hours)`);
     const body = confirmationText({ business: onboarding.businessName, when, service: booking.service, cancelUrl: link, note: settings.confirmMessage });
     const result = await sendClientSms(line, booking.phone, body, 'confirm');
     if (!result.sent) console.info(`booking ${booking.id}: confirmation text not sent (${result.reason})`);
@@ -1429,11 +1445,14 @@ export async function afterCancel(onboarding: Owner, booking: Booking, timeZone:
       phone: booking.phone,
       email: booking.email,
       name: booking.contactName,
-      kind: 'booking',
+      // A note on the same booking (refPart 1): its own timeline row, and a note never moves the stage.
+      kind: 'note',
       refTable: 'bookings',
       refId: booking.id,
+      refPart: 1,
       summary: `Cancelled ${by === 'customer' ? 'by them' : 'by you'}: ${when}`,
-      payload: { status: 'cancelled', by, startsAt: booking.startsAt },
+      payload: { text: `Booking cancelled ${by === 'customer' ? 'by them' : 'by you'}: ${when}`, status: 'cancelled', by, startsAt: booking.startsAt },
+      createIfMissing: false,
     })
   );
   if (by === 'customer') {
@@ -1444,7 +1463,9 @@ export async function afterCancel(onboarding: Owner, booking: Booking, timeZone:
   }
   await step(booking.id, 'text', async () => {
     const line = await getLine(onboarding.id);
-    if (line) await sendClientSms(line, booking.phone, ownerCancelText({ business: onboarding.businessName, when, service: booking.service }), 'confirm');
+    if (!line) return;
+    if (isQuietHours(new Date(), line.timeZone)) return console.info(`booking ${booking.id}: cancel text skipped (quiet hours)`);
+    await sendClientSms(line, booking.phone, ownerCancelText({ business: onboarding.businessName, when, service: booking.service }), 'confirm');
   });
 }
 
@@ -1480,7 +1501,7 @@ async function monthCounts(onboardingId: number, month: string): Promise<Booking
            count(*) FILTER (WHERE status = 'cancelled')::text AS cancelled
     FROM bookings
     WHERE onboarding_id = ${onboardingId}
-      AND to_char(created_at AT TIME ZONE 'America/Chicago', 'YYYY-MM') = ${month};
+      AND to_char(created_at AT TIME ZONE ${REPORT_TIME_ZONE}, 'YYYY-MM') = ${month};
   `;
   const r = rows[0];
   return { month, booked: Number(r?.booked ?? 0), byChat: Number(r?.chat ?? 0), done: Number(r?.done ?? 0), cancelled: Number(r?.cancelled ?? 0) };
@@ -1536,7 +1557,8 @@ Expected: PASS.
 
 ```bash
 git add lib/bookings.ts lib/email.ts lib/emailLogShared.ts
-git commit -m "feat(booking): settings, open slots, locked booking write, cancel, and the confirmation follow-through" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+git commit -m "feat(booking): settings, open slots, locked booking write, cancel, and the confirmation follow-through" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR"
 ```
 
 ---
@@ -1726,7 +1748,8 @@ Expected: `{"open":false,"slots":[]}`. With a real AxeonCORE client's site key a
 
 ```bash
 git add lib/publicSite.ts "app/api/book/[site]/slots/route.ts" "app/api/book/[site]/route.ts"
-git commit -m "feat(booking): public slots and booking endpoints, CORS-open and rate-limited" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+git commit -m "feat(booking): public slots and booking endpoints, CORS-open and rate-limited" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR"
 ```
 
 ---
@@ -1837,8 +1860,8 @@ export function jsonForScript(value: unknown): string {
     .replace(/</g, '\\u003c')
     .replace(/>/g, '\\u003e')
     .replace(/&/g, '\\u0026')
-    .replace(/ /g, '\\u2028')
-    .replace(/ /g, '\\u2029');
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
 }
 
 const STYLE = [
@@ -2068,7 +2091,7 @@ export async function POST(_req: Request, ctx: Ctx) {
   var state = { days: [], day: null, slot: null, services: Array.isArray(cfg.services) ? cfg.services : [] };
 
   function clean(s) {
-    return String(s).replace(/[  ]/g, ' ');
+    return String(s).replace(/[\u202f\u00a0]/g, ' ');
   }
   function el(tag, props, kids) {
     var n = document.createElement(tag);
@@ -2295,7 +2318,7 @@ Save it as `public/book-page.js`.
     function mountOne(host) {
       if (host.getAttribute('data-axeon-mounted')) return;
       var site = host.getAttribute('data-site') || (script && script.getAttribute('data-site')) || '';
-      if (!/^ax_[a-z0-9]{6,40}$/.test(site)) return;
+      if (!/^ax_[a-z2-9]{14}$/.test(site)) return; // isValidSiteKey's shape (lib/siteStats.ts)
       host.setAttribute('data-axeon-mounted', '1');
       var frame = document.createElement('iframe');
       frame.src = origin + '/b/' + encodeURIComponent(site) + '?embed=1';
@@ -2410,7 +2433,8 @@ Open it with `npx serve` from its folder. Expected: the fallback line is replace
 
 ```bash
 git add lib/bookingPage.ts lib/bookingPage.test.ts "app/b/[site]/route.ts" "app/b/[site]/cancel/[token]/route.ts" public/book-page.js public/book.js next.config.mjs package.json
-git commit -m "feat(booking): hosted booking page, preview-safe cancel page, and the book.js embed" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+git commit -m "feat(booking): hosted booking page, preview-safe cancel page, and the book.js embed" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR"
 ```
 
 ---
@@ -2730,7 +2754,8 @@ Run `npm run dev`, open an AxeonCORE client in `/admin`. Expected: an "Online bo
 
 ```bash
 git add "app/api/admin/onboarding/[token]/booking/route.ts" components/insights/BookingPanel.tsx "app/admin/onboarding/[token]/page.tsx"
-git commit -m "feat(booking): admin Booking card for hours, services, snippets and upcoming bookings" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+git commit -m "feat(booking): admin Booking card for hours, services, snippets and upcoming bookings" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR"
 ```
 
 ---
@@ -2739,7 +2764,7 @@ git commit -m "feat(booking): admin Booking card for hours, services, snippets a
 
 **Files:**
 - Create: `components/proof/BookingsTab.tsx`
-- Modify: `lib/proofDashboardData.ts` (load bookings inside the unlocked branch only)
+- Modify: `lib/proofDashboardData.ts` (load bookings for the Bookings tab, unlocked plans only)
 - Modify: `components/proof/ProofDashboard.tsx` (prop and branch)
 
 **Interfaces:**
@@ -2838,14 +2863,26 @@ import { loadDashboardBookings } from '@/lib/bookings';
 import type { DashboardBookings } from '@/lib/bookingShared';
 ```
 
-After the `const phone: DashboardPhone | null = …;` statement add:
+After slice 4's `const pushKey = inboxOn && …;` statement (it follows the `const phone: DashboardPhone | null = …;` block and the inbox lines) add:
 
 ```ts
-  // Only a plan that includes booking runs these queries; a locked tab shows the upgrade page instead.
-  const bookings: DashboardBookings | null = tabLocked(proofTab('bookings'), onboarding.tier) ? null : await loadDashboardBookings(onboarding.id, month, previous);
+  // Like the inbox: only the Bookings tab, and only a plan that includes booking, runs these queries; a locked tab shows the upgrade page.
+  const bookings: DashboardBookings | null =
+    tab === 'bookings' && !tabLocked(proofTab('bookings'), onboarding.tier) ? await loadDashboardBookings(onboarding.id, month, previous) : null;
 ```
 
-and in the returned object, after `phone,` add `bookings,`.
+and in the returned object replace slice 4's
+
+```ts
+    pushKey,
+```
+
+with
+
+```ts
+    pushKey,
+    bookings,
+```
 
 - [ ] **Step 3: Render it**
 
@@ -2894,7 +2931,8 @@ Run `npm run dev`; in `/admin`, "View as client" for the AxeonCORE client from T
 
 ```bash
 git add components/proof/BookingsTab.tsx lib/proofDashboardData.ts components/proof/ProofDashboard.tsx
-git commit -m "feat(booking): real Bookings tab in AxeonPROOF for plans that include it" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+git commit -m "feat(booking): real Bookings tab in AxeonPROOF for plans that include it" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR"
 ```
 
 ---
@@ -3361,7 +3399,8 @@ Expected: PASS, 8 tests.
 
 ```bash
 git add lib/chatCrawl.ts lib/chatCrawl.test.ts package.json
-git commit -m "feat(chat): train-on-site crawler, same-origin, robots-aware, 40 pages, text only" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+git commit -m "feat(chat): train-on-site crawler, same-origin, robots-aware, 40 pages, text only" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR"
 ```
 
 ---
@@ -3377,7 +3416,7 @@ git commit -m "feat(chat): train-on-site crawler, same-origin, robots-aware, 40 
 **Interfaces:**
 - Consumes: `normalizePhone` (`lib/phoneShared.ts`).
 - Produces (`lib/chatShared.ts`, client-safe):
-  - Constants: `CHAT_MODEL = 'claude-sonnet-5-5'`, `MAX_SESSION_MESSAGES = 30`, `MAX_SITE_MESSAGES_PER_HOUR = 200`, `MAX_MESSAGE_CHARS = 1000`, `PAGES_BUDGET_CHARS = 12000`, `MAX_PAGES_IN_PROMPT = 20`, `PAGE_CHARS_MAX = 3000`, `GREETING_MAX = 200`, `DEFAULT_GREETING`.
+  - Constants: `CHAT_MODEL = 'claude-sonnet-5'`, `MAX_SESSION_MESSAGES = 30`, `MAX_SITE_MESSAGES_PER_HOUR = 200`, `MAX_MESSAGE_CHARS = 1000`, `PAGES_BUDGET_CHARS = 12000`, `MAX_PAGES_IN_PROMPT = 20`, `PAGE_CHARS_MAX = 3000`, `GREETING_MAX = 200`, `DEFAULT_GREETING`.
   - Types: `ChatRole`, `ChatRow`, `SitePageText`, `ChatContext`, `ChatToolName`, `ChatToolDef`, `ToolCall`, `ApiMessage`, `ChatSettings`, `ChatPageSummary`, `ChatTranscript`, `ChatAdminData`.
   - `CHAT_TOOLS: readonly ChatToolDef[]`
   - `pagesBlock(pages: readonly SitePageText[], budget?: number): string`
@@ -3603,7 +3642,7 @@ Expected: FAIL with `Cannot find module './chatShared'`.
 // Chat card and the tests. Client-safe: no Node imports.
 import { normalizePhone } from '@/lib/phoneShared';
 
-export const CHAT_MODEL = 'claude-sonnet-5-5';
+export const CHAT_MODEL = 'claude-sonnet-5';
 /** Visitor messages per chat session. */
 export const MAX_SESSION_MESSAGES = 30;
 /** Visitor messages per client site per hour, across every session. */
@@ -4035,7 +4074,8 @@ Expected: PASS, 19 tests (8 crawl, 8 shared, 3 loop).
 
 ```bash
 git add lib/chatShared.ts lib/chatLoop.ts lib/chatShared.test.ts lib/chatLoop.test.ts package.json
-git commit -m "feat(chat): guarded system prompt, four tools, reply checks and an injectable tool loop" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+git commit -m "feat(chat): guarded system prompt, four tools, reply checks and an injectable tool loop" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR"
 ```
 
 ---
@@ -4048,7 +4088,7 @@ git commit -m "feat(chat): guarded system prompt, four tools, reply checks and a
 - Create: `public/chat.js`
 
 **Interfaces:**
-- Consumes: `@anthropic-ai/sdk`; `sql`, `ensureSchema`; `getItemStates`, `Onboarding`; `getLine`; `getTrackingSettings` (`lib/siteStats.ts`); `afterBooking`, `bookingTimeZone`, `createBooking`, `getBookingSettings`, `openSlots` (Task 4); `BookingError`, `formatSlotLabel`, `localDayStart`, `parseBookingInput` (Task 2); `alertOwner`, `logContactEvent`, `submitChatLead` (Task 1); `formatPhone`, `normalizePhone`; everything from Task 10; `publicClient`, `corsJson`, `corsPreflight`, `readJsonBody` (Task 5); `clientIp`, `rateLimited`; `monthOf`, `visitorHash`.
+- Consumes: `@anthropic-ai/sdk`; `sql`, `ensureSchema`; `getItemStates`, `Onboarding`; `getLine`; `getTrackingSettings` (`lib/siteStats.ts`); `afterBooking`, `bookingTimeZone`, `createBooking`, `getBookingSettings`, `openSlots` (Task 4); `BookingError`, `formatSlotLabel`, `localDayStart`, `parseBookingInput` (Task 2); `alertOwner`, `logContactEvent`, `submitChatLead` (Task 1; a chat lead goes through `recordFormSubmission`, `projectForm` and `deliverLead` there); `DbTime`, `iso` (`lib/dbRows.ts`); `formatPhone`, `normalizePhone`; everything from Task 10; `publicClient`, `corsJson`, `corsPreflight`, `readJsonBody` (Task 5); `clientIp`, `rateLimited`; `monthOf`, `visitorHash`.
 - Produces:
   - `chatConfigured(): boolean`
   - `anthropicCreate: CreateMessage`
@@ -4071,6 +4111,7 @@ git commit -m "feat(chat): guarded system prompt, four tools, reply checks and a
 import Anthropic from '@anthropic-ai/sdk';
 import { randomBytes } from 'node:crypto';
 import { ensureSchema, sql } from '@/lib/db';
+import { iso, type DbTime } from '@/lib/dbRows';
 import { getItemStates, type Onboarding } from '@/lib/onboarding';
 import { getLine } from '@/lib/phoneLines';
 import { formatPhone, normalizePhone } from '@/lib/phoneShared';
@@ -4085,8 +4126,6 @@ import {
   type ChatAdminData, type ChatContext, type ChatRole, type ChatRow, type ChatSettings, type ChatTranscript, type SitePageText, type ToolCall,
 } from '@/lib/chatShared';
 
-type DbTime = Date | string;
-const iso = (t: DbTime): string => new Date(t).toISOString();
 const DAY = 86_400_000;
 
 export const chatConfigured = (): boolean => Boolean(process.env.ANTHROPIC_API_KEY);
@@ -4246,6 +4285,7 @@ async function logChatTranscript(onboardingId: number, sessionId: string): Promi
     refId: null,
     summary: first.slice(0, 80),
     payload: { session: sessionId, transcript },
+    createdAt: new Date().toISOString(),
   });
 }
 
@@ -4338,7 +4378,7 @@ export async function handleChatTurn(input: {
         const message = typeof args.message === 'string' ? args.message.trim().slice(0, 1000) : '';
         if (!phone) return { ok: false, error: 'Ask for a 10-digit US phone number first.' };
         if (!name) return { ok: false, error: 'Ask for their name first.' };
-        await submitChatLead(onboarding.id, { name, phone, email: null, message: message || 'Asked to be contacted from the website chat.', page: input.page });
+        await submitChatLead(onboarding, { name, phone, email: null, message: message || 'Asked to be contacted from the website chat.', page: input.page, session: session.id }, input.defer);
         await knowPhone(phone, name);
         return { ok: true };
       }
@@ -4379,7 +4419,7 @@ export async function handleChatTurn(input: {
     const phone = findPhone(input.message);
     if (phone) {
       try {
-        await submitChatLead(onboarding.id, { name: state.name ?? 'Website chat visitor', phone, email: null, message: input.message, page: input.page });
+        await submitChatLead(onboarding, { name: state.name ?? 'Website chat visitor', phone, email: null, message: input.message, page: input.page, session: session.id }, input.defer);
         await knowPhone(phone, state.name);
         loop = { text: fallbackReply(ctx.business, 'captured'), calls: [] };
       } catch (leadErr) {
@@ -4740,7 +4780,8 @@ Expected: the first returns `{"enabled":true,"greeting":"…","business":"…"}`
 
 ```bash
 git add lib/chat.ts "app/api/chat/[site]/route.ts" public/chat.js
-git commit -m "feat(chat): chat turns with booking and message tools, public endpoint, and chat.js" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+git commit -m "feat(chat): chat turns with booking and message tools, public endpoint, and chat.js" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR"
 ```
 
 ---
@@ -4996,7 +5037,8 @@ Run `npm run dev`, open the test client in `/admin`. Expected: a "Website chat �
 
 ```bash
 git add "app/api/admin/onboarding/[token]/chat/route.ts" components/insights/ChatPanel.tsx "app/admin/onboarding/[token]/page.tsx"
-git commit -m "feat(chat): admin Chat card with train-on-site, greeting, snippet and transcripts" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+git commit -m "feat(chat): admin Chat card with train-on-site, greeting, snippet and transcripts" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR"
 ```
 
 ---
@@ -5049,7 +5091,7 @@ Whatever is inside the div shows until the booking page loads, and stays if it c
 `/b/<site>` link works as the booking link on their Google Business Profile.
 
 **What happens on a booking.** The visitor sees "You're booked" right away. Then: a confirmation
-text through their tracked line (only once texting is approved), an email with a calendar file if
+text through their tracked line (only once texting is approved, and not between 8 pm and 8 am their time), an email with a calendar file if
 they gave an email, reminder texts 24 hours and 2 hours before (slice 3), an alert to the owner,
 and the contact moves to Booked in the leads inbox. The cancel link only cancels after the
 person presses the button on that page.
@@ -5096,7 +5138,8 @@ Expected: each under 12288.
 
 ```bash
 git add docs/onboarding.md
-git commit -m "docs: online booking and website chat, with the two snippets" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+git commit -m "docs: online booking and website chat, with the two snippets" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR"
 ```
 
 - [ ] **Step 4: Go-live checklist (owner, after deploy)**
@@ -5105,7 +5148,7 @@ git commit -m "docs: online booking and website chat, with the two snippets" -m 
 2. Pick one AxeonCORE client whose line has `sms_status = ready`. In their admin card, set hours and two services, enable booking.
 3. **Train one site:** Website chat card → Train on site. Expect "Saved N pages" with N above 1 and the pages list showing their homepage first.
 4. **Book a test slot on a phone:** open `https://axeonstudio.co/b/<site>` on your phone, book with your own cell and email. Expect: "You're booked" on screen; a confirmation text from their tracked number with a cancel link; an email with a calendar file that adds to your calendar at the right local time; an owner alert; the booking in the admin card and in PROOF's Bookings tab; the contact at Booked in the inbox; `SELECT kind, status, next_at FROM sequence_runs WHERE ref_table = 'bookings' ORDER BY id DESC LIMIT 1;` shows an active reminder run.
-5. **Cancel it:** tap the cancel link in the text. The page asks first; check in the admin card that the booking is still live. Press "Yes, cancel it". Expect: owner alert, the reminder run `stopped` with `booking_cancelled`, and the time open again on `/b/<site>`.
+5. **Cancel it:** tap the cancel link in the text. The page asks first; check in the admin card that the booking is still live. Press "Yes, cancel it". Expect: owner alert, the reminder run `stopped` with stop reason `cancelled`, and the time open again on `/b/<site>`.
 6. **Embed:** put the `book.js` snippet on a test page; on a phone the frame sizes to its content. Block `axeonstudio.co` in devtools and reload: the fallback line stays, no console errors.
 7. **Chat that ends in a booking:** with `chat.js` on the test page, ask about a service, ask for a price that is not on their site (expect no number and an offer to take your number), then ask to book: pick a time chip, give name and cell. Expect a `bookings` row with `source = 'chat'` and the same follow-through as step 4.
 8. **Chat that ends in a message:** in a fresh tab, ask something it cannot answer and leave your name and number. Expect a `form_submissions` row, the owner alert, and the `new_lead` sequence started; the transcript appears in the admin card and as a chat event on that contact in the inbox.
