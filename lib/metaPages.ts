@@ -52,7 +52,10 @@ export async function savePage(input: {
   igUsername: string | null;
   fbUserId: string;
   pageToken: string;
+  /** The Instagram lookup failed (not "no Instagram"): keep the link already stored instead of erasing it. */
+  keepExistingIg?: boolean;
 }): Promise<MetaPagePublic> {
+  const keepIg = input.keepExistingIg === true;
   await ensureSchema();
   const sealed = seal(input.pageToken);
   // A page already connected to a different client is never moved silently.
@@ -61,8 +64,8 @@ export async function savePage(input: {
     VALUES (${input.onboardingId}, ${input.pageId}, ${input.pageName.slice(0, 200)}, ${input.igUserId}, ${input.igUsername}, ${input.fbUserId}, ${sealed}, 'active', NULL, now(), now())
     ON CONFLICT (page_id) DO UPDATE SET
       page_name = EXCLUDED.page_name,
-      ig_user_id = EXCLUDED.ig_user_id,
-      ig_username = EXCLUDED.ig_username,
+      ig_user_id = CASE WHEN ${keepIg} THEN COALESCE(EXCLUDED.ig_user_id, meta_pages.ig_user_id) ELSE EXCLUDED.ig_user_id END,
+      ig_username = CASE WHEN ${keepIg} THEN COALESCE(EXCLUDED.ig_username, meta_pages.ig_username) ELSE EXCLUDED.ig_username END,
       fb_user_id = EXCLUDED.fb_user_id,
       token_enc = EXCLUDED.token_enc,
       status = 'active',

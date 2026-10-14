@@ -317,3 +317,27 @@ test('the Facebook connect item is CORE and up, and hidden until META_PORTAL_LIV
   assert.equal(item?.kind, 'accept');
   assert.equal(item?.connect, 'meta');
 });
+
+test('connect items are optional (S6-R13): META_PORTAL_LIVE never reopens a finished client or sends a nudge', () => {
+  const DAY = 86_400_000;
+  const created = Date.parse('2026-09-01T12:00:00Z');
+  const done = (key: string) => ({ itemKey: key, status: 'done' as const, data: {}, completedBy: 'client' as const, completedAt: '2026-09-04T12:00:00Z', updatedAt: '2026-09-04T12:00:00Z' });
+  // A CORE client who finished every required item before the Meta item existed.
+  const states = Object.fromEntries(
+    itemsForTier('axeoncore', true)
+      .filter((i) => i.kind !== 'axeon' && !i.connect)
+      .map((i) => [i.key, done(i.key)])
+  );
+  assert.equal(states['meta-connect'], undefined);
+  assert.ok(itemsForTier('axeoncore', true).some((i) => i.key === 'meta-connect'), 'the item is shown once live');
+  const live = computeProgress('axeoncore', states, true);
+  assert.deepEqual(live, computeProgress('axeoncore', states, false), 'the flag changes nothing in progress');
+  assert.equal(live.clientDone >= live.clientTotal, true, 'still complete, so recomputeStatus keeps status complete');
+  assert.equal(live.percent, 100);
+  // No nudge: neither for the completed client nor for one still marked active with only the connect item open.
+  const o = { welcomeSentAt: new Date(created).toISOString(), nudgeSentAt: null, lastClientActivityAt: null, createdAt: new Date(created).toISOString() };
+  assert.equal(nudgeStepDue({ ...o, status: 'complete' }, live, created + 10 * DAY), null);
+  assert.equal(nudgeStepDue({ ...o, status: 'active' }, live, created + 10 * DAY), null);
+  // Finishing it is still possible and does not change the counts.
+  assert.deepEqual(computeProgress('axeoncore', { ...states, 'meta-connect': done('meta-connect') }, true), live);
+});

@@ -318,8 +318,14 @@ export function prefillFor(item: OnboardingItem, onboarding: Pick<Onboarding, 'b
 
 // ───────────────────────────── Progress ─────────────────────────────
 
-export function computeProgress(tier: OnboardingTier, states: Record<string, ItemState | undefined>): Progress {
-  const items = itemsForTier(tier);
+/**
+ * Counts required items only. Connect items (data/onboardingItems.ts `connect`) are
+ * optional (ruling S6-R13): they show and can be finished, but never count, so
+ * turning on META_PORTAL_LIVE cannot reopen a finished client, restart the
+ * read-only clock, or trigger a nudge (recomputeStatus and nudgeStepDue read this).
+ */
+export function computeProgress(tier: OnboardingTier, states: Record<string, ItemState | undefined>, metaLive?: boolean): Progress {
+  const items = itemsForTier(tier, metaLive).filter((item) => !item.connect);
   let clientTotal = 0;
   let clientDone = 0;
   let axeonTotal = 0;

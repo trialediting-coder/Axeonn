@@ -13,7 +13,10 @@ export function MetaPanel({ token, tier, configured, initial }: { token: string;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (tier === 'essentials') return null;
+  // Essentials has no inbox: no card, unless pages are still stored from before a downgrade (so they can be disconnected).
+  const canConnect = tier !== 'essentials';
+  if (!canConnect && !pages.length) return null;
+  const broken = pages.filter((p) => p.status === 'needs_reconnect').length;
 
   async function remove(page: MetaPagePublic) {
     if (busy) return;
@@ -38,9 +41,10 @@ export function MetaPanel({ token, tier, configured, initial }: { token: string;
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Facebook and Instagram messages</p>
           <h2 className="mt-1 text-lg font-bold text-neutral-950">{pages.length ? `${pages.length} page${pages.length === 1 ? '' : 's'} connected` : 'Not connected yet'}</h2>
+          {broken ? <p className="mt-1 text-sm font-semibold text-amber-800">{broken === 1 ? '1 page needs reconnecting: its messages are not coming in.' : `${broken} pages need reconnecting: their messages are not coming in.`}</p> : null}
         </div>
-        {configured ? (
-          <a href={`/api/meta/connect?token=${token}&from=admin`} className={btn('secondary', 'sm')}>
+        {configured && canConnect ? (
+          <a href={`/api/meta/connect?token=${encodeURIComponent(token)}&from=admin`} className={btn('secondary', 'sm')}>
             {pages.length ? 'Reconnect or add a page' : 'Connect with Facebook'}
           </a>
         ) : null}
@@ -56,13 +60,16 @@ export function MetaPanel({ token, tier, configured, initial }: { token: string;
           {pages.map((p) => (
             <li key={p.pageId} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm">
               <div>
-                <p className="font-semibold text-neutral-900">{p.pageName}</p>
+                <p className="font-semibold text-neutral-900">
+                  {p.pageName}
+                  {p.status === 'needs_reconnect' ? <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-900">Needs reconnect</span> : null}
+                </p>
                 <p className="text-neutral-600">
                   {p.igUsername ? `Instagram @${p.igUsername}` : p.igUserId ? 'Instagram linked' : 'No Instagram linked'} · since{' '}
                   {new Date(p.connectedAt).toLocaleDateString('en-US')}
                 </p>
                 {p.status === 'needs_reconnect' ? (
-                  <p className="mt-1 text-amber-800">Facebook stopped accepting this page’s access. Reconnect it.{p.lastError ? ` (${p.lastError})` : ''}</p>
+                  <p className="mt-1 text-amber-800">Messages to this page are not coming in. Reconnect it with the client.{p.lastError ? ` (${p.lastError})` : ''}</p>
                 ) : null}
               </div>
               <button type="button" disabled={busy || !configured} onClick={() => remove(p)} className={btn('danger', 'sm')}>

@@ -281,14 +281,28 @@ export const META_CONNECT_ITEM = 'meta-connect';
 /** Short-lived cookie that ties the OAuth callback to the browser that pressed Connect. */
 export const META_NONCE_COOKIE = 'axeon_meta_nonce';
 
-export type ConnectResult = 'connected' | 'no-pages' | 'cancelled' | 'error';
+export type ConnectResult = 'connected' | 'partial' | 'no-pages' | 'cancelled' | 'error';
 
 const NOTICES: Record<ConnectResult, { tone: 'ok' | 'warn'; text: string }> = {
   connected: { tone: 'ok', text: 'Facebook and Instagram are connected. New messages will show up with your leads.' },
+  partial: {
+    tone: 'warn',
+    text: 'Some of your pages are connected, but Facebook would not finish setting up the others, so their messages are not coming in yet. Axeon can see which ones and will reconnect them with you.',
+  },
   'no-pages': { tone: 'warn', text: 'Facebook did not share a page with us. Press Connect again and tick your business page when Facebook asks.' },
   cancelled: { tone: 'warn', text: 'No problem. You can connect Facebook any time from this page.' },
   error: { tone: 'warn', text: 'We could not connect Facebook just now. Try again, or call us and we will walk you through it.' },
 };
+
+/**
+ * The callback's verdict once every granted page was tried: a page counts as
+ * saved only when it is stored and subscribed to our webhook. None saved is an
+ * error; some saved and some failed is partial, never "connected".
+ */
+export function connectOutcome(saved: number, failed: number): ConnectResult {
+  if (saved <= 0) return 'error';
+  return failed > 0 ? 'partial' : 'connected';
+}
 
 /** The banner for ?meta=<result> after the callback redirects back; null for anything else. */
 export function connectNotice(flag: unknown): { tone: 'ok' | 'warn'; text: string } | null {

@@ -114,7 +114,8 @@ export async function sendDashboardInviteFor(onboarding: Onboarding): Promise<vo
 export async function sendNudgeFor(onboarding: Onboarding): Promise<void> {
   if (onboarding.status === 'closed') throw new Error('This onboarding is closed');
   const states = await getItemStates(onboarding.id);
-  const open = orderedItems(onboarding.tier).client.filter((i) => states[i.key]?.status !== 'done');
+  // Connect items are optional (S6-R13): never nag about them.
+  const open = orderedItems(onboarding.tier).client.filter((i) => !i.connect && states[i.key]?.status !== 'done');
   if (open.length === 0) throw new Error('Nothing is open for this client');
   const sent = await sendNudgeEmail({
     to: onboarding.clientEmail,

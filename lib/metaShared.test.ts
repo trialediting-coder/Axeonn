@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import {
   captionProblem,
   connectNotice,
+  connectOutcome,
   messagePreview,
   metaKindLabel,
   metaTextProblem,
@@ -210,4 +211,13 @@ test('messagePreview and the webhook text cut on whole characters', () => {
   assert.ok(!/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/.test(p));
   const [e] = parseWebhookBody({ object: 'page', entry: [{ id: '1', messaging: [{ sender: { id: '2' }, message: { mid: 'm', text: '😀'.repeat(4001) } }] }] });
   assert.equal(Array.from(e.text).length, 4000);
+});
+
+test('connectOutcome: partial when some pages failed, error when none were saved', () => {
+  assert.equal(connectOutcome(2, 0), 'connected');
+  assert.equal(connectOutcome(1, 1), 'partial');
+  assert.equal(connectOutcome(0, 2), 'error');
+  assert.equal(connectOutcome(0, 0), 'error');
+  assert.equal(connectNotice('partial')?.tone, 'warn');
+  assert.match(connectNotice('partial')?.text ?? '', /not coming in/);
 });
