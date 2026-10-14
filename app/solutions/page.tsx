@@ -6,9 +6,9 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/solutions',
-  title: 'Marketing for Local Service Industries | Axeon Studio',
+  title: 'Marketing for Des Moines Service Businesses | Axeon Studio',
   description:
-    'Websites, local SEO, and lead follow-up set up for 10 local service industries, from dental and HVAC to roofing and law firms, to get you more customers.',
+    'Websites, local SEO, and lead follow-up for Des Moines service businesses, from dental and HVAC to plumbing, concrete, and law firms, built to get you more customers.',
 });
 
 const GROUPS: { category: NicheCategory; label: string }[] = [

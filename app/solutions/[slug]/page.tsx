@@ -36,7 +36,7 @@ export async function generateMetadata({
   return buildMetadata({
     path: `/solutions/${niche.slug}`,
     title,
-    description: niche.subheadline,
+    description: niche.seoDescription ?? niche.subheadline,
   });
 }
 
