@@ -2,7 +2,7 @@
 // Run with: npm run test:inbox. The pure parts of lib/contacts.ts: no database.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { formStagesBelow, planFormStageCopy, planSequenceEmailEvents, splitDroppedRuns, toContact, toEvent } from './contacts';
+import { formStagesBelow, planClickOutcomes, planFormStageCopy, planSequenceEmailEvents, splitDroppedRuns, toContact, toEvent } from './contacts';
 
 test('merge: a dropped run whose kind the kept contact already holds is removed; the rest move over', () => {
   const plan = splitDroppedRuns(['review', 'quote'], [
@@ -149,4 +149,16 @@ test('backfill emails: no more events than emails counted, and none at or after 
 test('backfill emails: a planned time after the last send is clamped to it', () => {
   const out = planSequenceEmailEvents({ ...RUN, lastSentAt: '2026-10-03T00:00:00.000Z' }, STEPS, new Set(), EMAIL_NOW);
   assert.equal(out[1].at, '2026-10-03T00:00:00.000Z');
+});
+
+test('close rate: the earliest matched tap carries the outcome, every other matched tap is cleared', () => {
+  const plan = planClickOutcomes([
+    { id: 30, at: '2026-10-14T15:00:00Z' },
+    { id: 12, at: '2026-10-12T09:00:00Z' },
+    { id: 20, at: '2026-10-13T09:00:00Z' },
+  ]);
+  assert.deepEqual(plan, { mark: 12, clear: [30, 20] });
+  assert.deepEqual(planClickOutcomes([{ id: 9, at: '2026-10-12T09:00:00Z' }, { id: 7, at: '2026-10-12T09:00:00Z' }]), { mark: 7, clear: [9] });
+  assert.deepEqual(planClickOutcomes([{ id: 5, at: '2026-10-12T09:00:00Z' }]), { mark: 5, clear: [] });
+  assert.deepEqual(planClickOutcomes([]), { mark: null, clear: [] });
 });

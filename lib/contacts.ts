@@ -176,22 +176,39 @@ async function mirrorSystemStage(onboardingId: number, contactId: number, next: 
       );`;
 }
 
-async function clickIdsFor(onboardingId: number, contactId: number): Promise<number[]> {
-  const { rows } = await sql<{ ref_id: DbId }>`
-    SELECT ref_id FROM contact_events
+async function clicksFor(onboardingId: number, contactId: number): Promise<{ id: number; at: string }[]> {
+  const { rows } = await sql<{ ref_id: DbId; created_at: DbTime }>`
+    SELECT ref_id, created_at FROM contact_events
     WHERE onboarding_id = ${onboardingId} AND contact_id = ${contactId} AND kind = 'click' AND ref_table = 'site_events'
     ORDER BY created_at, id;`;
-  return rows.map((r) => Number(r.ref_id));
+  return rows.map((r) => ({ id: Number(r.ref_id), at: iso(r.created_at) }));
 }
 
 /**
- * Won/Lost onto every website tap matched to this contact (scoped by the
- * client), so the close rate learns from each of them (an unmatched contact is
+ * Which of a contact's matched website taps carries its Won/Lost (pure): the
+ * earliest (ties to the lower id), so one person counts once in the close
+ * rate; every other matched tap is cleared. Null mark when there is no tap.
+ */
+export function planClickOutcomes(clicks: { id: number; at: string }[]): { mark: number | null; clear: number[] } {
+  if (clicks.length === 0) return { mark: null, clear: [] };
+  const first = clicks.reduce((best, c) => {
+    const d = Date.parse(c.at) - Date.parse(best.at);
+    return d < 0 || (d === 0 && c.id < best.id) ? c : best;
+  });
+  return { mark: first.id, clear: clicks.filter((c) => c.id !== first.id).map((c) => c.id) };
+}
+
+/**
+ * Won/Lost onto the contact's earliest matched website tap, and cleared
+ * (outcome and outcome_at NULL) on its other matched taps, all scoped by the
+ * client, so the close rate counts the person once (an unmatched contact is
  * counted by lib/siteStats.ts directly).
  */
 async function writeBackOutcome(onboardingId: number, contactId: number, stage: LeadStage): Promise<void> {
-  const outcome = outcomeForStage(stage);
-  for (const clickId of await clickIdsFor(onboardingId, contactId)) await setLeadOutcome(onboardingId, clickId, outcome);
+  const plan = planClickOutcomes(await clicksFor(onboardingId, contactId));
+  if (plan.mark === null) return;
+  await setLeadOutcome(onboardingId, plan.mark, outcomeForStage(stage));
+  for (const id of plan.clear) await setLeadOutcome(onboardingId, id, null);
 }
 
 // ───────────────────────────── Resolving and merging ─────────────────────────────
