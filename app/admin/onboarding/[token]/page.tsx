@@ -17,6 +17,8 @@ import { PhonePanel } from '@/components/insights/PhonePanel';
 import { SequencesPanel } from '@/components/insights/SequencesPanel';
 import { sequencesAdminData } from '@/lib/sequences';
 import { getLine, monthCost, recentCalls } from '@/lib/phoneLines';
+import { BookingPanel } from '@/components/insights/BookingPanel';
+import { adminBookingData } from '@/lib/bookings';
 import { getAuditSettings, listAuditsForOnboarding } from '@/lib/audits';
 import { listPlan } from '@/lib/plans';
 
@@ -29,7 +31,7 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
   const { token } = await params;
   const onboarding = await getOnboardingByToken(token).catch(() => null);
   if (!onboarding) notFound();
-  const [states, details, updates, reports, tracking, feedback, upgrade, businessEmail, audits, auditSettings, plan, phoneLine] = await Promise.all([
+  const [states, details, updates, reports, tracking, feedback, upgrade, businessEmail, audits, auditSettings, plan, phoneLine, bookingData] = await Promise.all([
     getItemStates(onboarding.id),
     getProjectDetails(onboarding.id),
     listProjectUpdates(onboarding.id),
@@ -42,6 +44,7 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
     getAuditSettings(onboarding.id),
     listPlan(onboarding.id),
     getLine(onboarding.id),
+    adminBookingData(onboarding.id),
   ]);
   const phone = phoneLine
     ? { line: phoneLine, calls: await recentCalls(onboarding.id, 30, { includeConnect: true }), cost: await monthCost(onboarding.id, monthOf()) }
@@ -85,6 +88,7 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
           businessName={onboarding.businessName}
           asked={{ mainNumber: askedPhone('mainNumber'), trackingPreference: askedPhone('trackingPreference'), answerers: askedPhone('answerers') }}
         />
+        <BookingPanel token={onboarding.token} tier={onboarding.tier} initial={bookingData} />
         {sequences ? <SequencesPanel token={onboarding.token} tier={onboarding.tier} initial={sequences} /> : null}
         <ProjectPanel token={onboarding.token} initial={{ details, updates, reports, tracking, feedback, audits, auditSettings, plan }} guarantee={tierHasGuarantee(onboarding.tier)} tier={onboarding.tier} />
       </div>
