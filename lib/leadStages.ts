@@ -5,12 +5,25 @@
 // slice 4 adds a contacts store with the same shape, makes it the default, and
 // nothing else here changes. Server-only.
 import { ensureSchema, sql } from '@/lib/db';
+import { errText, iso, type DbTime } from '@/lib/dbRows';
 import { startRun, stopRunsFor, type RunContact, type RunRef, type RunStopReason, type StartResult } from '@/lib/sequences';
 import { STAGE_EFFECTS, isLeadStage, type LeadAction, type LeadStage, type SequenceKind } from '@/lib/sequenceShared';
 
 export interface LeadRecord extends RunContact {
   stage: LeadStage;
+  /** When Quote sent was first tapped; null until then. A second tap does not restart the quote follow-up. */
+  quoteSentAt: string | null;
 }
+
+/** The id is not one of this client's (live) leads. Its message is safe to show the client. */
+export class LeadNotFoundError extends Error {
+  constructor() {
+    super('That lead is not in your list');
+    this.name = 'LeadNotFoundError';
+  }
+}
+
+export const STAGE_ENGINE_WARNING = 'Saved, but the follow-up could not be updated. We will retry.';
 
 export interface LeadStore {
   /** The ref_table that runs started from this store carry. */
@@ -24,11 +37,15 @@ export const formSubmissionStore: LeadStore = {
   refTable: 'form_submissions',
   async find(onboardingId, id) {
     await ensureSchema();
-    const { rows } = await sql<{ name: string | null; phone: string | null; email: string | null; stage: string }>`
-      SELECT name, phone, email, stage FROM form_submissions WHERE id = ${id} AND onboarding_id = ${onboardingId} LIMIT 1;
+    // Admin test leads are never staged from the client side.
+    const { rows } = await sql<{ name: string | null; phone: string | null; email: string | null; stage: string; quote_sent_at: DbTime | null }>`
+      SELECT name, phone, email, stage, quote_sent_at FROM form_submissions
+      WHERE id = ${id} AND onboarding_id = ${onboardingId} AND NOT is_test LIMIT 1;
     `;
     const r = rows[0];
-    return r ? { name: r.name, phone: r.phone, email: r.email, stage: isLeadStage(r.stage) ? r.stage : 'new' } : null;
+    return r
+      ? { name: r.name, phone: r.phone, email: r.email, stage: isLeadStage(r.stage) ? r.stage : 'new', quoteSentAt: r.quote_sent_at ? iso(r.quote_sent_at) : null }
+      : null;
   },
   async setStage(onboardingId, id, stage, action) {
     await sql`
@@ -57,22 +74,35 @@ export interface StageResult {
   stage: LeadStage;
   started: SequenceKind[];
   stopped: number;
+  /** Set when the stage was saved but the follow-up engine failed (STAGE_ENGINE_WARNING). */
+  warning?: string;
 }
 
 export async function applyLeadStage(onboardingId: number, id: number, action: LeadAction, deps: StageDeps = defaultDeps): Promise<StageResult> {
   // Looked up under the signed-in client's onboarding id: another client's lead is "not found", and nothing is written.
   const lead = await deps.store.find(onboardingId, id);
-  if (!lead) throw new Error('That lead is not in your list');
+  if (!lead) throw new LeadNotFoundError();
   const effect = STAGE_EFFECTS[action];
   await deps.store.setStage(onboardingId, id, effect.stage, action);
-  // Stop first, then start: "Quote sent" ends the new-lead follow-up before the quote one begins.
-  const stopped = effect.stop.length
-    ? await deps.stopRunsFor(onboardingId, { phone: lead.phone, email: lead.email, kinds: effect.stop }, `stage:${action}`)
-    : 0;
+  // Idempotent taps: a follow-up starts only on a real change (Quote sent: the first tap; others: a new stage).
+  const changed = action === 'quote_sent' ? lead.quoteSentAt === null : lead.stage !== effect.stage;
+  let stopped = 0;
   const started: SequenceKind[] = [];
-  for (const kind of effect.start) {
-    const r = await deps.startRun(onboardingId, kind, { name: lead.name, phone: lead.phone, email: lead.email }, { table: deps.store.refTable, id });
-    if (r.started) started.push(kind);
+  try {
+    // Stop first, then start: "Quote sent" ends the new-lead follow-up before the quote one begins.
+    if (effect.stop.length) {
+      stopped = await deps.stopRunsFor(onboardingId, { phone: lead.phone, email: lead.email, kinds: effect.stop }, `stage:${action}`);
+    }
+    if (changed) {
+      for (const kind of effect.start) {
+        const r = await deps.startRun(onboardingId, kind, { name: lead.name, phone: lead.phone, email: lead.email }, { table: deps.store.refTable, id });
+        if (r.started) started.push(kind);
+      }
+    }
+  } catch (err) {
+    // The stage is saved; the client sees a plain warning, never the engine's error text.
+    console.error('[leadStages] follow-up update failed', onboardingId, id, action, errText(err));
+    return { stage: effect.stage, started: [], stopped, warning: STAGE_ENGINE_WARNING };
   }
   return { stage: effect.stage, started, stopped };
 }

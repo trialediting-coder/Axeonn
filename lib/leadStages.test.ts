@@ -2,7 +2,7 @@
 // Run with: npm run test:sequences. The store and the engine are fakes: no database.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { applyLeadStage, type LeadRecord, type LeadStore, type StageDeps } from './leadStages';
+import { applyLeadStage, STAGE_ENGINE_WARNING, type LeadRecord, type LeadStore, type StageDeps } from './leadStages';
 import type { LeadAction, LeadStage } from './sequenceShared';
 
 function fakes(lead: LeadRecord | null, startOk = true) {
@@ -31,7 +31,7 @@ function fakes(lead: LeadRecord | null, startOk = true) {
   return { log, deps };
 }
 
-const mike: LeadRecord = { name: 'Mike Smith', phone: '+15155550134', email: 'mike@example.com', stage: 'new' };
+const mike: LeadRecord = { name: 'Mike Smith', phone: '+15155550134', email: 'mike@example.com', stage: 'new', quoteSentAt: null };
 
 test('Job done stops the follow-ups and starts the review request for that lead', async () => {
   const { log, deps } = fakes(mike);
@@ -108,4 +108,74 @@ test('the store is asked for the lead under the signed-in client, and every writ
   await applyLeadStage(12, 345, 'won', deps);
   assert.deepEqual(calls.setStage[1], [12, 345, 'won', 'won']);
   assert.deepEqual(calls.start, [12]);
+});
+
+/** A store that remembers the stage and quote time between taps, like the real table. */
+function statefulFakes(opts: { stopThrows?: boolean; startThrows?: boolean } = {}) {
+  const row: LeadRecord = { ...mike };
+  const starts: string[] = [];
+  const saved: string[] = [];
+  const deps: StageDeps = {
+    store: {
+      refTable: 'form_submissions',
+      async find() {
+        return { ...row };
+      },
+      async setStage(_o, _id, stage, action) {
+        row.stage = stage;
+        if (action === 'quote_sent' && !row.quoteSentAt) row.quoteSentAt = '2026-10-13T15:00:00.000Z';
+        saved.push(stage);
+      },
+    },
+    async stopRunsFor() {
+      if (opts.stopThrows) throw new Error('relation "sequence_runs" does not exist');
+      return 1;
+    },
+    async startRun(_o, kind) {
+      if (opts.startThrows) throw new Error('connection terminated unexpectedly');
+      starts.push(kind);
+      return { started: true, runId: starts.length };
+    },
+  };
+  return { deps, starts, saved };
+}
+
+test('won twice starts review once', async () => {
+  const { deps, starts } = statefulFakes();
+  assert.deepEqual((await applyLeadStage(4, 7, 'won', deps)).started, ['review']);
+  const second = await applyLeadStage(4, 7, 'won', deps);
+  assert.deepEqual(second.started, []);
+  assert.equal(second.stage, 'won');
+  assert.deepEqual(starts, ['review']);
+});
+
+test('quote_sent twice starts quote once', async () => {
+  const { deps, starts } = statefulFakes();
+  assert.deepEqual((await applyLeadStage(4, 7, 'quote_sent', deps)).started, ['quote']);
+  assert.deepEqual((await applyLeadStage(4, 7, 'quote_sent', deps)).started, []);
+  assert.deepEqual(starts, ['quote']);
+});
+
+test('quote_sent on a lead already contacted still starts the quote follow-up the first time', async () => {
+  const { deps, starts } = statefulFakes();
+  await applyLeadStage(4, 7, 'contacted', deps);
+  assert.deepEqual((await applyLeadStage(4, 7, 'quote_sent', deps)).started, ['quote']);
+  assert.deepEqual(starts, ['quote']);
+});
+
+test('engine throw returns a warning and the stage is still saved', async () => {
+  for (const o of [{ stopThrows: true }, { startThrows: true }]) {
+    const { deps, saved } = statefulFakes(o);
+    const r = await applyLeadStage(4, 7, 'won', deps);
+    assert.equal(r.stage, 'won');
+    assert.deepEqual(r.started, []);
+    assert.equal(r.warning, STAGE_ENGINE_WARNING);
+    assert.ok(!JSON.stringify(r).includes('relation') && !JSON.stringify(r).includes('connection'));
+    assert.deepEqual(saved, ['won']);
+  }
+});
+
+test('a successful tap carries no warning', async () => {
+  const { deps } = statefulFakes();
+  assert.equal((await applyLeadStage(4, 7, 'booked', deps)).warning, undefined);
 });
