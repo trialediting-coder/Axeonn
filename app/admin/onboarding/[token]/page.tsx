@@ -23,14 +23,19 @@ import { ChatPanel } from '@/components/insights/ChatPanel';
 import { adminChatData } from '@/lib/chat';
 import { getAuditSettings, listAuditsForOnboarding } from '@/lib/audits';
 import { listPlan } from '@/lib/plans';
+import { MetaPanel } from '@/components/insights/MetaPanel';
+import { isMetaConfigured } from '@/lib/meta';
+import { pagesFor } from '@/lib/metaPages';
+import { connectNotice } from '@/lib/metaShared';
 
 export const dynamic = 'force-dynamic';
 
-export default async function OnboardingDetailPage({ params }: { params: Promise<{ token: string }> }) {
+export default async function OnboardingDetailPage({ params, searchParams }: { params: Promise<{ token: string }>; searchParams: Promise<{ meta?: string }> }) {
   const session = await auth();
   if (!session) redirect('/admin/login');
 
   const { token } = await params;
+  const metaNotice = connectNotice((await searchParams).meta);
   const onboarding = await getOnboardingByToken(token).catch(() => null);
   if (!onboarding) notFound();
   const [states, details, updates, reports, tracking, feedback, upgrade, businessEmail, audits, auditSettings, plan, phoneLine, bookingData, chatData] = await Promise.all([
@@ -53,6 +58,7 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
     ? { line: phoneLine, calls: await recentCalls(onboarding.id, 30, { includeConnect: true }), cost: await monthCost(onboarding.id, monthOf()) }
     : { line: null, calls: [], cost: null };
   const sequences = onboarding.tier === 'essentials' ? null : await sequencesAdminData(onboarding.id);
+  const metaPages = await pagesFor(onboarding.id).catch(() => []);
   const phoneCard = states['phone-setup']?.data ?? {};
   const askedPhone = (key: string) => (typeof phoneCard[key] === 'string' ? (phoneCard[key] as string) : '');
   const domainCard = states.domain?.data ?? {};
@@ -69,6 +75,9 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
             <b>Asked about {TIER_LABELS[upgrade.tier]}.</b> Pressed in their dashboard on {new Date(upgrade.at).toLocaleDateString('en-US')}; they were told you would reach out
             within one business day to walk them through it. Call or email them.
           </div>
+        ) : null}
+        {metaNotice ? (
+          <div className={`mb-4 rounded-xl border px-4 py-3 text-sm ${metaNotice.tone === 'ok' ? 'border-emerald-200 bg-emerald-50 text-emerald-950' : 'border-amber-200 bg-amber-50 text-amber-950'}`}>{metaNotice.text}</div>
         ) : null}
         <OnboardingDetail
           initial={{
@@ -94,6 +103,7 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
         <BookingPanel token={onboarding.token} tier={onboarding.tier} initial={bookingData} />
         <ChatPanel token={onboarding.token} tier={onboarding.tier} initial={chatData} />
         {sequences ? <SequencesPanel token={onboarding.token} tier={onboarding.tier} initial={sequences} /> : null}
+        <MetaPanel token={onboarding.token} tier={onboarding.tier} configured={isMetaConfigured()} initial={metaPages} />
         <ProjectPanel token={onboarding.token} initial={{ details, updates, reports, tracking, feedback, audits, auditSettings, plan }} guarantee={tierHasGuarantee(onboarding.tier)} tier={onboarding.tier} />
       </div>
     </main>

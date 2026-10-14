@@ -1,5 +1,6 @@
 import { FOUND_OPTIONS } from '@/lib/feedbackShared';
 import { MAILBOX_HINT } from '@/lib/businessEmailShared';
+import { META_CONNECT_ITEM } from '@/lib/metaShared';
 // data/onboardingItems.ts
 // Single source of truth for the client onboarding portal (/welcome/<token>):
 // every checklist item, which plan it belongs to, who does it, and the fields
@@ -66,6 +67,12 @@ export interface OnboardingItem {
   fields?: readonly ItemField[];
   /** Rough time for the client, shown as a chip ("1 min"). */
   minutes?: number;
+  /**
+   * Accept items finished by a real connection instead of a "Done" tap. 'meta':
+   * the button opens Facebook Login (/api/meta/connect) and the callback marks it
+   * done. Hidden from every portal until META_PORTAL_LIVE=1 (after Meta App Review).
+   */
+  connect?: 'meta';
 }
 
 const SERVICES_HINT = 'The ones you want more of, most important first.';
@@ -374,6 +381,21 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     doneLabel: 'Shared it',
   },
   {
+    key: META_CONNECT_ITEM,
+    kind: 'accept',
+    tier: 'axeoncore',
+    connect: 'meta',
+    title: 'Connect your Facebook page and Instagram',
+    description: 'Messages people send your Facebook page or Instagram show up with your other leads, and you can answer them from the same place.',
+    minutes: 2,
+    steps: [
+      'Tap Connect Facebook below and log in to the Facebook account that runs your business page.',
+      'When Facebook asks which pages to share, tick your business page. Your Instagram comes along if it is linked to that page.',
+      'Tap Save. You land back here and this step is done.',
+    ],
+    doneLabel: 'Connect Facebook',
+  },
+  {
     key: 'sales-process',
     kind: 'confirm',
     tier: 'axeoncore',
@@ -619,9 +641,9 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
 ];
 
 /** Every item a plan includes, in display order. */
-export function itemsForTier(tier: OnboardingTier): OnboardingItem[] {
+export function itemsForTier(tier: OnboardingTier, metaLive: boolean = process.env.META_PORTAL_LIVE === '1'): OnboardingItem[] {
   const rank = TIER_RANK[tier];
-  return ONBOARDING_ITEMS.filter((item) => TIER_RANK[item.tier] <= rank);
+  return ONBOARDING_ITEMS.filter((item) => TIER_RANK[item.tier] <= rank && (item.connect !== 'meta' || metaLive));
 }
 
 export function getItem(key: string): OnboardingItem | undefined {

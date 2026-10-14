@@ -566,6 +566,7 @@ export async function saveClientItem(
   const item = getItem(itemKey);
   if (!item || !itemBelongsToTier(itemKey, onboarding.tier)) throw new Error('Unknown item');
   if (item.kind === 'axeon') throw new Error('Axeon handles this one');
+  if (item.connect) throw new Error('Use the Connect button to finish this step.');
   const data = validateItemData(item, rawData);
   const status: ItemStatus = markDone ? 'done' : 'pending';
   await ensureSchema();
@@ -586,6 +587,27 @@ export async function saveClientItem(
   await sql`UPDATE onboardings SET last_client_activity_at = now(), updated_at = now() WHERE id = ${onboarding.id};`;
   await recomputeStatus(onboarding);
   return rowToState(res.rows[0]);
+}
+
+/**
+ * A connect item (data/onboardingItems.ts `connect`) finished by a real
+ * connection, e.g. the Meta OAuth callback. Works after the portal turns
+ * read-only too, since reconnecting a page later must not fail.
+ */
+export async function markConnectedItem(onboarding: Onboarding, itemKey: string): Promise<void> {
+  if (!itemBelongsToTier(itemKey, onboarding.tier)) return;
+  await ensureSchema();
+  await sql`
+    INSERT INTO onboarding_items (onboarding_id, item_key, status, data, completed_by, completed_at)
+    VALUES (${onboarding.id}, ${itemKey}, 'done', '{}'::jsonb, 'client', now())
+    ON CONFLICT (onboarding_id, item_key) DO UPDATE SET
+      status = 'done',
+      completed_by = 'client',
+      completed_at = COALESCE(onboarding_items.completed_at, now()),
+      updated_at = now();
+  `;
+  await sql`UPDATE onboardings SET last_client_activity_at = now(), updated_at = now() WHERE id = ${onboarding.id};`;
+  await recomputeStatus(onboarding);
 }
 
 /** Admin marks any item done or reopens it; client data is kept. */

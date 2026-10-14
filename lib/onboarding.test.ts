@@ -305,3 +305,15 @@ test('isEditable: active always, complete for 60 days, closed never', () => {
   assert.equal(isEditable({ status: 'complete', completedAt: recent }, now), true);
   assert.equal(isEditable({ status: 'complete', completedAt: old }, now), false);
 });
+
+test('the Facebook connect item is CORE and up, and hidden until META_PORTAL_LIVE', () => {
+  const has = (tier: (typeof ONBOARDING_TIERS)[number], live: boolean) => itemsForTier(tier, live).some((i) => i.key === 'meta-connect');
+  assert.equal(has('axeoncore', false), false);
+  assert.equal(has('axeongrowth', false), false);
+  assert.equal(has('axeoncore', true), true);
+  assert.equal(has('axeongrowth', true), true);
+  assert.equal(has('essentials', true), false);
+  const item = getItem('meta-connect');
+  assert.equal(item?.kind, 'accept');
+  assert.equal(item?.connect, 'meta');
+});

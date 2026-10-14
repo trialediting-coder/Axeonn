@@ -405,6 +405,24 @@ function AcceptCard({
           {error}
         </p>
       )}
+      {item.connect === 'meta' ? (
+        // Finished by Facebook Login, not a tap: /api/meta/connect sends them to Facebook and the callback marks it done.
+        <div className="flex flex-wrap items-center gap-3">
+          {status === 'done' ? (
+            <span className="text-sm text-green-700 font-medium inline-flex items-center gap-1.5"><Check size={14} /> Connected</span>
+          ) : null}
+          <a
+            href={`/api/meta/connect?token=${encodeURIComponent(token)}`}
+            className={
+              status === 'done'
+                ? 'text-sm font-semibold text-neutral-500 hover:text-neutral-800'
+                : 'inline-flex items-center gap-2 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3 text-sm transition-colors'
+            }
+          >
+            {status === 'done' ? 'Connect another page' : (item.doneLabel ?? 'Connect')}
+          </a>
+        </div>
+      ) : (
       <div className="flex flex-wrap items-center gap-3">
         {status === 'done' ? (
           <>
@@ -425,6 +443,7 @@ function AcceptCard({
           </button>
         )}
       </div>
+      )}
     </CardShell>
   );
 }

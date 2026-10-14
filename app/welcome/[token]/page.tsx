@@ -15,6 +15,7 @@ import { VerifyCode } from '@/components/welcome/VerifyCode';
 import { OnboardingPortal } from '@/components/welcome/OnboardingPortal';
 import { ProofPasswordCard } from '@/components/welcome/ProofPasswordCard';
 import { hasAccountForOnboarding } from '@/lib/proofAuth';
+import { connectNotice } from '@/lib/metaShared';
 
 // The client onboarding portal: /welcome/<20-char token>. The token is the first
 // factor; a 6-digit email code on each new device is the second (lib/onboarding.ts).
@@ -66,7 +67,21 @@ function Invalid() {
   );
 }
 
-async function Portal({ onboarding }: { onboarding: Onboarding }) {
+/** The line shown after Facebook Login sends the client back here with ?meta=<result>. */
+function MetaNotice({ flag }: { flag: string | undefined }) {
+  const notice = connectNotice(flag);
+  if (!notice) return null;
+  return (
+    <div
+      role="status"
+      className={`max-w-2xl mx-auto mb-6 rounded-2xl border px-5 py-4 text-sm ${notice.tone === 'ok' ? 'border-emerald-200 bg-emerald-50 text-emerald-900' : 'border-amber-200 bg-amber-50 text-amber-900'}`}
+    >
+      {notice.text}
+    </div>
+  );
+}
+
+async function Portal({ onboarding, meta }: { onboarding: Onboarding; meta?: string }) {
   const states = await getItemStates(onboarding.id);
   const items = orderedItems(onboarding.tier);
   const prefill: Record<string, Record<string, string>> = {};
@@ -75,6 +90,7 @@ async function Portal({ onboarding }: { onboarding: Onboarding }) {
   }
   return (
     <Frame>
+      <MetaNotice flag={meta} />
       <OnboardingPortal
         token={onboarding.token}
         tierLabel={TIER_LABELS[onboarding.tier]}
@@ -104,8 +120,9 @@ async function Portal({ onboarding }: { onboarding: Onboarding }) {
   );
 }
 
-export default async function WelcomePage({ params }: { params: Promise<{ token: string }> }) {
+export default async function WelcomePage({ params, searchParams }: { params: Promise<{ token: string }>; searchParams: Promise<{ meta?: string }> }) {
   const { token } = await params;
+  const { meta } = await searchParams;
   const onboarding = await loadOnboarding(token);
   if (!onboarding || onboarding.status === 'closed') return <Invalid />;
 
@@ -116,5 +133,5 @@ export default async function WelcomePage({ params }: { params: Promise<{ token:
       </Frame>
     );
   }
-  return <Portal onboarding={onboarding} />;
+  return <Portal onboarding={onboarding} meta={meta} />;
 }
