@@ -50,6 +50,7 @@ item ever asks for one.
 | Admin board + detail | `/admin/onboarding`, `components/insights/Onboarding*.tsx` |
 | Admin API (list, mint, mark done, nudge, close) | `app/api/admin/onboarding/*` |
 | Emails (welcome, code, nudge) | `lib/email.ts` |
+| Follow-up texts and emails to a client's leads | `lib/sequences.ts`, `/api/cron/sequences`, `/u/<token>`; see "Follow-up sequences" |
 | Stripe hook | `app/api/stripe/webhook/route.ts` → `startOnboarding()` |
 | Tables | `onboardings`, `onboarding_items` in `lib/db.ts` and `scripts/init-db.mjs` |
 | Tests | `npm run test:onboarding` |
@@ -411,8 +412,7 @@ with the same wording.
 **Quiet hours.** 8 pm to 8 am in the client's time zone (set on the Phone card,
 default Central). In those hours the owner still gets the email right away; the owner
 text and the call connect call are skipped, and the follow-up to the lead is held
-until 8 am by slice 3's sequences (not built yet, so nothing goes to the lead at
-night until then).
+until 8 am by the follow-up engine (see "Follow-up sequences" below).
 
 **Switching an existing site off Formspree.** Change the form's `action` to
 `https://axeonstudio.co/api/lead`, add the hidden `site` input and the honeypot
@@ -507,8 +507,8 @@ the lead "Called back" when the owner pressed 1.
 
 **Quiet hours.** 8 pm to 8 am in the line's time zone (admin card, default Central):
 the owner gets the email right away, but the text and the call connect call are
-skipped. The follow-up to the lead is held until 8 am by slice 3's sequences; until
-those ship, nothing is sent later. The missed-call text-back ignores quiet hours,
+skipped. The follow-up to the lead is held until 8 am by the follow-up engine (see
+"Follow-up sequences" below). The missed-call text-back ignores quiet hours,
 because the caller just called.
 
 **Testing a client's setup.** "Send test lead" on the Phone card posts a fake lead
@@ -520,6 +520,128 @@ forward-to.
 **Cost.** The admin card estimates the month from the two tables at the rates in
 the spec. There are no subaccounts; usage is attributed by number.
 
+## Follow-up sequences (AxeonCORE and up)
+
+Built 2026-10-13 (slice 3 of `docs/superpowers/specs/2026-10-12-proof-lead-system-design.md`).
+Automatic follow-up texts and emails for each CORE client's leads, written in
+the owner's voice, reviewed by Axeon before anything sends. Essentials clients
+get none (the admin card refuses them and the engine stops any run for them).
+
+| Piece | Where |
+| --- | --- |
+| Kinds, default copy, validation, blanks, stage effects, Claude prompt | `lib/sequenceShared.ts` |
+| Quiet hours, step timing, quarterly spread, the per-run decision | `lib/sequenceSchedule.ts` |
+| Templates, runs, start/stop, the worker | `lib/sequences.ts` |
+| Past-customer CSV | `lib/pastCustomersShared.ts`, `lib/pastCustomers.ts` |
+| Email unsubscribe | `lib/unsubscribe.ts`, `app/u/[token]/route.ts` |
+| Lead-stage taps | `lib/leadStages.ts`, `/api/proof/leads/stage`, `components/proof/LeadStageTaps.tsx` |
+| Cron (every 15 minutes) | `/api/cron/sequences` (`vercel.json`) |
+| Admin card | `components/insights/SequencesPanel.tsx`, `/api/admin/onboarding/<token>/sequences` |
+| Tables | `sequence_templates`, `sequence_runs`, `past_customers`, `email_opt_outs`; `onboardings.review_link`, `booking_link`; `form_submissions.stage`, `quote_sent_at` |
+| Tests | `npm run test:sequences` |
+
+**The five follow-ups.** Every one starts off. Default timing is shown; Axeon can
+edit the wording, the waits and the channels per client.
+
+| Follow-up | Starts when | Default steps | Stops when |
+| --- | --- | --- | --- |
+| New lead | a website form comes in; or a missed call, held 30 minutes, if they have not replied | text 5 min, email 1 day, text 3 days | they text back, a call from them is answered, a press-1 connect call to them is answered, the client taps Quote sent, Talked to them, Booked, Job done or Not a fit, or STOP |
+| Quote | the client taps Quote sent (first tap only) | text 1 day, email 3 days, text 7 days | they text back, an answered call, Talked to them, Booked, Job done or Not a fit, or STOP |
+| Appointment reminders | a booking is made (online booking is a later slice, so nothing starts these yet) | text 1 day before, text 2 hours before | STOP |
+| Review request | the client taps Job done (a confirm box first) | one text 2 hours later with the Google review link | STOP |
+| Past-customer check-in | first 7 days of January, April, July and October, to the uploaded list | one text per consented past customer, from 10 am, 5 minutes apart, at most 50 a day | STOP |
+
+**What stops what.** An inbound reply stops only the new-lead and quote
+follow-ups; a booked reminder and a review request carry on. A texted STOP
+stops every follow-up for that number. An answered call from the lead, and an
+answered press-1 connect call to the lead, stop the new-lead and quote
+follow-ups (stop reason `answered`). A stage tap works from the table below.
+Editing a template stops its running follow-ups (`template_changed`), so a lead
+is never sent a mix of old and new wording; new leads get the new one. Turning a
+template off stops its running follow-ups on the next 15-minute run
+(`template_off`). Replies and STOP are checked again before every send, so the
+cron never sends after a reply that arrived since the last tick.
+
+| Client taps | Lead becomes | Stops | Starts |
+| --- | --- | --- | --- |
+| Quote sent | contacted | new lead | quote |
+| Talked to them | contacted | new lead, quote | nothing |
+| Booked | booked | new lead, quote | nothing |
+| Job done | won | new lead, quote | review request |
+| Not a fit | lost | new lead, quote | nothing |
+
+A follow-up starts from a tap only on a real change: tapping Quote sent twice
+does not restart the quote follow-up, and tapping the same stage again starts
+nothing. Admin test leads never start a follow-up. The Sequences card also has a
+"Start follow-up" button for one of the last 10 real form leads.
+
+**Order of work for a new CORE client.** Phone card: texting approved. Sequences
+card: paste the Google review link, press Draft with Claude, read every step,
+fix anything that does not sound like the owner, then turn the follow-ups on one
+at a time. Draft with Claude writes all five from the owner's portal answers
+(how leads are handled today, what gets people to book, deal-killers, how a job
+is known to be done, the standing offer) and saves every one **off**: nothing a
+draft writes can send until Axeon has read it and turned it on. A new draft
+replaces the saved wording and turns the follow-up off again, so do not redraft a
+live client without meaning to. Claude is told never to invent prices, guarantees
+or times, and never to write the STOP line (the system adds it).
+
+**Rules the code enforces.**
+
+- Nothing sends while a follow-up is off. Texts also need the client's texting
+  approved on the Phone card.
+- A template that uses `{review_link}` or `{booking_link}` cannot be turned on
+  while that link is empty ("Add the Google review link first."). If the link is
+  cleared later, the run stops with `missing_link` rather than send a blank.
+- Quiet hours are 8 pm to 8 am in the client's time zone (Phone card), the same
+  window as the form-lead alerts. A step that comes due then is held until 8 am
+  and goes out on the first tick after (between 8:00 and 8:15). The missed-call
+  text-back itself ignores quiet hours; only the follow-ups after it are held.
+- The first text a person receives from a follow-up ends with "Reply STOP to opt
+  out." (added if the wording lacks it); a long text is cut short before the STOP
+  line, never the other way round.
+- One follow-up of each kind per person at a time: a caller who rings three
+  times gets one. The same form lead or call never starts twice.
+- Blanks are `{name}`, `{business}`, `{owner_first}`, `{review_link}`,
+  `{booking_link}`; anything else in curly brackets is refused on save. Texts are
+  at most 320 characters, emails at most 2,000 characters with a subject.
+- An email step is skipped for a person with no email address, and a text step
+  for one with no phone or an unapproved line; the run moves to the next step it
+  can send.
+
+**Missed calls.** The text-back (slice 1) is the first touch. A new-lead follow-up
+starts from the missed call but waits 30 minutes; when the text-back went out it
+skips its own first text and goes to the next step the caller can receive (a
+caller has no email, so that is the 3-day text). A reply or an answered call in
+those 30 minutes ends it.
+
+**Emails** come from `"<Business> via Axeon" <leads@axeonstudio.co>` (override
+with `RESEND_SEQUENCE_FROM_EMAIL`), with replies going to the client's email.
+They show in the admin email log under "Lead follow-ups". Every email ends with
+an Unsubscribe link and carries the one-click `List-Unsubscribe` headers.
+
+**The email unsubscribe link.** The link is `/u/<token>`, signed with
+`TRACKING_SALT` (or `AUTH_SECRET`); no follow-up email is sent if neither is set.
+Opening it shows a confirm page ("Stop emails from <Business>?"); only the "Yes,
+unsubscribe" button records the opt-out, so a mail filter that opens links cannot
+unsubscribe anyone. It is per client: the address stops getting that client's
+follow-up emails, and any text steps still go. It is separate from a texted STOP,
+which ends everything for that number. A bad or cut-off link shows a plain page
+asking them to reply to the email instead.
+
+**Past customers.** Axeon uploads a CSV (a phone column; name, email and last-job
+date optional; up to 2,000 rows) on the Sequences card, after the owner confirms
+that they have permission to text those people. The upload is refused unless the
+consent box is ticked, and every row stores the date it was attested. Only
+consented numbers that have not texted STOP are sent the check-in.
+
+**Sending.** The cron leases up to 200 due steps, sends 10 at a time (emails 2 at a
+time, 600 ms apart) and releases anything it did not reach within 45 seconds to the
+next tick. A step is marked sent before the send so an overlapping run cannot send
+it twice; a send that fails is retried twice, 30 minutes apart, then the
+follow-up stops with `failed` (shown as stopped on the admin card). The cron needs
+`CRON_SECRET` and a Vercel plan that allows a 15-minute schedule (Pro).
+
 ## Environment variables
 
 | Variable | Purpose |
@@ -530,8 +652,8 @@ the spec. There are no subaccounts; usage is attributed by number.
 | `ONBOARDING_COOKIE_SECRET` | Optional. Falls back to `AUTH_SECRET`. |
 | `POSTGRES_URL` | Required. Tables are created on first use. |
 | `AIRTABLE_TOKEN` | Airtable personal access token for the Clients mirror and website leads. |
-| `CRON_SECRET` | Required for the daily nudge job, the monthly reports and the blog crons. |
-| `TRACKING_SALT` | Optional. Salts the visitor hash for site tracking; falls back to `AUTH_SECRET`. |
+| `CRON_SECRET` | Required for the daily nudge job, the monthly reports, the blog crons and the 15-minute follow-up cron (`/api/cron/sequences`, which needs Vercel Pro). |
+| `TRACKING_SALT` | Optional. Salts the visitor hash for site tracking and signs the email unsubscribe links; falls back to `AUTH_SECRET`. |
 | `ADMIN_EMAIL` | Where lead and "client finished" alerts go. |
 | `TWILIO_ACCOUNT_SID` | Twilio master account SID; signs the REST calls for the tracked phone numbers. |
 | `TWILIO_AUTH_TOKEN` | Signs Twilio webhooks and REST calls. Never pasted anywhere but Vercel. |
