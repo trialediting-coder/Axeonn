@@ -11,8 +11,9 @@ import { runSocialCron } from '@/lib/social';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-// Up to five posts and 25 insight refreshes, each Graph call capped at 10 s; a container
-// still processing is checked again next run, never waited on here.
+// Up to five posts and 25 insight refreshes. Graph calls are capped at 10 s (publish calls 40 s);
+// a container still processing is checked again next run, never waited on here. lib/social.ts
+// starts no post after CRON_STOP_AFTER_MS (280 s) unless it still fits, and releases the rest.
 export const maxDuration = 300;
 
 async function run(req: Request) {

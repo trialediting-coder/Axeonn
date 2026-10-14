@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { upload } from '@vercel/blob/client';
 import { adminInput, adminLabel, btn } from '@/components/admin/ui';
 import { captionProblem, SOCIAL_STATUS_LABEL, type MetaPagePublic, type SocialPlatform, type SocialPost } from '@/lib/metaShared';
-import { blobPathFor, REEL_CONTENT_TYPES, REEL_MAX_BYTES } from '@/lib/socialShared';
+import { blobPathFor, REEL_CONTENT_TYPES, REEL_MAX_BYTES, retryBlockedReason } from '@/lib/socialShared';
 
 /** The file's video type, falling back to its extension when the browser reports none (common for .mov on Windows). Null when not MP4/MOV. */
 function reelType(file: File): string | null {
@@ -20,17 +20,21 @@ function reelType(file: File): string | null {
 const when = (iso: string | null) => (iso ? new Date(iso).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '—');
 
 export function SocialPanel({ token, onboardingId, tier, configured, pages, initial }: { token: string; onboardingId: number; tier: string; configured: boolean; pages: MetaPagePublic[]; initial: SocialPost[] }) {
+  // The page is known before the hooks so the channel choice starts from its real links (Instagram only when linked).
+  const page = pages.find((p) => p.status === 'active') ?? null;
+  const igLinked = Boolean(page?.igUserId);
   const [posts, setPosts] = useState<SocialPost[]>(initial);
   const [videoUrl, setVideoUrl] = useState('');
   const [fileName, setFileName] = useState('');
   const [caption, setCaption] = useState('');
-  const [platforms, setPlatforms] = useState<SocialPlatform[]>(['instagram', 'facebook']);
+  const [picked, setPlatforms] = useState<SocialPlatform[]>(() => (igLinked ? ['instagram', 'facebook'] : ['facebook']));
   const [at, setAt] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   if (tier !== 'axeongrowth') return null;
-  const page = pages.find((p) => p.status === 'active') ?? null;
+  // Never send Instagram for a page without a linked account, even if the page changed after the first render.
+  const platforms = picked.filter((p) => p !== 'instagram' || igLinked);
   const problem = captionProblem(caption);
   const api = `/api/admin/onboarding/${token}/social`;
 
@@ -105,7 +109,7 @@ export function SocialPanel({ token, onboardingId, tier, configured, pages, init
           </div>
           <div className="flex flex-wrap gap-4 text-sm">
             <label className="inline-flex items-center gap-2">
-              <input type="checkbox" checked={platforms.includes('instagram')} disabled={!page.igUserId} onChange={() => toggle('instagram')} /> Instagram{!page.igUserId ? ' (not linked)' : ''}
+              <input type="checkbox" checked={igLinked && platforms.includes('instagram')} disabled={!igLinked} onChange={() => toggle('instagram')} /> Instagram{!igLinked ? ' (not linked)' : ''}
             </label>
             <label className="inline-flex items-center gap-2">
               <input type="checkbox" checked={platforms.includes('facebook')} onChange={() => toggle('facebook')} /> Facebook
@@ -128,7 +132,9 @@ export function SocialPanel({ token, onboardingId, tier, configured, pages, init
 
       {posts.length ? (
         <ul className="mt-6 divide-y divide-neutral-100 rounded-xl border border-neutral-200">
-          {posts.map((p) => (
+          {posts.map((p) => {
+            const blocked = retryBlockedReason(p);
+            return (
             <li key={p.id} className="flex flex-wrap items-start justify-between gap-3 px-4 py-3 text-sm">
               <div className="min-w-0 flex-1">
                 <p className="font-semibold text-neutral-900">
@@ -139,6 +145,8 @@ export function SocialPanel({ token, onboardingId, tier, configured, pages, init
                   <p className="text-neutral-600">{p.reach != null ? `${p.reach.toLocaleString('en-US')} reached · ${(p.plays ?? 0).toLocaleString('en-US')} views` : 'Reach shows the day after posting'}</p>
                 ) : null}
                 {p.error ? <p className="text-amber-800">{p.error}</p> : null}
+                {p.status === 'failed' && blocked && blocked !== p.error ? <p className="text-amber-800">{blocked}</p> : null}
+                {p.status === 'failed' && blocked ? <p className="text-xs text-neutral-500">It will not be posted again from here. To post it anyway, upload it as a new post.</p> : null}
                 {p.permalink ? (
                   <a href={p.permalink} target="_blank" rel="noreferrer" className="text-blue-600 hover:text-blue-700">
                     Open post
@@ -147,7 +155,7 @@ export function SocialPanel({ token, onboardingId, tier, configured, pages, init
               </div>
               {p.status !== 'published' ? (
                 <div className="flex gap-2">
-                  {p.status !== 'scheduled' && at ? (
+                  {p.status !== 'scheduled' && at && !blocked ? (
                     <button type="button" disabled={busy !== null} onClick={() => run(`s${p.id}`, () => call('PATCH', { id: p.id, scheduledAt: new Date(at).toISOString() }))} className={btn('secondary', 'sm')}>
                       Schedule for {when(new Date(at).toISOString())}
                     </button>
@@ -158,7 +166,8 @@ export function SocialPanel({ token, onboardingId, tier, configured, pages, init
                 </div>
               ) : null}
             </li>
-          ))}
+            );
+          })}
         </ul>
       ) : null}
     </section>

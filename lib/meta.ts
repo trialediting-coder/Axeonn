@@ -366,9 +366,9 @@ export async function containerStatus(containerId: string, pageToken: string, f:
   return { code, detail: r.status ?? null };
 }
 
-/** POST /{ig-user-id}/media_publish creation_id → the published media id. */
-export async function publishContainer(input: { igUserId: string; pageToken: string; containerId: string }, f: FetchLike = fetch): Promise<string> {
-  const r = await graph<{ id: string }>(`/${encodeURIComponent(input.igUserId)}/media_publish`, { method: 'POST', token: input.pageToken, json: { creation_id: input.containerId } }, f);
+/** POST /{ig-user-id}/media_publish creation_id → the published media id. `timeoutMs` overrides graph()'s 10 s default. */
+export async function publishContainer(input: { igUserId: string; pageToken: string; containerId: string; timeoutMs?: number }, f: FetchLike = fetch): Promise<string> {
+  const r = await graph<{ id: string }>(`/${encodeURIComponent(input.igUserId)}/media_publish`, { method: 'POST', token: input.pageToken, json: { creation_id: input.containerId }, timeoutMs: input.timeoutMs }, f);
   return r.id;
 }
 
@@ -389,10 +389,10 @@ export async function mediaPermalink(mediaId: string, pageToken: string, f: Fetc
  * rupload.facebook.com, finish). Facebook surfaces short vertical videos as
  * reels either way.
  */
-export async function publishPageVideo(input: { pageId: string; pageToken: string; videoUrl: string; description: string }, f: FetchLike = fetch): Promise<string> {
+export async function publishPageVideo(input: { pageId: string; pageToken: string; videoUrl: string; description: string; timeoutMs?: number }, f: FetchLike = fetch): Promise<string> {
   const r = await graph<{ id: string }>(
     `/${encodeURIComponent(input.pageId)}/videos`,
-    { method: 'POST', token: input.pageToken, json: { file_url: input.videoUrl, description: input.description } },
+    { method: 'POST', token: input.pageToken, json: { file_url: input.videoUrl, description: input.description }, timeoutMs: input.timeoutMs },
     f
   );
   return r.id;

@@ -55,6 +55,8 @@ export interface SocialPost {
   plays: number | null;
   publishedAt: string | null;
   createdAt: string;
+  /** A publish call went out and Meta's answer was unclear (timeout, 5xx, no id): it may have posted, so it is never retried. */
+  publishUnclear: boolean;
 }
 
 /** What the client's PROOF Ads tab lists: published reels only. */

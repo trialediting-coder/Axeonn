@@ -81,3 +81,90 @@ export function toDashboardReel(p: SocialPost): DashboardReel | null {
   if (p.status !== 'published' || !p.publishedAt) return null;
   return { platform: p.platform, caption: p.caption, publishedAt: p.publishedAt, permalink: p.permalink, reach: p.reach, plays: p.plays };
 }
+
+// ---- Publishing safety (fix round 1) ----
+
+/** Facebook /videos and Instagram media_publish can take a while (Meta may fetch the file before answering), so they get longer than graph()'s 10 s. */
+export const PUBLISH_TIMEOUT_MS = 40_000;
+/** The cron stops starting new work after this long; app/api/cron/social maxDuration is 300 s. */
+export const CRON_STOP_AFTER_MS = 280_000;
+/** Worst case for one more post: create container + status + publish (40 s) + permalink, each Graph call capped. */
+export const PER_POST_BUDGET_MS = 75_000;
+/** Worst case for one insights refresh: reach,views then reach alone, 10 s each. */
+export const PER_INSIGHT_BUDGET_MS = 25_000;
+
+/** The note on a post whose publish call went out and got no clear answer. */
+export function unclearPublishNote(platform: SocialPlatform): string {
+  return platform === 'facebook' ? 'This may have posted. Check the Facebook page before you retry.' : 'This may have posted. Check the Instagram account before you retry.';
+}
+
+/**
+ * After a publish call fails: only a clear 4xx means Meta refused it ("not posted, safe to retry").
+ * A timeout or network error (status 0), a 5xx, or a 2xx without an id may have posted.
+ */
+export function publishOutcome(httpStatus: number): 'not_posted' | 'unclear' {
+  return httpStatus >= 400 && httpStatus < 500 ? 'not_posted' : 'unclear';
+}
+
+/** Whether a post that is being given up keeps its Instagram container: cleared only when Meta clearly refused it (a 4xx that is not a dead token). */
+export function keepContainerOnGiveUp(httpStatus: number, tokenInvalid: boolean): boolean {
+  return tokenInvalid || publishOutcome(httpStatus) === 'unclear';
+}
+
+/** Why a post may not be scheduled again (it went out, or may have), or null when a retry is safe. */
+export function retryBlockedReason(p: Pick<SocialPost, 'status' | 'remoteId' | 'publishUnclear' | 'platform'>): string | null {
+  if (p.status === 'published' || p.remoteId) return 'Already posted.';
+  if (p.publishUnclear) return unclearPublishNote(p.platform);
+  return null;
+}
+
+/** The channels a post can really go to: Instagram is dropped when the page has no linked Instagram account. */
+export function platformsForPage(platforms: readonly SocialPlatform[], page: { igUserId: string | null }): SocialPlatform[] {
+  const out = platforms.filter((p) => p !== 'instagram' || Boolean(page.igUserId));
+  if (!out.length) throw new Error('This Facebook page has no Instagram professional account linked. Choose Facebook, or link Instagram in Meta Business Suite and reconnect.');
+  return out;
+}
+
+export interface BoundedRun<T, R> {
+  now: () => number;
+  /** No item is started unless now() + perItemMs still fits before stopAt. */
+  stopAt: number;
+  perItemMs: number;
+  run: (item: T) => Promise<R>;
+  /** Records a failure on that item. If it throws too, `fallback` is used and the loop still goes on. */
+  onError: (item: T, err: unknown) => Promise<R>;
+  /** Called for each item left over when time runs out (release its lease). Errors are ignored. */
+  onSkip: (item: T) => Promise<void>;
+  fallback: R;
+}
+
+/** Runs items one by one so a throw on one never stops the rest, and stops before the time budget runs out. */
+export async function runBounded<T, R>(items: readonly T[], o: BoundedRun<T, R>): Promise<{ results: R[]; skipped: number }> {
+  const results: R[] = [];
+  let skipped = 0;
+  for (let i = 0; i < items.length; i++) {
+    if (o.now() + o.perItemMs > o.stopAt) {
+      for (const rest of items.slice(i)) {
+        skipped += 1;
+        try {
+          await o.onSkip(rest);
+        } catch {
+          // The lease runs out on its own.
+        }
+      }
+      break;
+    }
+    const item = items[i];
+    try {
+      results.push(await o.run(item));
+    } catch (err) {
+      try {
+        results.push(await o.onError(item, err));
+      } catch (inner) {
+        console.error('[social] could not record a failure', inner instanceof Error ? inner.message : String(inner));
+        results.push(o.fallback);
+      }
+    }
+  }
+  return { results, skipped };
+}
