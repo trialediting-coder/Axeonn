@@ -6,7 +6,7 @@ import { SMS_MAX_CHARS, TEXT_BACK_DEFAULT } from './phoneShared';
 import {
   DEFAULT_TEMPLATES, LEAD_ACTIONS, SEQUENCE_KINDS, STAGE_EFFECTS, STOP_LINE,
   buildDraftPrompt, clampSms, draftInputFrom, enableProblems, firstName, formatOffset, missingLinks, normalizeEmail,
-  parseDraftedTemplates, parseStageRequest, renderTemplate, sequenceEmailHtml, sequenceFromAddress, stageTapActive,
+  parseDraftedTemplates, parseStageRequest, renderTemplate, sequenceEmailHtml, sequenceEmailText, sequenceFromAddress, stageTapActive,
   templateVars, unknownPlaceholders, validateSequenceLinks, validateTemplate, withStopLine,
 } from './sequenceShared';
 
@@ -146,11 +146,21 @@ test('parseStageRequest and stageTapActive', () => {
 test('sequence emails come from the business via Axeon and escape everything', () => {
   assert.equal(sequenceFromAddress('Joe "The Roofer" <Co>', 'leads@axeonstudio.co'), '"Joe The Roofer Co via Axeon" <leads@axeonstudio.co>');
   assert.equal(sequenceFromAddress(null, 'leads@axeonstudio.co'), 'Axeon <leads@axeonstudio.co>');
-  const html = sequenceEmailHtml('Hi <b>Mike</b>,\n\nLine one\nLine two', 'A&B Plumbing');
+  const html = sequenceEmailHtml('Hi <b>Mike</b>,\n\nLine one\nLine two', 'A&B Plumbing', 'https://axeonstudio.co/u/t.s');
   assert.ok(html.includes('Hi &lt;b&gt;Mike&lt;/b&gt;,'));
   assert.ok(html.includes('Line one<br>Line two'));
   assert.ok(html.includes('A&amp;B Plumbing'));
   assert.ok(!html.includes('<b>'));
+});
+
+test('every sequence email ends with an unsubscribe link, in the HTML and the text', () => {
+  const url = 'https://axeonstudio.co/u/abc.def';
+  const html = sequenceEmailHtml('Hi Mike', 'A&B Plumbing', url);
+  assert.ok(html.includes('href="https://axeonstudio.co/u/abc.def"'));
+  assert.ok(/Unsubscribe/.test(html));
+  assert.ok(html.lastIndexOf('Unsubscribe') > html.indexOf('Hi Mike'));
+  assert.equal(sequenceEmailText('Hi Mike\n\nJoe', url), 'Hi Mike\n\nJoe\n\n--\nUnsubscribe from these emails: https://axeonstudio.co/u/abc.def');
+  assert.ok(sequenceEmailHtml('x', null, 'https://e.co/u/"><script>').includes('&quot;&gt;&lt;script&gt;'));
 });
 
 test('draftInputFrom reads the portal answers and ignores non-text values', () => {

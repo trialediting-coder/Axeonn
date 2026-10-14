@@ -10,6 +10,8 @@ import { WEEKDAY_LABELS, buttonLabel, campaignLabel, hourLabel, sourceLabel, typ
 import { TAGLINE, alwaysOnSentence, headlineSentence, reportHighlights } from '@/lib/reportCopy';
 import { TIER_LABELS, type OnboardingTier } from '@/data/onboardingItems';
 import { OUTLOOK_NOTE, SETUP_GUIDES, gmailUrl, type Mailbox } from '@/lib/businessEmailShared';
+import { sequenceEmailHtml, sequenceEmailText, sequenceFromAddress } from '@/lib/sequenceShared';
+import { isEmailOptedOut, unsubscribeUrl } from '@/lib/unsubscribe';
 
 const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_EMAIL;
 // Resend rejects sends from a domain that hasn't been verified in the
@@ -1277,4 +1279,42 @@ export async function sendAuditFailuresNotification(input: { failed: Array<{ nam
     html: `<p>The daily audit run could not measure:</p><ul>${rows}</ul><p>The job retries tomorrow. A budget message means AUDIT_MONTHLY_CAP_USD is used up; a login message means the DataForSEO keys in Vercel are wrong or the account is out of funds.</p>`,
   });
   return true;
+}
+
+// ─────────────────────────── Follow-up sequences ───────────────────────────
+
+// Same verified domain as every other Axeon email; the display name is the client's business.
+const SEQUENCE_FROM_ADDRESS = process.env.RESEND_SEQUENCE_FROM_EMAIL || 'leads@axeonstudio.co';
+
+/**
+ * One email step of a client's follow-up (lib/sequences.ts), from
+ * "<Business> via Axeon", with replies going to the client. Every one ends with
+ * an unsubscribe link (lib/unsubscribe.ts) and carries the one-click
+ * List-Unsubscribe headers. An address that unsubscribed from this client is
+ * not sent to: { id: null, skipped: 'opted_out' }. Throws when Resend is not
+ * configured, no link secret is set, or Resend rejects the send: a throw means it did not go out.
+ */
+export async function sendSequenceEmail(input: {
+  onboardingId: number;
+  businessName: string | null;
+  replyTo: string | null;
+  to: string;
+  subject: string;
+  body: string;
+}): Promise<{ id: string | null; skipped?: 'opted_out' }> {
+  if (await isEmailOptedOut(input.onboardingId, input.to)) return { id: null, skipped: 'opted_out' };
+  const unsubscribe = unsubscribeUrl(input.onboardingId, input.to);
+  if (!unsubscribe) throw new Error('Follow-up emails need TRACKING_SALT or AUTH_SECRET for the unsubscribe link');
+  const resend = requireClient('sequence_email');
+  const { data, error } = await resend.emails.send({
+    from: sequenceFromAddress(input.businessName, SEQUENCE_FROM_ADDRESS),
+    replyTo: input.replyTo || CLIENT_REPLY_TO,
+    to: input.to,
+    subject: input.subject,
+    html: sequenceEmailHtml(input.body, input.businessName, unsubscribe),
+    text: sequenceEmailText(input.body, unsubscribe),
+    headers: { 'List-Unsubscribe': `<${unsubscribe}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' },
+  });
+  if (error) throw new Error(`Resend rejected the email: ${error.message}`);
+  return { id: data?.id ?? null };
 }

@@ -12,6 +12,7 @@ export const EMAIL_CATEGORIES = {
   account: 'Codes & passwords',
   alerts: 'Alerts to you',
   leads: 'Client lead alerts',
+  followups: 'Lead follow-ups',
 } as const;
 export type EmailCategory = keyof typeof EMAIL_CATEGORIES;
 
@@ -42,6 +43,7 @@ export const EMAIL_KINDS = {
   audit_failed: { label: 'Scheduled audit failed', category: 'alerts' },
   blog_draft_ready: { label: 'Blog draft ready', category: 'alerts' },
   blog_generation_failed: { label: 'Blog generation failed', category: 'alerts' },
+  sequence_email: { label: 'Follow-up email to a lead', category: 'followups' },
 } as const satisfies Record<string, { label: string; category: EmailCategory }>;
 export type EmailKind = keyof typeof EMAIL_KINDS;
 

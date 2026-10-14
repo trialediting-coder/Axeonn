@@ -14,6 +14,11 @@ test('onboarding and contracts group the right emails', () => {
   assert.deepEqual(kindsInCategory('contracts'), ['agreement_sent', 'agreement_signed', 'agreement_signed_alert']);
 });
 
+test("follow-up emails to a client's leads get their own group", () => {
+  assert.deepEqual(kindsInCategory('followups'), ['sequence_email']);
+  assert.equal(emailKindLabel('sequence_email'), 'Follow-up email to a lead');
+});
+
 test('setup codes never reach the log', () => {
   assert.equal(loggedSubject('verification_code', '482913 is your Axeon setup code'), '•••••• is your Axeon setup code');
   assert.equal(loggedSubject('project_update', 'Update #12345: new page'), 'Update #12345: new page');

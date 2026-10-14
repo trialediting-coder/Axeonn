@@ -354,14 +354,23 @@ export function sequenceFromAddress(businessName: string | null, address: string
   return name ? `"${name} via Axeon" <${address}>` : `Axeon <${address}>`;
 }
 
-/** Plain, unbranded HTML: these emails come from the client's business, not from Axeon. */
-export function sequenceEmailHtml(body: string, businessName: string | null): string {
+/**
+ * Plain, unbranded HTML: these emails come from the client's business, not from
+ * Axeon. Every one ends with the unsubscribe link (lib/unsubscribe.ts).
+ */
+export function sequenceEmailHtml(body: string, businessName: string | null, unsubscribeUrl: string): string {
   const paragraphs = body
     .split(/\n{2,}/)
     .map((p) => `<p style="margin:0 0 14px">${escapeHtml(p).replace(/\n/g, '<br>')}</p>`)
     .join('');
   const biz = escapeHtml(businessName?.trim() || 'this business');
-  return `<div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#0a0a0a;line-height:1.55;font-size:15px">${paragraphs}<p style="margin:28px 0 0;font-size:12px;color:#737373">You are getting this because you contacted ${biz}. Reply to this email to reach them directly.</p></div>`;
+  const unsubscribe = `<a href="${escapeHtml(unsubscribeUrl)}" style="color:#737373">Unsubscribe</a> from these emails.`;
+  return `<div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#0a0a0a;line-height:1.55;font-size:15px">${paragraphs}<p style="margin:28px 0 0;font-size:12px;color:#737373">You are getting this because you contacted ${biz}. Reply to this email to reach them directly. ${unsubscribe}</p></div>`;
+}
+
+/** The plain-text part: the body, then the unsubscribe link. */
+export function sequenceEmailText(body: string, unsubscribeUrl: string): string {
+  return `${body}\n\n--\nUnsubscribe from these emails: ${unsubscribeUrl}`;
 }
 
 // ─────────────────────────── Draft with Claude ───────────────────────────

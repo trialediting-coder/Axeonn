@@ -513,6 +513,77 @@ export function ensureSchema(): Promise<void> {
       `;
       await sql`ALTER TABLE plan_items ADD COLUMN IF NOT EXISTS start JSONB;`;
       await sql`CREATE INDEX IF NOT EXISTS plan_items_onboarding_idx ON plan_items (onboarding_id, status);`;
+      // Follow-up sequences (lib/sequences.ts, slice 3): per-client templates,
+      // one run per contact per kind, the past-customer list for the quarterly
+      // check-in, and email unsubscribes (lib/unsubscribe.ts). Review and booking
+      // links live on the client row. sms_sent_count > 0 means a text of this run
+      // has gone out, so later texts may drop the STOP line (decideRun priorSmsSent).
+      await sql`
+        CREATE TABLE IF NOT EXISTS sequence_templates (
+          id SERIAL PRIMARY KEY,
+          onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+          kind TEXT NOT NULL CHECK (kind IN ('new_lead', 'quote', 'reminder', 'review', 'reactivation')),
+          steps JSONB NOT NULL,
+          enabled BOOLEAN NOT NULL DEFAULT false,
+          drafted_by TEXT NOT NULL DEFAULT 'axeon' CHECK (drafted_by IN ('axeon', 'claude')),
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          UNIQUE (onboarding_id, kind)
+        );
+      `;
+      await sql`
+        CREATE TABLE IF NOT EXISTS sequence_runs (
+          id BIGSERIAL PRIMARY KEY,
+          onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+          kind TEXT NOT NULL CHECK (kind IN ('new_lead', 'quote', 'reminder', 'review', 'reactivation')),
+          contact_phone TEXT,
+          contact_email TEXT,
+          contact_name TEXT NOT NULL DEFAULT '',
+          ref_table TEXT NOT NULL,
+          ref_id BIGINT NOT NULL,
+          step INTEGER NOT NULL DEFAULT 0,
+          anchor_at TIMESTAMPTZ NOT NULL,
+          next_at TIMESTAMPTZ NOT NULL,
+          status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'done', 'stopped')),
+          stop_reason TEXT,
+          attempts INTEGER NOT NULL DEFAULT 0,
+          last_error TEXT,
+          sent_count INTEGER NOT NULL DEFAULT 0,
+          sms_sent_count INTEGER NOT NULL DEFAULT 0,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          UNIQUE (onboarding_id, kind, ref_table, ref_id)
+        );
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS sequence_runs_due_idx ON sequence_runs (status, next_at);`;
+      await sql`CREATE UNIQUE INDEX IF NOT EXISTS sequence_runs_active_phone_idx ON sequence_runs (onboarding_id, kind, contact_phone) WHERE status = 'active' AND contact_phone IS NOT NULL;`;
+      await sql`CREATE UNIQUE INDEX IF NOT EXISTS sequence_runs_active_email_idx ON sequence_runs (onboarding_id, kind, contact_email) WHERE status = 'active' AND contact_email IS NOT NULL;`;
+      await sql`
+        CREATE TABLE IF NOT EXISTS past_customers (
+          id SERIAL PRIMARY KEY,
+          onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+          name TEXT NOT NULL DEFAULT '',
+          phone TEXT NOT NULL,
+          email TEXT,
+          last_job_at DATE,
+          consent_attested_at TIMESTAMPTZ,
+          source TEXT NOT NULL DEFAULT 'csv',
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          UNIQUE (onboarding_id, phone)
+        );
+      `;
+      await sql`
+        CREATE TABLE IF NOT EXISTS email_opt_outs (
+          onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+          email TEXT NOT NULL,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          PRIMARY KEY (onboarding_id, email)
+        );
+      `;
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS review_link TEXT;`;
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS booking_link TEXT;`;
+      await sql`ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS stage TEXT NOT NULL DEFAULT 'new' CHECK (stage IN ('new', 'contacted', 'booked', 'won', 'lost'));`;
+      await sql`ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS quote_sent_at TIMESTAMPTZ;`;
+      await sql`ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS stage_changed_at TIMESTAMPTZ;`;
     })().catch((err) => {
       schemaReady = null; // let the next request retry
       throw err;
