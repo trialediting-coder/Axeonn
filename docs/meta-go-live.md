@@ -118,6 +118,11 @@ First live test, one per channel:
       run twice if Instagram is still processing): both posts show "Posted" and the reel is on
       the test Instagram and the page. The next day the Instagram row shows reach, and the
       client's PROOF Ads tab lists it under "Reels we posted for you".
+- [ ] **Large Facebook reel:** schedule one Facebook reel over about 50 MB. Facebook may take
+      longer than 40 seconds to fetch it, so the first run can mark it "This may have
+      posted". Expected: within a run or two it shows "Posted" (the cron finds it on the
+      page by its caption). If it does not, check the page and press "It posted" or "Allow
+      a retry" on the admin card.
 - [ ] **Disconnect:** press Disconnect on the admin card. Expected: the card empties and a new
       DM no longer arrives.
 - [ ] **Deauthorize:** reconnect, then remove the app from the connecting account's Facebook
@@ -152,6 +157,11 @@ one-paragraph use description and a screencast:
 | `pages_manage_posts` | Axeon posts the same video to the business's Facebook page. | The same post live on the page. |
 | `instagram_manage_insights` | We show the business how many people each reel reached. | The PROOF Ads tab "Reels we posted for you" with reach. |
 
+- [ ] **Graph API version.** Every call uses `GRAPH_VERSION` in `lib/meta.ts` (now `v21.0`).
+      Before submitting, look up the newest stable version on Meta's changelog
+      (developers.facebook.com/docs/graph-api/changelog), set `GRAPH_VERSION` to it, read
+      that version's breaking changes for the endpoints we use (messages, `/videos`, reels
+      containers, insights), and run `npm run test:meta`.
 - [ ] Record the screencast(s): 1080p, captions on, under 5 minutes each, with the test page.
       One video can cover all nine if each permission is clearly shown being used; Meta
       rejects videos that skip the login dialog or do not show the permission in use.
@@ -185,5 +195,9 @@ one-paragraph use description and a screencast:
 
 - [ ] In `docs/onboarding.md` ("Facebook and Instagram") and at the top of this file, replace
       "UNVERIFIED until Meta App Review approves" with "Approved by Meta on <date>".
+- [ ] Put a calendar reminder for when our Graph version stops being supported (Meta lists
+      each version's end date on the changelog; v21.0 is expected to end around early 2027).
+      About two months before that date, raise `GRAPH_VERSION` as in section F, run
+      `npm run test:meta`, and repeat the Messenger, Instagram and reels checks in section E.
 - [ ] For the first real client: connect their page with them on the phone, ask them to send
       one test message from a personal account, and confirm it lands in their inbox.

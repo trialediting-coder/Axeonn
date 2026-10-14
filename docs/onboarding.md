@@ -1012,10 +1012,19 @@ message that fails to record is retried once; if it fails again it is logged as
 `[meta:inbound] LOST` with its ids (never a token) so it can be found in the logs. Messages
 to an Essentials client are dropped (no inbox). The client's reply goes back through
 Facebook only within 24 hours of the person's last message; after that the reply box says
-so and offers a text when we have their number. Replies are capped at 2,000 characters on
-Messenger and 1,000 bytes (UTF-8) on Instagram. If Facebook refuses for a token or
-permission reason, the box says the page needs reconnecting (an expired token also marks
-the page `needs_reconnect`) and never suggests texting instead.
+so and offers a text when one could really go out (a phone number, not opted out, texting
+on for the client). Replies are capped at 2,000 characters on Messenger and 1,000 bytes
+(UTF-8) on Instagram. If Facebook refuses for a token or permission reason, the box says
+the page needs reconnecting and, under the same rule, offers a text instead. An expired
+token (Graph code 190) marks the page `needs_reconnect` wherever it shows up: a reply, the
+sender's name lookup, a reel, or the daily reach refresh. A DM with only a photo or sticker
+shows as "Sent a photo" / "Sent an attachment".
+
+**One person, two contacts (v1).** DM contacts are keyed by the page-scoped id Meta gives
+us; Meta never shares the person's phone or email. So if someone who messaged the page
+later calls, texts or fills in the site form, they appear as a separate contact, and their
+Messenger and Instagram threads are separate contacts too. Nothing merges them
+automatically in v1.
 
 **Reels (AxeonGROWTH).** On the admin Reels card: upload the video (MP4 or MOV, up to
 300 MB; the browser uploads straight to Vercel Blob with `@vercel/blob` 2.8.0, which needs
@@ -1023,7 +1032,12 @@ the page `needs_reconnect`) and never suggests texting instead.
 are checked as you type), tick Instagram and/or Facebook, and pick a time within 60 days.
 The hourly cron posts up to five due reels a run. Instagram works through a container: the
 cron creates it, checks it once per run (it never waits inside one) and publishes when it
-is FINISHED. Facebook is one `/videos` call. A post gets three tries. The cron refreshes
+is FINISHED. Facebook is one `/videos` call. A post gets three tries. A publish call that
+gets no clear answer (a timeout, a 5xx) is never sent again on its own: the post shows
+"This may have posted". Each hourly run checks it again: Instagram from the container
+(published means posted; error or expired means safe to retry), Facebook by finding one
+page video with the exact caption near the scheduled time. The admin card also has two
+buttons on such a post: "It posted" and "Allow a retry" (posts on the next run). The cron refreshes
 Instagram reach and views (`reach,views`; Meta retired `plays` in April 2025, and the
 stored column is still named `plays`) about once a day for 90 days, 25 posts a run. The
 client sees posted reels with reach on their PROOF Ads tab ("Reels we posted for you").
