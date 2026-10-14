@@ -16,7 +16,7 @@
     "test:paylinks": "tsx --test lib/payLinks.test.ts",
     "test:get-started": "tsx --test lib/getStarted.test.ts",
     "test:phone": "tsx --test lib/timeout.test.ts lib/phoneShared.test.ts lib/twilio.test.ts lib/phoneTwiml.test.ts lib/phoneLines.test.ts lib/phoneWebhook.test.ts",
-    "test:meta": "tsx --test lib/secretBox.test.ts",
+    "test:meta": "tsx --test lib/secretBox.test.ts lib/metaShared.test.ts",
     "test:booking": "tsx --test lib/bookingShared.test.ts lib/bookingPage.test.ts",
     "test:chat": "tsx --test lib/chatCrawl.test.ts lib/chatShared.test.ts lib/chatLoop.test.ts lib/chatTools.test.ts",
     "test:inbox": "tsx --test lib/contactsShared.test.ts lib/contacts.test.ts lib/inboxReply.test.ts lib/pushShared.test.ts",
