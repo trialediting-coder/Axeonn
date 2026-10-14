@@ -6,7 +6,7 @@ import {
   canReplyNow, cleanName, contactKeyFor, decodeCursor, encodeCursor, eventSummary, inboxEnabled, isLeadActivity, maskEmail,
   mergeDecision, messageEventKind, nextSystemStage, noteForAction, outcomeForStage, parseContactId, quietNotice, relativeWhen,
   replyBlocker, sequenceEffects, shortName, sourceForKind, systemStageFor, textingState, toDashboardContact, toDashboardEvent,
-  validateReplyBody, QUIET_WINDOW, type Contact, type ContactEvent,
+  validateReplyBody, heldReplyStatus, QUIET_WINDOW, type Contact, type ContactEvent,
 } from './contactsShared';
 import { LEAD_ACTIONS, STAGE_EFFECTS } from './sequenceShared';
 
@@ -248,4 +248,14 @@ test('the inbox is AxeonCORE and up', () => {
   assert.equal(inboxEnabled('essentials'), false);
   assert.equal(inboxEnabled('axeoncore'), true);
   assert.equal(inboxEnabled('axeongrowth'), true);
+});
+
+test('heldReplyStatus: an interrupted or unclear send reads "may have gone out", never "did not go out"', () => {
+  assert.equal(heldReplyStatus('held', null), 'held');
+  assert.equal(heldReplyStatus('sending', null), 'held');
+  assert.equal(heldReplyStatus('failed', 'interrupted'), 'unclear');
+  assert.equal(heldReplyStatus('failed', 'unclear: socket hang up'), 'unclear');
+  assert.equal(heldReplyStatus('failed', 'Twilio 21610'), 'failed');
+  assert.equal(heldReplyStatus('failed', 'no_phone'), 'failed');
+  assert.equal(heldReplyStatus('failed', null), 'failed');
 });

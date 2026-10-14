@@ -130,7 +130,7 @@ export async function processHeldRow(r: Pick<ClaimedRow, 'onboarding_id' | 'cont
  * send one twice. A row still 'sending' HELD_STALE_MINUTES after its claim was
  * interrupted (a crash or timeout mid-send): nothing says the text did not
  * leave, so by slice 3's rule it is unclear and becomes 'failed', never re-sent;
- * the client sees "did not go out" and can send it again. The gates run again
+ * the client sees "may have gone out, check the thread". The gates run again
  * inside sendClientSms: someone who texted STOP overnight is not texted, and a
  * line whose carrier approval lapsed sends nothing. Each row goes through
  * processHeldRow: quiet hours are checked again (re-held to 8 am), and a failed

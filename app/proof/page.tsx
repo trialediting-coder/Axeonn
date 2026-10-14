@@ -1,6 +1,7 @@
 // app/proof/page.tsx
 // app.axeonstudio.co: the AxeonPROOF welcome / sign-in page, or the client's
-// dashboard once they are signed in.
+// dashboard once they are signed in. ?contact=<id> opens one lead in the inbox
+// (the link a lead notification opens).
 import { getSignedInClient } from '@/lib/proofServer';
 import { getOnboardingById } from '@/lib/onboarding';
 import { ProofAuthShell } from '@/components/proof/ProofAuthShell';
@@ -8,11 +9,12 @@ import { SignInForm } from '@/components/proof/ProofForms';
 import { ProofDashboard } from '@/components/proof/ProofDashboard';
 import { loadDashboardData } from '@/lib/proofDashboardData';
 import { isProofTab } from '@/lib/proofTabs';
+import { parseContactId } from '@/lib/contactsShared';
 
 export const dynamic = 'force-dynamic';
 
-export default async function ProofPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
-  const { tab } = await searchParams;
+export default async function ProofPage({ searchParams }: { searchParams: Promise<{ tab?: string; contact?: string }> }) {
+  const { tab, contact } = await searchParams;
   const account = await getSignedInClient();
   const onboarding = account ? await getOnboardingById(account.onboardingId).catch(() => null) : null;
 
@@ -25,5 +27,16 @@ export default async function ProofPage({ searchParams }: { searchParams: Promis
   }
 
   const key = isProofTab(tab) ? tab : 'overview';
-  return <ProofDashboard email={account.email} {...(await loadDashboardData(onboarding, key))} leadApi="/api/proof/leads" stageApi="/api/proof/leads/stage" scanApi="/api/proof/scan" tab={key} />;
+  const data = await loadDashboardData(onboarding, key, { contactId: parseContactId(contact) });
+  return (
+    <ProofDashboard
+      email={account.email}
+      {...data}
+      leadApi="/api/proof/leads"
+      stageApi="/api/proof/leads/stage"
+      inboxApi="/api/proof/inbox"
+      scanApi="/api/proof/scan"
+      tab={key}
+    />
+  );
 }

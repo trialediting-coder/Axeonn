@@ -5,12 +5,30 @@
 // set a stage; they do not toggle off. Job done asks first: it sends a review
 // request. With no api (the admin "View as client" page) the taps are read-only
 // chips that still show where the lead stands.
+// The leads inbox (slice 4) reuses it with target="contact": the same taps post
+// { contactId, action }, and onSaved lets the inbox refresh its list.
 'use client';
 
 import { useState } from 'react';
 import { LEAD_ACTIONS, LEAD_ACTION_LABELS, STAGE_EFFECTS, stageTapActive, type LeadAction, type LeadStage, type SequenceKind } from '@/lib/sequenceShared';
 
-export function LeadStageTaps({ id, stage, quoteSent: initialQuoteSent, api }: { id: number; stage: LeadStage; quoteSent: boolean; api: string | null }) {
+export function LeadStageTaps({
+  id,
+  stage,
+  quoteSent: initialQuoteSent,
+  api,
+  target = 'form',
+  onSaved,
+}: {
+  id: number;
+  stage: LeadStage;
+  quoteSent: boolean;
+  api: string | null;
+  /** 'form' posts { id, action } (a form lead, slice 3); 'contact' posts { contactId, action } (an inbox contact, slice 4). */
+  target?: 'form' | 'contact';
+  /** Called after a tap saved, e.g. to refresh the inbox list. */
+  onSaved?: () => void;
+}) {
   const [current, setCurrent] = useState<{ stage: LeadStage; quoteSent: boolean }>({ stage, quoteSent: initialQuoteSent });
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
@@ -25,7 +43,7 @@ export function LeadStageTaps({ id, stage, quoteSent: initialQuoteSent, api }: {
     setProblem(null);
     setNote(null);
     try {
-      const res = await fetch(api, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, action }) });
+      const res = await fetch(api, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(target === 'contact' ? { contactId: id, action } : { id, action }) });
       const data = (await res.json().catch(() => ({}))) as { error?: string; warning?: string; started?: SequenceKind[] };
       if (!res.ok) throw new Error(data.error ?? `Request failed (${res.status})`);
       const started = data.started ?? [];
@@ -33,6 +51,7 @@ export function LeadStageTaps({ id, stage, quoteSent: initialQuoteSent, api }: {
       if (data.warning) setProblem(data.warning);
       else if (started.includes('quote')) setNote('Quote follow-up is on. It stops as soon as they reply.');
       else if (started.includes('review')) setNote('The review request goes out in about two hours.');
+      onSaved?.();
     } catch (err) {
       setCurrent(before);
       setProblem(err instanceof Error ? err.message : 'Could not save that');

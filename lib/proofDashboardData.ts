@@ -13,7 +13,10 @@ import { CLIENT_REPLY_TO } from '@/lib/email';
 import { getUpgradeRequest } from '@/lib/upgrades';
 import { businessEmailForDashboard } from '@/lib/businessEmail';
 import { callsSummary, getLine, recentCalls } from '@/lib/phoneLines';
-import { toDashboardCall, type CallsSummary, type DashboardCall } from '@/lib/phoneShared';
+import { DEFAULT_TIME_ZONE, toDashboardCall, type CallsSummary, type DashboardCall } from '@/lib/phoneShared';
+import { attachedClickIds, contactTimeline, listInbox } from '@/lib/contacts';
+import { inboxEnabled, textingState, type DashboardInbox } from '@/lib/contactsShared';
+import { isPushConfigured } from '@/lib/push';
 import { listSubmissions } from '@/lib/leads';
 import { toDashboardSubmission } from '@/lib/leadShared';
 import type { ProofTabKey } from '@/lib/proofTabs';
@@ -33,10 +36,10 @@ export interface DashboardPhone {
   recent: DashboardCall[];
 }
 
-export type DashboardData = Omit<ComponentProps<typeof ProofDashboard>, 'email' | 'preview' | 'leadApi' | 'tab'>;
+export type DashboardData = Omit<ComponentProps<typeof ProofDashboard>, 'email' | 'preview' | 'leadApi' | 'inboxApi' | 'tab'>;
 
 /** `tab` decides what is worth fetching: Stripe is only read for the Billing tab, DNS only for the Email tab. */
-export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey = 'overview'): Promise<DashboardData> {
+export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey = 'overview', opts: { contactId?: number | null } = {}): Promise<DashboardData> {
   const month = monthOf();
   const previous = previousMonth(month);
   const [states, details, updates, reports, agreement, tracking, thisLeads, lastLeads, upgradeRequest, billing, businessEmail, auditSettings, audits, scansUsed, plan, line] = await Promise.all([
@@ -88,11 +91,13 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
       : null;
   // This month straight from the tracker, so the overview is never blank between reports
   // (and never blank before the first report, which is the first thing a new client sees).
+  // AxeonCORE and up get the leads inbox, where every form is a contact; the separate form list is Essentials' view.
+  const inboxOn = inboxEnabled(onboarding.tier);
   const [thisMonth, lastMonth, thisForms, lastForms] = await Promise.all([
     monthTraffic(onboarding.id, month, effectiveCloseRate(tracking)),
     monthTraffic(onboarding.id, previous, effectiveCloseRate(tracking)),
-    listSubmissions(onboarding.id, month),
-    listSubmissions(onboarding.id, previous),
+    inboxOn ? Promise.resolve([]) : listSubmissions(onboarding.id, month),
+    inboxOn ? Promise.resolve([]) : listSubmissions(onboarding.id, previous),
   ]);
   const phone: DashboardPhone | null = line
     ? await (async () => {
@@ -100,6 +105,21 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
         return { number: line.phoneNumber, textBack: line.smsStatus === 'ready' && line.textBackEnabled, thisMonth: tm, lastMonth: lm, recent: recent.map(toDashboardCall) };
       })()
     : null;
+  // The leads inbox: loaded only for the Leads tab; ?contact=<id> opens one person.
+  const inbox: DashboardInbox | null =
+    inboxOn && tab === 'leads'
+      ? await (async (): Promise<DashboardInbox> => {
+          const [list, selected] = await Promise.all([
+            listInbox(onboarding.id, { limit: 50 }),
+            opts.contactId ? contactTimeline(onboarding.id, opts.contactId) : Promise.resolve(null),
+          ]);
+          return { ...list, selected, timeZone: line?.timeZone ?? DEFAULT_TIME_ZONE, texting: textingState(line) };
+        })()
+      : null;
+  // Taps already matched to a caller live in the inbox; the anonymous list keeps the rest.
+  const attached = inboxOn && tab === 'leads' ? await attachedClickIds(onboarding.id, [...thisLeads, ...lastLeads].map((r) => r.id)) : new Set<number>();
+  // The VAPID public key (lib/push.ts), only when push is set up and the plan has the inbox.
+  const pushKey = inboxOn && isPushConfigured() ? (process.env.WEB_PUSH_PUBLIC_KEY ?? null) : null;
   return {
     onboarding,
     progress: computeProgress(onboarding.tier, states),
@@ -117,8 +137,8 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
     ownVisitsUrl: ownVisitsUrl(tracking.siteUrl),
     // Live from the events table, not the saved report, so a lead shows up the day it happens.
     leads: [
-      { month, label: `${monthLabel(month)} so far`, rows: thisLeads },
-      { month: previous, label: monthLabel(previous), rows: lastLeads },
+      { month, label: `${monthLabel(month)} so far`, rows: thisLeads.filter((r) => !attached.has(r.id)) },
+      { month: previous, label: monthLabel(previous), rows: lastLeads.filter((r) => !attached.has(r.id)) },
     ],
     // Website form messages (slice 2), pre-masked: no raw phone, email or message reaches the page.
     forms: [
@@ -130,6 +150,8 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
     businessEmail,
     ownerEmail: CLIENT_REPLY_TO,
     phone,
+    inbox,
+    pushKey,
     ranking,
     live: hasTraffic(thisMonth) ? { month, traffic: thisMonth, prev: hasTraffic(lastMonth) ? lastMonth : null } : null,
   };

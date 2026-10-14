@@ -16,7 +16,7 @@ import { ensureSchema, isDatabaseConfigured, sql } from '@/lib/db';
 import { errText, iso, type DbId, type DbTime } from '@/lib/dbRows';
 import { setLeadOutcome } from '@/lib/siteStats';
 import {
-  CLICK_ATTACH_MINUTES, cleanName, contactKeyFor, encodeCursor, eventSummary, isLeadActivity, mergeDecision, messageEventKind,
+  CLICK_ATTACH_MINUTES, cleanName, contactKeyFor, encodeCursor, eventSummary, heldReplyStatus, isLeadActivity, mergeDecision, messageEventKind,
   nextSystemStage, noteForAction, outcomeForStage, sequenceEffects, sourceForKind, systemStageFor, toDashboardContact, toDashboardEvent,
   type Contact, type ContactEvent, type ContactEventKind, type ContactSource, type DashboardContact, type DashboardContactView,
   type EventPayload, type SystemStage,
@@ -743,8 +743,8 @@ export async function contactTimeline(onboardingId: number, contactId: number): 
       SELECT * FROM (
         SELECT * FROM contact_events WHERE contact_id = ${contactId} AND onboarding_id = ${onboardingId} ORDER BY created_at DESC, id DESC LIMIT 300
       ) t ORDER BY created_at ASC, id ASC;`,
-    sql<{ id: DbId; body: string; send_at: DbTime; status: 'held' | 'sending' | 'failed' }>`
-      SELECT id, body, send_at, status FROM held_replies
+    sql<{ id: DbId; body: string; send_at: DbTime; status: 'held' | 'sending' | 'failed'; error: string | null }>`
+      SELECT id, body, send_at, status, error FROM held_replies
       WHERE contact_id = ${contactId} AND onboarding_id = ${onboardingId}
         AND (status IN ('held', 'sending') OR (status = 'failed' AND created_at > now() - interval '7 days'))
       ORDER BY send_at;`,
@@ -755,7 +755,7 @@ export async function contactTimeline(onboardingId: number, contactId: number): 
   return {
     contact: toDashboardContact(contact, lastLead ? { kind: lastLead.kind, summary: lastLead.summary } : null, opted.rows.length > 0),
     events: list.map(toDashboardEvent),
-    held: held.rows.map((h) => ({ id: Number(h.id), body: h.body, sendAt: iso(h.send_at), status: h.status === 'failed' ? 'failed' : 'held' })),
+    held: held.rows.map((h) => ({ id: Number(h.id), body: h.body, sendAt: iso(h.send_at), status: heldReplyStatus(h.status, h.error) })),
   };
 }
 

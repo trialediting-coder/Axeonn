@@ -30,6 +30,9 @@ import { AxeonLogo } from '@/components/brand/AxeonLogo';
 import { ActiveTabIntoView } from '@/components/proof/ActiveTabIntoView';
 import { LeadLog, type LeadMonth } from '@/components/proof/LeadLog';
 import { FormLeads, type FormMonth } from '@/components/proof/FormLeads';
+import { InboxTab } from '@/components/proof/InboxTab';
+import { NotificationsButton } from '@/components/proof/NotificationsButton';
+import type { DashboardInbox } from '@/lib/contactsShared';
 import { BillingTab } from '@/components/proof/BillingTab';
 import { CallsTab } from '@/components/proof/CallsTab';
 import type { DashboardPhone } from '@/lib/proofDashboardData';
@@ -298,6 +301,9 @@ export function ProofDashboard({
   billing = null,
   businessEmail = null,
   phone = null,
+  inbox = null,
+  inboxApi = null,
+  pushKey = null,
   ownerEmail = 'hello@axeonstudio.co',
   ranking = null,
   scanApi = null,
@@ -341,6 +347,12 @@ export function ProofDashboard({
   businessEmail?: BusinessEmailSetup | null;
   /** The client's tracked number and calls; null until a line is provisioned (lib/proofDashboardData.ts). */
   phone?: DashboardPhone | null;
+  /** The leads inbox for AxeonCORE and up, loaded for the Leads tab only (lib/proofDashboardData.ts). Null: today's Leads tab. */
+  inbox?: DashboardInbox | null;
+  /** Where the inbox calls home: '/api/proof/inbox' on the client's page; null in the admin preview (read-only). */
+  inboxApi?: string | null;
+  /** VAPID public key when push is set up and the plan has the inbox; shows "Turn on notifications". */
+  pushKey?: string | null;
   /** Where billing questions go before the first invoice exists. */
   ownerEmail?: string;
   /** The client's Google standing and scan allowance (lib/proofDashboardData.ts); null when their plan has no scans. */
@@ -498,6 +510,7 @@ export function ProofDashboard({
             <h1 className="mt-0.5 text-xl font-bold leading-tight tracking-tight text-neutral-950 sm:text-2xl">{name}</h1>
           </div>
           <div className="flex items-center gap-2">
+            {pushKey && !preview ? <NotificationsButton publicKey={pushKey} /> : null}
             <span className="inline-flex items-center rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-neutral-700 ring-1 ring-neutral-200">
               {onboarding.tier === 'essentials' ? planLabel : <AxeonLogo product={TIER_SHORT[onboarding.tier]} size="sm" mark={false} />}
             </span>
@@ -532,6 +545,25 @@ export function ProofDashboard({
 
         {tab !== 'overview' ? (
           tab === 'leads' ? (
+            inbox ? (
+              <div className="mt-6">
+                <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Included in your plan</p>
+                <h2 className="mt-3 text-2xl font-bold tracking-tight text-neutral-950">Leads</h2>
+                <p className="mt-2 max-w-2xl text-sm text-neutral-600">
+                  Everyone who called, texted or sent your form, newest first. Tap a person to see everything from them, mark how it went, and text them back from your tracked number.
+                </p>
+                <InboxTab inbox={inbox} api={preview ? null : inboxApi} stageApi={preview ? null : stageApi} />
+                {leads.some((m) => m.rows.length > 0) ? (
+                  <div className="mt-10">
+                    <h3 className="text-base font-semibold text-neutral-950">Website taps we could not match to a caller</h3>
+                    <p className="mt-1 max-w-2xl text-sm text-neutral-600">
+                      Someone tapped a button on your site, but no call or text from a new number followed within 10 minutes. Mark the ones that became customers.
+                    </p>
+                    <LeadLog months={leads} api={leadApi} />
+                  </div>
+                ) : null}
+              </div>
+            ) : (
             <div className="mt-6">
               <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Included in your plan</p>
               <h2 className="mt-3 text-2xl font-bold tracking-tight text-neutral-950">Leads</h2>
@@ -546,6 +578,7 @@ export function ProofDashboard({
                 </Card>
               )}
             </div>
+            )
           ) : tab === 'email' ? (
             <EmailTab setup={businessEmail} tier={onboarding.tier} preview={!!preview} />
           ) : tab === 'billing' ? (

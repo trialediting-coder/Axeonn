@@ -419,13 +419,30 @@ export function toDashboardEvent(e: ContactEvent): DashboardEvent {
   };
 }
 
-/** A reply typed in quiet hours, waiting for 8 am; or one that did not go out. */
+/**
+ * A reply typed in quiet hours, waiting for 8 am ('held'); one that definitely
+ * did not go out ('failed'); or one whose send was cut off or came back unclear
+ * ('unclear': it may have gone out, so the client checks the thread, never "did
+ * not go out").
+ */
 export interface HeldReply {
   id: number;
   body: string;
   sendAt: string;
-  status: 'held' | 'failed';
+  status: 'held' | 'failed' | 'unclear';
 }
+
+/** A held_replies row's status and error as the Leads tab shows it (lib/inboxReply.ts writes 'interrupted' and 'unclear: …'). */
+export function heldReplyStatus(status: string, error: string | null): HeldReply['status'] {
+  if (status !== 'failed') return 'held';
+  if (error === 'interrupted' || error?.startsWith('unclear:')) return 'unclear';
+  return 'failed';
+}
+
+export const HELD_REPLY_COPY = {
+  failed: 'This text did not go out. Send it again from the box below.',
+  unclear: 'This text may have gone out. Check the thread before you send it again.',
+} as const;
 
 export interface DashboardContactView {
   contact: DashboardContact;

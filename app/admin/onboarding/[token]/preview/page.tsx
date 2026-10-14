@@ -9,18 +9,19 @@ import { getOnboardingByToken } from '@/lib/onboarding';
 import { ProofDashboard } from '@/components/proof/ProofDashboard';
 import { loadDashboardData } from '@/lib/proofDashboardData';
 import { isProofTab } from '@/lib/proofTabs';
+import { parseContactId } from '@/lib/contactsShared';
 
 export const dynamic = 'force-dynamic';
 
-export default async function ClientPreviewPage({ params, searchParams }: { params: Promise<{ token: string }>; searchParams: Promise<{ tab?: string }> }) {
+export default async function ClientPreviewPage({ params, searchParams }: { params: Promise<{ token: string }>; searchParams: Promise<{ tab?: string; contact?: string }> }) {
   const session = await auth();
   if (!session) redirect('/admin/login');
   const { token } = await params;
-  const { tab } = await searchParams;
+  const { tab, contact } = await searchParams;
   const onboarding = await getOnboardingByToken(token).catch(() => null);
   if (!onboarding) notFound();
   const key = isProofTab(tab) ? tab : 'overview';
-  const data = await loadDashboardData(onboarding, key);
+  const data = await loadDashboardData(onboarding, key, { contactId: parseContactId(contact) });
   const name = onboarding.businessName || onboarding.clientName || onboarding.clientEmail;
   return <ProofDashboard email={onboarding.clientEmail} {...data} preview={{ label: `Admin preview of ${name}`, backHref: `/admin/onboarding/${token}` }} leadApi={`/api/admin/onboarding/${token}/project`} tab={key} />;
 }
