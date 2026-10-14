@@ -213,3 +213,16 @@ export function decideRun(run: RunState, ctx: RunContext): RunDecision {
     next: planSend({ ...base, fromStep: plan.step + 1 }),
   };
 }
+
+/**
+ * Cheap gate for the cron: true when it is the reactivation window (first 7
+ * days of Jan/Apr/Jul/Oct) in ANY time zone, so the per-client check inside
+ * kickOffReactivation is only paid for a few days a quarter. Time zones span
+ * UTC-12 to UTC+14.
+ */
+export function mayBeInReactivationWindow(now: Date): boolean {
+  return [-12, 14].some((h) => {
+    const d = new Date(now.getTime() + h * 3_600_000);
+    return [1, 4, 7, 10].includes(d.getUTCMonth() + 1) && d.getUTCDate() <= REACTIVATION_DAYS;
+  });
+}

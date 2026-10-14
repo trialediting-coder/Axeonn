@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { isQuietHours } from './leadShared';
 import { DEFAULT_TEMPLATES, STOP_LINE, validateTemplate, type SequenceTemplate } from './sequenceShared';
 import {
-  decideRun, holdForQuietHours, localParts, nextSendAt, planSend, reactivationWindow, safeTimeZone,
+  decideRun, holdForQuietHours, localParts, mayBeInReactivationWindow, nextSendAt, planSend, reactivationWindow, safeTimeZone,
   scheduleReactivation, zonedTime, type RunContext, type RunState,
 } from './sequenceSchedule';
 
@@ -224,4 +224,14 @@ test('decideRun never exceeds the text cap when adding STOP', () => {
     assert.ok(d.body.length <= 320);
     assert.ok(d.body.endsWith(STOP_LINE));
   }
+});
+
+test('mayBeInReactivationWindow covers every time zone and nothing more', () => {
+  assert.equal(mayBeInReactivationWindow(new Date('2026-10-03T12:00:00Z')), true);
+  assert.equal(mayBeInReactivationWindow(new Date('2026-10-07T20:00:00Z')), true);
+  assert.equal(mayBeInReactivationWindow(new Date('2026-10-08T05:00:00Z')), true); // still the 7th at UTC-12
+  assert.equal(mayBeInReactivationWindow(new Date('2026-10-08T12:00:00Z')), false);
+  assert.equal(mayBeInReactivationWindow(new Date('2026-09-30T12:00:00Z')), true); // Oct 1 at UTC+14
+  assert.equal(mayBeInReactivationWindow(new Date('2026-09-15T12:00:00Z')), false);
+  assert.equal(mayBeInReactivationWindow(new Date('2026-11-02T12:00:00Z')), false);
 });
