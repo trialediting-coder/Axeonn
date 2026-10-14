@@ -547,7 +547,7 @@ edit the wording, the waits and the channels per client.
 | --- | --- | --- | --- |
 | New lead | a website form comes in; or a missed call, held 30 minutes, if they have not replied | text 5 min, email 1 day, text 3 days | they text back, a call from them is answered, a press-1 connect call to them is answered, the client taps Quote sent, Talked to them, Booked, Job done or Not a fit, or STOP |
 | Quote | the client taps Quote sent (first tap only) | text 1 day, email 3 days, text 7 days | they text back, an answered call, Talked to them, Booked, Job done or Not a fit, or STOP |
-| Appointment reminders | a booking is made (online booking is a later slice, so nothing starts these yet) | text 1 day before, text 2 hours before | STOP |
+| Appointment reminders | a booking is made (online booking or the website chat); only the first upcoming booking per phone number gets reminders | text 1 day before, text 2 hours before | STOP |
 | Review request | the client taps Job done (a confirm box first) | one text 2 hours later with the Google review link | STOP, or any other tap on that lead (Quote sent, Talked to them, Booked, Not a fit) |
 | Past-customer check-in | first 7 days of January, April, July and October, to the uploaded list | one text per consented past customer, from 10 am, 5 minutes apart, at most 50 a day | STOP |
 
@@ -831,11 +831,146 @@ Tick these in order. The code is merged; none of this is done until you do it.
     for the inbox projection at most 2 seconds; the push and fallback run after
     the response, so a slow database must not show up as a Twilio timeout.
 
+## Online booking (AxeonCORE and AxeonGROWTH)
+
+Built 2026-10-13 (slice 5 of `docs/superpowers/specs/2026-10-12-proof-lead-system-design.md`). No Cal.com:
+the slots, bookings, texts and reminders are ours. Essentials does not get booking: the admin card
+hides itself for that plan.
+
+| Piece | Where |
+| --- | --- |
+| Slot engine, labels, confirmation text, .ics | `lib/bookingShared.ts` (`npm run test:booking`) |
+| Settings, slots, locked booking write, cancel, follow-through | `lib/bookings.ts` |
+| Hooks into lead alerts, reminders and the inbox | `lib/leadHooks.ts` |
+| Public API | `/api/book/<site>/slots`, `POST /api/book/<site>` |
+| Hosted page and cancel page | `/b/<site>`, `/b/<site>/cancel/<token>` (`lib/bookingPage.ts`, `public/book-page.js`) |
+| Embed | `public/book.js` |
+| Admin card | `components/insights/BookingPanel.tsx`, `/api/admin/onboarding/<token>/booking` |
+| Client tab | `components/proof/BookingsTab.tsx` via `lib/proofDashboardData.ts` |
+| Tables | `booking_settings`, `bookings` (created by `ensureSchema` and `scripts/init-db.mjs`) |
+
+**Turning it on.** On the client's admin page, set the days and hours, slot length, buffer and
+services in the Online booking card, tick "Let people book online", save. Times are in the time
+zone of their phone line (Central without one).
+
+**On their site.** Always use the main host, `https://axeonstudio.co`. The app host
+(`app.axeonstudio.co`) answers `/b/*` and the public paths with a 301, which breaks an embed.
+Either link a "Book online" button to `https://axeonstudio.co/b/<site>`, or put the booking
+page inside a page:
+
+```html
+<div data-axeon-book data-site="ax_xxxxxxxxxxxxxx">Call (515) 555-0134 to book.</div>
+<script defer src="https://axeonstudio.co/book.js"></script>
+```
+
+Whatever is inside the div shows until the booking page loads, and stays if it cannot. The same
+`/b/<site>` link works as the booking link on their Google Business Profile. `/b/*` is the only
+path that may be framed; every other page refuses it.
+
+**What happens on a booking.** The visitor sees "You're booked" right away. Then, after the
+response (`afterBooking`):
+
+- the contact moves to Booked in the leads inbox;
+- reminder texts 24 hours and 2 hours before (the Appointment reminders follow-up, slice 3);
+- a confirmation text with the cancel link, through their tracked line, only once texting is
+  approved (`sms_status = ready`). It is transactional (ruling S5-R2), so it goes at any hour,
+  including 8 pm to 8 am;
+- an email with a calendar file, if they gave an email;
+- an alert to the owner (text outside quiet hours, otherwise email).
+
+**Cancelling.** The cancel link opens a confirm page; opening it, or a link preview, cancels
+nothing. Only the button (a POST) cancels. A cancel stops that booking's reminders, adds a note on
+the contact, frees the time, and alerts the owner. When the owner cancels from the admin card the
+customer gets a text instead; that text is also transactional (S5-R2) and goes at any hour.
+
+**Reminders and quiet hours.** Reminders still respect quiet hours (8 pm to 8 am, client time)
+through the sequence engine; they are not exempt like the confirmation. The reminder runner
+stops a run whose booking is no longer `booked` (cancelled or marked done), so a late cancel
+cannot produce a text.
+
+**Known limit (S5-R3, deferred).** The sequence engine allows one active reminder run per phone
+number. A second upcoming booking from the same number books fine and gets its confirmation, but
+no reminders. At most 3 upcoming bookings per number per client.
+
+## Website chat (AxeonCORE and AxeonGROWTH)
+
+Essentials does not get the chat; the admin card hides itself for that plan.
+
+| Piece | Where |
+| --- | --- |
+| Prompt, tools, reply checks | `lib/chatShared.ts`, `lib/chatLoop.ts` (`npm run test:chat`) |
+| Turns, sessions, limits | `lib/chat.ts`, `POST /api/chat/<site>` |
+| Train on site | `lib/chatCrawl.ts` |
+| Widget | `public/chat.js` |
+| Admin card | `components/insights/ChatPanel.tsx`, `/api/admin/onboarding/<token>/chat` |
+| Tables | `site_pages`, `chat_settings`, `chat_sessions`, `chat_messages` (created by `ensureSchema` and `scripts/init-db.mjs`) |
+
+**Needs `ANTHROPIC_API_KEY`.** The model is `claude-sonnet-5-5`. Without the key the public config
+reports `enabled: false` and the widget stays hidden, whatever the toggle says.
+
+**Turning it on.** In the Website chat card, press "Train on site", check the pages list, tick
+"Show the chat on their site", save. Then add one line to their site (main host, not the app host):
+
+```html
+<script defer src="https://axeonstudio.co/chat.js" data-site="ax_xxxxxxxxxxxxxx"></script>
+```
+
+**Train on site.** The crawler starts at their homepage, then reads robots.txt and sitemap.xml,
+and keeps to the client's own host and its `www` variant (every redirect hop is checked). It reads
+up to 40 pages, text only. If robots.txt cannot be read in time it keeps nothing rather than
+risk a page they disallow, and a homepage their robots.txt blocks saves nothing. Re-train after
+the client changes their site. The chat prompt carries the 20 shortest-path pages.
+
+**What it does.** Answers from their pages and the portal answers, offers open times and books
+them, takes a name and number (which arrives like a form lead: alert, call connect, follow-up
+texts), or texts the owner when someone asks for a person (the handoff alert). It never states a
+price that is not on their site and never says "you're booked" unless a booking was made; both
+are checked on every reply. A chat booking is a normal booking with `source = 'chat'`, with the
+same follow-through. Limits: 30 messages per conversation, 200 per site per hour, 1,000
+characters per message. If the model is down, a number typed into the chat is still saved as a lead.
+
+**Cost.** `claude-sonnet-5-5` at roughly a cent or two per conversation; watch the Anthropic
+console for the first month.
+
+## Booking and chat go-live (owner checklist)
+
+1. **Env vars on Vercel:** `ANTHROPIC_API_KEY` (chat), `RESEND_API_KEY` (booking emails), and the
+   Twilio keys already set for the phone layer. Redeploy after adding.
+2. **Tables:** run `npm run db:init` once against production (or hit any page; `ensureSchema`
+   creates them). The six new tables are `booking_settings`, `bookings`, `site_pages`,
+   `chat_settings`, `chat_sessions`, `chat_messages`.
+3. **Pick one AxeonCORE or AxeonGROWTH client** whose line has `sms_status = ready`. Make sure
+   their Appointment reminders follow-up is switched on.
+4. **Turn on booking:** in their admin card set hours and two services, tick "Let people book
+   online", save.
+5. **Train chat:** Website chat card, "Train on site". Expect "Saved N pages" with N above 1 and
+   their homepage first in the list. Tick "Show the chat on their site", save.
+6. **Book a test slot** on your phone at `https://axeonstudio.co/b/<site>` with your own cell and
+   email. Expect "You're booked"; a confirmation text with a cancel link; an email with a
+   calendar file at the right local time; an owner alert; the booking in the admin card and the
+   client's Bookings tab; the contact at Booked in the inbox;
+   `SELECT kind, status, next_at FROM sequence_runs WHERE ref_table = 'bookings' ORDER BY id DESC LIMIT 1;`
+   shows an active reminder run.
+7. **Cancel it:** tap the cancel link. The page asks first; confirm in the admin card that the
+   booking is still live. Press "Yes, cancel it". Expect an owner alert, the reminder run
+   `stopped` with stop reason `cancelled`, and the time open again on `/b/<site>`.
+8. **Embeds:** put both snippets on a test page. On a phone the booking frame sizes to its
+   content. Block `axeonstudio.co` in devtools and reload: the fallback line stays, no console errors.
+9. **Chat ending in a booking:** ask about a service, ask for a price that is not on their site
+   (expect no number and an offer to take your number), then ask to book. Expect a `bookings` row
+   with `source = 'chat'` and the same follow-through as step 6.
+10. **Chat ending in a message:** in a fresh tab, ask something it cannot answer and leave a name
+    and number. Expect a `form_submissions` row, the owner alert, the `new_lead` follow-up
+    started, and the transcript in the admin card and on the contact in the inbox. Then ask for
+    "a real person" with a number: expect the handoff alert.
+11. **Cost:** check the day's Anthropic usage and note the cost per conversation in the pricing notes.
+
 ## Environment variables
 
 | Variable | Purpose |
 | --- | --- |
 | `RESEND_API_KEY` | Required for codes; without it the client cannot verify. |
+| `ANTHROPIC_API_KEY` | Website chat (`claude-sonnet-5-5`). Without it the chat reports `enabled: false` and stays hidden. |
 | `RESEND_CLIENT_FROM_EMAIL` | Optional. Default `Axeon Studio <hello@axeonstudio.co>` (same verified domain). |
 | `RESEND_CLIENT_REPLY_TO` | Optional. Default `hello@axeonstudio.co`. |
 | `RESEND_SEQUENCE_FROM_EMAIL` | Optional. From address for follow-up emails; default `leads@axeonstudio.co` on the verified domain. |
