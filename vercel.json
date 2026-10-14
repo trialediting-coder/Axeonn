@@ -6,7 +6,8 @@
     { "path": "/api/cron/monthly-reports", "schedule": "0 14 * * *" },
     { "path": "/api/cron/tracker-health", "schedule": "30 13 * * *" },
     { "path": "/api/cron/audits", "schedule": "15 14 * * *" },
-    { "path": "/api/cron/sequences", "schedule": "*/15 * * * *" }
+    { "path": "/api/cron/sequences", "schedule": "*/15 * * * *" },
+    { "path": "/api/cron/held-replies", "schedule": "*/15 * * * *" }
   ],
   "redirects": [
     { "source": "/pay", "destination": "/book", "permanent": false },
