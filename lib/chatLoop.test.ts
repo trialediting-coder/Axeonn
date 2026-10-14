@@ -2,8 +2,8 @@
 // Run with: npm run test:chat   (the model is a fake; nothing leaves the machine)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { runToolLoop, type CreateMessage, type ModelReply } from './chatLoop';
-import { CHAT_TOOLS, type ApiMessage } from './chatShared';
+import { messageParams, runToolLoop, type CreateMessage, type ModelReply } from './chatLoop';
+import { CHAT_CALL_TIMEOUT_MS, CHAT_MIN_CLOSING_MS, CHAT_MIN_ROUND_MS, CHAT_TOOLS, type ApiMessage } from './chatShared';
 
 function fakeModel(replies: ModelReply[]) {
   const seen: ApiMessage[][] = [];
@@ -96,4 +96,66 @@ test('a closing call that throws still returns the calls that ran', async () => 
   assert.equal(out.text, '');
   assert.equal(out.calls.length, 1);
   assert.equal(out.calls[0].isError, false);
+});
+
+/** A model that always asks for a tool and uses its whole timeout, on a fake clock. */
+function slowToolModel(clock: { t: number }) {
+  const asked: Array<{ at: number; timeout: number; closing: boolean }> = [];
+  const create: CreateMessage = async (req) => {
+    asked.push({ at: clock.t, timeout: req.timeout_ms, closing: req.tool_choice?.type === 'none' });
+    clock.t += req.timeout_ms;
+    return req.tool_choice?.type === 'none'
+      ? { stop_reason: 'end_turn', content: [{ type: 'text', text: "You're booked for Tue." }] }
+      : { stop_reason: 'tool_use', content: [{ type: 'tool_use', id: `t${asked.length}`, name: 'offer_booking', input: {} }] };
+  };
+  return { create, asked };
+}
+
+test('no model call runs past the turn deadline; rounds stop when one cannot fit, and the closing call fits in what is left', async () => {
+  const clock = { t: 0 };
+  const { create, asked } = slowToolModel(clock);
+  const out = await runToolLoop({
+    create, model: 'm', system: 's', tools: CHAT_TOOLS, messages: start, maxRounds: 4,
+    execute: async () => ({ available: true }),
+    deadline: 45_000, now: () => clock.t, callTimeoutMs: CHAT_CALL_TIMEOUT_MS,
+  });
+  // Four 10 s rounds (each started with at least CHAT_MIN_ROUND_MS left), then the closing call gets the 5 s that remain.
+  assert.deepEqual(asked.map((a) => [a.at, a.timeout, a.closing]), [
+    [0, 10_000, false],
+    [10_000, 10_000, false],
+    [20_000, 10_000, false],
+    [30_000, 10_000, false],
+    [40_000, 5_000, true],
+  ]);
+  assert.ok(asked.every((a) => a.at + a.timeout <= 45_000));
+  assert.ok(asked.filter((a) => !a.closing).every((a) => 45_000 - a.at >= CHAT_MIN_ROUND_MS));
+  assert.equal(out.text, "You're booked for Tue.");
+  assert.equal(out.calls.length, 4);
+});
+
+test('with too little time left for the closing call, the loop returns the calls without one', async () => {
+  const clock = { t: 0 };
+  const { create, asked } = slowToolModel(clock);
+  const out = await runToolLoop({
+    create, model: 'm', system: 's', tools: CHAT_TOOLS, messages: start, maxRounds: 4,
+    execute: async () => ({ ok: true }),
+    deadline: 21_000, now: () => clock.t, callTimeoutMs: CHAT_CALL_TIMEOUT_MS,
+  });
+  // Rounds at 0 and 10 s; at 20 s only 1 s is left: no 3rd round (needs 8 s) and no closing call (needs 4 s).
+  assert.equal(asked.length, 2);
+  assert.ok(asked.every((a) => !a.closing));
+  assert.ok(1_000 < CHAT_MIN_CLOSING_MS);
+  assert.deepEqual(out, { text: '', calls: out.calls });
+  assert.equal(out.calls.length, 2);
+});
+
+test('messageParams caches the tools block and the system prompt', () => {
+  const p = messageParams({ model: 'm', max_tokens: 600, system: 'rules', tools: CHAT_TOOLS, messages: start, timeout_ms: 10_000, tool_choice: { type: 'none' } });
+  assert.deepEqual(p.system, [{ type: 'text', text: 'rules', cache_control: { type: 'ephemeral' } }]);
+  assert.deepEqual((p.tools[p.tools.length - 1] as { cache_control?: unknown }).cache_control, { type: 'ephemeral' });
+  assert.equal(p.tools.filter((t) => 'cache_control' in t).length, 1);
+  assert.equal(p.tools.length, CHAT_TOOLS.length);
+  assert.deepEqual(p.tool_choice, { type: 'none' });
+  assert.ok(!('timeout_ms' in p));
+  assert.ok(!('cache_control' in CHAT_TOOLS[CHAT_TOOLS.length - 1])); // the shared definitions are not mutated
 });

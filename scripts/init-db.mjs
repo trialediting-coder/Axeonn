@@ -576,6 +576,10 @@ async function main() {
   `;
   await sql`CREATE INDEX IF NOT EXISTS chat_messages_session_idx ON chat_messages (session_id, id);`;
   await sql`CREATE INDEX IF NOT EXISTS chat_messages_client_time_idx ON chat_messages (onboarding_id, created_at);`;
+  // The account-wide hourly spend cap counts every site's visitor messages by time.
+  await sql`CREATE INDEX IF NOT EXISTS chat_messages_time_idx ON chat_messages (created_at);`;
+  // One crawl at a time per client: set while a train request runs (lib/chatCrawl.ts).
+  await sql`ALTER TABLE chat_settings ADD COLUMN IF NOT EXISTS train_started_at TIMESTAMPTZ;`;
   console.log('Schema ready.');
 }
 

@@ -386,10 +386,36 @@ export async function crawlSite(onboardingId: number, startUrl: string, fetcher?
     throw new Error('Enter the full website address, like https://example.com');
   }
   if (!/^https?:$/.test(url.protocol)) throw new Error('The website address must start with http:// or https://');
+  await ensureSchema();
+  if (!(await claimTraining(onboardingId))) throw new Error('A crawl for this client is already running. Try again in a minute.');
+  try {
+    return await crawlAndSave(onboardingId, url, fetcher);
+  } finally {
+    await sql`UPDATE chat_settings SET train_started_at = NULL WHERE onboarding_id = ${onboardingId};`.catch((err: unknown) =>
+      console.error('chat crawl: lock not released', err instanceof Error ? err.message : err)
+    );
+  }
+}
+
+/**
+ * One crawl at a time per client: claims chat_settings.train_started_at unless
+ * another train request set it less than 60 seconds ago (a crashed request's
+ * claim lapses by itself after that). Atomic: one INSERT ... ON CONFLICT.
+ */
+async function claimTraining(onboardingId: number): Promise<boolean> {
+  const { rows } = await sql<{ onboarding_id: number }>`
+    INSERT INTO chat_settings (onboarding_id, train_started_at) VALUES (${onboardingId}, now())
+    ON CONFLICT (onboarding_id) DO UPDATE SET train_started_at = now()
+      WHERE chat_settings.train_started_at IS NULL OR chat_settings.train_started_at < now() - interval '60 seconds'
+    RETURNING onboarding_id;
+  `;
+  return rows.length > 0;
+}
+
+async function crawlAndSave(onboardingId: number, url: URL, fetcher?: CrawlFetcher): Promise<CrawlSummary> {
   const result = await collectPages(url.toString(), fetcher ?? livePage(url.toString()));
   if (result.blocked) return { saved: 0, blocked: true, errors: 0 };
 
-  await ensureSchema();
   const { rows } = await sql<{ t: Date | string }>`SELECT now() AS t;`;
   const started = new Date(rows[0].t).toISOString();
   // One statement for every page (unnest), so the writes take one round trip, not forty.

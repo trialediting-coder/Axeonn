@@ -5,7 +5,42 @@ import assert from 'node:assert/strict';
 import {
   CHAT_TOOLS, PAGES_BUDGET_CHARS, PAGE_CHARS_MAX, bookedInRows, buildSystemPrompt, claimsBooking, clampHistory, finalizeReply, findPhone, isSessionId,
   pagesBlock, pricesNotOnSite, sanitizeVisitorText, todayLine, toolLabel, toolNotes, validateChatSettings, type ChatContext, type ChatRow,
+  MAX_SITE_MESSAGES_PER_HOUR, MAX_SITE_TURNS_PER_DAY, MAX_TURNS_PER_HOUR_ALL_SITES, TOOL_ROW_MAX, handoffAlertText, sessionToolFlags, toolRow, turnCapReason,
 } from './chatShared';
+
+test('toolRow always stores valid JSON within the cap, so a long book_slot row still counts as a booking', () => {
+  const huge = { name: 'book_slot', input: { name: 'J'.repeat(9_000), service: 'S'.repeat(9_000), starts_at: '2026-10-20T19:00:00.000Z', nested: { a: 1 } }, result: { ok: true, when: 'Tue, Oct 20 at 2:00 PM' } };
+  const row = toolRow(huge);
+  assert.ok(row.length <= TOOL_ROW_MAX);
+  const back = JSON.parse(row) as { name: string; input: Record<string, unknown>; result: { ok: boolean; when: string } };
+  assert.equal(back.name, 'book_slot');
+  assert.equal(back.result.when, 'Tue, Oct 20 at 2:00 PM');
+  assert.equal((back.input.name as string).length, 200);
+  assert.ok(!('nested' in back.input));
+  const rows: ChatRow[] = [{ role: 'tool', content: row }];
+  assert.equal(bookedInRows(rows), true);
+  assert.deepEqual(sessionToolFlags(rows), { booked: true, bookedWhen: 'Tue, Oct 20 at 2:00 PM', messaged: false, handedOff: false });
+  // Even a giant result keeps the row valid and keeps ok.
+  const giant = toolRow({ name: 'book_slot', input: {}, result: { ok: true, junk: 'x'.repeat(10_000) } });
+  assert.ok(giant.length <= TOOL_ROW_MAX);
+  assert.equal(bookedInRows([{ role: 'tool', content: giant }]), true);
+});
+
+test('handoffAlertText is short and carries no links', () => {
+  const text = handoffAlertText({ who: 'Jane https://x.test', phone: '(515) 555-0134', reason: `urgent bit.ly/abc http://a.test/b www.c.test ${'z'.repeat(500)}` });
+  assert.ok(text.length <= 300);
+  assert.doesNotMatch(text, /bit\.ly|a\.test|c\.test|x\.test|http/);
+  assert.match(text, /^Jane at \(515\) 555-0134 asked for a person on your website chat: urgent/);
+  assert.equal(handoffAlertText({ who: null, phone: '(515) 555-0134', reason: '' }), 'A visitor at (515) 555-0134 asked for a person on your website chat. Text or call them back.');
+});
+
+test('turnCapReason stops a turn before any model call at the site hour, site day and all-sites hour caps', () => {
+  assert.equal(turnCapReason({ siteHour: 0, siteDay: 0, allHour: 0 }), null);
+  assert.equal(turnCapReason({ siteHour: MAX_SITE_MESSAGES_PER_HOUR, siteDay: 0, allHour: 0 }), 'limit_site');
+  assert.equal(turnCapReason({ siteHour: 0, siteDay: MAX_SITE_TURNS_PER_DAY, allHour: 0 }), 'limit_spend');
+  assert.equal(turnCapReason({ siteHour: 0, siteDay: 0, allHour: MAX_TURNS_PER_HOUR_ALL_SITES }), 'limit_spend');
+  assert.equal(turnCapReason({ siteHour: MAX_SITE_MESSAGES_PER_HOUR - 1, siteDay: MAX_SITE_TURNS_PER_DAY - 1, allHour: MAX_TURNS_PER_HOUR_ALL_SITES - 1 }), null);
+});
 
 const ctx: ChatContext = {
   business: 'A-1 Auto Detailing',

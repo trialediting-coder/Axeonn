@@ -39,6 +39,15 @@ export function rateLimited(key: string, max: number, windowMs: number): boolean
   return recent.length > max;
 }
 
+/** Bookings per IP: 5 in 10 minutes. */
+export const BOOKING_RATE = { max: 5, windowMs: 10 * 60_000 } as const;
+
+/**
+ * The one per-IP booking budget, shared by the booking widget (/api/book/<site>)
+ * and the website chat's book_slot: both count against the same key. Counts this attempt.
+ */
+export const bookingRateLimited = (ip: string): boolean => rateLimited(`book:${ip}`, BOOKING_RATE.max, BOOKING_RATE.windowMs);
+
 export async function loadOnboarding(rawToken: string): Promise<Onboarding | null> {
   try {
     return await getOnboardingByToken(normalizeToken(rawToken));

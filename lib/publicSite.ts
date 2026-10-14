@@ -18,6 +18,12 @@ export const PUBLIC_CORS = {
 export const corsJson = (body: unknown, status = 200) => NextResponse.json(body, { status, headers: PUBLIC_CORS });
 export const corsPreflight = () => new Response(null, { status: 204, headers: PUBLIC_CORS });
 
+/** Online booking and the website chat are in AxeonCORE and up (ruling S5-R12); Essentials never gets them. */
+export const bookingChatIncluded = (tier: Onboarding['tier']): boolean => (TIER_RANK[tier] ?? 0) >= TIER_RANK.axeoncore;
+
+/** What an admin write gets for a plan without booking and chat. */
+export const PLAN_REFUSAL = 'Online booking and the website chat are part of AxeonCORE and up. Upgrade this client first.';
+
 /** The client behind a site key, only when they are open and on AxeonCORE or above. */
 export async function publicClient(siteKey: string): Promise<Onboarding | null> {
   if (!isValidSiteKey(siteKey)) return null;
@@ -25,7 +31,7 @@ export async function publicClient(siteKey: string): Promise<Onboarding | null> 
   if (!id) return null;
   const onboarding = await getOnboardingById(id);
   if (!onboarding || onboarding.status === 'closed') return null;
-  return TIER_RANK[onboarding.tier] >= TIER_RANK.axeoncore ? onboarding : null;
+  return bookingChatIncluded(onboarding.tier) ? onboarding : null;
 }
 
 /** A JSON object body of at most `max` characters, or null. */

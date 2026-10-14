@@ -11,6 +11,26 @@ export const CHAT_MODEL = 'claude-sonnet-5-5';
 export const MAX_SESSION_MESSAGES = 30;
 /** Visitor messages per client site per hour, across every session. */
 export const MAX_SITE_MESSAGES_PER_HOUR = 200;
+/** Model turns per client site per day (spend ceiling; about 5 calls a turn at worst). */
+export const MAX_SITE_TURNS_PER_DAY = 600;
+/** Model turns per hour across every client site (spend ceiling for the whole account). */
+export const MAX_TURNS_PER_HOUR_ALL_SITES = 2_000;
+/**
+ * One turn's time: model rounds start only inside this budget (from the start of
+ * the turn), so the turn, its tools and the writes after it finish well inside
+ * the route's 60 s maxDuration and a committed booking's after() work runs.
+ */
+export const CHAT_TURN_BUDGET_MS = 45_000;
+/** The most one model call may take. */
+export const CHAT_CALL_TIMEOUT_MS = 10_000;
+/** No tool round starts with less than this left. */
+export const CHAT_MIN_ROUND_MS = 8_000;
+/** The closing no-tools call runs only with at least this left; otherwise finalizeReply's fixed text answers. */
+export const CHAT_MIN_CLOSING_MS = 4_000;
+/** A stored tool row is valid JSON of at most this many characters (toolRow). */
+export const TOOL_ROW_MAX = 4_000;
+/** The owner's handoff text: the reason the visitor gave is cut to this, links removed. */
+export const HANDOFF_REASON_MAX = 120;
 export const MAX_MESSAGE_CHARS = 1000;
 export const PAGES_BUDGET_CHARS = 12_000;
 export const MAX_PAGES_IN_PROMPT = 20;
@@ -307,16 +327,84 @@ export function fallbackReply(business: string, kind: 'empty' | 'price' | 'booki
 }
 
 /** A tool call of this name that went through. */
-const succeeded = (c: Pick<ToolCall, 'name' | 'result' | 'isError'>, name: string) =>
+export const toolSucceeded = (c: Pick<ToolCall, 'name' | 'result' | 'isError'>, name: string): boolean =>
   c.name === name && !c.isError && (c.result as { ok?: unknown } | null)?.ok === true;
+const succeeded = toolSucceeded;
+
+/** What this session's stored tool rows say already happened: each of these is allowed once a session. */
+export interface SessionToolFlags {
+  booked: boolean;
+  /** The booked time's label, when the stored row has one. */
+  bookedWhen: string | null;
+  messaged: boolean;
+  handedOff: boolean;
+}
+
+export function sessionToolFlags(rows: readonly ChatRow[]): SessionToolFlags {
+  const flags: SessionToolFlags = { booked: false, bookedWhen: null, messaged: false, handedOff: false };
+  for (const r of rows) {
+    if (r.role !== 'tool') continue;
+    const call = parseToolRow(r.content);
+    if (!call || call.result.ok !== true) continue;
+    if (call.name === 'book_slot') {
+      flags.booked = true;
+      if (typeof call.result.when === 'string' && call.result.when) flags.bookedWhen = call.result.when;
+    }
+    else if (call.name === 'take_message') flags.messaged = true;
+    else if (call.name === 'handoff') flags.handedOff = true;
+  }
+  return flags;
+}
 
 /** True when a stored tool row of this session is a book_slot that went through (the test toolNotes uses). */
 export function bookedInRows(rows: readonly ChatRow[]): boolean {
-  return rows.some((r) => {
-    if (r.role !== 'tool') return false;
-    const call = parseToolRow(r.content);
-    return call !== null && call.name === 'book_slot' && call.result.ok === true;
-  });
+  return sessionToolFlags(rows).booked;
+}
+
+const ROW_FIELD_MAX = 200;
+
+/**
+ * A tool call as a stored row: always valid JSON of at most TOOL_ROW_MAX
+ * characters, never a string cut mid-way, so parseToolRow (and with it
+ * bookedInRows, sessionToolFlags and toolNotes) can always read it back. The
+ * model's input is trimmed per field; if it is still too long the input goes,
+ * then everything but result.ok.
+ */
+export function toolRow(call: Pick<ToolCall, 'name' | 'input' | 'result'>): string {
+  const trimmed: Record<string, unknown> = {};
+  if (call.input && typeof call.input === 'object' && !Array.isArray(call.input)) {
+    for (const [k, v] of Object.entries(call.input as Record<string, unknown>).slice(0, 12)) {
+      if (typeof v === 'string') trimmed[k.slice(0, 40)] = v.slice(0, ROW_FIELD_MAX);
+      else if (typeof v === 'number' || typeof v === 'boolean' || v === null) trimmed[k.slice(0, 40)] = v;
+    }
+  }
+  const name = call.name.slice(0, 40);
+  const full = JSON.stringify({ name, input: trimmed, result: call.result ?? null });
+  if (full.length <= TOOL_ROW_MAX) return full;
+  const noInput = JSON.stringify({ name, input: {}, result: call.result ?? null });
+  if (noInput.length <= TOOL_ROW_MAX) return noInput;
+  const ok = (call.result as { ok?: unknown } | null)?.ok;
+  return JSON.stringify({ name, input: {}, result: typeof ok === 'boolean' ? { ok } : {} });
+}
+
+const URL_RE = /\b(?:https?:\/\/|www\.)\S+|\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|net|org|io|co|us|info|biz|ly|me|xyz|link|site|app)(?:\/\S*)?/gi;
+
+/**
+ * The owner's "someone wants you" text from a handoff: the visitor's name and
+ * reason are cut short and links are removed, so a visitor cannot put a long or
+ * linked message into the owner's texts.
+ */
+export function handoffAlertText(input: { who: string | null; phone: string; reason: string }): string {
+  const who = (input.who ?? '').replace(URL_RE, '').replace(/\s+/g, ' ').trim().slice(0, 40) || 'A visitor';
+  const reason = input.reason.replace(URL_RE, '[link removed]').replace(/\s+/g, ' ').trim().slice(0, HANDOFF_REASON_MAX);
+  return `${who} at ${input.phone} asked for a person on your website chat${reason ? `: ${reason}` : '.'} Text or call them back.`.slice(0, 300);
+}
+
+/** Which spend or flood cap a turn hits, before any model call: the site's hour, the site's day, or the whole account's hour. */
+export function turnCapReason(counts: { siteHour: number; siteDay: number; allHour: number }): null | 'limit_site' | 'limit_spend' {
+  if (counts.siteHour >= MAX_SITE_MESSAGES_PER_HOUR) return 'limit_site';
+  if (counts.siteDay >= MAX_SITE_TURNS_PER_DAY || counts.allHour >= MAX_TURNS_PER_HOUR_ALL_SITES) return 'limit_spend';
+  return null;
 }
 
 /**

@@ -1,9 +1,10 @@
 // lib/chat.ts
 // The website chat, the server half: settings, the saved site pages, sessions and
 // messages, the database limits (30 visitor messages a session, 200 a site an
-// hour), and one turn: build the guarded prompt, run the tool loop against
-// booking and the lead hooks, check the reply, store everything. Non-streaming in
-// v1: one JSON reply per turn. Server-only.
+// hour, 600 a site a day, 2,000 an hour across every site), and one turn: build
+// the guarded prompt, run the tool loop (lib/chatLoop.ts) against the tools
+// (lib/chatTools.ts), check the reply, store everything. Non-streaming in v1: one
+// JSON reply per turn. Server-only.
 import Anthropic from '@anthropic-ai/sdk';
 import { randomBytes } from 'node:crypto';
 import { ensureSchema, sql } from '@/lib/db';
@@ -12,37 +13,29 @@ import { getItemStates, type Onboarding } from '@/lib/onboarding';
 import { getLine } from '@/lib/phoneLines';
 import { formatPhone, normalizePhone } from '@/lib/phoneShared';
 import { getTrackingSettings } from '@/lib/siteStats';
+import { bookingRateLimited } from '@/lib/welcomeApi';
 import { afterBooking, bookingTimeZone, createBooking, getBookingSettings, openSlots } from '@/lib/bookings';
-import { BookingError, formatSlotLabel, localDayStart, parseBookingInput } from '@/lib/bookingShared';
 import { alertOwner, logContactEvent, submitChatLead } from '@/lib/leadHooks';
-import { runToolLoop, type ContentBlock, type CreateMessage } from '@/lib/chatLoop';
+import { messageParams, runToolLoop, type ContentBlock, type CreateMessage } from '@/lib/chatLoop';
+import { chatToolExecutor, initialToolState } from '@/lib/chatTools';
 import {
-  CHAT_MODEL, CHAT_TOOLS, DEFAULT_GREETING, MAX_PAGES_IN_PROMPT, MAX_SESSION_MESSAGES, MAX_SITE_MESSAGES_PER_HOUR,
-  bookedInRows, buildSystemPrompt, clampHistory, fallbackReply, finalizeReply, findPhone, isSessionId, todayLine, toolNotes,
+  CHAT_CALL_TIMEOUT_MS, CHAT_MODEL, CHAT_TOOLS, CHAT_TURN_BUDGET_MS, DEFAULT_GREETING, MAX_PAGES_IN_PROMPT, MAX_SESSION_MESSAGES,
+  buildSystemPrompt, clampHistory, fallbackReply, finalizeReply, findPhone, isSessionId, sessionToolFlags, todayLine, toolNotes, toolRow, toolSucceeded, turnCapReason,
   type ChatAdminData, type ChatContext, type ChatRole, type ChatRow, type ChatSettings, type ChatTranscript, type SitePageText, type ToolCall,
 } from '@/lib/chatShared';
-
-const DAY = 86_400_000;
 
 export const chatConfigured = (): boolean => Boolean(process.env.ANTHROPIC_API_KEY);
 
 /**
  * The real Messages API call, shaped for runToolLoop. Built the way lib/anthropic.ts
  * builds its client (ANTHROPIC_API_KEY from the environment; that module exports
- * no shared client). A 12 s timeout and no SDK retries keep four rounds inside the
- * route's 60 s maxDuration; a failure throws and handleChatTurn answers with a
- * fallback reply.
+ * no shared client). No SDK retries; each call's timeout is the one runToolLoop
+ * sized to the turn's time left. The body (messageParams) caches the tools and
+ * the system prompt. A failure throws and handleChatTurn answers with a fallback.
  */
 export const anthropicCreate: CreateMessage = async (req) => {
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, timeout: 12_000, maxRetries: 0 });
-  const res = await client.messages.create({
-    model: req.model,
-    max_tokens: req.max_tokens,
-    system: req.system,
-    tools: req.tools as unknown as Anthropic.Tool[],
-    messages: req.messages as unknown as Anthropic.MessageParam[],
-    ...(req.tool_choice ? { tool_choice: req.tool_choice } : {}),
-  });
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY, maxRetries: 0 });
+  const res = await client.messages.create(messageParams(req) as unknown as Anthropic.MessageCreateParamsNonStreaming, { timeout: req.timeout_ms });
   return { content: res.content as unknown as ContentBlock[], stop_reason: res.stop_reason };
 };
 
@@ -150,13 +143,23 @@ async function newSession(onboardingId: number, visitor: string, page: string | 
   return { id, phone: null, name: null, contactLogged: false };
 }
 
-/** 200 visitor messages a site an hour, across every session. */
-async function siteBusy(onboardingId: number): Promise<boolean> {
-  const { rows } = await sql<{ n: string }>`
-    SELECT count(*)::text AS n FROM chat_messages
-    WHERE onboarding_id = ${onboardingId} AND role = 'user' AND created_at > now() - interval '1 hour';
+/**
+ * The flood and spend caps (turnCapReason), counted before anything is written:
+ * this site's visitor messages in the last hour and day, and every site's in the
+ * last hour. Each stored visitor message is one model turn.
+ */
+async function capReached(onboardingId: number): Promise<null | 'limit_site' | 'limit_spend'> {
+  const { rows } = await sql<{ site_hour: string; site_day: string; all_hour: string }>`
+    SELECT
+      count(*) FILTER (WHERE onboarding_id = ${onboardingId} AND created_at > now() - interval '1 hour')::text AS site_hour,
+      count(*) FILTER (WHERE onboarding_id = ${onboardingId})::text AS site_day,
+      count(*) FILTER (WHERE created_at > now() - interval '1 hour')::text AS all_hour
+    FROM chat_messages
+    WHERE role = 'user' AND created_at > now() - interval '1 day'
+      AND (onboarding_id = ${onboardingId} OR created_at > now() - interval '1 hour');
   `;
-  return Number(rows[0]?.n ?? 0) >= MAX_SITE_MESSAGES_PER_HOUR;
+  const r = rows[0];
+  return turnCapReason({ siteHour: Number(r?.site_hour ?? 0), siteDay: Number(r?.site_day ?? 0), allHour: Number(r?.all_hour ?? 0) });
 }
 
 /** 30 visitor messages a session. */
@@ -175,6 +178,12 @@ async function sessionRows(sessionId: string, limit = 80): Promise<ChatRow[]> {
       SELECT id, role, content FROM chat_messages WHERE session_id = ${sessionId} ORDER BY id DESC LIMIT ${limit}
     ) t ORDER BY id ASC;
   `;
+  return rows;
+}
+
+/** Every tool row of the session (not just the recent window), for the once-per-session rules. */
+async function sessionToolRows(sessionId: string): Promise<ChatRow[]> {
+  const { rows } = await sql<ChatRow>`SELECT role, content FROM chat_messages WHERE session_id = ${sessionId} AND role = 'tool' ORDER BY id ASC;`;
   return rows;
 }
 
@@ -214,16 +223,22 @@ const safely = (label: string, task: () => Promise<void>) => async (): Promise<v
 
 export type ChatTurnResult =
   | { ok: true; session: string; reply: string; choices: string[] }
-  | { ok: false; session: string | null; reason: 'off' | 'limit_session' | 'limit_site' };
+  | { ok: false; session: string | null; reason: 'off' | 'limit_session' | 'limit_site' | 'limit_spend' };
 
 /**
- * One visitor message in, one reply out. Tools run against the real booking
- * module (book_slot can only book what openSlots offers right now, through the
- * same createBooking/afterBooking path as the booking widget, source 'chat') and
- * the lead hooks; the reply passes finalizeReply before anyone sees it. Work that
- * can wait (the booking follow-through, the inbox transcript) goes to `defer`,
- * which the route wires to after(). Once a booking commits, nothing later in the
- * turn can become an error for the visitor: they always hear that they are booked.
+ * One visitor message in, one reply out. Tools run through chatToolExecutor
+ * (lib/chatTools.ts) against the real booking module (book_slot can only book
+ * what openSlots offers right now, through the same createBooking/afterBooking
+ * path as the booking widget, source 'chat', inside the widget's per-IP booking
+ * budget) and the lead hooks; booking, message and handoff each happen at most
+ * once a session. The reply passes finalizeReply before anyone sees it.
+ *
+ * Time: the turn has CHAT_TURN_BUDGET_MS from its start. runToolLoop starts no
+ * round it cannot finish and sizes each call's timeout to the time left, so the
+ * reply goes out well inside the route's maxDuration. A committed booking's
+ * follow-through starts at once (not after the reply), and after() keeps the
+ * function alive until it ends. Once a booking commits, nothing later in the turn
+ * can become an error for the visitor: they always hear that they are booked.
  */
 export async function handleChatTurn(input: {
   onboarding: Onboarding;
@@ -231,113 +246,71 @@ export async function handleChatTurn(input: {
   sessionId: string | null;
   message: string;
   visitor: string;
+  /** The visitor's IP, for the booking budget shared with the booking widget. */
+  ip: string;
   page: string | null;
   defer: (task: () => Promise<void>) => void;
   create?: CreateMessage;
+  now?: () => number;
 }): Promise<ChatTurnResult> {
+  const now = input.now ?? Date.now;
+  const deadline = now() + CHAT_TURN_BUDGET_MS;
   await ensureSchema();
   const { onboarding } = input;
   const settings = await getChatSettings(onboarding.id);
   if (!settings.enabled || !chatConfigured()) return { ok: false, session: null, reason: 'off' };
 
-  // The site-wide cap is checked before a new session row is written, so a flood writes nothing.
+  // The flood and spend caps are checked before a new session row is written, so a flood writes nothing.
   const existing = await findSession(onboarding.id, input.sessionId);
-  if (await siteBusy(onboarding.id)) return { ok: false, session: existing?.id ?? null, reason: 'limit_site' };
+  const cap = await capReached(onboarding.id);
+  if (cap) return { ok: false, session: existing?.id ?? null, reason: cap };
   if (existing && (await sessionFull(existing.id))) return { ok: false, session: existing.id, reason: 'limit_session' };
   const session = existing ?? (await newSession(onboarding.id, input.visitor, input.page));
   await addMessage(onboarding.id, session.id, 'user', input.message);
 
-  const [rows, booking, pages, timeZone] = await Promise.all([
+  const [rows, toolRows, booking, pages, timeZone] = await Promise.all([
     sessionRows(session.id),
+    sessionToolRows(session.id),
     getBookingSettings(onboarding.id),
     pageTexts(onboarding.id),
     bookingTimeZone(onboarding.id),
   ]);
+  const flags = sessionToolFlags(toolRows);
   const ctx = await chatContext(onboarding, { bookingOpen: booking.enabled, timeZone, pages, notes: toolNotes(rows) });
-  const state = {
-    phone: session.phone,
-    name: session.name,
-    contactLogged: session.contactLogged,
-    choices: [] as string[],
-    booked: null as null | { when: string },
-  };
+  const state = initialToolState(session, flags);
+  let contactLogged = session.contactLogged;
 
   const knowPhone = async (phone: string, name: string | null) => {
     state.phone = state.phone ?? phone;
     state.name = state.name ?? name;
     await sql`UPDATE chat_sessions SET phone = COALESCE(phone, ${phone}), name = COALESCE(name, ${name}) WHERE id = ${session.id};`;
-    if (!state.contactLogged) {
-      state.contactLogged = true;
+    if (!contactLogged) {
+      contactLogged = true;
       input.defer(safely('inbox transcript', () => logChatTranscript(onboarding.id, session.id)));
     }
   };
 
-  const execute = async (name: string, raw: unknown): Promise<unknown> => {
-    const args = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
-    switch (name) {
-      case 'offer_booking': {
-        if (!booking.enabled) return { available: false, note: 'Online booking is off. Offer to take their name and number instead.' };
-        const from = localDayStart(args.after_date, timeZone) ?? new Date().toISOString();
-        const to = new Date(Date.parse(from) + 14 * DAY).toISOString();
-        const { slots } = await openSlots(onboarding.id, { from, to });
-        const offered = slots.slice(0, 6).map((s) => ({ starts_at: s.startsAt, label: formatSlotLabel(s, timeZone) }));
-        state.choices = offered.map((s) => s.label);
-        return offered.length ? { available: true, slots: offered } : { available: false, note: 'No open times in the next two weeks. Offer to take a message.' };
-      }
-      case 'book_slot': {
-        if (state.booked) return { ok: false, error: `Already booked in this chat for ${state.booked.when}. Do not book again.` };
-        let parsed;
-        try {
-          parsed = parseBookingInput({ name: args.name, phone: args.phone, email: args.email, service: args.service, startsAt: args.starts_at }, booking.serviceNames);
-        } catch (err) {
-          if (err instanceof BookingError) return { ok: false, error: err.message };
-          throw err;
-        }
-        const result = await createBooking(onboarding.id, parsed, 'chat');
-        if (!result.ok) {
-          const why = { taken: 'That time is no longer open. Call offer_booking again.', limit: 'They already have three upcoming bookings. Offer to take a message.', closed: 'Online booking is off.' };
-          return { ok: false, error: why[result.reason] };
-        }
-        // Committed. Nothing below may turn this into a failure.
-        const made = result.booking;
-        const when = formatSlotLabel(made, result.timeZone);
-        state.choices = [];
-        state.booked = { when };
-        input.defer(safely(`booking ${made.id} follow-through`, () => afterBooking(onboarding, input.siteKey, made, result.timeZone)));
-        try {
-          await knowPhone(parsed.phone, parsed.name);
-        } catch (err) {
-          console.error('chat: session phone not saved after booking', errText(err));
-        }
-        return { ok: true, when, service: made.service };
-      }
-      case 'take_message': {
-        const phone = normalizePhone(args.phone);
-        const name = typeof args.name === 'string' ? args.name.trim().slice(0, 80) : '';
-        const message = typeof args.message === 'string' ? args.message.trim().slice(0, 1000) : '';
-        if (!phone) return { ok: false, error: 'Ask for a 10-digit US phone number first.' };
-        if (!name) return { ok: false, error: 'Ask for their name first.' };
-        await submitChatLead(onboarding, { name, phone, email: null, message: message || 'Asked to be contacted from the website chat.', page: input.page, session: session.id }, input.defer);
-        await knowPhone(phone, name);
-        return { ok: true };
-      }
-      case 'handoff': {
-        const phone = normalizePhone(args.phone) ?? state.phone;
-        if (!phone) return { ok: false, error: 'Ask for their phone number first.' };
-        const who = (typeof args.name === 'string' && args.name.trim().slice(0, 80)) || state.name || null;
-        const reason = typeof args.reason === 'string' ? args.reason.trim().slice(0, 300) : '';
-        await alertOwner(
-          onboarding,
-          'Someone on your website chat wants you',
-          `${who ?? 'A visitor'} at ${formatPhone(phone)} asked for a person on your website chat${reason ? `: ${reason}` : '.'} Text or call them back.`
-        );
-        await knowPhone(phone, who);
-        return { ok: true };
-      }
-      default:
-        return { ok: false, error: 'Unknown tool' };
-    }
-  };
+  const execute = chatToolExecutor(
+    {
+      booking,
+      timeZone,
+      openSlots: (range) => openSlots(onboarding.id, range),
+      createBooking: (parsed) => createBooking(onboarding.id, parsed, 'chat'),
+      bookingRateLimited: () => bookingRateLimited(input.ip),
+      followThrough: (made, tz) => {
+        // Started now, so the rest of the turn cannot delay or cut it; after() waits for it.
+        const running = safely(`booking ${made.id} follow-through`, () => afterBooking(onboarding, input.siteKey, made, tz))();
+        input.defer(() => running);
+      },
+      submitLead: async (lead) => {
+        await submitChatLead(onboarding, { ...lead, email: null, page: input.page, session: session.id }, input.defer);
+      },
+      alertOwner: (subject, body) => alertOwner(onboarding, subject, body),
+      knowPhone,
+      now,
+    },
+    state
+  );
 
   // Every call that ran, so a model failure after a tool ran (a booking above all) is not lost.
   const ran: ToolCall[] = [];
@@ -363,20 +336,25 @@ export async function handleChatTurn(input: {
       execute: recording,
       maxRounds: 4,
       maxTokens: 600,
+      deadline,
+      now,
+      callTimeoutMs: CHAT_CALL_TIMEOUT_MS,
     });
   } catch (err) {
     console.error('chat: model call failed', errText(err));
     // The calls that ran still count: finalizeReply turns an empty text after a
     // booking or a taken message into "you're booked" / "we have your number".
     loop = { text: '', calls: ran };
-    const captured = ran.some((c) => c.name !== 'offer_booking' && !c.isError && (c.result as { ok?: unknown } | null)?.ok === true);
-    // The model is down, but a number typed into the chat is still a lead.
-    const phone = captured ? null : findPhone(input.message);
+    const captured = ran.some((c) => ['book_slot', 'take_message', 'handoff'].some((n) => toolSucceeded(c, n)));
+    // The model is down, but a number typed into the chat is still a lead, once:
+    // not when this chat already has their number or their message.
+    const phone = captured || state.phone || state.messaged ? null : findPhone(input.message);
     if (phone) {
       try {
         await submitChatLead(onboarding, { name: state.name ?? 'Website chat visitor', phone, email: null, message: input.message, page: input.page, session: session.id }, input.defer);
-        await knowPhone(phone, state.name);
+        state.messaged = true;
         loop.text = fallbackReply(ctx.business, 'captured');
+        await knowPhone(phone, state.name);
       } catch (leadErr) {
         console.error('chat: fallback lead not saved', errText(leadErr));
       }
@@ -389,13 +367,11 @@ export async function handleChatTurn(input: {
     pageTexts: pages.map((p) => p.text),
     business: ctx.business,
     // A booking from an earlier turn of this chat (its stored book_slot row) makes a later "you're booked" true.
-    bookedEarlier: bookedInRows(rows),
+    bookedEarlier: flags.booked,
   });
   // Storage once the reply is decided is best-effort: the visitor still gets the reply.
   try {
-    for (const c of loop.calls) {
-      await addMessage(onboarding.id, session.id, 'tool', JSON.stringify({ name: c.name, input: c.input, result: c.result }).slice(0, 4000));
-    }
+    for (const c of loop.calls) await addMessage(onboarding.id, session.id, 'tool', toolRow(c));
     await addMessage(onboarding.id, session.id, 'assistant', reply);
     await sql`UPDATE chat_sessions SET last_at = now() WHERE id = ${session.id};`;
   } catch (err) {

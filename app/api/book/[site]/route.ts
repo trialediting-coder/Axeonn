@@ -2,7 +2,7 @@
 // slot engine offers right now. The row is written before the reply; the text,
 // email, reminders, inbox row and owner alert run after it (afterBooking).
 import { after } from 'next/server';
-import { clientIp, rateLimited } from '@/lib/welcomeApi';
+import { bookingRateLimited, clientIp } from '@/lib/welcomeApi';
 import { corsJson, corsPreflight, publicClient, readJsonBody } from '@/lib/publicSite';
 import { afterBooking, cancelUrl, createBooking, getBookingSettings } from '@/lib/bookings';
 import { BookingError, formatSlotLabel, parseBookingInput, type BookingInput } from '@/lib/bookingShared';
@@ -23,7 +23,7 @@ export async function OPTIONS() {
 
 export async function POST(req: Request, ctx: { params: Promise<{ site: string }> }) {
   try {
-    if (rateLimited(`book:${clientIp(req)}`, 5, 10 * 60_000)) return corsJson({ ok: false, error: 'Too many tries. Please wait a few minutes or call us.' }, 429);
+    if (bookingRateLimited(clientIp(req))) return corsJson({ ok: false, error: 'Too many tries. Please wait a few minutes or call us.' }, 429);
     const site = (await ctx.params).site;
     const body = await readJsonBody(req);
     if (!body) return corsJson({ ok: false, error: 'Please fill in the form.' }, 400);
