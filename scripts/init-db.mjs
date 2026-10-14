@@ -580,6 +580,93 @@ async function main() {
   await sql`CREATE INDEX IF NOT EXISTS chat_messages_time_idx ON chat_messages (created_at);`;
   // One crawl at a time per client: set while a train request runs (lib/chatCrawl.ts).
   await sql`ALTER TABLE chat_settings ADD COLUMN IF NOT EXISTS train_started_at TIMESTAMPTZ;`;
+  // Slice 6 (lib/metaPages.ts, lib/metaInbox.ts, lib/social.ts): the Facebook pages a
+  // client connected (page tokens sealed by lib/secretBox.ts, never stored in clear),
+  // every Messenger / Instagram DM (mid is Meta's id and the dedupe key), AxeonGROWTH
+  // reels, and data-deletion receipts (hashed code only).
+  await sql`
+    CREATE TABLE IF NOT EXISTS meta_pages (
+      id SERIAL PRIMARY KEY,
+      onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+      page_id TEXT UNIQUE NOT NULL,
+      page_name TEXT NOT NULL,
+      ig_user_id TEXT,
+      ig_username TEXT,
+      fb_user_id TEXT,
+      token_enc TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'needs_reconnect')),
+      last_error TEXT,
+      connected_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS meta_pages_onboarding_idx ON meta_pages (onboarding_id);`;
+  await sql`CREATE INDEX IF NOT EXISTS meta_pages_ig_idx ON meta_pages (ig_user_id) WHERE ig_user_id IS NOT NULL;`;
+  await sql`CREATE INDEX IF NOT EXISTS meta_pages_fb_user_idx ON meta_pages (fb_user_id) WHERE fb_user_id IS NOT NULL;`;
+  await sql`ALTER TABLE contacts ADD COLUMN IF NOT EXISTS messenger_psid TEXT;`;
+  await sql`ALTER TABLE contacts ADD COLUMN IF NOT EXISTS instagram_id TEXT;`;
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS contacts_messenger_idx ON contacts (onboarding_id, messenger_psid) WHERE messenger_psid IS NOT NULL;`;
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS contacts_instagram_idx ON contacts (onboarding_id, instagram_id) WHERE instagram_id IS NOT NULL;`;
+  // A Messenger / Instagram sender has no phone or email: the PSID / IGSID is the identity.
+  await sql`ALTER TABLE contacts DROP CONSTRAINT IF EXISTS contacts_identity_check;`;
+  // Two cold-starting instances can both drop, then both add; the loser gets duplicate_object (42710), which is fine.
+  try {
+    await sql`ALTER TABLE contacts ADD CONSTRAINT contacts_identity_check CHECK (phone IS NOT NULL OR email IS NOT NULL OR messenger_psid IS NOT NULL OR instagram_id IS NOT NULL);`;
+  } catch (err) {
+    if (err.code !== '42710') throw err;
+  }
+  await sql`
+    CREATE TABLE IF NOT EXISTS meta_messages (
+      id BIGSERIAL PRIMARY KEY,
+      onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+      contact_id BIGINT REFERENCES contacts(id) ON DELETE SET NULL,
+      channel TEXT NOT NULL CHECK (channel IN ('messenger', 'instagram')),
+      direction TEXT NOT NULL CHECK (direction IN ('in', 'out')),
+      page_id TEXT NOT NULL,
+      person_id TEXT NOT NULL,
+      mid TEXT UNIQUE NOT NULL,
+      body TEXT NOT NULL DEFAULT '',
+      attachments JSONB NOT NULL DEFAULT '[]'::jsonb,
+      sent_at TIMESTAMPTZ NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS meta_messages_contact_idx ON meta_messages (contact_id, direction, sent_at DESC);`;
+  await sql`CREATE INDEX IF NOT EXISTS meta_messages_client_time_idx ON meta_messages (onboarding_id, created_at DESC);`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS social_posts (
+      id SERIAL PRIMARY KEY,
+      onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+      platform TEXT NOT NULL CHECK (platform IN ('instagram', 'facebook')),
+      kind TEXT NOT NULL DEFAULT 'reel' CHECK (kind IN ('reel')),
+      page_id TEXT NOT NULL,
+      video_url TEXT NOT NULL,
+      caption TEXT NOT NULL DEFAULT '',
+      scheduled_at TIMESTAMPTZ,
+      status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'scheduled', 'published', 'failed')),
+      container_id TEXT,
+      remote_id TEXT,
+      permalink TEXT,
+      error TEXT,
+      attempts INTEGER NOT NULL DEFAULT 0,
+      locked_until TIMESTAMPTZ,
+      reach INTEGER,
+      plays INTEGER,
+      insights_at TIMESTAMPTZ,
+      published_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS social_posts_due_idx ON social_posts (status, scheduled_at);`;
+  await sql`CREATE INDEX IF NOT EXISTS social_posts_client_idx ON social_posts (onboarding_id, created_at DESC);`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS meta_deletions (
+      code_hash TEXT PRIMARY KEY,
+      pages_removed INTEGER NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `;
   console.log('Schema ready.');
 }
 

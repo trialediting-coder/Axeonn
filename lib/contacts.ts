@@ -444,6 +444,90 @@ export async function upsertContactEvent(input: ContactEventInput): Promise<Upse
   return { contactId: ev.contactId, eventId: ev.id, createdContact: resolved.created, insertedEvent: ev.inserted };
 }
 
+// ───────────────────────────── Messenger and Instagram (slice 6) ─────────────────────────────
+
+/**
+ * A Messenger or Instagram sender has no phone or email, so upsertContactEvent
+ * (keyed by contactKeyFor) cannot place them. The PSID / IGSID is the identity,
+ * unique per client (partial unique indexes in lib/db.ts). Returns the contact
+ * id and whether this call created it. The name is only filled when the contact
+ * has none, so a name the client typed is never replaced. Never merged with a
+ * phone or email contact: Meta does not give us their number.
+ */
+export async function upsertContactByExternalId(input: {
+  onboardingId: number;
+  channel: 'messenger' | 'instagram';
+  externalId: string;
+  name: string | null;
+  /** When the message was sent, ISO; a brand-new contact was first seen then. */
+  at: string;
+}): Promise<{ id: number; created: boolean }> {
+  await ensureSchema();
+  const name = cleanName(input.name);
+  const res =
+    input.channel === 'messenger'
+      ? await sql<{ id: DbId; created: boolean }>`
+          INSERT INTO contacts (onboarding_id, messenger_psid, name, source, first_seen_at, last_activity_at)
+          VALUES (${input.onboardingId}, ${input.externalId}, ${name}, 'messenger', ${input.at}, ${input.at})
+          ON CONFLICT (onboarding_id, messenger_psid) WHERE messenger_psid IS NOT NULL
+          DO UPDATE SET name = COALESCE(contacts.name, EXCLUDED.name)
+          RETURNING id, (xmax = 0) AS created;`
+      : await sql<{ id: DbId; created: boolean }>`
+          INSERT INTO contacts (onboarding_id, instagram_id, name, source, first_seen_at, last_activity_at)
+          VALUES (${input.onboardingId}, ${input.externalId}, ${name}, 'instagram', ${input.at}, ${input.at})
+          ON CONFLICT (onboarding_id, instagram_id) WHERE instagram_id IS NOT NULL
+          DO UPDATE SET name = COALESCE(contacts.name, EXCLUDED.name)
+          RETURNING id, (xmax = 0) AS created;`;
+  return { id: Number(res.rows[0].id), created: Boolean(res.rows[0].created) };
+}
+
+/**
+ * One timeline event on a contact already found by id (a DM thread). Same
+ * idempotent insertEvent as every other producer (unique on ref_table, ref_id,
+ * kind, ref_part), same "last activity" rule (isLeadActivity), and on a fresh
+ * event an optional system stage through advanceStage: a reply the client typed
+ * is 'contacted', which mirrors onto their forms and stops slice 3's new-lead
+ * and quote follow-ups exactly as a typed text does.
+ */
+export async function addContactEvent(input: {
+  onboardingId: number;
+  contactId: number;
+  kind: ContactEventKind;
+  refTable: string;
+  refId: number | null;
+  summary: string;
+  payload: EventPayload;
+  createdAt: string;
+  systemStage?: SystemStage | null;
+}): Promise<{ eventId: number; insertedEvent: boolean } | null> {
+  if (!isDatabaseConfigured()) return null;
+  await ensureSchema();
+  const ev = await insertEvent(
+    input.contactId,
+    {
+      onboardingId: input.onboardingId,
+      kind: input.kind,
+      refTable: input.refTable,
+      refId: input.refId,
+      refPart: 0,
+      summary: input.summary,
+      payload: input.payload,
+      createdAt: input.createdAt,
+    },
+    'update',
+  );
+  if (!ev) return null;
+  if (isLeadActivity(input.kind, input.payload)) {
+    await sql`
+      UPDATE contacts SET
+        last_activity_at = GREATEST(last_activity_at, ${input.createdAt}::timestamptz),
+        first_seen_at = LEAST(first_seen_at, ${input.createdAt}::timestamptz)
+      WHERE id = ${ev.contactId} AND onboarding_id = ${input.onboardingId};`;
+  }
+  if (ev.inserted && input.systemStage) await advanceStage(input.onboardingId, ev.contactId, input.systemStage, false);
+  return { eventId: ev.id, insertedEvent: ev.inserted };
+}
+
 // ───────────────────────────── Tracker clicks ─────────────────────────────
 
 /**

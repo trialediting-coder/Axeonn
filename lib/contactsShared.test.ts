@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  canReplyNow, cleanName, contactKeyFor, decodeCursor, encodeCursor, eventSummary, inboxEnabled, isLeadActivity, maskEmail,
+  canReplyNow, cleanName, contactKeyFor, contactWho, decodeCursor, encodeCursor, eventSummary, inboxEnabled, isLeadActivity, maskEmail,
   mergeDecision, messageEventKind, nextSystemStage, noteForAction, outcomeForStage, parseContactId, quietNotice, relativeWhen,
   replyBlocker, sequenceEffects, shortName, sourceForKind, systemStageFor, textingState, toDashboardContact, toDashboardEvent,
   validateReplyBody, heldReplyStatus, unmatchedTaps, QUIET_WINDOW, HELD_REPLY_COPY, REPLY_REFUSAL_COPY, REPLY_UNCLEAR_COPY, isReplyRefusal,
@@ -278,4 +278,14 @@ test('unmatchedTaps: BIGSERIAL ids arrive as strings and still match the attache
   const rows = [{ id: '11' }, { id: '12' }, { id: 13 }] as Array<{ id: number | string }>;
   assert.deepEqual(unmatchedTaps(rows, new Set([11, 13])), [{ id: '12' }]);
   assert.deepEqual(unmatchedTaps(rows, new Set()), rows);
+});
+
+test('contactWho: a DM-only contact reads by channel, never "Unknown"; a named one does not double its name', () => {
+  assert.equal(contactWho({ phone: null, email: null, source: 'messenger' }), 'Facebook message');
+  assert.equal(contactWho({ phone: null, email: null, source: 'instagram' }), 'Instagram message');
+  assert.equal(contactWho({ phone: null, email: null }), 'Unknown');
+  assert.equal(contactWho({ phone: '+15155550134', email: null, source: 'messenger' }), contactWho({ phone: '+15155550134', email: null }));
+  const dm = toDashboardContact(contact({ phone: null, name: 'Mike Rogers', source: 'messenger' }), null, false);
+  assert.equal(dm.who, 'Facebook message');
+  assert.equal(dm.name, 'Mike Rogers');
 });

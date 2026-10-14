@@ -293,9 +293,16 @@ export function shortName(name: string | null): string | null {
   return `${words[0]} ${words[words.length - 1][0].toUpperCase()}.`;
 }
 
-export function contactWho(c: { phone: string | null; email: string | null }): string {
+/**
+ * Masked number, else masked email. A Messenger / Instagram contact has neither
+ * (the PSID / IGSID is its identity, slice 6), so it reads by channel instead of
+ * "Unknown"; its name, when known, already shows beside this in the list.
+ */
+export function contactWho(c: { phone: string | null; email: string | null; source?: ContactSource }): string {
   if (c.phone) return maskNumber(c.phone);
   if (c.email) return maskEmail(c.email);
+  if (c.source === 'messenger') return 'Facebook message';
+  if (c.source === 'instagram') return 'Instagram message';
   return 'Unknown';
 }
 
@@ -333,7 +340,7 @@ export interface DashboardContact {
   id: number;
   /** As the lead gave it or the client typed it. */
   name: string | null;
-  /** Masked number, masked email, or "Unknown". */
+  /** Masked number, masked email, "Facebook message" / "Instagram message" for a DM-only contact, or "Unknown". */
   who: string;
   stage: LeadStage;
   /** Whether "Quote sent" was tapped; the time itself stays server-side (as slice 3's DashboardSubmission). */
