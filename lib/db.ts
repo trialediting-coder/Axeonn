@@ -588,6 +588,79 @@ export function ensureSchema(): Promise<void> {
       await sql`ALTER TABLE sequence_runs ADD COLUMN IF NOT EXISTS template_updated_at TIMESTAMPTZ;`;
       // The run's last send: decideRun keeps 2 hours between sends (reminders excepted).
       await sql`ALTER TABLE sequence_runs ADD COLUMN IF NOT EXISTS last_sent_at TIMESTAMPTZ;`;
+      // The leads inbox (lib/contacts.ts, slice 4): one contact per phone or email
+      // per client, and a projection of every call, text, form and click onto it.
+      // The source tables stay the truth; contact_events exists so the inbox is one read.
+      await sql`
+        CREATE TABLE IF NOT EXISTS contacts (
+          id BIGSERIAL PRIMARY KEY,
+          onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+          phone TEXT,
+          email TEXT,
+          name TEXT,
+          stage TEXT NOT NULL DEFAULT 'new' CHECK (stage IN ('new', 'contacted', 'booked', 'won', 'lost')),
+          source TEXT NOT NULL CHECK (source IN ('call', 'text', 'form', 'chat', 'booking', 'click', 'messenger', 'instagram')),
+          utm_source TEXT,
+          utm_medium TEXT,
+          utm_campaign TEXT,
+          first_seen_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          last_activity_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          stage_changed_at TIMESTAMPTZ,
+          quote_sent_at TIMESTAMPTZ,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          CONSTRAINT contacts_identity_check CHECK (phone IS NOT NULL OR email IS NOT NULL)
+        );
+      `;
+      await sql`CREATE UNIQUE INDEX IF NOT EXISTS contacts_phone_uniq ON contacts (onboarding_id, phone) WHERE phone IS NOT NULL;`;
+      await sql`CREATE UNIQUE INDEX IF NOT EXISTS contacts_email_uniq ON contacts (onboarding_id, email) WHERE email IS NOT NULL;`;
+      await sql`CREATE INDEX IF NOT EXISTS contacts_inbox_idx ON contacts (onboarding_id, last_activity_at DESC, id DESC);`;
+      await sql`
+        CREATE TABLE IF NOT EXISTS contact_events (
+          id BIGSERIAL PRIMARY KEY,
+          contact_id BIGINT NOT NULL REFERENCES contacts(id) ON DELETE CASCADE,
+          onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+          kind TEXT NOT NULL CHECK (kind IN ('call', 'text_in', 'text_out', 'form', 'booking', 'chat', 'click', 'note', 'alert', 'sequence', 'reminder', 'messenger', 'instagram')),
+          ref_table TEXT,
+          ref_id BIGINT,
+          ref_part INTEGER NOT NULL DEFAULT 0,
+          summary TEXT NOT NULL DEFAULT '',
+          payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        );
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS contact_events_client_time_idx ON contact_events (onboarding_id, created_at);`;
+      await sql`CREATE INDEX IF NOT EXISTS contact_events_contact_time_idx ON contact_events (contact_id, created_at);`;
+      // One event per source row and kind: Twilio retries and a second backfill update it instead of adding one.
+      await sql`CREATE UNIQUE INDEX IF NOT EXISTS contact_events_ref_uniq ON contact_events (ref_table, ref_id, kind, ref_part) WHERE ref_id IS NOT NULL;`;
+      // Browsers that asked for lead notifications (lib/push.ts), one row per device.
+      await sql`
+        CREATE TABLE IF NOT EXISTS push_subscriptions (
+          id SERIAL PRIMARY KEY,
+          account_id INTEGER NOT NULL REFERENCES client_accounts(id) ON DELETE CASCADE,
+          endpoint TEXT UNIQUE NOT NULL,
+          p256dh TEXT NOT NULL,
+          auth TEXT NOT NULL,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        );
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS push_subscriptions_account_idx ON push_subscriptions (account_id);`;
+      // Replies typed during quiet hours (lib/inboxReply.ts), sent at 8 am by /api/cron/held-replies.
+      await sql`
+        CREATE TABLE IF NOT EXISTS held_replies (
+          id BIGSERIAL PRIMARY KEY,
+          onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+          contact_id BIGINT NOT NULL REFERENCES contacts(id) ON DELETE CASCADE,
+          body TEXT NOT NULL,
+          send_at TIMESTAMPTZ NOT NULL,
+          status TEXT NOT NULL DEFAULT 'held' CHECK (status IN ('held', 'sending', 'sent', 'failed')),
+          error TEXT,
+          claimed_at TIMESTAMPTZ,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          sent_at TIMESTAMPTZ
+        );
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS held_replies_due_idx ON held_replies (status, send_at);`;
+      await sql`CREATE INDEX IF NOT EXISTS held_replies_contact_idx ON held_replies (contact_id);`;
     })().catch((err) => {
       schemaReady = null; // let the next request retry
       throw err;
