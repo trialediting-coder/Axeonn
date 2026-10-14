@@ -26,7 +26,7 @@ const MAX_ATTACHMENT_URL = 2048;
 const storedAttachments = (list: MetaAttachment[]): MetaAttachment[] =>
   list.slice(0, MAX_ATTACHMENTS).map((a) => ({ type: a.type.slice(0, 40), url: a.url && a.url.length <= MAX_ATTACHMENT_URL ? a.url : null }));
 
-type RecordResult = 'recorded' | 'duplicate' | 'unknown_page' | 'inbox_off';
+export type RecordResult = 'recorded' | 'duplicate' | 'unknown_page' | 'inbox_off';
 
 async function recordOne(e: MetaInboundMessage, now: Date): Promise<RecordResult> {
   const page = await pageForId(e.pageOrIgId);
@@ -69,11 +69,6 @@ async function recordOne(e: MetaInboundMessage, now: Date): Promise<RecordResult
     created = contact.created;
     await sql`UPDATE meta_messages SET contact_id = ${contactId} WHERE id = ${messageId} AND contact_id IS NULL;`;
   }
-  if (created) {
-    const name = await profileName(e.channel, e.senderId, page.pageToken);
-    if (name) await upsertContactByExternalId({ onboardingId: page.onboardingId, channel: e.channel, externalId: e.senderId, name, at: sentAt });
-  }
-
   const ev = await addContactEvent({
     onboardingId: page.onboardingId,
     contactId,
@@ -88,22 +83,63 @@ async function recordOne(e: MetaInboundMessage, now: Date): Promise<RecordResult
   if (!ev?.insertedEvent) return 'duplicate';
   // Push first; with no device, the owner text (outside quiet hours) and the email. Never throws, carries no message words.
   await notifyLeadActivity(page.onboardingId, contactId, e.channel);
+  // The name last: a slow Graph call (10 s timeout) must never delay the recording or the alert.
+  if (created) {
+    const name = await profileName(e.channel, e.senderId, page.pageToken);
+    if (name) await upsertContactByExternalId({ onboardingId: page.onboardingId, channel: e.channel, externalId: e.senderId, name, at: sentAt });
+  }
   return 'recorded';
 }
 
-/** Runs inside after(): one bad message never stops the rest, and nothing here can change the 200 Meta already got. */
-export async function processInbound(events: MetaInboundMessage[], now: Date = new Date()): Promise<Record<RecordResult | 'failed', number>> {
-  const tally: Record<RecordResult | 'failed', number> = { recorded: 0, duplicate: 0, unknown_page: 0, inbox_off: 0, failed: 0 };
+type Tally = Record<RecordResult | 'failed', number>;
+
+/** Ids only, never the words: enough to find the conversation in Meta Business Suite and replay it. */
+const lostLine = (e: MetaInboundMessage) => ({ channel: e.channel, mid: e.mid, page: e.pageOrIgId, sender: e.senderId, at: e.timestamp });
+
+/** Seams for tests; production uses the defaults. */
+export interface InboundDeps {
+  record?: (e: MetaInboundMessage, now: Date) => Promise<RecordResult>;
+  /** Wait before the one retry of a failed message. */
+  retryDelayMs?: number;
+}
+
+/**
+ * Runs inside after(): one bad message never stops the rest, and nothing here
+ * can change the 200 Meta already got, so Meta will not redeliver. A message
+ * that throws is retried once (the mid dedupe makes that safe); if it fails
+ * again it is logged as "[meta:inbound] LOST" with its ids so it can be found
+ * and replayed. No log line here carries message text.
+ */
+export async function processInbound(events: MetaInboundMessage[], now: Date = new Date(), deps: InboundDeps = {}): Promise<Tally> {
+  const record = deps.record ?? recordOne;
+  const retryDelayMs = deps.retryDelayMs ?? 1000;
+  const tally: Tally = { recorded: 0, duplicate: 0, unknown_page: 0, inbox_off: 0, failed: 0 };
+  const retry: MetaInboundMessage[] = [];
   for (const e of events) {
     try {
-      tally[await recordOne(e, now)] += 1;
+      tally[await record(e, now)] += 1;
     } catch (err) {
-      tally.failed += 1;
-      console.error('[meta:inbound]', PLATFORM[e.channel], redactedErr(err));
+      console.error('[meta:inbound] failed, will retry', PLATFORM[e.channel], e.mid, redactedErr(err));
+      retry.push(e);
+    }
+  }
+  if (retry.length) {
+    await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+    for (const e of retry) {
+      try {
+        tally[await record(e, now)] += 1;
+      } catch (err) {
+        tally.failed += 1;
+        console.error('[meta:inbound] LOST', lostLine(e), redactedErr(err));
+      }
     }
   }
   if (tally.unknown_page) console.error('[meta:inbound] messages for a page no client has connected', tally.unknown_page);
   if (tally.inbox_off) console.error('[meta:inbound] messages for a client whose plan has no inbox', tally.inbox_off);
+  const skipped = tally.duplicate + tally.unknown_page + tally.inbox_off;
+  const summary = `[meta:inbound] processed ${events.length}: recorded ${tally.recorded}, skipped ${skipped}, failed ${tally.failed}`;
+  if (tally.failed) console.error(summary);
+  else console.info(summary);
   return tally;
 }
 

@@ -80,3 +80,22 @@ test('an oversized body is refused', async () => {
   assert.equal(r.ok, false);
   if (!r.ok) assert.equal(r.response.status, 413);
 });
+
+test('the signature covers the raw bytes even when a chunk boundary splits a multi-byte character', async () => {
+  configure();
+  const body = '{"object":"page","entry":[{"id":"111","messaging":[{"sender":{"id":"222"},"recipient":{"id":"111"},"timestamp":1760000000000,"message":{"mid":"m_emoji","text":"Café 🚤 ok?"}}]}]}';
+  const bytes = Buffer.from(body, 'utf8');
+  const at = bytes.indexOf(Buffer.from('🚤', 'utf8')) + 2; // inside the 4-byte emoji
+  const stream = new ReadableStream<Uint8Array>({
+    start(c) {
+      c.enqueue(new Uint8Array(bytes.subarray(0, at)));
+      c.enqueue(new Uint8Array(bytes.subarray(at)));
+      c.close();
+    },
+  });
+  const sig = `sha256=${createHmac('sha256', SECRET).update(bytes).digest('hex')}`;
+  const req = new Request(URL_BASE, { method: 'POST', headers: { 'content-type': 'application/json', 'x-hub-signature-256': sig }, body: stream, duplex: 'half' } as RequestInit);
+  const r = await readMetaWebhook(req);
+  assert.equal(r.ok, true);
+  if (r.ok) assert.equal(r.events[0].text, 'Café 🚤 ok?');
+});
