@@ -1,0 +1,115 @@
+// lib/chatShared.test.ts
+// Run with: npm run test:chat
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import {
+  CHAT_TOOLS, PAGES_BUDGET_CHARS, PAGE_CHARS_MAX, buildSystemPrompt, claimsBooking, clampHistory, finalizeReply, findPhone, isSessionId,
+  pagesBlock, pricesNotOnSite, sanitizeVisitorText, todayLine, toolLabel, toolNotes, validateChatSettings, type ChatContext, type ChatRow,
+} from './chatShared';
+
+const ctx: ChatContext = {
+  business: 'A-1 Auto Detailing',
+  services: 'Full detail, interior detail, ceramic coating',
+  hours: 'Mon–Fri 8am–6pm',
+  area: 'Des Moines metro',
+  answers: [{ label: 'Not a good fit', value: 'Anyone outside 30 miles' }],
+  pages: [
+    { url: 'https://a1.test/services', title: 'Services', text: 'Full detail from $199.' },
+    { url: 'https://a1.test/', title: 'Home', text: 'Welcome to A-1.' },
+  ],
+  bookingOpen: true,
+  today: 'Tuesday, October 13, 2026',
+  timeZone: 'America/Chicago',
+  notes: ['Times offered: Tue, Oct 13 at 2:00 PM = 2026-10-13T19:00:00.000Z'],
+};
+
+test('the system prompt carries the business, the rules, the notes and the pages, homepage first', () => {
+  const p = buildSystemPrompt(ctx);
+  for (const s of ['A-1 Auto Detailing', 'Mon–Fri 8am–6pm', 'Des Moines metro', 'Anyone outside 30 miles', 'Tuesday, October 13, 2026', 'America/Chicago']) assert.ok(p.includes(s), s);
+  assert.match(p, /Never state a price/);
+  assert.match(p, /unless book_slot returned ok/);
+  assert.match(p, /offer to take their name and number/);
+  assert.ok(p.includes('2026-10-13T19:00:00.000Z'));
+  assert.ok(p.indexOf('### Home') < p.indexOf('### Services'));
+  assert.doesNotMatch(p, /Online booking is not turned on/);
+  assert.match(buildSystemPrompt({ ...ctx, bookingOpen: false }), /Online booking is not turned on/);
+});
+
+test('pagesBlock stays inside the budget and caps each page', () => {
+  const pages = Array.from({ length: 30 }, (_, i) => ({ url: `https://a1.test/p${i}`, title: `P${i}`, text: 'x'.repeat(5000) }));
+  const block = pagesBlock(pages);
+  assert.ok(block.length <= PAGES_BUDGET_CHARS + 20 * 2);
+  assert.ok(block.split('### ').every((part) => part.length <= PAGE_CHARS_MAX + 60));
+  assert.equal(pagesBlock([]), '');
+});
+
+test('the four tools are declared with their required fields', () => {
+  assert.deepEqual(CHAT_TOOLS.map((t) => t.name), ['offer_booking', 'book_slot', 'take_message', 'handoff']);
+  assert.deepEqual(CHAT_TOOLS.find((t) => t.name === 'book_slot')?.input_schema.required, ['starts_at', 'name', 'phone']);
+  assert.deepEqual(CHAT_TOOLS.find((t) => t.name === 'take_message')?.input_schema.required, ['name', 'phone', 'message']);
+});
+
+test('clampHistory drops tool rows, merges repeats, starts on the visitor and keeps the newest', () => {
+  const rows: ChatRow[] = [
+    { role: 'assistant', content: 'stray' },
+    { role: 'user', content: 'hi' },
+    { role: 'tool', content: '{}' },
+    { role: 'assistant', content: 'hello' },
+    { role: 'user', content: 'a' },
+    { role: 'user', content: 'b' },
+  ];
+  assert.deepEqual(clampHistory(rows), [
+    { role: 'user', content: 'hi' },
+    { role: 'assistant', content: 'hello' },
+    { role: 'user', content: 'a\n\nb' },
+  ]);
+  assert.deepEqual(clampHistory(rows, 6), [{ role: 'user', content: 'a\n\nb' }]);
+  assert.deepEqual(clampHistory([{ role: 'user', content: 'z'.repeat(50) }], 10), [{ role: 'user', content: 'z'.repeat(10) }]);
+});
+
+test('toolNotes and toolLabel summarise what the tools did', () => {
+  const rows: ChatRow[] = [
+    { role: 'tool', content: JSON.stringify({ name: 'offer_booking', result: { available: true, slots: [{ starts_at: '2026-10-13T19:00:00.000Z', label: 'Tue, Oct 13 at 2:00 PM' }] } }) },
+    { role: 'tool', content: JSON.stringify({ name: 'book_slot', result: { ok: true, when: 'Tue, Oct 13 at 2:00 PM' } }) },
+    { role: 'tool', content: 'not json' },
+  ];
+  assert.deepEqual(toolNotes(rows), ['Times offered: Tue, Oct 13 at 2:00 PM = 2026-10-13T19:00:00.000Z', 'Booked: Tue, Oct 13 at 2:00 PM']);
+  assert.equal(toolLabel(rows[1].content), 'Booked a time');
+  assert.equal(toolLabel(JSON.stringify({ name: 'take_message', result: { ok: false } })), 'Took a message (did not go through)');
+  assert.equal(toolLabel('nope'), 'Tool');
+});
+
+test('prices are checked against the site, and false booking claims are caught', () => {
+  assert.deepEqual(pricesNotOnSite('Full detail is $199.', ['Full detail from $199.']), []);
+  assert.deepEqual(pricesNotOnSite('About $1,200.00 for coating', ['Coating $1200']), []);
+  assert.deepEqual(pricesNotOnSite('Interior is $150 and full is $199', ['Full detail from $199.']), ['150']);
+  assert.equal(claimsBooking("You're booked for Tuesday at 2."), true);
+  assert.equal(claimsBooking('Your appointment is confirmed.'), true);
+  assert.equal(claimsBooking("I've booked you in."), true);
+  assert.equal(claimsBooking('Want me to book you for Tuesday at 2?'), false);
+});
+
+test('finalizeReply replaces empty, priced and falsely booked replies, and keeps honest ones', () => {
+  const base = { calls: [], pageTexts: ['Full detail from $199.'], business: 'A-1' };
+  assert.equal(finalizeReply({ ...base, text: '  ' }).replaced, 'empty');
+  assert.equal(finalizeReply({ ...base, text: 'Interior is $150.' }).replaced, 'price');
+  assert.equal(finalizeReply({ ...base, text: "You're booked!" }).replaced, 'booking');
+  const booked = finalizeReply({ ...base, text: "You're booked for Tue at 2:00 PM.", calls: [{ name: 'book_slot', input: {}, result: { ok: true }, isError: false }] });
+  assert.deepEqual(booked, { reply: "You're booked for Tue at 2:00 PM.", replaced: null });
+  for (const kind of ['empty', 'price', 'booking'] as const) assert.match(finalizeReply({ ...base, text: kind === 'empty' ? '' : kind === 'price' ? '$5' : "You're booked" }).reply, /number/);
+});
+
+test('visitor input, session ids, phone finding and settings are validated', () => {
+  assert.equal(sanitizeVisitorText('  hi\u0000 there  '), 'hi there');
+  assert.equal(sanitizeVisitorText('   '), null);
+  assert.equal(sanitizeVisitorText(42), null);
+  assert.equal(sanitizeVisitorText('x'.repeat(1500))?.length, 1000);
+  assert.equal(isSessionId('abcdefghijklmnopqrstuvwx'), true);
+  assert.equal(isSessionId('short'), false);
+  assert.equal(findPhone('call me at 515.555.0134 after 5'), '+15155550134');
+  assert.equal(findPhone('no number here'), null);
+  assert.deepEqual(validateChatSettings({ enabled: true, greeting: '  Hi!  ' }), { enabled: true, greeting: 'Hi!' });
+  assert.deepEqual(validateChatSettings({ enabled: 'false', greeting: '' }), { enabled: false, greeting: null });
+  assert.throws(() => validateChatSettings({ enabled: true, greeting: 'x'.repeat(201) }), /200/);
+  assert.equal(todayLine(Date.parse('2026-10-13T15:00:00Z'), 'America/Chicago'), 'Tuesday, October 13, 2026');
+});
