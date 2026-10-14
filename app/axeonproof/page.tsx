@@ -15,7 +15,7 @@ import { GUARANTEE_LINE, GUARANTEE_TERMS } from '@/components/marketing-solution
 import { ProofWindow } from '@/components/axeonproof/ProofWindow';
 import { ProofTour } from '@/components/axeonproof/ProofTour';
 import { ProofHotspots } from '@/components/axeonproof/ProofHotspots';
-import { HeroGrid } from '@/components/axeonproof/HeroGrid';
+import { PointerGlow } from '@/components/axeonproof/PointerGlow';
 import { GuaranteeScrubber } from '@/components/axeonproof/GuaranteeScrubber';
 import { PageIntro } from '@/components/axeonproof/PageIntro';
 import { DashboardShell } from '@/components/axeonproof/DashboardShell';
@@ -58,26 +58,26 @@ const PLANS = [
 
 export default function AxeonProofPage() {
   return (
-    <main className="w-full bg-neutral-950 text-white">
+    <main className="relative isolate w-full bg-neutral-950 text-white">
       <JsonLd data={jsonLd} />
       <BreadcrumbJsonLd items={[{ name: 'AxeonPROOF', path: '/axeonproof' }]} />
       <PageIntro />
+      <PointerGlow />
 
-      {/* Hero: headline on the left, then the live dashboard standing up out of the dark. */}
+      {/* Hero: centered headline, then the live dashboard standing up out of the dark. */}
       <section style={{ animationDelay: '1700ms' }} className="proof-hero-stagger animate-proof-settle relative overflow-hidden px-4 pb-14 pt-32 sm:px-8 sm:pb-20 sm:pt-40 lg:px-14">
-        <HeroGrid />
-        <div className={`pointer-events-none relative ${WRAP} [&_a]:pointer-events-auto`}>
-          <div className="max-w-3xl">
+        <div className={`relative ${WRAP}`}>
+          <div className="mx-auto max-w-4xl text-center">
             <div className="proof-hero-stagger animate-proof-rise" style={{ animationDelay: '1850ms' }}>
               <Eyebrow label="AxeonPROOF" onDark className="mb-6" />
             </div>
             <h1 style={{ animationDelay: '1950ms' }} className="proof-hero-stagger animate-proof-rise text-balance font-display text-5xl font-black leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl">
               Every call, lead and booked job. One screen.
             </h1>
-            <p style={{ animationDelay: '2100ms' }} className="proof-hero-stagger animate-proof-rise mt-7 max-w-xl text-lg leading-relaxed text-neutral-400 sm:text-xl">
+            <p style={{ animationDelay: '2100ms' }} className="proof-hero-stagger animate-proof-rise mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-neutral-400 sm:text-xl">
               The dashboard every Axeon client signs into. What your marketing brought in this month, where each customer came from, and what we are building next.
             </p>
-            <div style={{ animationDelay: '2250ms' }} className="proof-hero-stagger animate-proof-rise mt-9 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
+            <div style={{ animationDelay: '2250ms' }} className="proof-hero-stagger animate-proof-rise mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
               <Link href="/book" data-track="cta_click" data-track-cta="axeonproof_hero" className={CTA}>
                 Book My Free Demo <ArrowRight size={18} />
               </Link>
