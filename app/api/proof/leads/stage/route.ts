@@ -16,6 +16,9 @@ export const dynamic = 'force-dynamic';
 const bad = (error: string) => NextResponse.json({ error }, { status: 400 });
 
 export async function POST(req: Request) {
+  // JSON only: a form post from another site (a simple cross-site request) is refused before anything is read.
+  const type = (req.headers.get('content-type') ?? '').split(';')[0].trim().toLowerCase();
+  if (type !== 'application/json') return NextResponse.json({ error: 'Send JSON' }, { status: 415 });
   const account = await getSignedInClient();
   if (!account) return NextResponse.json({ error: 'Please sign in again' }, { status: 401 });
   let parsed: ReturnType<typeof parseStageRequest>;

@@ -5,8 +5,8 @@ import assert from 'node:assert/strict';
 import { isQuietHours } from './leadShared';
 import { DEFAULT_TEMPLATES, STOP_LINE, validateTemplate, type SequenceTemplate } from './sequenceShared';
 import {
-  decideRun, holdForQuietHours, localParts, mayBeInReactivationWindow, nextSendAt, planSend, reactivationWindow, safeTimeZone,
-  scheduleReactivation, zonedTime, type RunContext, type RunState,
+  connectCallDecision, decideRun, holdForQuietHours, isDefiniteRejection, localParts, mayBeInReactivationWindow, nextSendAt, planSend,
+  reactivationWindow, redactDigits, safeTimeZone, scheduleReactivation, zonedTime, type RunContext, type RunState,
 } from './sequenceSchedule';
 
 const CHI = 'America/Chicago';
@@ -70,13 +70,14 @@ test('planSend skips reminders that are too late or would land on the appointmen
   assert.equal(planSend({ ...r, anchorAt: at('2026-10-15T13:00:00Z'), now: at('2026-10-14T20:00:00Z') }), null);
 });
 
-test('scheduleReactivation spreads a small list over the week from 10 am', () => {
-  const start = at('2027-01-01T06:15:00Z'); // 12:15 am Jan 1, Central
+test('scheduleReactivation spreads a small list over the sending days of the week from 10 am', () => {
+  const start = at('2027-01-01T06:15:00Z'); // 12:15 am Fri Jan 1, Central
   const times = scheduleReactivation(120, start, CHI);
   assert.equal(times.length, 120);
-  assert.equal(isoOf(times[0]), '2027-01-01T16:00:00.000Z'); // 10:00 am CST
-  assert.equal(isoOf(times[17]), '2027-01-01T17:25:00.000Z'); // 18 a day, 5 minutes apart
-  assert.equal(isoOf(times[18]), '2027-01-02T16:00:00.000Z');
+  // Jan 1 and Sun Jan 3 are off: 5 sending days in the week, 24 a day.
+  assert.equal(isoOf(times[0]), '2027-01-02T16:00:00.000Z'); // 10:00 am CST Sat Jan 2
+  assert.equal(isoOf(times[23]), '2027-01-02T17:55:00.000Z'); // 24 a day, 5 minutes apart
+  assert.equal(isoOf(times[24]), '2027-01-04T16:00:00.000Z'); // Sunday skipped
   assert.ok(times.every((t) => !isQuietHours(t, CHI)));
   assert.ok(times[119].getTime() < at('2027-01-08T06:00:00Z').getTime()); // inside the first week
   assert.deepEqual(scheduleReactivation(0, start, CHI), []);
@@ -92,8 +93,22 @@ test('scheduleReactivation never sends more than 50 a day, even past the first w
   }
   assert.equal(times.length, 600);
   assert.ok([...perDay.values()].every((n) => n <= 50));
-  assert.equal(perDay.get('2027-1-1'), 50);
+  assert.equal(perDay.get('2027-1-1'), undefined); // New Year's Day
+  assert.equal(perDay.get('2027-1-2'), 50);
+  assert.equal(perDay.get('2027-1-3'), undefined); // Sunday
   assert.equal(perDay.size, 12);
+});
+
+test('scheduleReactivation shifts the first send day off a Sunday and skips the Fourth of July', () => {
+  // Sun Oct 1 2028: the first texts go Monday.
+  assert.equal(isoOf(scheduleReactivation(3, at('2028-10-01T05:30:00Z'), CHI)[0]), '2028-10-02T15:00:00.000Z');
+  // Sun Jul 1 2029: sending days are Jul 2, 3, 5, 6, 7 (Wed Jul 4 off), 2 a day for 6 customers.
+  const july = scheduleReactivation(6, at('2029-07-01T05:30:00Z'), CHI).map(isoOf);
+  assert.deepEqual(july, [
+    '2029-07-02T15:00:00.000Z', '2029-07-02T15:05:00.000Z',
+    '2029-07-03T15:00:00.000Z', '2029-07-03T15:05:00.000Z',
+    '2029-07-05T15:00:00.000Z', '2029-07-05T15:05:00.000Z',
+  ]);
 });
 
 test('scheduleReactivation starts tomorrow when 10 am has passed', () => {
@@ -234,4 +249,71 @@ test('mayBeInReactivationWindow covers every time zone and nothing more', () => 
   assert.equal(mayBeInReactivationWindow(new Date('2026-09-30T12:00:00Z')), true); // Oct 1 at UTC+14
   assert.equal(mayBeInReactivationWindow(new Date('2026-09-15T12:00:00Z')), false);
   assert.equal(mayBeInReactivationWindow(new Date('2026-11-02T12:00:00Z')), false);
+});
+
+test('a step more than 12 hours late is skipped, not sent; a 2-hour-late one still goes', () => {
+  // Step 0 was due at 10:05 am; it is now 11:06 pm, 13 hours on: skip to the email step, held to its time.
+  assert.deepEqual(decideRun(run(), ctx({ now: at('2026-10-14T04:06:00Z') })), { type: 'hold', step: 1, until: at('2026-10-14T15:00:00Z') });
+  const base = { kind: 'new_lead' as const, steps: DEFAULT_TEMPLATES.new_lead, anchorAt: at('2026-10-13T15:00:00Z'), timeZone: CHI, canSms: true, canEmail: true, fromStep: 0 };
+  assert.deepEqual(planSend({ ...base, now: at('2026-10-14T04:06:00Z') }), { step: 1, at: at('2026-10-14T15:00:00Z') });
+  // Two hours late: sent now.
+  const d = decideRun(run(), ctx({ now: at('2026-10-13T17:05:00Z') }));
+  assert.equal(d.type, 'send');
+  if (d.type === 'send') assert.equal(d.step, 0);
+});
+
+test('lateness counts from the end of quiet hours, and the last step is never skipped', () => {
+  // Due 8:03 pm, held to 8 am, picked up at 8:10 am: ten minutes late, sent.
+  const night = decideRun(run({ anchorAt: at('2026-10-14T00:58:00Z') }), ctx({ now: at('2026-10-14T13:10:00Z') }));
+  assert.equal(night.type, 'send');
+  if (night.type === 'send') assert.equal(night.step, 0);
+  // The last step two days late still goes.
+  const last = decideRun(run({ step: 2 }), ctx({ now: at('2026-10-18T15:00:00Z') }));
+  assert.equal(last.type, 'send');
+  if (last.type === 'send') assert.equal(last.step, 2);
+});
+
+test('no send within 2 hours of the run\'s previous send; reminders are exempt', () => {
+  // The email step is due 30 minutes after the last send: held to last send + 2 hours.
+  assert.deepEqual(
+    decideRun(run({ step: 1, lastSentAt: at('2026-10-14T14:30:00Z') }), ctx({ now: at('2026-10-14T15:00:00Z') })),
+    { type: 'hold', step: 1, until: at('2026-10-14T16:30:00Z') }
+  );
+  // A send's next step is planned at least 2 hours out.
+  const t: SequenceTemplate = { kind: 'new_lead', enabled: true, steps: [{ offsetMinutes: 5, channel: 'sms', subject: null, body: 'a' }, { offsetMinutes: 30, channel: 'sms', subject: null, body: 'b' }] };
+  const d = decideRun(run(), ctx({ template: t }));
+  assert.equal(d.type, 'send');
+  if (d.type === 'send') assert.deepEqual(d.next, { step: 1, at: at('2026-10-13T17:06:00Z') });
+  // A reminder 30 minutes after the last send goes on time.
+  const r = { kind: 'reminder' as const, steps: DEFAULT_TEMPLATES.reminder, timeZone: CHI, canSms: true, canEmail: false, fromStep: 1 };
+  assert.deepEqual(
+    planSend({ ...r, anchorAt: at('2026-10-15T19:00:00Z'), now: at('2026-10-15T17:00:00Z'), lastSentAt: at('2026-10-15T16:30:00Z') }),
+    { step: 1, at: at('2026-10-15T17:00:00Z') }
+  );
+});
+
+test('connectCallDecision: answered stops, a live connect call holds for up to an hour, nothing else matters', () => {
+  const now = at('2026-10-13T15:00:00Z');
+  assert.equal(connectCallDecision({ outcome: 'answered', dialStatus: 'completed', startedAt: at('2026-10-13T14:00:00Z'), now }), 'stop');
+  assert.equal(connectCallDecision({ outcome: 'missed', dialStatus: 'queued', startedAt: at('2026-10-13T14:50:00Z'), now }), 'hold');
+  assert.equal(connectCallDecision({ outcome: 'missed', dialStatus: 'in-progress', startedAt: at('2026-10-13T14:50:00Z'), now }), 'hold');
+  assert.equal(connectCallDecision({ outcome: 'missed', dialStatus: 'queued', startedAt: at('2026-10-13T13:00:00Z'), now }), 'none');
+  assert.equal(connectCallDecision({ outcome: 'missed', dialStatus: 'no-answer', startedAt: at('2026-10-13T14:50:00Z'), now }), 'none');
+  assert.equal(connectCallDecision({ outcome: 'missed', dialStatus: 'owner-completed', startedAt: at('2026-10-13T14:50:00Z'), now }), 'none');
+  assert.equal(connectCallDecision({ outcome: null, dialStatus: null, startedAt: null, now }), 'none');
+});
+
+test('isDefiniteRejection: a Twilio 4xx or missing config is a refusal; anything else is unclear', () => {
+  assert.equal(isDefiniteRejection(new Error('Twilio 400 (21211): Invalid To number (/2010-04-01/Accounts/…/Messages.json)')), true);
+  assert.equal(isDefiniteRejection(new Error('Twilio 429 (20429): Too Many Requests (/Messages.json)')), true);
+  assert.equal(isDefiniteRejection(new Error('Twilio is not configured (TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN)')), true);
+  assert.equal(isDefiniteRejection(new Error('Twilio /2010-04-01/Accounts/…/Messages.json: bad JSON (201)')), false);
+  assert.equal(isDefiniteRejection(new Error('Twilio 500: request failed (/Messages.json)')), false);
+  assert.equal(isDefiniteRejection(new Error('fetch failed: ECONNRESET')), false);
+  assert.equal(isDefiniteRejection('The operation was aborted due to timeout'), false);
+});
+
+test('redactDigits hides phone numbers but keeps short codes', () => {
+  assert.equal(redactDigits('Twilio 400 (21211): The To number +15155550134 is invalid'), 'Twilio 400 (21211): The To number +[number] is invalid');
+  assert.equal(redactDigits('no digits'), 'no digits');
 });

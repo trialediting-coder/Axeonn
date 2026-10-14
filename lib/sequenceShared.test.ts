@@ -126,11 +126,13 @@ test('formatOffset reads like a person', () => {
   assert.equal(formatOffset(-120), '2 hours before');
 });
 
-test('only Job done starts the review request; Booked starts nothing; every stage but Quote sent stops both follow-ups', () => {
+test('only Job done starts the review request, every other tap stops it; Booked starts nothing; every stage but Quote sent stops both follow-ups', () => {
   assert.deepEqual(STAGE_EFFECTS.booked.start, []);
   for (const a of LEAD_ACTIONS) assert.equal(STAGE_EFFECTS[a].start.includes('review'), a === 'won', a);
-  assert.deepEqual(STAGE_EFFECTS.quote_sent, { stage: 'contacted', start: ['quote'], stop: ['new_lead'] });
-  for (const a of ['contacted', 'booked', 'won', 'lost'] as const) assert.deepEqual(STAGE_EFFECTS[a].stop, ['new_lead', 'quote'], a);
+  for (const a of LEAD_ACTIONS) assert.equal(STAGE_EFFECTS[a].stop.includes('review'), a !== 'won', a);
+  assert.deepEqual(STAGE_EFFECTS.quote_sent, { stage: 'contacted', start: ['quote'], stop: ['new_lead', 'review'] });
+  for (const a of ['contacted', 'booked', 'lost'] as const) assert.deepEqual(STAGE_EFFECTS[a].stop, ['new_lead', 'quote', 'review'], a);
+  assert.deepEqual(STAGE_EFFECTS.won.stop, ['new_lead', 'quote']);
 });
 
 test('parseStageRequest and stageTapActive', () => {

@@ -6,6 +6,9 @@
 // nothing else here changes. Server-only.
 import { ensureSchema, sql } from '@/lib/db';
 import { errText, iso, type DbTime } from '@/lib/dbRows';
+import { sendSequenceStartFailedNotification } from '@/lib/email';
+import { getOnboardingById } from '@/lib/onboarding';
+import { redactDigits } from '@/lib/sequenceSchedule';
 import { startRun, stopRunsFor, type RunContact, type RunRef, type RunStopReason, type StartResult } from '@/lib/sequences';
 import { STAGE_EFFECTS, isLeadStage, type LeadAction, type LeadStage, type SequenceKind } from '@/lib/sequenceShared';
 
@@ -23,7 +26,7 @@ export class LeadNotFoundError extends Error {
   }
 }
 
-export const STAGE_ENGINE_WARNING = 'Saved, but the follow-up could not be updated. We will retry.';
+export const STAGE_ENGINE_WARNING = "Saved. The automatic follow-up didn't start; Axeon has been told.";
 
 export interface LeadStore {
   /** The ref_table that runs started from this store carry. */
@@ -62,12 +65,24 @@ export interface StageDeps {
   store: LeadStore;
   startRun: (onboardingId: number, kind: SequenceKind, contact: RunContact, ref: RunRef) => Promise<StartResult>;
   stopRunsFor: (onboardingId: number, match: { phone?: string | null; email?: string | null; kinds?: SequenceKind[] }, reason: RunStopReason) => Promise<number>;
+  /** Tells Axeon the follow-up engine failed on a tap. Must never throw. */
+  notifyStartFailed: (onboardingId: number, input: { leadId: number; action: LeadAction; error: string }) => Promise<void>;
+}
+
+async function notifyStartFailed(onboardingId: number, input: { leadId: number; action: LeadAction; error: string }): Promise<void> {
+  try {
+    const onboarding = await getOnboardingById(onboardingId);
+    await sendSequenceStartFailedNotification({ businessName: onboarding?.businessName ?? null, ...input });
+  } catch (err) {
+    console.error('[leadStages] Axeon not told about the failed follow-up', onboardingId, input.leadId, redactDigits(errText(err)).slice(0, 300));
+  }
 }
 
 const defaultDeps: StageDeps = {
   store: formSubmissionStore,
   startRun: (onboardingId, kind, contact, ref) => startRun(onboardingId, kind, contact, ref),
   stopRunsFor,
+  notifyStartFailed,
 };
 
 export interface StageResult {
@@ -100,8 +115,10 @@ export async function applyLeadStage(onboardingId: number, id: number, action: L
       }
     }
   } catch (err) {
-    // The stage is saved; the client sees a plain warning, never the engine's error text.
-    console.error('[leadStages] follow-up update failed', onboardingId, id, action, errText(err));
+    // The stage is saved; the client sees a plain warning, never the engine's error text. Axeon gets an email.
+    const error = redactDigits(errText(err)).slice(0, 300);
+    console.error('[leadStages] follow-up update failed', onboardingId, id, action, error);
+    await deps.notifyStartFailed(onboardingId, { leadId: id, action, error });
     return { stage: effect.stage, started: [], stopped, warning: STAGE_ENGINE_WARNING };
   }
   return { stage: effect.stage, started, stopped };

@@ -418,6 +418,8 @@ async function main() {
   await sql`ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS stage_changed_at TIMESTAMPTZ;`;
   // The template's updated_at when a run started: an edited template stops older runs ('template_changed').
   await sql`ALTER TABLE sequence_runs ADD COLUMN IF NOT EXISTS template_updated_at TIMESTAMPTZ;`;
+  // The run's last send: decideRun keeps 2 hours between sends (reminders excepted).
+  await sql`ALTER TABLE sequence_runs ADD COLUMN IF NOT EXISTS last_sent_at TIMESTAMPTZ;`;
   console.log('Schema ready.');
 }
 

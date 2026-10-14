@@ -12,7 +12,10 @@ import { pastCustomerCounts } from '@/lib/pastCustomers';
 import { getLine, isOptedOut, sendClientSms, type PhoneLine } from '@/lib/phoneLines';
 import { maskNumber, normalizePhone } from '@/lib/phoneShared';
 import { sendGate } from '@/lib/sendGate';
-import { decideRun, planSend, reactivationWindow, safeTimeZone, scheduleReactivation, type RunDecision } from '@/lib/sequenceSchedule';
+import {
+  CONNECT_RECHECK_MINUTES, connectCallDecision, decideRun, isDefiniteRejection, planSend, reactivationWindow, redactDigits, safeTimeZone,
+  scheduleReactivation, type RunDecision,
+} from '@/lib/sequenceSchedule';
 import {
   SEQUENCE_KINDS, defaultTemplate, emptyRunCounts, isSequenceKind, missingLinks, normalizeEmail, templateVars, validateTemplate,
   type RunCounts, type SequenceKind, type SequenceSettings, type SequenceTemplate, type SequenceTemplateView, type SequencesAdminData,
@@ -66,6 +69,8 @@ export interface SequenceRun {
   attempts: number;
   /** Texts of this run that went out; > 0 is decideRun's priorSmsSent. */
   smsSentCount: number;
+  /** When this run last sent something (decideRun keeps 2 hours between sends); null before the first. */
+  lastSentAt: string | null;
   /** The template's updated_at when the run started; a later edit stops the run ('template_changed'). */
   templateUpdatedAt: string | null;
   createdAt: string;
@@ -194,7 +199,8 @@ const tierAllowed = (o: Onboarding | null): boolean => Boolean(o && o.tier !== '
 /** Resend, plus the secret the unsubscribe link is signed with: no email goes out without its unsubscribe link. */
 const emailConfigured = (): boolean => Boolean(process.env.RESEND_API_KEY && unsubscribeSecret());
 const smsReady = (line: PhoneLine | null): boolean => line?.smsStatus === 'ready';
-const clip = (s: string) => s.slice(0, 300);
+/** Error text for logs and last_error: phone numbers redacted, then cut to 300 characters. */
+const clip = (s: string) => redactDigits(s).slice(0, 300);
 
 // ─────────────────────────── Runs: start and stop ───────────────────────────
 
@@ -214,6 +220,7 @@ interface RunRow {
   stop_reason: string | null;
   attempts: number;
   sms_sent_count: number;
+  last_sent_at: DbTime | null;
   template_updated_at: DbTime | null;
   created_at: DbTime;
 }
@@ -234,6 +241,7 @@ const toRun = (r: RunRow): SequenceRun => ({
   stopReason: r.stop_reason,
   attempts: r.attempts,
   smsSentCount: Number(r.sms_sent_count ?? 0),
+  lastSentAt: r.last_sent_at ? iso(r.last_sent_at) : null,
   templateUpdatedAt: r.template_updated_at ? iso(r.template_updated_at) : null,
   createdAt: iso(r.created_at),
 });
@@ -311,7 +319,7 @@ export function startLeadFollowUp(onboardingId: number, submission: { id: number
 /**
  * A missed call becomes a new-lead follow-up that waits 30 minutes. If the
  * caller texts back or gets through in those 30 minutes the run is stopped
- * (inbound text: the SMS route; answered call: the status route; and
+ * (inbound text: the SMS route; answered inbound call: the status route; and
  * contactRepliedSince before every send). When the text-back already went out
  * it was the first touch, with the STOP line, so the run starts at step 2.
  */
@@ -362,9 +370,9 @@ async function finishRun(id: number): Promise<void> {
 
 /**
  * Has a person been in touch since `since`: an inbound text from this number,
- * an answered inbound call from it, or an answered press-1 connect call to it
- * (slice 2 stores the lead's phone as from_number on direction = 'connect' rows,
- * so one condition covers both kinds of call).
+ * or an answered inbound call from it. Press-1 connect calls are not matched
+ * here by time: a form lead's run looks its connect call up by lead id
+ * (latestConnectCall), and the connect status route stops runs when one is answered.
  */
 export async function contactRepliedSince(onboardingId: number, phone: string, since: string): Promise<boolean> {
   const { rows } = await sql`
@@ -372,10 +380,22 @@ export async function contactRepliedSince(onboardingId: number, phone: string, s
       WHERE onboarding_id = ${onboardingId} AND direction = 'inbound' AND from_number = ${phone} AND created_at >= ${since}
     UNION ALL
     SELECT 1 FROM phone_calls
-      WHERE onboarding_id = ${onboardingId} AND outcome = 'answered' AND from_number = ${phone} AND started_at >= ${since}
+      WHERE onboarding_id = ${onboardingId} AND direction = 'inbound' AND outcome = 'answered' AND from_number = ${phone} AND started_at >= ${since}
     LIMIT 1;
   `;
   return rows.length > 0;
+}
+
+/** The latest press-1 connect call for one form lead (phone_calls.lead_id), or null when there was none. */
+async function latestConnectCall(onboardingId: number, leadId: number): Promise<{ outcome: string; dialStatus: string | null; startedAt: Date } | null> {
+  const { rows } = await sql<{ outcome: string; dial_status: string | null; started_at: DbTime }>`
+    SELECT outcome, dial_status, started_at FROM phone_calls
+    WHERE onboarding_id = ${onboardingId} AND direction = 'connect' AND lead_id = ${leadId}
+    ORDER BY started_at DESC, id DESC
+    LIMIT 1;
+  `;
+  const r = rows[0];
+  return r ? { outcome: r.outcome, dialStatus: r.dial_status, startedAt: new Date(r.started_at) } : null;
 }
 
 // ─────────────────────────── The worker ───────────────────────────
@@ -426,7 +446,7 @@ async function recordFailure(runId: number, err: unknown): Promise<void> {
       WHERE id = ${runId} AND status = 'active';
     `;
   } catch (writeErr) {
-    console.error('sequences: failure not recorded', runId, errText(writeErr));
+    console.error('sequences: failure not recorded', runId, clip(errText(writeErr)));
   }
 }
 
@@ -435,9 +455,11 @@ type SendDecision = Extract<RunDecision, { type: 'send' }>;
 /**
  * Claims the step, sends it, then books the outcome. The claim moves the run
  * past this step under a lease (next_at 10 minutes out), so if anything dies
- * after it the step is skipped, never sent twice. Only a throw from the send
- * itself (nothing went out) puts the step back, and only while the run is still
- * active: a run stopped meanwhile (a tap, the template turned off) stays stopped.
+ * after it the step is skipped, never sent twice. A throw from the send puts
+ * the step back only when nothing went out for certain (an email; a text Twilio
+ * refused with a 4xx), and only while the run is still active: a run stopped
+ * meanwhile (a tap, the template turned off) stays stopped. A text whose send
+ * failed unclearly (it may have left) is never retried: the run moves past it.
  */
 async function claimAndSend(run: SequenceRun, c: ClientContext, d: SendDecision, deadline: number | undefined): Promise<RunOutcome> {
   const claimedStep = d.next ? d.next.step : d.step + 1;
@@ -490,8 +512,26 @@ async function claimAndSend(run: SequenceRun, c: ClientContext, d: SendDecision,
       if (r.skipped) refusal = 'email_opted_out';
     }
   } catch (err) {
-    // sendClientSms and sendSequenceEmail throw only when nothing went out: put the step back and retry later.
     const message = clip(errText(err));
+    if (d.channel === 'sms' && !isDefiniteRejection(err)) {
+      // Unclear (a reset connection, a timeout, bad JSON on a 2xx): the text may have left, so it is never sent again.
+      // The run moves on as if sent, without counting it as a delivered text or a send time.
+      console.error('sequences: text send unclear, step not retried', run.id, message);
+      try {
+        await sql`
+          UPDATE sequence_runs
+          SET last_error = ${`unclear: ${message}`},
+              status = ${d.next ? 'active' : 'done'},
+              next_at = ${(d.next ? d.next.at : new Date()).toISOString()},
+              updated_at = now()
+          WHERE id = ${run.id} AND status = 'active' AND step = ${claimedStep};
+        `;
+      } catch (writeErr) {
+        console.error('sequences: unclear send not recorded (the step stays skipped)', run.id, clip(errText(writeErr)));
+      }
+      return 'failed';
+    }
+    // A definite refusal (nothing went out): put the step back and retry later. Emails keep their idempotency key.
     console.error('sequences: send failed', run.id, message);
     try {
       await sql`
@@ -507,7 +547,7 @@ async function claimAndSend(run: SequenceRun, c: ClientContext, d: SendDecision,
         WHERE id = ${run.id} AND status = 'active' AND step = ${claimedStep};
       `;
     } catch (writeErr) {
-      console.error('sequences: send failure not recorded (the step stays skipped)', run.id, errText(writeErr));
+      console.error('sequences: send failure not recorded (the step stays skipped)', run.id, clip(errText(writeErr)));
     }
     return 'failed';
   }
@@ -519,6 +559,7 @@ async function claimAndSend(run: SequenceRun, c: ClientContext, d: SendDecision,
       await sql`
         UPDATE sequence_runs
         SET sms_sent_count = sms_sent_count + ${smsDelta},
+            last_sent_at = now(),
             status = ${d.next ? 'active' : 'done'},
             next_at = ${(d.next ? d.next.at : new Date()).toISOString()},
             updated_at = now()
@@ -544,7 +585,7 @@ async function claimAndSend(run: SequenceRun, c: ClientContext, d: SendDecision,
     console.warn('sequences: step refused', run.id, d.channel, refusal);
     return stop ? 'stopped' : 'skipped';
   } catch (err) {
-    console.error('sequences: bookkeeping after send failed', run.id, errText(err));
+    console.error('sequences: bookkeeping after send failed', run.id, clip(errText(err)));
     return refusal ? 'skipped' : 'sent';
   }
 }
@@ -577,6 +618,22 @@ export async function advanceRun(
       await stopRun(run.id, 'template_changed');
       return 'stopped';
     }
+    // A form lead's press-1 connect call, found by lead id: answered stops the follow-up; one still live holds it.
+    if (run.kind === 'new_lead' && run.refTable === 'form_submissions') {
+      const call = await latestConnectCall(run.onboardingId, run.refId);
+      const connect = connectCallDecision({ outcome: call?.outcome ?? null, dialStatus: call?.dialStatus ?? null, startedAt: call?.startedAt ?? null, now });
+      if (connect === 'stop') {
+        await stopRun(run.id, 'answered');
+        return 'stopped';
+      }
+      if (connect === 'hold') {
+        await sql`
+          UPDATE sequence_runs SET next_at = now() + make_interval(mins => ${CONNECT_RECHECK_MINUTES}), updated_at = now()
+          WHERE id = ${run.id} AND status = 'active' AND step = ${run.step};
+        `;
+        return 'held';
+      }
+    }
     d = decideRun(
       {
         kind: run.kind,
@@ -586,6 +643,7 @@ export async function advanceRun(
         contactEmail: run.contactEmail,
         contactName: run.contactName,
         priorSmsSent: run.smsSentCount > 0,
+        lastSentAt: run.lastSentAt ? new Date(run.lastSentAt) : null,
       },
       {
         template: c.templates.get(run.kind) ?? null,

@@ -548,32 +548,53 @@ edit the wording, the waits and the channels per client.
 | New lead | a website form comes in; or a missed call, held 30 minutes, if they have not replied | text 5 min, email 1 day, text 3 days | they text back, a call from them is answered, a press-1 connect call to them is answered, the client taps Quote sent, Talked to them, Booked, Job done or Not a fit, or STOP |
 | Quote | the client taps Quote sent (first tap only) | text 1 day, email 3 days, text 7 days | they text back, an answered call, Talked to them, Booked, Job done or Not a fit, or STOP |
 | Appointment reminders | a booking is made (online booking is a later slice, so nothing starts these yet) | text 1 day before, text 2 hours before | STOP |
-| Review request | the client taps Job done (a confirm box first) | one text 2 hours later with the Google review link | STOP |
+| Review request | the client taps Job done (a confirm box first) | one text 2 hours later with the Google review link | STOP, or any other tap on that lead (Quote sent, Talked to them, Booked, Not a fit) |
 | Past-customer check-in | first 7 days of January, April, July and October, to the uploaded list | one text per consented past customer, from 10 am, 5 minutes apart, at most 50 a day | STOP |
 
 **What stops what.** An inbound reply stops only the new-lead and quote
 follow-ups; a booked reminder and a review request carry on. A texted STOP
 stops every follow-up for that number. An answered call from the lead, and an
 answered press-1 connect call to the lead, stop the new-lead and quote
-follow-ups (stop reason `answered`). A stage tap works from the table below.
-Editing a template stops its running follow-ups (`template_changed`), so a lead
-is never sent a mix of old and new wording; new leads get the new one. Turning a
-template off stops its running follow-ups on the next 15-minute run
-(`template_off`). Replies and STOP are checked again before every send, so the
-cron never sends after a reply that arrived since the last tick.
+follow-ups (stop reason `answered`). A form lead's connect call is found by the
+lead's id, not by time: while it is still ringing or in progress (under an hour
+old) the new-lead step waits, checked again every 15 minutes, so nothing is
+texted to someone the owner is talking to. A stage tap works from the table
+below and stops runs with reason `stage:<action>` (for example `stage:won`; the
+admin card shows "Stopped by a tap: won"). A text Twilio refuses because the
+number cannot take texts stops the run with `bad_number`. Editing a template
+stops its running follow-ups (`template_changed`), so a lead is never sent a mix
+of old and new wording; new leads get the new one. Turning a template off stops
+its running follow-ups on the next 15-minute run, also as `template_changed`:
+every save, switching off included, bumps the template's `updated_at`.
+`template_off` is only a fallback, for a run whose template is off or unreadable
+without a newer save. Replies and STOP are checked again before every send, so
+the cron never sends after a reply that arrived since the last tick.
 
 | Client taps | Lead becomes | Stops | Starts |
 | --- | --- | --- | --- |
-| Quote sent | contacted | new lead | quote |
-| Talked to them | contacted | new lead, quote | nothing |
-| Booked | booked | new lead, quote | nothing |
+| Quote sent | contacted | new lead, review request | quote |
+| Talked to them | contacted | new lead, quote, review request | nothing |
+| Booked | booked | new lead, quote, review request | nothing |
 | Job done | won | new lead, quote | review request |
-| Not a fit | lost | new lead, quote | nothing |
+| Not a fit | lost | new lead, quote, review request | nothing |
 
-A follow-up starts from a tap only on a real change: tapping Quote sent twice
-does not restart the quote follow-up, and tapping the same stage again starts
-nothing. Admin test leads never start a follow-up. The Sequences card also has a
-"Start follow-up" button for one of the last 10 real form leads.
+Every tap but Job done also stops a pending review request, so a corrective tap
+(Job done pressed by mistake) takes it back. A follow-up starts from a tap only
+on a real change: tapping Quote sent twice does not restart the quote
+follow-up, and tapping the same stage again starts nothing. Admin test leads
+never start a follow-up. The Sequences card also has a "Start follow-up" button
+for one of the last 10 real form leads. If the follow-up engine fails on a tap,
+the stage is still saved, the client sees "Saved. The automatic follow-up didn't
+start; Axeon has been told.", and `ADMIN_EMAIL` gets an alert with the business
+name, lead id and tap.
+
+A follow-up that cannot start stores nothing and says why: `already_active`
+(this person already has one of this kind running), `duplicate` (this form lead
+or call already started one), `disabled` (that follow-up is off), `opted_out`
+(the number texted STOP, or the address unsubscribed and there is no phone),
+`no_contact` (no phone and no email), `no_steps` (no step this person can
+receive, for example only email steps for a caller with no address). `plan` and
+`missing_link` refuse the same way.
 
 **Order of work for a new CORE client.** Phone card: texting approved. Sequences
 card: paste the Google review link, press Draft with Claude, read every step,
@@ -582,8 +603,9 @@ at a time. Draft with Claude writes all five from the owner's portal answers
 (how leads are handled today, what gets people to book, deal-killers, how a job
 is known to be done, the standing offer) and saves every one **off**: nothing a
 draft writes can send until Axeon has read it and turned it on. A new draft
-replaces the saved wording and turns the follow-up off again, so do not redraft a
-live client without meaning to. Claude is told never to invent prices, guarantees
+replaces the saved wording, turns the follow-up off again and stops the
+follow-ups already running (`template_changed`), so do not redraft a live client
+without meaning to. Claude is told never to invent prices, guarantees
 or times, and never to write the STOP line (the system adds it).
 
 **Rules the code enforces.**
@@ -597,14 +619,22 @@ or times, and never to write the STOP line (the system adds it).
   window as the form-lead alerts. A step that comes due then is held until 8 am
   and goes out on the first tick after (between 8:00 and 8:15). The missed-call
   text-back itself ignores quiet hours; only the follow-ups after it are held.
-- The first text a person receives from a follow-up ends with "Reply STOP to opt
-  out." (added if the wording lacks it); a long text is cut short before the STOP
-  line, never the other way round.
+- The first text of each follow-up run ends with "Reply STOP to opt out." (added
+  if the wording lacks it); a long text is cut short before the STOP line, never
+  the other way round. This is guaranteed per run, not per person: someone in two
+  follow-ups (a new lead, then a quote) gets it on the first text of each.
+- A step (not a reminder, not the last step the person can receive) more than 12
+  hours past its send time, quiet hours counted, is skipped rather than sent
+  late. Two sends of one run are never less than 2 hours apart (reminders
+  excepted): a step that comes due sooner waits.
+- A reminder more than 30 minutes past its time is skipped rather than sent late,
+  and one that quiet hours would push onto the appointment is skipped too.
 - One follow-up of each kind per person at a time: a caller who rings three
   times gets one. The same form lead or call never starts twice.
 - Blanks are `{name}`, `{business}`, `{owner_first}`, `{review_link}`,
   `{booking_link}`; anything else in curly brackets is refused on save. Texts are
-  at most 320 characters, emails at most 2,000 characters with a subject.
+  at most 320 characters, emails at most 2,000 characters with a subject of at
+  most 120 characters.
 - An email step is skipped for a person with no email address, and a text step
   for one with no phone or an unapproved line; the run moves to the next step it
   can send.
@@ -638,8 +668,12 @@ consented numbers that have not texted STOP are sent the check-in.
 **Sending.** The cron leases up to 200 due steps, sends 10 at a time (emails 2 at a
 time, 600 ms apart) and releases anything it did not reach within 45 seconds to the
 next tick. A step is marked sent before the send so an overlapping run cannot send
-it twice; a send that fails is retried twice, 30 minutes apart, then the
-follow-up stops with `failed` (shown as stopped on the admin card). The cron needs
+it twice. An email that fails, or a text Twilio clearly refuses (a 4xx, 429
+included), is retried twice, 30 minutes apart, then the follow-up stops with
+`failed` (shown as stopped on the admin card). A text whose send failed
+unclearly (a timeout or a dropped connection: it may have gone out) is never
+resent; the run moves past that step and `last_error` starts with `unclear:`.
+Phone numbers in logged or stored error text are replaced with `[number]`. The cron needs
 `CRON_SECRET` and a Vercel plan that allows a 15-minute schedule (Pro).
 
 ## Environment variables
@@ -649,6 +683,7 @@ follow-up stops with `failed` (shown as stopped on the admin card). The cron nee
 | `RESEND_API_KEY` | Required for codes; without it the client cannot verify. |
 | `RESEND_CLIENT_FROM_EMAIL` | Optional. Default `Axeon Studio <hello@axeonstudio.co>` (same verified domain). |
 | `RESEND_CLIENT_REPLY_TO` | Optional. Default `hello@axeonstudio.co`. |
+| `RESEND_SEQUENCE_FROM_EMAIL` | Optional. From address for follow-up emails; default `leads@axeonstudio.co` on the verified domain. |
 | `ONBOARDING_COOKIE_SECRET` | Optional. Falls back to `AUTH_SECRET`. |
 | `POSTGRES_URL` | Required. Tables are created on first use. |
 | `AIRTABLE_TOKEN` | Airtable personal access token for the Clients mirror and website leads. |

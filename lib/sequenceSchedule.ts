@@ -13,6 +13,14 @@ export const REACTIVATION_DAYS = 7;
 export const REACTIVATION_DAILY_MAX = 50;
 export const REACTIVATION_FIRST_HOUR = 10;
 export const REACTIVATION_GAP_MINUTES = 5;
+/** A step (not a reminder, not the last one) this late is skipped: a "following up" text a day late reads wrong. */
+export const LATE_STEP_SKIP_HOURS = 12;
+/** No two sends of one run closer than this (reminders excepted). */
+export const MIN_SEND_GAP_MINUTES = 120;
+/** A press-1 connect call to the lead younger than this, still ringing or talking, holds the new-lead follow-up. */
+export const CONNECT_HOLD_MINUTES = 60;
+/** How long a held step waits before the connect call is checked again. */
+export const CONNECT_RECHECK_MINUTES = 15;
 
 const MINUTE = 60_000;
 
@@ -88,43 +96,72 @@ export interface PlanInput {
   timeZone: string;
   canSms: boolean;
   canEmail: boolean;
+  /** This run's previous send; nothing (but a reminder) goes within MIN_SEND_GAP_MINUTES of it. */
+  lastSentAt?: Date | null;
 }
 
 /**
  * The next step at or after fromStep that this contact can receive, and when.
  * A text step is skipped without a phone or approved texting, an email step
- * without an address. A late step goes now, not in the past. Reminders that are
- * already well past, or that quiet hours would push onto the appointment, are skipped.
+ * without an address. A late step goes now, not in the past, unless it is more
+ * than LATE_STEP_SKIP_HOURS past its earliest send time (quiet hours counted)
+ * and not the last step the contact can receive: then it is skipped. Nothing
+ * goes within MIN_SEND_GAP_MINUTES of the run's previous send. Reminders that are
+ * already well past, or that quiet hours would push onto the appointment, are
+ * skipped; reminders ignore the late-step and gap rules.
  */
 export function planSend(p: PlanInput): { step: number; at: Date } | null {
-  const floor = p.notBefore && p.notBefore.getTime() > p.now.getTime() ? p.notBefore : p.now;
+  const reachable = (s: SequenceStep) => (s.channel === 'sms' ? p.canSms : p.canEmail);
+  let lastReachable = -1;
+  for (let i = 0; i < p.steps.length; i++) if (reachable(p.steps[i])) lastReachable = i;
+  let floorMs = Math.max(p.now.getTime(), p.notBefore ? p.notBefore.getTime() : 0);
+  if (p.kind !== 'reminder' && p.lastSentAt) floorMs = Math.max(floorMs, p.lastSentAt.getTime() + MIN_SEND_GAP_MINUTES * MINUTE);
   for (let i = Math.max(0, p.fromStep); i < p.steps.length; i++) {
     const s = p.steps[i];
-    if (s.channel === 'sms' ? !p.canSms : !p.canEmail) continue;
+    if (!reachable(s)) continue;
     const due = new Date(p.anchorAt.getTime() + s.offsetMinutes * MINUTE);
     if (p.kind === 'reminder' && due.getTime() < p.now.getTime() - REMINDER_GRACE_MINUTES * MINUTE) continue;
-    const at = nextSendAt(due.getTime() > floor.getTime() ? due : floor, 0, p.timeZone);
+    if (p.kind !== 'reminder' && i < lastReachable && p.now.getTime() - holdForQuietHours(due, p.timeZone).getTime() > LATE_STEP_SKIP_HOURS * 60 * MINUTE) continue;
+    const at = nextSendAt(due.getTime() > floorMs ? due : new Date(floorMs), 0, p.timeZone);
     if (p.kind === 'reminder' && at.getTime() >= p.anchorAt.getTime()) continue;
     return { step: i, at };
   }
   return null;
 }
 
+/** No check-in texts on a Sunday, New Year's Day or the Fourth of July (the client's local calendar date; day may overflow). */
+export function isReactivationDayOff(year: number, month: number, day: number): boolean {
+  const d = new Date(Date.UTC(year, month - 1, day));
+  const m = d.getUTCMonth() + 1;
+  const dd = d.getUTCDate();
+  return d.getUTCDay() === 0 || (m === 1 && dd === 1) || (m === 7 && dd === 4);
+}
+
 /**
  * Send times for a quarter's check-in texts: from 10 am local, 5 minutes apart,
- * spread evenly over 7 days, never more than 50 in one local day (a list over
- * 350 runs past the first week at 50 a day). Day one is the first 10 am at or after start.
+ * spread evenly over the sending days of the 7-day window (Sundays, Jan 1 and
+ * Jul 4 are skipped), never more than 50 in one local day (a long list runs past
+ * the first week at 50 a sending day). Day one is the first 10 am at or after
+ * start that falls on a sending day.
  */
 export function scheduleReactivation(count: number, start: Date, timeZone: string): Date[] {
   if (count <= 0) return [];
   const tz = safeTimeZone(timeZone);
-  const perDay = Math.min(REACTIVATION_DAILY_MAX, Math.max(1, Math.ceil(count / REACTIVATION_DAYS)));
   const p = localParts(start, tz);
   const firstDay = zonedTime(p.year, p.month, p.day, REACTIVATION_FIRST_HOUR, 0, tz).getTime() < start.getTime() ? 1 : 0;
+  const offDay = (offset: number) => isReactivationDayOff(p.year, p.month, p.day + offset);
+  let sendingDays = 0;
+  for (let d = firstDay; d < firstDay + REACTIVATION_DAYS; d++) if (!offDay(d)) sendingDays += 1;
+  const perDay = Math.min(REACTIVATION_DAILY_MAX, Math.max(1, Math.ceil(count / Math.max(1, sendingDays))));
   const out: Date[] = [];
+  let day = firstDay;
+  while (offDay(day)) day += 1;
   for (let i = 0; i < count; i++) {
-    const day = firstDay + Math.floor(i / perDay);
     const slot = i % perDay;
+    if (i > 0 && slot === 0) {
+      day += 1;
+      while (offDay(day)) day += 1;
+    }
     out.push(zonedTime(p.year, p.month, p.day + day, REACTIVATION_FIRST_HOUR, slot * REACTIVATION_GAP_MINUTES, tz));
   }
   return out;
@@ -146,6 +183,8 @@ export interface RunState {
   contactName: string;
   /** True once any text of this run has gone out; the first text delivered must carry the STOP line. */
   priorSmsSent: boolean;
+  /** This run's previous send (sequence_runs.last_sent_at); null before the first. */
+  lastSentAt?: Date | null;
 }
 
 export interface RunContext {
@@ -154,7 +193,7 @@ export interface RunContext {
   /** AxeonCORE and up, and the client is not closed. */
   tierAllowed: boolean;
   optedOut: boolean;
-  /** The contact texted in or was talked to since the run began (lib/sequences.ts contactRepliedSince). */
+  /** The contact texted in, or called in and was answered, since the run began (lib/sequences.ts contactRepliedSince). */
   replied: boolean;
   smsReady: boolean;
   emailReady: boolean;
@@ -189,7 +228,7 @@ export function decideRun(run: RunState, ctx: RunContext): RunDecision {
     canSms: Boolean(run.contactPhone) && ctx.smsReady,
     canEmail: Boolean(run.contactEmail) && ctx.emailReady,
   };
-  const plan = planSend({ ...base, fromStep: run.step });
+  const plan = planSend({ ...base, fromStep: run.step, lastSentAt: run.lastSentAt ?? null });
   if (!plan) return { type: 'done' };
   if (plan.at.getTime() > ctx.now.getTime()) return { type: 'hold', step: plan.step, until: plan.at };
 
@@ -210,8 +249,42 @@ export function decideRun(run: RunState, ctx: RunContext): RunDecision {
     to,
     subject: step.subject === null ? null : renderTemplate(step.subject, vars),
     body,
-    next: planSend({ ...base, fromStep: plan.step + 1 }),
+    // The next step is planned as if this send happens now, so it keeps the minimum gap.
+    next: planSend({ ...base, fromStep: plan.step + 1, lastSentAt: ctx.now }),
   };
+}
+
+/** Dial statuses of a connect call that has not finished: the owner may still be talking to the lead. */
+const OPEN_DIAL_STATUSES: readonly string[] = ['', 'queued', 'ringing', 'in-progress'];
+
+/**
+ * The latest press-1 connect call for a new-lead run's form lead (phone_calls by
+ * lead_id, never matched by time). Answered: the owner reached them, stop. Still
+ * open (no final dial status yet; the Dial action and markConnectEnded write one
+ * when it ends) and under an hour old: hold the step, the call may be live.
+ * Otherwise, or with no call at all: nothing to do.
+ */
+export function connectCallDecision(c: { outcome: string | null; dialStatus: string | null; startedAt: Date | null; now: Date }): 'stop' | 'hold' | 'none' {
+  if (c.outcome === 'answered') return 'stop';
+  if (!c.startedAt) return 'none';
+  const open = c.dialStatus === null || OPEN_DIAL_STATUSES.includes(c.dialStatus);
+  return open && c.now.getTime() - c.startedAt.getTime() < CONNECT_HOLD_MINUTES * MINUTE ? 'hold' : 'none';
+}
+
+/**
+ * A text send that threw: true when Twilio definitely refused it (an HTTP 4xx,
+ * 429 included, formatted "Twilio <status> ..." by lib/twilio.ts) or Twilio is
+ * not configured, so nothing went out and a retry is safe. Anything else (bad
+ * JSON on a 2xx, a reset connection, a timeout) is unclear: the text may have left.
+ */
+export function isDefiniteRejection(err: unknown): boolean {
+  const message = err instanceof Error ? err.message : String(err ?? '');
+  return /\bTwilio 4\d\d\b/.test(message) || message.includes('Twilio is not configured');
+}
+
+/** Runs of 7 or more digits (phone numbers) become "[number]" before error text is logged or stored. */
+export function redactDigits(s: string): string {
+  return s.replace(/\d{7,}/g, '[number]');
 }
 
 /**

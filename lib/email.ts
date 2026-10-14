@@ -127,6 +127,36 @@ export async function sendFailedGenerationNotification(
   });
 }
 
+/**
+ * A PROOF tap saved the lead's stage but the follow-up engine failed (lib/leadStages.ts).
+ * To ADMIN_EMAIL; a no-op without Resend; never throws. Only the business name,
+ * lead id, tap and (digit-redacted) error text: no lead name, phone or email.
+ */
+export async function sendSequenceStartFailedNotification(input: {
+  businessName: string | null;
+  leadId: number;
+  action: string;
+  error: string;
+}): Promise<void> {
+  try {
+    const resend = getClient('sequence_start_failed');
+    if (!resend || !ADMIN_NOTIFICATION_EMAIL) return;
+    const business = input.businessName?.trim() || 'A client';
+    await resend.emails.send({
+      from: FROM_ADDRESS,
+      to: ADMIN_NOTIFICATION_EMAIL,
+      subject: `Follow-up did not start: ${business}`.slice(0, 120),
+      html: `
+        <p>${escapeHtml(business)} tapped <strong>${escapeHtml(input.action)}</strong> on lead #${input.leadId}. The stage saved, but the automatic follow-up did not update.</p>
+        <p>Error: ${escapeHtml(input.error)}</p>
+        <p>Check the Sequences card on the client's admin page and start it by hand if it should be running.</p>
+      `,
+    });
+  } catch (err) {
+    console.error('[email] sequence start failed notification not sent', input.leadId, err instanceof Error ? err.message : String(err));
+  }
+}
+
 // Billing alerts fired from app/api/stripe/webhook/route.ts after signature
 // verification. Customer names and emails are customer-typed strings, so they
 // go through escapeHtml like everything else.

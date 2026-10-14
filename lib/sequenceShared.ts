@@ -325,13 +325,16 @@ export type LeadStage = 'new' | 'contacted' | 'booked' | 'won' | 'lost';
 export const isLeadAction = (v: unknown): v is LeadAction => typeof v === 'string' && (LEAD_ACTIONS as readonly string[]).includes(v);
 export const isLeadStage = (v: unknown): v is LeadStage => v === 'new' || v === 'contacted' || v === 'booked' || v === 'won' || v === 'lost';
 
-/** Spec, "Slice 4 additions": Contacted/Booked/Won/Lost stop new_lead and quote; Won starts review; Quote sent starts quote. */
+/**
+ * Spec, "Slice 4 additions": Contacted/Booked/Won/Lost stop new_lead and quote; Won starts review; Quote sent starts quote.
+ * Every tap but Job done also stops a running review request: a corrective tap (the job was not done after all) takes it back.
+ */
 export const STAGE_EFFECTS: Record<LeadAction, { stage: LeadStage; start: SequenceKind[]; stop: SequenceKind[] }> = {
-  quote_sent: { stage: 'contacted', start: ['quote'], stop: ['new_lead'] },
-  contacted: { stage: 'contacted', start: [], stop: ['new_lead', 'quote'] },
-  booked: { stage: 'booked', start: [], stop: ['new_lead', 'quote'] },
+  quote_sent: { stage: 'contacted', start: ['quote'], stop: ['new_lead', 'review'] },
+  contacted: { stage: 'contacted', start: [], stop: ['new_lead', 'quote', 'review'] },
+  booked: { stage: 'booked', start: [], stop: ['new_lead', 'quote', 'review'] },
   won: { stage: 'won', start: ['review'], stop: ['new_lead', 'quote'] },
-  lost: { stage: 'lost', start: [], stop: ['new_lead', 'quote'] },
+  lost: { stage: 'lost', start: [], stop: ['new_lead', 'quote', 'review'] },
 };
 
 /** Client-facing tap labels. "Job done", not "Won" or "Booked": the review request follows it. */

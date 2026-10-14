@@ -12,6 +12,7 @@ import { sendClientLeadAlert } from '@/lib/email';
 import { getLine, sendOwnerAlert, startConnectCall } from '@/lib/phoneLines';
 import { REPORT_TIME_ZONE, isValidMonth } from '@/lib/siteStats';
 import { normalizePhone } from '@/lib/phoneShared';
+import { redactDigits } from '@/lib/sequenceSchedule';
 import { startLeadFollowUp } from '@/lib/sequences';
 import { isLeadStage } from '@/lib/sequenceShared';
 import { DUPLICATE_WINDOW_MINUTES, isRecentDuplicate, leadAlertText, planLeadDelivery, type DeliveryReport, type FormSubmission, type LeadInput } from '@/lib/leadShared';
@@ -189,7 +190,7 @@ export async function deliverLead(owner: LeadOwner, lead: FormSubmission, opts: 
   const email = sendClientLeadAlert({ to: owner.clientEmail, businessName: owner.businessName, lead, proofUrl: `${APP_ORIGIN}/?tab=leads`, test: Boolean(opts.test) })
     .then((sent): DeliveryReport['email'] => (sent ? 'sent' : 'off'))
     .catch((err): DeliveryReport['email'] => {
-      console.error('[lead] email', lead.id, errText(err));
+      console.error('[lead] email', lead.id, redactDigits(errText(err)));
       return 'failed';
     });
 
@@ -232,7 +233,7 @@ export async function deliverLead(owner: LeadOwner, lead: FormSubmission, opts: 
       const r = await sendOwnerAlert(line, leadAlertText(lead));
       text = r.sent ? 'sent' : r.reason;
     } catch (err) {
-      console.error('[lead] owner text', lead.id, errText(err));
+      console.error('[lead] owner text', lead.id, redactDigits(errText(err)));
       text = 'failed';
     }
   }
@@ -258,7 +259,7 @@ export async function deliverLead(owner: LeadOwner, lead: FormSubmission, opts: 
       await noteConnectCall(owner.id, lead.id, sid).catch((err) => console.error('[lead] connect sid not saved', sid, errText(err)));
       connect = 'started';
     } catch (err) {
-      console.error('[lead] call connect', lead.id, errText(err));
+      console.error('[lead] call connect', lead.id, redactDigits(errText(err)));
       connect = 'failed';
     }
   }
@@ -269,7 +270,7 @@ export async function deliverLead(owner: LeadOwner, lead: FormSubmission, opts: 
       const started = await startLeadFollowUp(owner.id, lead);
       if (!started.started && started.reason !== 'disabled') console.info('[lead] follow-up not started', lead.id, started.reason);
     } catch (err) {
-      console.error('[lead] follow-up not started', lead.id, errText(err));
+      console.error('[lead] follow-up not started', lead.id, redactDigits(errText(err)));
     }
   }
 

@@ -18,7 +18,7 @@ export function LeadStageTaps({ id, stage, quoteSent: initialQuoteSent, api }: {
 
   async function tap(action: LeadAction) {
     if (!api || busy || stageTapActive(action, current.stage, current.quoteSent)) return;
-    if (action === 'won' && !window.confirm('Mark this job done? If review requests are on, they get one text in about two hours asking for a Google review.')) return;
+    if (action === 'won' && !window.confirm('Mark this job done? If review requests are on, they get one message in about two hours asking for a Google review.')) return;
     const before = current;
     setCurrent({ stage: STAGE_EFFECTS[action].stage, quoteSent: before.quoteSent || action === 'quote_sent' });
     setBusy(true);
@@ -42,7 +42,7 @@ export function LeadStageTaps({ id, stage, quoteSent: initialQuoteSent, api }: {
   }
 
   return (
-    <div className="flex shrink-0 flex-col gap-1 sm:items-end">
+    <div className="flex flex-col gap-1 sm:items-end">
       <div className="flex flex-wrap gap-2">
         {LEAD_ACTIONS.map((a) => {
           const on = stageTapActive(a, current.stage, current.quoteSent);

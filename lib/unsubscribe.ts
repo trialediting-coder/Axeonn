@@ -2,8 +2,10 @@
 // The unsubscribe link at the foot of every follow-up email (lib/email.ts
 // sendSequenceEmail). The token carries its own data, so the /u/<token> route
 // needs no lookup table: base64url("<onboardingId>:<email>") + "." +
-// base64url(HMAC-SHA256(secret, "<onboardingId>:<email>")), with the same secret
-// /api/lead hashes IPs with. A tap lands in email_opt_outs for that client only.
+// base64url(HMAC-SHA256(secret, "unsub|<onboardingId>:<email>")), with the same
+// secret /api/lead hashes IPs with; the "unsub|" prefix keeps these signatures
+// from ever matching another use of that secret. A tap lands in email_opt_outs
+// for that client only.
 // Emails only. A texted STOP is separate (lib/phoneLines.ts) and stops the whole run.
 // Server-only (node:crypto).
 import { createHmac, timingSafeEqual } from 'node:crypto';
@@ -15,7 +17,9 @@ import { normalizeEmail } from '@/lib/sequenceShared';
 export const unsubscribeSecret = (): string => process.env.TRACKING_SALT || process.env.AUTH_SECRET || '';
 
 const MAX_TOKEN = 700;
-const mac = (payload: string, secret: string): Buffer => createHmac('sha256', secret).update(payload).digest();
+/** Domain separation: the secret is shared with other features, so what is signed here always starts with this. */
+export const UNSUBSCRIBE_MAC_PREFIX = 'unsub|';
+const mac = (payload: string, secret: string): Buffer => createHmac('sha256', secret).update(`${UNSUBSCRIBE_MAC_PREFIX}${payload}`).digest();
 
 /** '' when there is no secret or the address is not a valid email. */
 export function unsubscribeToken(onboardingId: number, email: string, secret: string): string {

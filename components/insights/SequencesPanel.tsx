@@ -16,7 +16,7 @@ import {
   type SequenceStep, type SequenceTemplateView, type SequencesAdminData, type TemplateVars,
 } from '@/lib/sequenceShared';
 
-type Reply = SequencesAdminData & { notice?: string; error?: string };
+type Reply = SequencesAdminData & { notice?: string; warning?: string; error?: string };
 
 const linkVars = (reviewLink: string | null, bookingLink: string | null): TemplateVars =>
   templateVars({ contactName: null, businessName: null, clientName: null, reviewLink, bookingLink });
@@ -26,6 +26,7 @@ export function SequencesPanel({ token, tier, initial }: { token: string; tier: 
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
   const [reviewLink, setReviewLink] = useState(initial.settings.reviewLink ?? '');
   const [bookingLink, setBookingLink] = useState(initial.settings.bookingLink ?? '');
   const [csv, setCsv] = useState<{ name: string; text: string } | null>(null);
@@ -39,6 +40,7 @@ export function SequencesPanel({ token, tier, initial }: { token: string; tier: 
     setBusy(label);
     setError(null);
     setNotice(null);
+    setWarning(null);
     try {
       const res = await fetch(`/api/admin/onboarding/${token}/sequences`, { method, headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
       const json = (await res.json().catch(() => null)) as Reply | null;
@@ -48,6 +50,7 @@ export function SequencesPanel({ token, tier, initial }: { token: string; tier: 
         smsReady: json.smsReady, canDraft: json.canDraft, recentLeads: json.recentLeads, stops: json.stops,
       });
       if (json.notice) setNotice(json.notice);
+      if (json.warning) setWarning(json.warning);
       return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Request failed');
@@ -111,6 +114,11 @@ export function SequencesPanel({ token, tier, initial }: { token: string; tier: 
       {notice ? (
         <p role="status" className="mt-3 text-sm text-emerald-700">
           {notice}
+        </p>
+      ) : null}
+      {warning ? (
+        <p role="alert" className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          {warning}
         </p>
       ) : null}
 
@@ -191,10 +199,9 @@ export function SequencesPanel({ token, tier, initial }: { token: string; tier: 
             </p>
             <label className="mt-2 flex items-start gap-2">
               <input type="checkbox" className="mt-1" checked={attest} onChange={(e) => setAttest(e.target.checked)} />
-              <span>
-                The client confirmed these people are their past customers and agreed to get texts from the business (for example, they gave their cell number when they booked). Axeon records this confirmation with today&apos;s date.
-              </span>
+              <span>I confirm these customers agreed to receive marketing texts from this business.</span>
             </label>
+            <p className="mt-1 text-xs text-neutral-600">Get a legal read on your consent records before uploading.</p>
             <button type="button" className={`${btn('primary', 'sm')} mt-3`} disabled={!attest || busy !== null || preview.rows.length === 0} onClick={() => void upload()}>
               Upload {preview.rows.length} customers
             </button>

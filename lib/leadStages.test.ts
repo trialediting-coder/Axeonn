@@ -27,6 +27,9 @@ function fakes(lead: LeadRecord | null, startOk = true) {
       log.push(`start ${kind} ${contact.phone ?? '-'} ${ref.table}#${ref.id}`);
       return startOk ? { started: true, runId: 99 } : { started: false, reason: 'disabled' };
     },
+    async notifyStartFailed(_o, input) {
+      log.push(`notify ${input.leadId} ${input.action}`);
+    },
   };
   return { log, deps };
 }
@@ -56,7 +59,7 @@ test('Quote sent ends the new-lead follow-up before the quote follow-up begins',
   const { log, deps } = fakes(mike);
   const r = await applyLeadStage(4, 7, 'quote_sent', deps);
   assert.deepEqual(r, { stage: 'contacted', started: ['quote'], stopped: 2 });
-  assert.deepEqual(log.slice(2), ['stop +15155550134 mike@example.com new_lead stage:quote_sent', 'start quote +15155550134 form_submissions#7']);
+  assert.deepEqual(log.slice(2), ['stop +15155550134 mike@example.com new_lead+review stage:quote_sent', 'start quote +15155550134 form_submissions#7']);
 });
 
 test('a refused start (template off) is not reported as started', async () => {
@@ -97,6 +100,7 @@ test('the store is asked for the lead under the signed-in client, and every writ
       calls.start.push(onboardingId);
       return { started: true, runId: 1 };
     },
+    async notifyStartFailed() {},
   };
   const r = await applyLeadStage(12, 345, 'lost', deps);
   assert.deepEqual(calls.find, [[12, 345]]);
@@ -115,6 +119,7 @@ function statefulFakes(opts: { stopThrows?: boolean; startThrows?: boolean } = {
   const row: LeadRecord = { ...mike };
   const starts: string[] = [];
   const saved: string[] = [];
+  const notified: { onboardingId: number; leadId: number; action: LeadAction; error: string }[] = [];
   const deps: StageDeps = {
     store: {
       refTable: 'form_submissions',
@@ -136,8 +141,11 @@ function statefulFakes(opts: { stopThrows?: boolean; startThrows?: boolean } = {
       starts.push(kind);
       return { started: true, runId: starts.length };
     },
+    async notifyStartFailed(onboardingId, input) {
+      notified.push({ onboardingId, ...input });
+    },
   };
-  return { deps, starts, saved };
+  return { deps, starts, saved, notified };
 }
 
 test('won twice starts review once', async () => {
@@ -163,19 +171,23 @@ test('quote_sent on a lead already contacted still starts the quote follow-up th
   assert.deepEqual(starts, ['quote']);
 });
 
-test('engine throw returns a warning and the stage is still saved', async () => {
+test('engine throw returns a warning, tells Axeon, and the stage is still saved', async () => {
+  assert.equal(STAGE_ENGINE_WARNING, "Saved. The automatic follow-up didn't start; Axeon has been told.");
   for (const o of [{ stopThrows: true }, { startThrows: true }]) {
-    const { deps, saved } = statefulFakes(o);
+    const { deps, saved, notified } = statefulFakes(o);
     const r = await applyLeadStage(4, 7, 'won', deps);
     assert.equal(r.stage, 'won');
     assert.deepEqual(r.started, []);
     assert.equal(r.warning, STAGE_ENGINE_WARNING);
     assert.ok(!JSON.stringify(r).includes('relation') && !JSON.stringify(r).includes('connection'));
     assert.deepEqual(saved, ['won']);
+    assert.equal(notified.length, 1);
+    assert.deepEqual({ ...notified[0], error: undefined }, { onboardingId: 4, leadId: 7, action: 'won', error: undefined });
   }
 });
 
-test('a successful tap carries no warning', async () => {
-  const { deps } = statefulFakes();
+test('a successful tap carries no warning and tells no one', async () => {
+  const { deps, notified } = statefulFakes();
   assert.equal((await applyLeadStage(4, 7, 'booked', deps)).warning, undefined);
+  assert.deepEqual(notified, []);
 });

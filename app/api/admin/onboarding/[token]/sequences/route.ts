@@ -3,7 +3,7 @@
 //   GET                                                 templates, links, run counts, customer counts
 //   PUT  { kind, steps, enabled }                        save one template; turning it on is checked first
 //   POST { action: 'draft' }                             Claude drafts all five from the portal answers, saved off
-//   POST { action: 'links', reviewLink, bookingLink }    the Google review link and the booking link
+//   POST { action: 'links', reviewLink, bookingLink }    the Google review link and the booking link (warns when a cleared link is in use)
 //   POST { action: 'import', csv, attest: true }         past-customer CSV with the consent attestation
 //   POST { action: 'start_lead', id }                    start the new-lead follow-up for one recent form lead
 // Nothing here sends a message; the 15-minute cron sends.
@@ -15,9 +15,9 @@ import { getSubmission } from '@/lib/leads';
 import { getItemStates, getOnboardingByToken } from '@/lib/onboarding';
 import { importCsv } from '@/lib/pastCustomers';
 import { getLine } from '@/lib/phoneLines';
-import { getSequenceSettings, saveSequenceSettings, saveTemplate, sequencesAdminData, startLeadFollowUp } from '@/lib/sequences';
+import { getSequenceSettings, getTemplates, saveSequenceSettings, saveTemplate, sequencesAdminData, startLeadFollowUp } from '@/lib/sequences';
 import { importNotice, startLeadNotice } from '@/lib/sequenceAdmin';
-import { draftInputFrom, enableProblems, templateVars, validateSequenceLinks, validateTemplate } from '@/lib/sequenceShared';
+import { SEQUENCE_LABELS, draftInputFrom, enableProblems, missingLinks, templateVars, validateSequenceLinks, validateTemplate } from '@/lib/sequenceShared';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -72,8 +72,17 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
       return NextResponse.json({ ...(await sequencesAdminData(onboarding.id)), notice: 'Drafted all five. Every sequence is off until you read it and turn it on.' });
     }
     if (body.action === 'links') {
-      await saveSequenceSettings(onboarding.id, validateSequenceLinks(body));
-      return NextResponse.json({ ...(await sequencesAdminData(onboarding.id)), notice: 'Links saved.' });
+      const links = validateSequenceLinks(body);
+      const [before, templates] = await Promise.all([getSequenceSettings(onboarding.id), getTemplates(onboarding.id)]);
+      await saveSequenceSettings(onboarding.id, links);
+      // Clearing a link an enabled template uses: saved, but its running follow-ups will stop ('missing_link'). Say so.
+      const vars = templateVars({ contactName: null, businessName: onboarding.businessName, clientName: onboarding.clientName, reviewLink: links.reviewLink, bookingLink: links.bookingLink });
+      const cleared = (before.reviewLink && !links.reviewLink) || (before.bookingLink && !links.bookingLink);
+      const hit = cleared ? templates.filter((t) => t.enabled && missingLinks(t.steps, vars).length > 0) : [];
+      const warning = hit.length
+        ? `${hit.map((t) => SEQUENCE_LABELS[t.kind].title).join(', ')} ${hit.length === 1 ? 'uses' : 'use'} the link you cleared. Running follow-ups of ${hit.length === 1 ? 'it' : 'them'} will stop before that step.`
+        : undefined;
+      return NextResponse.json({ ...(await sequencesAdminData(onboarding.id)), notice: 'Links saved.', ...(warning ? { warning } : {}) });
     }
     if (body.action === 'import') {
       if (body.attest !== true) throw new Error('Tick the consent box first');
