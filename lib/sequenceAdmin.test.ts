@@ -2,7 +2,8 @@
 // Run with: npm run test:sequences
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { STOP_REASON_LABELS, importNotice, startLeadNotice, stopReasonLabel } from './sequenceAdmin';
+import { STOP_REASON_LABELS, importNotice, nextStepOffset, startLeadNotice, stopReasonLabel } from './sequenceAdmin';
+import { KIND_RULES } from './sequenceShared';
 
 test('every stop reason has a label, including template_changed and bad_number', () => {
   assert.equal(STOP_REASON_LABELS.template_changed, 'Template was edited; this run stopped');
@@ -32,4 +33,13 @@ test('start-follow-up notices say why nothing started', () => {
   assert.match(startLeadNotice({ started: false, reason: 'disabled' }), /turned off/);
   assert.match(startLeadNotice({ started: false, reason: 'missing_link' }), /link/);
   assert.match(startLeadNotice({ started: false, reason: 'already_active' }), /already running/);
+});
+
+test('a new step waits a day after the last, an hour for reminders, and never past the limit', () => {
+  const step = (offsetMinutes: number) => ({ offsetMinutes, channel: 'sms' as const, subject: null, body: 'x' });
+  assert.equal(nextStepOffset('new_lead', [step(0), step(60)]), 60 + 1440);
+  assert.equal(nextStepOffset('new_lead', []), KIND_RULES.new_lead.minOffset + 1440);
+  assert.equal(nextStepOffset('new_lead', [step(KIND_RULES.new_lead.maxOffset)]), KIND_RULES.new_lead.maxOffset);
+  assert.equal(nextStepOffset('reminder', [step(-1440)]), -1440 + 60);
+  assert.equal(nextStepOffset('reminder', [step(0)]), KIND_RULES.reminder.maxOffset);
 });

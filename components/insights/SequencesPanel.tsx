@@ -10,7 +10,7 @@ import { useId, useMemo, useState } from 'react';
 import { adminInput, adminLabel, btn } from '@/components/admin/ui';
 import { parsePastCustomers } from '@/lib/pastCustomersShared';
 import { SMS_MAX_CHARS } from '@/lib/phoneShared';
-import { stopReasonLabel } from '@/lib/sequenceAdmin';
+import { nextStepOffset, stopReasonLabel } from '@/lib/sequenceAdmin';
 import {
   KIND_RULES, PLACEHOLDERS, SEQUENCE_LABELS, formatOffset, missingLinks, templateVars,
   type SequenceStep, type SequenceTemplateView, type SequencesAdminData, type TemplateVars,
@@ -55,6 +55,11 @@ export function SequencesPanel({ token, tier, initial }: { token: string; tier: 
     } finally {
       setBusy(null);
     }
+  }
+
+  function startLead(id: number) {
+    if (!window.confirm('Start the follow-up for this lead? This sends real texts and emails on the schedule.')) return;
+    void call(`lead-${id}`, 'POST', { action: 'start_lead', id });
   }
 
   function draft() {
@@ -161,7 +166,7 @@ export function SequencesPanel({ token, tier, initial }: { token: string; tier: 
                 <span className="min-w-0 text-neutral-800">
                   {l.name || 'No name'} · {l.maskedPhone ?? (l.hasEmail ? 'email only' : 'no contact')} · {l.stage}
                 </span>
-                <button type="button" className={btn('secondary', 'sm')} disabled={busy !== null} onClick={() => void call(`lead-${l.id}`, 'POST', { action: 'start_lead', id: l.id })}>
+                <button type="button" className={btn('secondary', 'sm')} disabled={busy !== null} onClick={() => startLead(l.id)}>
                   {busy === `lead-${l.id}` ? 'Starting…' : 'Start follow-up'}
                 </button>
               </li>
@@ -221,11 +226,7 @@ function TemplateEditor({
 
   const update = (i: number, patch: Partial<SequenceStep>) => setSteps((all) => all.map((s, j) => (j === i ? { ...s, ...patch } : s)));
   const addStep = () =>
-    setSteps((all) => {
-      const last = all[all.length - 1]?.offsetMinutes ?? rule.minOffset;
-      const offsetMinutes = Math.min(rule.maxOffset, last + (rule.maxOffset <= 0 ? 60 : 1440));
-      return [...all, { offsetMinutes, channel: 'sms', subject: null, body: '' }];
-    });
+    setSteps((all) => [...all, { offsetMinutes: nextStepOffset(t.kind, all), channel: 'sms', subject: null, body: '' }]);
   const source = t.isDefault ? 'Default copy' : t.draftedBy === 'claude' ? 'Drafted by Claude' : 'Edited by Axeon';
   // The server refuses to turn a template on while a link it uses is empty; show it here too.
   const needs = missingLinks(steps, vars);
@@ -233,7 +234,15 @@ function TemplateEditor({
 
   function toggle(next: boolean) {
     if (next && !window.confirm(`Turn on "${label.title}"? Real customers will get these messages. Have you read every step?`)) return;
-    void onSave(steps, next);
+    // Switching off sends the saved steps, so an invalid half-finished edit can never keep a template on.
+    void onSave(next ? steps : t.steps, next);
+  }
+
+  function save() {
+    if (counts.active > 0 && !window.confirm(`Saving stops ${counts.active} running follow-ups for this template. Continue?`)) return;
+    void onSave(steps, t.enabled).then((ok) => {
+      if (ok) setOpen(false);
+    });
   }
 
   return (
@@ -255,6 +264,7 @@ function TemplateEditor({
           <label htmlFor={`${id}-on`} className="inline-flex items-center gap-2 text-sm font-semibold text-neutral-800">
             <input id={`${id}-on`} type="checkbox" checked={t.enabled} disabled={busy || blockedOn} onChange={(e) => toggle(e.target.checked)} /> On
           </label>
+          <span className="text-xs text-neutral-500">Turning on saves your edits.</span>
           <button type="button" className={btn('secondary', 'sm')} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
             {open ? 'Close' : 'Read and edit'}
           </button>
@@ -318,9 +328,7 @@ function TemplateEditor({
               type="button"
               className={btn('primary', 'sm')}
               disabled={busy}
-              onClick={async () => {
-                if (await onSave(steps, t.enabled)) setOpen(false);
-              }}
+              onClick={save}
             >
               Save
             </button>

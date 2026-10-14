@@ -84,6 +84,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
       const id = typeof body.id === 'number' && Number.isInteger(body.id) && body.id > 0 ? body.id : null;
       const lead = id ? await getSubmission(onboarding.id, id) : null;
       if (!lead) throw new Error('That lead is not on this client');
+      if (lead.isTest) throw new Error('That is a test lead');
       const result = await startLeadFollowUp(onboarding.id, { id: lead.id, name: lead.name, phone: lead.phone, email: lead.email });
       return NextResponse.json({ ...(await sequencesAdminData(onboarding.id)), notice: startLeadNotice(result) });
     }

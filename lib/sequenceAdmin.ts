@@ -1,7 +1,7 @@
 // lib/sequenceAdmin.ts
 // Words for the admin Sequences card: stop reasons, the upload result, and why a
 // manual follow-up did not start. Pure and client-safe (no database, no server imports).
-import type { StopReason } from '@/lib/sequenceShared';
+import { KIND_RULES, type SequenceKind, type SequenceStep, type StopReason } from '@/lib/sequenceShared';
 
 /** Exhaustive on purpose: adding a StopReason without a label fails the type check. */
 export const STOP_REASON_LABELS: Record<StopReason, string> = {
@@ -45,6 +45,13 @@ const REFUSALS: Record<string, string> = {
   no_steps: 'Nothing could be scheduled: no step can be sent to this contact (check texting approval).',
   duplicate: 'A follow-up already started for this lead.',
 };
+
+/** Wait for a step added at the end: a day after the last (an hour for before-the-appointment kinds), kept inside the kind's limits. */
+export function nextStepOffset(kind: SequenceKind, steps: SequenceStep[]): number {
+  const rule = KIND_RULES[kind];
+  const last = steps[steps.length - 1]?.offsetMinutes ?? rule.minOffset;
+  return Math.min(rule.maxOffset, last + (rule.maxOffset <= 0 ? 60 : 1440));
+}
 
 export function startLeadNotice(result: { started: true; runId: number } | { started: false; reason: string }): string {
   return result.started ? 'Follow-up started.' : (REFUSALS[result.reason] ?? `Follow-up did not start (${result.reason}).`);

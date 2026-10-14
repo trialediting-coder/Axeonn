@@ -228,6 +228,7 @@ export async function draftSequenceTemplates(input: DraftInput): Promise<Sequenc
     tool_choice: { type: 'tool', name: 'submit_templates' },
     messages: [{ role: 'user', content: buildDraftPrompt(input) }],
   });
+  if (response.stop_reason === 'max_tokens') throw new Error('The draft was cut off. Try again.');
   const call = response.content.find((block): block is Anthropic.ToolUseBlock => block.type === 'tool_use' && block.name === 'submit_templates');
   if (!call) throw new Error('Claude did not return a draft. Try again.');
   return parseDraftedTemplates(call.input);
