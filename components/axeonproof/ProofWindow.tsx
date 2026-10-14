@@ -104,7 +104,7 @@ export function ProofWindow({ children, caption }: { children: ReactNode; captio
   const tilt = 14 * (1 - flat);
 
   return (
-    <figure ref={figureRef} className="mx-auto w-full max-w-6xl proof-hero-stagger animate-proof-rise" style={{ perspective: '1800px', animationDelay: '1550ms', animationDuration: '0.9s' }}>
+    <figure ref={figureRef} className="mx-auto w-full max-w-6xl proof-hero-stagger animate-proof-rise" style={{ perspective: '1800px', animationDelay: '2700ms', animationDuration: '0.9s' }}>
       <div
         className="overflow-hidden rounded-2xl bg-[#f3f4f7] shadow-[0_50px_140px_-30px_rgba(37,99,235,0.35)] ring-1 ring-white/10 sm:rounded-[20px]"
         style={{

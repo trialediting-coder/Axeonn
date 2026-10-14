@@ -2,19 +2,24 @@
 
 // components/axeonproof/PageIntro.tsx
 // The page's entrance, built from the Axeon mark: the two bars rise, the dot
-// lands, "Axeon" slides in, then "PROOF" extends out from behind it, and the
-// whole lockup zooms in cleanly to reveal the hero (which settles in from a
-// slight zoom of its own, app/axeonproof/page.tsx). Once per session, never
+// lands, "Axeon" slides in, then "PROOF" extends out from behind it. Then the
+// camera flies straight through the lockup (it accelerates past the viewer
+// and out of frame while the black holds), the black clears, and the page is
+// there, settling in from a slight zoom of its own (app/axeonproof/page.tsx). Once per session, never
 // under reduced motion. Rendered on the server already showing, so the hero
 // never flashes before it.
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 const KEY = 'axeon:proof-intro';
 const d = (ms: number) => ({ animationDelay: `${ms}ms` });
 
 export function PageIntro() {
   const [stage, setStage] = useState<'show' | 'out' | 'done'>('show');
+  // Inline for the server paint, then moved to <body> so it sits above the site header too.
+  const [mounted, setMounted] = useState(false);
   useEffect(() => {
+    setMounted(true);
     let seen = false;
     try {
       seen = sessionStorage.getItem(KEY) === '1';
@@ -28,16 +33,16 @@ export function PageIntro() {
       sessionStorage.setItem(KEY, '1');
     } catch {}
     const a = window.setTimeout(() => setStage('out'), 1750);
-    const b = window.setTimeout(() => setStage('done'), 2450);
+    const b = window.setTimeout(() => setStage('done'), 2700);
     return () => {
       window.clearTimeout(a);
       window.clearTimeout(b);
     };
   }, []);
   if (stage === 'done') return null;
-  return (
-    <div aria-hidden className={`fixed inset-0 z-[9998] flex items-center justify-center bg-neutral-950 ${stage === 'out' ? 'animate-proof-zoom-out' : ''}`}>
-      <div className="flex items-center gap-4">
+  const node = (
+    <div aria-hidden className={`fixed inset-0 z-[9998] flex items-center justify-center bg-neutral-950 ${stage === 'out' ? 'animate-proof-backdrop' : ''}`}>
+      <div className={`flex items-center gap-4 ${stage === 'out' ? 'animate-proof-fly' : ''}`}>
         <svg viewBox="0 0 24 20" fill="currentColor" className="h-9 w-auto text-blue-600 sm:h-12">
           <polygon points="6,0 2,20 6,20 10,0" className="animate-proof-grow [transform-box:fill-box] [transform-origin:bottom]" style={d(100)} />
           <polygon points="14,0 10,20 14,20 18,0" className="animate-proof-grow [transform-box:fill-box] [transform-origin:bottom]" style={d(280)} />
@@ -54,4 +59,5 @@ export function PageIntro() {
       </div>
     </div>
   );
+  return mounted ? createPortal(node, document.body) : node;
 }
