@@ -19,7 +19,9 @@ import { inboxEnabled, textingState, unmatchedTaps, type DashboardInbox } from '
 import { isPushConfigured } from '@/lib/push';
 import { listSubmissions } from '@/lib/leads';
 import { toDashboardSubmission } from '@/lib/leadShared';
-import type { ProofTabKey } from '@/lib/proofTabs';
+import { proofTab, tabLocked, type ProofTabKey } from '@/lib/proofTabs';
+import { loadDashboardBookings } from '@/lib/bookings';
+import type { DashboardBookings } from '@/lib/bookingShared';
 import { clientScansUsed, getAuditSettings, listAuditsForOnboarding } from '@/lib/audits';
 import { mapsMeasured, progressFrom, scanCapFor, section, splitCity } from '@/lib/auditShared';
 import { listPlan } from '@/lib/plans';
@@ -120,6 +122,9 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
   const attached = inboxOn && tab === 'leads' ? await attachedClickIds(onboarding.id, [...thisLeads, ...lastLeads].map((r) => Number(r.id))) : new Set<number>();
   // The VAPID public key (lib/push.ts), only when push is set up and the plan has the inbox.
   const pushKey = inboxOn && isPushConfigured() ? (process.env.WEB_PUSH_PUBLIC_KEY ?? null) : null;
+  // Like the inbox: only the Bookings tab, and only a plan that includes booking, runs these queries; a locked tab shows the upgrade page.
+  const bookings: DashboardBookings | null =
+    tab === 'bookings' && !tabLocked(proofTab('bookings'), onboarding.tier) ? await loadDashboardBookings(onboarding.id, month, previous) : null;
   return {
     onboarding,
     progress: computeProgress(onboarding.tier, states),
@@ -152,6 +157,7 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
     phone,
     inbox,
     pushKey,
+    bookings,
     ranking,
     live: hasTraffic(thisMonth) ? { month, traffic: thisMonth, prev: hasTraffic(lastMonth) ? lastMonth : null } : null,
   };

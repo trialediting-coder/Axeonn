@@ -35,6 +35,8 @@ import { NotificationsButton } from '@/components/proof/NotificationsButton';
 import type { DashboardInbox } from '@/lib/contactsShared';
 import { BillingTab } from '@/components/proof/BillingTab';
 import { CallsTab } from '@/components/proof/CallsTab';
+import { BookingsTab } from '@/components/proof/BookingsTab';
+import type { DashboardBookings } from '@/lib/bookingShared';
 import type { DashboardPhone } from '@/lib/proofDashboardData';
 import { FeatureTab } from '@/components/proof/FeatureTab';
 import { EmailTab } from '@/components/proof/EmailTab';
@@ -301,6 +303,7 @@ export function ProofDashboard({
   billing = null,
   businessEmail = null,
   phone = null,
+  bookings = null,
   inbox = null,
   inboxApi = null,
   pushKey = null,
@@ -347,6 +350,8 @@ export function ProofDashboard({
   businessEmail?: BusinessEmailSetup | null;
   /** The client's tracked number and calls; null until a line is provisioned (lib/proofDashboardData.ts). */
   phone?: DashboardPhone | null;
+  /** Online booking for this month and the next seven days; null when the plan does not include it (lib/proofDashboardData.ts). */
+  bookings?: DashboardBookings | null;
   /** The leads inbox for AxeonCORE and up, loaded for the Leads tab only (lib/proofDashboardData.ts). Null: today's Leads tab. */
   inbox?: DashboardInbox | null;
   /** Where the inbox calls home: '/api/proof/inbox' on the client's page; null in the admin preview (read-only). */
@@ -587,6 +592,8 @@ export function ProofDashboard({
             <UpgradePanel tab={proofTab(tab)} tier={onboarding.tier} traffic={traffic} period={period} avgJobValue={avgJobValue} request={upgradeRequest} preview={!!preview} bookUrl={`${SITE_ORIGIN}/book`} />
           ) : tab === 'calls' && phone ? (
             <CallsTab phone={phone} preview={!!preview} />
+          ) : tab === 'bookings' && bookings ? (
+            <BookingsTab bookings={bookings} />
           ) : (
             <FeatureTab tab={proofTab(tab)} reports={reports} traffic={traffic} />
           )
