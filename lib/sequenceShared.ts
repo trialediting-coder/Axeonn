@@ -39,7 +39,7 @@ export type StopReason = 'replied' | 'answered' | 'opted_out' | 'stage' | 'templ
 export const SEQUENCE_LABELS: Record<SequenceKind, { title: string; trigger: string }> = {
   new_lead: { title: 'New lead follow-up', trigger: 'A form comes in, or a missed caller has not replied in 30 minutes' },
   quote: { title: 'Quote follow-up', trigger: 'The client taps Quote sent on a lead' },
-  reminder: { title: 'Appointment reminders', trigger: 'A booking is made (online booking arrives in a later update)' },
+  reminder: { title: 'Appointment reminders', trigger: 'A customer books online or through the website chat' },
   review: { title: 'Review request', trigger: 'The client taps Job done on a lead' },
   reactivation: { title: 'Past-customer check-in', trigger: 'First week of January, April, July and October, to the uploaded customer list' },
 };

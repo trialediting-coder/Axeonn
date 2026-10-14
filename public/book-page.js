@@ -36,10 +36,16 @@
     });
     return n;
   }
+  // The content's own height (the body box, which is not stretched to the frame), so
+  // the iframe can shrink again; the whole document's height never drops below the frame's.
+  function contentHeight() {
+    var b = document.body;
+    return Math.ceil(Math.max(b.scrollHeight, b.getBoundingClientRect().height));
+  }
   function resize() {
     if (!cfg.embed || window.parent === window) return;
     try {
-      window.parent.postMessage({ axeonBook: 1, site: cfg.site, height: Math.ceil(document.documentElement.scrollHeight) }, '*');
+      window.parent.postMessage({ axeonBook: 1, site: cfg.site, height: contentHeight() }, '*');
     } catch (e) {}
   }
   function show(nodes) {

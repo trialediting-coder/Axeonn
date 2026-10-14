@@ -256,3 +256,10 @@ test('clampSms caps on a word boundary, keeps the STOP line, and leaves short te
 test('the STOP line is the same wording phoneShared uses for text-back', () => {
   assert.ok(TEXT_BACK_DEFAULT.endsWith(STOP_LINE));
 });
+
+test('every follow-up trigger label is plain language and says what starts it (reminders: an online or chat booking)', async () => {
+  const { SEQUENCE_LABELS } = await import('./sequenceShared');
+  assert.equal(SEQUENCE_LABELS.reminder.trigger, 'A customer books online or through the website chat');
+  const banned = /\b(AEO|GEO|CRM pipeline|speed-to-lead|exit-intent|funnel|nurture|workflow|conver(t|sion))\b|later update/i;
+  for (const { title, trigger } of Object.values(SEQUENCE_LABELS)) assert.ok(!banned.test(`${title} ${trigger}`), trigger);
+});

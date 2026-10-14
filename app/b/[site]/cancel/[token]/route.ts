@@ -5,7 +5,7 @@
 // token must belong to the site in the URL.
 import { after } from 'next/server';
 import { afterCancel, bookingByToken, bookingTimeZone, cancelBooking } from '@/lib/bookings';
-import { BOOKING_PAGE_CSP, renderCancelPage, type CancelView } from '@/lib/bookingPage';
+import { cancelPageHeaders, renderCancelPage, type CancelView } from '@/lib/bookingPage';
 import { formatSlotLabel } from '@/lib/bookingShared';
 import { getOnboardingById } from '@/lib/onboarding';
 import { isValidSiteKey, onboardingIdForSiteKey } from '@/lib/siteStats';
@@ -18,7 +18,8 @@ type Ctx = { params: Promise<{ site: string; token: string }> };
 const page = (view: CancelView, status = 200) =>
   new Response(renderCancelPage(view), {
     status,
-    headers: { 'content-type': 'text/html; charset=utf-8', 'content-security-policy': BOOKING_PAGE_CSP, 'cache-control': 'no-store', 'x-robots-tag': 'noindex' },
+    // Never framable (frame-ancestors 'none'), unlike the booking page itself.
+    headers: cancelPageHeaders(),
   });
 
 async function load(site: string, token: string) {

@@ -10,6 +10,21 @@
 export const BOOKING_PAGE_CSP =
   "default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; form-action 'self'; base-uri 'none'; frame-ancestors *";
 
+/**
+ * The cancel page is never framed: its button cancels a real booking, so no
+ * other site may put it under a decoy (clickjacking). Same policy otherwise.
+ */
+export const CANCEL_PAGE_CSP = BOOKING_PAGE_CSP.replace('frame-ancestors *', "frame-ancestors 'none'");
+
+/** Response headers for the cancel page: the no-framing CSP, plus X-Frame-Options for older browsers. */
+export const cancelPageHeaders = (): Record<string, string> => ({
+  'content-type': 'text/html; charset=utf-8',
+  'content-security-policy': CANCEL_PAGE_CSP,
+  'x-frame-options': 'DENY',
+  'cache-control': 'no-store',
+  'x-robots-tag': 'noindex',
+});
+
 export function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }

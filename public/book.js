@@ -37,6 +37,7 @@
         for (var i = 0; i < mounted.length; i++) {
           var m = mounted[i];
           if (m.frame.contentWindow !== e.source) continue;
+          // Every report is applied, smaller as well as larger, so the frame shrinks with its content.
           m.frame.style.height = Math.max(320, Math.min(4000, Number(e.data.height) || 0)) + 'px';
           if (!m.ready) {
             m.ready = true;
