@@ -301,6 +301,19 @@ export interface SequencesAdminData {
   customers: { total: number; consented: number };
   smsReady: boolean;
   canDraft: boolean;
+  /** The last 10 real form leads, for the manual "Start follow-up" button. Phones are masked. */
+  recentLeads: AdminLead[];
+  /** Stopped runs grouped by stop reason (raw reasons; lib/sequenceAdmin.ts labels them). */
+  stops: { reason: string; n: number }[];
+}
+
+export interface AdminLead {
+  id: number;
+  name: string | null;
+  maskedPhone: string | null;
+  hasEmail: boolean;
+  stage: string;
+  createdAt: string;
 }
 
 // ─────────────────────────── Lead stages (the PROOF taps) ───────────────────────────

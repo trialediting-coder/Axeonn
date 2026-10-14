@@ -10,7 +10,7 @@ import { sendSequenceEmail } from '@/lib/email';
 import { getOnboardingById, type Onboarding } from '@/lib/onboarding';
 import { pastCustomerCounts } from '@/lib/pastCustomers';
 import { getLine, isOptedOut, sendClientSms, type PhoneLine } from '@/lib/phoneLines';
-import { normalizePhone } from '@/lib/phoneShared';
+import { maskNumber, normalizePhone } from '@/lib/phoneShared';
 import { sendGate } from '@/lib/sendGate';
 import { decideRun, planSend, reactivationWindow, safeTimeZone, scheduleReactivation, type RunDecision } from '@/lib/sequenceSchedule';
 import {
@@ -739,12 +739,27 @@ export async function runCounts(onboardingId: number): Promise<RunCounts> {
 
 /** Everything the admin Sequences card needs, for the page load and every API response. */
 export async function sequencesAdminData(onboardingId: number): Promise<SequencesAdminData> {
-  const [templates, settings, counts, customers, line] = await Promise.all([
+  await ensureSchema();
+  const [templates, settings, counts, customers, line, leadRows, stopRows] = await Promise.all([
     getTemplates(onboardingId),
     getSequenceSettings(onboardingId),
     runCounts(onboardingId),
     pastCustomerCounts(onboardingId),
     getLine(onboardingId),
+    sql<{ id: DbId; name: string | null; phone: string | null; email: string | null; stage: string; created_at: DbTime }>`
+      SELECT id, name, phone, email, stage, created_at FROM form_submissions
+      WHERE onboarding_id = ${onboardingId} AND NOT is_test ORDER BY created_at DESC, id DESC LIMIT 10;
+    `,
+    sql<{ reason: string | null; n: number }>`
+      SELECT stop_reason AS reason, count(*)::int AS n FROM sequence_runs
+      WHERE onboarding_id = ${onboardingId} AND status = 'stopped' GROUP BY stop_reason ORDER BY n DESC;
+    `,
   ]);
-  return { templates, settings, counts, customers, smsReady: smsReady(line), canDraft: Boolean(process.env.ANTHROPIC_API_KEY) };
+  return {
+    templates, settings, counts, customers, smsReady: smsReady(line), canDraft: Boolean(process.env.ANTHROPIC_API_KEY),
+    recentLeads: leadRows.rows.map((r) => ({
+      id: Number(r.id), name: r.name, maskedPhone: r.phone ? maskNumber(r.phone) : null, hasEmail: Boolean(r.email), stage: r.stage, createdAt: iso(r.created_at),
+    })),
+    stops: stopRows.rows.map((r) => ({ reason: r.reason ?? 'unknown', n: Number(r.n) })),
+  };
 }

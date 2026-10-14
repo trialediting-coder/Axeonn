@@ -14,6 +14,8 @@ import { TIER_LABELS } from '@/data/onboardingItems';
 import { BusinessEmailPanel } from '@/components/insights/BusinessEmailPanel';
 import { getBusinessEmail } from '@/lib/businessEmail';
 import { PhonePanel } from '@/components/insights/PhonePanel';
+import { SequencesPanel } from '@/components/insights/SequencesPanel';
+import { sequencesAdminData } from '@/lib/sequences';
 import { getLine, monthCost, recentCalls } from '@/lib/phoneLines';
 import { getAuditSettings, listAuditsForOnboarding } from '@/lib/audits';
 import { listPlan } from '@/lib/plans';
@@ -44,6 +46,7 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
   const phone = phoneLine
     ? { line: phoneLine, calls: await recentCalls(onboarding.id, 30, { includeConnect: true }), cost: await monthCost(onboarding.id, monthOf()) }
     : { line: null, calls: [], cost: null };
+  const sequences = onboarding.tier === 'essentials' ? null : await sequencesAdminData(onboarding.id);
   const phoneCard = states['phone-setup']?.data ?? {};
   const askedPhone = (key: string) => (typeof phoneCard[key] === 'string' ? (phoneCard[key] as string) : '');
   const domainCard = states.domain?.data ?? {};
@@ -82,6 +85,7 @@ export default async function OnboardingDetailPage({ params }: { params: Promise
           businessName={onboarding.businessName}
           asked={{ mainNumber: askedPhone('mainNumber'), trackingPreference: askedPhone('trackingPreference'), answerers: askedPhone('answerers') }}
         />
+        {sequences ? <SequencesPanel token={onboarding.token} tier={onboarding.tier} initial={sequences} /> : null}
         <ProjectPanel token={onboarding.token} initial={{ details, updates, reports, tracking, feedback, audits, auditSettings, plan }} guarantee={tierHasGuarantee(onboarding.tier)} tier={onboarding.tier} />
       </div>
     </main>

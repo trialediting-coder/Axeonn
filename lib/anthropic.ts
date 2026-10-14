@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { readFileSync } from 'fs';
 import path from 'path';
 import { niches } from '@/data/nichesData';
+import { SEQUENCE_KINDS, buildDraftPrompt, parseDraftedTemplates, type DraftInput, type SequenceTemplate } from '@/lib/sequenceShared';
 
 export interface GeneratedPost {
   title: string;
@@ -183,4 +184,51 @@ export async function critiquePost(post: GeneratedPost): Promise<{ passed: boole
   } catch {
     return { passed: false, reasons: ['Critique response was not valid JSON — treating as failure per fail-safe default.'] };
   }
+}
+
+// ─────────────────────────── Follow-up sequence drafts ───────────────────────────
+
+const DRAFT_STEPS_SCHEMA = {
+  type: 'array' as const,
+  items: {
+    type: 'object' as const,
+    properties: { subject: { type: 'string' as const }, body: { type: 'string' as const } },
+    required: ['subject', 'body'],
+    additionalProperties: false,
+  },
+};
+
+const SUBMIT_TEMPLATES_TOOL = {
+  name: 'submit_templates',
+  description: 'Submit the follow-up copy: for each sequence, its steps in order. Texts have an empty subject.',
+  input_schema: {
+    type: 'object' as const,
+    properties: Object.fromEntries(SEQUENCE_KINDS.map((kind) => [kind, DRAFT_STEPS_SCHEMA])),
+    required: [...SEQUENCE_KINDS],
+    additionalProperties: false,
+  },
+  // Server-side schema validation, like submit_post above. parseDraftedTemplates
+  // still validates every step (blanks, lengths, STOP line), so a bad draft never saves.
+  strict: true,
+};
+
+/**
+ * "Draft with Claude" on the admin Sequences card: all five sequences written
+ * from the portal's how-you-sell answers. Timing and channels stay Axeon's; the
+ * result is validated and every template comes back off.
+ */
+export async function draftSequenceTemplates(input: DraftInput): Promise<SequenceTemplate[]> {
+  if (!process.env.ANTHROPIC_API_KEY) throw new Error('Drafting needs ANTHROPIC_API_KEY in Vercel');
+  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const response = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: 4000,
+    system: "You write short, plain follow-up texts and emails for small local service businesses, in the owner's own voice. You always answer by calling submit_templates.",
+    tools: [SUBMIT_TEMPLATES_TOOL],
+    tool_choice: { type: 'tool', name: 'submit_templates' },
+    messages: [{ role: 'user', content: buildDraftPrompt(input) }],
+  });
+  const call = response.content.find((block): block is Anthropic.ToolUseBlock => block.type === 'tool_use' && block.name === 'submit_templates');
+  if (!call) throw new Error('Claude did not return a draft. Try again.');
+  return parseDraftedTemplates(call.input);
 }
