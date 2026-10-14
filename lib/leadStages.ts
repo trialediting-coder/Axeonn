@@ -10,6 +10,7 @@ import { sendSequenceStartFailedNotification } from '@/lib/email';
 import { getOnboardingById } from '@/lib/onboarding';
 import { redactDigits } from '@/lib/sequenceSchedule';
 import { startRun, stopRunsFor, type RunContact, type RunRef, type RunStopReason, type StartResult } from '@/lib/sequences';
+import { contactIdForRef, getContact, writeContactStage } from '@/lib/contacts';
 import { STAGE_EFFECTS, isLeadStage, type LeadAction, type LeadStage, type SequenceKind } from '@/lib/sequenceShared';
 
 export interface LeadRecord extends RunContact {
@@ -61,6 +62,50 @@ export const formSubmissionStore: LeadStore = {
   },
 };
 
+/** The parts of lib/contacts.ts the contacts-backed stores use; injected so the tests run without a database. */
+export interface ContactStoreOps {
+  contactIdForRef: (onboardingId: number, refTable: string, refId: number) => Promise<number | null>;
+  writeContactStage: (onboardingId: number, contactId: number, stage: LeadStage, action: LeadAction) => Promise<void>;
+  getContact: (onboardingId: number, contactId: number) => Promise<Pick<LeadRecord, 'name' | 'phone' | 'email' | 'stage' | 'quoteSentAt'> | null>;
+}
+
+const contactOps: ContactStoreOps = { contactIdForRef, writeContactStage, getContact };
+
+/**
+ * Slice 4's default for form-lead taps ({ id } on /api/proof/leads/stage).
+ * form_submissions keeps its stage exactly as slice 3 writes it (FormLeads and
+ * the admin read it), and the contact that form was projected onto gets the
+ * same stage, a timeline note, its other forms kept in step, and the close-rate
+ * mark (lib/contacts.ts writeContactStage). A form not yet projected (the
+ * backfill has not run) is staged exactly as in slice 3.
+ */
+export function makeFormContactStore(base: LeadStore, ops: Pick<ContactStoreOps, 'contactIdForRef' | 'writeContactStage'>): LeadStore {
+  return {
+    refTable: 'form_submissions',
+    find: (onboardingId, id) => base.find(onboardingId, id),
+    async setStage(onboardingId, id, stage, action) {
+      await base.setStage(onboardingId, id, stage, action);
+      const contactId = await ops.contactIdForRef(onboardingId, 'form_submissions', id);
+      if (contactId) await ops.writeContactStage(onboardingId, contactId, stage, action);
+    },
+  };
+}
+
+/** Slice 4: taps on an inbox contact ({ contactId } on /api/proof/leads/stage). Runs started here carry ref_table 'contacts'. */
+export function makeContactStore(ops: Pick<ContactStoreOps, 'getContact' | 'writeContactStage'>): LeadStore {
+  return {
+    refTable: 'contacts',
+    async find(onboardingId, id) {
+      const c = await ops.getContact(onboardingId, id);
+      return c ? { name: c.name, phone: c.phone, email: c.email, stage: c.stage, quoteSentAt: c.quoteSentAt } : null;
+    },
+    setStage: (onboardingId, id, stage, action) => ops.writeContactStage(onboardingId, id, stage, action),
+  };
+}
+
+export const formContactStore: LeadStore = makeFormContactStore(formSubmissionStore, contactOps);
+export const contactStore: LeadStore = makeContactStore(contactOps);
+
 export interface StageDeps {
   store: LeadStore;
   startRun: (onboardingId: number, kind: SequenceKind, contact: RunContact, ref: RunRef) => Promise<StartResult>;
@@ -78,12 +123,15 @@ async function notifyStartFailed(onboardingId: number, input: { leadId: number; 
   }
 }
 
-const defaultDeps: StageDeps = {
-  store: formSubmissionStore,
+export const defaultDeps: StageDeps = {
+  store: formContactStore,
   startRun: (onboardingId, kind, contact, ref) => startRun(onboardingId, kind, contact, ref),
   stopRunsFor,
   notifyStartFailed,
 };
+
+/** The same engine for an inbox contact. */
+export const contactStageDeps: StageDeps = { ...defaultDeps, store: contactStore };
 
 export interface StageResult {
   stage: LeadStage;

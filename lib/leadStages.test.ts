@@ -2,7 +2,7 @@
 // Run with: npm run test:sequences. The store and the engine are fakes: no database.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { applyLeadStage, STAGE_ENGINE_WARNING, type LeadRecord, type LeadStore, type StageDeps } from './leadStages';
+import { applyLeadStage, LeadNotFoundError, makeContactStore, makeFormContactStore, STAGE_ENGINE_WARNING, type LeadRecord, type LeadStore, type StageDeps } from './leadStages';
 import type { LeadAction, LeadStage } from './sequenceShared';
 
 function fakes(lead: LeadRecord | null, startOk = true) {
@@ -190,4 +190,68 @@ test('a successful tap carries no warning and tells no one', async () => {
   const { deps, notified } = statefulFakes();
   assert.equal((await applyLeadStage(4, 7, 'booked', deps)).warning, undefined);
   assert.deepEqual(notified, []);
+});
+
+// ───────────── Slice 4: the contacts-backed stores (fake contacts module) ─────────────
+
+
+function contactFakes(contactIdFor: number | null) {
+  const log: string[] = [];
+  const base: LeadStore = {
+    refTable: 'form_submissions',
+    async find(onboardingId, id) {
+      log.push(`form find ${onboardingId}/${id}`);
+      return mike;
+    },
+    async setStage(onboardingId, id, stage, action) {
+      log.push(`form stage ${onboardingId}/${id} ${stage} ${action}`);
+    },
+  };
+  const contacts = {
+    async contactIdForRef(onboardingId: number, refTable: string, refId: number) {
+      log.push(`ref ${onboardingId} ${refTable}#${refId}`);
+      return contactIdFor;
+    },
+    async writeContactStage(onboardingId: number, contactId: number, stage: LeadStage, action: LeadAction) {
+      log.push(`contact stage ${onboardingId}/${contactId} ${stage} ${action}`);
+    },
+    async getContact(onboardingId: number, contactId: number) {
+      log.push(`contact find ${onboardingId}/${contactId}`);
+      return contactId === 77 ? { name: 'Sarah', phone: '+15155550199', email: 'sarah@example.com', stage: 'contacted' as LeadStage, quoteSentAt: null } : null;
+    },
+  };
+  return { log, base, contacts };
+}
+
+test('a form tap stages the form exactly as slice 3, then the contact it was projected onto', async () => {
+  const { log, base, contacts } = contactFakes(12);
+  const store = makeFormContactStore(base, contacts);
+  assert.equal(store.refTable, 'form_submissions');
+  assert.deepEqual(await store.find(3, 5), mike);
+  await store.setStage(3, 5, 'won', 'won');
+  assert.deepEqual(log, ['form find 3/5', 'form stage 3/5 won won', 'ref 3 form_submissions#5', 'contact stage 3/12 won won']);
+});
+
+test('a form not yet projected onto a contact is staged exactly as in slice 3', async () => {
+  const { log, base, contacts } = contactFakes(null);
+  await makeFormContactStore(base, contacts).setStage(3, 5, 'contacted', 'quote_sent');
+  assert.deepEqual(log, ['form stage 3/5 contacted quote_sent', 'ref 3 form_submissions#5']);
+});
+
+test('an inbox contact tap runs through applyLeadStage, and its runs carry ref_table contacts', async () => {
+  const { log: clog, contacts } = contactFakes(null);
+  const { log, deps } = fakes(null);
+  const store = makeContactStore(contacts);
+  assert.equal(store.refTable, 'contacts');
+  const res = await applyLeadStage(3, 77, 'won', { ...deps, store });
+  assert.equal(res.stage, 'won');
+  assert.deepEqual(clog, ['contact find 3/77', 'contact stage 3/77 won won']);
+  assert.ok(log.some((l) => l.startsWith('start review +15155550199 contacts#77')), log.join('\n'));
+});
+
+test('another client\'s contact id is not found and nothing is written', async () => {
+  const { log: clog, contacts } = contactFakes(null);
+  const { deps } = fakes(null);
+  await assert.rejects(() => applyLeadStage(3, 999, 'won', { ...deps, store: makeContactStore(contacts) }), LeadNotFoundError);
+  assert.deepEqual(clog, ['contact find 3/999']);
 });
