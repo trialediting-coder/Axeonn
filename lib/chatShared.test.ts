@@ -208,3 +208,19 @@ test('bookedMessageAlertText names the booking, keeps it short and strips links'
   assert.ok(!/bit\.ly/.test(text));
   assert.match(text, /\[link removed\]/);
 });
+
+test('the chat body cap lets a full-length message of emoji (4 bytes each) through readJsonBody', async () => {
+  const { CHAT_BODY_MAX_BYTES, MAX_MESSAGE_CHARS, sanitizeVisitorText } = await import('./chatShared');
+  const { readJsonBody } = await import('./publicSite');
+  const emoji = '\u{1F697}'.repeat(MAX_MESSAGE_CHARS);
+  const body = JSON.stringify({ session: 'x'.repeat(32), message: emoji, page: `/${'p'.repeat(299)}` });
+  assert.ok(new TextEncoder().encode(body).byteLength > 4096, 'over the old 4 KB default');
+  const req = new Request('https://example.test/api/chat/x', { method: 'POST', body, headers: { 'content-type': 'application/json' } });
+  const parsed = await readJsonBody(req, CHAT_BODY_MAX_BYTES);
+  assert.ok(parsed, 'not refused');
+  assert.equal(parsed.message, emoji);
+  assert.ok(sanitizeVisitorText(parsed.message));
+  // Control characters JSON-escape to 6 bytes each; still under the cap.
+  const escaped = JSON.stringify({ message: '\u0001'.repeat(MAX_MESSAGE_CHARS) });
+  assert.ok(new TextEncoder().encode(escaped).byteLength <= CHAT_BODY_MAX_BYTES);
+});

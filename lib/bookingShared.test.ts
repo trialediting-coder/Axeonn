@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  BookingError, confirmationText, customerNotToldText, formatSlotLabel, generateSlots, groupSlotsByDay, icsFor, isValidTimeZone, localDayStart,
+  BookingError, bookingPanelMode, confirmationText, customerNotToldText, formatSlotLabel, generateSlots, groupSlotsByDay, icsFor, isValidTimeZone, localDayStart,
   ownerCancelFallback, ownerCancelText, parseBookingInput, shortName, toDashboardBooking, validateBookingSettings, validateHours, zonedTimeToUtc,
   type Booking, type BookingHours,
 } from './bookingShared';
@@ -222,4 +222,12 @@ test('the dashboard row shows a short name and a masked number', () => {
     startsAt: '2026-10-13T19:00:00.000Z', endsAt: '2026-10-13T20:00:00.000Z', status: 'booked', source: 'chat', cancelToken: 't', createdAt: '2026-10-01T00:00:00.000Z',
   };
   assert.deepEqual(toDashboardBooking(b), { id: 3, startsAt: '2026-10-13T19:00:00.000Z', service: 'Full detail', who: 'Mike R.', phone: '(515) 555-01··', status: 'booked', source: 'chat' });
+});
+
+test('the admin booking card: full on booking plans, reduced to upcoming bookings on a plan without it, hidden when none', () => {
+  assert.equal(bookingPanelMode('axeoncore', 0), 'full');
+  assert.equal(bookingPanelMode('axeongrowth', 3), 'full');
+  assert.equal(bookingPanelMode('essentials', 2), 'reduced');
+  assert.equal(bookingPanelMode('essentials', 0), 'hidden');
+  assert.equal(bookingPanelMode('unknown', 1), 'reduced');
 });

@@ -32,6 +32,12 @@ export const TOOL_ROW_MAX = 4_000;
 /** The owner's handoff text: the reason the visitor gave is cut to this, links removed. */
 export const HANDOFF_REASON_MAX = 120;
 export const MAX_MESSAGE_CHARS = 1000;
+/**
+ * The chat POST body cap, in bytes. A message of MAX_MESSAGE_CHARS characters is
+ * up to 4 UTF-8 bytes each, and up to 6 where JSON escapes a control character;
+ * the rest (session id, page path, keys) fits in 2 KB.
+ */
+export const CHAT_BODY_MAX_BYTES = MAX_MESSAGE_CHARS * 6 + 2048;
 export const PAGES_BUDGET_CHARS = 12_000;
 export const MAX_PAGES_IN_PROMPT = 20;
 /** No single page may crowd out the rest. */

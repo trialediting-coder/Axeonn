@@ -11,7 +11,7 @@ import { after } from 'next/server';
 import { clientIp, rateLimited } from '@/lib/welcomeApi';
 import { corsJson, corsPreflight, publicClient, readJsonBody } from '@/lib/publicSite';
 import { chatPublicConfig, handleChatTurn, limitReply } from '@/lib/chat';
-import { sanitizeVisitorText } from '@/lib/chatShared';
+import { CHAT_BODY_MAX_BYTES, sanitizeVisitorText } from '@/lib/chatShared';
 import { monthOf, visitorHash } from '@/lib/siteStats';
 
 export const runtime = 'nodejs';
@@ -44,7 +44,8 @@ export async function POST(req: Request, ctx: Ctx) {
     const site = (await ctx.params).site;
     const onboarding = await publicClient(site);
     if (!onboarding) return corsJson({ error: 'Chat is not available.' }, 404);
-    const body = await readJsonBody(req);
+    // Sized from MAX_MESSAGE_CHARS so a full-length message in any script (emoji included) is never refused.
+    const body = await readJsonBody(req, CHAT_BODY_MAX_BYTES);
     const message = sanitizeVisitorText(body?.message);
     if (!body || !message) return corsJson({ error: 'Type a message first.' }, 400);
     const secret = process.env.TRACKING_SALT || process.env.AUTH_SECRET || '';

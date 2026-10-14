@@ -10,6 +10,7 @@ import { shortName as inboxShortName } from '@/lib/contactsShared';
 import { DEFAULT_TIME_ZONE, maskNumber, normalizePhone, SMS_MAX_CHARS } from '@/lib/phoneShared';
 import { localParts as wallClock, safeTimeZone, zonedTime } from '@/lib/sequenceSchedule';
 import { normalizeEmail } from '@/lib/sequenceShared';
+import { TIER_RANK } from '@/data/onboardingItems';
 
 export { DEFAULT_TIME_ZONE };
 
@@ -336,6 +337,16 @@ function fold(line: string): string {
   }
   parts.push(cur);
   return parts.map((p, i) => (i === 0 ? p : ` ${p}`)).join('\r\n');
+}
+
+/**
+ * The admin booking card: the full card on plans with online booking; on a plan
+ * without it, only the upcoming bookings (Done / Cancel, ruling S5-R13) while any
+ * remain; otherwise hidden.
+ */
+export function bookingPanelMode(tier: string, upcoming: number): 'full' | 'reduced' | 'hidden' {
+  if ((TIER_RANK[tier as keyof typeof TIER_RANK] ?? 0) >= TIER_RANK.axeoncore) return 'full';
+  return upcoming > 0 ? 'reduced' : 'hidden';
 }
 
 /**

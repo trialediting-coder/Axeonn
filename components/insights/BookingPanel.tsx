@@ -2,12 +2,14 @@
 // length, buffer, how far ahead, the services people pick from, an optional line
 // for the confirmation text, the two snippets for the client's site, and the
 // upcoming bookings with Done / Cancel. Times show in the client's time zone.
+// On a plan without online booking, only the upcoming bookings show (with Done /
+// Cancel) while any remain, so a downgraded client can still close them out.
 'use client';
 
 import { useState } from 'react';
 import { adminInput, adminLabel, btn } from '@/components/admin/ui';
 import { SITE_ORIGIN } from '@/lib/hostRouting';
-import { CONFIRM_NOTE_MAX, WEEKDAYS, WEEKDAY_NAMES, formatSlotLabel, type AdminBookingData, type BookingHours, type Weekday } from '@/lib/bookingShared';
+import { CONFIRM_NOTE_MAX, WEEKDAYS, WEEKDAY_NAMES, bookingPanelMode, formatSlotLabel, type AdminBookingData, type BookingHours, type Weekday } from '@/lib/bookingShared';
 import { formatPhone } from '@/lib/phoneShared';
 
 type DayRow = { open: boolean; from: string; to: string };
@@ -42,7 +44,8 @@ export function BookingPanel({ token, tier, initial }: { token: string; tier: st
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
-  if (tier === 'essentials') return null;
+  const mode = bookingPanelMode(tier, data.upcoming.length);
+  if (mode === 'hidden') return null;
 
   async function send(method: 'PUT' | 'POST', body: Record<string, unknown>) {
     setBusy(true);
@@ -76,6 +79,54 @@ export function BookingPanel({ token, tier, initial }: { token: string; tier: st
   const embed = data.siteKey
     ? `<div data-axeon-book data-site="${data.siteKey}">Call us to book.</div>\n<script defer src="${SITE_ORIGIN}/book.js"></script>`
     : null;
+
+  const upcomingTable = (
+    <div className="mt-5 overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead className="text-left text-xs uppercase tracking-wide text-neutral-500">
+          <tr><th className="py-1 pr-3">When</th><th className="py-1 pr-3">Who</th><th className="py-1 pr-3">Service</th><th className="py-1 pr-3">How</th><th className="py-1" /></tr>
+        </thead>
+        <tbody>
+          {data.upcoming.length === 0 ? (
+            <tr><td colSpan={5} className="py-3 text-neutral-500">No upcoming bookings.</td></tr>
+          ) : (
+            data.upcoming.map((b) => (
+              <tr key={b.id} className="border-t border-neutral-100">
+                <td className="py-1.5 pr-3 whitespace-nowrap">{formatSlotLabel(b, data.timeZone)}</td>
+                <td className="py-1.5 pr-3">{b.contactName}<br /><span className="text-neutral-500">{formatPhone(b.phone)}</span></td>
+                <td className="py-1.5 pr-3">{b.service || '—'}</td>
+                <td className="py-1.5 pr-3">{SOURCE[b.source] ?? b.source}</td>
+                <td className="py-1.5 whitespace-nowrap text-right">
+                  <button className={btn('success', 'sm')} disabled={busy} onClick={() => send('POST', { action: 'done', id: b.id })}>Done</button>{' '}
+                  <button
+                    className={btn('danger', 'sm')}
+                    disabled={busy}
+                    onClick={() => {
+                      if (window.confirm(`Cancel ${b.contactName}'s booking? They get a text (or an email) saying so.`)) void send('POST', { action: 'cancel', id: b.id });
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  if (mode === 'reduced') {
+    return (
+      <section className="mt-10 rounded-2xl border border-neutral-200 bg-white p-5 sm:p-6">
+        <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Online booking</p>
+        <h2 className="mt-1 text-lg font-bold text-neutral-950">Upcoming bookings</h2>
+        <p className="mt-1 text-sm text-neutral-600">Online booking isn&apos;t on this plan. These were booked before; mark them done or cancel them here.</p>
+        {error ? <p className="mt-3 text-sm text-red-700">{error}</p> : null}
+        {upcomingTable}
+      </section>
+    );
+  }
 
   return (
     <section className="mt-10 rounded-2xl border border-neutral-200 bg-white p-5 sm:p-6">
@@ -164,39 +215,7 @@ export function BookingPanel({ token, tier, initial }: { token: string; tier: st
         <p className="mt-5 text-sm text-amber-900">This client has no site key yet. Set up website tracking first; booking uses the same key.</p>
       )}
 
-      <div className="mt-5 overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="text-left text-xs uppercase tracking-wide text-neutral-500">
-            <tr><th className="py-1 pr-3">When</th><th className="py-1 pr-3">Who</th><th className="py-1 pr-3">Service</th><th className="py-1 pr-3">How</th><th className="py-1" /></tr>
-          </thead>
-          <tbody>
-            {data.upcoming.length === 0 ? (
-              <tr><td colSpan={5} className="py-3 text-neutral-500">No upcoming bookings.</td></tr>
-            ) : (
-              data.upcoming.map((b) => (
-                <tr key={b.id} className="border-t border-neutral-100">
-                  <td className="py-1.5 pr-3 whitespace-nowrap">{formatSlotLabel(b, data.timeZone)}</td>
-                  <td className="py-1.5 pr-3">{b.contactName}<br /><span className="text-neutral-500">{formatPhone(b.phone)}</span></td>
-                  <td className="py-1.5 pr-3">{b.service || '—'}</td>
-                  <td className="py-1.5 pr-3">{SOURCE[b.source] ?? b.source}</td>
-                  <td className="py-1.5 whitespace-nowrap text-right">
-                    <button className={btn('success', 'sm')} disabled={busy} onClick={() => send('POST', { action: 'done', id: b.id })}>Done</button>{' '}
-                    <button
-                      className={btn('danger', 'sm')}
-                      disabled={busy}
-                      onClick={() => {
-                        if (window.confirm(`Cancel ${b.contactName}'s booking? They get a text saying so.`)) void send('POST', { action: 'cancel', id: b.id });
-                      }}
-                    >
-                      Cancel
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      {upcomingTable}
     </section>
   );
 }
