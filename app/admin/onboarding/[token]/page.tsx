@@ -27,6 +27,8 @@ import { MetaPanel } from '@/components/insights/MetaPanel';
 import { isMetaConfigured } from '@/lib/meta';
 import { pagesFor } from '@/lib/metaPages';
 import { connectNotice } from '@/lib/metaShared';
+import { SocialPanel } from '@/components/insights/SocialPanel';
+import { listSocialPosts } from '@/lib/social';
 
 export const dynamic = 'force-dynamic';
 
@@ -58,7 +60,10 @@ export default async function OnboardingDetailPage({ params, searchParams }: { p
     ? { line: phoneLine, calls: await recentCalls(onboarding.id, 30, { includeConnect: true }), cost: await monthCost(onboarding.id, monthOf()) }
     : { line: null, calls: [], cost: null };
   const sequences = onboarding.tier === 'essentials' ? null : await sequencesAdminData(onboarding.id);
-  const metaPages = await pagesFor(onboarding.id).catch(() => []);
+  const [metaPages, socialPosts] = await Promise.all([
+    pagesFor(onboarding.id).catch(() => []),
+    onboarding.tier === 'axeongrowth' ? listSocialPosts(onboarding.id).catch(() => []) : Promise.resolve([]),
+  ]);
   const phoneCard = states['phone-setup']?.data ?? {};
   const askedPhone = (key: string) => (typeof phoneCard[key] === 'string' ? (phoneCard[key] as string) : '');
   const domainCard = states.domain?.data ?? {};
@@ -104,6 +109,7 @@ export default async function OnboardingDetailPage({ params, searchParams }: { p
         <ChatPanel token={onboarding.token} tier={onboarding.tier} initial={chatData} />
         {sequences ? <SequencesPanel token={onboarding.token} tier={onboarding.tier} initial={sequences} /> : null}
         <MetaPanel token={onboarding.token} tier={onboarding.tier} configured={isMetaConfigured()} initial={metaPages} />
+        <SocialPanel token={onboarding.token} onboardingId={onboarding.id} tier={onboarding.tier} configured={isMetaConfigured()} pages={metaPages} initial={socialPosts} />
         <ProjectPanel token={onboarding.token} initial={{ details, updates, reports, tracking, feedback, audits, auditSettings, plan }} guarantee={tierHasGuarantee(onboarding.tier)} tier={onboarding.tier} />
       </div>
     </main>

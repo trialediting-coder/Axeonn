@@ -22,6 +22,8 @@ import { toDashboardSubmission } from '@/lib/leadShared';
 import { proofTab, tabLocked, type ProofTabKey } from '@/lib/proofTabs';
 import { loadDashboardBookings } from '@/lib/bookings';
 import type { DashboardBookings } from '@/lib/bookingShared';
+import { publishedReels } from '@/lib/social';
+import type { DashboardReel } from '@/lib/metaShared';
 import { clientScansUsed, getAuditSettings, listAuditsForOnboarding } from '@/lib/audits';
 import { mapsMeasured, progressFrom, scanCapFor, section, splitCity } from '@/lib/auditShared';
 import { listPlan } from '@/lib/plans';
@@ -125,6 +127,8 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
   // Like the inbox: only the Bookings tab, and only a plan that includes booking, runs these queries; a locked tab shows the upgrade page.
   const bookings: DashboardBookings | null =
     tab === 'bookings' && !tabLocked(proofTab('bookings'), onboarding.tier) ? await loadDashboardBookings(onboarding.id, month, previous) : null;
+  // AxeonGROWTH reels with reach: only the Ads tab, only this client's published posts (lib/social.ts publishedReels).
+  const reels: DashboardReel[] = tab === 'ads' && onboarding.tier === 'axeongrowth' ? await publishedReels(onboarding.id).catch(() => []) : [];
   return {
     onboarding,
     progress: computeProgress(onboarding.tier, states),
@@ -159,6 +163,7 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
     pushKey,
     bookings,
     ranking,
+    reels,
     live: hasTraffic(thisMonth) ? { month, traffic: thisMonth, prev: hasTraffic(lastMonth) ? lastMonth : null } : null,
   };
 }

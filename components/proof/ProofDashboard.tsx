@@ -37,6 +37,7 @@ import { BillingTab } from '@/components/proof/BillingTab';
 import { CallsTab } from '@/components/proof/CallsTab';
 import { BookingsTab } from '@/components/proof/BookingsTab';
 import type { DashboardBookings } from '@/lib/bookingShared';
+import type { DashboardReel } from '@/lib/metaShared';
 import type { DashboardPhone } from '@/lib/proofDashboardData';
 import { FeatureTab } from '@/components/proof/FeatureTab';
 import { EmailTab } from '@/components/proof/EmailTab';
@@ -310,6 +311,7 @@ export function ProofDashboard({
   ownerEmail = 'hello@axeonstudio.co',
   ranking = null,
   scanApi = null,
+  reels = [],
 }: {
   email: string;
   onboarding: Onboarding;
@@ -364,6 +366,8 @@ export function ProofDashboard({
   ranking?: RankingData | null;
   /** Where "Scan now" posts; null in the admin preview, which hides the button. */
   scanApi?: string | null;
+  /** AxeonGROWTH: published reels with reach, loaded only for the Ads tab (lib/social.ts). */
+  reels?: DashboardReel[];
 }) {
   const latest = reports[0] ?? null;
   const prev = reports[1] ?? null;
@@ -595,7 +599,7 @@ export function ProofDashboard({
           ) : tab === 'bookings' && bookings ? (
             <BookingsTab bookings={bookings} />
           ) : (
-            <FeatureTab tab={proofTab(tab)} reports={reports} traffic={traffic} />
+            <FeatureTab tab={proofTab(tab)} reports={reports} traffic={traffic} reels={reels} />
           )
         ) : null}
 

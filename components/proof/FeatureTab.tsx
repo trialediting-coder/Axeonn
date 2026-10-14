@@ -6,6 +6,7 @@ import { campaignLabel, monthLabel } from '@/lib/projectsShared';
 import type { MonthlyReport } from '@/lib/projects';
 import type { ProofTab } from '@/lib/proofTabs';
 import type { TrafficSummary } from '@/lib/projectsShared';
+import type { DashboardReel } from '@/lib/metaShared';
 
 function Stat({ label, value, sub }: { label: string; value: string; sub?: string | null }) {
   return (
@@ -21,7 +22,36 @@ const show = (v: number | null | undefined, suffix = '') => (v == null ? '—' :
 const delta = (now: number | null | undefined, before: number | null | undefined) =>
   now != null && before != null ? `${now - before >= 0 ? '+' : '−'}${Math.abs(now - before)} vs last month` : null;
 
-export function FeatureTab({ tab, reports, traffic }: { tab: ProofTab; reports: MonthlyReport[]; traffic: TrafficSummary | null }) {
+/** Published reels with the reach Instagram reports (lib/social.ts publishedReels). Facebook shows no reach in v1. */
+function Reels({ reels }: { reels: DashboardReel[] }) {
+  return (
+    <div className="mt-8">
+      <h3 className="text-base font-semibold text-neutral-950">Reels we posted for you</h3>
+      <p className="mt-1 text-sm text-neutral-600">Reach is how many different people saw it. It updates once a day for 90 days.</p>
+      <ul className="mt-3 divide-y divide-neutral-100 rounded-2xl border border-neutral-200 bg-white">
+        {reels.map((r) => (
+          <li key={`${r.platform}|${r.publishedAt}`} className="flex flex-wrap items-baseline justify-between gap-2 px-5 py-3 text-sm">
+            <span className="min-w-0 flex-1 truncate font-semibold text-neutral-900">
+              {r.permalink ? (
+                <a href={r.permalink} target="_blank" rel="noreferrer" className="hover:text-blue-700">
+                  {r.caption || 'Reel'}
+                </a>
+              ) : (
+                r.caption || 'Reel'
+              )}
+            </span>
+            <span className="text-neutral-600">
+              {r.platform === 'instagram' ? 'Instagram' : 'Facebook'} · {new Date(r.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              {r.platform === 'instagram' ? ` · ${r.reach != null ? `${r.reach.toLocaleString('en-US')} reached` : 'reach tomorrow'}` : ''}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export function FeatureTab({ tab, reports, traffic, reels = [] }: { tab: ProofTab; reports: MonthlyReport[]; traffic: TrafficSummary | null; reels?: DashboardReel[] }) {
   const latest = reports[0] ?? null;
   const prev = reports[1] ?? null;
   const month = latest ? monthLabel(latest.month) : 'Live after your first report';
@@ -91,6 +121,7 @@ export function FeatureTab({ tab, reports, traffic }: { tab: ProofTab; reports: 
             <p className="px-5 py-8 text-center text-sm text-neutral-500">Campaign numbers show here once ads have run for a month.</p>
           )}
         </div>
+        {reels.length ? <Reels reels={reels} /> : null}
       </>
     );
   }
