@@ -16,6 +16,7 @@ import {
   isMetaConfigured,
   listPages,
   mediaInsights,
+  metaSendFailure,
   oauthUrl,
   parseSignedRequest,
   sendMessage,
@@ -264,4 +265,34 @@ test('verifySignature accepts only sha256= plus exactly 64 hex characters', () =
   assert.equal(verifySignature(BODY, `sha256=${hex}zz`, SECRET), false);
   assert.equal(verifySignature(BODY, `sha256=${hex}0`, SECRET), false);
   assert.equal(verifySignature(BODY, `sha256=${hex.slice(0, 63)}`, SECRET), false);
+});
+
+test('metaSendFailure: only a Graph 4xx is "not sent"; window, permission and token errors read differently; anything else is unclear', () => {
+  const win = metaSendFailure(new MetaApiError('Meta 400 (10/2018278): outside', 400, 10, 2018278), 'messenger', true);
+  assert.equal(win.kind, 'window');
+  assert.equal(win.status, 409);
+  assert.equal(win.canText, true);
+  assert.match(win.error, /24 hours.*Text them instead/);
+  assert.doesNotMatch(metaSendFailure(new MetaApiError('x', 400, 10, 2534022), 'instagram', false).error, /Text them/);
+
+  for (const err of [new MetaApiError('Meta 400 (10): (#10) no permission', 400, 10, null), new MetaApiError('Meta 403 (200): perms', 403, 200, null)]) {
+    const perm = metaSendFailure(err, 'messenger', true);
+    assert.equal(perm.kind, 'permission');
+    assert.equal(perm.canText, false);
+    assert.match(perm.error, /reconnected or its messaging permissions/);
+    assert.doesNotMatch(perm.error, /Text them/i);
+  }
+  const token = metaSendFailure(new MetaApiError('Meta 400 (190): expired', 400, 190, 463), 'instagram', true);
+  assert.equal(token.kind, 'reconnect');
+  assert.equal(token.canText, false);
+  assert.match(token.error, /^Instagram .*reconnect/);
+
+  assert.equal(metaSendFailure(new MetaApiError('Meta 400 (100): bad', 400, 100, null), 'messenger', true).kind, 'not_sent');
+  assert.equal(metaSendFailure(new MetaApiError('Meta request timed out (/me/messages)', 0, null, null), 'messenger', true).kind, 'unclear');
+  assert.equal(metaSendFailure(new MetaApiError('Meta 500 (2): temporary', 500, 2, null), 'messenger', true).kind, 'unclear');
+  assert.equal(metaSendFailure(new MetaApiError('Meta accepted the message but returned no id (/me/messages)', 200, null, null), 'messenger', true).kind, 'unclear');
+  const odd = metaSendFailure(new Error('socket hang up'), 'instagram', true);
+  assert.equal(odd.kind, 'unclear');
+  assert.equal(odd.canText, false);
+  assert.match(odd.error, /may have taken/);
 });

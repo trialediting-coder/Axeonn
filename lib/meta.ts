@@ -306,6 +306,46 @@ export async function sendMessage(input: { pageToken: string; recipientId: strin
   return { messageId: r.message_id };
 }
 
+export type MetaSendFailure = {
+  /** reconnect: token invalid (mark the page); permission: code 10/200; window: 24 hours passed; not_sent: Meta refused; unclear: it may have gone out. */
+  kind: 'reconnect' | 'permission' | 'window' | 'not_sent' | 'unclear';
+  status: number;
+  error: string;
+  canText: boolean;
+};
+
+const SEND_PLATFORM: Record<MetaChannel, string> = { messenger: 'Facebook', instagram: 'Instagram' };
+
+/**
+ * What a throw from sendMessage means for the inbox reply box. The SMS rule
+ * (lib/inboxReply.ts liveSendFailure) carried over: only a Graph 4xx error
+ * means nothing went out; a timeout, a dropped connection, a 5xx or a 2xx
+ * without a message id may have been delivered, so it is 'unclear' and the box
+ * clears instead of offering a resend. A permission or token problem never
+ * suggests texting instead: the page has to be reconnected.
+ */
+export function metaSendFailure(err: unknown, channel: MetaChannel, hasPhone: boolean): MetaSendFailure {
+  const name = SEND_PLATFORM[channel];
+  if (err instanceof MetaApiError && err.tokenInvalid) {
+    return { kind: 'reconnect', status: 502, error: `${name} stopped accepting replies from this page, so it needs to be reconnected. Ask Axeon to reconnect it.`, canText: false };
+  }
+  if (err instanceof MetaApiError && err.outsideWindow) {
+    return { kind: 'window', status: 409, error: `${name} only lets you reply within 24 hours of their last message.${hasPhone ? ' Text them instead?' : ''}`, canText: hasPhone };
+  }
+  if (err instanceof MetaApiError && err.permissionDenied) {
+    return {
+      kind: 'permission',
+      status: 502,
+      error: `${name} would not let this page send the reply. The page needs to be reconnected or its messaging permissions turned back on. Ask Axeon to check it.`,
+      canText: false,
+    };
+  }
+  if (err instanceof MetaApiError && err.status >= 400 && err.status < 500) {
+    return { kind: 'not_sent', status: 502, error: `${name} did not take the message. Try again in a minute.`, canText: hasPhone };
+  }
+  return { kind: 'unclear', status: 502, error: `${name} may have taken this message. Refresh and check the thread before you send it again.`, canText: false };
+}
+
 /** POST /{ig-user-id}/media media_type=REELS, video_url, caption → container id. Meta fetches the video from video_url. */
 export async function createReelContainer(input: { igUserId: string; pageToken: string; videoUrl: string; caption: string }, f: FetchLike = fetch): Promise<string> {
   const r = await graph<{ id: string }>(

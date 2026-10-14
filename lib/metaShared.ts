@@ -308,3 +308,27 @@ export function connectOutcome(saved: number, failed: number): ConnectResult {
 export function connectNotice(flag: unknown): { tone: 'ok' | 'warn'; text: string } | null {
   return typeof flag === 'string' && Object.hasOwn(NOTICES, flag) ? NOTICES[flag as ConnectResult] : null;
 }
+
+/** Inbound touches other than a DM that send the reply by text instead (the same list metaReplyFor's SQL uses). */
+export const OTHER_INBOUND_KINDS: readonly string[] = ['call', 'text_in', 'form', 'chat', 'booking'];
+
+/**
+ * replyDecision's inputs, read from the timeline the inbox page already has
+ * (slice 4's DashboardEvent with metaDirection). The reply box uses it only to
+ * pick its wording; the server decides again in metaReplyFor.
+ */
+export function replyContextFrom(events: ReadonlyArray<{ kind: string; at: string; metaDirection: 'in' | 'out' | null }>): {
+  lastMeta: { channel: MetaChannel; at: string } | null;
+  lastOtherInboundAt: string | null;
+} {
+  let lastMeta: { channel: MetaChannel; at: string } | null = null;
+  let lastOther: string | null = null;
+  for (const e of events) {
+    if ((e.kind === 'messenger' || e.kind === 'instagram') && e.metaDirection === 'in') {
+      if (!lastMeta || time(e.at) >= time(lastMeta.at)) lastMeta = { channel: e.kind, at: e.at };
+    } else if (OTHER_INBOUND_KINDS.includes(e.kind)) {
+      if (!lastOther || time(e.at) >= time(lastOther)) lastOther = e.at;
+    }
+  }
+  return { lastMeta, lastOtherInboundAt: lastOther };
+}

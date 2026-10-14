@@ -10,6 +10,7 @@ import {
   messagePreview,
   metaKindLabel,
   metaTextProblem,
+  replyContextFrom,
   parseWebhookBody,
   truncateUtf8,
   replyDecision,
@@ -220,4 +221,18 @@ test('connectOutcome: partial when some pages failed, error when none were saved
   assert.equal(connectOutcome(0, 0), 'error');
   assert.equal(connectNotice('partial')?.tone, 'warn');
   assert.match(connectNotice('partial')?.text ?? '', /not coming in/);
+});
+
+test('replyContextFrom reads the inbox timeline: inbound DMs only, other inbound touches separately', () => {
+  const ev = (kind: string, at: string, metaDirection: 'in' | 'out' | null = null) => ({ kind, at, metaDirection });
+  assert.deepEqual(
+    replyContextFrom([
+      ev('call', '2026-10-13T09:00:00.000Z'),
+      ev('messenger', '2026-10-13T10:00:00.000Z', 'in'),
+      ev('messenger', '2026-10-13T10:05:00.000Z', 'out'),
+      ev('alert', '2026-10-13T10:06:00.000Z'),
+    ]),
+    { lastMeta: { channel: 'messenger', at: '2026-10-13T10:00:00.000Z' }, lastOtherInboundAt: '2026-10-13T09:00:00.000Z' }
+  );
+  assert.deepEqual(replyContextFrom([]), { lastMeta: null, lastOtherInboundAt: null });
 });

@@ -12,10 +12,10 @@ import { errText, type DbId } from '@/lib/dbRows';
 import { addContactEvent, upsertContactByExternalId } from '@/lib/contacts';
 import { inboxEnabled } from '@/lib/contactsShared';
 import { notifyLeadActivity } from '@/lib/leadNotify';
-import { profileName } from '@/lib/meta';
+import { isMetaConfigured, metaSendFailure, profileName, sendMessage } from '@/lib/meta';
 import { getOnboardingById } from '@/lib/onboarding';
-import { pageForId } from '@/lib/metaPages';
-import { messagePreview, secretRedact, type MetaAttachment, type MetaChannel, type MetaInboundMessage } from '@/lib/metaShared';
+import { markNeedsReconnect, pageForId } from '@/lib/metaPages';
+import { messagePreview, metaTextProblem, replyDecision, secretRedact, type MetaAttachment, type MetaChannel, type MetaInboundMessage } from '@/lib/metaShared';
 
 const PLATFORM: Record<MetaChannel, string> = { messenger: 'Facebook', instagram: 'Instagram' };
 const redactedErr = (err: unknown) => secretRedact(errText(err));
@@ -105,4 +105,104 @@ export async function processInbound(events: MetaInboundMessage[], now: Date = n
   if (tally.unknown_page) console.error('[meta:inbound] messages for a page no client has connected', tally.unknown_page);
   if (tally.inbox_off) console.error('[meta:inbound] messages for a client whose plan has no inbox', tally.inbox_off);
   return tally;
+}
+
+export type MetaReplyResult =
+  /** note: it went out, but recording it failed, so it may not show in the thread yet. */
+  | { ok: true; channel: MetaChannel; note?: string }
+  /** unclear: Meta may have delivered it; the box clears instead of offering a resend (slice 4's 'unclear'). */
+  | { ok: false; status: number; error: string; canText: boolean; channel: MetaChannel | null; unclear?: true };
+
+/**
+ * Called first by POST /api/proof/inbox/[contactId]/reply. Null means "not a
+ * Meta thread, carry on with slice 4's SMS path". Otherwise the reply was sent
+ * through Meta (ok) or refused with the status and sentence the reply box shows.
+ * Every query is scoped by the onboarding id, so another client's contact is a
+ * null here and a 404 from slice 4's replyToContact. The reply goes only to the
+ * PSID / IGSID of this contact's latest inbound DM, through the page that
+ * received it, and only when that page is this client's and active.
+ * Quiet hours do not apply: holding a Messenger reply could carry it past the
+ * 24-hour window, and Messenger is not a text message.
+ */
+export async function metaReplyFor(input: { onboardingId: number; contactId: number; text: string; via?: 'sms' | null; now?: number }): Promise<MetaReplyResult | null> {
+  if (input.via === 'sms') return null;
+  const now = input.now ?? Date.now();
+  const [lastMetaRes, lastOtherRes, contactRes] = await Promise.all([
+    sql<{ channel: MetaChannel; page_id: string; person_id: string; sent_at: Date | string }>`
+      SELECT channel, page_id, person_id, sent_at FROM meta_messages
+      WHERE onboarding_id = ${input.onboardingId} AND contact_id = ${input.contactId} AND direction = 'in'
+      ORDER BY sent_at DESC LIMIT 1;
+    `,
+    sql<{ at: Date | string | null }>`
+      SELECT max(created_at) AS at FROM contact_events
+      WHERE onboarding_id = ${input.onboardingId} AND contact_id = ${input.contactId} AND kind IN ('call', 'text_in', 'form', 'chat', 'booking');
+    `,
+    sql<{ phone: string | null }>`SELECT phone FROM contacts WHERE id = ${input.contactId} AND onboarding_id = ${input.onboardingId};`,
+  ]);
+  const last = lastMetaRes.rows[0];
+  if (!last) return null;
+  const hasPhone = Boolean(contactRes.rows[0]?.phone);
+  const otherAt = lastOtherRes.rows[0]?.at;
+  const decision = replyDecision({
+    lastMeta: { channel: last.channel, at: new Date(last.sent_at).toISOString() },
+    lastOtherInboundAt: otherAt ? new Date(otherAt).toISOString() : null,
+    hasPhone,
+    now,
+  });
+  if (decision.route === 'sms') return null;
+  if (decision.route === 'blocked') return { ok: false, status: 409, error: decision.message, canText: decision.canText, channel: decision.channel };
+  const channel = decision.channel;
+  const name = PLATFORM[channel];
+  const text = input.text.trim();
+  if (!text) return { ok: false, status: 400, error: 'Type a message first.', canText: hasPhone, channel };
+  const tooLong = metaTextProblem(channel, text);
+  if (tooLong) return { ok: false, status: 400, error: tooLong, canText: hasPhone, channel };
+  if (!isMetaConfigured()) return { ok: false, status: 503, error: `${name} replies are not switched on yet.`, canText: hasPhone, channel };
+  const page = await pageForId(last.page_id);
+  if (!page || page.onboardingId !== input.onboardingId || page.status === 'needs_reconnect') {
+    return { ok: false, status: 409, error: `This ${name} page needs to be reconnected before you can reply here. Ask Axeon to reconnect it.`, canText: hasPhone, channel };
+  }
+
+  let messageId: string;
+  try {
+    ({ messageId } = await sendMessage({ pageToken: page.pageToken, recipientId: last.person_id, text }));
+  } catch (err) {
+    const failure = metaSendFailure(err, channel, hasPhone);
+    console.error('[meta:reply]', failure.kind, redactedErr(err));
+    if (failure.kind === 'reconnect') {
+      try {
+        await markNeedsReconnect(page.pageId, errText(err));
+      } catch (markErr) {
+        console.error('[meta:reply] could not mark the page', redactedErr(markErr));
+      }
+    }
+    return { ok: false, status: failure.status, error: failure.error, canText: failure.canText, channel, ...(failure.kind === 'unclear' ? { unclear: true as const } : {}) };
+  }
+
+  // Meta has the message. Nothing below may turn this into a failure the box would offer to resend.
+  try {
+    const out = await sql<{ id: DbId }>`
+      INSERT INTO meta_messages (onboarding_id, contact_id, channel, direction, page_id, person_id, mid, body, sent_at)
+      VALUES (${input.onboardingId}, ${input.contactId}, ${channel}, 'out', ${page.pageId}, ${last.person_id}, ${messageId}, ${text}, ${new Date(now).toISOString()})
+      ON CONFLICT (mid) DO NOTHING
+      RETURNING id;
+    `;
+    await addContactEvent({
+      onboardingId: input.onboardingId,
+      contactId: input.contactId,
+      kind: channel,
+      refTable: 'meta_messages',
+      refId: out.rows[0] ? Number(out.rows[0].id) : null,
+      summary: messagePreview({ text, attachments: [] }),
+      payload: { direction: 'out', body: text },
+      createdAt: new Date(now).toISOString(),
+      // A reply the client typed is contact: New moves to Contacted through slice 4's advanceStage
+      // (forms mirror it, slice 3's new-lead and quote follow-ups stop), as a typed text does.
+      systemStage: 'contacted',
+    });
+  } catch (err) {
+    console.error('[meta:reply] sent but not recorded', redactedErr(err));
+    return { ok: true, channel, note: `Sent on ${name}. It may not show in this thread, so check ${name} before sending it again.` };
+  }
+  return { ok: true, channel };
 }

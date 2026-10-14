@@ -13,6 +13,7 @@ import { DEFAULT_TIME_ZONE, callerKey, formatCallLength, maskNumber, SMS_MAX_CHA
 import { buttonLabel, campaignLabel } from '@/lib/projectsShared';
 import { holdForQuietHours, safeTimeZone } from '@/lib/sequenceSchedule';
 import { LEAD_ACTION_LABELS, STAGE_EFFECTS, normalizeEmail, type LeadAction, type LeadStage, type SequenceKind } from '@/lib/sequenceShared';
+import { metaKindLabel } from '@/lib/metaShared';
 
 // ───────────────────────────── Vocabulary ─────────────────────────────
 
@@ -391,6 +392,8 @@ export interface DashboardEvent {
   call: { callSid: string; outcome: CallOutcome; durationSeconds: number | null; hasRecording: boolean } | null;
   /** For forms and bookings: what was submitted. */
   fields: Array<{ label: string; value: string }>;
+  /** Slice 6: which way a Facebook or Instagram message went; null for every other kind. */
+  metaDirection: 'in' | 'out' | null;
 }
 
 const MESSAGE_KINDS: readonly ContactEventKind[] = ['text_in', 'text_out', 'sequence', 'reminder', 'messenger', 'instagram'];
@@ -410,11 +413,12 @@ function eventFields(kind: ContactEventKind, p: EventPayload): Array<{ label: st
 export function toDashboardEvent(e: ContactEvent): DashboardEvent {
   const p = e.payload;
   const isMessage = MESSAGE_KINDS.includes(e.kind) && p.channel !== 'email';
+  const metaDirection = e.kind === 'messenger' || e.kind === 'instagram' ? (p.direction === 'out' ? 'out' : 'in') : null;
   return {
     id: e.id,
     kind: e.kind,
     at: e.createdAt,
-    verb: eventVerb(e.kind),
+    verb: metaDirection ? metaKindLabel(e.kind, metaDirection) : eventVerb(e.kind),
     summary: e.summary || eventSummary(e.kind, p),
     automatic: p.automatic === true || e.kind === 'sequence' || e.kind === 'reminder',
     text: isMessage ? str(p.body) : null,
@@ -423,6 +427,7 @@ export function toDashboardEvent(e: ContactEvent): DashboardEvent {
         ? { callSid: p.callSid, outcome: p.outcome === 'answered' ? 'answered' : 'missed', durationSeconds: num(p.durationSeconds), hasRecording: p.hasRecording === true }
         : null,
     fields: eventFields(e.kind, p),
+    metaDirection,
   };
 }
 

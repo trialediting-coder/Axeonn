@@ -21,6 +21,8 @@ import {
   type ContactEventKind, type DashboardContact, type DashboardContactView, type DashboardEvent, type DashboardInbox,
 } from '@/lib/contactsShared';
 import { SMS_MAX_CHARS } from '@/lib/phoneShared';
+import { MetaReplyNotice } from '@/components/proof/MetaReplyNotice';
+import { META_TEXT_MAX, metaTextProblem, replyContextFrom, replyDecision } from '@/lib/metaShared';
 import type { LeadStage } from '@/lib/sequenceShared';
 
 type Icon = typeof PhoneCall;
@@ -193,7 +195,7 @@ function StageLine({ contact, stageApi }: { contact: DashboardContact; stageApi:
 }
 
 function EventItem({ e, api }: { e: DashboardEvent; api: string | null }) {
-  const outgoing = OUTGOING.includes(e.kind);
+  const outgoing = OUTGOING.includes(e.kind) || e.metaDirection === 'out';
   if (e.text !== null) {
     return (
       <li className={`flex ${outgoing ? 'justify-end' : 'justify-start'}`}>
@@ -240,45 +242,69 @@ function EventItem({ e, api }: { e: DashboardEvent; api: string | null }) {
   );
 }
 
-function ReplyBox({ contact, api, timeZone, texting }: { contact: DashboardContact; api: string | null; timeZone: string; texting: DashboardInbox['texting'] }) {
+function ReplyBox({ contact, events, api, timeZone, texting }: { contact: DashboardContact; events: DashboardEvent[]; api: string | null; timeZone: string; texting: DashboardInbox['texting'] }) {
   const router = useRouter();
   const [body, setBody] = useState('');
   const [sending, setSending] = useState(false);
   const [note, setNote] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Slice 6: Facebook or Instagram refused (reason 'meta'), e.g. the window closed after the page loaded.
+  const [metaRefusal, setMetaRefusal] = useState<{ error: string; canText: boolean } | null>(null);
   const [quiet, setQuiet] = useState<string | null>(null);
   // Computed after mount: the server's clock and the phone's can disagree by a minute.
+  const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
     const w = canReplyNow(new Date(), timeZone);
     setQuiet(w.ok ? null : quietNotice(w.sendAt, timeZone, false));
-  }, [timeZone]);
+    setNow(Date.now());
+  }, [timeZone, events]);
 
-  // The same order the server refuses in (lib/contactsShared.ts replyBlocker).
-  const blocked = replyBlocker({ hasPhone: contact.hasPhone, optedOut: contact.optedOut, texting });
+  // Slice 6: a DM thread answers on Facebook / Instagram inside 24 hours (lib/metaShared.ts replyDecision; the server decides again).
+  // Before mount (now null) the window is read as open at the last DM, so server and first client paint agree.
+  const context = replyContextFrom(events);
+  const decision = replyDecision({ ...context, hasPhone: contact.hasPhone, now: now ?? (context.lastMeta ? new Date(context.lastMeta.at).getTime() : 0) });
+  const platform = decision.route === 'meta' ? (decision.channel === 'instagram' ? 'Instagram' : 'Facebook') : null;
+  // The same order the server refuses texts in (lib/contactsShared.ts replyBlocker); a DM reply needs no phone.
+  const blocked = platform ? null : replyBlocker({ hasPhone: contact.hasPhone, optedOut: contact.optedOut, texting });
+  const tooLong = decision.route === 'meta' ? metaTextProblem(decision.channel, body.trim()) : null;
 
-  async function send(e: FormEvent) {
-    e.preventDefault();
+  const failText = platform ? 'Your message did not go out. Try again.' : 'Your text did not go out. Try again.';
+
+  async function post(via: 'sms' | null) {
     if (!api || !body.trim()) return;
     setSending(true);
     setError(null);
     setNote(null);
+    setMetaRefusal(null);
     try {
-      const res = await fetch(`${api}/${contact.id}/reply`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ body }) });
-      const data = (await res.json().catch(() => null)) as { status?: string; sendAt?: string } | null;
+      const res = await fetch(`${api}/${contact.id}/reply`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ body, via }) });
+      const data = (await res.json().catch(() => null)) as { status?: string; sendAt?: string; reason?: string; canText?: boolean; note?: string } | null;
+      if (!res.ok && data?.reason === 'meta') {
+        // Nothing went out: keep the words, say why, and offer a text only when the window is the reason.
+        setMetaRefusal({ error: errorText(data, `${platform ?? 'Facebook'} did not take the message.`), canText: data.canText === true });
+        return;
+      }
       if (data?.status === 'unclear') {
-        // It may have gone out (lib/inboxReply.ts liveSendFailure): clear the box so it is not sent twice, and show the thread.
+        // It may have gone out (lib/inboxReply.ts liveSendFailure; for a DM, lib/meta.ts metaSendFailure): clear the box so it is not sent twice, and show the thread.
         setBody('');
         router.refresh();
       }
-      if (!res.ok) throw new Error(errorText(data, 'Your text did not go out. Try again.'));
+      if (!res.ok) throw new Error(errorText(data, failText));
       setBody('');
       if (data?.status === 'held' && typeof data.sendAt === 'string') setNote(quietNotice(data.sendAt, timeZone, true));
+      else if (typeof data?.note === 'string') setNote(data.note);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Your text did not go out. Try again.');
+      setError(err instanceof Error ? err.message : failText);
     } finally {
       setSending(false);
     }
+  }
+
+  function send(e: FormEvent) {
+    e.preventDefault();
+    // Window closed but we have their number: this box is a text box now.
+    void post(decision.route === 'blocked' ? 'sms' : null);
   }
 
   // The opt-out banner shows in the admin preview too; everything else there is read-only.
@@ -292,6 +318,13 @@ function ReplyBox({ contact, api, timeZone, texting }: { contact: DashboardConta
     );
   }
   if (!api) return <p className="border-t border-neutral-100 p-4 text-sm text-neutral-500">Read-only preview. Replies are sent from the client&apos;s own login.</p>;
+  if (decision.route === 'blocked' && !decision.canText) {
+    return (
+      <div className="border-t border-neutral-100 p-4">
+        <p className="text-sm text-neutral-500">{decision.message}</p>
+      </div>
+    );
+  }
   if (blocked) {
     return (
       <div className="border-t border-neutral-100 p-4">
@@ -299,35 +332,39 @@ function ReplyBox({ contact, api, timeZone, texting }: { contact: DashboardConta
       </div>
     );
   }
+  const max = decision.route === 'meta' ? META_TEXT_MAX[decision.channel] : SMS_MAX_CHARS;
   return (
     <form onSubmit={send} className="border-t border-neutral-100 p-4">
-      {quiet ? <p className="mb-2 text-xs text-amber-800">{quiet}</p> : null}
+      {decision.route === 'blocked' ? <p className="mb-2 text-xs text-amber-800">{decision.message}</p> : null}
+      {quiet && !platform ? <p className="mb-2 text-xs text-amber-800">{quiet}</p> : null}
       <label htmlFor={`reply-${contact.id}`} className="sr-only">
-        Text this lead
+        {platform ? `Reply on ${platform}` : 'Text this lead'}
       </label>
       <textarea
         id={`reply-${contact.id}`}
         value={body}
         onChange={(e) => setBody(e.target.value)}
         rows={3}
-        maxLength={SMS_MAX_CHARS}
-        placeholder="Text them back from your tracked number"
+        maxLength={max}
+        placeholder={platform ? `Reply on ${platform}` : 'Text them back from your tracked number'}
         className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-base sm:text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
       />
       <div className="mt-2 flex items-center justify-between gap-3">
         <span className="text-xs text-neutral-400">
-          {body.trim().length}/{SMS_MAX_CHARS}
+          {body.trim().length}/{max}
         </span>
         <button
           type="submit"
-          disabled={sending || !body.trim()}
+          disabled={sending || !body.trim() || tooLong !== null}
           className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
         >
-          <Send size={14} /> {sending ? 'Sending…' : 'Send text'}
+          <Send size={14} /> {sending ? 'Sending…' : platform ? 'Send reply' : 'Send text'}
         </button>
       </div>
+      {tooLong ? <p className="mt-2 text-xs text-amber-800">{tooLong}</p> : null}
       {note ? <p role="status" className="mt-2 text-xs text-emerald-800">{note}</p> : null}
       {error ? <p role="alert" className="mt-2 text-xs text-red-700">{error}</p> : null}
+      {metaRefusal ? <MetaReplyNotice error={metaRefusal.error} canText={metaRefusal.canText} busy={sending} onTextInstead={() => void post('sms')} /> : null}
     </form>
   );
 }
@@ -385,7 +422,7 @@ function ContactView({ view, api, stageApi, timeZone, texting }: { view: Dashboa
           </li>
         ))}
       </ol>
-      <ReplyBox contact={c} api={api} timeZone={timeZone} texting={texting} />
+      <ReplyBox contact={c} events={view.events} api={api} timeZone={timeZone} texting={texting} />
     </div>
   );
 }
