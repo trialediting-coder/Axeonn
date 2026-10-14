@@ -11,7 +11,6 @@ import { iso, type DbId, type DbTime } from '@/lib/dbRows';
 import { sendBookingEmail } from '@/lib/email';
 import { SITE_ORIGIN } from '@/lib/hostRouting';
 import { alertOwner, logContactEvent, ownerEmailFor, startBookingReminders, stopBookingReminders, type Owner } from '@/lib/leadHooks';
-import { isQuietHours } from '@/lib/leadShared';
 import { getLine, sendClientSms } from '@/lib/phoneLines';
 import { formatPhone } from '@/lib/phoneShared';
 import { safeTimeZone } from '@/lib/sequenceSchedule';
@@ -202,8 +201,8 @@ async function step(bookingId: number, label: string, fn: () => Promise<unknown>
  * Everything after the row exists, run from after() so the visitor is not kept
  * waiting: the inbox row (a 'booking' event, which moves the contact to Booked
  * in slice 4), reminders (slice 3, anchored on the appointment), the
- * confirmation text (only through an approved line, via sendClientSms, and not
- * in quiet hours), the email with the .ics when they gave one, and the owner alert.
+ * confirmation text (only through an approved line, via sendClientSms; at any
+ * hour, it is transactional), the email with the .ics when they gave one, and the owner alert.
  */
 export async function afterBooking(onboarding: Owner, siteKey: string, booking: Booking, timeZone: string): Promise<void> {
   const when = formatSlotLabel(booking, timeZone);
@@ -231,8 +230,7 @@ export async function afterBooking(onboarding: Owner, siteKey: string, booking: 
   await step(booking.id, 'text', async () => {
     const line = await getLine(onboarding.id);
     if (!line) return;
-    // Quiet hours (8 pm to 8 am client-local) hold every automated text; the visitor already has it on screen and by email.
-    if (isQuietHours(new Date(), line.timeZone)) return console.info(`booking ${booking.id}: confirmation text skipped (quiet hours)`);
+    // Transactional (ruling S5-R2): sent at any hour, no quiet-hours hold.
     const body = confirmationText({ business: onboarding.businessName, when, service: booking.service, cancelUrl: link, note: settings.confirmMessage });
     const result = await sendClientSms(line, booking.phone, body, 'confirm');
     if (!result.sent) console.info(`booking ${booking.id}: confirmation text not sent (${result.reason})`);
@@ -319,7 +317,6 @@ export async function afterCancel(onboarding: Owner, booking: Booking, timeZone:
   await step(booking.id, 'text', async () => {
     const line = await getLine(onboarding.id);
     if (!line) return;
-    if (isQuietHours(new Date(), line.timeZone)) return console.info(`booking ${booking.id}: cancel text skipped (quiet hours)`);
     await sendClientSms(line, booking.phone, ownerCancelText({ business: onboarding.businessName, when, service: booking.service }), 'confirm');
   });
 }
