@@ -18,7 +18,7 @@ import { alertOwner, logContactEvent, submitChatLead } from '@/lib/leadHooks';
 import { runToolLoop, type ContentBlock, type CreateMessage } from '@/lib/chatLoop';
 import {
   CHAT_MODEL, CHAT_TOOLS, DEFAULT_GREETING, MAX_PAGES_IN_PROMPT, MAX_SESSION_MESSAGES, MAX_SITE_MESSAGES_PER_HOUR,
-  buildSystemPrompt, clampHistory, fallbackReply, finalizeReply, findPhone, isSessionId, todayLine, toolNotes,
+  bookedInRows, buildSystemPrompt, clampHistory, fallbackReply, finalizeReply, findPhone, isSessionId, todayLine, toolNotes,
   type ChatAdminData, type ChatContext, type ChatRole, type ChatRow, type ChatSettings, type ChatTranscript, type SitePageText, type ToolCall,
 } from '@/lib/chatShared';
 
@@ -41,6 +41,7 @@ export const anthropicCreate: CreateMessage = async (req) => {
     system: req.system,
     tools: req.tools as unknown as Anthropic.Tool[],
     messages: req.messages as unknown as Anthropic.MessageParam[],
+    ...(req.tool_choice ? { tool_choice: req.tool_choice } : {}),
   });
   return { content: res.content as unknown as ContentBlock[], stop_reason: res.stop_reason };
 };
@@ -365,28 +366,31 @@ export async function handleChatTurn(input: {
     });
   } catch (err) {
     console.error('chat: model call failed', errText(err));
+    // The calls that ran still count: finalizeReply turns an empty text after a
+    // booking or a taken message into "you're booked" / "we have your number".
     loop = { text: '', calls: ran };
-    if (state.booked) {
-      loop.text = `You're booked for ${state.booked.when}. You'll get a confirmation text shortly.`;
-    } else {
-      // The model is down, but a number typed into the chat is still a lead.
-      const phone = findPhone(input.message);
-      if (phone) {
-        try {
-          await submitChatLead(onboarding, { name: state.name ?? 'Website chat visitor', phone, email: null, message: input.message, page: input.page, session: session.id }, input.defer);
-          await knowPhone(phone, state.name);
-          loop.text = fallbackReply(ctx.business, 'captured');
-        } catch (leadErr) {
-          console.error('chat: fallback lead not saved', errText(leadErr));
-        }
+    const captured = ran.some((c) => c.name !== 'offer_booking' && !c.isError && (c.result as { ok?: unknown } | null)?.ok === true);
+    // The model is down, but a number typed into the chat is still a lead.
+    const phone = captured ? null : findPhone(input.message);
+    if (phone) {
+      try {
+        await submitChatLead(onboarding, { name: state.name ?? 'Website chat visitor', phone, email: null, message: input.message, page: input.page, session: session.id }, input.defer);
+        await knowPhone(phone, state.name);
+        loop.text = fallbackReply(ctx.business, 'captured');
+      } catch (leadErr) {
+        console.error('chat: fallback lead not saved', errText(leadErr));
       }
     }
   }
 
-  // A booking went through but the model said nothing (rounds ran out): say so plainly.
-  if (state.booked && !loop.text.trim()) loop = { ...loop, text: `You're booked for ${state.booked.when}. You'll get a confirmation text shortly.` };
-
-  const { reply } = finalizeReply({ text: loop.text, calls: loop.calls, pageTexts: pages.map((p) => p.text), business: ctx.business });
+  const { reply } = finalizeReply({
+    text: loop.text,
+    calls: loop.calls,
+    pageTexts: pages.map((p) => p.text),
+    business: ctx.business,
+    // A booking from an earlier turn of this chat (its stored book_slot row) makes a later "you're booked" true.
+    bookedEarlier: bookedInRows(rows),
+  });
   // Storage once the reply is decided is best-effort: the visitor still gets the reply.
   try {
     for (const c of loop.calls) {

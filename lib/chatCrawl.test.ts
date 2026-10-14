@@ -140,3 +140,49 @@ test('collectPages caps text per page', async () => {
   const out = await collectPages('https://shop.test/', fetcher);
   assert.ok(out.pages[0].text.length <= 20_000);
 });
+
+test('the www allowance is exactly "www." : lookalike hosts are refused', async () => {
+  assert.equal(sameSite('https://example.com', 'https://www-example.com/'), false);
+  assert.equal(sameSite('https://example.com', 'https://wwwxexample.com/'), false);
+  assert.equal(sameSite('https://example.com', 'https://www.example.com/'), true);
+  const check = hostLockCheck('https://example.com/', async () => undefined);
+  for (const bad of ['https://www-example.com/', 'https://wwwxexample.com/']) await assert.rejects(check(new URL(bad)), /own website/, bad);
+});
+
+test('every fetch gets a time limit inside the budget, and none starts without room for one', async () => {
+  const LONG = 'Detailing done right in Des Moines. '.repeat(5);
+  const site: Record<string, string> = { 'https://shop.test/': `<p>${LONG}</p>` + Array.from({ length: 30 }, (_, i) => `<a href="/p${i}">p</a>`).join('') };
+  for (let i = 0; i < 30; i += 1) site[`https://shop.test/p${i}`] = `<p>Page ${i}. ${LONG}</p>`;
+  let clock = 0;
+  const asked: Array<{ url: string; at: number; timeoutMs: number | undefined }> = [];
+  const fetcher: CrawlFetcher = async (url, opts) => {
+    asked.push({ url, at: clock, timeoutMs: opts?.timeoutMs });
+    clock += opts?.timeoutMs ?? 5_000; // every fetch uses its whole allowance
+    const html = site[url];
+    return html ? { status: 200, html, finalUrl: url } : { status: 404, html: '', finalUrl: url };
+  };
+  const out = await collectPages('https://shop.test/', fetcher, { budgetMs: 12_000, now: () => clock });
+  // home (5 s), robots.txt (5 s), then sitemap.xml gets only the 2 s left; no page fetch starts after that.
+  assert.deepEqual(asked.map((a) => a.url), ['https://shop.test/', 'https://shop.test/robots.txt', 'https://shop.test/sitemap.xml']);
+  assert.deepEqual(asked.map((a) => a.timeoutMs), [5_000, 5_000, 2_000]);
+  assert.ok(clock <= 12_000);
+  assert.equal(out.pages.length, 1);
+
+  // Under the minimum, not even robots.txt is fetched, and nothing is kept unchecked.
+  clock = 0;
+  asked.length = 0;
+  const tight = await collectPages('https://shop.test/', fetcher, { budgetMs: 6_000, now: () => clock });
+  assert.deepEqual(asked.map((a) => a.url), ['https://shop.test/']);
+  assert.deepEqual(tight, { pages: [], blocked: false, errors: 1 });
+});
+
+test('extractText stays fast on huge unclosed tags', () => {
+  const nasty = '<script '.repeat(60_000) + '<!--'.repeat(60_000) + '<a '.repeat(60_000) + '<br '.repeat(60_000) + '<title'.repeat(30_000);
+  const t0 = Date.now();
+  const out = extractText(`<p>Before the mess, readable words.</p>${nasty}`);
+  const ms = Date.now() - t0;
+  assert.ok(ms < 1_000, `took ${ms} ms`);
+  assert.ok(out.text.includes('Before the mess, readable words.'));
+  // An unclosed script runs to the end of the document: nothing after it leaks into the text.
+  assert.equal(extractText('<p>Hello there friend</p><script>var x = 1; <p>not text</p>').text, 'Hello there friend');
+});

@@ -1,9 +1,9 @@
 // lib/chatLoop.ts
 // One chat turn's tool loop over the Messages API, with the API call injected
 // (lib/chat.ts passes the real SDK; tests pass a fake). Runs tools the model asks
-// for, feeds results back, stops at a reply without tool calls or after
-// maxRounds. A tool that throws becomes a generic error result: the model sees
-// that it failed, never the internal message. No Node imports, no SDK at runtime.
+// for, feeds results back, stops at a reply without tool calls; after maxRounds
+// one closing call with tools off writes the reply. A tool that throws becomes a
+// generic error result: the model sees that it failed, never the internal message. No Node imports, no SDK at runtime.
 import type { ApiMessage, ChatToolDef, ToolCall } from '@/lib/chatShared';
 
 export type ContentBlock =
@@ -16,7 +16,15 @@ export interface ModelReply {
   stop_reason: string | null;
 }
 
-export type CreateMessage = (req: { model: string; max_tokens: number; system: string; tools: readonly ChatToolDef[]; messages: ApiMessage[] }) => Promise<ModelReply>;
+export type CreateMessage = (req: {
+  model: string;
+  max_tokens: number;
+  system: string;
+  tools: readonly ChatToolDef[];
+  messages: ApiMessage[];
+  /** { type: 'none' } on the closing call after maxRounds: the model must answer in words. */
+  tool_choice?: { type: 'auto' } | { type: 'none' };
+}) => Promise<ModelReply>;
 
 export type ToolExecutor = (name: string, input: unknown) => Promise<unknown>;
 
@@ -59,5 +67,21 @@ export async function runToolLoop(opts: {
     }
     messages.push({ role: 'user', content: results });
   }
-  return { text: '', calls };
+  // Rounds ran out with tool results the model has not seen yet (a booking may
+  // have gone through): one closing call with tools switched off, so the visitor
+  // hears what happened. If even that fails, the calls still go back to the caller.
+  try {
+    const closing = await opts.create({
+      model: opts.model,
+      max_tokens: opts.maxTokens ?? 600,
+      system: opts.system,
+      tools: opts.tools,
+      messages,
+      tool_choice: { type: 'none' },
+    });
+    return { text: closing.content.filter(isText).map((b) => b.text).join('\n').trim(), calls };
+  } catch (err) {
+    console.error('chat: closing reply failed', err instanceof Error ? err.message : err);
+    return { text: '', calls };
+  }
 }

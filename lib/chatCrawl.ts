@@ -2,7 +2,8 @@
 // "Train on site" for the website chat: fetch the client's own pages and keep
 // their text in site_pages, which the chat's system prompt reads. Same origin as
 // the start page only, at most 40 pages, robots.txt respected (a disallowed
-// homepage means no crawl at all), 5 seconds per fetch, text only. Fetches go
+// homepage means no crawl at all), 5 seconds per fetch (redirects included) inside
+// a 40-second budget, text only. Fetches go
 // through fetchPage (lib/auditSources.ts), which re-checks every redirect hop
 // against private addresses. Parsing and the crawl loop are pure and take an
 // injected fetcher, so tests need no network. Server-only (crawlSite writes SQL).
@@ -11,8 +12,13 @@ import { assertPublic, fetchPage } from '@/lib/auditSources';
 
 export const CRAWL_MAX_PAGES = 40;
 export const CRAWL_PAGE_TIMEOUT_MS = 5_000;
-/** The whole crawl must finish inside the admin request (maxDuration 60 s). */
-export const CRAWL_BUDGET_MS = 50_000;
+/**
+ * The crawl's share of the admin request (maxDuration 60 s): every fetch, the
+ * redirect chain included, ends by this deadline, leaving room for the writes.
+ */
+export const CRAWL_BUDGET_MS = 40_000;
+/** No fetch starts with less than this left in the budget. */
+export const CRAWL_MIN_FETCH_MS = 1_500;
 export const PAGE_TEXT_MAX = 20_000;
 /** fetchPage's user agent is "AxeonAuditBot/1.0"; robots.txt groups for it apply. */
 const ROBOTS_AGENT = 'axeonauditbot';
@@ -34,16 +40,64 @@ export function decodeEntities(s: string): string {
   });
 }
 
-/** The page's title and its readable text: no scripts, styles, nav menus, comments or tags. */
+const BLOCK_OPEN = /<!--|<(script|style|noscript|svg|template|iframe|head|nav)\b/g;
+
+/** Where the closing tag `</name>` that ends at or after `from` finishes, or the end of the document when it never closes. */
+function blockEnd(lower: string, name: string, from: number): number {
+  const needle = `</${name}`;
+  let at = lower.indexOf(needle, from);
+  while (at >= 0) {
+    const next = lower.charAt(at + needle.length);
+    if (next === '>' || /\s/.test(next)) {
+      const gt = lower.indexOf('>', at);
+      return gt < 0 ? lower.length : gt + 1;
+    }
+    at = lower.indexOf(needle, at + needle.length);
+  }
+  return lower.length;
+}
+
+/**
+ * Comments and script/style/nav/... blocks removed in one forward pass (indexOf,
+ * never a backtracking regex), so an unclosed tag costs linear time: it simply
+ * runs to the end of the document.
+ */
+function stripBlocks(html: string): string {
+  const lower = html.toLowerCase();
+  const re = new RegExp(BLOCK_OPEN.source, 'g');
+  let out = '';
+  let pos = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(lower))) {
+    out += `${html.slice(pos, m.index)} `;
+    if (m[0] === '<!--') {
+      const close = lower.indexOf('-->', m.index + 4);
+      pos = close < 0 ? lower.length : close + 3;
+    } else {
+      pos = blockEnd(lower, m[1], re.lastIndex);
+    }
+    re.lastIndex = pos;
+  }
+  return out + html.slice(pos);
+}
+
+function titleOf(html: string): string {
+  const lower = html.toLowerCase();
+  const open = lower.search(/<title\b/);
+  if (open < 0) return '';
+  const gt = lower.indexOf('>', open);
+  const close = gt < 0 ? -1 : lower.indexOf('</title', gt);
+  return close < 0 ? '' : html.slice(gt + 1, close);
+}
+
+/** The page's title and its readable text: no scripts, styles, nav menus, comments or tags. Linear time on any input. */
 export function extractText(html: string): { title: string; text: string } {
-  const t = /<title[^>]*>([\s\S]*?)<\/title>/i.exec(html);
-  const title = t ? decodeEntities(t[1]).replace(/\s+/g, ' ').trim().slice(0, 200) : '';
-  const body = html
-    .replace(/<!--[\s\S]*?-->/g, ' ')
-    .replace(/<(script|style|noscript|svg|template|iframe|head|nav)\b[\s\S]*?<\/\1\s*>/gi, ' ')
-    .replace(/<(br|hr)\b[^>]*>/gi, '\n')
+  const title = decodeEntities(titleOf(html)).replace(/\s+/g, ' ').trim().slice(0, 200);
+  // [^<>] (not [^>]) so a run of unclosed "<" cannot make each match scan to the end.
+  const body = stripBlocks(html)
+    .replace(/<(br|hr)\b[^<>]*>/gi, '\n')
     .replace(/<\/(p|div|li|h[1-6]|tr|section|article|header|footer|ul|ol|table|blockquote)\s*>/gi, '\n')
-    .replace(/<[^>]+>/g, ' ');
+    .replace(/<[^<>]+>/g, ' ');
   const text = decodeEntities(body)
     .replace(/[ \t\f\v\r ]+/g, ' ')
     .replace(/ *\n */g, '\n')
@@ -150,7 +204,8 @@ export function sitemapLocs(xml: string, origin: string): { pages: string[]; sit
   return { pages, sitemaps };
 }
 
-export type CrawlFetcher = (url: string) => Promise<{ status: number; html: string; finalUrl: string }>;
+/** `timeoutMs` bounds the whole fetch, every redirect hop and address check included. */
+export type CrawlFetcher = (url: string, opts?: { timeoutMs?: number }) => Promise<{ status: number; html: string; finalUrl: string }>;
 
 export interface CrawledPage {
   url: string;
@@ -158,7 +213,7 @@ export interface CrawledPage {
   text: string;
 }
 
-const bareHost = (h: string) => h.toLowerCase().replace(/^www./, '');
+const bareHost = (h: string) => h.toLowerCase().replace(/^www\./, '');
 
 /** True when both URLs are on the same host (a leading www. does not count as another site) and the second is http(s). */
 export function sameSite(a: string, b: string): boolean {
@@ -182,16 +237,23 @@ export async function collectPages(
   const maxPages = opts.maxPages ?? CRAWL_MAX_PAGES;
   const now = opts.now ?? Date.now;
   const deadline = now() + (opts.budgetMs ?? CRAWL_BUDGET_MS);
+  // Each fetch gets at most 5 s and never runs past the deadline; none starts without room for one.
+  const room = () => deadline - now();
+  const canFetch = () => room() >= CRAWL_MIN_FETCH_MS;
+  const get = (url: string) => fetcher(url, { timeoutMs: Math.max(1, Math.min(CRAWL_PAGE_TIMEOUT_MS, room())) });
 
-  const home = await fetcher(startUrl);
+  if (!canFetch()) throw new Error('No time left to load the website');
+  const home = await get(startUrl);
   if (home.status !== 200 || !home.html) throw new Error(`Could not load ${startUrl} (status ${home.status || 'no answer'})`);
   const base = new URL(home.finalUrl);
   if (!sameSite(startUrl, base.toString())) throw new Error(`${startUrl} redirects to another website (${base.host}); enter the final address`);
   const origin = base.origin;
 
   let robots = '';
+  // No time left to read robots.txt: keep nothing rather than keep a page robots.txt might forbid.
+  if (!canFetch()) return { pages: [], blocked: false, errors: 1 };
   try {
-    const r = await fetcher(`${origin}/robots.txt`);
+    const r = await get(`${origin}/robots.txt`);
     if (r.status === 200) robots = r.html;
   } catch {
     // No robots.txt reachable: nothing is disallowed.
@@ -212,14 +274,14 @@ export async function collectPages(
   };
 
   try {
-    const sm = await fetcher(`${origin}/sitemap.xml`);
-    if (sm.status === 200 && sm.html) {
+    const sm = canFetch() ? await get(`${origin}/sitemap.xml`) : null;
+    if (sm && sm.status === 200 && sm.html) {
       const { pages, sitemaps } = sitemapLocs(sm.html, origin);
       pages.forEach(enqueue);
       for (const child of sitemaps.slice(0, 3)) {
-        if (now() >= deadline) break;
+        if (!canFetch()) break;
         try {
-          const c = await fetcher(child);
+          const c = await get(child);
           if (c.status === 200) sitemapLocs(c.html, origin).pages.forEach(enqueue);
         } catch {
           // A broken child sitemap only loses its own pages.
@@ -246,11 +308,11 @@ export async function collectPages(
   };
 
   take(base.toString(), home.html);
-  while (queue.length > 0 && pages.length < maxPages && now() < deadline) {
+  while (queue.length > 0 && pages.length < maxPages && canFetch()) {
     const url = queue.shift() as string;
     if (!allowed(url)) continue;
     try {
-      const r = await fetcher(url);
+      const r = await get(url);
       if (r.status !== 200 || !r.html) continue;
       const final = new URL(r.finalUrl);
       if (final.origin !== origin) continue;
@@ -263,11 +325,24 @@ export async function collectPages(
   return { pages: pages.slice(0, maxPages), blocked: false, errors };
 }
 
-/** fetch with our 5-second ceiling, kept alongside fetchPage's own redirect and SSRF checks. */
-const withTimeout = ((input: Parameters<typeof fetch>[0], init?: RequestInit) => {
-  const limit = AbortSignal.timeout(CRAWL_PAGE_TIMEOUT_MS);
-  return fetch(input, { ...init, signal: init?.signal ? AbortSignal.any([init.signal, limit]) : limit });
-}) as typeof fetch;
+/** A promise that also rejects once `signal` aborts (dns.lookup in the address check has no timeout of its own). */
+function untilAborted<T>(p: Promise<T>, signal: AbortSignal): Promise<T> {
+  if (signal.aborted) return Promise.reject(new Error('Page took too long'));
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => reject(new Error('Page took too long'));
+    signal.addEventListener('abort', onAbort, { once: true });
+    p.then(
+      (v) => {
+        signal.removeEventListener('abort', onAbort);
+        resolve(v);
+      },
+      (err) => {
+        signal.removeEventListener('abort', onAbort);
+        reject(err);
+      }
+    );
+  });
+}
 
 /** Every request, and every redirect hop, must stay on the client's own host (or its www variant) and be public. */
 export function hostLockCheck(startUrl: string, publicCheck: (u: URL) => Promise<void> = assertPublic): (u: URL) => Promise<void> {
@@ -277,7 +352,20 @@ export function hostLockCheck(startUrl: string, publicCheck: (u: URL) => Promise
   };
 }
 
-const livePage = (startUrl: string): CrawlFetcher => (url) => fetchPage(url, { fetchImpl: withTimeout, check: hostLockCheck(startUrl) });
+/**
+ * One live page fetch through fetchPage (redirect and SSRF checks per hop) under
+ * a single time limit for the whole call: every hop's request, body read and
+ * address check share one signal, so redirects cannot multiply the 5 seconds.
+ */
+const livePage =
+  (startUrl: string): CrawlFetcher =>
+  (url, opts = {}) => {
+    const limit = AbortSignal.timeout(Math.max(1, Math.min(CRAWL_PAGE_TIMEOUT_MS, opts.timeoutMs ?? CRAWL_PAGE_TIMEOUT_MS)));
+    const lock = hostLockCheck(startUrl);
+    const fetchImpl = ((input: Parameters<typeof fetch>[0], init?: RequestInit) =>
+      fetch(input, { ...init, signal: init?.signal ? AbortSignal.any([init.signal, limit]) : limit })) as typeof fetch;
+    return untilAborted(fetchPage(url, { fetchImpl, check: (u) => untilAborted(lock(u), limit) }), limit);
+  };
 
 export interface CrawlSummary {
   saved: number;
@@ -304,10 +392,16 @@ export async function crawlSite(onboardingId: number, startUrl: string, fetcher?
   await ensureSchema();
   const { rows } = await sql<{ t: Date | string }>`SELECT now() AS t;`;
   const started = new Date(rows[0].t).toISOString();
-  for (const p of result.pages) {
+  // One statement for every page (unnest), so the writes take one round trip, not forty.
+  const unique = [...new Map(result.pages.map((p) => [p.url, p])).values()];
+  if (unique.length > 0) {
+    const urls = unique.map((p) => p.url);
+    const titles = unique.map((p) => p.title);
+    const texts = unique.map((p) => p.text);
     await sql`
       INSERT INTO site_pages (onboarding_id, url, title, text, fetched_at)
-      VALUES (${onboardingId}, ${p.url}, ${p.title}, ${p.text}, now())
+      SELECT ${onboardingId}::int, p.url, p.title, p.text, now()
+      FROM unnest(${urls as unknown as string}::text[], ${titles as unknown as string}::text[], ${texts as unknown as string}::text[]) AS p(url, title, text)
       ON CONFLICT (onboarding_id, url) DO UPDATE SET title = EXCLUDED.title, text = EXCLUDED.text, fetched_at = now();
     `;
   }
