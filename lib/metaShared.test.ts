@@ -156,17 +156,17 @@ test('secretRedact masks token parameters, JSON token fields and bare EAA tokens
 test('replyDecision routes by the last inbound touch and enforces the window before any send', () => {
   const now = Date.parse('2026-10-13T12:00:00Z');
   const hoursAgo = (h: number) => new Date(now - h * 3600_000).toISOString();
-  assert.deepEqual(replyDecision({ lastMeta: null, lastOtherInboundAt: hoursAgo(1), hasPhone: true, now }), { route: 'sms' });
-  assert.deepEqual(replyDecision({ lastMeta: { channel: 'messenger', at: hoursAgo(2) }, lastOtherInboundAt: null, hasPhone: false, now }), { route: 'meta', channel: 'messenger' });
-  assert.deepEqual(replyDecision({ lastMeta: { channel: 'instagram', at: hoursAgo(5) }, lastOtherInboundAt: hoursAgo(1), hasPhone: true, now }), { route: 'sms' });
-  assert.deepEqual(replyDecision({ lastMeta: { channel: 'messenger', at: hoursAgo(2) }, lastOtherInboundAt: null, hasPhone: true, now, via: 'sms' }), { route: 'sms' });
-  assert.deepEqual(replyDecision({ lastMeta: { channel: 'messenger', at: hoursAgo(30) }, lastOtherInboundAt: null, hasPhone: true, now }), {
+  assert.deepEqual(replyDecision({ lastMeta: null, lastOtherInboundAt: hoursAgo(1), canText: true, now }), { route: 'sms' });
+  assert.deepEqual(replyDecision({ lastMeta: { channel: 'messenger', at: hoursAgo(2) }, lastOtherInboundAt: null, canText: false, now }), { route: 'meta', channel: 'messenger' });
+  assert.deepEqual(replyDecision({ lastMeta: { channel: 'instagram', at: hoursAgo(5) }, lastOtherInboundAt: hoursAgo(1), canText: true, now }), { route: 'sms' });
+  assert.deepEqual(replyDecision({ lastMeta: { channel: 'messenger', at: hoursAgo(2) }, lastOtherInboundAt: null, canText: true, now, via: 'sms' }), { route: 'sms' });
+  assert.deepEqual(replyDecision({ lastMeta: { channel: 'messenger', at: hoursAgo(30) }, lastOtherInboundAt: null, canText: true, now }), {
     route: 'blocked',
     channel: 'messenger',
     canText: true,
     message: 'Facebook only lets you reply within 24 hours of their last message. Text them instead?',
   });
-  const ig = replyDecision({ lastMeta: { channel: 'instagram', at: hoursAgo(30) }, lastOtherInboundAt: null, hasPhone: false, now });
+  const ig = replyDecision({ lastMeta: { channel: 'instagram', at: hoursAgo(30) }, lastOtherInboundAt: null, canText: false, now });
   assert.equal(ig.route, 'blocked');
   assert.equal(ig.route === 'blocked' && ig.canText, false);
   assert.match(ig.route === 'blocked' ? ig.message : '', /^Instagram only lets you reply within 24 hours/);

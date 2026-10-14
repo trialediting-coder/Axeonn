@@ -486,6 +486,8 @@ export interface DashboardInbox {
   /** The client's time zone, for the quiet-hours notice. */
   timeZone: string;
   texting: Texting;
+  /** Server time (ms) when the page was rendered: the reply box's clock until it mounts, so an old DM thread never paints as open first. */
+  renderedAt: number;
 }
 
 /** "<ms>_<id>" of the last row on a page; the next page starts strictly after it. */
@@ -567,4 +569,13 @@ export function replyBlocker(input: { hasPhone: boolean; optedOut: boolean; text
   if (input.texting === 'none') return 'no_line';
   if (input.texting === 'pending') return 'sms_pending';
   return null;
+}
+
+/**
+ * Slice 6: whether "Text them instead" may be offered when Facebook or Instagram cannot take a
+ * reply. The same rule as a text reply (replyBlocker): a phone, not opted out, and texting on.
+ * The server (lib/metaInbox.ts metaReplyFor) and the reply box both use it.
+ */
+export function canTextInstead(input: { hasPhone: boolean; optedOut: boolean; texting: Texting }): boolean {
+  return replyBlocker(input) === null;
 }

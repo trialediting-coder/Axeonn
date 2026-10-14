@@ -10,10 +10,11 @@
 import { sql } from '@/lib/db';
 import { errText, type DbId } from '@/lib/dbRows';
 import { addContactEvent, upsertContactByExternalId } from '@/lib/contacts';
-import { inboxEnabled } from '@/lib/contactsShared';
+import { canTextInstead, inboxEnabled, textingState } from '@/lib/contactsShared';
 import { notifyLeadActivity } from '@/lib/leadNotify';
 import { isMetaConfigured, metaSendFailure, profileName, sendMessage } from '@/lib/meta';
 import { getOnboardingById } from '@/lib/onboarding';
+import { getLine, isOptedOut } from '@/lib/phoneLines';
 import { markNeedsReconnect, pageForId } from '@/lib/metaPages';
 import { messagePreview, metaTextProblem, replyDecision, secretRedact, type MetaAttachment, type MetaChannel, type MetaInboundMessage } from '@/lib/metaShared';
 
@@ -177,12 +178,15 @@ export async function metaReplyFor(input: { onboardingId: number; contactId: num
   ]);
   const last = lastMetaRes.rows[0];
   if (!last) return null;
-  const hasPhone = Boolean(contactRes.rows[0]?.phone);
+  const phone = contactRes.rows[0]?.phone ?? null;
+  // "Text them instead" only when a text could really go out: the same rule as the SMS path (replyBlocker).
+  const [line, optedOut] = await Promise.all([getLine(input.onboardingId), phone ? isOptedOut(input.onboardingId, phone) : Promise.resolve(false)]);
+  const canText = canTextInstead({ hasPhone: phone !== null, optedOut, texting: textingState(line) });
   const otherAt = lastOtherRes.rows[0]?.at;
   const decision = replyDecision({
     lastMeta: { channel: last.channel, at: new Date(last.sent_at).toISOString() },
     lastOtherInboundAt: otherAt ? new Date(otherAt).toISOString() : null,
-    hasPhone,
+    canText,
     now,
   });
   if (decision.route === 'sms') return null;
@@ -190,20 +194,20 @@ export async function metaReplyFor(input: { onboardingId: number; contactId: num
   const channel = decision.channel;
   const name = PLATFORM[channel];
   const text = input.text.trim();
-  if (!text) return { ok: false, status: 400, error: 'Type a message first.', canText: hasPhone, channel };
+  if (!text) return { ok: false, status: 400, error: 'Type a message first.', canText, channel };
   const tooLong = metaTextProblem(channel, text);
-  if (tooLong) return { ok: false, status: 400, error: tooLong, canText: hasPhone, channel };
-  if (!isMetaConfigured()) return { ok: false, status: 503, error: `${name} replies are not switched on yet.`, canText: hasPhone, channel };
+  if (tooLong) return { ok: false, status: 400, error: tooLong, canText, channel };
+  if (!isMetaConfigured()) return { ok: false, status: 503, error: `${name} replies are not switched on yet.`, canText, channel };
   const page = await pageForId(last.page_id);
   if (!page || page.onboardingId !== input.onboardingId || page.status === 'needs_reconnect') {
-    return { ok: false, status: 409, error: `This ${name} page needs to be reconnected before you can reply here. Ask Axeon to reconnect it.`, canText: hasPhone, channel };
+    return { ok: false, status: 409, error: `This ${name} page needs to be reconnected before you can reply here. Ask Axeon to reconnect it.`, canText, channel };
   }
 
   let messageId: string;
   try {
     ({ messageId } = await sendMessage({ pageToken: page.pageToken, recipientId: last.person_id, text }));
   } catch (err) {
-    const failure = metaSendFailure(err, channel, hasPhone);
+    const failure = metaSendFailure(err, channel, canText);
     console.error('[meta:reply]', failure.kind, redactedErr(err));
     if (failure.kind === 'reconnect') {
       try {

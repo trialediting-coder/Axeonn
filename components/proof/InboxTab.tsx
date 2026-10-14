@@ -17,7 +17,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Bell, Bot, CalendarCheck, FileText, Mail, MessageSquare, MousePointerClick, PhoneCall, Send, StickyNote } from 'lucide-react';
 import { LeadStageTaps } from '@/components/proof/LeadStageTaps';
 import {
-  HELD_REPLY_COPY, REPLY_REFUSAL_COPY, STAGE_LABELS, canReplyNow, formatWhen, quietNotice, relativeWhen, replyBlocker, shortName,
+  HELD_REPLY_COPY, REPLY_REFUSAL_COPY, STAGE_LABELS, canReplyNow, canTextInstead, formatWhen, quietNotice, relativeWhen, replyBlocker, shortName,
   type ContactEventKind, type DashboardContact, type DashboardContactView, type DashboardEvent, type DashboardInbox,
 } from '@/lib/contactsShared';
 import { SMS_MAX_CHARS } from '@/lib/phoneShared';
@@ -242,7 +242,7 @@ function EventItem({ e, api }: { e: DashboardEvent; api: string | null }) {
   );
 }
 
-function ReplyBox({ contact, events, api, timeZone, texting }: { contact: DashboardContact; events: DashboardEvent[]; api: string | null; timeZone: string; texting: DashboardInbox['texting'] }) {
+function ReplyBox({ contact, events, api, timeZone, texting, renderedAt }: { contact: DashboardContact; events: DashboardEvent[]; api: string | null; timeZone: string; texting: DashboardInbox['texting']; renderedAt: number }) {
   const router = useRouter();
   const [body, setBody] = useState('');
   const [sending, setSending] = useState(false);
@@ -260,9 +260,11 @@ function ReplyBox({ contact, events, api, timeZone, texting }: { contact: Dashbo
   }, [timeZone, events]);
 
   // Slice 6: a DM thread answers on Facebook / Instagram inside 24 hours (lib/metaShared.ts replyDecision; the server decides again).
-  // Before mount (now null) the window is read as open at the last DM, so server and first client paint agree.
+  // Before mount (now null) the server's render time is the clock, so server and first client paint agree
+  // and an old thread never flashes "Reply on Facebook" before switching.
   const context = replyContextFrom(events);
-  const decision = replyDecision({ ...context, hasPhone: contact.hasPhone, now: now ?? (context.lastMeta ? new Date(context.lastMeta.at).getTime() : 0) });
+  const canText = canTextInstead({ hasPhone: contact.hasPhone, optedOut: contact.optedOut, texting });
+  const decision = replyDecision({ ...context, canText, now: now ?? renderedAt });
   const platform = decision.route === 'meta' ? (decision.channel === 'instagram' ? 'Instagram' : 'Facebook') : null;
   // The same order the server refuses texts in (lib/contactsShared.ts replyBlocker); a DM reply needs no phone.
   const blocked = platform ? null : replyBlocker({ hasPhone: contact.hasPhone, optedOut: contact.optedOut, texting });
@@ -280,8 +282,8 @@ function ReplyBox({ contact, events, api, timeZone, texting }: { contact: Dashbo
       const res = await fetch(`${api}/${contact.id}/reply`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ body, via }) });
       const data = (await res.json().catch(() => null)) as { status?: string; sendAt?: string; reason?: string; canText?: boolean; note?: string } | null;
       if (!res.ok && data?.reason === 'meta') {
-        // Nothing went out: keep the words, say why, and offer a text only when the window is the reason.
-        setMetaRefusal({ error: errorText(data, `${platform ?? 'Facebook'} did not take the message.`), canText: data.canText === true });
+        // Nothing went out: keep the words, say why, and offer a text only when one could really go out.
+        setMetaRefusal({ error: errorText(data, `${platform ?? 'Facebook'} did not take the message.`), canText: data.canText === true && canText });
         return;
       }
       if (data?.status === 'unclear') {
@@ -369,7 +371,7 @@ function ReplyBox({ contact, events, api, timeZone, texting }: { contact: Dashbo
   );
 }
 
-function ContactView({ view, api, stageApi, timeZone, texting }: { view: DashboardContactView; api: string | null; stageApi: string | null; timeZone: string; texting: DashboardInbox['texting'] }) {
+function ContactView({ view, api, stageApi, timeZone, texting, renderedAt }: { view: DashboardContactView; api: string | null; stageApi: string | null; timeZone: string; texting: DashboardInbox['texting']; renderedAt: number }) {
   const c = view.contact;
   const timeline = useRef<HTMLOListElement>(null);
   // Newest at the bottom, next to the reply box, like any text thread.
@@ -422,7 +424,7 @@ function ContactView({ view, api, stageApi, timeZone, texting }: { view: Dashboa
           </li>
         ))}
       </ol>
-      <ReplyBox contact={c} events={view.events} api={api} timeZone={timeZone} texting={texting} />
+      <ReplyBox contact={c} events={view.events} api={api} timeZone={timeZone} texting={texting} renderedAt={renderedAt} />
     </div>
   );
 }
@@ -436,7 +438,7 @@ export function InboxTab({ inbox, api, stageApi }: { inbox: DashboardInbox; api:
       </div>
       <div className={selected ? '' : 'hidden lg:block'}>
         {selected ? (
-          <ContactView key={selected.contact.id} view={selected} api={api} stageApi={stageApi} timeZone={inbox.timeZone} texting={inbox.texting} />
+          <ContactView key={selected.contact.id} view={selected} api={api} stageApi={stageApi} timeZone={inbox.timeZone} texting={inbox.texting} renderedAt={inbox.renderedAt} />
         ) : (
           <div className="rounded-2xl border border-dashed border-neutral-300 p-8 text-center text-sm text-neutral-500">
             Pick a lead to see every call, text and form from them, and to text them back.

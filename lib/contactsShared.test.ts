@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import {
   canReplyNow, cleanName, contactKeyFor, contactWho, decodeCursor, encodeCursor, eventSummary, inboxEnabled, isLeadActivity, maskEmail,
   mergeDecision, messageEventKind, nextSystemStage, noteForAction, outcomeForStage, parseContactId, quietNotice, relativeWhen,
-  replyBlocker, sequenceEffects, shortName, sourceForKind, systemStageFor, textingState, toDashboardContact, toDashboardEvent,
+  canTextInstead, replyBlocker, sequenceEffects, shortName, sourceForKind, systemStageFor, textingState, toDashboardContact, toDashboardEvent,
   validateReplyBody, heldReplyStatus, unmatchedTaps, QUIET_WINDOW, HELD_REPLY_COPY, REPLY_REFUSAL_COPY, REPLY_UNCLEAR_COPY, isReplyRefusal,
   type Contact, type ContactEvent,
 } from './contactsShared';
@@ -212,6 +212,14 @@ test('toDashboardEvent: an attachment-only Facebook or Instagram DM reads "Sent 
   assert.equal(toDashboardEvent(event({ kind: 'messenger', payload: { direction: 'in', body: '', attachments: ['https://evil.example/x'] } })).text, 'Sent an attachment');
   // An empty SMS stays as it was (slice 4).
   assert.equal(toDashboardEvent(event({ kind: 'text_in', payload: { body: '' } })).text, '');
+});
+
+test('canTextInstead: "Text them instead" only with a phone, not opted out, and texting on (S6-R15)', () => {
+  assert.equal(canTextInstead({ hasPhone: true, optedOut: false, texting: 'ready' }), true);
+  assert.equal(canTextInstead({ hasPhone: false, optedOut: false, texting: 'ready' }), false);
+  assert.equal(canTextInstead({ hasPhone: true, optedOut: true, texting: 'ready' }), false);
+  assert.equal(canTextInstead({ hasPhone: true, optedOut: false, texting: 'pending' }), false);
+  assert.equal(canTextInstead({ hasPhone: true, optedOut: false, texting: 'none' }), false);
 });
 
 test('cursors round-trip and reject junk', () => {

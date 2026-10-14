@@ -314,7 +314,7 @@ test('verifySignature accepts only sha256= plus exactly 64 hex characters', () =
   assert.equal(verifySignature(BODY, `sha256=${hex.slice(0, 63)}`, SECRET), false);
 });
 
-test('metaSendFailure: only a Graph 4xx is "not sent"; window, permission and token errors read differently; anything else is unclear', () => {
+test('metaSendFailure: only a Graph 4xx is "not sent"; window, permission and token errors read differently; anything else is unclear (canText = a text could really go out)', () => {
   const win = metaSendFailure(new MetaApiError('Meta 400 (10/2018278): outside', 400, 10, 2018278), 'messenger', true);
   assert.equal(win.kind, 'window');
   assert.equal(win.status, 409);
@@ -325,13 +325,19 @@ test('metaSendFailure: only a Graph 4xx is "not sent"; window, permission and to
   for (const err of [new MetaApiError('Meta 400 (10): (#10) no permission', 400, 10, null), new MetaApiError('Meta 403 (200): perms', 403, 200, null)]) {
     const perm = metaSendFailure(err, 'messenger', true);
     assert.equal(perm.kind, 'permission');
-    assert.equal(perm.canText, false);
+    // S6-R15: one rule for every case where nothing went out: offer a text when one could go out.
+    assert.equal(perm.canText, true);
+    assert.equal(metaSendFailure(err, 'messenger', false).canText, false);
     assert.match(perm.error, /reconnected or its messaging permissions/);
     assert.doesNotMatch(perm.error, /Text them/i);
   }
   const token = metaSendFailure(new MetaApiError('Meta 400 (190): expired', 400, 190, 463), 'instagram', true);
   assert.equal(token.kind, 'reconnect');
-  assert.equal(token.canText, false);
+  assert.equal(token.canText, true);
+  assert.equal(metaSendFailure(new MetaApiError('Meta 400 (190): expired', 400, 190, 463), 'instagram', false).canText, false);
+  assert.equal(metaSendFailure(new MetaApiError('Meta 400 (100): bad', 400, 100, null), 'messenger', false).canText, false);
+  // An unclear send never offers a text, even when texting is possible: it may already be with them.
+  assert.equal(metaSendFailure(new MetaApiError('Meta request timed out (/me/messages)', 0, null, null), 'messenger', true).canText, false);
   assert.match(token.error, /^Instagram .*reconnect/);
 
   assert.equal(metaSendFailure(new MetaApiError('Meta 400 (100): bad', 400, 100, null), 'messenger', true).kind, 'not_sent');

@@ -1,9 +1,10 @@
 // components/proof/MetaReplyNotice.tsx
 // Shown under the inbox reply box when Facebook or Instagram refused a reply
 // (POST …/reply answered reason 'meta'): the 24-hour window closed, the page
-// needs reconnecting, or Meta did not take it. Only the window case carries
-// canText: then, when we have the person's number, one button sends the same
-// words as a text instead. A permission or reconnect problem never offers it.
+// needs reconnecting, permissions are off, or Meta did not take it. Whenever
+// nothing went out and a text really could (canText: a phone, not opted out,
+// texting on; lib/contactsShared.ts canTextInstead), one button sends the same
+// words as a text instead. An unclear send never offers it.
 'use client';
 
 export function MetaReplyNotice({ error, canText, busy, onTextInstead }: { error: string; canText: boolean; busy: boolean; onTextInstead: () => void }) {

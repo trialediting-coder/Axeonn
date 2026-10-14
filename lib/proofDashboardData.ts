@@ -117,7 +117,7 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
             listInbox(onboarding.id, { limit: 50 }),
             opts.contactId ? contactTimeline(onboarding.id, opts.contactId) : Promise.resolve(null),
           ]);
-          return { ...list, selected, timeZone: line?.timeZone ?? DEFAULT_TIME_ZONE, texting: textingState(line) };
+          return { ...list, selected, timeZone: line?.timeZone ?? DEFAULT_TIME_ZONE, texting: textingState(line), renderedAt: Date.now() };
         })()
       : null;
   // Taps already matched to a caller live in the inbox; the anonymous list keeps the rest (ids are BIGSERIAL strings at runtime: unmatchedTaps compares numbers).

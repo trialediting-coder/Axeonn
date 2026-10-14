@@ -269,7 +269,8 @@ const PLATFORM_NAME: Record<MetaChannel, string> = { messenger: 'Facebook', inst
 export function replyDecision(input: {
   lastMeta: { channel: MetaChannel; at: string } | null;
   lastOtherInboundAt: string | null;
-  hasPhone: boolean;
+  /** A text could go out instead (lib/contactsShared.ts canTextInstead: phone, not opted out, texting on). */
+  canText: boolean;
   now: number;
   via?: 'sms' | null;
 }): ReplyDecision {
@@ -282,8 +283,8 @@ export function replyDecision(input: {
   return {
     route: 'blocked',
     channel,
-    canText: input.hasPhone,
-    message: input.hasPhone
+    canText: input.canText,
+    message: input.canText
       ? `${name} only lets you reply within 24 hours of their last message. Text them instead?`
       : `${name} only lets you reply within 24 hours of their last message. If they write again, you can answer here.`,
   };

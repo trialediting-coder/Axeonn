@@ -321,27 +321,29 @@ const SEND_PLATFORM: Record<MetaChannel, string> = { messenger: 'Facebook', inst
  * (lib/inboxReply.ts liveSendFailure) carried over: only a Graph 4xx error
  * means nothing went out; a timeout, a dropped connection, a 5xx or a 2xx
  * without a message id may have been delivered, so it is 'unclear' and the box
- * clears instead of offering a resend. A permission or token problem never
- * suggests texting instead: the page has to be reconnected.
+ * clears instead of offering a resend. `canText` (lib/contactsShared.ts
+ * canTextInstead: a phone, not opted out, texting on) is offered on every
+ * failure where nothing went out, the reconnect and permission cases included,
+ * and never on 'unclear' (the message may already be with them).
  */
-export function metaSendFailure(err: unknown, channel: MetaChannel, hasPhone: boolean): MetaSendFailure {
+export function metaSendFailure(err: unknown, channel: MetaChannel, canText: boolean): MetaSendFailure {
   const name = SEND_PLATFORM[channel];
   if (err instanceof MetaApiError && err.tokenInvalid) {
-    return { kind: 'reconnect', status: 502, error: `${name} stopped accepting replies from this page, so it needs to be reconnected. Ask Axeon to reconnect it.`, canText: false };
+    return { kind: 'reconnect', status: 502, error: `${name} stopped accepting replies from this page, so it needs to be reconnected. Ask Axeon to reconnect it.`, canText };
   }
   if (err instanceof MetaApiError && err.outsideWindow) {
-    return { kind: 'window', status: 409, error: `${name} only lets you reply within 24 hours of their last message.${hasPhone ? ' Text them instead?' : ''}`, canText: hasPhone };
+    return { kind: 'window', status: 409, error: `${name} only lets you reply within 24 hours of their last message.${canText ? ' Text them instead?' : ''}`, canText };
   }
   if (err instanceof MetaApiError && err.permissionDenied) {
     return {
       kind: 'permission',
       status: 502,
       error: `${name} would not let this page send the reply. The page needs to be reconnected or its messaging permissions turned back on. Ask Axeon to check it.`,
-      canText: false,
+      canText,
     };
   }
   if (err instanceof MetaApiError && err.status >= 400 && err.status < 500) {
-    return { kind: 'not_sent', status: 502, error: `${name} did not take the message. Try again in a minute.`, canText: hasPhone };
+    return { kind: 'not_sent', status: 502, error: `${name} did not take the message. Try again in a minute.`, canText };
   }
   return { kind: 'unclear', status: 502, error: `${name} may have taken this message. Refresh and check the thread before you send it again.`, canText: false };
 }
