@@ -27,9 +27,9 @@ const ICONS: Record<ProofTabKey, LucideIcon> = {
 };
 
 const CHIP_STYLE: Record<string, string> = {
-  essentials: 'bg-neutral-100 text-neutral-600',
-  axeoncore: 'bg-blue-50 text-blue-700',
-  axeongrowth: 'bg-neutral-950 text-white',
+  essentials: 'bg-white/10 text-neutral-300',
+  axeoncore: 'bg-blue-600 text-white',
+  axeongrowth: 'bg-white text-neutral-950',
 };
 
 export function ProofTour() {
@@ -96,13 +96,13 @@ export function ProofTour() {
               type="button"
               onClick={() => setIndex(i)}
               className={`flex shrink-0 items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-left text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 lg:w-full lg:py-3 ${
-                active ? 'bg-blue-600 text-white shadow-md shadow-blue-600/25' : 'bg-white text-neutral-700 ring-1 ring-neutral-200 hover:bg-neutral-50 lg:bg-transparent lg:ring-0'
+                active ? 'bg-blue-600 text-white shadow-md shadow-blue-600/25' : 'bg-white/5 text-neutral-300 ring-1 ring-white/10 hover:bg-white/10 hover:text-white lg:bg-transparent lg:ring-0'
               }`}
             >
-              <Icon size={17} className={active ? 'text-white' : 'text-neutral-400'} />
+              <Icon size={17} className={active ? 'text-white' : 'text-neutral-500'} />
               <span className="whitespace-nowrap">{t.label}</span>
               {t.tier !== 'essentials' ? (
-                <span className={`ml-auto hidden rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide lg:inline ${active ? 'bg-white/20 text-white' : 'text-blue-600'}`}>
+                <span className={`ml-auto hidden rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide lg:inline ${active ? 'bg-white/20 text-white' : 'text-blue-400'}`}>
                   {TIER_SHORT[t.tier]}
                 </span>
               ) : null}
@@ -112,14 +112,14 @@ export function ProofTour() {
       </div>
 
       <div id="proof-tour-panel" role="tabpanel" aria-labelledby={`proof-tab-${tab.key}`} className="min-w-0">
-        <div className="mb-3 flex items-center justify-end gap-1 rounded-full bg-neutral-100 p-1 text-xs font-semibold text-neutral-600 sm:ml-auto sm:w-fit" role="group" aria-label="Screen size">
+        <div className="mb-3 flex items-center justify-end gap-1 rounded-full bg-white/10 p-1 text-xs font-semibold text-neutral-400 sm:ml-auto sm:w-fit" role="group" aria-label="Screen size">
           {(['desktop', 'phone'] as const).map((d) => (
             <button
               key={d}
               type="button"
               onClick={() => setDevice(d)}
               aria-pressed={device === d}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-colors ${device === d ? 'bg-white text-neutral-950 shadow-sm' : 'hover:text-neutral-950'}`}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-colors ${device === d ? 'bg-white text-neutral-950 shadow-sm' : 'hover:text-white'}`}
             >
               {d === 'desktop' ? <Monitor size={14} /> : <Smartphone size={14} />}
               {d === 'desktop' ? 'Desktop' : 'Phone'}
@@ -127,7 +127,7 @@ export function ProofTour() {
           ))}
         </div>
         {device === 'desktop' ? (
-          <div className="overflow-hidden rounded-2xl bg-[#f3f4f7] shadow-[0_24px_80px_-30px_rgba(16,24,40,0.45)] ring-1 ring-neutral-200">
+          <div className="overflow-hidden rounded-2xl bg-[#f3f4f7] shadow-[0_40px_120px_-30px_rgba(37,99,235,0.3)] ring-1 ring-white/10">
             <div className="flex items-center gap-3 border-b border-neutral-200 bg-white px-3 py-2 sm:px-4">
               <span className="flex gap-1.5" aria-hidden>
                 <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
@@ -164,28 +164,28 @@ export function ProofTour() {
         <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-xl font-extrabold tracking-tight text-neutral-950">{tab.label}</h3>
+              <h3 className="text-xl font-extrabold tracking-tight text-white">{tab.label}</h3>
               <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${CHIP_STYLE[tab.tier]}`}>{PLAN_CHIP[tab.tier]}</span>
             </div>
-            <p className="mt-1.5 max-w-xl text-base leading-relaxed text-neutral-600">{TAB_NOTES[tab.key]}</p>
+            <p className="mt-1.5 max-w-xl text-base leading-relaxed text-neutral-400">{TAB_NOTES[tab.key]}</p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <button
               type="button"
               onClick={() => go(index - 1)}
               aria-label="Previous tab"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full ring-1 ring-neutral-200 transition-colors hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white ring-1 ring-white/15 transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
             >
               <ArrowLeft size={16} />
             </button>
-            <span className="text-xs font-semibold tabular-nums text-neutral-400">
+            <span className="text-xs font-semibold tabular-nums text-neutral-500">
               {index + 1} / {PROOF_TABS.length}
             </span>
             <button
               type="button"
               onClick={() => go(index + 1)}
               aria-label="Next tab"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full ring-1 ring-neutral-200 transition-colors hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white ring-1 ring-white/15 transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
             >
               <ArrowRight size={16} />
             </button>

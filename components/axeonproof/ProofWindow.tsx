@@ -106,7 +106,7 @@ export function ProofWindow({ children, caption }: { children: ReactNode; captio
   return (
     <figure ref={figureRef} className="mx-auto w-full max-w-6xl proof-hero-stagger animate-proof-rise" style={{ perspective: '1800px', animationDelay: '1550ms', animationDuration: '0.9s' }}>
       <div
-        className="overflow-hidden rounded-2xl bg-[#f3f4f7] shadow-[0_40px_120px_-30px_rgba(0,0,0,0.6)] ring-1 ring-white/15 sm:rounded-[20px]"
+        className="overflow-hidden rounded-2xl bg-[#f3f4f7] shadow-[0_50px_140px_-30px_rgba(37,99,235,0.35)] ring-1 ring-white/10 sm:rounded-[20px]"
         style={{
           transform: `rotateX(${tilt.toFixed(2)}deg) scale(${(0.94 + 0.06 * flat).toFixed(3)})`,
           transformOrigin: '50% 0%',
@@ -123,13 +123,7 @@ export function ProofWindow({ children, caption }: { children: ReactNode; captio
           <span className="mx-auto flex h-7 w-full max-w-xs items-center justify-center rounded-md bg-neutral-100 text-[11px] font-medium text-neutral-500 sm:text-xs">
             app.axeonstudio.co
           </span>
-          <span className="hidden shrink-0 items-center gap-1.5 rounded-md bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-800 ring-1 ring-emerald-200 sm:inline-flex">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            </span>
-            Live
-          </span>
+          <span className="hidden w-16 sm:block" aria-hidden />
         </div>
         <div className="relative">
           <LiveFeed />
@@ -148,7 +142,7 @@ export function ProofWindow({ children, caption }: { children: ReactNode; captio
           ) : null}
         </div>
       </div>
-      <figcaption className="mt-5 text-center text-xs leading-relaxed text-neutral-400 sm:text-sm">{caption}</figcaption>
+      <figcaption className="mt-5 text-center text-xs leading-relaxed text-neutral-500 sm:text-sm">{caption}</figcaption>
     </figure>
   );
 }

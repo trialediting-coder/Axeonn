@@ -82,7 +82,7 @@ export function Header() {
   const isDarkServicePage = pathname.startsWith('/marketing-solutions/');
   // Standalone pages that also open on a full-bleed dark hero (the /marketing-solutions
   // AxeonCORE page has one since 2026-10-03).
-  const isOtherDarkHeroPage = ['/nonprofits', '/partners', '/des-moines-web-design', '/marketing-solutions'].includes(pathname);
+  const isOtherDarkHeroPage = ['/nonprofits', '/partners', '/des-moines-web-design', '/marketing-solutions', '/axeonproof'].includes(pathname);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
