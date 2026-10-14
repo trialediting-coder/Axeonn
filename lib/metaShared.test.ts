@@ -8,7 +8,9 @@ import {
   connectNotice,
   messagePreview,
   metaKindLabel,
+  metaTextProblem,
   parseWebhookBody,
+  truncateUtf8,
   replyDecision,
   secretRedact,
   verifyChallenge,
@@ -180,4 +182,32 @@ test('connectNotice maps the callback flags and ignores anything else', () => {
   assert.equal(connectNotice('cancelled')?.tone, 'warn');
   assert.equal(connectNotice('toString'), null);
   assert.equal(connectNotice(undefined), null);
+});
+
+test('metaTextProblem: Messenger 2000 characters, Instagram 1000 UTF-8 bytes', () => {
+  assert.equal(metaTextProblem('messenger', 'x'.repeat(2000)), null);
+  assert.match(metaTextProblem('messenger', 'x'.repeat(2001)) ?? '', /2000 characters\. This one is 2001/);
+  assert.equal(metaTextProblem('messenger', '😀'.repeat(2000)), null);
+  assert.equal(metaTextProblem('instagram', 'x'.repeat(1000)), null);
+  assert.match(metaTextProblem('instagram', 'x'.repeat(1001)) ?? '', /1000 bytes.*This one is 1001/);
+  assert.equal(metaTextProblem('instagram', '😀'.repeat(250)), null);
+  assert.match(metaTextProblem('instagram', '😀'.repeat(251)) ?? '', /This one is 1004/);
+  assert.match(metaTextProblem('instagram', 'é'.repeat(501)) ?? '', /This one is 1002/);
+});
+
+test('truncateUtf8 never splits a surrogate pair or a multi-byte character', () => {
+  assert.equal(truncateUtf8('😀😀😀', 9), '😀😀');
+  assert.equal(truncateUtf8('aé', 2), 'a');
+  assert.equal(truncateUtf8('abc', 10), 'abc');
+  const t = truncateUtf8('a😀'.repeat(300), 1000);
+  assert.ok(new TextEncoder().encode(t).length <= 1000);
+  assert.equal(t, Buffer.from(t, 'utf8').toString('utf8'));
+});
+
+test('messagePreview and the webhook text cut on whole characters', () => {
+  const p = messagePreview({ text: '😀'.repeat(200), attachments: [] });
+  assert.equal(Array.from(p).length, 140);
+  assert.ok(!/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/.test(p));
+  const [e] = parseWebhookBody({ object: 'page', entry: [{ id: '1', messaging: [{ sender: { id: '2' }, message: { mid: 'm', text: '😀'.repeat(4001) } }] }] });
+  assert.equal(Array.from(e.text).length, 4000);
 });

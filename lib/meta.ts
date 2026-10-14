@@ -11,6 +11,7 @@ import { isSecretsConfigured } from '@/lib/secretBox';
 import { APP_ORIGIN } from '@/lib/hostRouting';
 
 export const GRAPH_VERSION = 'v21.0';
+const GRAPH_TIMEOUT_MS = 10_000;
 const GRAPH = `https://graph.facebook.com/${GRAPH_VERSION}`;
 const DIALOG = `https://www.facebook.com/${GRAPH_VERSION}/dialog/oauth`;
 
@@ -71,9 +72,16 @@ export class MetaApiError extends Error {
   get tokenInvalid(): boolean {
     return this.code === 190;
   }
-  /** Code 10 / subcode 2018278 (and 2534022 on Instagram): the 24-hour window has closed. */
+  /**
+   * The 24-hour window has closed: code 10 with subcode 2018278 (Messenger) or
+   * 2534022 (Instagram). A bare code 10 is a permission error, not a window error.
+   */
   get outsideWindow(): boolean {
-    return this.code === 10 || this.subcode === 2018278 || this.subcode === 2534022;
+    return this.subcode === 2018278 || this.subcode === 2534022 || (this.code === 10 && /allowed window|24.?hour/i.test(this.message));
+  }
+  /** Permission or auth failure that is not a window error (code 10/200, or 190): never advise "text them instead". */
+  get permissionDenied(): boolean {
+    return !this.outsideWindow && (this.code === 10 || this.code === 200 || this.code === 190);
   }
 }
 
@@ -87,7 +95,7 @@ export function appSecretProof(accessToken: string, secret: string = appSecret()
  * of the raw request body with the app secret. Checked on the raw bytes, before parsing.
  */
 export function verifySignature(rawBody: Buffer | string, header: string | null, secret: string): boolean {
-  if (!header || !secret || !header.startsWith('sha256=')) return false;
+  if (!header || !secret || !/^sha256=[0-9a-fA-F]{64}$/.test(header)) return false;
   const given = Buffer.from(header.slice('sha256='.length), 'hex');
   const expected = createHmac('sha256', secret).update(rawBody).digest();
   return given.length === expected.length && timingSafeEqual(given, expected);
@@ -152,6 +160,10 @@ type GraphInit = {
   json?: unknown;
   /** Adds access_token and appsecret_proof to the query string. */
   token?: string;
+  /** Abort after this long (default 10 s). */
+  timeoutMs?: number;
+  /** Caller's own abort signal, combined with the timeout. */
+  signal?: AbortSignal;
 };
 
 /** One Graph API request. Errors come back as MetaApiError with every secret masked. */
@@ -164,17 +176,27 @@ export async function graph<T>(path: string, init: GraphInit = {}, f: FetchLike 
   const qs = query.toString();
   const url = `${GRAPH}${path}${qs ? `?${qs}` : ''}`;
   let res: Response;
+  // A ref'd timer (AbortSignal.timeout's is unref'd) so a hung request is always cut off, and cleared once the call settles.
+  const timer = new AbortController();
+  const timeoutId = setTimeout(() => timer.abort(), init.timeoutMs ?? GRAPH_TIMEOUT_MS);
+  const signal = init.signal ? AbortSignal.any([init.signal, timer.signal]) : timer.signal;
   try {
     res = await f(url, {
       method: init.method ?? 'GET',
       headers: init.json !== undefined ? { 'content-type': 'application/json' } : undefined,
       body: init.json !== undefined ? JSON.stringify(init.json) : undefined,
       cache: 'no-store',
+      signal,
     });
   } catch (err) {
+    clearTimeout(timeoutId);
+    if (signal.aborted || (err instanceof Error && (err.name === 'TimeoutError' || err.name === 'AbortError'))) {
+      throw new MetaApiError(`Meta request timed out (${path})`, 0, null, null);
+    }
     throw new MetaApiError(secretRedact(`Meta request failed: ${err instanceof Error ? err.message : String(err)} (${path})`), 0, null, null);
   }
   const body = (await res.json().catch(() => null)) as (Record<string, unknown> & { error?: { message?: string; code?: number; error_subcode?: number } }) | null;
+  clearTimeout(timeoutId);
   if (!res.ok || body?.error) {
     const e = body?.error ?? {};
     const code = typeof e.code === 'number' ? e.code : null;
@@ -336,19 +358,29 @@ export async function publishPageVideo(input: { pageId: string; pageToken: strin
   return r.id;
 }
 
-/** GET /{media-id}/insights?metric=reach,plays (Instagram). Missing metrics come back null. */
+/**
+ * GET /{media-id}/insights?metric=reach,views (Instagram). Meta retired the
+ * `plays` metric for all versions on 2025-04-21 in favour of `views`. The stored
+ * field keeps the name `plays` (social_posts.plays, DashboardReel.plays); it
+ * holds views. If Meta rejects the pair with (#100), retry reach alone so reach
+ * still lands. Missing metrics come back null.
+ */
 export async function mediaInsights(mediaId: string, pageToken: string, f: FetchLike = fetch): Promise<{ reach: number | null; plays: number | null }> {
-  const r = await graph<{ data?: Array<{ name: string; values?: Array<{ value?: number }>; total_value?: { value?: number } }> }>(
-    `/${encodeURIComponent(mediaId)}/insights`,
-    { query: { metric: 'reach,plays' }, token: pageToken },
-    f
-  );
+  type Insights = { data?: Array<{ name: string; values?: Array<{ value?: number }>; total_value?: { value?: number } }> };
+  const path = `/${encodeURIComponent(mediaId)}/insights`;
+  let r: Insights;
+  try {
+    r = await graph<Insights>(path, { query: { metric: 'reach,views' }, token: pageToken }, f);
+  } catch (err) {
+    if (!(err instanceof MetaApiError) || err.code !== 100) throw err;
+    r = await graph<Insights>(path, { query: { metric: 'reach' }, token: pageToken }, f);
+  }
   const pick = (name: string): number | null => {
     const m = r.data?.find((d) => d.name === name);
     const v = m?.values?.[0]?.value ?? m?.total_value?.value;
     return typeof v === 'number' && Number.isFinite(v) ? v : null;
   };
-  return { reach: pick('reach'), plays: pick('plays') };
+  return { reach: pick('reach'), plays: pick('views') };
 }
 
 /**

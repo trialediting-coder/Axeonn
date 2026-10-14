@@ -8,6 +8,7 @@ import assert from 'node:assert/strict';
 import {
   META_SCOPES,
   MetaApiError,
+  graph,
   appSecretProof,
   containerStatus,
   createReelContainer,
@@ -190,14 +191,14 @@ test('createReelContainer, containerStatus and mediaInsights read the documented
     const { f, calls } = stub(
       { json: { id: '17900000000000001' } },
       { json: { status_code: 'FINISHED', status: 'Finished: Media has been uploaded and it is ready to be published.', id: '17900000000000001' } },
-      { json: { data: [{ name: 'reach', period: 'lifetime', values: [{ value: 1840 }] }, { name: 'plays', period: 'lifetime', values: [{ value: 2610 }] }] } }
+      { json: { data: [{ name: 'reach', period: 'lifetime', values: [{ value: 1840 }] }, { name: 'views', period: 'lifetime', values: [{ value: 2610 }] }] } }
     );
     assert.equal(await createReelContainer({ igUserId: '17841400000000001', pageToken: 'EAApage', videoUrl: 'https://x.public.blob.vercel-storage.com/social/1/a.mp4', caption: 'Before and after' }, f), '17900000000000001');
     assert.deepEqual(JSON.parse(String(calls[0].init?.body)), { media_type: 'REELS', video_url: 'https://x.public.blob.vercel-storage.com/social/1/a.mp4', caption: 'Before and after', share_to_feed: true });
     assert.equal(new URL(calls[0].url).pathname, '/v21.0/17841400000000001/media');
     assert.equal((await containerStatus('17900000000000001', 'EAApage', f)).code, 'FINISHED');
     assert.deepEqual(await mediaInsights('17900000000000002', 'EAApage', f), { reach: 1840, plays: 2610 });
-    assert.equal(new URL(calls[2].url).searchParams.get('metric'), 'reach,plays');
+    assert.equal(new URL(calls[2].url).searchParams.get('metric'), 'reach,views');
   }));
 
 test('parseSignedRequest checks the HMAC and returns the user id', () => {
@@ -223,4 +224,44 @@ test('a signed state is bound to its onboarding token and cannot be re-pointed a
   const [, sig] = a.split('.');
   const swapped = Buffer.from(JSON.stringify({ t: 'client-b-token-000000', n: 'n1', f: 'portal', e: now + 60_000 })).toString('base64url');
   assert.equal(verifyState(`${swapped}.${sig}`, SECRET, now), null);
+});
+
+test('outsideWindow is only the window errors; a bare code 10 is a permission error', () => {
+  const win = new MetaApiError('Meta 400 (10/2018278): outside', 400, 10, 2018278);
+  assert.equal(win.outsideWindow, true);
+  assert.equal(win.permissionDenied, false);
+  assert.equal(new MetaApiError('x', 400, 10, 2534022).outsideWindow, true);
+  const perm = new MetaApiError('Meta 400 (10): (#10) Application does not have permission for this action', 400, 10, null);
+  assert.equal(perm.outsideWindow, false);
+  assert.equal(perm.permissionDenied, true);
+  assert.equal(new MetaApiError('Meta 403 (200): perms', 403, 200, null).permissionDenied, true);
+  assert.equal(new MetaApiError('Meta 400 (190): expired', 400, 190, 463).permissionDenied, true);
+  assert.equal(new MetaApiError('Meta 400 (100): bad', 400, 100, null).permissionDenied, false);
+});
+
+test('graph times out a fetch that never resolves and reports a MetaApiError', async () => {
+  const never: FetchLike = (_u, init) => new Promise((_res, rej) => init?.signal?.addEventListener('abort', () => rej(init.signal!.reason)));
+  await assert.rejects(graph('/me', { timeoutMs: 20 }, never), (e: unknown) => e instanceof MetaApiError && /timed out \(\/me\)/.test(e.message) && e.status === 0);
+  const ctl = new AbortController();
+  const p = graph('/me', { signal: ctl.signal }, never);
+  ctl.abort();
+  await assert.rejects(p, (e: unknown) => e instanceof MetaApiError && /timed out/.test(e.message));
+});
+
+test('mediaInsights retries reach alone when Meta rejects the metric pair with (#100)', () =>
+  env(CONFIGURED, async () => {
+    const { f, calls } = stub(
+      { status: 400, json: { error: { message: '(#100) metric not supported', code: 100 } } },
+      { json: { data: [{ name: 'reach', values: [{ value: 55 }] }] } }
+    );
+    assert.deepEqual(await mediaInsights('1', 'EAApage', f), { reach: 55, plays: null });
+    assert.equal(new URL(calls[1].url).searchParams.get('metric'), 'reach');
+  }));
+
+test('verifySignature accepts only sha256= plus exactly 64 hex characters', () => {
+  const hex = BODY_SIG.slice('sha256='.length);
+  assert.equal(verifySignature(BODY, `sha256=${hex.toUpperCase()}`, SECRET), true);
+  assert.equal(verifySignature(BODY, `sha256=${hex}zz`, SECRET), false);
+  assert.equal(verifySignature(BODY, `sha256=${hex}0`, SECRET), false);
+  assert.equal(verifySignature(BODY, `sha256=${hex.slice(0, 63)}`, SECRET), false);
 });

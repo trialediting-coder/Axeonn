@@ -71,8 +71,32 @@ export interface DashboardReel {
 export const MESSAGING_WINDOW_MS = 24 * 60 * 60 * 1000;
 /** Margin so a reply typed at 23:59:59 is not sent after the window closes. */
 export const WINDOW_SAFETY_MS = 60 * 1000;
-/** Send API text limit for Messenger and Instagram. */
-export const META_TEXT_MAX = 2000;
+/** Send API text limits: Messenger 2000 characters; Instagram 1000 bytes of UTF-8. */
+export const META_TEXT_MAX: Record<MetaChannel, number> = { messenger: 2000, instagram: 1000 };
+
+/** Cuts to at most `max` UTF-8 bytes without splitting a code point (so never a surrogate pair). */
+export function truncateUtf8(text: string, max: number): string {
+  const enc = new TextEncoder();
+  let out = '';
+  let used = 0;
+  for (const ch of text) {
+    const n = enc.encode(ch).length;
+    if (used + n > max) break;
+    out += ch;
+    used += n;
+  }
+  return out;
+}
+
+/** Null when the Send API will take the reply; otherwise the sentence to show. */
+export function metaTextProblem(channel: MetaChannel, text: string): string | null {
+  if (channel === 'instagram') {
+    const bytes = new TextEncoder().encode(text).length;
+    return bytes > META_TEXT_MAX.instagram ? `Instagram replies can be up to ${META_TEXT_MAX.instagram} bytes (about ${META_TEXT_MAX.instagram} letters; emoji and accents count more). This one is ${bytes}.` : null;
+  }
+  const length = [...text].length;
+  return length > META_TEXT_MAX.messenger ? `Facebook replies can be up to ${META_TEXT_MAX.messenger} characters. This one is ${length}.` : null;
+}
 /** Instagram's documented caption limits. */
 export const IG_CAPTION_MAX = 2200;
 export const IG_HASHTAG_MAX = 30;
@@ -120,7 +144,7 @@ export function parseWebhookBody(json: unknown): MetaInboundMessage[] {
         pageOrIgId,
         senderId,
         mid,
-        text: str(message.text).slice(0, 4000),
+        text: Array.from(str(message.text)).slice(0, 4000).join(''),
         attachments,
         timestamp: Number.isFinite(timestamp) && timestamp > 0 ? timestamp : 0,
       });
@@ -151,7 +175,7 @@ export function attachmentWord(type: string): string {
 export function messagePreview(m: Pick<MetaInboundMessage, 'text' | 'attachments'>): string {
   const parts = [m.text.replace(/\s+/g, ' ').trim(), ...m.attachments.map((a) => attachmentWord(a.type))].filter(Boolean);
   const line = parts.join(' ') || '[message]';
-  return line.length > 140 ? `${line.slice(0, 139)}…` : line;
+  return Array.from(line).length > 140 ? `${Array.from(line).slice(0, 139).join('')}…` : line;
 }
 
 const time = (v: string | number | Date): number => (v instanceof Date ? v.getTime() : typeof v === 'number' ? v : new Date(v).getTime());
