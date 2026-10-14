@@ -15,6 +15,8 @@ import { normalizePhone } from '@/lib/phoneShared';
 import { redactDigits } from '@/lib/sequenceSchedule';
 import { startLeadFollowUp } from '@/lib/sequences';
 import { isLeadStage } from '@/lib/sequenceShared';
+import { inboxEnabled } from '@/lib/contactsShared';
+import { pushLeadAlert } from '@/lib/leadNotify';
 import { DUPLICATE_WINDOW_MINUTES, isRecentDuplicate, leadAlertText, planLeadDelivery, type DeliveryReport, type FormSubmission, type LeadInput } from '@/lib/leadShared';
 import type { Onboarding } from '@/lib/onboarding';
 
@@ -185,7 +187,7 @@ async function noteAlertText(onboardingId: number, leadId: number, status: Deliv
  * directly from the admin's test button. Each channel fails on its own: a
  * Twilio error never stops the email, and the report says what happened.
  */
-export async function deliverLead(owner: LeadOwner, lead: FormSubmission, opts: { now?: Date; test?: boolean } = {}): Promise<DeliveryReport> {
+export async function deliverLead(owner: LeadOwner, lead: FormSubmission, opts: { now?: Date; test?: boolean; contactId?: number | null } = {}): Promise<DeliveryReport> {
   // The email does not depend on the line, so it starts first and runs alongside the phone steps.
   const email = sendClientLeadAlert({ to: owner.clientEmail, businessName: owner.businessName, lead, proofUrl: `${APP_ORIGIN}/?tab=leads`, test: Boolean(opts.test) })
     .then((sent): DeliveryReport['email'] => (sent ? 'sent' : 'off'))
@@ -224,9 +226,14 @@ export async function deliverLead(owner: LeadOwner, lead: FormSubmission, opts: 
   }
   const plan = planLeadDelivery({ tier: owner.tier, line, leadPhone: lead.phone, now });
 
+  // Slice 4: a push to the owner's devices first; the owner text is the fallback (spec, "Slice 4 additions").
+  // After the duplicate check above, so a repeat form within the window pushes nothing either. The email always went.
+  const pushed = opts.contactId && !opts.test && inboxEnabled(owner.tier) ? await pushLeadAlert(owner.id, opts.contactId, 'form') : 0;
+
   // The text goes before the call, so "we texted you their details" is already true when the owner hears it.
   let text: DeliveryReport['text'];
-  if (plan.text !== 'send') text = plan.text;
+  if (pushed > 0) text = 'pushed';
+  else if (plan.text !== 'send') text = plan.text;
   else if (!line) text = 'no_line';
   else {
     try {

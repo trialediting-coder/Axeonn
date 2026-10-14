@@ -10,6 +10,7 @@ import { callOutcome, callerKey, normalizePhone } from '@/lib/phoneShared';
 import { getOnboardingById } from '@/lib/onboarding';
 import { startMissedCallFollowUp, stopRunsFor } from '@/lib/sequences';
 import { projectCall } from '@/lib/contacts';
+import { notifyLeadActivity } from '@/lib/leadNotify';
 import { errText } from '@/lib/dbRows';
 import { redactDigits } from '@/lib/sequenceSchedule';
 import { withTimeout } from '@/lib/timeout';
@@ -56,14 +57,11 @@ export async function POST(req: Request) {
   // An answered call moves the contact to Contacted. Never fails the webhook, and never
   // holds the TwiML more than 2 seconds (S4-R5): a slow database finishes in the background.
   const callSid = p.CallSid;
-  await withTimeout(
-    projectCall(callSid).catch((err) => {
-      console.error('[phone/status] inbox', callSid, redactDigits(errText(err)));
-      return null;
-    }),
-    2000,
-    () => console.error('[phone/status] inbox slow, not waited for', callSid),
-  );
+  const projection = projectCall(callSid).catch((err) => {
+    console.error('[phone/status] inbox', callSid, redactDigits(errText(err)));
+    return null;
+  });
+  await withTimeout(projection, 2000, () => console.error('[phone/status] inbox slow, not waited for', callSid));
   if (outcome === 'answered') {
     // They got through: the new-lead and quote follow-ups have done their job. Never changes the TwiML.
     if (from !== 'unknown') {
@@ -98,5 +96,16 @@ export async function POST(req: Request) {
       console.error('[phone/status] follow-up not started', err instanceof Error ? err.message : err);
     }
   }
+  // Only missed calls reach here (answered returned above): push first, then a text and an email.
+  // After the response; a slow projection is waited for there rather than dropping the alert.
+  const onboardingId = line.onboardingId;
+  after(async () => {
+    try {
+      const projected = await projection;
+      if (projected) await notifyLeadActivity(onboardingId, projected.contactId, 'call');
+    } catch (err) {
+      console.error('[phone/status] alert', callSid, redactDigits(errText(err)));
+    }
+  });
   return twiml(afterDialTwiml({ textedBack }));
 }

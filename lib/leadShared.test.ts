@@ -132,6 +132,7 @@ test('describeDelivery reads as one line for the admin card', () => {
     describeDelivery({ email: 'off', text: 'quiet_hours', connect: 'same_number' }),
     "Email: not configured (RESEND_API_KEY) · Text: skipped, quiet hours (8 pm to 8 am) · Call connect: the lead's phone is the owner's own number",
   );
+  assert.equal(describeDelivery({ email: 'sent', text: 'pushed', connect: 'started' }), "Email: sent · Text: skipped, a notification went to their phone instead · Call connect: calling the owner's cell now");
 });
 
 test('leadAlertText fits one alert in two SMS segments and keeps who and how to reach them', () => {

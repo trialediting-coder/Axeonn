@@ -3,12 +3,14 @@
 // and a START word clears it. A text from a known number stops that person's
 // new-lead and quote follow-ups (a human is talking now); a STOP word stops all
 // of their follow-ups. Replies with an empty <Response/>: no auto-reply.
+import { after } from 'next/server';
 import { readTwilioRequest } from '@/lib/phoneWebhook';
 import { clearOptOut, lineForNumber, markOptedOut, recordMessage } from '@/lib/phoneLines';
 import { emptyTwiml, TWIML_HEADERS } from '@/lib/phoneTwiml';
 import { callerKey, isStartWord, isStopWord, normalizePhone } from '@/lib/phoneShared';
 import { stopRunsFor } from '@/lib/sequences';
 import { projectMessage } from '@/lib/contacts';
+import { notifyLeadActivity } from '@/lib/leadNotify';
 import { errText } from '@/lib/dbRows';
 import { redactDigits } from '@/lib/sequenceSchedule';
 import { withTimeout } from '@/lib/timeout';
@@ -36,14 +38,24 @@ export async function POST(req: Request) {
       });
       // Awaited (Task 10 reads the result) but never more than 2 seconds (S4-R5).
       const messageSid = p.MessageSid;
-      await withTimeout(
-        projectMessage(messageSid).catch((err) => {
-          console.error('[phone/sms] inbox', messageSid, redactDigits(errText(err)));
-          return null;
-        }),
-        2000,
-        () => console.error('[phone/sms] inbox slow, not waited for', messageSid),
-      );
+      const projection = projectMessage(messageSid).catch((err) => {
+        console.error('[phone/sms] inbox', messageSid, redactDigits(errText(err)));
+        return null;
+      });
+      await withTimeout(projection, 2000, () => console.error('[phone/sms] inbox slow, not waited for', messageSid));
+      // After Twilio has its answer: push first, then a text and an email if push is not on. Not for STOP / START.
+      // A slow projection is waited for there rather than dropping the alert; a withheld sender projects to null.
+      if (!isStopWord(p.Body) && !isStartWord(p.Body)) {
+        const onboardingId = line.onboardingId;
+        after(async () => {
+          try {
+            const projected = await projection;
+            if (projected) await notifyLeadActivity(onboardingId, projected.contactId, 'text');
+          } catch (err) {
+            console.error('[phone/sms] alert', messageSid, redactDigits(errText(err)));
+          }
+        });
+      }
       if (from !== 'unknown') {
         if (isStopWord(p.Body)) await markOptedOut(line.onboardingId, from);
         if (isStartWord(p.Body)) await clearOptOut(line.onboardingId, from);

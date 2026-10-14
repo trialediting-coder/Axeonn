@@ -460,6 +460,26 @@ export async function sendClientLeadAlert(input: ClientLeadAlertInput & { to: st
   return true;
 }
 
+/**
+ * Slice 4: a lead texted or missed-called and no device has push on. No lead
+ * details (the same rule as the push): the words and the number stay in PROOF.
+ */
+export async function sendLeadActivityEmail(input: { to: string; businessName: string | null; title: string; url: string }): Promise<boolean> {
+  const resend = getClient('lead_activity_alert');
+  if (!resend) return false;
+  await sendChecked(resend, {
+    from: CLIENT_FROM_ADDRESS,
+    replyTo: CLIENT_REPLY_TO,
+    to: input.to,
+    subject: input.businessName ? `${input.title} · ${input.businessName}` : input.title,
+    html: clientLayout(
+      escapeHtml(input.title),
+      `<p style="margin:0 0 12px">Open AxeonPROOF to see it and text them back from your tracked number.</p>${button(input.url, 'Open the lead')}`,
+    ),
+  });
+  return true;
+}
+
 /** Sent once when a client finishes every item on their onboarding checklist. */
 export async function sendOnboardingCompleteNotification(input: {
   displayName: string;

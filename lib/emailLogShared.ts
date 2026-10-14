@@ -34,6 +34,7 @@ export const EMAIL_KINDS = {
   password_reset: { label: 'Password reset', category: 'account' },
   lead_alert: { label: 'New lead', category: 'alerts' },
   client_lead_alert: { label: 'Website lead (to client)', category: 'leads' },
+  lead_activity_alert: { label: 'Lead text or missed call (to client)', category: 'leads' },
   onboarding_complete: { label: 'Setup finished', category: 'alerts' },
   billing_alert: { label: 'Billing', category: 'alerts' },
   feedback_alert: { label: 'Client feedback', category: 'alerts' },

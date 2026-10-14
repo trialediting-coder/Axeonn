@@ -121,12 +121,12 @@ export async function POST(req: Request) {
     after(async () => {
       try {
         // Into the leads inbox first (lib/contacts.ts), so the alert can link to the contact. Never stops delivery.
-        await projectForm(saved.id).catch((err) => {
+        const projected = await projectForm(saved.id).catch((err) => {
           console.error('[lead] inbox', saved.id, redactDigits(errText(err)));
           return null;
         });
         const owner = await getOnboardingById(onboardingId);
-        if (owner) await deliverLead(owner, saved);
+        if (owner) await deliverLead(owner, saved, { contactId: projected?.contactId ?? null });
         else console.error('[lead] deliver: no onboarding', onboardingId, saved.id);
       } catch (err) {
         console.error('[lead] deliver', saved.id, err instanceof Error ? err.message : err);

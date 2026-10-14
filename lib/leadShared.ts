@@ -198,7 +198,8 @@ export function isRecentDuplicate(input: {
 /** What actually happened to one lead; the admin's "Send test lead" shows it. */
 export interface DeliveryReport {
   email: 'sent' | 'off' | 'failed';
-  text: SmsSkip | 'sent' | 'opted_out' | 'bad_number' | 'failed' | 'duplicate';
+  /** 'pushed': slice 4 sent a push to the owner's devices instead of the text. */
+  text: SmsSkip | 'sent' | 'opted_out' | 'bad_number' | 'failed' | 'duplicate' | 'pushed';
   connect: ConnectSkip | 'started' | 'failed' | 'duplicate' | 'cooldown';
 }
 
@@ -217,6 +218,7 @@ const TEXT_WORDS: Record<DeliveryReport['text'], string> = {
   bad_number: 'skipped, forward-to is not a US number',
   failed: 'failed, see the Vercel log',
   duplicate: 'duplicate: same person wrote again within 5 minutes',
+  pushed: 'skipped, a notification went to their phone instead',
 };
 const CONNECT_WORDS: Record<DeliveryReport['connect'], string> = {
   started: "calling the owner's cell now",

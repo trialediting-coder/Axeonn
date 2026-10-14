@@ -4,6 +4,7 @@
 // A push never carries a phone number, a name or the words of a message: a fixed
 // title, one fixed line, and a link inside PROOF. The same goes for the text and
 // the email the owner gets when push is not on (lib/leadNotify.ts).
+import { isQuietHours } from '@/lib/leadShared';
 
 export type LeadActivity = 'text' | 'call' | 'form' | 'messenger' | 'instagram';
 
@@ -36,6 +37,23 @@ export function leadPushMessage(what: LeadActivity, contactId: number): PushMess
 /** The fallback text to the owner's cell when no device has push on. */
 export function ownerAlertText(what: LeadActivity, contactId: number, appOrigin: string): string {
   return `${LEAD_ALERT_TITLES[what]}. See it and reply in AxeonPROOF: ${appOrigin.replace(/\/$/, '')}${leadLink(contactId)}`;
+}
+
+export interface FallbackPlan {
+  sms: boolean;
+  email: boolean;
+}
+
+/**
+ * What goes to the owner after the push (lib/leadNotify.ts). A device took the
+ * push: nothing else. Otherwise, at most once per lead per throttle window and
+ * only on a plan with the inbox: an email, and a text through their tracked line
+ * unless it is 8 pm to 8 am on the line's clock. `lineTimeZone` is null without
+ * an active line. The send gates (10DLC, opt-out) still apply inside sendOwnerAlert.
+ */
+export function planOwnerFallback(input: { pushed: number; alertedRecently: boolean; inboxEnabled: boolean; lineTimeZone: string | null; now: Date }): FallbackPlan {
+  if (input.pushed > 0 || input.alertedRecently || !input.inboxEnabled) return { sms: false, email: false };
+  return { sms: input.lineTimeZone !== null && !isQuietHours(input.now, input.lineTimeZone), email: true };
 }
 
 // The browsers' push services. The server POSTs to whatever endpoint a browser

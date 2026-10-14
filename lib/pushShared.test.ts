@@ -2,7 +2,7 @@
 // Run with: npm run test:inbox
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { isValidSubscription, leadPushMessage, needsHomeScreenInstall, ownerAlertText, urlBase64ToUint8Array } from './pushShared';
+import { isValidSubscription, leadPushMessage, needsHomeScreenInstall, ownerAlertText, planOwnerFallback, urlBase64ToUint8Array } from './pushShared';
 
 test('a push says what happened and where to look, nothing else (Review Focus 1)', () => {
   assert.deepEqual(leadPushMessage('text', 42), { title: 'New text from a lead', body: 'Open AxeonPROOF to see it and reply.', url: '/proof?tab=leads&contact=42' });
@@ -47,4 +47,27 @@ test('iPhones need PROOF on the Home Screen before push works', () => {
   assert.equal(needsHomeScreenInstall(iphone, false), true);
   assert.equal(needsHomeScreenInstall(iphone, true), false);
   assert.equal(needsHomeScreenInstall('Mozilla/5.0 (Linux; Android 15) Chrome/130.0 Mobile', false), false);
+});
+
+test('planOwnerFallback: push first; a text outside quiet hours and an email only when no device took it, once per 30 minutes', () => {
+  const day = new Date('2026-10-13T18:00:00Z'); // 1 pm Central
+  const night = new Date('2026-10-14T03:00:00Z'); // 10 pm Central
+  const early = new Date('2026-10-13T12:59:00Z'); // 7:59 am Central
+  const base = { pushed: 0, alertedRecently: false, inboxEnabled: true, lineTimeZone: 'America/Chicago' as string | null, now: day };
+  assert.deepEqual(planOwnerFallback(base), { sms: true, email: true });
+  // A device took the push: nothing else goes.
+  assert.deepEqual(planOwnerFallback({ ...base, pushed: 1 }), { sms: false, email: false });
+  assert.deepEqual(planOwnerFallback({ ...base, pushed: 3 }), { sms: false, email: false });
+  // Already texted or emailed about this lead in the window: nothing.
+  assert.deepEqual(planOwnerFallback({ ...base, alertedRecently: true }), { sms: false, email: false });
+  // Not on a plan with the inbox: nothing.
+  assert.deepEqual(planOwnerFallback({ ...base, inboxEnabled: false }), { sms: false, email: false });
+  // Quiet hours (8 pm to 8 am client-local): the email still goes, the text does not.
+  assert.deepEqual(planOwnerFallback({ ...base, now: night }), { sms: false, email: true });
+  assert.deepEqual(planOwnerFallback({ ...base, now: early }), { sms: false, email: true });
+  // 10 pm Central is 8 pm Pacific: quiet there too; 1 pm Central is 11 am Pacific: fine.
+  assert.deepEqual(planOwnerFallback({ ...base, now: night, lineTimeZone: 'America/Los_Angeles' }), { sms: false, email: true });
+  assert.deepEqual(planOwnerFallback({ ...base, lineTimeZone: 'America/Los_Angeles' }), { sms: true, email: true });
+  // No tracked line: no text (there is nothing to send it from), the email still goes.
+  assert.deepEqual(planOwnerFallback({ ...base, lineTimeZone: null }), { sms: false, email: true });
 });
