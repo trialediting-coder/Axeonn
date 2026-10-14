@@ -66,8 +66,10 @@ export function OnboardingPortal(props: PortalProps) {
   const [openKey, setOpenKey] = useState<string | null>(firstPending);
 
   const { done, total } = useMemo(() => {
-    const total = props.items.client.length;
-    const done = props.items.client.filter((i) => states[i.key]?.status === 'done').length;
+    // Connect items (Facebook / Instagram) are optional and never count toward progress (S6-R13), matching the server.
+    const counted = props.items.client.filter((i) => !i.connect);
+    const total = counted.length;
+    const done = counted.filter((i) => states[i.key]?.status === 'done').length;
     return { done, total };
   }, [props.items.client, states]);
   const percent = total === 0 ? 100 : Math.round((done / total) * 100);

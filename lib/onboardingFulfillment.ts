@@ -23,7 +23,7 @@ import { isDatabaseConfigured, sql } from '@/lib/db';
 
 /** Sum of the per-item estimates, rounded up to a friendly number for the email. */
 export function estimatedMinutes(tier: OnboardingTier): number {
-  const total = orderedItems(tier).client.reduce((sum, item) => sum + (item.minutes ?? 1), 0);
+  const total = orderedItems(tier).client.filter((item) => !item.connect).reduce((sum, item) => sum + (item.minutes ?? 1), 0);
   return Math.max(5, Math.ceil(total / 5) * 5);
 }
 
