@@ -2,7 +2,7 @@
 // Run with: npm run test:inbox. The pure parts of lib/contacts.ts: no database.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { formStagesBelow, toContact, toEvent } from './contacts';
+import { formStagesBelow, planFormStageCopy, toContact, toEvent } from './contacts';
 
 test('a move code makes by itself only lifts forms that are behind it, never off Won/Lost', () => {
   assert.deepEqual(formStagesBelow('contacted'), ['new']);
@@ -48,4 +48,58 @@ test('an event row keeps a null ref id null and a missing payload empty', () => 
   });
   assert.equal(f.refId, 55);
   assert.equal(f.refTable, 'form_submissions');
+});
+
+// ───────────── Backfill: which form mark wins (copyFormStages) ─────────────
+
+const NOW = '2026-10-14T12:00:00.000Z';
+const untouched = { stage: 'new' as const, stageChangedAt: null, quoteSentAt: null, tapped: false };
+
+test('two forms: Won last week beats a new form; the contact ends Won and the new form is lifted without a new time', () => {
+  const plan = planFormStageCopy(untouched, [
+    { id: 1, stage: 'won', stageChangedAt: '2026-10-07T12:00:00.000Z', quoteSentAt: null },
+    { id: 2, stage: 'new', stageChangedAt: null, quoteSentAt: null },
+  ], NOW);
+  assert.deepEqual(plan.contact, { stage: 'won', stageChangedAt: '2026-10-07T12:00:00.000Z', quoteSentAt: null });
+  assert.deepEqual(plan.lift, { stage: 'won', ids: [2] });
+});
+
+test('a replayed answered call (contact Contacted) does not beat a Won form, and a Contacted form is lifted too', () => {
+  const plan = planFormStageCopy({ ...untouched, stage: 'contacted', stageChangedAt: NOW }, [
+    { id: 1, stage: 'contacted', stageChangedAt: '2026-10-01T12:00:00.000Z', quoteSentAt: '2026-10-01T12:00:00.000Z' },
+    { id: 2, stage: 'won', stageChangedAt: '2026-10-07T12:00:00.000Z', quoteSentAt: null },
+  ], NOW);
+  assert.equal(plan.contact?.stage, 'won');
+  assert.equal(plan.contact?.quoteSentAt, null, 'the winning form carries no quote; the earlier quote is not borrowed');
+  assert.deepEqual(plan.lift, { stage: 'won', ids: [1] });
+});
+
+test('the later of two marks wins; a mark with no time loses to one with a time', () => {
+  const plan = planFormStageCopy(untouched, [
+    { id: 1, stage: 'lost', stageChangedAt: null, quoteSentAt: null },
+    { id: 2, stage: 'booked', stageChangedAt: '2026-10-07T12:00:00.000Z', quoteSentAt: null },
+  ], NOW);
+  assert.equal(plan.contact?.stage, 'booked');
+  assert.equal(plan.lift, null, 'a Lost form is never lifted');
+});
+
+test('a contact already tapped in the inbox keeps its stage; its forms behind it are still lifted', () => {
+  const plan = planFormStageCopy({ stage: 'booked', stageChangedAt: NOW, quoteSentAt: null, tapped: true }, [
+    { id: 1, stage: 'won', stageChangedAt: '2026-10-07T12:00:00.000Z', quoteSentAt: null },
+    { id: 2, stage: 'new', stageChangedAt: null, quoteSentAt: null },
+  ], NOW);
+  assert.equal(plan.contact, null);
+  assert.deepEqual(plan.lift, { stage: 'booked', ids: [2] });
+});
+
+test('a second run finds nothing to change', () => {
+  const plan = planFormStageCopy({ stage: 'won', stageChangedAt: '2026-10-07T12:00:00.000Z', quoteSentAt: null, tapped: false }, [
+    { id: 1, stage: 'won', stageChangedAt: '2026-10-07T12:00:00.000Z', quoteSentAt: null },
+    { id: 2, stage: 'won', stageChangedAt: null, quoteSentAt: null },
+  ], NOW);
+  assert.deepEqual(plan, { contact: null, lift: null });
+});
+
+test('only new forms: nothing is copied and nothing lifted', () => {
+  assert.deepEqual(planFormStageCopy(untouched, [{ id: 1, stage: 'new', stageChangedAt: null, quoteSentAt: null }], NOW), { contact: null, lift: null });
 });

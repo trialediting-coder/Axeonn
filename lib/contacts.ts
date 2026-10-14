@@ -229,6 +229,8 @@ export async function mergeContacts(onboardingId: number, aId: number, bId: numb
     const m = plan.merged;
     await q.sql`UPDATE contact_events SET contact_id = ${plan.keepId} WHERE contact_id = ${plan.dropId} AND onboarding_id = ${onboardingId};`;
     await q.sql`UPDATE held_replies SET contact_id = ${plan.keepId} WHERE contact_id = ${plan.dropId} AND onboarding_id = ${onboardingId};`;
+    // Follow-ups started from an inbox tap on the dropped row (ref_table 'contacts') now belong to the kept row.
+    await q.sql`UPDATE sequence_runs SET ref_id = ${plan.keepId} WHERE onboarding_id = ${onboardingId} AND ref_table = 'contacts' AND ref_id = ${plan.dropId};`;
     await q.sql`DELETE FROM contacts WHERE id = ${plan.dropId} AND onboarding_id = ${onboardingId};`;
     const { rows: kept } = await q.sql<ContactRow>`
       UPDATE contacts SET
@@ -387,7 +389,9 @@ export async function upsertContactEvent(input: ContactEventInput): Promise<Upse
   if (ev.inserted) {
     const proposed = systemStageFor(input.kind, input.payload);
     if (proposed) await advanceStage(input.onboardingId, ev.contactId, proposed, input.replay === true);
-    if (resolved.created && (input.kind === 'call' || input.kind === 'text_in')) {
+    // A call-connect (direction 'connect', see projectCall) is the owner dialling, not a tap on the site's call button.
+    const ownerDialled = input.kind === 'call' && input.payload.direction === 'connect';
+    if (resolved.created && (input.kind === 'call' || input.kind === 'text_in') && !ownerDialled) {
       await attachClickToContact(input.onboardingId, ev.contactId, input.createdAt, input.kind);
     }
   }
@@ -482,9 +486,11 @@ async function advanceStage(onboardingId: number, contactId: number, proposed: S
     WHERE id = ${contactId} AND onboarding_id = ${onboardingId} AND stage = ${before.stage}
     RETURNING *;`;
   if (!rows[0]) return; // someone moved it in between; their move stands
+  // The backfill records history: it leaves the forms (slice 3's marks) for
+  // copyFormStages to read, and it does not stop today's follow-ups.
+  if (replay) return;
   const c = toContact(rows[0]);
   await mirrorSystemStage(onboardingId, contactId, next);
-  if (replay) return; // the backfill records history; it does not stop today's follow-ups
   const fx = sequenceEffects(next, true);
   try {
     // Loaded here, not at the top: lib/sequences.ts imports this module (Task 6).
@@ -541,10 +547,10 @@ export async function recordAlert(onboardingId: number, contactId: number, chann
 }
 
 /** Was the owner already texted or emailed about this lead lately (the fallback throttle)? Pushes do not count. */
-export async function alertedRecently(contactId: number, minutes: number): Promise<boolean> {
+export async function alertedRecently(onboardingId: number, contactId: number, minutes: number): Promise<boolean> {
   const { rows } = await sql`
     SELECT 1 FROM contact_events
-    WHERE contact_id = ${contactId} AND kind = 'alert' AND payload->>'channel' IN ('sms', 'email')
+    WHERE onboarding_id = ${onboardingId} AND contact_id = ${contactId} AND kind = 'alert' AND payload->>'channel' IN ('sms', 'email')
       AND created_at > now() - make_interval(mins => ${Math.round(minutes)})
     LIMIT 1;`;
   return rows.length > 0;
@@ -738,30 +744,115 @@ export interface BackfillResult {
   stagesCopied: number;
 }
 
+export interface FormMark {
+  id: number;
+  stage: LeadStage;
+  stageChangedAt: string | null;
+  quoteSentAt: string | null;
+}
+
+export interface FormStageCopyPlan {
+  /** What to write on the contact, or null to leave it. */
+  contact: { stage: LeadStage; stageChangedAt: string; quoteSentAt: string | null } | null;
+  /** The contact's forms behind its final stage ('new'/'contacted' only, never a Booked/Won/Lost form), lifted with their stage times left as they are. */
+  lift: { stage: LeadStage; ids: number[] } | null;
+}
+
 /**
- * Slice 3 kept the client's taps on form_submissions (stage, quote_sent_at,
- * stage_changed_at) until contacts existed. Copy each contact's latest form mark
- * onto it, without re-running the follow-ups (slice 3 already started or stopped
- * them when the tap happened). A client's tap beats a move the replay made by
- * itself (an old answered call), so the copy goes over any stage, unless the
- * contact has already been tapped in the inbox (it has a note): those taps
- * mirror onto its forms anyway. A second run finds nothing to change.
+ * The backfill's stage copy for one contact (pure). Slice 3 kept the client's
+ * taps on form_submissions until contacts existed. The winning mark is the
+ * latest-changed form that is not 'new' (a mark with no time loses). It goes
+ * over any stage the replay made by itself (an old answered call), unless the
+ * contact was already tapped in the inbox (it has a note): those taps stand.
+ * Then the contact's forms behind its final stage are lifted to it, forward
+ * only and without a new stage time, so FormLeads agrees with the contact.
+ * A second run finds nothing to change.
+ */
+export function planFormStageCopy(
+  contact: { stage: LeadStage; stageChangedAt: string | null; quoteSentAt: string | null; tapped: boolean },
+  forms: FormMark[],
+  now: string,
+): FormStageCopyPlan {
+  const time = (t: string | null) => (t === null ? -Infinity : Date.parse(t));
+  const mark = forms
+    .filter((f) => f.stage !== 'new')
+    .reduce<FormMark | null>((best, f) => (best === null || time(f.stageChangedAt) > time(best.stageChangedAt) ? f : best), null);
+  let final = contact.stage;
+  let update: FormStageCopyPlan['contact'] = null;
+  if (mark && !contact.tapped && (contact.stage !== mark.stage || (contact.quoteSentAt === null && mark.quoteSentAt !== null))) {
+    final = mark.stage;
+    update = { stage: mark.stage, stageChangedAt: mark.stageChangedAt ?? contact.stageChangedAt ?? now, quoteSentAt: contact.quoteSentAt ?? mark.quoteSentAt };
+  }
+  const ids = final === 'new' ? [] : forms.filter((f) => (f.stage === 'new' || f.stage === 'contacted') && f.stage !== final).map((f) => f.id);
+  return { contact: update, lift: ids.length > 0 ? { stage: final, ids } : null };
+}
+
+/**
+ * planFormStageCopy for every contact of one client that has a (non-test)
+ * form, without re-running the follow-ups (slice 3 already started or stopped
+ * them when the tap happened). A copied Won/Lost reaches the matched website
+ * tap, as writeContactStage's does. Returns the number of contacts changed.
  */
 async function copyFormStages(onboardingId: number): Promise<number> {
-  const res = await sql`
-    UPDATE contacts c
-    SET stage = f.stage, stage_changed_at = COALESCE(f.stage_changed_at, c.stage_changed_at, now()), quote_sent_at = COALESCE(c.quote_sent_at, f.quote_sent_at)
-    FROM (
-      SELECT DISTINCT ON (e.contact_id) e.contact_id, s.stage, s.stage_changed_at, s.quote_sent_at
-      FROM form_submissions s
-      JOIN contact_events e ON e.ref_table = 'form_submissions' AND e.ref_id = s.id AND e.kind = 'form'
-      WHERE s.onboarding_id = ${onboardingId} AND NOT s.is_test AND s.stage <> 'new'
-      ORDER BY e.contact_id, s.stage_changed_at DESC NULLS LAST
-    ) f
-    WHERE c.id = f.contact_id AND c.onboarding_id = ${onboardingId}
-      AND (c.stage <> f.stage OR (c.quote_sent_at IS NULL AND f.quote_sent_at IS NOT NULL))
-      AND NOT EXISTS (SELECT 1 FROM contact_events n WHERE n.contact_id = c.id AND n.kind = 'note');`;
-  return res.rowCount ?? 0;
+  const { rows } = await sql<{
+    contact_id: DbId; contact_stage: string; contact_changed: DbTime | null; contact_quote: DbTime | null; tapped: boolean;
+    form_id: DbId; stage: string; stage_changed_at: DbTime | null; quote_sent_at: DbTime | null;
+  }>`
+    SELECT c.id AS contact_id, c.stage AS contact_stage, c.stage_changed_at AS contact_changed, c.quote_sent_at AS contact_quote,
+           EXISTS (SELECT 1 FROM contact_events n WHERE n.onboarding_id = c.onboarding_id AND n.contact_id = c.id AND n.kind = 'note') AS tapped,
+           s.id AS form_id, s.stage, s.stage_changed_at, s.quote_sent_at
+    FROM contacts c
+    JOIN contact_events e ON e.contact_id = c.id AND e.onboarding_id = c.onboarding_id AND e.ref_table = 'form_submissions' AND e.kind = 'form'
+    JOIN form_submissions s ON s.id = e.ref_id AND s.onboarding_id = c.onboarding_id AND NOT s.is_test
+    WHERE c.onboarding_id = ${onboardingId}
+    ORDER BY c.id, s.id;`;
+  const byContact = new Map<number, { contact: Parameters<typeof planFormStageCopy>[0]; forms: FormMark[] }>();
+  for (const r of rows) {
+    const id = Number(r.contact_id);
+    let entry = byContact.get(id);
+    if (!entry) {
+      entry = {
+        contact: {
+          stage: isLeadStage(r.contact_stage) ? r.contact_stage : 'new',
+          stageChangedAt: r.contact_changed ? iso(r.contact_changed) : null,
+          quoteSentAt: r.contact_quote ? iso(r.contact_quote) : null,
+          tapped: Boolean(r.tapped),
+        },
+        forms: [],
+      };
+      byContact.set(id, entry);
+    }
+    entry.forms.push({
+      id: Number(r.form_id),
+      stage: isLeadStage(r.stage) ? r.stage : 'new',
+      stageChangedAt: r.stage_changed_at ? iso(r.stage_changed_at) : null,
+      quoteSentAt: r.quote_sent_at ? iso(r.quote_sent_at) : null,
+    });
+  }
+  const now = new Date().toISOString();
+  let changed = 0;
+  for (const [contactId, { contact, forms }] of byContact) {
+    const plan = planFormStageCopy(contact, forms, now);
+    if (plan.contact) {
+      const p = plan.contact;
+      const res = await sql`
+        UPDATE contacts SET stage = ${p.stage}, stage_changed_at = ${p.stageChangedAt}, quote_sent_at = ${p.quoteSentAt}
+        WHERE id = ${contactId} AND onboarding_id = ${onboardingId}
+          AND NOT EXISTS (SELECT 1 FROM contact_events n WHERE n.onboarding_id = ${onboardingId} AND n.contact_id = ${contactId} AND n.kind = 'note');`;
+      if ((res.rowCount ?? 0) > 0) {
+        changed += 1;
+        if (outcomeForStage(p.stage) !== outcomeForStage(contact.stage)) await writeBackOutcome(onboardingId, contactId, p.stage);
+      }
+    }
+    if (plan.lift) {
+      // Forward only; each form keeps its own stage time.
+      await sql`
+        UPDATE form_submissions SET stage = ${plan.lift.stage}
+        WHERE onboarding_id = ${onboardingId} AND NOT is_test AND stage IN ('new', 'contacted')
+          AND id = ANY(${plan.lift.ids as unknown as string}::bigint[]);`;
+    }
+  }
+  return changed;
 }
 
 /**
