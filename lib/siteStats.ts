@@ -787,12 +787,23 @@ export async function markedForMonth(onboardingId: number, month: string): Promi
   if (!isDatabaseConfigured() || !isValidMonth(month)) return { won: 0, lost: 0 };
   await ensureSchema();
   const first = `${month}-01`;
+  // Taps on the site (marked in the anonymous list, or through a matched contact), plus inbox
+  // contacts marked Won or Lost that no tap stands for. A matched contact is only counted
+  // through its tap (lib/contacts.ts writes the mark there), never twice.
   const res = await sql<{ won: number; lost: number }>`
     SELECT (count(*) FILTER (WHERE outcome = 'won'))::int AS won, (count(*) FILTER (WHERE outcome = 'lost'))::int AS lost
-    FROM site_events
-    WHERE onboarding_id = ${onboardingId} AND kind = 'click' AND outcome IS NOT NULL
-      AND created_at >= (${first}::timestamp AT TIME ZONE ${REPORT_TIME_ZONE})
-      AND created_at < ((${first}::date + interval '1 month') AT TIME ZONE ${REPORT_TIME_ZONE});
+    FROM (
+      SELECT outcome FROM site_events
+      WHERE onboarding_id = ${onboardingId} AND kind = 'click' AND outcome IS NOT NULL
+        AND created_at >= (${first}::timestamp AT TIME ZONE ${REPORT_TIME_ZONE})
+        AND created_at < ((${first}::date + interval '1 month') AT TIME ZONE ${REPORT_TIME_ZONE})
+      UNION ALL
+      SELECT c.stage AS outcome FROM contacts c
+      WHERE c.onboarding_id = ${onboardingId} AND c.stage IN ('won', 'lost')
+        AND c.first_seen_at >= (${first}::timestamp AT TIME ZONE ${REPORT_TIME_ZONE})
+        AND c.first_seen_at < ((${first}::date + interval '1 month') AT TIME ZONE ${REPORT_TIME_ZONE})
+        AND NOT EXISTS (SELECT 1 FROM contact_events e WHERE e.contact_id = c.id AND e.kind = 'click' AND e.ref_table = 'site_events')
+    ) marked;
   `;
   return res.rows[0] ?? { won: 0, lost: 0 };
 }
@@ -806,11 +817,19 @@ export async function markedForMonth(onboardingId: number, month: string): Promi
 export async function observedCloseRate(onboardingId: number): Promise<ObservedCloseRate | null> {
   if (!isDatabaseConfigured()) return null;
   await ensureSchema();
+  // Same two sources as markedForMonth, over the observed window.
   const res = await sql<{ won: number; lost: number }>`
     SELECT (count(*) FILTER (WHERE outcome = 'won'))::int AS won, (count(*) FILTER (WHERE outcome = 'lost'))::int AS lost
-    FROM site_events
-    WHERE onboarding_id = ${onboardingId} AND kind = 'click' AND outcome IS NOT NULL
-      AND created_at >= now() - make_interval(months => ${OBSERVED_MONTHS});
+    FROM (
+      SELECT outcome FROM site_events
+      WHERE onboarding_id = ${onboardingId} AND kind = 'click' AND outcome IS NOT NULL
+        AND created_at >= now() - make_interval(months => ${OBSERVED_MONTHS})
+      UNION ALL
+      SELECT c.stage AS outcome FROM contacts c
+      WHERE c.onboarding_id = ${onboardingId} AND c.stage IN ('won', 'lost')
+        AND c.first_seen_at >= now() - make_interval(months => ${OBSERVED_MONTHS})
+        AND NOT EXISTS (SELECT 1 FROM contact_events e WHERE e.contact_id = c.id AND e.kind = 'click' AND e.ref_table = 'site_events')
+    ) marked;
   `;
   const { won, lost } = res.rows[0] ?? { won: 0, lost: 0 };
   const marked = won + lost;
