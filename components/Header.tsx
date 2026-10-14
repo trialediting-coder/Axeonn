@@ -82,7 +82,7 @@ export function Header() {
   const isDarkServicePage = pathname.startsWith('/marketing-solutions/');
   // Standalone pages that also open on a full-bleed dark hero (the /marketing-solutions
   // AxeonCORE page has one since 2026-10-03).
-  const isOtherDarkHeroPage = ['/nonprofits', '/partners', '/des-moines-web-design', '/marketing-solutions'].includes(pathname);
+  const isOtherDarkHeroPage = ['/nonprofits', '/partners', '/des-moines-web-design', '/marketing-solutions', '/axeonproof'].includes(pathname);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -518,12 +518,29 @@ export function Header() {
                       </Link>
                     ))}
                   </div>
+                  <Link
+                    href="/axeonproof"
+                    onClick={() => setMarketingOpen(false)}
+                    className="group mt-5 flex items-center justify-between gap-6 rounded-xl border border-neutral-200 px-5 py-3.5 text-left transition-colors hover:border-blue-200 hover:bg-blue-50/50"
+                  >
+                    <span>
+                      <span className="block text-[11px] font-bold uppercase tracking-[0.2em] text-blue-600">AxeonPROOF</span>
+                      <span className="mt-1 block text-[14.5px] font-bold text-neutral-900">
+                        Your dashboard: every call, lead and booked job, and where each one came from
+                      </span>
+                    </span>
+                    <ArrowRight size={18} className="shrink-0 text-blue-600 transition-transform group-hover:translate-x-1" />
+                  </Link>
                 </div>
               </div>
             )}
           </div>
           <Link href="/pricing" className={`${navHoverClass} transition-colors py-1`}>
             Pricing
+          </Link>
+          <Link href="/axeonproof" className={`${navHoverClass} inline-flex items-center gap-1.5 transition-colors py-1`}>
+            Axeon<span className="font-black text-blue-500">PROOF</span>
+            <span className="rounded-full bg-blue-600 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white">New</span>
           </Link>
 
           {/* About Dropdown */}
@@ -759,6 +776,14 @@ export function Header() {
                       </div>
                     </Link>
                   ))}
+                  <Link
+                    href="/axeonproof"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="mt-2 px-3.5 py-3 rounded-xl border border-neutral-200 text-left block"
+                  >
+                    <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-600">AxeonPROOF</div>
+                    <div className="text-sm font-semibold text-neutral-900 mt-0.5">Your dashboard: every call, lead and booked job</div>
+                  </Link>
                 </div>
               </MobileGroup>
 
@@ -768,6 +793,16 @@ export function Header() {
                 className="flex items-center min-h-[52px] py-3 border-b border-neutral-100 text-[15px] font-semibold text-neutral-900"
               >
                 Pricing
+              </Link>
+              <Link
+                href="/axeonproof"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 min-h-[52px] py-3 border-b border-neutral-100 text-[15px] font-semibold text-neutral-900"
+              >
+                <span>
+                  Axeon<span className="font-black text-blue-600">PROOF</span>
+                </span>
+                <span className="rounded-full bg-blue-600 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white">New</span>
               </Link>
               <MobileGroup
                 label="About"

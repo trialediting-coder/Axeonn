@@ -32,6 +32,7 @@ const WHO_WE_HELP_LINKS: FooterLink[] = [
 
 const SOLUTION_LINKS: FooterLink[] = [
   { label: 'AxeonCORE Customer Engine', href: '/marketing-solutions' },
+  { label: 'AxeonPROOF Dashboard', href: '/axeonproof' },
   ...marketingSolutions.map((solution) => ({
     label: solution.title,
     href: `/marketing-solutions/${solution.id}`,
@@ -68,7 +69,7 @@ export function Footer({ year }: FooterProps) {
   // Pages that already end with their own closing CTA skip the footer card, so
   // the page never ends with two calls to action back to back.
   const pageHasCloser =
-    ['/', '/pricing', '/process', '/why-axeon', '/des-moines-web-design', '/about', '/marketing-solutions', '/partners', '/nonprofits', '/book', '/faq', '/insights'].includes(pathname) ||
+    ['/', '/pricing', '/process', '/why-axeon', '/des-moines-web-design', '/about', '/marketing-solutions', '/axeonproof', '/partners', '/nonprofits', '/book', '/faq', '/insights'].includes(pathname) ||
     pathname.startsWith('/marketing-solutions/') ||
     pathname.startsWith('/solutions/');
 

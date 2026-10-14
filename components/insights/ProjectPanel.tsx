@@ -281,7 +281,7 @@ export function ProjectPanel({ token, initial, guarantee, tier }: { token: strin
 
         {data.audits.length > 0 ? (
           <div className="mt-5 overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full min-w-[640px] text-sm">
               <thead className="text-left text-xs uppercase tracking-wide text-neutral-500">
                 <tr>
                   <th className="py-1 pr-3">Date</th>

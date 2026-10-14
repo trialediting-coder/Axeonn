@@ -5,6 +5,7 @@
 // has none of them and renders nothing here.
 import type { ReactNode } from 'react';
 import { isSectionError, section, type AuditResults, type Section } from '@/lib/auditShared';
+import { CompetitorTable } from '@/components/admin/CompetitorTable';
 
 function Block({ title, children, missing }: { title: string; children?: ReactNode; missing?: string | null }) {
   return (
@@ -38,24 +39,25 @@ export function AuditDeepBlocks({ results, city, variant = 'admin' }: { results:
               <p className="text-sm text-neutral-800">
                 Not showing up for <b>{num(market.missedSearches)}</b> searches a month · <b>{usd(market.missedAdValue)}/mo</b> if bought as ads
               </p>
+              {/* Phones keep keyword / searches / Maps; CPC and web rank return from tablet width. */}
               <table className="mt-2 w-full text-sm">
                 <thead className="text-left text-[11px] uppercase tracking-wide text-neutral-500">
                   <tr>
                     <th className="py-1 pr-2">Keyword</th>
-                    <th className="py-1 pr-2 text-right">Searches/mo</th>
-                    <th className="py-1 pr-2 text-right">CPC</th>
+                    <th className="py-1 pr-2 text-right whitespace-nowrap">Searches/mo</th>
+                    <th className="hidden py-1 pr-2 text-right sm:table-cell">CPC</th>
                     <th className="py-1 pr-2 text-right">Maps</th>
-                    <th className="py-1 text-right">Web</th>
+                    <th className="hidden py-1 text-right sm:table-cell">Web</th>
                   </tr>
                 </thead>
                 <tbody>
                   {market.keywords.slice(0, 15).map((k) => (
                     <tr key={k.keyword} className="border-t border-neutral-100">
-                      <td className="py-1 pr-2">{k.keyword}</td>
+                      <td className="py-1 pr-2 break-words">{k.keyword}</td>
                       <td className="py-1 pr-2 text-right tabular-nums">{num(k.volume)}</td>
-                      <td className="py-1 pr-2 text-right tabular-nums">{k.cpc === null ? '–' : `$${k.cpc.toFixed(2)}`}</td>
-                      <td className="py-1 pr-2 text-right tabular-nums">{k.measured ? (k.mapsRank === null ? 'not in 20' : `#${k.mapsRank}`) : ''}</td>
-                      <td className="py-1 text-right tabular-nums">{k.measured ? (k.organicRank === null ? '–' : `#${k.organicRank}`) : ''}</td>
+                      <td className="hidden py-1 pr-2 text-right tabular-nums sm:table-cell">{k.cpc === null ? '–' : `$${k.cpc.toFixed(2)}`}</td>
+                      <td className="py-1 pr-2 text-right tabular-nums whitespace-nowrap">{k.measured ? (k.mapsRank === null ? 'not in 20' : `#${k.mapsRank}`) : ''}</td>
+                      <td className="hidden py-1 text-right tabular-nums sm:table-cell">{k.measured ? (k.organicRank === null ? '–' : `#${k.organicRank}`) : ''}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -67,35 +69,7 @@ export function AuditDeepBlocks({ results, city, variant = 'admin' }: { results:
 
       {results.competitors !== undefined ? (
         <Block title="You vs the top 3" missing={missingOf(results.competitors)}>
-          {comps ? (
-            <table className="w-full text-sm">
-              <thead className="text-left text-[11px] uppercase tracking-wide text-neutral-500">
-                <tr>
-                  <th className="py-1 pr-2">Business</th>
-                  <th className="py-1 pr-2 text-right">Reviews</th>
-                  <th className="py-1 pr-2 text-right">Photos</th>
-                  <th className="py-1 pr-2 text-right">Booking</th>
-                  {admin ? <th className="py-1 pr-2 text-right">Site keywords</th> : null}
-                  {admin ? <th className="py-1 text-right">Site visits/mo</th> : null}
-                </tr>
-              </thead>
-              <tbody>
-                {comps.items.map((c) => (
-                  <tr key={`${c.rank}-${c.name}`} className={`border-t border-neutral-100 ${c.self ? 'font-semibold text-blue-800' : ''}`}>
-                    <td className="py-1 pr-2">
-                      #{c.rank} {c.name}
-                      {c.self ? ' (you)' : ''}
-                    </td>
-                    <td className="py-1 pr-2 text-right tabular-nums">{num(c.reviews)}{c.rating !== null ? ` · ${c.rating}★` : ''}</td>
-                    <td className="py-1 pr-2 text-right tabular-nums">{num(c.photos)}</td>
-                    <td className="py-1 pr-2 text-right">{yesNo(c.booking)}</td>
-                    {admin ? <td className="py-1 pr-2 text-right tabular-nums">{num(c.organicKeywords)}</td> : null}
-                    {admin ? <td className="py-1 text-right tabular-nums">{c.estTraffic === null ? '–' : num(Math.round(c.estTraffic))}</td> : null}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : null}
+          {comps ? <CompetitorTable items={comps.items} selfLabel="you" detail={admin} /> : null}
         </Block>
       ) : null}
 

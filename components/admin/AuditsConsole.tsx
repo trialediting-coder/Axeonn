@@ -84,9 +84,10 @@ export function AuditsConsole({ initial, clients, openId = null }: { initial: Au
     </label>
   );
 
+  // minmax(0,…) tracks: a wide table inside a card scrolls instead of pushing the page past a phone's edge.
   return (
-    <div className="grid gap-5 lg:grid-cols-[360px_minmax(0,1fr)]">
-      <div className="space-y-4">
+    <div className="grid grid-cols-1 gap-5 lg:grid-cols-[360px_minmax(0,1fr)]">
+      <div className="min-w-0 space-y-4">
         <form onSubmit={run} className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
           <h2 className="font-bold text-neutral-950">Audit a business</h2>
           <div className="mt-3 grid gap-3">
@@ -120,10 +121,12 @@ export function AuditsConsole({ initial, clients, openId = null }: { initial: Au
               const s = summarize(a);
               return (
                 <li key={a.id}>
-                  <button type="button" onClick={() => setOpen(a.id)} className={`w-full px-1 py-2 text-left text-sm hover:bg-neutral-50 ${open === a.id ? 'bg-blue-50' : ''}`}>
-                    <span className="font-semibold text-neutral-900">{a.subject.business}</span>
-                    <span className="text-neutral-500"> · {a.subject.city}</span>
-                    <span className="float-right tabular-nums text-neutral-500">
+                  <button type="button" onClick={() => setOpen(a.id)} className={`flex w-full items-baseline justify-between gap-2 px-1 py-2 text-left text-sm hover:bg-neutral-50 ${open === a.id ? 'bg-blue-50' : ''}`}>
+                    <span className="min-w-0 truncate">
+                      <span className="font-semibold text-neutral-900">{a.subject.business}</span>
+                      <span className="text-neutral-500"> · {a.subject.city}</span>
+                    </span>
+                    <span className="shrink-0 whitespace-nowrap tabular-nums text-neutral-500">
                       {s.found === false ? 'not found' : s.mapsRank !== null ? `#${s.mapsRank}` : '–'} · {when(a.createdAt)}
                     </span>
                   </button>
@@ -135,7 +138,7 @@ export function AuditsConsole({ initial, clients, openId = null }: { initial: Au
         </div>
       </div>
 
-      <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4 shadow-sm">
+      <div className="min-w-0 rounded-xl border border-neutral-200 bg-neutral-50 p-4 shadow-sm">
         {current ? (
           <>
             <div className="mb-3 flex flex-wrap items-center gap-2">
