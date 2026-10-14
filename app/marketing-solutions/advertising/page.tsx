@@ -13,9 +13,9 @@ import { advertisingDetail as d } from '@/data/solutionDetails';
 
 export const metadata = buildMetadata({
   path: '/marketing-solutions/advertising',
-  title: 'Google Ads & Meta Ads Management | Axeon Studio',
+  title: 'Google Ads & Meta Ads Management in Des Moines | Axeon Studio',
   description:
-    'Google Ads and Meta Ads management for local businesses, sent to pages built to get the call, with every call, form, and booking tracked to the customer.',
+    'Google Ads and Meta Ads management for Des Moines businesses, sent to pages built to get the call, with every call, form, and booking tracked to the customer.',
 });
 
 const jsonLd = serviceJsonLd({

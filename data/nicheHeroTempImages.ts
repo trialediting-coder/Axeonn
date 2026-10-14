@@ -18,6 +18,13 @@ export const nicheHeroTempImages: Record<string, string> = {
   'real-estate': '/who-we-help/real-estate-niche.webp',
   landscaping: '/who-we-help/landscaping.webp',
   'auto-detailing': '/who-we-help/auto-detailing.webp',
+  // New trades reuse existing photos (no new downloads): the plumber-at-the-sink
+  // shot for plumbing and electrical, the equipment-on-site shot for concrete,
+  // and the job-site interior for handyman.
+  concrete: '/who-we-help/home-services.jpg',
+  plumbing: '/temp-scorpion-refs/niche-home-services.webp',
+  electrical: '/temp-scorpion-refs/niche-home-services.webp',
+  handyman: '/who-we-help/home-remodeling.webp',
 };
 
 export const defaultNicheHeroTempImage = '/temp-scorpion-refs/niche-home-services.webp';

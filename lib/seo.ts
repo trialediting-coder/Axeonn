@@ -14,7 +14,7 @@ export const WEBSITE_ID = `${SITE_URL}/#website`;
 // Bump when static page content materially changes. Used as the sitemap
 // <lastmod> for static routes so we don't tell Google "everything changed"
 // on every request.
-export const CONTENT_LAST_UPDATED = new Date('2026-10-13T00:00:00Z');
+export const CONTENT_LAST_UPDATED = new Date('2026-10-14T00:00:00Z');
 
 export const BUSINESS = {
   name: 'Axeon Studio',
@@ -212,15 +212,22 @@ export function siteGraphJsonLd() {
   };
 }
 
+/** areaServed for a single-city landing page (e.g. /ankeny-web-design): just that city. */
+export function cityAreaServed(city: string) {
+  return [{ '@type': 'City', name: city, containedInPlace: { '@type': 'State', name: 'Iowa' } }];
+}
+
 interface ServiceArgs {
   path: string;
   serviceType: string;
   name: string;
   description: string;
   category?: string;
+  /** Defaults to the full metro SERVICE_AREA. */
+  areaServed?: ReturnType<typeof cityAreaServed>;
 }
 
-export function serviceJsonLd({ path, serviceType, name, description, category }: ServiceArgs) {
+export function serviceJsonLd({ path, serviceType, name, description, category, areaServed }: ServiceArgs) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Service',
@@ -231,7 +238,7 @@ export function serviceJsonLd({ path, serviceType, name, description, category }
     url: `${SITE_URL}${path}`,
     ...(category ? { category } : {}),
     provider: providerRef,
-    areaServed: SERVICE_AREA,
+    areaServed: areaServed ?? SERVICE_AREA,
   };
 }
 

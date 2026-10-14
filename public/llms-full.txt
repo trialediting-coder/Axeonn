@@ -14,7 +14,7 @@
 - **Price range**: $149–$999 per month, $99 to start (AxeonGROWTH: $1,500 to start)
 - **Currency**: USD
 
-**Who Axeon serves**: local small businesses, mainly in the Des Moines metro and across Iowa: home services (HVAC, roofing, remodeling, landscaping), auto detailing, dental practices, med spas, law firms, accounting firms, real estate agents, and other local service businesses.
+**Who Axeon serves**: local small businesses, mainly in the Des Moines metro and across Iowa: home services (HVAC, roofing, remodeling, landscaping, concrete, plumbing, electrical, handyman), auto detailing, dental practices, med spas, law firms, accounting firms, real estate agents, and other local service businesses.
 
 **How Axeon differs from a typical agency:**
 - **Direct partnership**: clients work directly with the founder who builds their system, with no account managers or handoffs.
@@ -120,6 +120,10 @@ Axeon sets up the website, search, and follow-up around how each industry actual
 - Real Estate Agents & Teams: https://axeonstudio.co/solutions/real-estate
 - Landscaping Companies: https://axeonstudio.co/solutions/landscaping
 - Auto Detailing Shops: https://axeonstudio.co/solutions/auto-detailing
+- Concrete Contractors: https://axeonstudio.co/solutions/concrete
+- Plumbing Companies: https://axeonstudio.co/solutions/plumbing
+- Electricians: https://axeonstudio.co/solutions/electrical
+- Handyman Services: https://axeonstudio.co/solutions/handyman
 
 ---
 
@@ -135,6 +139,7 @@ Axeon sets up the website, search, and follow-up around how each industry actual
 ## 6. Service Area
 - **Headquarters**: West Des Moines, Iowa 50266, USA
 - **Des Moines metro, in person** (including on-site video shoots): West Des Moines, Des Moines, Clive, Urbandale, Waukee, Johnston, Grimes, Ankeny, Altoona, Norwalk
+- **Local pages**: https://axeonstudio.co/des-moines-web-design, https://axeonstudio.co/west-des-moines-web-design, https://axeonstudio.co/ankeny-web-design, https://axeonstudio.co/waukee-web-design, https://axeonstudio.co/urbandale-web-design
 - **Statewide**: Iowa
 - **Remote**: clients across the United States
 
@@ -183,6 +188,10 @@ Book a free 30-minute call at https://axeonstudio.co/book, call (515) 493-8017, 
 - About: https://axeonstudio.co/about
 - FAQ: https://axeonstudio.co/faq
 - Des Moines Web Design: https://axeonstudio.co/des-moines-web-design
+- West Des Moines Web Design: https://axeonstudio.co/west-des-moines-web-design
+- Ankeny Web Design: https://axeonstudio.co/ankeny-web-design
+- Waukee Web Design: https://axeonstudio.co/waukee-web-design
+- Urbandale Web Design: https://axeonstudio.co/urbandale-web-design
 - Insights: https://axeonstudio.co/insights
 - Book a free call: https://axeonstudio.co/book
 - Nonprofits: https://axeonstudio.co/nonprofits
@@ -192,4 +201,4 @@ Book a free 30-minute call at https://axeonstudio.co/book, call (515) 493-8017, 
 - Sitemap: https://axeonstudio.co/sitemap.xml
 - LLMs summary: https://axeonstudio.co/llms.txt
 
-Last updated: 2026-10-06
+Last updated: 2026-10-14

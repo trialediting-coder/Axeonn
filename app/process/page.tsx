@@ -6,9 +6,9 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/process',
-  title: 'Our Website Design & Marketing Process | Axeon Studio',
+  title: 'Web Design Process for Des Moines Businesses | Axeon Studio',
   description:
-    'How we design, launch, and track a website and marketing system that gets you more customers, from the first call through your first 90 days.',
+    'How we design, launch, and track a website and marketing system that gets Des Moines businesses more customers, from the first call through your first 90 days.',
 });
 
 const CASE_STUDY = '/insights/a-1-auto-detailing-website-case-study';

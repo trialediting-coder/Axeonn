@@ -18,6 +18,10 @@ export const nicheVideoMap: Record<string, NicheVideoAsset> = {
   'real-estate': { video: '/videos/industries/real-estate.mp4', poster: '/who-we-help/real-estate.jpg' },
   landscaping: { video: '/videos/industries/home-services.mp4', poster: '/who-we-help/home-services.jpg' },
   'auto-detailing': { video: '/videos/industries/home-services.mp4', poster: '/who-we-help/home-services.jpg' },
+  concrete: { video: '/videos/industries/home-services.mp4', poster: '/who-we-help/home-services.jpg' },
+  plumbing: { video: '/videos/industries/home-services.mp4', poster: '/who-we-help/home-services.jpg' },
+  electrical: { video: '/videos/industries/home-services.mp4', poster: '/who-we-help/home-services.jpg' },
+  handyman: { video: '/videos/industries/home-services.mp4', poster: '/who-we-help/home-services.jpg' },
 };
 
 // Fallback if a niche slug is ever missing from the map above.

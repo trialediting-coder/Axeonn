@@ -14,9 +14,9 @@ import { seoDetail as d } from '@/data/solutionDetails';
 
 export const metadata = buildMetadata({
   path: '/marketing-solutions/seo',
-  title: 'Local SEO & AI Search Services | Axeon Studio',
+  title: 'Local SEO in Des Moines, IA | Axeon Studio',
   description:
-    'Get found on Google and recommended by AI. Local SEO and AI search built into every Axeon Studio site, not sold separately, backed by a 90-day customer guarantee.',
+    'Local SEO in Des Moines: get found on Google, Google Maps, and in AI answers. Built into every Axeon Studio site, not sold separately, backed by a 90-day customer guarantee.',
 });
 
 const jsonLd = serviceJsonLd({

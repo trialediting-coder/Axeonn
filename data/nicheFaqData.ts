@@ -129,4 +129,52 @@ export const nicheFaqData: Record<string, NicheFaqItem[]> = {
         'Yes. Customers choose mobile or in-shop when they book, so every request lands in the right place.',
     },
   ],
+  concrete: [
+    {
+      question: 'Can customers send photos and sizes with their quote request?',
+      answer:
+        'Yes. The quote request asks for the project type, rough size, photos, and whether there is old concrete to tear out, so you know what you are bidding before you drive out.',
+    },
+    {
+      question: 'What happens to bids that go quiet?',
+      answer:
+        'On AxeonCORE, your lead list tracks every bid and automatic follow-up checks in on open quotes, so a driveway or patio job does not go to whoever happened to call back first.',
+    },
+  ],
+  plumbing: [
+    {
+      question: 'What happens with after-hours emergency calls?',
+      answer:
+        'Your intake flags emergencies like leaks and no hot water so urgent jobs go first. On AxeonCORE, missed calls get a text back right away, even late at night, so the homeowner does not move on to the next plumber.',
+    },
+    {
+      question: 'Does it help with bigger jobs like water heater replacements?',
+      answer:
+        'Yes. Quote requests come in with the details and photos you need, and on AxeonCORE your lead list and automatic follow-up keep every water heater and repipe quote moving until it is booked.',
+    },
+  ],
+  electrical: [
+    {
+      question: 'How does this handle service calls versus bigger projects?',
+      answer:
+        'Intake asks what the job is, such as a repair, panel upgrade, or EV charger, and collects photos, so you know which calls are quick fixes and which are worth a site visit.',
+    },
+    {
+      question: 'What about calls that come in while my crew is on a job?',
+      answer:
+        'On AxeonCORE, missed calls get a text back right away and your lead list shows every open quote, so nothing slips while you are working.',
+    },
+  ],
+  handyman: [
+    {
+      question: 'Can customers send their whole list of repairs at once?',
+      answer:
+        'Yes. The request form takes the full list with photos in one place, so you can quote the whole visit instead of piecing it together from texts and voicemails.',
+    },
+    {
+      question: 'Can customers book a time without calling me?',
+      answer:
+        'On AxeonCORE, customers can pick a time online from your real availability, and missed calls get a text back right away while you are on a job.',
+    },
+  ],
 };

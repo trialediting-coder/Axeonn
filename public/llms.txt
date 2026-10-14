@@ -36,13 +36,14 @@ Axeon Studio is a customer-acquisition partner for local small businesses. One s
 - [Lead Capture & Follow-Up](https://axeonstudio.co/marketing-solutions/lead-generation): Every call, form, and chat captured and followed up automatically.
 - [Video & Photography](https://axeonstudio.co/marketing-solutions/video-photography): On-site video and photos for a client's website, ads, and social profiles.
 - [AxeonPROOF](https://axeonstudio.co/axeonproof): Axeon's own client dashboard at app.axeonstudio.co, shown as a live example for a sample business: every call, lead and booked job, where each came from, the analytics cards, and the 90-day guarantee tracking. Every plan gets a sign-in; AxeonCORE switches on the calls, bookings and reviews tabs, AxeonGROWTH adds ads and the AI receptionist.
-- [Industries hub](https://axeonstudio.co/solutions): Set up for 10 local service industries.
-- [Dental Practices](https://axeonstudio.co/solutions/dental), [Med Spas](https://axeonstudio.co/solutions/med-spa), [HVAC](https://axeonstudio.co/solutions/hvac), [Roofing](https://axeonstudio.co/solutions/roofing), [Law Firms](https://axeonstudio.co/solutions/law-firms), [Accounting & CPA Firms](https://axeonstudio.co/solutions/accounting), [Home Remodeling](https://axeonstudio.co/solutions/home-remodeling), [Real Estate](https://axeonstudio.co/solutions/real-estate), [Landscaping](https://axeonstudio.co/solutions/landscaping), [Auto Detailing](https://axeonstudio.co/solutions/auto-detailing)
+- [Industries hub](https://axeonstudio.co/solutions): Set up for 14 local service industries, each with a Des Moines-focused page.
+- [Dental Practices](https://axeonstudio.co/solutions/dental), [Med Spas](https://axeonstudio.co/solutions/med-spa), [HVAC](https://axeonstudio.co/solutions/hvac), [Roofing](https://axeonstudio.co/solutions/roofing), [Law Firms](https://axeonstudio.co/solutions/law-firms), [Accounting & CPA Firms](https://axeonstudio.co/solutions/accounting), [Home Remodeling](https://axeonstudio.co/solutions/home-remodeling), [Real Estate](https://axeonstudio.co/solutions/real-estate), [Landscaping](https://axeonstudio.co/solutions/landscaping), [Auto Detailing](https://axeonstudio.co/solutions/auto-detailing), [Concrete Contractors](https://axeonstudio.co/solutions/concrete), [Plumbing](https://axeonstudio.co/solutions/plumbing), [Electricians](https://axeonstudio.co/solutions/electrical), [Handyman Services](https://axeonstudio.co/solutions/handyman)
 - [Why Axeon](https://axeonstudio.co/why-axeon): A typical agency vs. Axeon, side by side.
 - [Work](https://axeonstudio.co/work): Sites Axeon has built. Real clients: A-1 Auto Detailing and Patrick Finnegan. MSH Realty Group is the founder's own real estate investment group. The remaining projects are self-initiated concept redesigns, labeled "Concept" on that page, and are not client engagements.
 - [Process](https://axeonstudio.co/process): How a build goes from the first call through the first 90 days.
 - [FAQ](https://axeonstudio.co/faq): The guarantee, ownership, contracts, and cost.
 - [Des Moines Web Design](https://axeonstudio.co/des-moines-web-design): Local page for the Des Moines metro.
+- Suburb pages: [West Des Moines Web Design](https://axeonstudio.co/west-des-moines-web-design) (home base), [Ankeny Web Design](https://axeonstudio.co/ankeny-web-design), [Waukee Web Design](https://axeonstudio.co/waukee-web-design), [Urbandale Web Design](https://axeonstudio.co/urbandale-web-design).
 - [About](https://axeonstudio.co/about): Founder Hayder Hatem and how Axeon works.
 - [Iowa Nonprofits](https://axeonstudio.co/nonprofits): The Axeon Groundwork Grant, a free website and search setup for Iowa nonprofits (the nonprofit covers basic hosting).
 - [Partners](https://axeonstudio.co/partners): Referral and collaboration partner program.
@@ -68,4 +69,4 @@ Axeon Studio is a customer-acquisition partner for local small businesses. One s
 - Hours: Monday–Friday, 8:00 AM–6:00 PM Central
 - Turnaround: most sites go live about 4 weeks after the kickoff call (Week 1 kickoff and access, Weeks 2-3 build and preview, Week 4 launch); timing depends on how quickly the client sends content
 - Full detail: https://axeonstudio.co/llms-full.txt
-- Last updated: 2026-10-06
+- Last updated: 2026-10-14

@@ -13,11 +13,11 @@ import { ServiceClosingCta } from '@/components/marketing-solutions/ServiceClosi
 import { leadGenDetail as d } from '@/data/solutionDetails';
 
 const DESCRIPTION =
-  'Lead capture and follow-up for local businesses: every call, form, and chat answered and followed up automatically, so no customer slips away.';
+  'Lead capture and follow-up for Des Moines businesses: every call, form, and chat answered and followed up automatically, so no customer slips away.';
 
 export const metadata = buildMetadata({
   path: '/marketing-solutions/lead-generation',
-  title: 'Lead Capture & Follow-Up Automation | Axeon Studio',
+  title: 'Lead Generation & Follow-Up in Des Moines | Axeon Studio',
   description: DESCRIPTION,
 });
 
