@@ -302,14 +302,27 @@ export function ownerCancelText(input: { business: string | null; when: string; 
 }
 
 const icsTime = (v: string | number) => new Date(v).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
-const icsText = (s: string) => s.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+const icsText = (s: string) => s.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r\n|\r|\n/g, '\\n');
 
-/** RFC 5545 line folding: 75 characters, continuation lines start with a space. */
+/** RFC 5545 line folding: 75 octets of UTF-8, continuation lines start with a space; never splits a character. */
 function fold(line: string): string {
-  if (line.length <= 75) return line;
-  const parts = [line.slice(0, 75)];
-  for (let i = 75; i < line.length; i += 74) parts.push(` ${line.slice(i, i + 74)}`);
-  return parts.join('\r\n');
+  const bytes = (c: string) => new TextEncoder().encode(c).length;
+  const parts: string[] = [];
+  let cur = '';
+  let size = 0;
+  for (const ch of line) {
+    const n = bytes(ch);
+    const limit = parts.length === 0 ? 75 : 74;
+    if (size + n > limit) {
+      parts.push(cur);
+      cur = '';
+      size = 0;
+    }
+    cur += ch;
+    size += n;
+  }
+  parts.push(cur);
+  return parts.map((p, i) => (i === 0 ? p : ` ${p}`)).join('\r\n');
 }
 
 /** A one-event calendar file for the confirmation email. */

@@ -70,10 +70,15 @@ export async function ownerEmailFor(owner: Owner): Promise<string> {
  * lib/leadShared.ts); otherwise, or when the text cannot go, an email.
  */
 export async function alertOwner(owner: Owner, subject: string, body: string, now: Date = new Date()): Promise<void> {
-  const line = await getLine(owner.id);
-  if (line && !isQuietHours(now, line.timeZone)) {
-    const r = await sendOwnerAlert(line, body);
-    if (r.sent) return;
+  try {
+    const line = await getLine(owner.id);
+    if (line && !isQuietHours(now, line.timeZone)) {
+      const r = await sendOwnerAlert(line, body);
+      if (r.sent) return;
+    }
+  } catch (err) {
+    // A Twilio or network failure must not swallow the alert: fall through to the email.
+    console.error('[leadHooks] owner alert text failed; emailing instead', err instanceof Error ? err.message : err);
   }
   await sendOwnerNoticeEmail({ to: await ownerEmailFor(owner), subject, text: body });
 }
