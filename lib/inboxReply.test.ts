@@ -2,7 +2,7 @@
 // Run with: npm run test:inbox. The pure parts of lib/inboxReply.ts: no database, no Twilio.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { HELD_LOOKUP_GIVE_UP_HOURS, HELD_RETRY_MINUTES, HELD_STALE_MINUTES, heldSendFailure, liveSendFailure, processHeldRow, type HeldRowDeps } from './inboxReply';
+import { HELD_LOOKUP_GIVE_UP_HOURS, HELD_STALE_MINUTES, heldSendFailure, liveSendFailure, processHeldRow, type HeldRowDeps } from './inboxReply';
 import type { PhoneLine } from './phoneShared';
 
 test('held reply: a definite Twilio refusal (nothing left) is retried once, then fails', () => {
@@ -35,7 +35,7 @@ test('held reply: a claim older than 10 minutes is stale', () => {
 
 // processHeldRow (ruling S4-R6): fakes for the lookups and the send, no database.
 const LINE = { onboardingId: 7, status: 'active', smsStatus: 'ready', timeZone: 'America/Chicago' } as PhoneLine;
-const ROW = { onboarding_id: 7, contact_id: '42', body: 'On my way at 9', error: null, to_phone: null, created_at: '2026-10-14T12:00:00Z' };
+const ROW = { onboarding_id: 7, contact_id: '42', body: 'On my way at 9', error: null, to_phone: null, send_at: '2026-10-14T12:00:00Z' };
 function deps(now: string, over: Partial<HeldRowDeps> = {}): HeldRowDeps & { sends: string[] } {
   const sends: string[] = [];
   return {
@@ -69,7 +69,7 @@ test('held reply: quiet hours follow the line zone, not the server clock', async
   const d = deps('2026-10-14T14:30:00Z', { getLine: async () => ({ ...LINE, timeZone: 'America/Los_Angeles' }) });
   const out = await processHeldRow(ROW, d);
   assert.equal(out.status, 'requeue');
-  assert.equal(out.status === 'requeue' && out.sendAt, '2026-10-14T15:00:00.000Z');
+  assert.equal(out.status === 'requeue' && out.why === 'quiet' && out.sendAt, '2026-10-14T15:00:00.000Z');
 });
 
 test('held reply: a contact or line lookup that throws puts the row back to held, never failed, and sends nothing', async () => {
@@ -79,7 +79,7 @@ test('held reply: a contact or line lookup that throws puts the row back to held
   ] as Partial<HeldRowDeps>[]) {
     const d = deps('2026-10-14T18:00:00Z', over);
     const out = await processHeldRow(ROW, d);
-    assert.deepEqual(out, { status: 'requeue', sendAt: new Date(Date.parse('2026-10-14T18:00:00Z') + HELD_RETRY_MINUTES * 60_000).toISOString(), why: 'lookup' });
+    assert.deepEqual(out, { status: 'requeue', why: 'lookup' }); // send_at kept: the next tick retries it
     assert.deepEqual(d.sends, []);
   }
 });
@@ -130,13 +130,13 @@ test('held reply: a row with no to_phone (held before the column) keeps going to
   assert.deepEqual(d.sends, ['+15155550199']);
 });
 
-test('held reply: lookups still failing 12 hours after it was typed fail the row with lookup', async () => {
+test('held reply: lookups still failing 12 hours past its send time fail the row with lookup', async () => {
   assert.equal(HELD_LOOKUP_GIVE_UP_HOURS, 12);
   const over = { getLine: async () => { throw new Error('db down'); } } as Partial<HeldRowDeps>;
-  const typed = '2026-10-14T03:00:00Z';
-  const justUnder = deps(new Date(Date.parse(typed) + 12 * 3_600_000 - 60_000).toISOString(), over);
-  assert.equal((await processHeldRow({ ...ROW, created_at: typed }, justUnder)).status, 'requeue');
-  const past = deps(new Date(Date.parse(typed) + 12 * 3_600_000 + 60_000).toISOString(), over);
-  assert.deepEqual(await processHeldRow({ ...ROW, created_at: new Date(typed) }, past), { status: 'failed', error: 'lookup' });
+  const due = '2026-10-14T13:00:00Z'; // 8 am CDT
+  const justUnder = deps(new Date(Date.parse(due) + 12 * 3_600_000 - 60_000).toISOString(), over);
+  assert.equal((await processHeldRow({ ...ROW, send_at: due }, justUnder)).status, 'requeue');
+  const past = deps(new Date(Date.parse(due) + 12 * 3_600_000 + 60_000).toISOString(), over);
+  assert.deepEqual(await processHeldRow({ ...ROW, send_at: new Date(due) }, past), { status: 'failed', error: 'lookup' });
   assert.deepEqual(past.sends, []);
 });

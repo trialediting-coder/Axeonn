@@ -650,16 +650,24 @@ export async function projectCall(callSid: string, opts: { replay?: boolean } = 
 /**
  * A text on the tracked line. Inbound creates the contact; outbound (text-back,
  * manual reply, sequence, reminder, confirmation) only attaches to an existing
- * one. Owner alerts are skipped: they go to the owner, not a lead.
+ * one. Owner alerts are skipped: they go to the owner, not a lead. So is an
+ * inbound text from the client's own forward-to number (the owner answering an
+ * alert): null, nothing written, for the live webhook and the backfill alike.
  */
 export async function projectMessage(messageSid: string, opts: { replay?: boolean } = {}): Promise<UpsertResult | null> {
   if (!isDatabaseConfigured()) return null;
   await ensureSchema();
-  const { rows } = await sql<{ id: DbId; onboarding_id: number; message_sid: string; direction: 'inbound' | 'outbound'; from_number: string; to_number: string; body: string; kind: string; created_at: DbTime }>`
-    SELECT id, onboarding_id, message_sid, direction, from_number, to_number, body, kind, created_at
-    FROM phone_messages WHERE message_sid = ${messageSid} LIMIT 1;`;
+  const { rows } = await sql<{
+    id: DbId; onboarding_id: number; message_sid: string; direction: 'inbound' | 'outbound'; from_number: string; to_number: string; body: string; kind: string; created_at: DbTime;
+    from_owner: boolean;
+  }>`
+    SELECT m.id, m.onboarding_id, m.message_sid, m.direction, m.from_number, m.to_number, m.body, m.kind, m.created_at,
+           (m.direction = 'inbound' AND EXISTS (
+             SELECT 1 FROM phone_lines l WHERE l.onboarding_id = m.onboarding_id AND l.forward_to = m.from_number
+           )) AS from_owner
+    FROM phone_messages m WHERE m.message_sid = ${messageSid} LIMIT 1;`;
   const r = rows[0];
-  if (!r) return null;
+  if (!r || r.from_owner) return null;
   const kind = messageEventKind(r.direction, r.kind);
   if (!kind) return null;
   const inbound = r.direction === 'inbound';
@@ -1026,7 +1034,8 @@ async function copyFormStages(onboardingId: number): Promise<number> {
 export async function backfill(onboardingId: number, opts: { deadline?: number } = {}): Promise<BackfillResult> {
   const deadline = opts.deadline ?? Number.POSITIVE_INFINITY;
   await ensureSchema();
-  // The message kind CASE mirrors messageEventKind (lib/contactsShared.ts); alerts are never projected.
+  // The message kind CASE mirrors messageEventKind (lib/contactsShared.ts); alerts and the owner's own
+  // texts (from the line's forward-to) are never projected, so they are not re-scanned every run.
   const { rows } = await sql<{ src: 'call' | 'message' | 'form'; sid: string | null; id: DbId | null }>`
     SELECT src, sid, id FROM (
       SELECT 'call' AS src, c.call_sid AS sid, NULL::bigint AS id, c.started_at AS at FROM phone_calls c
@@ -1035,6 +1044,9 @@ export async function backfill(onboardingId: number, opts: { deadline?: number }
       UNION ALL
       SELECT 'message', m.message_sid, NULL::bigint, m.created_at FROM phone_messages m
       WHERE m.onboarding_id = ${onboardingId} AND m.kind <> 'alert'
+        AND NOT (m.direction = 'inbound' AND EXISTS (
+          SELECT 1 FROM phone_lines l WHERE l.onboarding_id = m.onboarding_id AND l.forward_to = m.from_number
+        ))
         AND NOT EXISTS (
           SELECT 1 FROM contact_events e WHERE e.ref_table = 'phone_messages' AND e.ref_id = m.id
             AND e.kind = CASE WHEN m.direction = 'inbound' THEN 'text_in' WHEN m.kind = 'sequence' THEN 'sequence'

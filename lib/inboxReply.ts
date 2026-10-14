@@ -22,7 +22,7 @@ const refused = (reason: ReplyRefusal): ReplyResult => ({ status: 'refused', rea
 export const HELD_STALE_MINUTES = 10;
 /** A definite refusal (nothing left) is tried once more this much later. */
 export const HELD_RETRY_MINUTES = 15;
-/** A held row whose lookups keep failing is given up on ('lookup') once it is this old. */
+/** A held row whose lookups keep failing is given up on ('lookup') once its send time is this far past. */
 export const HELD_LOOKUP_GIVE_UP_HOURS = 12;
 /** One tick stops starting new sends after this, well inside the route's 60 s. */
 const SEND_BUDGET_MS = 45_000;
@@ -101,20 +101,22 @@ type ClaimedRow = {
   error: string | null;
   /** The number shown when the reply was typed; NULL on rows held before the column existed. */
   to_phone: string | null;
-  created_at: Date | string;
+  /** When it is due; a lookup failure leaves it as it is, so the give-up counts from here. */
+  send_at: Date | string;
 };
 
 /**
  * What one claimed row becomes. 'held' is a definite refusal put back for one
  * retry (HELD_RETRY_MINUTES); 'requeue' puts the row back untouched (its error
- * kept) at sendAt: quiet hours came back (the 8 am time) or the lookups before
- * the send failed (nothing was attempted, so it is retried) until the row is
- * HELD_LOOKUP_GIVE_UP_HOURS old, when it fails with 'lookup'.
+ * kept): for quiet hours at sendAt (the next 8 am); for a lookup failure with
+ * send_at left as it is (nothing was attempted, so the next cron tick retries
+ * it) until send_at is HELD_LOOKUP_GIVE_UP_HOURS past, when it fails 'lookup'.
  */
 export type HeldOutcome =
   | { status: 'sent' }
   | { status: 'held' | 'failed'; error: string; threw?: true }
-  | { status: 'requeue'; sendAt: string; why: 'quiet' | 'lookup' };
+  | { status: 'requeue'; sendAt: string; why: 'quiet' }
+  | { status: 'requeue'; why: 'lookup' };
 
 export interface HeldRowDeps {
   getContact: (onboardingId: number, contactId: number) => Promise<Pick<Contact, 'phone'> | null>;
@@ -128,24 +130,24 @@ const liveDeps: HeldRowDeps = { getContact, getLine, sendClientSms, now: () => n
 /**
  * One claimed held reply, decided and (when it may) sent. The contact and line
  * lookups sit in their own try: a lookup that throws means nothing was sent, so
- * the row goes back to held (HELD_RETRY_MINUTES later) instead of failing,
- * unless it was typed HELD_LOOKUP_GIVE_UP_HOURS ago ('lookup' failure). The
+ * the row goes back to held (send_at unchanged, retried on the next tick)
+ * instead of failing, until its send_at is HELD_LOOKUP_GIVE_UP_HOURS past
+ * ('lookup' failure). The
  * text goes to to_phone, the number shown when it was typed: if the contact no
  * longer has that phone it fails 'number_changed' (a NULL to_phone, an older
  * row, goes to the contact's current phone). Quiet hours are checked again right before the send, in the line's zone (a
  * zone changed overnight, a row claimed late): if quiet, the row is re-held to
  * the next 8 am. Only a throw from the send itself goes through heldSendFailure.
  */
-export async function processHeldRow(r: Pick<ClaimedRow, 'onboarding_id' | 'contact_id' | 'body' | 'error' | 'to_phone' | 'created_at'>, deps: HeldRowDeps = liveDeps): Promise<HeldOutcome> {
+export async function processHeldRow(r: Pick<ClaimedRow, 'onboarding_id' | 'contact_id' | 'body' | 'error' | 'to_phone' | 'send_at'>, deps: HeldRowDeps = liveDeps): Promise<HeldOutcome> {
   const onboardingId = Number(r.onboarding_id);
   let contact: Pick<Contact, 'phone'> | null;
   let line: PhoneLine | null;
   try {
     [contact, line] = await Promise.all([deps.getContact(onboardingId, Number(r.contact_id)), deps.getLine(onboardingId)]);
   } catch {
-    const at = deps.now().getTime();
-    if (at - new Date(r.created_at).getTime() > HELD_LOOKUP_GIVE_UP_HOURS * 3_600_000) return { status: 'failed', error: 'lookup' };
-    return { status: 'requeue', sendAt: new Date(at + HELD_RETRY_MINUTES * 60_000).toISOString(), why: 'lookup' };
+    if (deps.now().getTime() - new Date(r.send_at).getTime() > HELD_LOOKUP_GIVE_UP_HOURS * 3_600_000) return { status: 'failed', error: 'lookup' };
+    return { status: 'requeue', why: 'lookup' };
   }
   if (r.to_phone !== null && contact?.phone !== r.to_phone) return { status: 'failed', error: 'number_changed' };
   const to = r.to_phone ?? contact?.phone;
@@ -172,7 +174,7 @@ export async function processHeldRow(r: Pick<ClaimedRow, 'onboarding_id' | 'cont
  * inside sendClientSms: someone who texted STOP overnight is not texted, and a
  * line whose carrier approval lapsed sends nothing. Each row goes through
  * processHeldRow: quiet hours are checked again (re-held to 8 am), and a failed
- * lookup puts the row back to held until it is HELD_LOOKUP_GIVE_UP_HOURS old.
+ * lookup puts the row back to held until its send_at is HELD_LOOKUP_GIVE_UP_HOURS past.
  * Logs carry the row id only.
  */
 export async function sendDueHeldReplies(limit = 40): Promise<{ sent: number; failed: number; interrupted: number }> {
@@ -189,7 +191,7 @@ export async function sendDueHeldReplies(limit = 40): Promise<{ sent: number; fa
       ORDER BY send_at, id LIMIT ${limit}
       FOR UPDATE SKIP LOCKED
     )
-    RETURNING id, onboarding_id, contact_id, body, error, to_phone, created_at;`;
+    RETURNING id, onboarding_id, contact_id, body, error, to_phone, send_at;`;
   let sent = 0;
   let failed = 0;
   let released = 0;
@@ -214,11 +216,14 @@ export async function sendDueHeldReplies(limit = 40): Promise<{ sent: number; fa
     try {
       if (outcome.status === 'sent') {
         await sql`UPDATE held_replies SET status = 'sent', sent_at = now(), error = NULL WHERE id = ${id} AND status = 'sending';`;
-      } else if (outcome.status === 'requeue') {
+      } else if (outcome.status === 'requeue' && outcome.why === 'quiet') {
         // Nothing was attempted: back to held, error untouched (the retry-once rule still applies to a later send).
         await sql`
           UPDATE held_replies SET status = 'held', claimed_at = NULL, send_at = ${outcome.sendAt}
           WHERE id = ${id} AND status = 'sending';`;
+      } else if (outcome.status === 'requeue') {
+        // A lookup failed: back to held with send_at kept (still due, so the next tick retries; the give-up counts from it).
+        await sql`UPDATE held_replies SET status = 'held', claimed_at = NULL WHERE id = ${id} AND status = 'sending';`;
       } else if (outcome.status === 'held') {
         await sql`
           UPDATE held_replies SET status = 'held', claimed_at = NULL, error = ${outcome.error},

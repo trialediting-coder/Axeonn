@@ -39,6 +39,7 @@ export async function POST(req: Request) {
         status: 'received',
       });
       const messageSid = p.MessageSid;
+      // projectMessage makes the same check (the backfill too); skipping here also skips the alert.
       const fromOwner = from !== 'unknown' && from === normalizePhone(line.forwardTo);
       if (!fromOwner) {
         // Awaited (Task 10 reads the result) but never more than 2 seconds (S4-R5). One that loses
