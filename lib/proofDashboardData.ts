@@ -15,7 +15,7 @@ import { businessEmailForDashboard } from '@/lib/businessEmail';
 import { callsSummary, getLine, recentCalls } from '@/lib/phoneLines';
 import { DEFAULT_TIME_ZONE, toDashboardCall, type CallsSummary, type DashboardCall } from '@/lib/phoneShared';
 import { attachedClickIds, contactTimeline, listInbox } from '@/lib/contacts';
-import { inboxEnabled, textingState, type DashboardInbox } from '@/lib/contactsShared';
+import { inboxEnabled, textingState, unmatchedTaps, type DashboardInbox } from '@/lib/contactsShared';
 import { isPushConfigured } from '@/lib/push';
 import { listSubmissions } from '@/lib/leads';
 import { toDashboardSubmission } from '@/lib/leadShared';
@@ -116,8 +116,8 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
           return { ...list, selected, timeZone: line?.timeZone ?? DEFAULT_TIME_ZONE, texting: textingState(line) };
         })()
       : null;
-  // Taps already matched to a caller live in the inbox; the anonymous list keeps the rest.
-  const attached = inboxOn && tab === 'leads' ? await attachedClickIds(onboarding.id, [...thisLeads, ...lastLeads].map((r) => r.id)) : new Set<number>();
+  // Taps already matched to a caller live in the inbox; the anonymous list keeps the rest (ids are BIGSERIAL strings at runtime: unmatchedTaps compares numbers).
+  const attached = inboxOn && tab === 'leads' ? await attachedClickIds(onboarding.id, [...thisLeads, ...lastLeads].map((r) => Number(r.id))) : new Set<number>();
   // The VAPID public key (lib/push.ts), only when push is set up and the plan has the inbox.
   const pushKey = inboxOn && isPushConfigured() ? (process.env.WEB_PUSH_PUBLIC_KEY ?? null) : null;
   return {
@@ -137,8 +137,8 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
     ownVisitsUrl: ownVisitsUrl(tracking.siteUrl),
     // Live from the events table, not the saved report, so a lead shows up the day it happens.
     leads: [
-      { month, label: `${monthLabel(month)} so far`, rows: thisLeads.filter((r) => !attached.has(r.id)) },
-      { month: previous, label: monthLabel(previous), rows: lastLeads.filter((r) => !attached.has(r.id)) },
+      { month, label: `${monthLabel(month)} so far`, rows: unmatchedTaps(thisLeads, attached) },
+      { month: previous, label: monthLabel(previous), rows: unmatchedTaps(lastLeads, attached) },
     ],
     // Website form messages (slice 2), pre-masked: no raw phone, email or message reaches the page.
     forms: [

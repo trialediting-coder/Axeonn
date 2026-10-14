@@ -6,7 +6,7 @@ import {
   canReplyNow, cleanName, contactKeyFor, decodeCursor, encodeCursor, eventSummary, inboxEnabled, isLeadActivity, maskEmail,
   mergeDecision, messageEventKind, nextSystemStage, noteForAction, outcomeForStage, parseContactId, quietNotice, relativeWhen,
   replyBlocker, sequenceEffects, shortName, sourceForKind, systemStageFor, textingState, toDashboardContact, toDashboardEvent,
-  validateReplyBody, heldReplyStatus, QUIET_WINDOW, type Contact, type ContactEvent,
+  validateReplyBody, heldReplyStatus, unmatchedTaps, QUIET_WINDOW, type Contact, type ContactEvent,
 } from './contactsShared';
 import { LEAD_ACTIONS, STAGE_EFFECTS } from './sequenceShared';
 
@@ -258,4 +258,10 @@ test('heldReplyStatus: an interrupted or unclear send reads "may have gone out",
   assert.equal(heldReplyStatus('failed', 'Twilio 21610'), 'failed');
   assert.equal(heldReplyStatus('failed', 'no_phone'), 'failed');
   assert.equal(heldReplyStatus('failed', null), 'failed');
+});
+
+test('unmatchedTaps: BIGSERIAL ids arrive as strings and still match the attached set', () => {
+  const rows = [{ id: '11' }, { id: '12' }, { id: 13 }] as Array<{ id: number | string }>;
+  assert.deepEqual(unmatchedTaps(rows, new Set([11, 13])), [{ id: '12' }]);
+  assert.deepEqual(unmatchedTaps(rows, new Set()), rows);
 });

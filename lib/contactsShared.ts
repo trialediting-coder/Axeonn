@@ -432,6 +432,14 @@ export interface HeldReply {
   status: 'held' | 'failed' | 'unclear';
 }
 
+/**
+ * The tracker taps not yet matched to a caller. site_events.id is BIGSERIAL and
+ * arrives as a string at runtime, so ids are compared as numbers.
+ */
+export function unmatchedTaps<T extends { id: number | string }>(rows: T[], attached: ReadonlySet<number>): T[] {
+  return rows.filter((r) => !attached.has(Number(r.id)));
+}
+
 /** A held_replies row's status and error as the Leads tab shows it (lib/inboxReply.ts writes 'interrupted' and 'unclear: …'). */
 export function heldReplyStatus(status: string, error: string | null): HeldReply['status'] {
   if (status !== 'failed') return 'held';

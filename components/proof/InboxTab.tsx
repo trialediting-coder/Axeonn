@@ -373,7 +373,9 @@ function ContactView({ view, api, stageApi, timeZone, texting }: { view: Dashboa
             <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ring-1 ${h.status === 'failed' ? 'bg-red-50 text-red-900 ring-red-200' : 'bg-amber-50 text-amber-950 ring-amber-200'}`}>
               <p className="whitespace-pre-wrap break-words">{h.body}</p>
               {/* An interrupted or unclear send may have left (lib/inboxReply.ts), so it never reads "did not go out". */}
-              <p className="mt-1 text-[11px]">{h.status === 'held' ? quietNotice(h.sendAt, timeZone, true) : HELD_REPLY_COPY[h.status]}</p>
+              <p className="mt-1 text-[11px]" suppressHydrationWarning>
+                {h.status !== 'held' ? HELD_REPLY_COPY[h.status] : Date.parse(h.sendAt) <= Date.now() ? 'Sending now…' : quietNotice(h.sendAt, timeZone, true)}
+              </p>
             </div>
           </li>
         ))}

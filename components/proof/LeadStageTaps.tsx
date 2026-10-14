@@ -45,7 +45,7 @@ export function LeadStageTaps({
     try {
       const res = await fetch(api, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(target === 'contact' ? { contactId: id, action } : { id, action }) });
       const data = (await res.json().catch(() => ({}))) as { error?: string; warning?: string; started?: SequenceKind[] };
-      if (!res.ok) throw new Error(data.error ?? `Request failed (${res.status})`);
+      if (!res.ok) throw new Error(data.error ?? 'Could not save that. Try again.');
       const started = data.started ?? [];
       // A warning means the stage saved but the follow-up did not start; say so in the server's plain words.
       if (data.warning) setProblem(data.warning);
