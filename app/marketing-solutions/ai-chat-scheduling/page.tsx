@@ -15,11 +15,11 @@ import { ServiceClosingCta } from '@/components/marketing-solutions/ServiceClosi
 import { aiChatDetail as d } from '@/data/solutionDetails';
 
 const DESCRIPTION =
-  'AI chat and online scheduling that answers visitors 24/7 and books qualified leads onto your calendar. Included in AxeonCORE.';
+  'AI chat and online scheduling for Des Moines businesses: answers visitors 24/7 and books qualified leads onto your calendar. Included in AxeonCORE.';
 
 export const metadata = buildMetadata({
   path: '/marketing-solutions/ai-chat-scheduling',
-  title: 'AI Chat & Online Scheduling | Axeon Studio',
+  title: 'AI Chat & Online Scheduling in Des Moines | Axeon Studio',
   description: DESCRIPTION,
 });
 

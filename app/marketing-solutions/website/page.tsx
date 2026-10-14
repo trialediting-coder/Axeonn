@@ -13,11 +13,11 @@ import { ServiceClosingCta } from '@/components/marketing-solutions/ServiceClosi
 import { websiteDetail as d } from '@/data/solutionDetails';
 
 const DESCRIPTION =
-  'A website built to win the comparison and turn searches into calls. Part of AxeonCORE, backed by a 90-day customer guarantee.';
+  'Website design and development in Des Moines, built to win the comparison and turn searches into calls. Backed by a 90-day customer guarantee.';
 
 export const metadata = buildMetadata({
   path: '/marketing-solutions/website',
-  title: 'Website Design & Development | Axeon Studio',
+  title: 'Website Design & Development in Des Moines | Axeon Studio',
   description: DESCRIPTION,
 });
 

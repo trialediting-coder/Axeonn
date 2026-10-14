@@ -16,8 +16,9 @@ const DESCRIPTION =
 
 export const metadata = buildMetadata({
   path: '/marketing-solutions/video-photography',
-  title: 'Video & Photography | Axeon Studio',
-  description: DESCRIPTION,
+  title: 'Business Video & Photography in Des Moines | Axeon Studio',
+  description:
+    'On-site business video and photography in Des Moines: real footage of your team and your work, the thing that makes a customer pick you over the stock-photo site next to you.',
 });
 
 const jsonLd = serviceJsonLd({

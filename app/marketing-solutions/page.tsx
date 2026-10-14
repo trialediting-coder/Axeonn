@@ -10,9 +10,9 @@ import { ServiceClosingCta } from '@/components/marketing-solutions/ServiceClosi
 
 export const metadata = buildMetadata({
   path: '/marketing-solutions',
-  title: 'Marketing Services That Get You More Customers | Axeon Studio',
+  title: 'Des Moines Marketing Services: SEO, Ads & Websites | Axeon Studio',
   description:
-    'SEO, ads, websites, AI chat, and lead follow-up in one system that gets local businesses found, chosen, and booked. Backed by a 90-day guarantee.',
+    'SEO, ads, websites, AI chat, and lead follow-up in one system that gets Des Moines businesses found, chosen, and booked. Backed by a 90-day guarantee.',
 });
 
 const marketingSolutionsJsonLd = {

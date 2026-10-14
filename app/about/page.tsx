@@ -5,7 +5,7 @@ import { FOUNDER_ID, ORG_ID, SITE_URL } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   path: '/about',
-  title: 'About Axeon Studio | More Customers for Iowa Businesses',
+  title: 'About Axeon Studio | West Des Moines Marketing Company',
   description:
     'Founded by Hayder Hatem in West Des Moines, Axeon gets Iowa businesses more calls and customers, backed by a 90-day customer guarantee. Work directly with the founder.',
 });
