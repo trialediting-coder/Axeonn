@@ -7,6 +7,7 @@ import { lineForNumber, recordCall, sendTextBack } from '@/lib/phoneLines';
 import { afterDialTwiml, emptyTwiml, TWIML_HEADERS } from '@/lib/phoneTwiml';
 import { callOutcome, callerKey, normalizePhone } from '@/lib/phoneShared';
 import { getOnboardingById } from '@/lib/onboarding';
+import { startMissedCallFollowUp, stopRunsFor } from '@/lib/sequences';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -45,7 +46,17 @@ export async function POST(req: Request) {
   } catch (err) {
     return fail('[phone/status] recordCall', err);
   }
-  if (outcome === 'answered') return twiml(emptyTwiml());
+  if (outcome === 'answered') {
+    // They got through: the new-lead and quote follow-ups have done their job. Never changes the TwiML.
+    if (from !== 'unknown') {
+      try {
+        await stopRunsFor(line.onboardingId, { phone: from, kinds: ['new_lead', 'quote'] }, 'answered');
+      } catch (err) {
+        console.error('[phone/status] stopRunsFor', err instanceof Error ? err.message : err);
+      }
+    }
+    return twiml(emptyTwiml());
+  }
 
   // The call row is saved; a text-back problem must not make Twilio retry the whole webhook.
   let textedBack = false;
@@ -55,6 +66,14 @@ export async function POST(req: Request) {
       textedBack = await sendTextBack(line, onboarding?.businessName ?? null, from, p.CallSid);
     } catch (err) {
       console.error('[phone/status] sendTextBack', err instanceof Error ? err.message : err);
+    }
+  }
+  // A missed caller who has not replied in 30 minutes gets the new-lead follow-up (the wait lives in the engine).
+  if (from !== 'unknown') {
+    try {
+      await startMissedCallFollowUp(line.onboardingId, p.CallSid, from, textedBack);
+    } catch (err) {
+      console.error('[phone/status] follow-up not started', err instanceof Error ? err.message : err);
     }
   }
   return twiml(afterDialTwiml({ textedBack }));

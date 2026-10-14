@@ -12,6 +12,7 @@ import { sendClientLeadAlert } from '@/lib/email';
 import { getLine, sendOwnerAlert, startConnectCall } from '@/lib/phoneLines';
 import { REPORT_TIME_ZONE, isValidMonth } from '@/lib/siteStats';
 import { normalizePhone } from '@/lib/phoneShared';
+import { startLeadFollowUp } from '@/lib/sequences';
 import { DUPLICATE_WINDOW_MINUTES, isRecentDuplicate, leadAlertText, planLeadDelivery, type DeliveryReport, type FormSubmission, type LeadInput } from '@/lib/leadShared';
 import type { Onboarding } from '@/lib/onboarding';
 
@@ -254,6 +255,16 @@ export async function deliverLead(owner: LeadOwner, lead: FormSubmission, opts: 
     } catch (err) {
       console.error('[lead] call connect', lead.id, errText(err));
       connect = 'failed';
+    }
+  }
+
+  // Follow-up texts and emails: only if the client's new-lead sequence is on. Admin test leads never start one.
+  if (!opts.test && !lead.isTest) {
+    try {
+      const started = await startLeadFollowUp(owner.id, lead);
+      if (!started.started && started.reason !== 'disabled') console.info('[lead] follow-up not started', lead.id, started.reason);
+    } catch (err) {
+      console.error('[lead] follow-up not started', lead.id, errText(err));
     }
   }
 

@@ -10,6 +10,7 @@ import { getSubmission } from '@/lib/leads';
 import { connectLeadNoAnswerTwiml, emptyTwiml, hangupTwiml, TWIML_HEADERS } from '@/lib/phoneTwiml';
 import { callOutcome, normalizePhone } from '@/lib/phoneShared';
 import { parseId } from '@/lib/leadShared';
+import { stopRunsFor } from '@/lib/sequences';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -43,6 +44,14 @@ export async function POST(req: Request) {
           direction: 'connect',
           leadId,
         });
+        // The owner reached the lead: the new-lead and quote follow-ups stop. Logged, never a TwiML failure.
+        if (outcome === 'answered') {
+          try {
+            await stopRunsFor(line.onboardingId, { phone: lead.phone, kinds: ['new_lead', 'quote'] }, 'answered');
+          } catch (err) {
+            console.error('[phone/connect/status] stopRunsFor', leadId, err instanceof Error ? err.message : err);
+          }
+        }
       }
       // The owner is still on the line: tell them the lead did not pick up before hanging up.
       return twiml(outcome === 'missed' ? connectLeadNoAnswerTwiml() : hangupTwiml());
