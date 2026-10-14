@@ -1,4 +1,5 @@
 // recordingStatusCallback: the recording is ready. Attach it to the call.
+import { after } from 'next/server';
 import { readTwilioRequest } from '@/lib/phoneWebhook';
 import { attachRecording } from '@/lib/phoneLines';
 import { projectCall } from '@/lib/contacts';
@@ -20,8 +21,9 @@ export async function POST(req: Request) {
       console.error('[phone/recording]', err instanceof Error ? err.message : err);
       return new Response(null, { status: 500 });
     }
-    // The inbox's play button appears once the event knows a recording exists. No URL is copied.
-    await projectCall(p.CallSid).catch((err) => console.error('[phone/recording] inbox', p.CallSid, redactDigits(errText(err))));
+    // The inbox's play button appears once the event knows a recording exists. No URL is copied. After the response (S4-R5).
+    const callSid = p.CallSid;
+    after(() => projectCall(callSid).then(() => undefined, (err) => console.error('[phone/recording] inbox', callSid, redactDigits(errText(err)))));
   }
   return new Response(null, { status: 204 });
 }

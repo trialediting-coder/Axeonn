@@ -2,6 +2,7 @@
 // This is where a call becomes a row and a missed call becomes a text. Twilio
 // retries on a failure, so recordCall is an upsert and sendTextBack claims the
 // call atomically and checks the 24-hour window before sending.
+import { after } from 'next/server';
 import { readTwilioRequest } from '@/lib/phoneWebhook';
 import { lineForNumber, recordCall, sendTextBack } from '@/lib/phoneLines';
 import { afterDialTwiml, emptyTwiml, TWIML_HEADERS } from '@/lib/phoneTwiml';
@@ -11,6 +12,7 @@ import { startMissedCallFollowUp, stopRunsFor } from '@/lib/sequences';
 import { projectCall } from '@/lib/contacts';
 import { errText } from '@/lib/dbRows';
 import { redactDigits } from '@/lib/sequenceSchedule';
+import { withTimeout } from '@/lib/timeout';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -51,11 +53,17 @@ export async function POST(req: Request) {
   }
   // Into the leads inbox before any text-back, so a brand-new caller is created as a
   // caller (and matched to a tap on the site's call button) rather than as a texter.
-  // An answered call moves the contact to Contacted. Never fails the webhook.
-  await projectCall(p.CallSid).catch((err) => {
-    console.error('[phone/status] inbox', p.CallSid, redactDigits(errText(err)));
-    return null;
-  });
+  // An answered call moves the contact to Contacted. Never fails the webhook, and never
+  // holds the TwiML more than 2 seconds (S4-R5): a slow database finishes in the background.
+  const callSid = p.CallSid;
+  await withTimeout(
+    projectCall(callSid).catch((err) => {
+      console.error('[phone/status] inbox', callSid, redactDigits(errText(err)));
+      return null;
+    }),
+    2000,
+    () => console.error('[phone/status] inbox slow, not waited for', callSid),
+  );
   if (outcome === 'answered') {
     // They got through: the new-lead and quote follow-ups have done their job. Never changes the TwiML.
     if (from !== 'unknown') {
@@ -78,9 +86,9 @@ export async function POST(req: Request) {
       console.error('[phone/status] sendTextBack', err instanceof Error ? err.message : err);
     }
   }
-  // Refresh the inbox line to "missed, texted back".
+  // Refresh the inbox line to "missed, texted back", after the response.
   if (textedBack) {
-    await projectCall(p.CallSid).catch((err) => console.error('[phone/status] inbox', p.CallSid, redactDigits(errText(err))));
+    after(() => projectCall(callSid).then(() => undefined, (err) => console.error('[phone/status] inbox', callSid, redactDigits(errText(err)))));
   }
   // A missed caller who has not replied in 30 minutes gets the new-lead follow-up (the wait lives in the engine).
   if (from !== 'unknown') {

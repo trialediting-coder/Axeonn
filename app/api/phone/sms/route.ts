@@ -11,6 +11,7 @@ import { stopRunsFor } from '@/lib/sequences';
 import { projectMessage } from '@/lib/contacts';
 import { errText } from '@/lib/dbRows';
 import { redactDigits } from '@/lib/sequenceSchedule';
+import { withTimeout } from '@/lib/timeout';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -33,10 +34,16 @@ export async function POST(req: Request) {
         kind: 'inbound',
         status: 'received',
       });
-      await projectMessage(p.MessageSid).catch((err) => {
-        console.error('[phone/sms] inbox', p.MessageSid, redactDigits(errText(err)));
-        return null;
-      });
+      // Awaited (Task 10 reads the result) but never more than 2 seconds (S4-R5).
+      const messageSid = p.MessageSid;
+      await withTimeout(
+        projectMessage(messageSid).catch((err) => {
+          console.error('[phone/sms] inbox', messageSid, redactDigits(errText(err)));
+          return null;
+        }),
+        2000,
+        () => console.error('[phone/sms] inbox slow, not waited for', messageSid),
+      );
       if (from !== 'unknown') {
         if (isStopWord(p.Body)) await markOptedOut(line.onboardingId, from);
         if (isStartWord(p.Body)) await clearOptOut(line.onboardingId, from);

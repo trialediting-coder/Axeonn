@@ -4,6 +4,7 @@
 // The call's own status callback (CallStatus) when the owner's leg ends. The
 // row was written when the call started (startConnectCall); these update it.
 // The recording arrives at /api/phone/recording under the same CallSid.
+import { after } from 'next/server';
 import { readTwilioRequest } from '@/lib/phoneWebhook';
 import { lineForNumber, markConnectEnded, recordCall } from '@/lib/phoneLines';
 import { getSubmission } from '@/lib/leads';
@@ -47,8 +48,9 @@ export async function POST(req: Request) {
           direction: 'connect',
           leadId,
         });
-        // Into the leads inbox: the call joins the form's contact (its from_number is the lead's phone); answered moves it to Contacted.
-        await projectCall(p.CallSid).catch((err) => console.error('[phone/connect/status] inbox', leadId, redactDigits(errText(err))));
+        // Into the leads inbox, after the response (S4-R5): the call joins the form's contact (its from_number is the lead's phone); answered moves it to Contacted.
+        const callSid = p.CallSid;
+        after(() => projectCall(callSid).then(() => undefined, (err) => console.error('[phone/connect/status] inbox', leadId, redactDigits(errText(err)))));
         // The owner reached the lead: the new-lead and quote follow-ups stop. Logged, never a TwiML failure.
         if (outcome === 'answered') {
           try {
