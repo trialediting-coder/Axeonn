@@ -34,7 +34,7 @@ export interface SequenceTemplateView extends SequenceTemplate {
   updatedAt: string | null;
 }
 
-export type StopReason = 'replied' | 'answered' | 'opted_out' | 'stage' | 'template_off' | 'missing_link' | 'plan' | 'failed' | 'cancelled';
+export type StopReason = 'replied' | 'answered' | 'opted_out' | 'stage' | 'template_off' | 'missing_link' | 'plan' | 'failed' | 'cancelled' | 'template_changed' | 'bad_number';
 
 export const SEQUENCE_LABELS: Record<SequenceKind, { title: string; trigger: string }> = {
   new_lead: { title: 'New lead follow-up', trigger: 'A form comes in, or a missed caller has not replied in 30 minutes' },

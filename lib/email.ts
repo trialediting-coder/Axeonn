@@ -22,10 +22,11 @@ const FROM_ADDRESS = process.env.RESEND_FROM_EMAIL || 'Axeon Insights <insights@
 
 type SendPayload = Parameters<Resend['emails']['send']>[0];
 type SendResult = Awaited<ReturnType<Resend['emails']['send']>>;
+type SendOptions = Parameters<Resend['emails']['send']>[1];
 
 /** The one Resend call we make, with every send written to the admin email log (lib/emailLog.ts). */
 interface Mailer {
-  emails: { send(payload: SendPayload): Promise<SendResult> };
+  emails: { send(payload: SendPayload, options?: SendOptions): Promise<SendResult> };
 }
 
 function getClient(kind: EmailKind): Mailer | null {
@@ -33,10 +34,10 @@ function getClient(kind: EmailKind): Mailer | null {
   const resend = new Resend(process.env.RESEND_API_KEY);
   return {
     emails: {
-      async send(payload) {
+      async send(payload, options) {
         let result: SendResult;
         try {
-          result = await resend.emails.send(payload);
+          result = await resend.emails.send(payload, options);
         } catch (err) {
           await recordEmail({ kind, to: payload.to, subject: payload.subject, error: err instanceof Error ? err.message : String(err) });
           throw err;
@@ -1301,6 +1302,8 @@ export async function sendSequenceEmail(input: {
   to: string;
   subject: string;
   body: string;
+  /** Resend's Idempotency-Key: a retried send with the same key is not delivered twice (lib/sequences.ts: seq-<run>-<step>). */
+  idempotencyKey?: string;
 }): Promise<{ id: string | null; skipped?: 'opted_out' }> {
   if (await isEmailOptedOut(input.onboardingId, input.to)) return { id: null, skipped: 'opted_out' };
   const unsubscribe = unsubscribeUrl(input.onboardingId, input.to);
@@ -1314,7 +1317,7 @@ export async function sendSequenceEmail(input: {
     html: sequenceEmailHtml(input.body, input.businessName, unsubscribe),
     text: sequenceEmailText(input.body, unsubscribe),
     headers: { 'List-Unsubscribe': `<${unsubscribe}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' },
-  });
+  }, input.idempotencyKey ? { idempotencyKey: input.idempotencyKey } : undefined);
   if (error) throw new Error(`Resend rejected the email: ${error.message}`);
   return { id: data?.id ?? null };
 }

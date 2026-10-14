@@ -29,6 +29,8 @@ export const MISSED_CALL_WAIT_MINUTES = 30;
 /** Resend's default rate limit: emails go 2 at a time, starts 600 ms apart, whatever the run concurrency. */
 export const EMAIL_SEND_CONCURRENCY = 2;
 export const EMAIL_GAP_MS = 600;
+/** A send is not started with less than this left of the tick's time budget; the run goes back for the next tick. */
+export const SEND_MIN_REMAINING_MS = 8_000;
 const REACTIVATION_BATCH = 500;
 const DEFAULT_BUDGET_MS = 45_000;
 
@@ -64,6 +66,8 @@ export interface SequenceRun {
   attempts: number;
   /** Texts of this run that went out; > 0 is decideRun's priorSmsSent. */
   smsSentCount: number;
+  /** The template's updated_at when the run started; a later edit stops the run ('template_changed'). */
+  templateUpdatedAt: string | null;
   createdAt: string;
 }
 
@@ -71,7 +75,8 @@ export type StartResult =
   | { started: true; runId: number }
   | { started: false; reason: 'plan' | 'disabled' | 'no_contact' | 'opted_out' | 'missing_link' | 'already_active' | 'no_steps' | 'duplicate' };
 
-export type RunOutcome = 'sent' | 'held' | 'done' | 'stopped' | 'failed' | 'skipped';
+/** 'released': not started because the tick's time budget ran short; it is due again at once. */
+export type RunOutcome = 'sent' | 'held' | 'done' | 'stopped' | 'failed' | 'skipped' | 'released';
 
 export interface ProcessCounts {
   picked: number;
@@ -148,7 +153,7 @@ export async function saveSequenceSettings(onboardingId: number, s: SequenceSett
 interface ClientContext {
   onboarding: Onboarding | null;
   line: PhoneLine | null;
-  templates: Map<SequenceKind, SequenceTemplate>;
+  templates: Map<SequenceKind, SequenceTemplateView>;
   settings: SequenceSettings;
   timeZone: string;
 }
@@ -209,6 +214,7 @@ interface RunRow {
   stop_reason: string | null;
   attempts: number;
   sms_sent_count: number;
+  template_updated_at: DbTime | null;
   created_at: DbTime;
 }
 
@@ -228,6 +234,7 @@ const toRun = (r: RunRow): SequenceRun => ({
   stopReason: r.stop_reason,
   attempts: r.attempts,
   smsSentCount: Number(r.sms_sent_count ?? 0),
+  templateUpdatedAt: r.template_updated_at ? iso(r.template_updated_at) : null,
   createdAt: iso(r.created_at),
 });
 
@@ -288,8 +295,8 @@ export async function startRun(
   if (!plan) return no('no_steps');
   const name = (contact.name ?? '').trim().slice(0, 80);
   const { rows } = await sql<{ id: DbId }>`
-    INSERT INTO sequence_runs (onboarding_id, kind, contact_phone, contact_email, contact_name, ref_table, ref_id, step, anchor_at, next_at)
-    VALUES (${onboardingId}, ${kind}, ${phone}, ${email}, ${name}, ${ref.table}, ${ref.id}, ${plan.step}, ${anchorAt.toISOString()}, ${plan.at.toISOString()})
+    INSERT INTO sequence_runs (onboarding_id, kind, contact_phone, contact_email, contact_name, ref_table, ref_id, step, anchor_at, next_at, template_updated_at)
+    VALUES (${onboardingId}, ${kind}, ${phone}, ${email}, ${name}, ${ref.table}, ${ref.id}, ${plan.step}, ${anchorAt.toISOString()}, ${plan.at.toISOString()}, ${template.updatedAt})
     ON CONFLICT DO NOTHING
     RETURNING id;
   `;
@@ -432,16 +439,24 @@ type SendDecision = Extract<RunDecision, { type: 'send' }>;
  * itself (nothing went out) puts the step back, and only while the run is still
  * active: a run stopped meanwhile (a tap, the template turned off) stays stopped.
  */
-async function claimAndSend(run: SequenceRun, c: ClientContext, d: SendDecision): Promise<RunOutcome> {
+async function claimAndSend(run: SequenceRun, c: ClientContext, d: SendDecision, deadline: number | undefined): Promise<RunOutcome> {
   const claimedStep = d.next ? d.next.step : d.step + 1;
   const smsDelta = d.channel === 'sms' ? 1 : 0;
+  // Checked here, after any wait for the email gate: no send starts that the tick may not live to finish booking.
+  if (deadline !== undefined && deadline - Date.now() < SEND_MIN_REMAINING_MS) {
+    try {
+      await sql`UPDATE sequence_runs SET next_at = now(), updated_at = now() WHERE id = ${run.id} AND status = 'active' AND step = ${run.step};`;
+    } catch (err) {
+      console.error('sequences: run not released (its lease ends in 10 minutes)', run.id, errText(err));
+    }
+    return 'released';
+  }
   try {
     const claim = await sql`
       UPDATE sequence_runs
       SET step = ${claimedStep},
           next_at = now() + make_interval(mins => ${LEASE_MINUTES}),
           sent_count = sent_count + 1,
-          sms_sent_count = sms_sent_count + ${smsDelta},
           updated_at = now()
       WHERE id = ${run.id} AND status = 'active' AND step = ${run.step}
       RETURNING id;
@@ -469,6 +484,8 @@ async function claimAndSend(run: SequenceRun, c: ClientContext, d: SendDecision)
         to: d.to,
         subject: d.subject ?? '',
         body: d.body,
+        // A Resend timeout that did deliver, then a retry of this step, must not land twice.
+        idempotencyKey: `seq-${run.id}-${claimedStep}`,
       });
       if (r.skipped) refusal = 'email_opted_out';
     }
@@ -483,7 +500,6 @@ async function claimAndSend(run: SequenceRun, c: ClientContext, d: SendDecision)
             attempts = attempts + 1,
             last_error = ${message},
             sent_count = sent_count - 1,
-            sms_sent_count = sms_sent_count - ${smsDelta},
             status = CASE WHEN attempts + 1 >= ${MAX_ATTEMPTS} THEN 'stopped' ELSE 'active' END,
             stop_reason = CASE WHEN attempts + 1 >= ${MAX_ATTEMPTS} THEN 'failed' ELSE stop_reason END,
             next_at = now() + make_interval(mins => ${RETRY_MINUTES}),
@@ -499,19 +515,28 @@ async function claimAndSend(run: SequenceRun, c: ClientContext, d: SendDecision)
   // Bookkeeping after the send. A failure here must never read as "not sent" (that would resend).
   try {
     if (!refusal) {
-      if (d.next) await sql`UPDATE sequence_runs SET next_at = ${d.next.at.toISOString()}, updated_at = now() WHERE id = ${run.id} AND status = 'active' AND step = ${claimedStep};`;
-      else await finishRun(run.id);
+      // Only a text that really left counts towards priorSmsSent; the claim never touches sms_sent_count.
+      await sql`
+        UPDATE sequence_runs
+        SET sms_sent_count = sms_sent_count + ${smsDelta},
+            status = ${d.next ? 'active' : 'done'},
+            next_at = ${(d.next ? d.next.at : new Date()).toISOString()},
+            updated_at = now()
+        WHERE id = ${run.id} AND status = 'active' AND step = ${claimedStep};
+      `;
       return 'sent';
     }
     // Refused: nothing went out, so the counters come back down and the reason is kept on the run.
-    const stop = refusal === 'opted_out' || (refusal === 'email_opted_out' && !run.contactPhone);
+    // A number that cannot take texts will not take the next one either.
+    const stopReason: StopReason | null =
+      refusal === 'opted_out' || (refusal === 'email_opted_out' && !run.contactPhone) ? 'opted_out' : refusal === 'bad_number' ? 'bad_number' : null;
+    const stop = stopReason !== null;
     await sql`
       UPDATE sequence_runs
       SET last_error = ${`${d.channel} step ${d.step + 1} not sent: ${refusal}`},
           sent_count = sent_count - 1,
-          sms_sent_count = sms_sent_count - ${smsDelta},
           status = ${stop ? 'stopped' : d.next ? 'active' : 'done'},
-          stop_reason = ${stop ? 'opted_out' : null},
+          stop_reason = ${stopReason},
           next_at = ${(d.next ? d.next.at : new Date()).toISOString()},
           updated_at = now()
       WHERE id = ${run.id} AND status = 'active' AND step = ${claimedStep};
@@ -525,7 +550,12 @@ async function claimAndSend(run: SequenceRun, c: ClientContext, d: SendDecision)
 }
 
 /** One leased run: decide, then stop, finish, hold, or claim the step and send it. Never throws. */
-export async function advanceRun(run: SequenceRun, now: Date = new Date(), cache: ContextCache = new Map()): Promise<RunOutcome> {
+export async function advanceRun(
+  run: SequenceRun,
+  now: Date = new Date(),
+  cache: ContextCache = new Map(),
+  opts: { deadline?: number } = {}
+): Promise<RunOutcome> {
   let c: ClientContext;
   let d: RunDecision;
   try {
@@ -539,6 +569,12 @@ export async function advanceRun(run: SequenceRun, now: Date = new Date(), cache
     ]);
     if (emailOptedOut && !run.contactPhone) {
       await stopRun(run.id, 'opted_out');
+      return 'stopped';
+    }
+    // The template was edited after this run started: stop it rather than send a mix of old and new steps. New leads get the new one.
+    const current = c.templates.get(run.kind);
+    if (run.templateUpdatedAt && current?.updatedAt && current.updatedAt !== run.templateUpdatedAt) {
+      await stopRun(run.id, 'template_changed');
       return 'stopped';
     }
     d = decideRun(
@@ -582,7 +618,7 @@ export async function advanceRun(run: SequenceRun, now: Date = new Date(), cache
   }
   const send = d;
   const ctx = c;
-  return send.channel === 'email' ? emailGate(() => claimAndSend(run, ctx, send)) : claimAndSend(run, ctx, send);
+  return send.channel === 'email' ? emailGate(() => claimAndSend(run, ctx, send, opts.deadline)) : claimAndSend(run, ctx, send, opts.deadline);
 }
 
 /**
@@ -606,14 +642,17 @@ export async function processDueRuns(opts: { now?: Date; limit?: number; deadlin
     const batch = runs.slice(i, i + SEND_CONCURRENCY);
     const outcomes = await Promise.all(
       batch.map((run) =>
-        advanceRun(run, opts.now ?? new Date(), cache).catch(async (err): Promise<RunOutcome> => {
+        advanceRun(run, opts.now ?? new Date(), cache, { deadline }).catch(async (err): Promise<RunOutcome> => {
           // advanceRun does not throw; this is the last net, and it still counts the attempt.
           await recordFailure(run.id, err);
           return 'failed';
         })
       )
     );
-    for (const o of outcomes) counts[o] += 1;
+    for (const o of outcomes) {
+      if (o === 'released') counts.leftover += 1;
+      else counts[o] += 1;
+    }
   }
   return counts;
 }
@@ -627,13 +666,13 @@ export async function processDueRuns(opts: { now?: Date; limit?: number; deadlin
  */
 export async function kickOffReactivation(now: Date = new Date(), deadline: number = Date.now() + 10_000): Promise<{ clients: number; runs: number }> {
   await ensureSchema();
-  const { rows: clients } = await sql<{ onboarding_id: number }>`
-    SELECT t.onboarding_id FROM sequence_templates t JOIN onboardings o ON o.id = t.onboarding_id
+  const { rows: clients } = await sql<{ onboarding_id: number; updated_at: DbTime }>`
+    SELECT t.onboarding_id, t.updated_at FROM sequence_templates t JOIN onboardings o ON o.id = t.onboarding_id
     WHERE t.kind = 'reactivation' AND t.enabled AND o.tier <> 'essentials' AND o.status <> 'closed';
   `;
   let started = 0;
   let made = 0;
-  for (const { onboarding_id: onboardingId } of clients) {
+  for (const { onboarding_id: onboardingId, updated_at: templateUpdatedAt } of clients) {
     if (Date.now() > deadline) break;
     const line = await getLine(onboardingId);
     if (!smsReady(line)) continue;
@@ -667,8 +706,8 @@ export async function kickOffReactivation(now: Date = new Date(), deadline: numb
       const phones = customers.map((r) => r.phone);
       const names = customers.map((r) => r.name);
       const { rows: inserted } = await sql`
-        INSERT INTO sequence_runs (onboarding_id, kind, contact_phone, contact_name, ref_table, ref_id, step, anchor_at, next_at)
-        SELECT ${onboardingId}::int, 'reactivation', u.phone, u.name, ${refTable}::text, u.id, 0, u.at, u.at
+        INSERT INTO sequence_runs (onboarding_id, kind, contact_phone, contact_name, ref_table, ref_id, step, anchor_at, next_at, template_updated_at)
+        SELECT ${onboardingId}::int, 'reactivation', u.phone, u.name, ${refTable}::text, u.id, 0, u.at, u.at, ${iso(templateUpdatedAt)}::timestamptz
         FROM unnest(
           ${ids as unknown as string}::bigint[],
           ${phones as unknown as string}::text[],

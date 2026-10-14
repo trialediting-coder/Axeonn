@@ -4,7 +4,7 @@
 // needs no lookup table: base64url("<onboardingId>:<email>") + "." +
 // base64url(HMAC-SHA256(secret, "<onboardingId>:<email>")), with the same secret
 // /api/lead hashes IPs with. A tap lands in email_opt_outs for that client only.
-// Emails only: a texted STOP still stops texts only (lib/phoneLines.ts).
+// Emails only. A texted STOP is separate (lib/phoneLines.ts) and stops the whole run.
 // Server-only (node:crypto).
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { ensureSchema, sql } from '@/lib/db';

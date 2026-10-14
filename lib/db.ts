@@ -584,6 +584,8 @@ export function ensureSchema(): Promise<void> {
       await sql`ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS stage TEXT NOT NULL DEFAULT 'new' CHECK (stage IN ('new', 'contacted', 'booked', 'won', 'lost'));`;
       await sql`ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS quote_sent_at TIMESTAMPTZ;`;
       await sql`ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS stage_changed_at TIMESTAMPTZ;`;
+      // The template's updated_at when a run started: an edited template stops older runs ('template_changed').
+      await sql`ALTER TABLE sequence_runs ADD COLUMN IF NOT EXISTS template_updated_at TIMESTAMPTZ;`;
     })().catch((err) => {
       schemaReady = null; // let the next request retry
       throw err;
