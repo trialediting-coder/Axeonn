@@ -52,7 +52,7 @@ export async function sendPush(accountId: number, msg: PushMessage): Promise<num
         // Defence in depth: never post to a host that is not a browser push service, even if a row got in.
         if (!isKnownPushEndpoint(s.endpoint)) return 0;
         try {
-          await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, payload, { TTL: 3600, urgency: 'high' });
+          await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, payload, { TTL: 3600, urgency: 'high', timeout: 8000 });
           return 1;
         } catch (err) {
           const status = (err as { statusCode?: number }).statusCode;

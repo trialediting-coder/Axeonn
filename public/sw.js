@@ -3,6 +3,20 @@
 // one is tapped. Payloads carry only a title, one line and a PROOF path
 // (lib/pushShared.ts), never a phone number or a message. No caching and no
 // fetch handler: PROOF is always live data, so nothing authenticated is stored.
+const BACKSLASH = String.fromCharCode(92);
+const FALLBACK = '/proof?tab=leads';
+
+// A same-origin path or the fallback. Rejects backslashes and anything that resolves off this origin.
+function safePath(raw) {
+  if (typeof raw !== 'string' || raw.includes(BACKSLASH) || !raw.startsWith('/') || raw.startsWith('//')) return FALLBACK;
+  try {
+    const u = new URL(raw, self.location.origin);
+    return u.origin === self.location.origin ? u.pathname + u.search + u.hash : FALLBACK;
+  } catch {
+    return FALLBACK;
+  }
+}
+
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
 
@@ -16,7 +30,7 @@ self.addEventListener('push', (event) => {
   const title = typeof data.title === 'string' ? data.title : 'New lead activity';
   const body = typeof data.body === 'string' ? data.body : 'Open AxeonPROOF to see it.';
   // Only a path on this site: never an outside link.
-  const url = typeof data.url === 'string' && /^\/(?!\/)/.test(data.url) ? data.url : '/';
+  const url = safePath(data.url);
   event.waitUntil(
     self.registration.showNotification(title, { body, icon: '/icon.png', badge: '/icon.png', tag: url, renotify: true, data: { url } }),
   );
@@ -24,15 +38,15 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const url = new URL((event.notification.data && event.notification.data.url) || '/', self.location.origin).href;
+  const url = new URL(safePath(event.notification.data && event.notification.data.url), self.location.origin).href;
   event.waitUntil(
     (async () => {
       const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-      for (const w of windows) {
-        if ('focus' in w) {
-          await w.navigate(url).catch(() => undefined); // an uncontrolled window cannot be navigated; focusing it is enough
-          return w.focus();
-        }
+      const sameOrigin = windows.filter((w) => 'focus' in w && new URL(w.url).origin === self.location.origin);
+      const target = sameOrigin.find((w) => new URL(w.url).pathname.startsWith('/proof')) || sameOrigin[0];
+      if (target) {
+        await target.navigate(url).catch(() => undefined); // an uncontrolled window cannot be navigated; focusing it is enough
+        return target.focus();
       }
       return self.clients.openWindow(url);
     })(),
