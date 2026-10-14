@@ -965,6 +965,84 @@ console for the first month.
     "a real person" with a number: expect the handoff alert.
 11. **Cost:** check the day's Anthropic usage and note the cost per conversation in the pricing notes.
 
+## Facebook and Instagram (messages: AxeonCORE and AxeonGROWTH; reels: AxeonGROWTH only)
+
+Built 2026-10 (slice 6 of `docs/superpowers/specs/2026-10-12-proof-lead-system-design.md`).
+UNVERIFIED until Meta App Review approves the permissions; the owner's checklist is
+`docs/meta-go-live.md`. Until then customer-facing copy says Facebook and Instagram
+messages are "coming soon" (`content/brand-guardrails.md`).
+
+| Piece | Where |
+| --- | --- |
+| Sealing page tokens (AES-256-GCM, `SECRETS_KEY`) | `lib/secretBox.ts` |
+| Webhook parsing, 24-hour window, reply limits, captions, redaction, connect notices | `lib/metaShared.ts` |
+| Graph API client (v21.0, every call cut off after 10 s), signatures, login state, `signed_request` | `lib/meta.ts` |
+| Connected pages (sealed tokens), deletion, deletion receipts | `lib/metaPages.ts` |
+| Webhook read + handshake | `lib/metaWebhook.ts`, `app/api/meta/webhook` |
+| DMs into the inbox, replies out | `lib/metaInbox.ts`, slice 4's `/api/proof/inbox/<contactId>/reply` |
+| Connect flow | portal item `meta-connect`, `app/api/meta/{connect,callback}` |
+| Admin cards | `components/insights/MetaPanel.tsx`, `components/insights/SocialPanel.tsx` |
+| Reels | `lib/socialShared.ts`, `lib/social.ts`, `/api/admin/onboarding/<token>/social{,/upload}`, `app/api/cron/social` (hourly, at :05) |
+| Meta's required callbacks | `lib/metaCallbacks.ts`, `app/api/meta/{deauthorize,data-deletion}`, `/meta/deletion` |
+| Tables | `meta_pages`, `meta_messages`, `social_posts`, `meta_deletions`; `contacts.messenger_psid` / `instagram_id` |
+| Tests | `npm run test:meta` |
+
+Every Meta route answers 503 until `META_APP_ID`, `META_APP_SECRET`, `META_VERIFY_TOKEN`
+and `SECRETS_KEY` are all set.
+
+**Connecting.** The client presses "Connect Facebook" on their setup page, or the admin
+presses "Connect with Facebook" on the client's admin page with the client on the phone.
+The portal step is hidden until `META_PORTAL_LIVE=1`, and it is optional (S6-R13): it never
+counts toward setup progress, never blocks "setup complete" and never reopens a finished
+client or sends a nudge. Facebook asks which pages to share; each page granted is stored
+with its long-lived page token sealed, its linked Instagram account if any, and is
+subscribed to our webhook. A page already connected to another client is refused. The
+person lands back with `?meta=connected`; if some pages saved but the rest failed (for
+example Facebook would not subscribe them), it is `?meta=partial` and a page that was
+stored but not subscribed is marked `needs_reconnect` on the admin card. The other results
+are `no-pages`, `cancelled` and `error`.
+
+**Messages.** Meta posts every DM to `/api/meta/webhook`. The signature
+(`X-Hub-Signature-256`) is checked on the raw bytes before parsing, bodies over 1 MB are
+refused, the reply is an immediate 200, and the work happens after it. Each message is
+stored once (Meta's message id is the key, so a repeat delivery is dropped), filed under a
+contact keyed by the person's page-scoped id, shown on the timeline as "Facebook message" /
+"Instagram message", and the client is alerted like a text (slice 4's push-first alert). A
+message that fails to record is retried once; if it fails again it is logged as
+`[meta:inbound] LOST` with its ids (never a token) so it can be found in the logs. Messages
+to an Essentials client are dropped (no inbox). The client's reply goes back through
+Facebook only within 24 hours of the person's last message; after that the reply box says
+so and offers a text when we have their number. Replies are capped at 2,000 characters on
+Messenger and 1,000 bytes (UTF-8) on Instagram. If Facebook refuses for a token or
+permission reason, the box says the page needs reconnecting (an expired token also marks
+the page `needs_reconnect`) and never suggests texting instead.
+
+**Reels (AxeonGROWTH).** On the admin Reels card: upload the video (MP4 or MOV, up to
+300 MB; the browser uploads straight to Vercel Blob with `@vercel/blob` 2.8.0, which needs
+`BLOB_READ_WRITE_TOKEN`), write the caption (Instagram's 2,200 characters and 30 hashtags
+are checked as you type), tick Instagram and/or Facebook, and pick a time within 60 days.
+The hourly cron posts up to five due reels a run. Instagram works through a container: the
+cron creates it, checks it once per run (it never waits inside one) and publishes when it
+is FINISHED. Facebook is one `/videos` call. A post gets three tries. The cron refreshes
+Instagram reach and views (`reach,views`; Meta retired `plays` in April 2025, and the
+stored column is still named `plays`) about once a day for 90 days, 25 posts a run. The
+client sees posted reels with reach on their PROOF Ads tab ("Reels we posted for you").
+
+**Disconnecting and deletion.** The admin card's Disconnect stops the page's webhooks and
+deletes its token; messages already received stay in the inbox. If someone removes the
+Axeon app in Facebook (deauthorize) or asks Facebook to delete their data, Meta POSTs a
+`signed_request` (HMAC-SHA256 under `META_APP_SECRET`, checked in constant time; anything
+malformed is a 400 that touches nothing). We then delete, under that exact Meta user id
+only: the pages they connected and their sealed tokens, any DMs stored with that id as the
+sender or recipient and their timeline lines, and that id on any contact (a contact with
+nothing else to identify it is deleted). The data-deletion callback answers Meta with
+`{ url, confirmation_code }`. The code is 96 random bits stored only as a hash, and
+`axeonstudio.co/meta/deletion?code=…` shows the date and how many pages were removed.
+Nothing logs the `signed_request`, the user id or a token. Note: Meta signs the
+app-scoped id of the person who logged in to Axeon (a business owner), while DMs are
+stored under page-scoped ids, so in practice the callback removes pages; a customer who
+wants their messages removed emails us (privacy policy, section 5).
+
 ## Environment variables
 
 | Variable | Purpose |
@@ -977,7 +1055,7 @@ console for the first month.
 | `ONBOARDING_COOKIE_SECRET` | Optional. Falls back to `AUTH_SECRET`. |
 | `POSTGRES_URL` | Required. Tables are created on first use. |
 | `AIRTABLE_TOKEN` | Airtable personal access token for the Clients mirror and website leads. |
-| `CRON_SECRET` | Required for the daily nudge job, the monthly reports, the blog crons and the 15-minute follow-up cron (`/api/cron/sequences`, which needs Vercel Pro). |
+| `CRON_SECRET` | Required for the daily nudge job, the monthly reports, the blog crons, the hourly reels cron (`/api/cron/social`) and the 15-minute follow-up cron (`/api/cron/sequences`, which needs Vercel Pro). |
 | `TRACKING_SALT` | Optional. Salts the visitor hash for site tracking and signs the email unsubscribe links; falls back to `AUTH_SECRET`. |
 | `ADMIN_EMAIL` | Where lead and "client finished" alerts go. |
 | `TWILIO_ACCOUNT_SID` | Twilio master account SID; signs the REST calls for the tracked phone numbers. |
@@ -986,11 +1064,18 @@ console for the first month.
 | `WEB_PUSH_PUBLIC_KEY` | VAPID public key for lead notifications (`npx web-push generate-vapid-keys`). |
 | `WEB_PUSH_PRIVATE_KEY` | VAPID private key. Never pasted anywhere but Vercel. |
 | `WEB_PUSH_SUBJECT` | Optional. Contact for the push services. Default `mailto:hello@axeonstudio.co`. |
+| `META_APP_ID` | Axeon's Meta app id. With the next two and `SECRETS_KEY`, turns slice 6 on; without any of them every Meta route answers 503. |
+| `META_APP_SECRET` | Checks Meta's webhook signatures and the deauthorize / data-deletion `signed_request`, signs the login state, and makes appsecret_proof. Never pasted anywhere but Vercel. |
+| `META_VERIFY_TOKEN` | Any long random string; the same value goes in the Meta app's Webhooks settings. |
+| `SECRETS_KEY` | 32 random bytes, base64 (`openssl rand -base64 32`). Seals page tokens (AES-256-GCM). Never rotate once pages are connected. |
+| `META_LOGIN_CONFIG_ID` | Optional. The "Facebook Login for Business" configuration id; when set, the login dialog uses it instead of a scope list. |
+| `META_PORTAL_LIVE` | Set to `1` after Meta App Review approves; shows the optional "Connect Facebook" step in CORE and GROWTH portals. |
+| `BLOB_READ_WRITE_TOKEN` | Created by Vercel when a Blob store is connected; reels uploads (the upload route answers 503 without it). |
 
 ## Not built yet
 
-- File upload for photos and logo (needs Vercel Blob). Today the client texts or
-  emails them and taps "Sent them".
+- File upload for photos and logo. Vercel Blob is connected now (slice 6 reels), but
+  this upload is not built: today the client texts or emails them and taps "Sent them".
 - Prefill from the client's existing Google listing. Today prefill is limited to
   what Stripe knows: business name, contact, email, phone.
 

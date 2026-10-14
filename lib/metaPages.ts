@@ -118,14 +118,61 @@ export async function markNeedsReconnect(pageId: string, error: string): Promise
   await sql`UPDATE meta_pages SET status = 'needs_reconnect', last_error = ${secretRedact(error).slice(0, 300)}, updated_at = now() WHERE page_id = ${pageId};`;
 }
 
-/** Deauthorize and data-deletion callbacks: forget every page the person connected. Returns how many. */
+/** Forgets every page the person connected (the first step of forgetMetaUser). Returns how many. */
 export async function removePagesForUser(fbUserId: string): Promise<number> {
   await ensureSchema();
   const res = await sql`DELETE FROM meta_pages WHERE fb_user_id = ${fbUserId};`;
   return res.rowCount ?? 0;
 }
 
-/** Stores the outcome of a data-deletion request under a random code Meta shows the person. No Facebook id is kept. */
+export interface MetaForgetResult {
+  /** Connected pages (and their sealed tokens) the person authorised. */
+  pagesRemoved: number;
+  /** Messenger / Instagram messages stored with this id as the other party. */
+  messagesRemoved: number;
+  /** Contacts whose only identity was this id: deleted with their timeline. */
+  contactsRemoved: number;
+  /** Contacts that also have a phone, email or the other Meta id: this id is cleared, the rest stays. */
+  contactsCleared: number;
+}
+
+/**
+ * Meta's deauthorize and data-deletion callbacks. Everything Axeon holds under
+ * the exact id Meta signed goes: the pages that person connected (with their
+ * sealed tokens), any DMs stored with that id as the sender or recipient and
+ * their timeline lines, and that id on any contact (a contact with nothing else
+ * to identify it is deleted). Rows under any other id, and every other client's
+ * data, are not touched. Idempotent: a repeat call finds nothing.
+ */
+export async function forgetMetaUser(metaUserId: string): Promise<MetaForgetResult> {
+  if (!metaUserId) return { pagesRemoved: 0, messagesRemoved: 0, contactsRemoved: 0, contactsCleared: 0 };
+  const pagesRemoved = await removePagesForUser(metaUserId);
+  await sql`
+    DELETE FROM contact_events
+    WHERE ref_table = 'meta_messages'
+      AND ref_id IN (SELECT id FROM meta_messages WHERE person_id = ${metaUserId});`;
+  const messages = await sql`DELETE FROM meta_messages WHERE person_id = ${metaUserId};`;
+  // Only this id identifies them: delete the contact (contact_events cascade).
+  const removed = await sql`
+    DELETE FROM contacts
+    WHERE (messenger_psid = ${metaUserId} OR instagram_id = ${metaUserId})
+      AND phone IS NULL AND email IS NULL
+      AND (messenger_psid IS NULL OR messenger_psid = ${metaUserId})
+      AND (instagram_id IS NULL OR instagram_id = ${metaUserId});`;
+  // Still identified by a phone, email or the other Meta id: clear just this id.
+  const cleared = await sql`
+    UPDATE contacts SET
+      messenger_psid = NULLIF(messenger_psid, ${metaUserId}),
+      instagram_id = NULLIF(instagram_id, ${metaUserId})
+    WHERE messenger_psid = ${metaUserId} OR instagram_id = ${metaUserId};`;
+  return { pagesRemoved, messagesRemoved: messages.rowCount ?? 0, contactsRemoved: removed.rowCount ?? 0, contactsCleared: cleared.rowCount ?? 0 };
+}
+
+/**
+ * Stores the outcome of a data-deletion request under a random code Meta shows
+ * the person: 12 random bytes (96 bits, 16 base64url characters), kept only as
+ * a SHA-256 hash, so a guessed code finds nothing. No Facebook id is kept.
+ */
 export async function recordDeletion(removed: number): Promise<string> {
   await ensureSchema();
   const code = randomBytes(12).toString('base64url');

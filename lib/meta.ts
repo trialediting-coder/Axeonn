@@ -423,20 +423,29 @@ export async function mediaInsights(mediaId: string, pageToken: string, f: Fetch
   return { reach: pick('reach'), plays: pick('views') };
 }
 
+/** A signed_request longer than this is refused before any work (Meta's are a few hundred characters). */
+export const SIGNED_REQUEST_MAX = 8192;
+/** One base64url segment, optional "=" padding. Buffer.from(…, 'base64url') skips stray characters, so check first. */
+const SIGNED_PART = /^[A-Za-z0-9_-]+={0,2}$/;
+
 /**
  * Meta's deauthorize and data-deletion callbacks POST a form field
  * signed_request = base64url(HMAC-SHA256(payload, app secret)) + "." + base64url(JSON payload).
+ * Fails closed: no secret, a malformed segment, a wrong signature (compared in
+ * constant time), an algorithm other than HMAC-SHA256 or a missing user_id all
+ * return null. Never log the input.
  */
 export function parseSignedRequest(signed: string | null, secret: string = appSecret()): { userId: string } | null {
-  if (!signed || !secret) return null;
+  if (!signed || !secret || signed.length > SIGNED_REQUEST_MAX) return null;
   const [sig, payload, extra] = signed.split('.');
-  if (!sig || !payload || extra !== undefined) return null;
+  if (!sig || !payload || extra !== undefined || !SIGNED_PART.test(sig) || !SIGNED_PART.test(payload)) return null;
   const given = Buffer.from(sig, 'base64url');
   const expected = createHmac('sha256', secret).update(payload).digest();
   if (given.length !== expected.length || !timingSafeEqual(given, expected)) return null;
   try {
-    const data = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as { algorithm?: string; user_id?: unknown };
-    if (data.algorithm?.toUpperCase() !== 'HMAC-SHA256' || typeof data.user_id !== 'string' || !data.user_id) return null;
+    const data = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as { algorithm?: unknown; user_id?: unknown } | null;
+    if (!data || typeof data.algorithm !== 'string' || data.algorithm.toUpperCase() !== 'HMAC-SHA256') return null;
+    if (typeof data.user_id !== 'string' || !/^\d{1,32}$/.test(data.user_id)) return null;
     return { userId: data.user_id };
   } catch {
     return null;

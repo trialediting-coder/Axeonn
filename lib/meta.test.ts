@@ -5,6 +5,7 @@
 // refactor cannot change a scheme silently.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { createHmac } from 'node:crypto';
 import {
   META_SCOPES,
   MetaApiError,
@@ -19,6 +20,7 @@ import {
   metaSendFailure,
   oauthUrl,
   parseSignedRequest,
+  SIGNED_REQUEST_MAX,
   sendMessage,
   signState,
   verifySignature,
@@ -209,6 +211,51 @@ test('parseSignedRequest checks the HMAC and returns the user id', () => {
   assert.equal(parseSignedRequest(`${sig}.${payload}x`, SECRET), null);
   assert.equal(parseSignedRequest('garbage', SECRET), null);
   assert.equal(parseSignedRequest(null, SECRET), null);
+});
+
+/** A signed_request built the way Meta documents it, for the edge cases below. */
+function signRequest(payload: unknown, secret: string = SECRET): string {
+  const body = Buffer.from(typeof payload === 'string' ? payload : JSON.stringify(payload)).toString('base64url');
+  return `${createHmac('sha256', secret).update(body).digest('base64url')}.${body}`;
+}
+
+test('parseSignedRequest matches the pinned sample when rebuilt from its parts', () => {
+  const payload = { algorithm: 'HMAC-SHA256', issued_at: 1760000000, user_id: '1234567890' };
+  assert.equal(signRequest(payload), SIGNED_REQUEST);
+});
+
+test('parseSignedRequest fails closed on every malformed or unsafe input', () => {
+  const good = { algorithm: 'HMAC-SHA256', issued_at: 1760000000, user_id: '1234567890' };
+  const [sig, payload] = SIGNED_REQUEST.split('.');
+  // No secret configured: nothing verifies, not even a request signed with "".
+  assert.equal(parseSignedRequest(signRequest(good, ''), ''), null);
+  // Shape: empty halves, extra segment, stray characters Buffer.from would quietly skip.
+  for (const bad of ['', '.', `${sig}.`, `.${payload}`, `${SIGNED_REQUEST}.x`, `${sig}!.${payload}`, `${sig} .${payload}`, `${sig}.${payload}*`]) {
+    assert.equal(parseSignedRequest(bad, SECRET), null, JSON.stringify(bad));
+  }
+  // A truncated or extended signature, or the signature of a different payload.
+  assert.equal(parseSignedRequest(`${sig.slice(0, -2)}.${payload}`, SECRET), null);
+  assert.equal(parseSignedRequest(`${sig}AA.${payload}`, SECRET), null);
+  const other = signRequest({ ...good, user_id: '999' }).split('.')[0];
+  assert.equal(parseSignedRequest(`${other}.${payload}`, SECRET), null);
+  // Signed correctly but the content is not what Meta sends.
+  assert.equal(parseSignedRequest(signRequest({ ...good, algorithm: 'none' }), SECRET), null);
+  assert.equal(parseSignedRequest(signRequest({ ...good, algorithm: 5 }), SECRET), null);
+  assert.equal(parseSignedRequest(signRequest({ algorithm: 'HMAC-SHA256' }), SECRET), null);
+  assert.equal(parseSignedRequest(signRequest({ ...good, user_id: 1234567890 }), SECRET), null);
+  assert.equal(parseSignedRequest(signRequest({ ...good, user_id: '' }), SECRET), null);
+  assert.equal(parseSignedRequest(signRequest({ ...good, user_id: "1' OR '1'='1" }), SECRET), null);
+  assert.equal(parseSignedRequest(signRequest('null'), SECRET), null);
+  assert.equal(parseSignedRequest(signRequest('not json'), SECRET), null);
+  // Oversized input is refused before any HMAC work.
+  assert.equal(parseSignedRequest(`${sig}.${'A'.repeat(SIGNED_REQUEST_MAX)}`, SECRET), null);
+});
+
+test('parseSignedRequest accepts a lower-case algorithm and padded segments', () => {
+  assert.deepEqual(parseSignedRequest(signRequest({ algorithm: 'hmac-sha256', user_id: '42' }), SECRET), { userId: '42' });
+  const body = `${Buffer.from(JSON.stringify({ algorithm: 'HMAC-SHA256', user_id: '7' })).toString('base64url')}=`;
+  const padded = `${createHmac('sha256', SECRET).update(body).digest('base64url')}=.${body}`;
+  assert.deepEqual(parseSignedRequest(padded, SECRET), { userId: '7' });
 });
 
 test('verifySignature fails closed on empty, prefix-less, non-hex and truncated headers', () => {
