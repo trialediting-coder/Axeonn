@@ -8,9 +8,11 @@
 import { ensureSchema, isDatabaseConfigured, sql } from '@/lib/db';
 import { errText } from '@/lib/dbRows';
 import { getContact } from '@/lib/contacts';
-import { canReplyNow, isReplyRefusal, replyBlocker, textingState, validateReplyBody, type ReplyRefusal } from '@/lib/contactsShared';
-import { getLine, isOptedOut, sendClientSms } from '@/lib/phoneLines';
-import { isDefiniteRejection, redactDigits } from '@/lib/sequenceSchedule';
+import { canReplyNow, isReplyRefusal, replyBlocker, textingState, validateReplyBody, type Contact, type ReplyRefusal } from '@/lib/contactsShared';
+import { isQuietHours } from '@/lib/leadShared';
+import { getLine, isOptedOut, sendClientSms, type ClientSmsResult } from '@/lib/phoneLines';
+import type { PhoneLine } from '@/lib/phoneShared';
+import { holdForQuietHours, isDefiniteRejection, redactDigits } from '@/lib/sequenceSchedule';
 
 export type ReplyResult = { status: 'sent' } | { status: 'held'; id: number; sendAt: string } | { status: 'refused'; reason: ReplyRefusal };
 
@@ -71,7 +73,56 @@ export async function replyToContact(onboardingId: number, contactId: number, ra
 }
 
 type ClaimedRow = { id: number | string; onboarding_id: number; contact_id: number | string; body: string; error: string | null };
-type HeldOutcome = { status: 'sent' } | { status: 'held' | 'failed'; error: string };
+
+/**
+ * What one claimed row becomes. 'held' is a definite refusal put back for one
+ * retry (HELD_RETRY_MINUTES); 'requeue' puts the row back untouched (its error
+ * kept) at sendAt: quiet hours came back (the 8 am time) or the lookups before
+ * the send failed (nothing was attempted, so it is retried, never failed).
+ */
+export type HeldOutcome =
+  | { status: 'sent' }
+  | { status: 'held' | 'failed'; error: string; threw?: true }
+  | { status: 'requeue'; sendAt: string; why: 'quiet' | 'lookup' };
+
+export interface HeldRowDeps {
+  getContact: (onboardingId: number, contactId: number) => Promise<Pick<Contact, 'phone'> | null>;
+  getLine: (onboardingId: number) => Promise<PhoneLine | null>;
+  sendClientSms: (line: PhoneLine, to: string, body: string, kind: 'manual') => Promise<ClientSmsResult>;
+  now: () => Date;
+}
+
+const liveDeps: HeldRowDeps = { getContact, getLine, sendClientSms, now: () => new Date() };
+
+/**
+ * One claimed held reply, decided and (when it may) sent. The contact and line
+ * lookups sit in their own try: a lookup that throws means nothing was sent, so
+ * the row goes back to held (HELD_RETRY_MINUTES later) instead of failing.
+ * Quiet hours are checked again right before the send, in the line's zone (a
+ * zone changed overnight, a row claimed late): if quiet, the row is re-held to
+ * the next 8 am. Only a throw from the send itself goes through heldSendFailure.
+ */
+export async function processHeldRow(r: Pick<ClaimedRow, 'onboarding_id' | 'contact_id' | 'body' | 'error'>, deps: HeldRowDeps = liveDeps): Promise<HeldOutcome> {
+  const onboardingId = Number(r.onboarding_id);
+  let contact: Pick<Contact, 'phone'> | null;
+  let line: PhoneLine | null;
+  try {
+    [contact, line] = await Promise.all([deps.getContact(onboardingId, Number(r.contact_id)), deps.getLine(onboardingId)]);
+  } catch {
+    return { status: 'requeue', sendAt: new Date(deps.now().getTime() + HELD_RETRY_MINUTES * 60_000).toISOString(), why: 'lookup' };
+  }
+  if (!contact?.phone) return { status: 'failed', error: 'no_phone' };
+  if (!line || line.status !== 'active') return { status: 'failed', error: 'no_line' };
+  const now = deps.now();
+  if (isQuietHours(now, line.timeZone)) return { status: 'requeue', sendAt: holdForQuietHours(now, line.timeZone).toISOString(), why: 'quiet' };
+  try {
+    const res = await deps.sendClientSms(line, contact.phone, r.body, 'manual');
+    return res.sent ? { status: 'sent' } : { status: 'failed', error: res.reason };
+  } catch (err) {
+    const f = heldSendFailure(err, r.error);
+    return { status: f.retry ? 'held' : 'failed', error: f.error, threw: true };
+  }
+}
 
 /**
  * The 8 am send. Rows are claimed (held -> sending, claimed_at) with a
@@ -81,7 +132,9 @@ type HeldOutcome = { status: 'sent' } | { status: 'held' | 'failed'; error: stri
  * leave, so by slice 3's rule it is unclear and becomes 'failed', never re-sent;
  * the client sees "did not go out" and can send it again. The gates run again
  * inside sendClientSms: someone who texted STOP overnight is not texted, and a
- * line whose carrier approval lapsed sends nothing. Logs carry the row id only.
+ * line whose carrier approval lapsed sends nothing. Each row goes through
+ * processHeldRow: quiet hours are checked again (re-held to 8 am), and a failed
+ * lookup puts the row back to held, never failed. Logs carry the row id only.
  */
 export async function sendDueHeldReplies(limit = 40): Promise<{ sent: number; failed: number; interrupted: number }> {
   if (!isDatabaseConfigured()) return { sent: 0, failed: 0, interrupted: 0 };
@@ -113,26 +166,19 @@ export async function sendDueHeldReplies(limit = 40): Promise<{ sent: number; fa
       }
       continue;
     }
-    let outcome: HeldOutcome;
-    try {
-      const onboardingId = Number(r.onboarding_id);
-      const [contact, line] = await Promise.all([getContact(onboardingId, Number(r.contact_id)), getLine(onboardingId)]);
-      if (!contact?.phone) outcome = { status: 'failed', error: 'no_phone' };
-      else if (!line || line.status !== 'active') outcome = { status: 'failed', error: 'no_line' };
-      else {
-        const res = await sendClientSms(line, contact.phone, r.body, 'manual');
-        outcome = res.sent ? { status: 'sent' } : { status: 'failed', error: res.reason };
-      }
-    } catch (err) {
-      const f = heldSendFailure(err, r.error);
-      console.error('[held-replies] send failed', id, f.retry ? 'retrying' : 'not retried');
-      outcome = { status: f.retry ? 'held' : 'failed', error: f.error };
-    }
+    const outcome = await processHeldRow(r);
+    if ((outcome.status === 'held' || outcome.status === 'failed') && outcome.threw) console.error('[held-replies] send failed', id, outcome.status === 'held' ? 'retrying' : 'not retried');
+    else if (outcome.status === 'requeue' && outcome.why === 'lookup') console.error('[held-replies] lookup failed, back to held', id);
     if (outcome.status === 'sent') sent += 1;
     else if (outcome.status === 'failed') failed += 1;
     try {
       if (outcome.status === 'sent') {
         await sql`UPDATE held_replies SET status = 'sent', sent_at = now(), error = NULL WHERE id = ${id} AND status = 'sending';`;
+      } else if (outcome.status === 'requeue') {
+        // Nothing was attempted: back to held, error untouched (the retry-once rule still applies to a later send).
+        await sql`
+          UPDATE held_replies SET status = 'held', claimed_at = NULL, send_at = ${outcome.sendAt}
+          WHERE id = ${id} AND status = 'sending';`;
       } else if (outcome.status === 'held') {
         await sql`
           UPDATE held_replies SET status = 'held', claimed_at = NULL, error = ${outcome.error},

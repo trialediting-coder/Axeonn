@@ -21,7 +21,7 @@ import {
   type Contact, type ContactEvent, type ContactEventKind, type ContactSource, type DashboardContact, type DashboardContactView,
   type EventPayload, type SystemStage,
 } from '@/lib/contactsShared';
-import { isLeadStage, type LeadAction, type LeadStage } from '@/lib/sequenceShared';
+import { isLeadStage, type LeadAction, type LeadStage, type SequenceStep } from '@/lib/sequenceShared';
 
 export interface ContactRow {
   id: DbId;
@@ -766,7 +766,118 @@ export interface BackfillResult {
   calls: number;
   messages: number;
   forms: number;
+  /** Follow-up emails (slice 3) added to existing contacts' timelines. */
+  sequenceEmails: number;
   stagesCopied: number;
+  /** False when the deadline came first: run it again (idempotent) to finish. */
+  complete: boolean;
+}
+
+export interface SequenceRunHistory {
+  step: number;
+  sentCount: number;
+  smsSentCount: number;
+  anchorAt: string;
+  lastSentAt: string | null;
+}
+
+/**
+ * Which past follow-up emails of one run to add to the inbox (pure). Slice 3
+ * keeps no per-step email record, only counters: sent_count - sms_sent_count
+ * emails went out, among the template's email steps before run.step. Steps
+ * already in the timeline (the live hook's ref_part = step) count towards that
+ * number and are never added again; the rest are the earliest email steps not
+ * yet there. Each is dated at its planned time (anchor + offset), never after
+ * the run's last send or `now`.
+ */
+export function planSequenceEmailEvents(
+  run: SequenceRunHistory,
+  steps: Pick<SequenceStep, 'channel' | 'offsetMinutes'>[],
+  existing: ReadonlySet<number>,
+  now: string,
+): { step: number; at: string }[] {
+  const emailsSent = Math.max(0, run.sentCount - run.smsSentCount);
+  let remaining = emailsSent - existing.size;
+  if (remaining <= 0) return [];
+  const cap = Math.min(Date.parse(run.lastSentAt ?? now), Date.parse(now));
+  const anchor = Date.parse(run.anchorAt);
+  const out: { step: number; at: string }[] = [];
+  for (let i = 0; i < Math.min(run.step, steps.length) && remaining > 0; i += 1) {
+    if (steps[i].channel !== 'email' || existing.has(i)) continue;
+    out.push({ step: i, at: new Date(Math.min(anchor + steps[i].offsetMinutes * 60_000, cap)).toISOString() });
+    remaining -= 1;
+  }
+  return out;
+}
+
+/**
+ * planSequenceEmailEvents for every run of one client that emailed someone,
+ * through upsertContactEvent with the live hook's key and payload (kind
+ * 'sequence', ref_table 'sequence_runs', ref_part = step; lib/sequences.ts
+ * claimAndSend) and createIfMissing false, so a second run or a live event never
+ * doubles one and nobody who never reached out becomes a contact. Runs started
+ * from an admin test form are skipped. Uses each kind's current template.
+ */
+async function projectSequenceEmails(onboardingId: number, deadline: number): Promise<{ count: number; complete: boolean }> {
+  const { getTemplates } = await import('@/lib/sequences'); // lazy: lib/sequences imports this module
+  const steps = new Map<string, SequenceStep[]>((await getTemplates(onboardingId)).map((t) => [t.kind, t.steps]));
+  const { rows } = await sql<{
+    id: DbId; kind: string; step: number; sent_count: number; sms_sent_count: number; anchor_at: DbTime; last_sent_at: DbTime | null;
+    contact_phone: string | null; contact_email: string; contact_name: string;
+  }>`
+    SELECT r.id, r.kind, r.step, r.sent_count, r.sms_sent_count, r.anchor_at, r.last_sent_at, r.contact_phone, r.contact_email, r.contact_name
+    FROM sequence_runs r
+    WHERE r.onboarding_id = ${onboardingId} AND r.contact_email IS NOT NULL AND r.sent_count > r.sms_sent_count
+      AND NOT EXISTS (SELECT 1 FROM form_submissions f WHERE r.ref_table = 'form_submissions' AND f.id = r.ref_id AND f.is_test)
+    ORDER BY r.id;`;
+  if (rows.length === 0) return { count: 0, complete: true };
+  const { rows: seen } = await sql<{ ref_id: DbId; ref_part: number }>`
+    SELECT ref_id, ref_part FROM contact_events
+    WHERE onboarding_id = ${onboardingId} AND ref_table = 'sequence_runs' AND kind = 'sequence';`;
+  const existing = new Map<number, Set<number>>();
+  for (const e of seen) {
+    const id = Number(e.ref_id);
+    const parts = existing.get(id) ?? new Set<number>();
+    parts.add(Number(e.ref_part));
+    existing.set(id, parts);
+  }
+  const now = new Date().toISOString();
+  let count = 0;
+  for (const r of rows) {
+    if (Date.now() > deadline) return { count, complete: false };
+    const runId = Number(r.id);
+    const plan = planSequenceEmailEvents(
+      {
+        step: Number(r.step),
+        sentCount: Number(r.sent_count),
+        smsSentCount: Number(r.sms_sent_count),
+        anchorAt: iso(r.anchor_at),
+        lastSentAt: r.last_sent_at ? iso(r.last_sent_at) : null,
+      },
+      steps.get(r.kind) ?? [],
+      existing.get(runId) ?? new Set<number>(),
+      now,
+    );
+    for (const p of plan) {
+      const res = await upsertContactEvent({
+        onboardingId,
+        kind: 'sequence',
+        refTable: 'sequence_runs',
+        refId: runId,
+        refPart: p.step,
+        phone: r.contact_phone,
+        email: r.contact_email,
+        name: r.contact_name,
+        summary: eventSummary('sequence', { channel: 'email', automatic: true }),
+        payload: { channel: 'email', step: p.step, automatic: true },
+        createdAt: p.at,
+        createIfMissing: false,
+        replay: true,
+      });
+      if (res?.insertedEvent) count += 1;
+    }
+  }
+  return { count, complete: true };
 }
 
 export interface FormMark {
@@ -883,10 +994,13 @@ async function copyFormStages(onboardingId: number): Promise<number> {
 /**
  * Build one client's contacts from every call, text and (non-test) form that
  * exists, in the order they happened, through the same projections the
- * webhooks use, in replay mode. Safe to run any number of times. Sends nothing:
- * no push, no text, no follow-up started or stopped.
+ * webhooks use, in replay mode, then the follow-up emails slice 3 already sent.
+ * Safe to run any number of times. Sends nothing: no push, no text, no
+ * follow-up started or stopped. Starts no new row past `deadline` (ms epoch)
+ * and then says so (complete: false); running it again finishes the job.
  */
-export async function backfill(onboardingId: number): Promise<BackfillResult> {
+export async function backfill(onboardingId: number, opts: { deadline?: number } = {}): Promise<BackfillResult> {
+  const deadline = opts.deadline ?? Number.POSITIVE_INFINITY;
   await ensureSchema();
   const { rows } = await sql<{ src: 'call' | 'message' | 'form'; sid: string | null; id: DbId | null }>`
     SELECT src, sid, id FROM (
@@ -897,8 +1011,9 @@ export async function backfill(onboardingId: number): Promise<BackfillResult> {
       SELECT 'form', NULL::text, id, created_at FROM form_submissions WHERE onboarding_id = ${onboardingId} AND NOT is_test
     ) s
     ORDER BY at, src;`;
-  const out: BackfillResult = { onboardingId, calls: 0, messages: 0, forms: 0, stagesCopied: 0 };
+  const out: BackfillResult = { onboardingId, calls: 0, messages: 0, forms: 0, sequenceEmails: 0, stagesCopied: 0, complete: false };
   for (const r of rows) {
+    if (Date.now() > deadline) return out;
     if (r.src === 'call' && r.sid) {
       if (await projectCall(r.sid, { replay: true })) out.calls += 1;
     } else if (r.src === 'message' && r.sid) {
@@ -907,11 +1022,17 @@ export async function backfill(onboardingId: number): Promise<BackfillResult> {
       if (await projectForm(Number(r.id), { replay: true })) out.forms += 1;
     }
   }
+  const emails = await projectSequenceEmails(onboardingId, deadline);
+  out.sequenceEmails = emails.count;
+  if (!emails.complete || Date.now() > deadline) return out;
   out.stagesCopied = await copyFormStages(onboardingId);
+  out.complete = true;
   return out;
 }
 
-export async function backfillAll(): Promise<BackfillResult[]> {
+/** backfill for every client with any history, one after another; clients past the deadline come back complete: false. */
+export async function backfillAll(opts: { deadline?: number } = {}): Promise<BackfillResult[]> {
+  const deadline = opts.deadline ?? Number.POSITIVE_INFINITY;
   await ensureSchema();
   const { rows } = await sql<{ onboarding_id: number }>`
     SELECT DISTINCT onboarding_id FROM (
@@ -920,6 +1041,13 @@ export async function backfillAll(): Promise<BackfillResult[]> {
       UNION SELECT onboarding_id FROM form_submissions WHERE NOT is_test
     ) s ORDER BY onboarding_id;`;
   const results: BackfillResult[] = [];
-  for (const r of rows) results.push(await backfill(Number(r.onboarding_id)));
+  for (const r of rows) {
+    const id = Number(r.onboarding_id);
+    if (Date.now() > deadline) {
+      results.push({ onboardingId: id, calls: 0, messages: 0, forms: 0, sequenceEmails: 0, stagesCopied: 0, complete: false });
+      continue;
+    }
+    results.push(await backfill(id, { deadline }));
+  }
   return results;
 }

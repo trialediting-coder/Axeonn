@@ -2,7 +2,8 @@
 // Run with: npm run test:inbox. The pure parts of lib/inboxReply.ts: no database, no Twilio.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { HELD_STALE_MINUTES, heldSendFailure } from './inboxReply';
+import { HELD_RETRY_MINUTES, HELD_STALE_MINUTES, heldSendFailure, processHeldRow, type HeldRowDeps } from './inboxReply';
+import type { PhoneLine } from './phoneShared';
 
 test('held reply: a definite Twilio refusal (nothing left) is retried once, then fails', () => {
   const first = heldSendFailure(new Error('Twilio 429 (20429): Too Many Requests (/Messages.json)'), null);
@@ -30,4 +31,69 @@ test('held reply: stored errors never carry a phone number and stay short', () =
 
 test('held reply: a claim older than 10 minutes is stale', () => {
   assert.equal(HELD_STALE_MINUTES, 10);
+});
+
+// processHeldRow (ruling S4-R6): fakes for the lookups and the send, no database.
+const LINE = { onboardingId: 7, status: 'active', smsStatus: 'ready', timeZone: 'America/Chicago' } as PhoneLine;
+const ROW = { onboarding_id: 7, contact_id: '42', body: 'On my way at 9', error: null };
+function deps(now: string, over: Partial<HeldRowDeps> = {}): HeldRowDeps & { sends: string[] } {
+  const sends: string[] = [];
+  return {
+    sends,
+    getContact: async () => ({ phone: '+15155550134' }),
+    getLine: async () => LINE,
+    sendClientSms: async (_line, to) => {
+      sends.push(to);
+      return { sent: true, sid: 'SM1' };
+    },
+    now: () => new Date(now),
+    ...over,
+  };
+}
+
+test('held reply: outside quiet hours the row is sent', async () => {
+  const d = deps('2026-10-14T18:00:00Z'); // 1 pm in Chicago
+  assert.deepEqual(await processHeldRow(ROW, d), { status: 'sent' });
+  assert.deepEqual(d.sends, ['+15155550134']);
+});
+
+test('held reply: quiet hours again at send time re-holds the row to the next 8 am, sending nothing', async () => {
+  const d = deps('2026-10-14T03:00:00Z'); // 10 pm in Chicago
+  const out = await processHeldRow(ROW, d);
+  assert.deepEqual(out, { status: 'requeue', sendAt: '2026-10-14T13:00:00.000Z', why: 'quiet' }); // 8 am CDT
+  assert.deepEqual(d.sends, []);
+});
+
+test('held reply: quiet hours follow the line zone, not the server clock', async () => {
+  // 7:30 am Los Angeles is still quiet even though it is 9:30 am in Chicago.
+  const d = deps('2026-10-14T14:30:00Z', { getLine: async () => ({ ...LINE, timeZone: 'America/Los_Angeles' }) });
+  const out = await processHeldRow(ROW, d);
+  assert.equal(out.status, 'requeue');
+  assert.equal(out.status === 'requeue' && out.sendAt, '2026-10-14T15:00:00.000Z');
+});
+
+test('held reply: a contact or line lookup that throws puts the row back to held, never failed, and sends nothing', async () => {
+  for (const over of [
+    { getContact: async () => { throw new Error('db down'); } },
+    { getLine: async () => { throw new Error('db down'); } },
+  ] as Partial<HeldRowDeps>[]) {
+    const d = deps('2026-10-14T18:00:00Z', over);
+    const out = await processHeldRow(ROW, d);
+    assert.deepEqual(out, { status: 'requeue', sendAt: new Date(Date.parse('2026-10-14T18:00:00Z') + HELD_RETRY_MINUTES * 60_000).toISOString(), why: 'lookup' });
+    assert.deepEqual(d.sends, []);
+  }
+});
+
+test('held reply: a throw from the send itself still goes through heldSendFailure', async () => {
+  const d = deps('2026-10-14T18:00:00Z', { sendClientSms: async () => { throw new Error('fetch failed: ECONNRESET'); } });
+  const out = await processHeldRow(ROW, d);
+  assert.equal(out.status, 'failed');
+  assert.match(out.status === 'failed' ? out.error : '', /^unclear: /);
+});
+
+test('held reply: no phone or no active line fails without a send', async () => {
+  const noPhone = deps('2026-10-14T18:00:00Z', { getContact: async () => ({ phone: null }) });
+  assert.deepEqual(await processHeldRow(ROW, noPhone), { status: 'failed', error: 'no_phone' });
+  const noLine = deps('2026-10-14T18:00:00Z', { getLine: async () => null });
+  assert.deepEqual(await processHeldRow(ROW, noLine), { status: 'failed', error: 'no_line' });
 });

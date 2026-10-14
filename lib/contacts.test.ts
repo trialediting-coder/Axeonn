@@ -2,7 +2,7 @@
 // Run with: npm run test:inbox. The pure parts of lib/contacts.ts: no database.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { formStagesBelow, planFormStageCopy, splitDroppedRuns, toContact, toEvent } from './contacts';
+import { formStagesBelow, planFormStageCopy, planSequenceEmailEvents, splitDroppedRuns, toContact, toEvent } from './contacts';
 
 test('merge: a dropped run whose kind the kept contact already holds is removed; the rest move over', () => {
   const plan = splitDroppedRuns(['review', 'quote'], [
@@ -116,4 +116,37 @@ test('a second run finds nothing to change', () => {
 
 test('only new forms: nothing is copied and nothing lifted', () => {
   assert.deepEqual(planFormStageCopy(untouched, [{ id: 1, stage: 'new', stageChangedAt: null, quoteSentAt: null }], NOW), { contact: null, lift: null });
+});
+
+// Backfill of slice 3's follow-up emails: same key as the live hook (ref_part = step).
+const STEPS = [
+  { channel: 'sms' as const, offsetMinutes: 0 },
+  { channel: 'email' as const, offsetMinutes: 60 },
+  { channel: 'sms' as const, offsetMinutes: 1440 },
+  { channel: 'email' as const, offsetMinutes: 4320 },
+];
+const RUN = { step: 4, sentCount: 4, smsSentCount: 2, anchorAt: '2026-10-01T15:00:00.000Z', lastSentAt: '2026-10-04T15:00:00.000Z' };
+const EMAIL_NOW = '2026-10-14T12:00:00.000Z';
+
+test('backfill emails: each email step that went out is planned once, at anchor + offset, keyed by its step', () => {
+  assert.deepEqual(planSequenceEmailEvents(RUN, STEPS, new Set(), EMAIL_NOW), [
+    { step: 1, at: '2026-10-01T16:00:00.000Z' },
+    { step: 3, at: '2026-10-04T15:00:00.000Z' },
+  ]);
+});
+
+test('backfill emails: steps the live hook already recorded are never added again (idempotent)', () => {
+  assert.deepEqual(planSequenceEmailEvents(RUN, STEPS, new Set([1]), EMAIL_NOW), [{ step: 3, at: '2026-10-04T15:00:00.000Z' }]);
+  assert.deepEqual(planSequenceEmailEvents(RUN, STEPS, new Set([1, 3]), EMAIL_NOW), []);
+});
+
+test('backfill emails: no more events than emails counted, and none at or after the next step', () => {
+  assert.deepEqual(planSequenceEmailEvents({ ...RUN, sentCount: 3 }, STEPS, new Set(), EMAIL_NOW), [{ step: 1, at: '2026-10-01T16:00:00.000Z' }]);
+  assert.deepEqual(planSequenceEmailEvents({ ...RUN, step: 2, sentCount: 2, smsSentCount: 1 }, STEPS, new Set(), EMAIL_NOW), [{ step: 1, at: '2026-10-01T16:00:00.000Z' }]);
+  assert.deepEqual(planSequenceEmailEvents({ ...RUN, sentCount: 2 }, STEPS, new Set(), EMAIL_NOW), []);
+});
+
+test('backfill emails: a planned time after the last send is clamped to it', () => {
+  const out = planSequenceEmailEvents({ ...RUN, lastSentAt: '2026-10-03T00:00:00.000Z' }, STEPS, new Set(), EMAIL_NOW);
+  assert.equal(out[1].at, '2026-10-03T00:00:00.000Z');
 });
