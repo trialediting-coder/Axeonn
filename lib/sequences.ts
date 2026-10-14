@@ -655,6 +655,15 @@ export async function advanceRun(
         return 'held';
       }
     }
+    // A booking reminder only goes while its booking is still on: a cancel (or 'done') whose
+    // stopBookingReminders never landed is caught here before anything sends.
+    if (run.kind === 'reminder' && run.refTable === 'bookings') {
+      const { rows } = await sql<{ status: string }>`SELECT status FROM bookings WHERE id = ${run.refId} LIMIT 1;`;
+      if (rows[0]?.status !== 'booked') {
+        await stopRun(run.id, 'cancelled');
+        return 'stopped';
+      }
+    }
     d = decideRun(
       {
         kind: run.kind,
