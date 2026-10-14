@@ -8,14 +8,27 @@ const nextConfig = {
         headers: [
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
         ],
+      },
+      {
+        // Everything but the hosted booking page refuses to be framed. /b/* is framed by
+        // public/book.js on clients' sites and sends its own CSP frame-ancestors (lib/bookingPage.ts).
+        source: '/((?!b/).*)',
+        headers: [{ key: 'X-Frame-Options', value: 'SAMEORIGIN' }],
       },
       {
         // The tracking script client sites load (public/t.js). Cached for an
         // hour so their pages never wait on us; a fix reaches every site within it.
         source: '/t.js',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=3600, stale-while-revalidate=86400' },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+        ],
+      },
+      {
+        // Online booking and website chat scripts on clients' sites; same cache rule as t.js.
+        source: '/:file(book|book-page|chat).js',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=3600, stale-while-revalidate=86400' },
           { key: 'Access-Control-Allow-Origin', value: '*' },
