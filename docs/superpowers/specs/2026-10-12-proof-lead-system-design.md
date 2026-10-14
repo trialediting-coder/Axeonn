@@ -171,7 +171,7 @@ contact_events
 ### Compliance
 
 - Replies from the inbox go through the same `sendSms()` and obey `phone_opt_outs` and the `sms_status` gate. An opted-out contact shows a "This person asked not to be texted" banner and the reply box is disabled.
-- Quiet hours apply to manual replies the same as to sequences: a reply typed between 9 pm and 8 am client-local is held and sent at 8 am, with the client told so.
+- Quiet hours apply to manual replies the same as to sequences: a reply typed between 8 pm and 8 am client-local is held and sent at 8 am, with the client told so.
 - Recordings stream from Twilio behind an authenticated PROOF route; the recording URL is never put in a notification or the client's email.
 
 ### Later integrations, not in scope

@@ -479,7 +479,7 @@ texted in the last 24 hours. `/api/phone/recording` attaches the recording URL.
 
 **Texts.** Inbound texts land in `phone_messages`. STOP words are mirrored into
 `phone_opt_outs` (Twilio's Advanced Opt-Out already blocks sends and confirms).
-Replying from PROOF is slice 4.
+Replying from PROOF: see "The leads inbox" below.
 
 **Where the numbers show.** The client's Calls tab (this month vs last, recent
 calls with masked numbers, recordings) and the monthly report's `calls` figure,
@@ -678,6 +678,157 @@ resent; the run moves past that step and `last_error` starts with `unclear:`.
 Phone numbers in logged or stored error text are replaced with `[number]`. The cron needs
 `CRON_SECRET` and a Vercel plan that allows a 15-minute schedule (Pro).
 
+## The leads inbox (AxeonCORE and up)
+
+Built 2026-10-13 (slice 4 of `docs/superpowers/specs/2026-10-12-proof-lead-system-design.md`).
+The PROOF Leads tab is one list of every person who reached out: a contact per
+phone number or email, a stage, everything they did in order, and a reply box.
+It is not a CRM: no tasks, pipeline board, custom fields or import. A client who
+needs those runs Jobber, Housecall Pro or ServiceTitan, and the right answer is a
+"send booked leads to" integration, built when a client asks. Essentials keeps
+the Leads tab it had (form list with taps, tracker list). The admin's "View as
+client" preview shows the inbox read-only.
+
+| Piece | Where |
+| --- | --- |
+| Rules, masking, reply order (client-safe) | `lib/contactsShared.ts` |
+| Contacts, merge, projections, backfill | `lib/contacts.ts` |
+| Stage taps (form leads and contacts) | `lib/leadStages.ts` (`applyLeadStage`, `formContactStore`, `contactStore`), `POST /api/proof/leads/stage` `{ id }` or `{ contactId }` |
+| Replies and held replies | `lib/inboxReply.ts`, `/api/cron/held-replies` (every 15 min) |
+| Push | `lib/pushShared.ts`, `lib/push.ts`, `public/sw.js`, `public/proof.webmanifest` |
+| Alerts (push first, text and email fallback) | `lib/leadNotify.ts`; forms in `deliverLead` (`lib/leads.ts`) |
+| Client API | `/api/proof/inbox`, `/api/proof/inbox/<id>` (+ `/reply`, `/email`), `/api/proof/push/subscribe` |
+| Admin | `POST /api/admin/contacts/backfill` `{ onboardingId? }` |
+| UI | `components/proof/InboxTab.tsx`, `components/proof/NotificationsButton.tsx`, `LeadStageTaps` (`target="contact"`) |
+| Tables | `contacts`, `contact_events`, `push_subscriptions`, `held_replies` |
+| Tests | `npm run test:inbox` (plus `test:sequences` for the stage engine) |
+
+**How a lead becomes a contact.** Every producer writes its own table first
+(`phone_calls`, `phone_messages`, `form_submissions`), then calls one projection
+in `lib/contacts.ts`. The projection re-reads the source row and upserts one
+`contact_events` row keyed on the source row, so retries and re-runs never
+double anything. Only the lead's own action creates a contact (a call, a text to
+the tracked number, a form); texts and follow-up emails we send join a contact
+that already exists and never create one. Admin test leads never become
+contacts. A phone number is the identity; a form with only an email is keyed by
+email. When one event carries the phone of one contact and the email of another,
+the two merge into the older one. A tap on the site's call or text button joins a
+brand-new caller or texter who shows up within 10 minutes; any other tap stays in
+"Website taps we could not match to a caller" below the inbox.
+
+**Stages.** New, Contacted, Booked, Won, Lost. The client taps slice 3's buttons:
+Quote sent, Talked to them, Booked, Job done (Won), Not a fit (Lost), on a form
+lead (Essentials and up) or on a contact (inbox). Both go through the same
+`applyLeadStage`, and the form and its contact always show the same stage. An
+answered call or a typed reply moves New to Contacted by itself, and a booking
+moves a contact to Booked; those automatic moves only go forward and never touch
+a Won or Lost contact. Contacted, Booked, Won and Lost stop the new-lead and
+quote follow-ups; Won starts the review request; Quote sent starts the quote
+follow-up (`STAGE_EFFECTS`). Won and Lost count toward the client's close rate:
+through the matched website tap if there is one, directly otherwise.
+
+**Replies** go out from the tracked number through `sendClientSms`, so the opt-out
+list and the 10DLC gate apply. Quiet hours are 8 pm to 8 am client-local,
+everywhere: a reply typed then is held and sent at 8 am (the cron runs every 15
+minutes, so it lands between 8:00 and 8:15); the client sees when. The cron
+checks quiet hours again right before sending and re-holds if they came back. A
+held reply whose send was interrupted, or failed in a way that cannot say whether
+it left, shows "This text may have gone out. Check the thread before you send it
+again." and is never sent twice. Email replies open the client's mail app.
+
+**Privacy.** The browser only gets masked numbers and emails. A push, the
+fallback text and the fallback email say "New text from a lead" (or "Missed
+call", "New form") and link to the lead, nothing else. Recordings play through
+the signed-in recording route.
+
+**Push.** "Turn on notifications" in the PROOF header. On an iPhone, PROOF must be
+added to the Home Screen first (the button explains). With no device turned on
+(or push not configured): an inbound text or a missed call sends the owner one
+text through their tracked line (never 8 pm to 8 am) and one email, at most once
+per lead per 30 minutes (a push does not count toward the 30). A form uses
+slice 2's alert text, and slice 2's lead email always goes; a form that was
+pushed sends no text. Without the `WEB_PUSH_*` keys the push step is inert and
+every alert takes the fallback.
+
+**Backfill** (`POST /api/admin/contacts/backfill`, admin only). Builds the inbox
+from the calls, texts, non-test forms and follow-up emails that already exist,
+through the same projections, in replay mode: it sends nothing and starts or
+stops no follow-up. It is idempotent. It has a 240 second budget and is not
+resumable yet: each run starts again from the oldest row (rows already projected
+are skipped), and a run that hits the budget returns `done: false` with
+`complete: false` on that client. For a large client call it per client with
+`{ onboardingId }` so each gets its own 240 seconds, and re-run until `done` is
+true.
+
+### Go-live checklist (owner)
+
+Tick these in order. The code is merged; none of this is done until you do it.
+
+1. **VAPID keys.** Run `npx web-push generate-vapid-keys` once. In Vercel
+   (Production and Preview) set `WEB_PUSH_PUBLIC_KEY`, `WEB_PUSH_PRIVATE_KEY`
+   and `WEB_PUSH_SUBJECT=mailto:hello@axeonstudio.co`. Redeploy. Keep the private
+   key only in Vercel; never paste it in chat or commit it.
+2. **Tables.** They create themselves on the first request (`ensureSchema`);
+   `npm run db:init` against production does the same.
+3. **Backfill once per client.** Signed in to the admin on `app.axeonstudio.co`,
+   in the browser console, call it with `{ onboardingId }` for each client (`'{}'`
+   runs every client inside one 240 second budget, so use it only while the data
+   is small):
+   `await (await fetch('/api/admin/contacts/backfill', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ onboardingId: 12 }) })).json()`.
+   Per client, `calls` should match that client's `phone_calls` rows minus
+   withheld callers and connect calls about test leads; `forms` should match its
+   `form_submissions` rows with `is_test = false`; `messages` counts inbound
+   texts plus outbound texts to someone who is a contact (owner alerts and texts
+   to non-contacts are not counted). `stagesCopied` is the number of contacts
+   that took a stage already tapped on a form in slice 3. Running it again
+   returns the same `calls`, `messages` and `forms`, `stagesCopied: 0`, and adds
+   nothing. If `done` is `false`, run it again.
+4. **Database checks that could not run in development.** Run them against
+   production on a test client:
+   - Merge of two contacts: a form with the phone of contact A and the email of
+     contact B leaves one contact (the older), with both contacts' events on it
+     and none orphaned.
+   - Backfill idempotency: the `contacts` and `contact_events` row counts for a
+     client are identical before and after a second run.
+   - Outbound-only never creates a contact: an outbound text (text-back,
+     sequence, reminder) to a number with no contact adds no `contacts` row.
+   - `is_test` never becomes a contact: an admin test lead (and a connect call
+     about it) adds no `contacts` row and no `contact_events` row.
+5. **Cron.** Vercel, Settings, Cron Jobs lists `/api/cron/held-replies` every 15
+   minutes.
+6. **Reply test.** As an AxeonCORE test client whose line is `ready`, with your
+   own cell as the lead: Leads, your contact, send "Test from PROOF" in the
+   daytime. It arrives from the tracked number; the timeline shows it as yours
+   and the stage moves to Contacted.
+7. **Quiet-hours test.** After 8 pm Central, send another: the box says it goes
+   out at 8:00 AM, and it arrives at 8 am (between 8:00 and 8:15).
+8. **Stage test.** Tap Quote sent on that contact: the quote follow-up starts
+   (the note says so). If the contact came from a form, the same form in an
+   Essentials-style form list (admin "View as client" of an Essentials client, or
+   the database) shows Contacted too.
+9. **Push test, Android.** Chrome on an Android phone, PROOF signed in, "Turn on
+   notifications", allow. Text the tracked number from another phone: "New text
+   from a lead" arrives with no number or words in it; tapping it opens that
+   contact.
+10. **Push test, iPhone.** Safari, Share, Add to Home Screen, open AxeonPROOF from
+    the Home Screen, "Turn on notifications", allow, repeat the text.
+11. **Fallback test.** Turn notifications off for PROOF in the phone's settings,
+    then in the daytime text the tracked number twice within a few minutes: the
+    owner's cell gets one "New text from a lead" text and the client's email one
+    "New text from a lead" email, not two of either.
+12. **Opt-out test.** Reply STOP from the test phone: the contact shows "This
+    person asked not to be texted." and the reply box is gone.
+13. **Close rate.** Tap Job done on a test contact, then Not a fit, then Talked to
+    them: the admin's report preview for that client shows the marked count go up
+    by one and back.
+14. **Essentials unchanged.** As an Essentials test client, the Leads tab still
+    shows the form list with its taps; a tap saves and answers as before.
+15. **Twilio webhook latency.** Text the tracked number and check the Twilio
+    console (Monitor, Logs) for the response time of `/api/phone/sms` and
+    `/api/phone/voice/status`: well under Twilio's 15 second limit. A text waits
+    for the inbox projection at most 2 seconds; the push and fallback run after
+    the response, so a slow database must not show up as a Twilio timeout.
+
 ## Environment variables
 
 | Variable | Purpose |
@@ -695,6 +846,9 @@ Phone numbers in logged or stored error text are replaced with `[number]`. The c
 | `TWILIO_ACCOUNT_SID` | Twilio master account SID; signs the REST calls for the tracked phone numbers. |
 | `TWILIO_AUTH_TOKEN` | Signs Twilio webhooks and REST calls. Never pasted anywhere but Vercel. |
 | `PHONE_WEBHOOK_ORIGIN` | Optional. The public origin Twilio calls for the phone webhooks. Default `https://axeonstudio.co`. |
+| `WEB_PUSH_PUBLIC_KEY` | VAPID public key for lead notifications (`npx web-push generate-vapid-keys`). |
+| `WEB_PUSH_PRIVATE_KEY` | VAPID private key. Never pasted anywhere but Vercel. |
+| `WEB_PUSH_SUBJECT` | Optional. Contact for the push services. Default `mailto:hello@axeonstudio.co`. |
 
 ## Not built yet
 
