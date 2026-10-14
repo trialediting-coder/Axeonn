@@ -3,9 +3,9 @@
 // components/axeonproof/PointerGlow.tsx
 // The cursor effect on /axeonproof: flow lines. A handful of thin ribbons in
 // cyan, blue and violet chase the pointer on springs of different stiffness,
-// so they swing out and curl behind it while it moves, then shrink back into
-// the cursor and fade away when it stops (nothing is left sitting on the page
-// at rest). Drawn on one canvas fixed to the viewport, under the content,
+// so they swing out and curl behind it while it moves. When it rests they
+// keep flowing, each circling the cursor in its own loose loop, over a faint
+// halo. Drawn on one canvas fixed to the viewport, under the content,
 // additive over the black. Mouse and pen only; nothing on touch or under
 // reduced motion. Easing is time-based so it feels the same on any screen.
 import { useEffect, useRef, useState } from 'react';
@@ -29,6 +29,17 @@ const SPECS: Omit<Ribbon, 'head' | 'pts'>[] = [
   { color: [139, 92, 246], stiffness: 120, damping: 0.9, follow: 0.44, width: 2.4 },
   { color: [168, 85, 247], stiffness: 85, damping: 0.915, follow: 0.4, width: 2 },
 ];
+
+// Where each line circles while the pointer rests (px, radians per second).
+const ORBITS = [
+  { radius: 46, speed: 2.4, phase: 0 },
+  { radius: 70, speed: -1.9, phase: 1.1 },
+  { radius: 58, speed: 1.6, phase: 2.3 },
+  { radius: 88, speed: -1.35, phase: 3.4 },
+  { radius: 76, speed: 1.15, phase: 4.4 },
+  { radius: 100, speed: -0.95, phase: 5.3 },
+];
+const HALO = 170; // glow radius, px
 
 export function PointerGlow() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -63,9 +74,15 @@ export function PointerGlow() {
     let energy = 0; // 0..1, how visible the lines are; rises with movement, decays at rest
     let raf = 0;
     let last = 0;
+    let clock = 0;
+    let idle = 0;
+    let lastMove = 0;
+    const halo = { x: 0, y: 0 };
     const ribbons: Ribbon[] = SPECS.map((s) => ({ ...s, head: { x: 0, y: 0, vx: 0, vy: 0 }, pts: Array.from({ length: POINTS }, () => ({ x: 0, y: 0 })) }));
 
     const snap = () => {
+      halo.x = x;
+      halo.y = y;
       ribbons.forEach((r) => {
         r.head = { x, y, vx: 0, vy: 0 };
         r.pts.forEach((p) => {
@@ -79,6 +96,13 @@ export function PointerGlow() {
       ctx.clearRect(0, 0, w, h);
       if (energy < 0.01) return;
       ctx.globalCompositeOperation = 'lighter';
+      // Subtle glow: a soft blue-violet halo around the cursor, under the lines.
+      const g = ctx.createRadialGradient(halo.x, halo.y, 0, halo.x, halo.y, HALO);
+      g.addColorStop(0, `rgba(59,130,246,${(0.16 * energy).toFixed(3)})`);
+      g.addColorStop(0.45, `rgba(124,58,237,${(0.07 * energy).toFixed(3)})`);
+      g.addColorStop(1, 'rgba(124,58,237,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(halo.x - HALO, halo.y - HALO, HALO * 2, HALO * 2);
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ribbons.forEach((r) => {
@@ -111,17 +135,34 @@ export function PointerGlow() {
       const dt = Math.min(now - (last || now - 16.7), 50) / 1000;
       last = now;
       const f = dt * 60; // frames' worth of time at 60 Hz
+      clock += dt;
+      // Idle: ramps up from 0.25 s after the pointer stops, gone the moment
+      // it moves. While idle each line chases a point circling the cursor
+      // at its own radius, speed and direction, so the lines keep flowing in
+      // loose loops around it instead of disappearing.
+      const still = now - lastMove;
+      idle += ((still > 250 ? 1 : 0) - idle) * (1 - Math.pow(1 - (still > 250 ? 0.03 : 0.25), f));
+      // The halo trails the pointer a little, like the lines.
+      const hk = 1 - Math.pow(1 - 0.12, f);
+      halo.x += (x - halo.x) * hk;
+      halo.y += (y - halo.y) * hk;
       let spread = 0;
-      ribbons.forEach((r) => {
+      ribbons.forEach((r, j) => {
         const hd = r.head;
-        hd.vx = (hd.vx + (x - hd.x) * r.stiffness * dt) * Math.pow(r.damping, f);
-        hd.vy = (hd.vy + (y - hd.y) * r.stiffness * dt) * Math.pow(r.damping, f);
+        const orbit = ORBITS[j];
+        const ang = clock * orbit.speed + orbit.phase;
+        const rad = orbit.radius * (1 + 0.22 * Math.sin(clock * 0.9 + j * 1.7)) * idle;
+        const tx = x + Math.cos(ang) * rad;
+        const ty = y + Math.sin(ang) * rad * 0.8;
+        hd.vx = (hd.vx + (tx - hd.x) * r.stiffness * dt) * Math.pow(r.damping, f);
+        hd.vy = (hd.vy + (ty - hd.y) * r.stiffness * dt) * Math.pow(r.damping, f);
         hd.x += hd.vx * dt;
         hd.y += hd.vy * dt;
         const pts = r.pts;
         pts[0].x = hd.x;
         pts[0].y = hd.y;
-        const k = 1 - Math.pow(1 - r.follow, f);
+        // Tails hang back further at rest so the loops draw long arcs.
+        const k = 1 - Math.pow(1 - r.follow * (1 - 0.82 * idle), f);
         for (let i = 1; i < pts.length; i++) {
           pts[i].x += (pts[i - 1].x - pts[i].x) * k;
           pts[i].y += (pts[i - 1].y - pts[i].y) * k;
@@ -129,12 +170,12 @@ export function PointerGlow() {
         const tail = pts[pts.length - 1];
         spread = Math.max(spread, Math.hypot(tail.x - x, tail.y - y), Math.hypot(hd.vx, hd.vy) * 0.05);
       });
-      // Visible while the lines are stretched out; fades once they have
-      // gathered back into the cursor.
-      const target = shown ? Math.min(1, spread / 60) : 0;
+      // Bright while the lines stretch out in motion, a calmer level while
+      // they circle at rest, gone when the pointer leaves the window.
+      const target = shown ? Math.max(Math.min(1, spread / 60), idle * 0.6) : 0;
       energy += (target - energy) * (1 - Math.pow(1 - (target > energy ? 0.35 : 0.08), f));
       draw();
-      if (energy > 0.01 || spread > 0.5) raf = requestAnimationFrame(tick);
+      if (shown || energy > 0.01 || spread > 0.5) raf = requestAnimationFrame(tick);
       else {
         last = 0;
         ctx.clearRect(0, 0, w, h);
@@ -148,6 +189,7 @@ export function PointerGlow() {
       if (e.pointerType && e.pointerType !== 'mouse' && e.pointerType !== 'pen') return;
       x = e.clientX;
       y = e.clientY;
+      lastMove = performance.now();
       if (!shown) {
         // First move, or back from outside the window: start on the pointer.
         snap();
