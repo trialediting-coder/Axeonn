@@ -17,6 +17,7 @@
     "test:get-started": "tsx --test lib/getStarted.test.ts",
     "test:phone": "tsx --test lib/timeout.test.ts lib/phoneShared.test.ts lib/twilio.test.ts lib/phoneTwiml.test.ts lib/phoneLines.test.ts lib/phoneWebhook.test.ts",
     "test:booking": "tsx --test lib/bookingShared.test.ts lib/bookingPage.test.ts",
+    "test:chat": "tsx --test lib/chatCrawl.test.ts",
     "test:inbox": "tsx --test lib/contactsShared.test.ts lib/contacts.test.ts lib/inboxReply.test.ts lib/pushShared.test.ts",
     "test:sequences": "tsx --test lib/sequenceShared.test.ts lib/sequenceAdmin.test.ts lib/sequenceSchedule.test.ts lib/pastCustomersShared.test.ts lib/unsubscribe.test.ts lib/sendGate.test.ts lib/leadStages.test.ts",
     "test:leads": "tsx --test lib/leadShared.test.ts lib/leads.test.ts lib/leadEmail.test.ts",

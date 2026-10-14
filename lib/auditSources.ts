@@ -122,7 +122,7 @@ export async function pageSpeed(url: string): Promise<SourceResult<{ score: numb
   }
 }
 
-async function assertPublic(url: URL): Promise<void> {
+export async function assertPublic(url: URL): Promise<void> {
   if (!/^https?:$/.test(url.protocol)) throw new Error('Only http(s) sites can be checked');
   if (!isPublicHostname(url.hostname)) throw new Error('That address is not a public website');
   const { address } = await dns.lookup(url.hostname);
