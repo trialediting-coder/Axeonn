@@ -19,7 +19,7 @@ export async function GET(_req: Request, ctx: { params: Promise<{ contactId: str
   try {
     const contact = await getContact(auth.account.onboardingId, contactId);
     if (!contact?.email) return NextResponse.json({ error: 'No email for this lead' }, { status: 404, headers: NO_STORE });
-    return new Response(null, { status: 302, headers: { Location: `mailto:${contact.email}`, ...NO_STORE } });
+    return new Response(null, { status: 302, headers: { Location: `mailto:${encodeURIComponent(contact.email)}`, ...NO_STORE } });
   } catch (err) {
     return inboxFailure('[proof/inbox/email]', err);
   }

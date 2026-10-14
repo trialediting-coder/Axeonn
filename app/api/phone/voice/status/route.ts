@@ -52,16 +52,23 @@ export async function POST(req: Request) {
   } catch (err) {
     return fail('[phone/status] recordCall', err);
   }
-  // Into the leads inbox before any text-back, so a brand-new caller is created as a
-  // caller (and matched to a tap on the site's call button) rather than as a texter.
-  // An answered call moves the contact to Contacted. Never fails the webhook, and never
-  // holds the TwiML more than 2 seconds (S4-R5): a slow database finishes in the background.
+  // Into the leads inbox, started before any text-back so that, when it finishes within
+  // its 2 seconds, a brand-new caller is created as a caller (and matched to a tap on the
+  // site's call button) rather than as a texter. An answered call moves the contact to
+  // Contacted. Never fails the webhook, and never holds the TwiML more than 2 seconds
+  // (S4-R5): one that loses the race may finish after the text-back, in after(), so a
+  // serverless function is not frozen before it is written.
   const callSid = p.CallSid;
+  let slow = false;
   const projection = projectCall(callSid).catch((err) => {
     console.error('[phone/status] inbox', callSid, redactDigits(errText(err)));
     return null;
   });
-  await withTimeout(projection, 2000, () => console.error('[phone/status] inbox slow, not waited for', callSid));
+  await withTimeout(projection, 2000, () => {
+    slow = true;
+    console.error('[phone/status] inbox slow, not waited for', callSid);
+  });
+  if (slow) after(projection.then(() => undefined));
   if (outcome === 'answered') {
     // They got through: the new-lead and quote follow-ups have done their job. Never changes the TwiML.
     if (from !== 'unknown') {

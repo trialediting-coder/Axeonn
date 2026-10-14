@@ -661,6 +661,8 @@ export function ensureSchema(): Promise<void> {
       `;
       await sql`CREATE INDEX IF NOT EXISTS held_replies_due_idx ON held_replies (status, send_at);`;
       await sql`CREATE INDEX IF NOT EXISTS held_replies_contact_idx ON held_replies (contact_id);`;
+      // The number the reply was typed to; the 8 am send goes there or not at all (NULL: older rows, the contact's current phone).
+      await sql`ALTER TABLE held_replies ADD COLUMN IF NOT EXISTS to_phone TEXT;`;
     })().catch((err) => {
       schemaReady = null; // let the next request retry
       throw err;

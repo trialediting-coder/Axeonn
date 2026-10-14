@@ -4,7 +4,9 @@
 // one client or all of them. Idempotent: run it again and nothing doubles. Sends
 // nothing to anyone and starts or stops no follow-up (replay mode). It stops
 // starting new rows well inside maxDuration; done: false (some result has
-// complete: false) means run it again to finish.
+// complete: false) means run it again: rows already in the inbox are skipped,
+// so each run resumes where the last stopped, and the form stage copy runs on
+// the run that completes.
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/adminAuth';
 import { backfill, backfillAll } from '@/lib/contacts';

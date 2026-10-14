@@ -14,7 +14,7 @@ import { getLine, isOptedOut, sendClientSms, type ClientSmsResult } from '@/lib/
 import type { PhoneLine } from '@/lib/phoneShared';
 import { holdForQuietHours, isDefiniteRejection, redactDigits } from '@/lib/sequenceSchedule';
 
-export type ReplyResult = { status: 'sent' } | { status: 'held'; id: number; sendAt: string } | { status: 'refused'; reason: ReplyRefusal };
+export type ReplyResult = { status: 'sent' } | { status: 'held'; id: number; sendAt: string } | { status: 'refused'; reason: ReplyRefusal } | { status: 'unclear' };
 
 const refused = (reason: ReplyRefusal): ReplyResult => ({ status: 'refused', reason });
 
@@ -22,6 +22,8 @@ const refused = (reason: ReplyRefusal): ReplyResult => ({ status: 'refused', rea
 export const HELD_STALE_MINUTES = 10;
 /** A definite refusal (nothing left) is tried once more this much later. */
 export const HELD_RETRY_MINUTES = 15;
+/** A held row whose lookups keep failing is given up on ('lookup') once it is this old. */
+export const HELD_LOOKUP_GIVE_UP_HOURS = 12;
 /** One tick stops starting new sends after this, well inside the route's 60 s. */
 const SEND_BUDGET_MS = 45_000;
 
@@ -43,11 +45,23 @@ export function heldSendFailure(err: unknown, priorError: string | null): { retr
 }
 
 /**
+ * What a live reply becomes when sendClientSms threw. Slice 3's rule
+ * (isDefiniteRejection): a Twilio 4xx or missing config means nothing went
+ * out, so it is a refusal ('send_failed': try again). Anything else (a reset
+ * connection, a timeout, bad JSON on a 2xx) is 'unclear': the text may have
+ * left, so the client checks the thread before sending it again.
+ */
+export function liveSendFailure(err: unknown): ReplyResult {
+  return isDefiniteRejection(err) ? refused('send_failed') : { status: 'unclear' };
+}
+
+/**
  * Null when the contact is not this client's. The order is Review Focus 4:
  * the body (validateReplyBody), then every reason a text could never go out
  * (replyBlocker: no phone, opted out, no line, carrier approval pending), and
  * only then quiet hours, so nothing waits overnight only to be refused at 8 am.
- * A throw from sendClientSms propagates to the route.
+ * A throw from sendClientSms is decided by liveSendFailure, logged redacted;
+ * a held reply records the number it was typed to (to_phone).
  */
 export async function replyToContact(onboardingId: number, contactId: number, rawBody: unknown, now: Date = new Date()): Promise<ReplyResult | null> {
   const contact = await getContact(onboardingId, contactId);
@@ -62,23 +76,40 @@ export async function replyToContact(onboardingId: number, contactId: number, ra
   if (!window.ok) {
     await ensureSchema();
     const { rows } = await sql<{ id: number | string }>`
-      INSERT INTO held_replies (onboarding_id, contact_id, body, send_at)
-      VALUES (${onboardingId}, ${contactId}, ${checked.body}, ${window.sendAt})
+      INSERT INTO held_replies (onboarding_id, contact_id, body, send_at, to_phone)
+      VALUES (${onboardingId}, ${contactId}, ${checked.body}, ${window.sendAt}, ${contact.phone})
       RETURNING id;`;
     return { status: 'held', id: Number(rows[0].id), sendAt: window.sendAt };
   }
-  const sent = await sendClientSms(line, contact.phone, checked.body, 'manual');
+  let sent: ClientSmsResult;
+  try {
+    sent = await sendClientSms(line, contact.phone, checked.body, 'manual');
+  } catch (err) {
+    const out = liveSendFailure(err);
+    console.error('[proof/inbox/reply] send threw', out.status === 'unclear' ? 'unclear' : 'not sent', clip(errText(err)));
+    return out;
+  }
   if (!sent.sent) return refused(isReplyRefusal(sent.reason) ? sent.reason : 'bad_number');
   return { status: 'sent' };
 }
 
-type ClaimedRow = { id: number | string; onboarding_id: number; contact_id: number | string; body: string; error: string | null };
+type ClaimedRow = {
+  id: number | string;
+  onboarding_id: number;
+  contact_id: number | string;
+  body: string;
+  error: string | null;
+  /** The number shown when the reply was typed; NULL on rows held before the column existed. */
+  to_phone: string | null;
+  created_at: Date | string;
+};
 
 /**
  * What one claimed row becomes. 'held' is a definite refusal put back for one
  * retry (HELD_RETRY_MINUTES); 'requeue' puts the row back untouched (its error
  * kept) at sendAt: quiet hours came back (the 8 am time) or the lookups before
- * the send failed (nothing was attempted, so it is retried, never failed).
+ * the send failed (nothing was attempted, so it is retried) until the row is
+ * HELD_LOOKUP_GIVE_UP_HOURS old, when it fails with 'lookup'.
  */
 export type HeldOutcome =
   | { status: 'sent' }
@@ -97,26 +128,33 @@ const liveDeps: HeldRowDeps = { getContact, getLine, sendClientSms, now: () => n
 /**
  * One claimed held reply, decided and (when it may) sent. The contact and line
  * lookups sit in their own try: a lookup that throws means nothing was sent, so
- * the row goes back to held (HELD_RETRY_MINUTES later) instead of failing.
- * Quiet hours are checked again right before the send, in the line's zone (a
+ * the row goes back to held (HELD_RETRY_MINUTES later) instead of failing,
+ * unless it was typed HELD_LOOKUP_GIVE_UP_HOURS ago ('lookup' failure). The
+ * text goes to to_phone, the number shown when it was typed: if the contact no
+ * longer has that phone it fails 'number_changed' (a NULL to_phone, an older
+ * row, goes to the contact's current phone). Quiet hours are checked again right before the send, in the line's zone (a
  * zone changed overnight, a row claimed late): if quiet, the row is re-held to
  * the next 8 am. Only a throw from the send itself goes through heldSendFailure.
  */
-export async function processHeldRow(r: Pick<ClaimedRow, 'onboarding_id' | 'contact_id' | 'body' | 'error'>, deps: HeldRowDeps = liveDeps): Promise<HeldOutcome> {
+export async function processHeldRow(r: Pick<ClaimedRow, 'onboarding_id' | 'contact_id' | 'body' | 'error' | 'to_phone' | 'created_at'>, deps: HeldRowDeps = liveDeps): Promise<HeldOutcome> {
   const onboardingId = Number(r.onboarding_id);
   let contact: Pick<Contact, 'phone'> | null;
   let line: PhoneLine | null;
   try {
     [contact, line] = await Promise.all([deps.getContact(onboardingId, Number(r.contact_id)), deps.getLine(onboardingId)]);
   } catch {
-    return { status: 'requeue', sendAt: new Date(deps.now().getTime() + HELD_RETRY_MINUTES * 60_000).toISOString(), why: 'lookup' };
+    const at = deps.now().getTime();
+    if (at - new Date(r.created_at).getTime() > HELD_LOOKUP_GIVE_UP_HOURS * 3_600_000) return { status: 'failed', error: 'lookup' };
+    return { status: 'requeue', sendAt: new Date(at + HELD_RETRY_MINUTES * 60_000).toISOString(), why: 'lookup' };
   }
-  if (!contact?.phone) return { status: 'failed', error: 'no_phone' };
+  if (r.to_phone !== null && contact?.phone !== r.to_phone) return { status: 'failed', error: 'number_changed' };
+  const to = r.to_phone ?? contact?.phone;
+  if (!to) return { status: 'failed', error: 'no_phone' };
   if (!line || line.status !== 'active') return { status: 'failed', error: 'no_line' };
   const now = deps.now();
   if (isQuietHours(now, line.timeZone)) return { status: 'requeue', sendAt: holdForQuietHours(now, line.timeZone).toISOString(), why: 'quiet' };
   try {
-    const res = await deps.sendClientSms(line, contact.phone, r.body, 'manual');
+    const res = await deps.sendClientSms(line, to, r.body, 'manual');
     return res.sent ? { status: 'sent' } : { status: 'failed', error: res.reason };
   } catch (err) {
     const f = heldSendFailure(err, r.error);
@@ -134,7 +172,8 @@ export async function processHeldRow(r: Pick<ClaimedRow, 'onboarding_id' | 'cont
  * inside sendClientSms: someone who texted STOP overnight is not texted, and a
  * line whose carrier approval lapsed sends nothing. Each row goes through
  * processHeldRow: quiet hours are checked again (re-held to 8 am), and a failed
- * lookup puts the row back to held, never failed. Logs carry the row id only.
+ * lookup puts the row back to held until it is HELD_LOOKUP_GIVE_UP_HOURS old.
+ * Logs carry the row id only.
  */
 export async function sendDueHeldReplies(limit = 40): Promise<{ sent: number; failed: number; interrupted: number }> {
   if (!isDatabaseConfigured()) return { sent: 0, failed: 0, interrupted: 0 };
@@ -150,7 +189,7 @@ export async function sendDueHeldReplies(limit = 40): Promise<{ sent: number; fa
       ORDER BY send_at, id LIMIT ${limit}
       FOR UPDATE SKIP LOCKED
     )
-    RETURNING id, onboarding_id, contact_id, body, error;`;
+    RETURNING id, onboarding_id, contact_id, body, error, to_phone, created_at;`;
   let sent = 0;
   let failed = 0;
   let released = 0;
@@ -169,6 +208,7 @@ export async function sendDueHeldReplies(limit = 40): Promise<{ sent: number; fa
     const outcome = await processHeldRow(r);
     if ((outcome.status === 'held' || outcome.status === 'failed') && outcome.threw) console.error('[held-replies] send failed', id, outcome.status === 'held' ? 'retrying' : 'not retried');
     else if (outcome.status === 'requeue' && outcome.why === 'lookup') console.error('[held-replies] lookup failed, back to held', id);
+    else if (outcome.status === 'failed' && outcome.error === 'lookup') console.error('[held-replies] lookup failed for 12 hours, given up', id);
     if (outcome.status === 'sent') sent += 1;
     else if (outcome.status === 'failed') failed += 1;
     try {

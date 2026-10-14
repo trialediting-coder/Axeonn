@@ -5,6 +5,8 @@
 // public/sw.js, asks the browser, subscribes with the VAPID public key and
 // saves the subscription. On an iPhone that has not added PROOF to the Home
 // Screen it explains how instead, because iOS only pushes to Home Screen apps.
+// On mount, a subscription the browser already has is posted again so the
+// server re-syncs.
 import { useEffect, useState } from 'react';
 import { Bell, BellRing } from 'lucide-react';
 import { needsHomeScreenInstall, urlBase64ToUint8Array } from '@/lib/pushShared';
@@ -29,12 +31,16 @@ export function NotificationsButton({ publicKey, api = '/api/proof/push/subscrib
       if (Notification.permission === 'denied') return set('blocked');
       const reg = await navigator.serviceWorker.getRegistration('/');
       const sub = reg ? await reg.pushManager.getSubscription() : null;
-      set(sub && Notification.permission === 'granted' ? 'on' : 'off');
+      const on = sub !== null && Notification.permission === 'granted';
+      set(on ? 'on' : 'off');
+      // Saved again (the route is idempotent) so a server that lost or pruned it re-syncs.
+      // Best effort: a failed re-sync changes nothing on screen and is tried again next visit.
+      if (on && sub) await fetch(api, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subscription: sub.toJSON() }) }).catch(() => undefined);
     })().catch(() => set('off'));
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [api]);
 
   async function turnOn() {
     setState('working');

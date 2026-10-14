@@ -421,15 +421,16 @@ export function toDashboardEvent(e: ContactEvent): DashboardEvent {
 
 /**
  * A reply typed in quiet hours, waiting for 8 am ('held'); one that definitely
- * did not go out ('failed'); or one whose send was cut off or came back unclear
- * ('unclear': it may have gone out, so the client checks the thread, never "did
- * not go out").
+ * did not go out ('failed'); one not sent because the person texted STOP
+ * overnight ('opted_out': sending it again would be refused too); or one whose
+ * send was cut off or came back unclear ('unclear': it may have gone out, so
+ * the client checks the thread, never "did not go out").
  */
 export interface HeldReply {
   id: number;
   body: string;
   sendAt: string;
-  status: 'held' | 'failed' | 'unclear';
+  status: 'held' | 'failed' | 'opted_out' | 'unclear';
 }
 
 /**
@@ -444,11 +445,13 @@ export function unmatchedTaps<T extends { id: number | string }>(rows: T[], atta
 export function heldReplyStatus(status: string, error: string | null): HeldReply['status'] {
   if (status !== 'failed') return 'held';
   if (error === 'interrupted' || error?.startsWith('unclear:')) return 'unclear';
+  if (error === 'opted_out') return 'opted_out';
   return 'failed';
 }
 
 export const HELD_REPLY_COPY = {
   failed: 'This text did not go out. Send it again from the box below.',
+  opted_out: 'This person asked not to be texted.',
   unclear: 'This text may have gone out. Check the thread before you send it again.',
 } as const;
 
@@ -507,7 +510,8 @@ export function quietNotice(sendAtIso: string, timeZone: string, queued: boolean
     : `It is quiet hours (${QUIET_WINDOW}) where you are. A text sent now goes out ${when}.`;
 }
 
-export const REPLY_REFUSALS = ['empty', 'too_long', 'no_phone', 'no_line', 'sms_pending', 'opted_out', 'bad_number'] as const;
+/** 'send_failed': the send threw with a definite refusal (isDefiniteRejection), so nothing went out and it can be tried again. */
+export const REPLY_REFUSALS = ['empty', 'too_long', 'no_phone', 'no_line', 'sms_pending', 'opted_out', 'bad_number', 'send_failed'] as const;
 export type ReplyRefusal = (typeof REPLY_REFUSALS)[number];
 export const isReplyRefusal = (v: unknown): v is ReplyRefusal => typeof v === 'string' && (REPLY_REFUSALS as readonly string[]).includes(v);
 
@@ -519,7 +523,11 @@ export const REPLY_REFUSAL_COPY: Record<ReplyRefusal, string> = {
   sms_pending: 'Texting turns on once the phone carriers approve your number. We will tell you when.',
   opted_out: 'This person asked not to be texted.',
   bad_number: 'This number cannot get texts from your line.',
+  send_failed: 'Your text did not go out. Try again.',
 };
+
+/** A live reply whose send threw without a definite refusal: it may have left, so the box is cleared and the thread refreshed. */
+export const REPLY_UNCLEAR_COPY = 'This text may have gone out. Refresh and check the thread before you send it again.';
 
 export function validateReplyBody(raw: unknown): { ok: true; body: string } | { ok: false; reason: 'empty' | 'too_long' } {
   const body = typeof raw === 'string' ? raw.trim() : '';
@@ -540,7 +548,7 @@ export function textingState(line: { status: string; smsStatus: string } | null)
  * asks for), no line, carrier approval pending. Quiet hours are not a refusal:
  * the reply is held (canReplyNow).
  */
-export function replyBlocker(input: { hasPhone: boolean; optedOut: boolean; texting: Texting }): Exclude<ReplyRefusal, 'empty' | 'too_long' | 'bad_number'> | null {
+export function replyBlocker(input: { hasPhone: boolean; optedOut: boolean; texting: Texting }): Exclude<ReplyRefusal, 'empty' | 'too_long' | 'bad_number' | 'send_failed'> | null {
   if (!input.hasPhone) return 'no_phone';
   if (input.optedOut) return 'opted_out';
   if (input.texting === 'none') return 'no_line';

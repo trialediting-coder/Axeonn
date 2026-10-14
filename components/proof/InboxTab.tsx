@@ -265,6 +265,11 @@ function ReplyBox({ contact, api, timeZone, texting }: { contact: DashboardConta
     try {
       const res = await fetch(`${api}/${contact.id}/reply`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ body }) });
       const data = (await res.json().catch(() => null)) as { status?: string; sendAt?: string } | null;
+      if (data?.status === 'unclear') {
+        // It may have gone out (lib/inboxReply.ts liveSendFailure): clear the box so it is not sent twice, and show the thread.
+        setBody('');
+        router.refresh();
+      }
       if (!res.ok) throw new Error(errorText(data, 'Your text did not go out. Try again.'));
       setBody('');
       if (data?.status === 'held' && typeof data.sendAt === 'string') setNote(quietNotice(data.sendAt, timeZone, true));
@@ -370,7 +375,7 @@ function ContactView({ view, api, stageApi, timeZone, texting }: { view: Dashboa
         {view.events.length === 0 ? <li className="text-sm text-neutral-500">Nothing yet.</li> : view.events.map((e) => <EventItem key={e.id} e={e} api={api} />)}
         {view.held.map((h) => (
           <li key={`held-${h.id}`} className="flex justify-end">
-            <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ring-1 ${h.status === 'failed' ? 'bg-red-50 text-red-900 ring-red-200' : 'bg-amber-50 text-amber-950 ring-amber-200'}`}>
+            <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ring-1 ${h.status === 'failed' || h.status === 'opted_out' ? 'bg-red-50 text-red-900 ring-red-200' : 'bg-amber-50 text-amber-950 ring-amber-200'}`}>
               <p className="whitespace-pre-wrap break-words">{h.body}</p>
               {/* An interrupted or unclear send may have left (lib/inboxReply.ts), so it never reads "did not go out". */}
               <p className="mt-1 text-[11px]" suppressHydrationWarning>

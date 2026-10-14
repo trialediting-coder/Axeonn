@@ -753,12 +753,13 @@ every alert takes the fallback.
 **Backfill** (`POST /api/admin/contacts/backfill`, admin only). Builds the inbox
 from the calls, texts, non-test forms and follow-up emails that already exist,
 through the same projections, in replay mode: it sends nothing and starts or
-stops no follow-up. It is idempotent. It has a 240 second budget and is not
-resumable yet: each run starts again from the oldest row (rows already projected
-are skipped), and a run that hits the budget returns `done: false` with
-`complete: false` on that client. For a large client call it per client with
-`{ onboardingId }` so each gets its own 240 seconds, and re-run until `done` is
-true.
+stops no follow-up. It is idempotent. It has a 240 second budget and resumes:
+a call, text or form that already has its inbox event is skipped, so each run
+picks up where the last one stopped. A run that hits the budget returns
+`done: false` with `complete: false` on that client; re-run until `done` is
+true. Copying the stages tapped on forms in slice 3 (`stagesCopied`) happens
+once, on the run that completes. For a large client call it per client with
+`{ onboardingId }` so each gets its own 240 seconds.
 
 ### Go-live checklist (owner)
 
@@ -780,9 +781,11 @@ Tick these in order. The code is merged; none of this is done until you do it.
    `form_submissions` rows with `is_test = false`; `messages` counts inbound
    texts plus outbound texts to someone who is a contact (owner alerts and texts
    to non-contacts are not counted). `stagesCopied` is the number of contacts
-   that took a stage already tapped on a form in slice 3. Running it again
-   returns the same `calls`, `messages` and `forms`, `stagesCopied: 0`, and adds
-   nothing. If `done` is `false`, run it again.
+   that took a stage already tapped on a form in slice 3. These counts are for
+   that run only: if `done` is `false`, run it again and add the runs up. Once
+   complete, running it again returns `calls: 0`, `forms: 0`, `stagesCopied: 0`
+   and adds nothing (`messages` stays 0 too; outbound texts to non-contacts are
+   looked at again but never counted).
 4. **Database checks that could not run in development.** Run them against
    production on a test client:
    - Merge of two contacts: a form with the phone of contact A and the email of
@@ -803,9 +806,8 @@ Tick these in order. The code is merged; none of this is done until you do it.
 7. **Quiet-hours test.** After 8 pm Central, send another: the box says it goes
    out at 8:00 AM, and it arrives at 8 am (between 8:00 and 8:15).
 8. **Stage test.** Tap Quote sent on that contact: the quote follow-up starts
-   (the note says so). If the contact came from a form, the same form in an
-   Essentials-style form list (admin "View as client" of an Essentials client, or
-   the database) shows Contacted too.
+   (the note says so). If the contact came from a form, check the database:
+   that form's `form_submissions` row has `stage = 'contacted'` too.
 9. **Push test, Android.** Chrome on an Android phone, PROOF signed in, "Turn on
    notifications", allow. Text the tracked number from another phone: "New text
    from a lead" arrives with no number or words in it; tapping it opens that

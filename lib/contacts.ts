@@ -176,18 +176,22 @@ async function mirrorSystemStage(onboardingId: number, contactId: number, next: 
       );`;
 }
 
-async function clickIdFor(onboardingId: number, contactId: number): Promise<number | null> {
+async function clickIdsFor(onboardingId: number, contactId: number): Promise<number[]> {
   const { rows } = await sql<{ ref_id: DbId }>`
     SELECT ref_id FROM contact_events
     WHERE onboarding_id = ${onboardingId} AND contact_id = ${contactId} AND kind = 'click' AND ref_table = 'site_events'
-    ORDER BY created_at LIMIT 1;`;
-  return rows[0] ? Number(rows[0].ref_id) : null;
+    ORDER BY created_at, id;`;
+  return rows.map((r) => Number(r.ref_id));
 }
 
-/** Won/Lost onto the matched website tap, so the close rate learns from it (an unmatched contact is counted by lib/siteStats.ts directly). */
+/**
+ * Won/Lost onto every website tap matched to this contact (scoped by the
+ * client), so the close rate learns from each of them (an unmatched contact is
+ * counted by lib/siteStats.ts directly).
+ */
 async function writeBackOutcome(onboardingId: number, contactId: number, stage: LeadStage): Promise<void> {
-  const clickId = await clickIdFor(onboardingId, contactId);
-  if (clickId) await setLeadOutcome(onboardingId, clickId, outcomeForStage(stage));
+  const outcome = outcomeForStage(stage);
+  for (const clickId of await clickIdsFor(onboardingId, contactId)) await setLeadOutcome(onboardingId, clickId, outcome);
 }
 
 // ───────────────────────────── Resolving and merging ─────────────────────────────
@@ -995,20 +999,34 @@ async function copyFormStages(onboardingId: number): Promise<number> {
  * Build one client's contacts from every call, text and (non-test) form that
  * exists, in the order they happened, through the same projections the
  * webhooks use, in replay mode, then the follow-up emails slice 3 already sent.
- * Safe to run any number of times. Sends nothing: no push, no text, no
- * follow-up started or stopped. Starts no new row past `deadline` (ms epoch)
- * and then says so (complete: false); running it again finishes the job.
+ * Rows that already have their contact_events row (same ref_table, ref_id and
+ * kind) are skipped, so a run cut off by `deadline` resumes where it stopped
+ * and a later run reaches complete: true. Safe to run any number of times.
+ * Sends nothing: no push, no text, no follow-up started or stopped. Starts no
+ * new row past `deadline` (ms epoch) and then says so (complete: false);
+ * copyFormStages runs only once everything else is in (complete).
  */
 export async function backfill(onboardingId: number, opts: { deadline?: number } = {}): Promise<BackfillResult> {
   const deadline = opts.deadline ?? Number.POSITIVE_INFINITY;
   await ensureSchema();
+  // The message kind CASE mirrors messageEventKind (lib/contactsShared.ts); alerts are never projected.
   const { rows } = await sql<{ src: 'call' | 'message' | 'form'; sid: string | null; id: DbId | null }>`
     SELECT src, sid, id FROM (
-      SELECT 'call' AS src, call_sid AS sid, NULL::bigint AS id, started_at AS at FROM phone_calls WHERE onboarding_id = ${onboardingId}
+      SELECT 'call' AS src, c.call_sid AS sid, NULL::bigint AS id, c.started_at AS at FROM phone_calls c
+      WHERE c.onboarding_id = ${onboardingId}
+        AND NOT EXISTS (SELECT 1 FROM contact_events e WHERE e.ref_table = 'phone_calls' AND e.ref_id = c.id AND e.kind = 'call')
       UNION ALL
-      SELECT 'message', message_sid, NULL::bigint, created_at FROM phone_messages WHERE onboarding_id = ${onboardingId} AND kind <> 'alert'
+      SELECT 'message', m.message_sid, NULL::bigint, m.created_at FROM phone_messages m
+      WHERE m.onboarding_id = ${onboardingId} AND m.kind <> 'alert'
+        AND NOT EXISTS (
+          SELECT 1 FROM contact_events e WHERE e.ref_table = 'phone_messages' AND e.ref_id = m.id
+            AND e.kind = CASE WHEN m.direction = 'inbound' THEN 'text_in' WHEN m.kind = 'sequence' THEN 'sequence'
+                              WHEN m.kind = 'reminder' THEN 'reminder' ELSE 'text_out' END
+        )
       UNION ALL
-      SELECT 'form', NULL::text, id, created_at FROM form_submissions WHERE onboarding_id = ${onboardingId} AND NOT is_test
+      SELECT 'form', NULL::text, f.id, f.created_at FROM form_submissions f
+      WHERE f.onboarding_id = ${onboardingId} AND NOT f.is_test
+        AND NOT EXISTS (SELECT 1 FROM contact_events e WHERE e.ref_table = 'form_submissions' AND e.ref_id = f.id AND e.kind = 'form')
     ) s
     ORDER BY at, src;`;
   const out: BackfillResult = { onboardingId, calls: 0, messages: 0, forms: 0, sequenceEmails: 0, stagesCopied: 0, complete: false };
