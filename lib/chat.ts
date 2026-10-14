@@ -20,7 +20,7 @@ import { messageParams, runToolLoop, type ContentBlock, type CreateMessage } fro
 import { chatToolExecutor, initialToolState } from '@/lib/chatTools';
 import {
   CHAT_CALL_TIMEOUT_MS, CHAT_MODEL, CHAT_TOOLS, CHAT_TURN_BUDGET_MS, DEFAULT_GREETING, MAX_PAGES_IN_PROMPT, MAX_SESSION_MESSAGES,
-  buildSystemPrompt, clampHistory, fallbackReply, finalizeReply, findPhone, isSessionId, sessionToolFlags, todayLine, toolNotes, toolRow, toolSucceeded, turnCapReason,
+  bookedMessageAlertText, buildSystemPrompt, clampHistory, fallbackReply, finalizeReply, findPhone, isSessionId, sessionToolFlags, todayLine, toolNotes, toolRow, toolSucceeded, turnCapReason,
   type ChatAdminData, type ChatContext, type ChatRole, type ChatRow, type ChatSettings, type ChatTranscript, type SitePageText, type ToolCall,
 } from '@/lib/chatShared';
 
@@ -305,8 +305,37 @@ export async function handleChatTurn(input: {
       submitLead: async (lead) => {
         await submitChatLead(onboarding, { ...lead, email: null, page: input.page, session: session.id }, input.defer);
       },
-      alertOwner: (subject, body) => alertOwner(onboarding, subject, body),
+      noteOnBooking: async (note) => {
+        // A booked customer's later message: a note on their booking's timeline (refPart 2, after the booking and its cancel note), never a new lead.
+        const { rows: found } = note.bookingId
+          ? await sql<{ contact_name: string; phone: string; email: string | null }>`SELECT contact_name, phone, email FROM bookings WHERE id = ${note.bookingId} AND onboarding_id = ${onboarding.id};`
+          : { rows: [] };
+        const b = found[0];
+        const name = b?.contact_name ?? note.name;
+        await logContactEvent({
+          onboardingId: onboarding.id,
+          phone: b?.phone ?? note.phone,
+          email: b?.email ?? null,
+          name,
+          kind: 'note',
+          refTable: b ? 'bookings' : 'chat_sessions',
+          refId: b ? note.bookingId : null,
+          refPart: 2,
+          summary: `Message from the chat: ${note.message}`.slice(0, 80),
+          payload: { text: note.message, session: session.id, source: 'chat', booked: note.when },
+          createIfMissing: false,
+        });
+        // The owner heads-up is a text or email; it runs after the reply, so it cannot hold up the turn.
+        input.defer(safely('booked message alert', () => alertOwner(onboarding, `Message from ${name ?? 'a customer'} about their booking`, bookedMessageAlertText({ who: name, when: note.when, message: note.message }))));
+      },
+      alertOwner: (subject, body) => {
+        // Started now; the handoff waits for it only until the turn's deadline, and after() keeps it alive past the reply.
+        const running = alertOwner(onboarding, subject, body);
+        input.defer(safely('handoff alert', () => running));
+        return running;
+      },
       knowPhone,
+      deadline,
       now,
     },
     state

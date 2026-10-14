@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import {
   CHAT_TOOLS, PAGES_BUDGET_CHARS, PAGE_CHARS_MAX, bookedInRows, buildSystemPrompt, claimsBooking, clampHistory, finalizeReply, findPhone, isSessionId,
   pagesBlock, pricesNotOnSite, sanitizeVisitorText, todayLine, toolLabel, toolNotes, validateChatSettings, type ChatContext, type ChatRow,
-  MAX_SITE_MESSAGES_PER_HOUR, MAX_SITE_TURNS_PER_DAY, MAX_TURNS_PER_HOUR_ALL_SITES, TOOL_ROW_MAX, handoffAlertText, sessionToolFlags, toolRow, turnCapReason,
+  MAX_SITE_MESSAGES_PER_HOUR, MAX_SITE_TURNS_PER_DAY, MAX_TURNS_PER_HOUR_ALL_SITES, TOOL_ROW_MAX, bookedMessageAlertText, handoffAlertText, sessionToolFlags, toolRow, turnCapReason,
 } from './chatShared';
 
 test('toolRow always stores valid JSON within the cap, so a long book_slot row still counts as a booking', () => {
@@ -19,7 +19,7 @@ test('toolRow always stores valid JSON within the cap, so a long book_slot row s
   assert.ok(!('nested' in back.input));
   const rows: ChatRow[] = [{ role: 'tool', content: row }];
   assert.equal(bookedInRows(rows), true);
-  assert.deepEqual(sessionToolFlags(rows), { booked: true, bookedWhen: 'Tue, Oct 20 at 2:00 PM', messaged: false, handedOff: false });
+  assert.deepEqual(sessionToolFlags(rows), { booked: true, bookedWhen: 'Tue, Oct 20 at 2:00 PM', bookedId: null, messaged: false, handedOff: false });
   // Even a giant result keeps the row valid and keeps ok.
   const giant = toolRow({ name: 'book_slot', input: {}, result: { ok: true, junk: 'x'.repeat(10_000) } });
   assert.ok(giant.length <= TOOL_ROW_MAX);
@@ -194,4 +194,17 @@ test('an empty reply after a tool went through says what happened, never "having
   assert.doesNotMatch(took.reply, /trouble/);
   const failed = finalizeReply({ ...base, calls: [{ name: 'book_slot', input: {}, result: { ok: false }, isError: false }] });
   assert.match(failed.reply, /trouble/);
+});
+
+test('sessionToolFlags carries the booking id from a stored book_slot row', () => {
+  const rows: ChatRow[] = [{ role: 'tool', content: toolRow({ name: 'book_slot', input: {}, result: { ok: true, when: 'Tue, Oct 20 at 2:00 PM', booking_id: 41 } }) }];
+  assert.equal(sessionToolFlags(rows).bookedId, 41);
+});
+
+test('bookedMessageAlertText names the booking, keeps it short and strips links', () => {
+  const text = bookedMessageAlertText({ who: 'Jane', when: 'Tue, Oct 20 at 2:00 PM', message: `also my trailer, see bit.ly/abc ${'z'.repeat(500)}` });
+  assert.ok(text.length <= 300);
+  assert.match(text, /^Jane \(booked for Tue, Oct 20 at 2:00 PM\) added a message/);
+  assert.ok(!/bit\.ly/.test(text));
+  assert.match(text, /\[link removed\]/);
 });

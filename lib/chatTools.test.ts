@@ -18,7 +18,7 @@ function booking(input: BookingInput, id = 1): Booking {
 }
 
 function harness(over: Partial<ChatToolDeps> = {}, rows: ChatRow[] = []) {
-  const log = { bookings: 0, followThrough: 0, leads: 0, alerts: [] as string[], rateChecks: 0 };
+  const log = { bookings: 0, followThrough: 0, leads: 0, alerts: [] as string[], rateChecks: 0, notes: [] as Array<{ bookingId: number | null; message: string; when: string }> };
   const deps: ChatToolDeps = {
     booking: { enabled: true, slotMinutes: 60, bufferMinutes: 0, leadDays: 14, hours: {}, serviceNames: [], confirmMessage: null },
     timeZone: TZ,
@@ -36,6 +36,9 @@ function harness(over: Partial<ChatToolDeps> = {}, rows: ChatRow[] = []) {
     },
     submitLead: async () => {
       log.leads += 1;
+    },
+    noteOnBooking: async (note) => {
+      log.notes.push({ bookingId: note.bookingId, message: note.message, when: note.when });
     },
     alertOwner: async (_subject, body) => {
       log.alerts.push(body);
@@ -131,4 +134,61 @@ test('a lead or booking that went through is not undone when saving the number o
   assert.equal(booked.ok, true);
   assert.equal(log.leads, 1);
   assert.equal(log.followThrough, 1);
+});
+
+test('after a booking, take_message files no lead: the message is noted on the booking instead', async () => {
+  const { exec, log } = harness();
+  const booked = (await exec('book_slot', BOOK)) as { ok: boolean; booking_id: number };
+  assert.equal(booked.ok, true);
+  assert.equal(booked.booking_id, 1);
+  const r = (await exec('take_message', { name: 'Jane Doe', phone: '515-555-0134', message: 'Can you also look at my trailer?' })) as { ok: boolean; added_to_booking: boolean; note: string };
+  assert.equal(r.ok, true);
+  assert.equal(r.added_to_booking, true);
+  assert.match(r.note, /with their booking/);
+  assert.equal(log.leads, 0, 'no deliverLead, no owner ring, no new-lead texts');
+  assert.deepEqual(log.notes, [{ bookingId: 1, message: 'Can you also look at my trailer?', when: log.notes[0].when }]);
+  assert.match(log.notes[0].when, /Oct 20/);
+  const again = (await exec('take_message', { name: 'Jane Doe', phone: '515-555-0134', message: 'more' })) as { already?: boolean };
+  assert.equal(again.already, true);
+  assert.equal(log.notes.length, 1);
+});
+
+test('a booking from an earlier turn also turns take_message into a note on that booking', async () => {
+  const rows: ChatRow[] = [{ role: 'tool', content: JSON.stringify({ name: 'book_slot', input: {}, result: { ok: true, when: 'Tue, Oct 20 at 2:00 PM', booking_id: 9 } }) }];
+  const { exec, log } = harness({}, rows);
+  const r = (await exec('take_message', { name: 'Jane', message: 'Gate code is 1234' })) as { ok: boolean };
+  assert.equal(r.ok, true);
+  assert.equal(log.leads, 0);
+  assert.deepEqual(log.notes, [{ bookingId: 9, message: 'Gate code is 1234', when: 'Tue, Oct 20 at 2:00 PM' }]);
+  const empty = harness({}, rows);
+  const none = (await empty.exec('take_message', { name: 'Jane', phone: '515-555-0134', message: '  ' })) as { ok: boolean };
+  assert.equal(none.ok, false);
+  assert.equal(empty.log.notes.length, 0);
+});
+
+test('post-booking tool texts no longer steer a booked customer to a new message lead', async () => {
+  const { exec } = harness();
+  await exec('book_slot', BOOK);
+  const offer = (await exec('offer_booking', {})) as { note: string };
+  const again = (await exec('book_slot', BOOK)) as { error: string };
+  for (const text of [offer.note, again.error]) {
+    assert.ok(!/offer to take a message/i.test(text), text);
+    assert.match(text, /adds it to their booking/);
+  }
+});
+
+test('a slow handoff alert is waited on only until the turn deadline', async () => {
+  const t = Date.parse('2026-10-14T15:00:00.000Z');
+  const { exec } = harness({ alertOwner: () => new Promise<void>((resolve) => setTimeout(resolve, 2000)), deadline: t + 30, now: () => t });
+  const started = Date.now();
+  const r = (await exec('handoff', { name: 'Jane', phone: '515-555-0134', reason: 'call me' })) as { ok: boolean };
+  assert.equal(r.ok, true);
+  assert.ok(Date.now() - started < 1000, 'returned at the deadline, not when the text finished');
+});
+
+test('a handoff alert that fails before the deadline is still an error', async () => {
+  const now = Date.parse('2026-10-14T15:00:00.000Z');
+  const { exec, state } = harness({ alertOwner: async () => { throw new Error('email down'); }, deadline: now + 10_000, now: () => now });
+  await assert.rejects(exec('handoff', { name: 'Jane', phone: '515-555-0134', reason: 'x' }), /email down/);
+  assert.equal(state.handedOff, false);
 });

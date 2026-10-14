@@ -336,12 +336,14 @@ export interface SessionToolFlags {
   booked: boolean;
   /** The booked time's label, when the stored row has one. */
   bookedWhen: string | null;
+  /** The booking's id, when the stored row has one (a message after booking is noted on it). */
+  bookedId: number | null;
   messaged: boolean;
   handedOff: boolean;
 }
 
 export function sessionToolFlags(rows: readonly ChatRow[]): SessionToolFlags {
-  const flags: SessionToolFlags = { booked: false, bookedWhen: null, messaged: false, handedOff: false };
+  const flags: SessionToolFlags = { booked: false, bookedWhen: null, bookedId: null, messaged: false, handedOff: false };
   for (const r of rows) {
     if (r.role !== 'tool') continue;
     const call = parseToolRow(r.content);
@@ -349,6 +351,7 @@ export function sessionToolFlags(rows: readonly ChatRow[]): SessionToolFlags {
     if (call.name === 'book_slot') {
       flags.booked = true;
       if (typeof call.result.when === 'string' && call.result.when) flags.bookedWhen = call.result.when;
+      if (typeof call.result.booking_id === 'number' && Number.isInteger(call.result.booking_id)) flags.bookedId = call.result.booking_id;
     }
     else if (call.name === 'take_message') flags.messaged = true;
     else if (call.name === 'handoff') flags.handedOff = true;
@@ -398,6 +401,18 @@ export function handoffAlertText(input: { who: string | null; phone: string; rea
   const who = (input.who ?? '').replace(URL_RE, '').replace(/\s+/g, ' ').trim().slice(0, 40) || 'A visitor';
   const reason = input.reason.replace(URL_RE, '[link removed]').replace(/\s+/g, ' ').trim().slice(0, HANDOFF_REASON_MAX);
   return `${who} at ${input.phone} asked for a person on your website chat${reason ? `: ${reason}` : '.'} Text or call them back.`.slice(0, 300);
+}
+
+/**
+ * The owner's text when someone who already booked in the chat leaves a
+ * message: name, booked time and message, cut short and link-free like the
+ * handoff text, since a visitor wrote it.
+ */
+export function bookedMessageAlertText(input: { who: string | null; when: string; message: string }): string {
+  const who = (input.who ?? '').replace(URL_RE, '').replace(/\s+/g, ' ').trim().slice(0, 40) || 'A customer';
+  const message = input.message.replace(URL_RE, '[link removed]').replace(/\s+/g, ' ').trim().slice(0, HANDOFF_REASON_MAX);
+  const booked = input.when ? ` (booked for ${input.when})` : ' (already booked)';
+  return `${who}${booked} added a message on your website chat: ${message || '(no text)'} It is on their booking in your inbox.`.slice(0, 300);
 }
 
 /** Which spend or flood cap a turn hits, before any model call: the site's hour, the site's day, or the whole account's hour. */
