@@ -3,6 +3,7 @@
 //   GET                                                       { posts }
 //   POST  { platforms, videoUrl, caption, scheduledAt|null }  create (draft when no time)
 //   PATCH { id, scheduledAt }                                 schedule a draft / retry a failed one
+//   PATCH { id, action: 'posted' | 'retry' }                  settle a post that may have posted (F1)
 //   DELETE { id }                                             delete a post that has not gone out
 // The video itself is uploaded from the browser straight to Vercel Blob via ./upload.
 import { NextResponse } from 'next/server';
@@ -10,8 +11,8 @@ import { requireAdmin } from '@/lib/adminAuth';
 import { jsonError, readBody } from '@/lib/billingApi';
 import { getOnboardingByToken } from '@/lib/onboarding';
 import { metaUnavailable } from '@/lib/meta';
-import { assertGrowth, createSocialPosts, deleteSocialPost, listSocialPosts, scheduleSocialPost } from '@/lib/social';
-import { validateSocialInput } from '@/lib/socialShared';
+import { assertGrowth, createSocialPosts, deleteSocialPost, listSocialPosts, resolveUnclearPost, scheduleSocialPost } from '@/lib/social';
+import { parseUnclearAction, validateSocialInput } from '@/lib/socialShared';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -63,7 +64,14 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ token: string
   try {
     const onboarding = await load((await ctx.params).token);
     const body = await readBody(req);
-    await scheduleSocialPost(onboarding.id, id(body.id), body.scheduledAt);
+    // requireAdmin ran in guard(); every write below is scoped to this onboarding's id.
+    if (body.action !== undefined) {
+      const action = parseUnclearAction(body.action);
+      if (!action) return NextResponse.json({ error: 'Unknown action' }, { status: 400 });
+      await resolveUnclearPost(onboarding.id, id(body.id), action);
+    } else {
+      await scheduleSocialPost(onboarding.id, id(body.id), body.scheduledAt);
+    }
     return NextResponse.json({ posts: await listSocialPosts(onboarding.id) });
   } catch (err) {
     return jsonError(err);

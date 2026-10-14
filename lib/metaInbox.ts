@@ -86,7 +86,8 @@ async function recordOne(e: MetaInboundMessage, now: Date): Promise<RecordResult
   await notifyLeadActivity(page.onboardingId, contactId, e.channel);
   // The name last: a slow Graph call (10 s timeout) must never delay the recording or the alert.
   if (created) {
-    const name = await profileName(e.channel, e.senderId, page.pageToken);
+    // A 190 here marks the page for reconnecting, so the admin card shows it before anyone tries to reply.
+    const name = await profileName(e.channel, e.senderId, page.pageToken, fetch, (err) => markNeedsReconnect(page.pageId, errText(err)));
     if (name) await upsertContactByExternalId({ onboardingId: page.onboardingId, channel: e.channel, externalId: e.senderId, name, at: sentAt });
   }
   return 'recorded';

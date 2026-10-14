@@ -10,20 +10,29 @@
 // Never twice: `publish_unclear` is set just before a publish call and cleared
 // only by a clear answer (an id, or a 4xx refusal). A timeout, 5xx, missing id
 // or a run that dies mid-call leaves it set; the post is marked failed with a
-// "check first" note and can never be retried or published again.
+// "check first" note and is never retried or published again on its own.
+//
+// Settling an unclear post (F1): each cron run looks at it again. Instagram:
+// the saved container's status (PUBLISHED → posted; ERROR or EXPIRED → safe to
+// retry; anything else → left as it is). Facebook: the page's recent videos,
+// matched on the exact caption near the scheduled time. The admin can also
+// answer it by hand: "It posted" or "Allow a retry" (resolveUnclearPost).
 import { del } from '@vercel/blob';
 import { ensureSchema, sql } from '@/lib/db';
 import { errText, iso, type DbTime } from '@/lib/dbRows';
 import type { Onboarding } from '@/lib/onboarding';
-import { containerStatus, createReelContainer, mediaInsights, mediaPermalink, MetaApiError, publishContainer, publishPageVideo } from '@/lib/meta';
+import { containerStatus, createReelContainer, mediaInsights, mediaPermalink, MetaApiError, publishContainer, publishPageVideo, recentPageVideos } from '@/lib/meta';
 import { markNeedsReconnect, pageForId, pagesFor } from '@/lib/metaPages';
 import { secretRedact, type DashboardReel, type SocialPlatform, type SocialPost, type SocialStatus } from '@/lib/metaShared';
 import {
   CRON_STOP_AFTER_MS,
+  FB_MATCH_BEFORE_MS,
   keepContainerOnGiveUp,
+  matchPageVideo,
   nextSocialStep,
   PER_INSIGHT_BUDGET_MS,
   PER_POST_BUDGET_MS,
+  PER_SETTLE_BUDGET_MS,
   platformsForPage,
   PUBLISH_TIMEOUT_MS,
   publishOutcome,
@@ -31,9 +40,13 @@ import {
   runBounded,
   shouldGiveUp,
   toDashboardReel,
+  UNCLEAR_LOOKBACK_DAYS,
+  unclearActionProblem,
+  unclearContainerVerdict,
   unclearPublishNote,
   validateScheduleTime,
   type SocialInput,
+  type UnclearAction,
 } from '@/lib/socialShared';
 
 const isoOrNull = (t: DbTime | null): string | null => (t ? iso(t) : null);
@@ -131,6 +144,37 @@ export async function scheduleSocialPost(onboardingId: number, id: number, rawTi
   if (!res.rowCount) throw new Error('That post is being posted right now, was already published, or no longer exists.');
 }
 
+/**
+ * The admin's answer on a post that may have posted (F1). 'posted': they saw it on the page, so it
+ * is recorded as posted (no remote id; reach is not tracked for it). 'retry': they checked and it is
+ * not there, so the flag is cleared and it is due again at once; the next hourly run publishes it
+ * (an Instagram container is kept, so a PUBLISHED one is recorded instead of posted twice).
+ * Scoped to this onboarding, and refused for a row the cron holds right now.
+ */
+export async function resolveUnclearPost(onboardingId: number, id: number, action: UnclearAction): Promise<void> {
+  await ensureSchema();
+  const cur = await sql<PostRow>`SELECT * FROM social_posts WHERE id = ${id} AND onboarding_id = ${onboardingId};`;
+  const row = cur.rows[0];
+  if (!row) throw new Error('That post no longer exists.');
+  const problem = unclearActionProblem(toPost(row));
+  if (problem) throw new Error(problem);
+  const res =
+    action === 'posted'
+      ? await sql`
+          UPDATE social_posts SET status = 'published', publish_unclear = false, error = 'Marked as posted after a check on the page.',
+            published_at = COALESCE(published_at, now()), locked_until = NULL, updated_at = now()
+          WHERE id = ${id} AND onboarding_id = ${onboardingId} AND status = 'failed' AND publish_unclear = true AND remote_id IS NULL
+            AND (locked_until IS NULL OR locked_until < now());
+        `
+      : await sql`
+          UPDATE social_posts SET status = 'scheduled', publish_unclear = false, scheduled_at = now(), error = NULL, attempts = 0,
+            locked_until = NULL, updated_at = now()
+          WHERE id = ${id} AND onboarding_id = ${onboardingId} AND status = 'failed' AND publish_unclear = true AND remote_id IS NULL
+            AND (locked_until IS NULL OR locked_until < now());
+        `;
+  if (!res.rowCount) throw new Error('That post is being checked right now, or was already settled. Refresh and look again.');
+}
+
 /** Deletes a post that has not gone out, and its video when no other post uses it. Published posts stay on record. */
 export async function deleteSocialPost(onboardingId: number, id: number): Promise<void> {
   await ensureSchema();
@@ -198,6 +242,7 @@ async function markUnclear(post: PostRow, containerId: string | null) {
 /** A failure that is known not to have posted anything. Returns true when the post is given up. */
 async function markProblem(post: PostRow, err: unknown) {
   const status = err instanceof MetaApiError ? err.status : 0;
+  const code = err instanceof MetaApiError ? err.code : null;
   const tokenInvalid = err instanceof MetaApiError && err.tokenInvalid;
   const message = secretRedact(errText(err)).slice(0, 400);
   if (tokenInvalid) {
@@ -208,8 +253,8 @@ async function markProblem(post: PostRow, err: unknown) {
     }
   }
   const giveUp = tokenInvalid || shouldGiveUp(post.attempts, status);
-  // M3: a container is cleared only when Meta clearly refused it; otherwise a retry checks it first.
-  const containerId = giveUp && !keepContainerOnGiveUp(status, tokenInvalid) ? null : post.container_id;
+  // M3: a container is cleared only when Meta clearly refused it (not a rate limit or code 2); otherwise a retry checks it first.
+  const containerId = giveUp && !keepContainerOnGiveUp(status, tokenInvalid, code) ? null : post.container_id;
   await sql`
     UPDATE social_posts SET attempts = attempts + 1, error = ${message}, status = ${giveUp ? 'failed' : 'scheduled'},
       container_id = ${containerId}, locked_until = NULL, updated_at = now()
@@ -320,7 +365,7 @@ async function runOne(post: PostRow, deps: CronDeps): Promise<Outcome> {
         post,
         ready,
         () => publishContainer({ igUserId, pageToken: page.pageToken, containerId: ready, timeoutMs: PUBLISH_TIMEOUT_MS }),
-        (mediaId) => mediaPermalink(mediaId, page.pageToken)
+        (mediaId) => mediaPermalink(mediaId, page.pageToken, fetch, (err) => reconnectPage(page.pageId, err))
       );
     }
     if (code === 'PUBLISHED') {
@@ -338,6 +383,101 @@ async function runOne(post: PostRow, deps: CronDeps): Promise<Outcome> {
     // Keep a container created earlier in this run: writing back the row's old (null) id would make the next run create a second one.
     return (await markProblem({ ...post, container_id: containerId }, err)) ? 'failed' : 'waiting';
   }
+}
+
+/** Code 190 on any reels path: mark the page for reconnecting. Never throws. */
+async function reconnectPage(pageId: string, err: unknown): Promise<void> {
+  try {
+    await markNeedsReconnect(pageId, secretRedact(errText(err)));
+  } catch (inner) {
+    console.error('[social] needs-reconnect write failed', secretRedact(errText(inner)));
+  }
+}
+
+type Settled = 'posted' | 'retry_safe' | 'wait';
+
+/** One unclear post, looked at again (F1). Nothing is ever published from here. */
+async function settleOne(post: PostRow): Promise<Settled> {
+  const page = await pageForId(post.page_id);
+  if (!page || page.onboardingId !== post.onboarding_id || page.status !== 'active') {
+    await release(post.id);
+    return 'wait';
+  }
+  if (post.platform === 'instagram') {
+    if (!post.container_id) {
+      await release(post.id);
+      return 'wait';
+    }
+    const { code } = await containerStatus(post.container_id, page.pageToken);
+    const verdict = unclearContainerVerdict(code);
+    if (verdict === 'posted') {
+      // Instagram's container does not hand back the media id, so none is stored (no reach for this one).
+      await markRecoveredPublished(post.id);
+      return 'posted';
+    }
+    if (verdict === 'retry_safe') {
+      const why = code === 'EXPIRED' ? 'Not posted: Instagram let the upload expire.' : 'Not posted: Instagram could not process the video.';
+      await sql`
+        UPDATE social_posts SET publish_unclear = false, container_id = NULL, error = ${`${why} It is safe to schedule it again.`},
+          locked_until = NULL, updated_at = now()
+        WHERE id = ${post.id} AND status = 'failed' AND publish_unclear = true;
+      `;
+      return 'retry_safe';
+    }
+    await release(post.id);
+    return 'wait';
+  }
+  // Facebook: only a single exact caption match near the scheduled time counts.
+  const at = post.scheduled_at ? Date.parse(iso(post.scheduled_at)) : NaN;
+  if (!post.caption.trim() || !Number.isFinite(at)) {
+    await release(post.id);
+    return 'wait';
+  }
+  const [videos, taken] = await Promise.all([
+    recentPageVideos({ pageId: page.pageId, pageToken: page.pageToken, sinceMs: at - FB_MATCH_BEFORE_MS }),
+    sql<{ remote_id: string }>`SELECT remote_id FROM social_posts WHERE page_id = ${post.page_id} AND platform = 'facebook' AND remote_id IS NOT NULL AND id <> ${post.id};`,
+  ]);
+  const videoId = matchPageVideo(videos, { caption: post.caption, scheduledAt: iso(post.scheduled_at!) }, new Set(taken.rows.map((r) => r.remote_id)));
+  if (!videoId) {
+    await release(post.id);
+    return 'wait';
+  }
+  await markPublished(post.id, videoId, `https://www.facebook.com/${encodeURIComponent(page.pageId)}/videos/${encodeURIComponent(videoId)}`, 'Posted. Found on the page after the publish call timed out.');
+  return 'posted';
+}
+
+/** Claims unclear posts (failed, flag set, no id) from the last UNCLEAR_LOOKBACK_DAYS with the same lease as publishing, and settles what it can. */
+async function settleUnclear(deps: CronDeps, stopAt: number): Promise<number> {
+  const claimed = await sql<PostRow>`
+    UPDATE social_posts SET locked_until = now() + interval '10 minutes'
+    WHERE id IN (
+      SELECT p.id FROM social_posts p JOIN onboardings o ON o.id = p.onboarding_id
+      WHERE p.status = 'failed' AND p.publish_unclear = true AND p.remote_id IS NULL
+        AND o.tier = 'axeongrowth' AND o.status <> 'closed'
+        AND p.scheduled_at > ${new Date(deps.now().getTime() - UNCLEAR_LOOKBACK_DAYS * 86_400_000).toISOString()}
+        AND (p.platform = 'facebook' OR p.container_id IS NOT NULL)
+        AND (p.locked_until IS NULL OR p.locked_until < now())
+      ORDER BY p.scheduled_at LIMIT ${POSTS_PER_RUN}
+      FOR UPDATE OF p SKIP LOCKED
+    )
+    AND (locked_until IS NULL OR locked_until < now())
+    RETURNING *;
+  `;
+  const { results } = await runBounded<PostRow, Settled>(claimed.rows, {
+    now: () => deps.now().getTime(),
+    stopAt,
+    perItemMs: PER_SETTLE_BUDGET_MS,
+    run: (post) => settleOne(post),
+    onError: async (post, err) => {
+      console.error('[social] settle', post.id, secretRedact(errText(err)));
+      if (err instanceof MetaApiError && err.tokenInvalid) await reconnectPage(post.page_id, err);
+      await release(post.id);
+      return 'wait';
+    },
+    onSkip: (post) => release(post.id),
+    fallback: 'wait',
+  });
+  return results.filter((r) => r !== 'wait').length;
 }
 
 async function refreshOne(post: PostRow, deps: CronDeps): Promise<number> {
@@ -368,6 +508,8 @@ async function refreshInsights(deps: CronDeps, stopAt: number): Promise<number> 
     run: (post) => refreshOne(post, deps),
     onError: async (post, err) => {
       console.error('[social] insights', post.id, secretRedact(errText(err)));
+      // A dead token: show it on the admin card instead of reach quietly freezing.
+      if (err instanceof MetaApiError && err.tokenInvalid) await reconnectPage(post.page_id, err);
       // Try again tomorrow rather than every hour.
       await sql`UPDATE social_posts SET insights_at = ${deps.now().toISOString()} WHERE id = ${post.id};`;
       return 0;
@@ -386,7 +528,7 @@ async function refreshInsights(deps: CronDeps, stopAt: number): Promise<number> 
  */
 export async function runSocialCron(
   deps: CronDeps = realDeps
-): Promise<{ published: number; failed: number; waiting: number; reconnect: number; unclear: number; released: number; insights: number }> {
+): Promise<{ published: number; failed: number; waiting: number; reconnect: number; unclear: number; released: number; settled: number; insights: number }> {
   const stopAt = deps.now().getTime() + CRON_STOP_AFTER_MS;
   await ensureSchema();
   const claimed = await sql<PostRow>`
@@ -401,7 +543,7 @@ export async function runSocialCron(
     AND (locked_until IS NULL OR locked_until < now())
     RETURNING *;
   `;
-  const tally = { published: 0, failed: 0, waiting: 0, reconnect: 0, unclear: 0, released: 0, insights: 0 };
+  const tally = { published: 0, failed: 0, waiting: 0, reconnect: 0, unclear: 0, released: 0, settled: 0, insights: 0 };
   const { results, skipped } = await runBounded<PostRow, Outcome>(claimed.rows, {
     now: () => deps.now().getTime(),
     stopAt,
@@ -413,6 +555,11 @@ export async function runSocialCron(
   });
   for (const r of results) tally[r] += 1;
   tally.released = skipped;
+  try {
+    tally.settled = await settleUnclear(deps, stopAt);
+  } catch (err) {
+    console.error('[social] settle run failed', secretRedact(errText(err)));
+  }
   try {
     tally.insights = await refreshInsights(deps, stopAt);
   } catch (err) {

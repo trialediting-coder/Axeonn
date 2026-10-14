@@ -106,9 +106,85 @@ export function publishOutcome(httpStatus: number): 'not_posted' | 'unclear' {
   return httpStatus >= 400 && httpStatus < 500 ? 'not_posted' : 'unclear';
 }
 
-/** Whether a post that is being given up keeps its Instagram container: cleared only when Meta clearly refused it (a 4xx that is not a dead token). */
-export function keepContainerOnGiveUp(httpStatus: number, tokenInvalid: boolean): boolean {
-  return tokenInvalid || publishOutcome(httpStatus) === 'unclear';
+/**
+ * Graph error codes that are a passing condition, not a refusal of this post: 2 (temporary
+ * service error) and the rate limits 4, 17, 32 and 613. Meta may send them on an HTTP 4xx.
+ */
+export const TRANSIENT_META_CODES: readonly number[] = [2, 4, 17, 32, 613];
+
+export function isTransientMetaCode(code: number | null | undefined): boolean {
+  return typeof code === 'number' && TRANSIENT_META_CODES.includes(code);
+}
+
+/**
+ * Whether a post that is being given up keeps its Instagram container: cleared only when Meta
+ * clearly refused it (a 4xx that is not a dead token and not a transient code, which may have
+ * hidden a publish that went through). A kept container is checked before any new one is made.
+ */
+export function keepContainerOnGiveUp(httpStatus: number, tokenInvalid: boolean, code: number | null = null): boolean {
+  return tokenInvalid || isTransientMetaCode(code) || publishOutcome(httpStatus) === 'unclear';
+}
+
+// ---- Settling an unclear publish (final fix wave, F1) ----
+
+/** How far back the cron keeps looking for an unclear post, counted from its scheduled time. After that, only the admin buttons settle it. */
+export const UNCLEAR_LOOKBACK_DAYS = 7;
+/** A Facebook video counts as this post only when it appeared within this window of the scheduled time (the cron runs hourly, and Facebook may take a while to fetch the file). */
+export const FB_MATCH_BEFORE_MS = 5 * 60_000;
+export const FB_MATCH_AFTER_MS = 3 * 60 * 60_000;
+/** Worst case for settling one unclear post: one Graph read (10 s) plus the writes. */
+export const PER_SETTLE_BUDGET_MS = 15_000;
+
+/**
+ * What an Instagram container's status says about a publish whose answer was lost:
+ * PUBLISHED means it went out; ERROR or EXPIRED means it never can, so a retry is safe;
+ * anything else (FINISHED, IN_PROGRESS) proves nothing yet, so the post is left as it is.
+ */
+export function unclearContainerVerdict(code: string): 'posted' | 'retry_safe' | 'wait' {
+  if (code === 'PUBLISHED') return 'posted';
+  if (code === 'ERROR' || code === 'EXPIRED') return 'retry_safe';
+  return 'wait';
+}
+
+export interface PageVideo {
+  id: string;
+  description?: string | null;
+  title?: string | null;
+  created_time?: string | null;
+}
+
+const sameText = (a: string | null | undefined, b: string) => typeof a === 'string' && a.replace(/\r\n/g, '\n').trim() === b;
+
+/**
+ * The page video that is this unclear Facebook post, or null. Matched only when the description
+ * or title equals the caption exactly, it appeared within the window around the scheduled time,
+ * no other post already claims it, and exactly one video fits. A post with no caption is never
+ * matched (nothing reliable to match on); the admin buttons settle it instead.
+ */
+export function matchPageVideo(videos: readonly PageVideo[], post: { caption: string; scheduledAt: string | null }, takenIds: ReadonlySet<string>): string | null {
+  const caption = post.caption.replace(/\r\n/g, '\n').trim();
+  const at = post.scheduledAt ? Date.parse(post.scheduledAt) : NaN;
+  if (!caption || !Number.isFinite(at)) return null;
+  const hits = videos.filter((v) => {
+    if (!v.id || takenIds.has(v.id)) return false;
+    const created = v.created_time ? Date.parse(v.created_time) : NaN;
+    if (!Number.isFinite(created) || created < at - FB_MATCH_BEFORE_MS || created > at + FB_MATCH_AFTER_MS) return false;
+    return sameText(v.description, caption) || sameText(v.title, caption);
+  });
+  return hits.length === 1 ? hits[0].id : null;
+}
+
+/** The admin's two answers on a post that may have posted. Null when allowed; otherwise why not. */
+export function unclearActionProblem(p: Pick<SocialPost, 'status' | 'publishUnclear' | 'remoteId'>): string | null {
+  if (p.status === 'published' || p.remoteId) return 'Already posted.';
+  if (p.status !== 'failed' || !p.publishUnclear) return 'That post is not waiting on a check.';
+  return null;
+}
+
+export type UnclearAction = 'posted' | 'retry';
+
+export function parseUnclearAction(raw: unknown): UnclearAction | null {
+  return raw === 'posted' || raw === 'retry' ? raw : null;
 }
 
 /** Why a post may not be scheduled again (it went out, or may have), or null when a retry is safe. */

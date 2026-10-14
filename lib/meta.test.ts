@@ -17,7 +17,10 @@ import {
   isMetaConfigured,
   listPages,
   mediaInsights,
+  mediaPermalink,
   metaSendFailure,
+  profileName,
+  recentPageVideos,
   oauthUrl,
   parseSignedRequest,
   SIGNED_REQUEST_MAX,
@@ -349,3 +352,43 @@ test('metaSendFailure: only a Graph 4xx is "not sent"; window, permission and to
   assert.equal(odd.canText, false);
   assert.match(odd.error, /may have taken/);
 });
+
+test('recentPageVideos reads the page videos since a time and drops rows without an id (F1)', () =>
+  env(CONFIGURED, async () => {
+    const { f, calls } = stub({
+      json: { data: [{ id: '901', description: 'Before and after', created_time: '2026-10-13T12:05:00+0000' }, { description: 'no id' }, { id: '902', title: 7 }] },
+    });
+    const videos = await recentPageVideos({ pageId: '111', pageToken: 'PAGE_TOKEN', sinceMs: Date.parse('2026-10-13T11:55:00Z') }, f);
+    assert.deepEqual(videos, [
+      { id: '901', description: 'Before and after', title: null, created_time: '2026-10-13T12:05:00+0000' },
+      { id: '902', description: null, title: null, created_time: null },
+    ]);
+    const u = new URL(calls[0].url);
+    assert.equal(u.pathname, '/v21.0/111/videos');
+    assert.equal(u.searchParams.get('fields'), 'id,description,title,created_time');
+    assert.equal(u.searchParams.get('since'), String(Date.parse('2026-10-13T11:55:00Z') / 1000));
+    assert.equal(calls[0].init?.method, 'GET');
+  }));
+
+test('a dead page token (190) on the name or permalink lookup reports it so the page is marked for reconnecting; other errors do not', () =>
+  env(CONFIGURED, async () => {
+    const dead = { status: 400, json: { error: { message: 'Error validating access token: session has expired', code: 190, error_subcode: 463 } } };
+    const seen: number[] = [];
+    const mark = (err: MetaApiError) => {
+      seen.push(err.code ?? 0);
+    };
+    assert.equal(await profileName('messenger', '222', 'PAGE_TOKEN', stub(dead).f, mark), null);
+    assert.equal(await mediaPermalink('17900000000000002', 'PAGE_TOKEN', stub(dead).f, mark), null);
+    assert.deepEqual(seen, [190, 190]);
+    // A throw from the callback is swallowed: the name stays best effort.
+    assert.equal(
+      await profileName('instagram', '333', 'PAGE_TOKEN', stub(dead).f, () => {
+        throw new Error('db down');
+      }),
+      null
+    );
+    // A 500 or a missing callback never marks anything.
+    assert.equal(await profileName('messenger', '222', 'PAGE_TOKEN', stub({ status: 500, json: { error: { message: 'x', code: 2 } } }).f, mark), null);
+    assert.equal(await profileName('messenger', '222', 'PAGE_TOKEN', stub(dead).f), null);
+    assert.deepEqual(seen, [190, 190]);
+  }));

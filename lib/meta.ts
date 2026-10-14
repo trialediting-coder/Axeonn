@@ -275,8 +275,16 @@ export async function unsubscribePage(pageId: string, pageToken: string, f: Fetc
 /**
  * The person's display name, best effort. Messenger: GET /{psid}?fields=first_name,last_name
  * (User Profile API). Instagram: GET /{igsid}?fields=name,username. Null on any failure.
+ * A dead page token (code 190) also calls `onTokenInvalid`, so the page is marked for
+ * reconnecting even when no one replies; a throw from that callback is swallowed.
  */
-export async function profileName(channel: MetaChannel, userId: string, pageToken: string, f: FetchLike = fetch): Promise<string | null> {
+export async function profileName(
+  channel: MetaChannel,
+  userId: string,
+  pageToken: string,
+  f: FetchLike = fetch,
+  onTokenInvalid?: (err: MetaApiError) => Promise<void> | void
+): Promise<string | null> {
   try {
     if (channel === 'messenger') {
       const r = await graph<{ first_name?: string; last_name?: string }>(`/${encodeURIComponent(userId)}`, { query: { fields: 'first_name,last_name' }, token: pageToken }, f);
@@ -285,7 +293,14 @@ export async function profileName(channel: MetaChannel, userId: string, pageToke
     }
     const r = await graph<{ name?: string; username?: string }>(`/${encodeURIComponent(userId)}`, { query: { fields: 'name,username' }, token: pageToken }, f);
     return (r.name?.trim() || (r.username ? `@${r.username}` : '')) || null;
-  } catch {
+  } catch (err) {
+    if (err instanceof MetaApiError && err.tokenInvalid && onTokenInvalid) {
+      try {
+        await onTokenInvalid(err);
+      } catch {
+        // Best effort, like the name itself.
+      }
+    }
     return null;
   }
 }
@@ -374,12 +389,19 @@ export async function publishContainer(input: { igUserId: string; pageToken: str
   return r.id;
 }
 
-/** GET /{media-id}?fields=permalink, best effort. */
-export async function mediaPermalink(mediaId: string, pageToken: string, f: FetchLike = fetch): Promise<string | null> {
+/** GET /{media-id}?fields=permalink, best effort. A dead token (190) also calls `onTokenInvalid` (errors from it swallowed). */
+export async function mediaPermalink(mediaId: string, pageToken: string, f: FetchLike = fetch, onTokenInvalid?: (err: MetaApiError) => Promise<void> | void): Promise<string | null> {
   try {
     const r = await graph<{ permalink?: string }>(`/${encodeURIComponent(mediaId)}`, { query: { fields: 'permalink' }, token: pageToken }, f);
     return r.permalink ?? null;
-  } catch {
+  } catch (err) {
+    if (err instanceof MetaApiError && err.tokenInvalid && onTokenInvalid) {
+      try {
+        await onTokenInvalid(err);
+      } catch {
+        // Best effort.
+      }
+    }
     return null;
   }
 }
@@ -398,6 +420,24 @@ export async function publishPageVideo(input: { pageId: string; pageToken: strin
     f
   );
   return r.id;
+}
+
+/**
+ * GET /{page-id}/videos?fields=id,description,title,created_time&since=<unix s>: the page's own
+ * videos since a time, newest first. Used only to settle a Facebook publish whose answer was lost
+ * (lib/socialShared.ts matchPageVideo decides; nothing is posted from here).
+ */
+export async function recentPageVideos(
+  input: { pageId: string; pageToken: string; sinceMs: number },
+  f: FetchLike = fetch
+): Promise<Array<{ id: string; description: string | null; title: string | null; created_time: string | null }>> {
+  const r = await graph<{ data?: Array<{ id?: unknown; description?: unknown; title?: unknown; created_time?: unknown }> }>(
+    `/${encodeURIComponent(input.pageId)}/videos`,
+    { query: { fields: 'id,description,title,created_time', since: String(Math.floor(input.sinceMs / 1000)), limit: '25' }, token: input.pageToken },
+    f
+  );
+  const s = (v: unknown): string | null => (typeof v === 'string' ? v : null);
+  return (r.data ?? []).flatMap((v) => (typeof v.id === 'string' && v.id ? [{ id: v.id, description: s(v.description), title: s(v.title), created_time: s(v.created_time) }] : []));
 }
 
 /**

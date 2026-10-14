@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { upload } from '@vercel/blob/client';
 import { adminInput, adminLabel, btn } from '@/components/admin/ui';
 import { captionProblem, SOCIAL_STATUS_LABEL, type MetaPagePublic, type SocialPlatform, type SocialPost } from '@/lib/metaShared';
-import { blobPathFor, REEL_CONTENT_TYPES, REEL_MAX_BYTES, retryBlockedReason } from '@/lib/socialShared';
+import { blobPathFor, REEL_CONTENT_TYPES, REEL_MAX_BYTES, retryBlockedReason, unclearActionProblem } from '@/lib/socialShared';
 
 /** The file's video type, falling back to its extension when the browser reports none (common for .mov on Windows). Null when not MP4/MOV. */
 function reelType(file: File): string | null {
@@ -134,6 +134,8 @@ export function SocialPanel({ token, onboardingId, tier, configured, pages, init
         <ul className="mt-6 divide-y divide-neutral-100 rounded-xl border border-neutral-200">
           {posts.map((p) => {
             const blocked = retryBlockedReason(p);
+            const unclear = unclearActionProblem(p) === null;
+            const where = p.platform === 'instagram' ? 'the Instagram account' : 'the Facebook page';
             return (
             <li key={p.id} className="flex flex-wrap items-start justify-between gap-3 px-4 py-3 text-sm">
               <div className="min-w-0 flex-1">
@@ -146,7 +148,12 @@ export function SocialPanel({ token, onboardingId, tier, configured, pages, init
                 ) : null}
                 {p.error ? <p className="text-amber-800">{p.error}</p> : null}
                 {p.status === 'failed' && blocked && blocked !== p.error ? <p className="text-amber-800">{blocked}</p> : null}
-                {p.status === 'failed' && blocked ? <p className="text-xs text-neutral-500">It will not be posted again from here. To post it anyway, upload it as a new post.</p> : null}
+                {p.status === 'failed' && blocked && !unclear ? <p className="text-xs text-neutral-500">It will not be posted again from here. To post it anyway, upload it as a new post.</p> : null}
+                {unclear ? (
+                  <p className="text-xs text-neutral-500">
+                    Check {where}. If it is there, press It posted. If it is not, press Allow a retry and it goes out on the next hourly run. Axeon also checks on its own each hour.
+                  </p>
+                ) : null}
                 {p.permalink ? (
                   <a href={p.permalink} target="_blank" rel="noreferrer" className="text-blue-600 hover:text-blue-700">
                     Open post
@@ -154,7 +161,17 @@ export function SocialPanel({ token, onboardingId, tier, configured, pages, init
                 ) : null}
               </div>
               {p.status !== 'published' ? (
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
+                  {unclear ? (
+                    <>
+                      <button type="button" disabled={busy !== null} onClick={() => window.confirm(`Mark this as posted? Only if you can see it on ${where}.`) && run(`p${p.id}`, () => call('PATCH', { id: p.id, action: 'posted' }))} className={btn('secondary', 'sm')}>
+                        It posted
+                      </button>
+                      <button type="button" disabled={busy !== null} onClick={() => window.confirm(`Post it again on the next hourly run? Only if it is not on ${where}.`) && run(`r${p.id}`, () => call('PATCH', { id: p.id, action: 'retry' }))} className={btn('secondary', 'sm')}>
+                        Allow a retry
+                      </button>
+                    </>
+                  ) : null}
                   {p.status !== 'scheduled' && at && !blocked ? (
                     <button type="button" disabled={busy !== null} onClick={() => run(`s${p.id}`, () => call('PATCH', { id: p.id, scheduledAt: new Date(at).toISOString() }))} className={btn('secondary', 'sm')}>
                       Schedule for {when(new Date(at).toISOString())}

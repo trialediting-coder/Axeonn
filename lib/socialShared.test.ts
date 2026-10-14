@@ -2,7 +2,10 @@
 // Run with: npm run test:meta
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { blobPathFor, isBlobPathFor, isBlobVideoUrl, keepContainerOnGiveUp, nextSocialStep, platformsForPage, PUBLISH_TIMEOUT_MS, publishOutcome, retryBlockedReason, runBounded, shouldGiveUp, toDashboardReel, unclearPublishNote, validateScheduleTime, validateSocialInput } from './socialShared';
+import {
+  blobPathFor, isBlobPathFor, isBlobVideoUrl, isTransientMetaCode, keepContainerOnGiveUp, matchPageVideo, nextSocialStep, parseUnclearAction, platformsForPage, PUBLISH_TIMEOUT_MS,
+  publishOutcome, retryBlockedReason, runBounded, shouldGiveUp, toDashboardReel, unclearActionProblem, unclearContainerVerdict, unclearPublishNote, validateScheduleTime, validateSocialInput,
+} from './socialShared';
 import type { SocialPost } from './metaShared';
 
 const NOW = Date.parse('2026-10-13T12:00:00Z');
@@ -84,6 +87,53 @@ test('a container is cleared on give-up only when Meta clearly refused it', () =
   assert.equal(keepContainerOnGiveUp(400, true), true);
   assert.equal(keepContainerOnGiveUp(0, false), true);
   assert.equal(keepContainerOnGiveUp(502, false), true);
+  // A transient 4xx (code 2, or the rate limits 4/17/32/613) may hide a publish that went through: the container is kept.
+  for (const code of [2, 4, 17, 32, 613]) {
+    assert.equal(isTransientMetaCode(code), true);
+    assert.equal(keepContainerOnGiveUp(400, false, code), true, `code ${code}`);
+  }
+  assert.equal(keepContainerOnGiveUp(400, false, 100), false);
+  assert.equal(keepContainerOnGiveUp(400, false, null), false);
+  assert.equal(isTransientMetaCode(null), false);
+});
+
+test('an unclear Instagram publish is settled from the container status: PUBLISHED posted, ERROR/EXPIRED safe to retry, anything else left (F1)', () => {
+  assert.equal(unclearContainerVerdict('PUBLISHED'), 'posted');
+  assert.equal(unclearContainerVerdict('ERROR'), 'retry_safe');
+  assert.equal(unclearContainerVerdict('EXPIRED'), 'retry_safe');
+  assert.equal(unclearContainerVerdict('FINISHED'), 'wait');
+  assert.equal(unclearContainerVerdict('IN_PROGRESS'), 'wait');
+  assert.equal(unclearContainerVerdict('SOMETHING_NEW'), 'wait');
+});
+
+test('an unclear Facebook publish matches one page video on the exact caption near the scheduled time, or nothing (F1)', () => {
+  const post = { caption: 'Before and after on a 2024 F-150.', scheduledAt: '2026-10-13T12:00:00.000Z' };
+  const v = (id: string, created: string, description: string | null = post.caption, title: string | null = null) => ({ id, description, title, created_time: created });
+  const none = new Set<string>();
+  assert.equal(matchPageVideo([v('1', '2026-10-13T12:20:00+0000')], post, none), '1');
+  assert.equal(matchPageVideo([v('1', '2026-10-13T12:20:00+0000', null, post.caption)], post, none), '1', 'the title counts too');
+  assert.equal(matchPageVideo([v('1', '2026-10-13T12:20:00+0000', `  ${post.caption}\r\n`)], { ...post, caption: `${post.caption}\n` }, none), '1', 'whitespace at the ends is ignored');
+  assert.equal(matchPageVideo([v('1', '2026-10-13T12:20:00+0000', 'Something else')], post, none), null);
+  assert.equal(matchPageVideo([v('1', '2026-10-13T11:50:00+0000')], post, none), null, 'before the window');
+  assert.equal(matchPageVideo([v('1', '2026-10-13T15:30:00+0000')], post, none), null, 'after the window');
+  assert.equal(matchPageVideo([v('1', '2026-10-13T12:20:00+0000'), v('2', '2026-10-13T12:40:00+0000')], post, none), null, 'two matches is ambiguous');
+  assert.equal(matchPageVideo([v('1', '2026-10-13T12:20:00+0000'), v('2', '2026-10-13T12:40:00+0000')], post, new Set(['1'])), '2', 'a video another post claims is skipped');
+  assert.equal(matchPageVideo([v('1', '2026-10-13T12:20:00+0000', '')], { ...post, caption: '' }, none), null, 'no caption, no match');
+  assert.equal(matchPageVideo([v('1', 'not a date')], post, none), null);
+  assert.equal(matchPageVideo([v('1', '2026-10-13T12:20:00+0000')], { ...post, scheduledAt: null }, none), null);
+});
+
+test('"It posted" and "Allow a retry" are only for a failed post that may have posted (F1)', () => {
+  const p = { status: 'failed' as const, publishUnclear: true, remoteId: null };
+  assert.equal(unclearActionProblem(p), null);
+  assert.equal(unclearActionProblem({ ...p, publishUnclear: false }), 'That post is not waiting on a check.');
+  assert.equal(unclearActionProblem({ ...p, status: 'scheduled' as const }), 'That post is not waiting on a check.');
+  assert.equal(unclearActionProblem({ ...p, status: 'published' as const }), 'Already posted.');
+  assert.equal(unclearActionProblem({ ...p, remoteId: '99' }), 'Already posted.');
+  assert.equal(parseUnclearAction('posted'), 'posted');
+  assert.equal(parseUnclearAction('retry'), 'retry');
+  assert.equal(parseUnclearAction('delete'), null);
+  assert.equal(parseUnclearAction(undefined), null);
 });
 
 test('a post that went out, or may have, can never be retried', () => {
