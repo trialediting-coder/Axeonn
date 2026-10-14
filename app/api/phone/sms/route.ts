@@ -8,6 +8,9 @@ import { clearOptOut, lineForNumber, markOptedOut, recordMessage } from '@/lib/p
 import { emptyTwiml, TWIML_HEADERS } from '@/lib/phoneTwiml';
 import { callerKey, isStartWord, isStopWord, normalizePhone } from '@/lib/phoneShared';
 import { stopRunsFor } from '@/lib/sequences';
+import { projectMessage } from '@/lib/contacts';
+import { errText } from '@/lib/dbRows';
+import { redactDigits } from '@/lib/sequenceSchedule';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -29,6 +32,10 @@ export async function POST(req: Request) {
         body: (p.Body ?? '').slice(0, 1600),
         kind: 'inbound',
         status: 'received',
+      });
+      await projectMessage(p.MessageSid).catch((err) => {
+        console.error('[phone/sms] inbox', p.MessageSid, redactDigits(errText(err)));
+        return null;
       });
       if (from !== 'unknown') {
         if (isStopWord(p.Body)) await markOptedOut(line.onboardingId, from);

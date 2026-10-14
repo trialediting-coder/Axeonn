@@ -6,6 +6,8 @@
 // Every outbound text goes through sendClientSms, the one gated send path.
 import { ensureSchema, sql } from '@/lib/db';
 import { errText, iso, type DbId, type DbTime } from '@/lib/dbRows';
+import { projectMessage } from '@/lib/contacts';
+import { redactDigits } from '@/lib/sequenceSchedule';
 import { attachNumberToService, buyNumber, createCall, createMessagingService, isTwilioConfigured, releaseNumber, searchLocalNumbers, sendSms, webhookUrl } from '@/lib/twilio';
 import {
   callerKey, DEFAULT_TIME_ZONE, isUsTimeZone, normalizePhone, textBackMessage, SMS_MAX_CHARS,
@@ -299,6 +301,12 @@ export async function sendClientSms(line: PhoneLine, to: string, body: string, k
     await recordMessage(line.onboardingId, { messageSid: sid, direction: 'outbound', fromNumber: line.phoneNumber, toNumber: recipient, body, kind, status });
   } catch (err) {
     console.error('phone: outbound row not recorded', sid, err);
+  }
+  // Into the leads inbox (lib/contacts.ts): attaches to an existing contact; owner alerts are skipped there. Never fails the send.
+  try {
+    await projectMessage(sid);
+  } catch (err) {
+    console.error('phone: outbound text not added to the inbox', sid, redactDigits(errText(err)));
   }
   return { sent: true, sid };
 }

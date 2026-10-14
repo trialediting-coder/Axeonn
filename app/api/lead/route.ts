@@ -11,6 +11,9 @@ import { after } from 'next/server';
 import { clientIp, rateLimited } from '@/lib/welcomeApi';
 import { isValidSiteKey, onboardingIdForSiteKey } from '@/lib/siteStats';
 import { getOnboardingById } from '@/lib/onboarding';
+import { projectForm } from '@/lib/contacts';
+import { errText } from '@/lib/dbRows';
+import { redactDigits } from '@/lib/sequenceSchedule';
 import { deliverLead, isRateLimited, leadIpHash, LEAD_RATE_WINDOW_MINUTES, recentSubmissionCount, recordFormSubmission } from '@/lib/leads';
 import { backLink, pagePath, replyPage, safeRedirect, validateLeadInput } from '@/lib/leadShared';
 
@@ -117,6 +120,11 @@ export async function POST(req: Request) {
     const saved = await recordFormSubmission(onboardingId, lead, { ipHash });
     after(async () => {
       try {
+        // Into the leads inbox first (lib/contacts.ts), so the alert can link to the contact. Never stops delivery.
+        await projectForm(saved.id).catch((err) => {
+          console.error('[lead] inbox', saved.id, redactDigits(errText(err)));
+          return null;
+        });
         const owner = await getOnboardingById(onboardingId);
         if (owner) await deliverLead(owner, saved);
         else console.error('[lead] deliver: no onboarding', onboardingId, saved.id);

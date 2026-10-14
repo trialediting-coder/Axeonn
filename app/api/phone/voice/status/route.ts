@@ -8,6 +8,9 @@ import { afterDialTwiml, emptyTwiml, TWIML_HEADERS } from '@/lib/phoneTwiml';
 import { callOutcome, callerKey, normalizePhone } from '@/lib/phoneShared';
 import { getOnboardingById } from '@/lib/onboarding';
 import { startMissedCallFollowUp, stopRunsFor } from '@/lib/sequences';
+import { projectCall } from '@/lib/contacts';
+import { errText } from '@/lib/dbRows';
+import { redactDigits } from '@/lib/sequenceSchedule';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -46,6 +49,13 @@ export async function POST(req: Request) {
   } catch (err) {
     return fail('[phone/status] recordCall', err);
   }
+  // Into the leads inbox before any text-back, so a brand-new caller is created as a
+  // caller (and matched to a tap on the site's call button) rather than as a texter.
+  // An answered call moves the contact to Contacted. Never fails the webhook.
+  await projectCall(p.CallSid).catch((err) => {
+    console.error('[phone/status] inbox', p.CallSid, redactDigits(errText(err)));
+    return null;
+  });
   if (outcome === 'answered') {
     // They got through: the new-lead and quote follow-ups have done their job. Never changes the TwiML.
     if (from !== 'unknown') {
@@ -67,6 +77,10 @@ export async function POST(req: Request) {
     } catch (err) {
       console.error('[phone/status] sendTextBack', err instanceof Error ? err.message : err);
     }
+  }
+  // Refresh the inbox line to "missed, texted back".
+  if (textedBack) {
+    await projectCall(p.CallSid).catch((err) => console.error('[phone/status] inbox', p.CallSid, redactDigits(errText(err))));
   }
   // A missed caller who has not replied in 30 minutes gets the new-lead follow-up (the wait lives in the engine).
   if (from !== 'unknown') {

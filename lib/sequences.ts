@@ -22,6 +22,8 @@ import {
   type StopReason, type TemplateVars,
 } from '@/lib/sequenceShared';
 import { isEmailOptedOut, unsubscribeSecret } from '@/lib/unsubscribe';
+import { upsertContactEvent } from '@/lib/contacts';
+import { eventSummary } from '@/lib/contactsShared';
 
 export const DUE_BATCH = 200;
 export const SEND_CONCURRENCY = 10;
@@ -510,6 +512,25 @@ async function claimAndSend(run: SequenceRun, c: ClientContext, d: SendDecision,
         idempotencyKey: `seq-${run.id}-${claimedStep}`,
       });
       if (r.skipped) refusal = 'email_opted_out';
+      else {
+        // Into the inbox timeline of an existing contact (never creates one): one event per run step (ref_part = the
+        // step that went out). Caught here, not thrown: a throw inside this try would put an email that already left
+        // back in the queue and send it again.
+        await upsertContactEvent({
+          onboardingId: run.onboardingId,
+          kind: 'sequence',
+          refTable: 'sequence_runs',
+          refId: run.id,
+          refPart: d.step,
+          phone: run.contactPhone,
+          email: run.contactEmail,
+          name: run.contactName,
+          summary: eventSummary('sequence', { channel: 'email', automatic: true }),
+          payload: { channel: 'email', step: d.step, automatic: true },
+          createdAt: new Date().toISOString(),
+          createIfMissing: false,
+        }).catch((err) => console.error('sequences: email not added to the inbox', run.id, clip(errText(err))));
+      }
     }
   } catch (err) {
     const message = clip(errText(err));

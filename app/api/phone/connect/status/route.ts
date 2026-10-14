@@ -11,6 +11,9 @@ import { connectLeadNoAnswerTwiml, emptyTwiml, hangupTwiml, TWIML_HEADERS } from
 import { callOutcome, normalizePhone } from '@/lib/phoneShared';
 import { parseId } from '@/lib/leadShared';
 import { stopRunsFor } from '@/lib/sequences';
+import { projectCall } from '@/lib/contacts';
+import { errText } from '@/lib/dbRows';
+import { redactDigits } from '@/lib/sequenceSchedule';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -44,6 +47,8 @@ export async function POST(req: Request) {
           direction: 'connect',
           leadId,
         });
+        // Into the leads inbox: the call joins the form's contact (its from_number is the lead's phone); answered moves it to Contacted.
+        await projectCall(p.CallSid).catch((err) => console.error('[phone/connect/status] inbox', leadId, redactDigits(errText(err))));
         // The owner reached the lead: the new-lead and quote follow-ups stop. Logged, never a TwiML failure.
         if (outcome === 'answered') {
           try {
