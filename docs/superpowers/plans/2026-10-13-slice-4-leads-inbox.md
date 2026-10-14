@@ -4,64 +4,73 @@
 
 **Goal:** Turn the AxeonPROOF Leads tab into a leads inbox for AxeonCORE and up: one contact per phone number or email, a stage (New, Contacted, Booked, Won, Lost), a timeline of every call, text and form with the recording attached, a reply box that texts from the client's tracked number, and a push notification when a lead texts, misses a call or sends the form. Not a CRM: no tasks, pipelines, custom fields or import.
 
-**Architecture:** Two new tables, `contacts` and `contact_events`, are a projection of the source tables (`phone_calls`, `phone_messages`, `form_submissions`, `site_events`). Every producer (the Twilio webhooks, `sendClientSms`, the slice-2 lead route, the slice-3 cron) calls one projection function after it writes its own row; `upsertContactEvent` resolves the contact by E.164 phone or lowercase email, merges two contacts when one event proves they are the same person, and writes the event idempotently on `(ref_table, ref_id, kind, ref_part)`. Stage changes drive slice 3's sequences and write Won/Lost back to the tracker click so the close rate keeps learning. The client page receives pre-masked rows only. Push goes through `web-push` with VAPID keys; without a subscription, the owner gets a text through their own line.
+**Architecture:** Two new tables, `contacts` and `contact_events`, are a projection of the source tables (`phone_calls`, `phone_messages`, `form_submissions`, `site_events`). Every producer (the Twilio webhooks, `sendClientSms`, the `after()` block of the slice-2 lead route, and slice 3's `claimAndSend` in `lib/sequences.ts`) calls one projection function after it writes its own row; `upsertContactEvent` resolves the contact by E.164 phone or lowercase email, merges two contacts when one event proves they are the same person, and writes the event idempotently on `(ref_table, ref_id, kind, ref_part)`. Only something the lead did (a call, an inbound text, a form) creates a contact; outbound sends attach to an existing one or are skipped. Client stage taps keep going through slice 3's `applyLeadStage` and `STAGE_EFFECTS`: slice 4 swaps the default `LeadStore` for one that writes `contacts.stage` and keeps `form_submissions.stage` / `quote_sent_at` in step, and adds a contact-keyed store for the inbox. Won/Lost write back to the tracker click so the close rate keeps learning. The client page receives pre-masked rows only. Push goes through `web-push` with VAPID keys; without a subscription, the owner gets a text through their own line (outside quiet hours) and an email.
 
 **Tech Stack:** Next.js 15 App Router route handlers (`runtime = 'nodejs'`), `@vercel/postgres` via `lib/db.ts` (plus `db.connect()` for the one merge transaction), `web-push` 3.6.7, a plain service worker in `public/sw.js`, `tsx --test` + `node:assert/strict`, Tailwind + lucide-react.
 
-**Spec:** `docs/superpowers/specs/2026-10-12-proof-lead-system-design.md` ("Architecture (all slices)", "Slice 4 design: the leads inbox", "Cross-slice decisions", "Slice 4 additions", "Execution order").
+**Spec:** `docs/superpowers/specs/2026-10-12-proof-lead-system-design.md` ("Architecture (all slices)", "Slice 4 design: the leads inbox", "Cross-slice decisions", "Slice 4 additions", "Execution order"). Where "Slice 4 design" says 9 pm, "Cross-slice decisions" (later text wins) says 8 pm; this plan uses 8 pm.
 
 ## Global Constraints
 
-- Phone numbers are stored E.164 (`+15155550134`); emails lowercase and trimmed. Contacts are keyed by `(onboarding_id, phone)` and `(onboarding_id, email)` through the two partial unique indexes from the spec (`WHERE phone IS NOT NULL`, `WHERE email IS NOT NULL`). A withheld caller (`'unknown'`) never becomes a contact.
+- Phone numbers are stored E.164 (`+15155550134`); emails lowercase and trimmed (`normalizeEmail` from `lib/sequenceShared.ts`). Contacts are keyed by `(onboarding_id, phone)` and `(onboarding_id, email)` through the two partial unique indexes from the spec (`WHERE phone IS NOT NULL`, `WHERE email IS NOT NULL`). A withheld caller (`'unknown'`) never becomes a contact.
+- Only the lead's own action creates a contact: an inbound call, an inbound text, a website form. Outbound sends (text-back, manual reply, sequence text or email, reminder, confirmation) attach to an existing contact or are skipped; owner alerts are never projected. Admin test leads (`form_submissions.is_test`) and call-connect calls about them never become contacts or events.
 - `contact_events` is a projection. The source tables stay authoritative: a projection always re-reads its source row and is idempotent on `(ref_table, ref_id, kind, ref_part)`, so a Twilio retry, a second backfill, or a recording arriving later updates one row and never adds a second.
 - The client browser receives pre-masked rows only (`DashboardContact`, `DashboardEvent` from `lib/contactsShared.ts`). A full phone number or full email never leaves the server for the client page or the admin preview. The one exception is the "Email" button, a server redirect to `mailto:`, so the address is never in the page payload. The words of a text or form are shown as the lead wrote them.
-- Replies go through `sendClientSms(line, to, body, 'manual')` only, so the opt-out list and the `sms_status` gate apply. Manual replies obey quiet hours, 9 pm to 8 am client-local (spec, slice 4 "Compliance"): a reply typed in that window is held in `held_replies`, sent at 8 am by a cron, and the client is told so on screen.
+- Replies go through `sendClientSms(line, to, body, 'manual')` only, so the opt-out list and the `sms_status` gate apply. Manual replies obey quiet hours, 8 pm to 8 am client-local (`QUIET_START_HOUR`, `QUIET_END_HOUR`, `isQuietHours` from `lib/leadShared.ts`, held time from `holdForQuietHours` in `lib/sequenceSchedule.ts`; never re-implemented): a reply typed in that window is held in `held_replies`, sent at 8 am by a cron, and the client is told so on screen.
+- Stages drive sequences through slice 3's `STAGE_EFFECTS` (`lib/sequenceShared.ts`) only: Contacted, Booked, Won and Lost stop `new_lead` and `quote`; Won starts `review`; Quote sent starts `quote`. The client's taps are slice 3's `LEAD_ACTIONS` with `LEAD_ACTION_LABELS` ("Quote sent", "Talked to them", "Booked", "Job done", "Not a fit"); there is no second action list.
+- `POST /api/proof/leads/stage` stays backward compatible: `{ id, action }` for a form lead works on every tier and answers `{ ok, id, stage, started, stopped, warning? }` exactly as today; `{ contactId, action }` is added for inbox contacts.
 - Recordings play only through the existing `/api/proof/recording/[callSid]` route. A recording URL never goes into an event payload, a push, a text or an email.
-- Push payloads carry no phone number, no name and no message words: a fixed title such as "New text from a lead", one fixed line, and a link inside PROOF (`/proof?tab=leads&contact=<id>`).
+- Push payloads, the owner fallback text and the fallback email carry no phone number, no name and no message words: a fixed title such as "New text from a lead", one fixed line, and a link inside PROOF (`/proof?tab=leads&contact=<id>`).
+- Owner alert texts obey quiet hours (cross-slice rule, as slice 2's `planLeadDelivery` does); push and email do not.
 - Won and Lost keep feeding the close rate: a contact matched to a tracker click writes the outcome onto that `site_events` row (`setLeadOutcome`); a contact with no click is counted directly in `observedCloseRate` / `markedForMonth`. Never both.
-- The inbox is AxeonCORE and up (`inboxEnabled(tier)`). Essentials keeps today's Leads tab unchanged.
+- The inbox is AxeonCORE and up (`inboxEnabled(tier)`). Essentials keeps today's Leads tab unchanged: the form list (`FormLeads`) with its stage taps, the tracker list (`LeadLog`), and the empty state.
 - Client-facing copy is plain language: "leads", "text them back", "quiet hours". Never "CRM", "pipeline", "workflow", "speed-to-lead".
 - Every new table goes in both `lib/db.ts` `ensureSchema()` and `scripts/init-db.mjs`, `IF NOT EXISTS` only.
 - Client-safe modules (`lib/contactsShared.ts`, `lib/pushShared.ts`) import nothing from `node:*`, `@/lib/db`, or any server module.
-- Tests run with `tsx --test` and `node:assert/strict` and need no database or network; SQL is not unit-tested, pure helpers are.
-- Commit after every task, repo style (`feat(inbox): …`), ending with the trailer `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>`.
+- Reuse, do not copy: `DbId`, `DbTime`, `iso`, `errText` from `lib/dbRows.ts`; `DEFAULT_TIME_ZONE` from `lib/phoneShared.ts`; `safeTimeZone`, `holdForQuietHours` from `lib/sequenceSchedule.ts`; `SequenceKind`, `LeadStage`, `LeadAction`, `STAGE_EFFECTS`, `LEAD_ACTIONS`, `LEAD_ACTION_LABELS`, `normalizeEmail`, `parseStageRequest` from `lib/sequenceShared.ts`; `sendOwnerAlert` from `lib/phoneLines.ts`.
+- Tests run with `tsx --test` and `node:assert/strict` and need no database or network; SQL is not unit-tested, pure helpers are, and SQL paths get a scripted local-database check in the task that writes them.
+- Commit after every task, repo style (`feat(inbox): …`), ending with the two trailer lines `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>` and `Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR`.
 
 ## Review Focus
 
-1. **Nothing identifying leaves the server.** `toDashboardContact` and `toDashboardEvent` are the only shapes the page gets; push payloads and owner alert texts carry no number, name or message words. Pinned in Task 2 (the masking test serialises a contact and asserts neither the last four digits nor the email domain appear) and Task 9 (the push test rejects any phone-like digit run).
-2. **The merge is the hard part.** When one event carries the phone of contact A and the email of contact B, the older row is kept, the newer row's events and held replies are re-pointed, the newer row is deleted before the kept row takes its key (no unique violation), and the furthest stage wins. Pinned in Task 2 (`mergeDecision` tests: older keeps, tie by id, stage, keys filled) and Task 4 (`mergeContacts` runs in one transaction in exactly that order).
-3. **Projections are idempotent.** Twilio retries the status webhook, the recording arrives later, the backfill may run twice; none of these may add a second event or a second contact, or move a stage twice. Pinned in Task 3 (unique partial index on `(ref_table, ref_id, kind, ref_part)`) and Task 4 (`ON CONFLICT … DO UPDATE … RETURNING (xmax = 0)`; system stage changes and click matching run only on a fresh insert).
-4. **A reply never goes out when it must not.** Opted out: refused, banner shown, box disabled. 10DLC pending: refused. 9 pm to 8 am: held to 8 am, never sent early. Pinned in Task 2 (`canReplyNow` at 7:59, 8:00, 8:59 pm, 9:00 pm, midnight, and a bad time zone) and Task 7 (`replyToContact` check order; the held-reply cron claims rows before sending).
-5. **Won/Lost feed the close rate exactly once.** Stage changes write back to the matched click; unmatched contacts are counted in `lib/siteStats.ts`; matched ones are not counted twice. Pinned in Task 2 (`outcomeForStage`), Task 4 (`setStage` writes back only when the outcome changes) and Task 5 (`NOT EXISTS` click filter in both counts).
+1. **Nothing identifying leaves the server.** `toDashboardContact` and `toDashboardEvent` are the only shapes the page gets; push payloads, owner fallback texts and fallback emails carry no number, name or message words. Pinned in Task 2 (the masking test serialises a contact and asserts neither the last four digits nor the email domain appear) and Task 9 (the push and owner-text outputs are pinned to exact strings; their functions take only a fixed activity word and a contact id).
+2. **The merge is the hard part.** When one event carries the phone of contact A and the email of contact B, the older row is kept, the newer row's events and held replies are re-pointed, the newer row is deleted before the kept row takes its key (no unique violation), the furthest stage wins, and the kept row's forms and matched click follow the merged stage. Pinned in Task 2 (`mergeDecision` tests: older keeps, tie by id, stage, keys filled, earliest quote) and checked in Task 4 step 4 against a local database (`mergeContacts` runs in one transaction in exactly that order).
+3. **Projections are idempotent and only lead actions create contacts.** Twilio retries the status webhook, the recording arrives later, the backfill may run twice; none of these may add a second event or a second contact, or move a stage twice. Pinned in Task 3 (unique partial index on `(ref_table, ref_id, kind, ref_part)`) and Task 4 (`ON CONFLICT … DO UPDATE … RETURNING (xmax = 0)`; system stage changes and click matching run only on a fresh insert; `createIfMissing: false` for outbound rows; `NOT is_test` on every form read), checked in Task 4 step 4 and Task 6 step 9.
+4. **A reply never goes out when it must not.** No phone, opted out, no line, 10DLC pending: refused, in that order, before anything is held. 8 pm to 8 am: held to 8 am, never sent early. Pinned in Task 2 (`replyBlocker` order; `canReplyNow` at 7:59 am, 8:00 am, 7:59 pm, 8:00 pm, 9:30 pm, midnight, and a bad time zone) and Task 7 (`replyToContact` calls `validateReplyBody` then `replyBlocker` then `canReplyNow`; the held-reply cron claims rows before sending and never re-sends an interrupted one).
+5. **Won/Lost feed the close rate exactly once, and stage taps keep slice 3's behaviour.** Stage taps from both the form list and the inbox run `applyLeadStage` (slice 3's tests still pass unchanged); Won/Lost write back to the matched click; unmatched contacts are counted in `lib/siteStats.ts`; matched ones are not counted twice. Pinned in Task 2 (`outcomeForStage`, `sequenceEffects` equals `STAGE_EFFECTS`), Task 4 (`writeContactStage` writes back only when the outcome changes; `npm run test:sequences` stays green) and Task 5 (`NOT EXISTS` click filter in both counts).
 
 ---
 
 ### Task 1: Confirm what slices 2 and 3 left behind
 
-Slices 2 and 3 were planned in parallel with this one. This task changes no code: it checks the eight things this plan builds on, so no later task edits a function that is named differently.
+Slices 2 and 3 were planned in parallel with this one; this plan has been revised against the code at HEAD `23b46f8`. This task changes no code: it re-checks the twelve things the plan builds on, so no later task edits a function that is named differently.
 
 **Files:** none modified.
 
 **Interfaces assumed (verify each):**
 
-| # | Assumption | Check | Used in |
+| # | What exists (real name and place) | Check | Used in |
 |---|---|---|---|
-| A1 | Table `form_submissions (id BIGSERIAL, onboarding_id, name, phone, email, message, page, utm_source, utm_medium, utm_campaign, ip_hash, created_at)`; `phone` E.164 or null, `email` lowercase or null. | `grep -n "form_submissions" lib/db.ts` | Tasks 4, 6 |
-| A2 | `phone_messages.kind` CHECK allows `'text_back','manual','inbound','alert','sequence','confirm','reminder'`, and `sendClientSms(line, to, body, kind)` accepts `'alert'`, `'sequence'`, `'confirm'`, `'reminder'` as well as `'text_back'`, `'manual'`. | `grep -n "kind IN" lib/db.ts` and `grep -n "export async function sendClientSms" lib/phoneLines.ts` | Tasks 4, 6, 10 |
-| A3 | `phone_calls.direction TEXT ('inbound','connect')` and `phone_calls.lead_id BIGINT`; `phone_lines.time_zone TEXT DEFAULT 'America/Chicago'`; `PhoneLine` has `timeZone: string`. | `grep -n "direction\|lead_id\|time_zone" lib/db.ts` and `grep -n "timeZone" lib/phoneShared.ts` | Tasks 4, 7, 11 |
-| A4 | The slice-2 lead route is `app/api/lead/route.ts`; it writes `form_submissions` and runs the alerts inside `after()`. The owner alert is one function, assumed `sendLeadAlerts(onboarding, line, submission)` in `lib/leadAlerts.ts`, which sends the alert email and calls `sendClientSms(line, line.forwardTo, <body>, 'alert')`. | `grep -rn "'alert')" lib app` | Tasks 6, 10 |
-| A5 | Slice 2 writes a call-connect call through `recordCall(...)` from a status callback route (assumed `app/api/phone/connect/status/route.ts`). | `grep -rn "recordCall(" app` | Task 6 |
-| A6 | `lib/sequences.ts` exports `startRun(onboardingId: number, kind, contact: { phone: string \| null; email: string \| null; name: string \| null }, ref: { table: string; id: number })` and `stopRunsFor(onboardingId: number, who: { phone?: string \| null; email?: string \| null; kinds?: SequenceKind[] }, reason: string)`, with `SequenceKind` including `'new_lead'`, `'quote'`, `'review'`. | `grep -n "export async function startRun\|export async function stopRunsFor\|SequenceKind" lib/sequences.ts` | Task 4 |
-| A7 | The slice-3 cron `app/api/cron/sequences/route.ts` sends an email step with `sendSequenceEmail(...)` and has the run in scope as `run` with `id`, `onboardingId`, `step`, `contactPhone`, `contactEmail`, `contactName`. SMS steps go through `sendClientSms(..., 'sequence')`. | `grep -n "sendSequenceEmail\|sendClientSms" app/api/cron/sequences/route.ts` | Task 6 |
-| A8 | `POST /api/proof/leads/stage` exists (`app/api/proof/leads/stage/route.ts`) with actions `quote_sent`, `contacted`, `booked`, `won`, `lost`, and keeps the stage in a temporary table assumed `lead_stages (onboarding_id, ref_table, ref_id, stage, updated_at)`, written and read by helpers in slice-3 code. | `grep -rn "lead_stages\|leads/stage" lib app components scripts` | Tasks 4, 8, 12 |
+| A1 | `form_submissions (id BIGSERIAL, onboarding_id, name, phone, email, message, page, utm_source, utm_medium, utm_campaign, ip_hash, is_test BOOLEAN, alert_text_status, created_at, …)` plus slice 3's `stage TEXT DEFAULT 'new'`, `quote_sent_at`, `stage_changed_at` (`ALTER TABLE … ADD COLUMN`); `phone` E.164 or null, `email` lowercase or null (`validateLeadInput`). | `grep -n "form_submissions\|is_test" lib/db.ts` | Tasks 4, 6 |
+| A2 | `phone_messages.kind` CHECK is `('text_back','manual','inbound','alert','sequence','confirm','reminder')` (the `phone_messages_kind_check` ALTER); `sendClientSms(line, to, body, kind: Exclude<MessageKind,'inbound'>)` in `lib/phoneLines.ts` returns `{ sent: true; sid } \| { sent: false; reason: 'sms_pending' \| 'opted_out' \| 'bad_number' }`; `sendOwnerAlert(line, body)` calls it with `'alert'`. | `grep -n "kind IN" lib/db.ts` and `grep -n "export async function sendClientSms\|export async function sendOwnerAlert" lib/phoneLines.ts` | Tasks 4, 6, 7, 10 |
+| A3 | `phone_calls.direction TEXT ('inbound','connect')`, `phone_calls.lead_id BIGINT → form_submissions`; `phone_lines.time_zone`; `PhoneLine.timeZone`, `.status`, `.smsStatus`, `.forwardTo`; `startConnectCall` writes a connect call's `from_number` as the lead's phone; `getLine(onboardingId)` returns active lines only; `isOptedOut(onboardingId, phone)`. | `grep -n "direction\|lead_id\|time_zone" lib/db.ts`, `grep -n "timeZone" lib/phoneShared.ts`, `grep -n "from_number is the lead" lib/phoneLines.ts` | Tasks 4, 7, 10, 11 |
+| A4 | `app/api/lead/route.ts`: `const saved = await recordFormSubmission(onboardingId, lead, { ipHash });` then `after(async () => { try { const owner = await getOnboardingById(onboardingId); if (owner) await deliverLead(owner, saved); … } catch … })`. `deliverLead(owner, lead, opts: { now?; test? })` in `lib/leads.ts` texts the owner with `const r = await sendOwnerAlert(line, leadAlertText(lead));` inside `else { try { … } }` after `let text: DeliveryReport['text']; if (plan.text !== 'send') text = plan.text; else if (!line) text = 'no_line';`. `DeliveryReport` and `TEXT_WORDS` live in `lib/leadShared.ts`. There is no `lib/leadAlerts.ts` and no `sendLeadAlerts`. | `grep -n "saved\|deliverLead" app/api/lead/route.ts` and `grep -n "sendOwnerAlert\|let text" lib/leads.ts` | Tasks 6, 10 |
+| A5 | `app/api/phone/connect/status/route.ts` writes the connect call with `await recordCall(line.onboardingId, { callSid: p.CallSid, fromNumber: lead.phone, …, direction: 'connect', leadId, });` inside `if (lead?.phone) {`; `p.CallSid` is in scope. | `grep -n "recordCall(" app/api/phone/connect/status/route.ts` | Task 6 |
+| A6 | `lib/sequences.ts`: `startRun(onboardingId, kind, contact: RunContact, ref: RunRef, opts?) → StartResult`; `stopRunsFor(onboardingId, match: { phone?; email?; kinds? }, reason: RunStopReason) → number` with `RunStopReason = StopReason \| \`stage:${string}\``; `SequenceKind` in `lib/sequenceShared.ts`. | `grep -n "export async function startRun\|export async function stopRunsFor\|export type RunStopReason" lib/sequences.ts` | Task 4 |
+| A7 | Sequence emails are sent inside `claimAndSend` in `lib/sequences.ts` (not the cron route): `const r = await sendSequenceEmail({ … idempotencyKey: \`seq-${run.id}-${claimedStep}\`, });` followed by `if (r.skipped) refusal = 'email_opted_out';`, inside the send `try` whose `catch` puts the step back. The sent step is `d.step`; `run` has `id`, `onboardingId`, `contactPhone`, `contactEmail`, `contactName`. | `grep -n "sendSequenceEmail\|email_opted_out" lib/sequences.ts` | Task 6 |
+| A8 | Slice 3 stages: `lib/leadStages.ts` has `LeadStore { refTable; find(onboardingId, id); setStage(onboardingId, id, stage, action) }`, `formSubmissionStore` (reads/writes `form_submissions.stage`, `stage_changed_at`, `quote_sent_at`, skips `is_test`), `const defaultDeps: StageDeps = { store: formSubmissionStore, … }`, `applyLeadStage(onboardingId, id, action, deps = defaultDeps) → StageResult { stage, started, stopped, warning? }`. `app/api/proof/leads/stage/route.ts` parses `{ id, action }` with `parseStageRequest` and answers `{ ok: true, id, ...result }`, signed-in client only (no tier gate). `components/proof/LeadStageTaps.tsx` posts `{ id, action }` and reads `started` / `warning`; `FormLeads` renders it; `app/proof/page.tsx` passes `stageApi="/api/proof/leads/stage"`. No `lead_stages` table exists anywhere. | `grep -rn "lead_stages" lib app components scripts` (no hits) and `grep -n "defaultDeps\|export const formSubmissionStore" lib/leadStages.ts` | Tasks 4, 8, 11 |
+| A9 | Quiet hours: `QUIET_START_HOUR = 20`, `QUIET_END_HOUR = 8`, `isQuietHours(now, timeZone)` in `lib/leadShared.ts`; `holdForQuietHours(at, timeZone)` and `safeTimeZone(tz)` in `lib/sequenceSchedule.ts` (client-safe). | `grep -n "QUIET_\|export function isQuietHours" lib/leadShared.ts` and `grep -n "export function holdForQuietHours\|export function safeTimeZone" lib/sequenceSchedule.ts` | Tasks 2, 7, 10 |
+| A10 | `app/api/phone/voice/status/route.ts`: the `recordCall` try ends `} catch (err) {\n    return fail('[phone/status] recordCall', err);\n  }`; then `if (outcome === 'answered') {` with slice 3's `stopRunsFor(…, 'answered')` block; then the text-back; then the `// A missed caller who has not replied in 30 minutes …` block calling `startMissedCallFollowUp`; then `return twiml(afterDialTwiml({ textedBack }));`. | `grep -n "recordCall\|outcome === 'answered'\|startMissedCallFollowUp\|afterDialTwiml" app/api/phone/voice/status/route.ts` | Tasks 6, 10 |
+| A11 | Schema anchors: the last statement before `})().catch(` in `lib/db.ts` and before `console.log('Schema ready.');` in `scripts/init-db.mjs` is ``await sql`ALTER TABLE sequence_runs ADD COLUMN IF NOT EXISTS template_updated_at TIMESTAMPTZ;`;`` | `grep -n "template_updated_at\|})().catch\|Schema ready" lib/db.ts scripts/init-db.mjs` | Task 3 |
+| A12 | `lib/dbRows.ts` exports `DbId`, `DbTime`, `iso`, `errText`; `lib/email.ts` has `getClient(kind)`, `sendChecked`, `clientLayout`, `button`, `escapeHtml`, `CLIENT_FROM_ADDRESS`, `CLIENT_REPLY_TO`; email kinds are keys of `EMAIL_KINDS` in `lib/emailLogShared.ts`. | `grep -n "^export" lib/dbRows.ts` and `grep -n "^function getClient\|^async function sendChecked\|^function clientLayout\|^const CLIENT_FROM_ADDRESS" lib/email.ts` | Tasks 4, 10 |
 
 - [ ] **Step 1: Run every check in the table**
 
-Run each command from the repo root. Next to each row, write down the real name.
+Run each command from the repo root and confirm the real name matches the row.
 
-- [ ] **Step 2: Carry any difference into the later tasks**
+- [ ] **Step 2: Stop on any difference**
 
-If a name differs (for example the alert function is `alertOwner` in `lib/leadIntake.ts`, or the temporary stage table is `lead_stage_marks`), use the real name wherever this plan writes the assumed one, in the tasks listed in the last column. Behaviour does not change: the calls, arguments and order stay as written. If something is missing entirely (no `time_zone` column, no `direction` column, no `lib/sequences.ts`), stop: finish that part of slice 2 or 3 first; this plan does not re-implement it.
+Every row above was read from the code at `23b46f8`. If a later commit renamed or moved one of them, stop and revise the tasks in the last column before going on; this plan does not guess at names and does not re-implement anything slices 2 or 3 own.
 
 No commit: nothing changed.
 
@@ -75,19 +84,19 @@ No commit: nothing changed.
 - Modify: `package.json` (add the `test:inbox` script)
 
 **Interfaces:**
-- Consumes: `callerKey`, `formatCallLength`, `maskNumber`, `SMS_MAX_CHARS`, `CallOutcome` (`lib/phoneShared.ts`); `buttonLabel`, `campaignLabel` (`lib/projectsShared.ts`); `TIER_RANK`, `OnboardingTier` (`data/onboardingItems.ts`).
+- Consumes: `DEFAULT_TIME_ZONE`, `callerKey`, `formatCallLength`, `maskNumber`, `SMS_MAX_CHARS`, `CallOutcome` (`lib/phoneShared.ts`); `buttonLabel`, `campaignLabel` (`lib/projectsShared.ts`); `TIER_RANK`, `OnboardingTier` (`data/onboardingItems.ts`); `QUIET_START_HOUR`, `QUIET_END_HOUR`, `isQuietHours` (`lib/leadShared.ts`); `holdForQuietHours`, `safeTimeZone` (`lib/sequenceSchedule.ts`); `LEAD_ACTION_LABELS`, `STAGE_EFFECTS`, `normalizeEmail`, `LeadAction`, `LeadStage`, `SequenceKind` (`lib/sequenceShared.ts`).
 - Produces (all exported):
-  - Types `ContactStage`, `ContactAction`, `ContactSource`, `ContactEventKind`, `EventPayload`, `SequenceKind`, `Contact`, `ContactEvent`, `MergePlan`, `DashboardContact`, `DashboardEvent`, `HeldReply`, `DashboardContactView`, `DashboardInbox`, `ReplyRefusal`, `ReplyWindow`.
-  - Constants `CONTACT_STAGES`, `STAGE_LABELS`, `CONTACT_ACTIONS`, `CONTACT_SOURCES`, `CONTACT_EVENT_KINDS`, `CLICK_ATTACH_MINUTES` (10), `OWNER_TEXT_THROTTLE_MINUTES` (30), `QUIET_START_HOUR` (21), `QUIET_END_HOUR` (8), `DEFAULT_TIME_ZONE`, `REPLY_REFUSALS`, `REPLY_REFUSAL_COPY`.
-  - `isContactStage(v)`, `isContactAction(v)`, `isReplyRefusal(v)`, `inboxEnabled(tier)`.
-  - `normalizeEmail(raw): string | null`, `contactKeyFor({ phone?, email? }): { phone: string | null; email: string | null } | null`, `cleanName(raw): string | null`, `parseContactId(raw): number | null`.
-  - `stageAfterAction(current, action): ContactStage`, `nextStage(current, proposed, by: 'client' | 'system'): ContactStage | null`, `systemStageFor(kind, payload): ContactStage | null`, `outcomeForStage(stage): 'won' | 'lost' | null`, `sequenceEffects(action, changedTo: ContactStage | null): { stop: SequenceKind[]; start: SequenceKind[] }`, `noteForAction(action): string`.
+  - Types `ContactSource`, `ContactEventKind`, `EventPayload`, `SystemStage`, `Contact`, `ContactEvent`, `MergePlan`, `DashboardContact`, `DashboardEvent`, `HeldReply`, `DashboardContactView`, `DashboardInbox`, `Texting`, `ReplyRefusal`, `ReplyWindow`. Stages are slice 3's `LeadStage`; taps are slice 3's `LeadAction`.
+  - Constants `CONTACT_STAGES`, `STAGE_LABELS`, `CONTACT_SOURCES`, `CONTACT_EVENT_KINDS`, `CLICK_ATTACH_MINUTES` (10), `OWNER_TEXT_THROTTLE_MINUTES` (30), `QUIET_WINDOW` ("8 pm to 8 am", built from `lib/leadShared.ts`), `REPLY_REFUSALS`, `REPLY_REFUSAL_COPY`.
+  - `isReplyRefusal(v)`, `inboxEnabled(tier)`.
+  - `contactKeyFor({ phone?, email? }): { phone: string | null; email: string | null } | null`, `cleanName(raw): string | null`, `parseContactId(raw): number | null`.
+  - `nextSystemStage(current: LeadStage, proposed: SystemStage): SystemStage | null`, `systemStageFor(kind, payload): SystemStage | null`, `outcomeForStage(stage): 'won' | 'lost' | null`, `sequenceEffects(action: LeadAction, changed: boolean): { stop: SequenceKind[]; start: SequenceKind[] }` (delegates to `STAGE_EFFECTS`), `noteForAction(action: LeadAction): string`.
   - `mergeDecision(a: Contact, b: Contact): MergePlan`.
   - `messageEventKind(direction, messageKind): ContactEventKind | null`, `sourceForKind(kind): ContactSource`, `isLeadActivity(kind, payload): boolean`, `eventVerb(kind): string`, `eventSummary(kind, payload): string`.
   - `maskEmail(email)`, `shortName(name)`, `contactWho({ phone, email })`, `sourceLabelFor(contact)`, `formatWhen(iso)`, `relativeWhen(iso, now?)`.
   - `toDashboardContact(contact, last, optedOut): DashboardContact`, `toDashboardEvent(event): DashboardEvent`.
   - `encodeCursor(at, id): string`, `decodeCursor(raw): { at: string; id: number } | null`.
-  - `canReplyNow(now: Date, timeZone: string): ReplyWindow`, `quietNotice(sendAtIso, timeZone, queued: boolean): string`, `validateReplyBody(raw): { ok: true; body: string } | { ok: false; reason: 'empty' | 'too_long' }`.
+  - `canReplyNow(now: Date, timeZone: string): ReplyWindow`, `quietNotice(sendAtIso, timeZone, queued: boolean): string`, `validateReplyBody(raw): { ok: true; body: string } | { ok: false; reason: 'empty' | 'too_long' }`, `textingState(line: { status: string; smsStatus: string } | null): Texting`, `replyBlocker({ hasPhone, optedOut, texting }): ReplyRefusal | null`.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -98,15 +107,16 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   canReplyNow, cleanName, contactKeyFor, decodeCursor, encodeCursor, eventSummary, inboxEnabled, isLeadActivity, maskEmail,
-  mergeDecision, messageEventKind, nextStage, normalizeEmail, outcomeForStage, parseContactId, quietNotice, relativeWhen,
-  sequenceEffects, shortName, sourceForKind, stageAfterAction, systemStageFor, toDashboardContact, toDashboardEvent,
-  validateReplyBody, type Contact, type ContactEvent,
+  mergeDecision, messageEventKind, nextSystemStage, noteForAction, outcomeForStage, parseContactId, quietNotice, relativeWhen,
+  replyBlocker, sequenceEffects, shortName, sourceForKind, systemStageFor, textingState, toDashboardContact, toDashboardEvent,
+  validateReplyBody, QUIET_WINDOW, type Contact, type ContactEvent,
 } from './contactsShared';
+import { LEAD_ACTIONS, STAGE_EFFECTS } from './sequenceShared';
 
 const base: Contact = {
   id: 1, onboardingId: 7, phone: '+15155550134', email: null, name: null, stage: 'new', source: 'call',
   utmSource: null, utmMedium: null, utmCampaign: null,
-  firstSeenAt: '2026-10-01T15:00:00.000Z', lastActivityAt: '2026-10-01T15:00:00.000Z', stageChangedAt: null,
+  firstSeenAt: '2026-10-01T15:00:00.000Z', lastActivityAt: '2026-10-01T15:00:00.000Z', stageChangedAt: null, quoteSentAt: null,
 };
 const contact = (over: Partial<Contact>): Contact => ({ ...base, ...over });
 const event = (over: Partial<ContactEvent>): ContactEvent => ({
@@ -121,9 +131,8 @@ test('contactKeyFor: E.164 phone and lowercase email, nothing for a withheld cal
   assert.equal(contactKeyFor({ phone: 'anonymous' }), null);
   assert.equal(contactKeyFor({ phone: 'unknown' }), null);
   assert.equal(contactKeyFor({ phone: '', email: 'nope' }), null);
+  assert.equal(contactKeyFor({ email: 42 }), null);
   assert.equal(contactKeyFor({}), null);
-  assert.equal(normalizeEmail('x@y'), null);
-  assert.equal(normalizeEmail(42), null);
 });
 
 test('names and ids are cleaned', () => {
@@ -138,20 +147,13 @@ test('names and ids are cleaned', () => {
   assert.equal(parseContactId(undefined), null);
 });
 
-test('the system only moves a contact forward; the client can move it anywhere', () => {
-  assert.equal(nextStage('new', 'contacted', 'system'), 'contacted');
-  assert.equal(nextStage('booked', 'contacted', 'system'), null);
-  assert.equal(nextStage('won', 'booked', 'system'), null);
-  assert.equal(nextStage('lost', 'contacted', 'system'), null);
-  assert.equal(nextStage('contacted', 'contacted', 'system'), null);
-  assert.equal(nextStage('won', 'new', 'client'), 'new');
-  assert.equal(nextStage('won', 'won', 'client'), null);
-});
-
-test('Quote sent moves a new lead to Contacted and never pulls a later stage back', () => {
-  assert.equal(stageAfterAction('new', 'quote_sent'), 'contacted');
-  assert.equal(stageAfterAction('booked', 'quote_sent'), 'booked');
-  assert.equal(stageAfterAction('new', 'won'), 'won');
+test('the system only moves a contact forward and never off Won or Lost', () => {
+  assert.equal(nextSystemStage('new', 'contacted'), 'contacted');
+  assert.equal(nextSystemStage('contacted', 'booked'), 'booked');
+  assert.equal(nextSystemStage('booked', 'contacted'), null);
+  assert.equal(nextSystemStage('won', 'booked'), null);
+  assert.equal(nextSystemStage('lost', 'contacted'), null);
+  assert.equal(nextSystemStage('contacted', 'contacted'), null);
 });
 
 test('what moves a stage by itself: an answered call, a typed text, a booking', () => {
@@ -163,14 +165,17 @@ test('what moves a stage by itself: an answered call, a typed text, a booking', 
   assert.equal(systemStageFor('form', {}), null);
 });
 
-test('stages drive the follow-ups', () => {
-  assert.deepEqual(sequenceEffects('quote_sent', 'contacted'), { stop: ['new_lead'], start: ['quote'] });
-  assert.deepEqual(sequenceEffects('contacted', 'contacted'), { stop: ['new_lead'], start: [] });
-  assert.deepEqual(sequenceEffects('booked', 'booked'), { stop: ['new_lead', 'quote'], start: [] });
-  assert.deepEqual(sequenceEffects('won', 'won'), { stop: ['new_lead', 'quote'], start: ['review'] });
-  assert.deepEqual(sequenceEffects('lost', 'lost'), { stop: ['new_lead', 'quote'], start: [] });
-  assert.deepEqual(sequenceEffects('won', null), { stop: [], start: [] });
-  assert.deepEqual(sequenceEffects('new', 'new'), { stop: [], start: [] });
+test('stages drive the follow-ups through slice 3 STAGE_EFFECTS, one source of truth', () => {
+  for (const a of LEAD_ACTIONS) {
+    assert.deepEqual(sequenceEffects(a, true), { stop: STAGE_EFFECTS[a].stop, start: STAGE_EFFECTS[a].start });
+    assert.deepEqual(sequenceEffects(a, false), { stop: STAGE_EFFECTS[a].stop, start: [] });
+  }
+  // Spec, "Slice 4 additions": Contacted stops both the new-lead and the quote follow-up.
+  assert.deepEqual(sequenceEffects('contacted', true), { stop: ['new_lead', 'quote'], start: [] });
+  assert.deepEqual(sequenceEffects('won', true), { stop: ['new_lead', 'quote'], start: ['review'] });
+  assert.deepEqual(sequenceEffects('quote_sent', true), { stop: ['new_lead'], start: ['quote'] });
+  assert.equal(noteForAction('won'), 'Tapped "Job done"');
+  assert.equal(noteForAction('quote_sent'), 'Tapped "Quote sent"');
 });
 
 test('only Won and Lost are outcomes for the close rate (Review Focus 5)', () => {
@@ -185,6 +190,7 @@ test('mergeDecision keeps the older contact and takes the best of both (Review F
   const newer = contact({
     id: 4, phone: null, email: 'sarah@example.com', name: 'Sarah K', stage: 'booked', source: 'form', stageChangedAt: '2026-10-06T10:00:00.000Z',
     utmSource: 'google', utmMedium: 'cpc', utmCampaign: 'spring', firstSeenAt: '2026-10-05T15:00:00.000Z', lastActivityAt: '2026-10-06T15:00:00.000Z',
+    quoteSentAt: '2026-10-05T16:00:00.000Z',
   });
   const plan = mergeDecision(newer, older);
   assert.equal(plan.keepId, 9);
@@ -198,15 +204,17 @@ test('mergeDecision keeps the older contact and takes the best of both (Review F
   assert.equal(plan.merged.utmSource, 'google');
   assert.equal(plan.merged.firstSeenAt, '2026-10-01T15:00:00.000Z');
   assert.equal(plan.merged.lastActivityAt, '2026-10-06T15:00:00.000Z');
+  assert.equal(plan.merged.quoteSentAt, '2026-10-05T16:00:00.000Z');
 });
 
 test('mergeDecision: same first-seen time keeps the lower id; between Won and Lost the later mark wins', () => {
-  const a = contact({ id: 3, stage: 'won', stageChangedAt: '2026-10-03T00:00:00.000Z' });
-  const b = contact({ id: 2, phone: null, email: 'b@example.com', stage: 'lost', stageChangedAt: '2026-10-04T00:00:00.000Z' });
+  const a = contact({ id: 3, stage: 'won', stageChangedAt: '2026-10-03T00:00:00.000Z', quoteSentAt: '2026-10-02T00:00:00.000Z' });
+  const b = contact({ id: 2, phone: null, email: 'b@example.com', stage: 'lost', stageChangedAt: '2026-10-04T00:00:00.000Z', quoteSentAt: '2026-10-01T00:00:00.000Z' });
   const plan = mergeDecision(a, b);
   assert.equal(plan.keepId, 2);
   assert.equal(plan.merged.stage, 'lost');
   assert.equal(plan.merged.phone, '+15155550134');
+  assert.equal(plan.merged.quoteSentAt, '2026-10-01T00:00:00.000Z');
 });
 
 test('which texts become which timeline events', () => {
@@ -244,22 +252,28 @@ test('one-line summaries', () => {
   assert.equal(eventSummary('form', {}), 'sent your form');
   assert.equal(eventSummary('click', { name: 'call', path: '/services' }), 'tapped call button on services');
   assert.equal(eventSummary('sequence', { channel: 'email' }), 'follow-up email sent');
-  assert.equal(eventSummary('note', { text: 'Marked Won' }), 'Marked Won');
+  assert.equal(eventSummary('note', { text: 'Tapped "Job done"' }), 'Tapped "Job done"');
+  assert.equal(eventSummary('alert', { channel: 'sms' }), 'you were sent a text about this lead');
+  assert.equal(eventSummary('alert', { channel: 'email' }), 'you were emailed about this lead');
+  assert.equal(eventSummary('alert', { channel: 'push' }), 'you were sent a notification');
 });
 
 test('toDashboardContact masks the number and the email (Review Focus 1)', () => {
-  const both = toDashboardContact(contact({ email: 'sarah.k@example.com', name: 'Sarah Kim' }), { kind: 'call', summary: 'missed, texted back' }, false);
+  const both = toDashboardContact(contact({ email: 'sarah.k@example.com', name: 'Sarah Kim', quoteSentAt: '2026-10-02T00:00:00.000Z' }), { kind: 'call', summary: 'missed, texted back' }, false);
   const json = JSON.stringify(both);
   assert.equal(both.who, '(515) 555-01··');
   assert.doesNotMatch(json, /0134/);
   assert.doesNotMatch(json, /\+1515/);
   assert.doesNotMatch(json, /example\.com/);
+  assert.doesNotMatch(json, /2026-10-02/); // the quote time itself stays server-side
   assert.equal(both.lastVerb, 'Called');
   assert.equal(both.lastSummary, 'missed, texted back');
   assert.equal(both.hasEmail, true);
+  assert.equal(both.quoteSent, true);
   const emailOnly = toDashboardContact(contact({ phone: null, email: 'sarah.k@example.com', source: 'form' }), null, false);
   assert.equal(emailOnly.who, 'sarah.k@…');
   assert.equal(emailOnly.hasPhone, false);
+  assert.equal(emailOnly.quoteSent, false);
   assert.equal(emailOnly.sourceLabel, 'Your website form');
   assert.equal(toDashboardContact(contact({ utmSource: 'google', utmMedium: 'cpc' }), null, true).sourceLabel, 'Google Ads');
   assert.equal(maskEmail('averyveryverylongname@x.co'), 'averyveryver@…');
@@ -275,7 +289,7 @@ test('toDashboardEvent: calls carry the sid for the recording route, texts their
   const typed = toDashboardEvent(event({ kind: 'text_out', payload: { body: 'On my way', automatic: false, messageKind: 'manual' } }));
   assert.equal(typed.text, 'On my way');
   assert.equal(typed.automatic, false);
-  const email = toDashboardEvent(event({ kind: 'sequence', payload: { channel: 'email', subject: 'Following up' } }));
+  const email = toDashboardEvent(event({ kind: 'sequence', payload: { channel: 'email', step: 0 } }));
   assert.equal(email.text, null);
   assert.equal(email.automatic, true);
   const form = toDashboardEvent(event({ kind: 'form', payload: { name: 'Sarah', message: 'Leaky faucet', page: '/contact' } }));
@@ -290,17 +304,31 @@ test('cursors round-trip and reject junk', () => {
   assert.equal(decodeCursor(null), null);
 });
 
-test('canReplyNow: quiet from 9 pm to 8 am Central, held to 8 am (Review Focus 4)', () => {
+test('canReplyNow: quiet from 8 pm to 8 am Central, held to 8 am (Review Focus 4)', () => {
   // October 2026 is CDT, UTC-5.
   assert.deepEqual(canReplyNow(new Date('2026-10-13T13:00:00Z'), 'America/Chicago'), { ok: true }); // 8:00 am
-  assert.deepEqual(canReplyNow(new Date('2026-10-14T01:59:00Z'), 'America/Chicago'), { ok: true }); // 8:59 pm
-  assert.deepEqual(canReplyNow(new Date('2026-10-14T02:00:00Z'), 'America/Chicago'), { ok: false, sendAt: '2026-10-14T13:00:00.000Z' }); // 9:00 pm
+  assert.deepEqual(canReplyNow(new Date('2026-10-14T00:59:00Z'), 'America/Chicago'), { ok: true }); // 7:59 pm
+  assert.deepEqual(canReplyNow(new Date('2026-10-14T01:00:00Z'), 'America/Chicago'), { ok: false, sendAt: '2026-10-14T13:00:00.000Z' }); // 8:00 pm
   assert.deepEqual(canReplyNow(new Date('2026-10-14T02:30:45Z'), 'America/Chicago'), { ok: false, sendAt: '2026-10-14T13:00:00.000Z' }); // 9:30 pm
   assert.deepEqual(canReplyNow(new Date('2026-10-13T12:59:00Z'), 'America/Chicago'), { ok: false, sendAt: '2026-10-13T13:00:00.000Z' }); // 7:59 am
   assert.deepEqual(canReplyNow(new Date('2026-10-14T05:00:00Z'), 'America/Chicago'), { ok: false, sendAt: '2026-10-14T13:00:00.000Z' }); // midnight
   // A wrong zone falls back to Central rather than throwing.
-  assert.deepEqual(canReplyNow(new Date('2026-10-14T02:00:00Z'), 'Mars/Olympus'), { ok: false, sendAt: '2026-10-14T13:00:00.000Z' });
-  assert.match(quietNotice('2026-10-14T13:00:00.000Z', 'America/Chicago', true), /Wed 8:00\sAM/);
+  assert.deepEqual(canReplyNow(new Date('2026-10-14T01:00:00Z'), 'Mars/Olympus'), { ok: false, sendAt: '2026-10-14T13:00:00.000Z' });
+  assert.equal(QUIET_WINDOW, '8 pm to 8 am');
+  assert.match(quietNotice('2026-10-14T13:00:00.000Z', 'America/Chicago', true), /^Quiet hours \(8 pm to 8 am\): your text goes out Wed 8:00\sAM\.$/);
+  assert.match(quietNotice('2026-10-14T13:00:00.000Z', 'Mars/Olympus', false), /8 pm to 8 am.*Wed 8:00\sAM/);
+});
+
+test('replyBlocker: the order a reply is refused in (Review Focus 4)', () => {
+  assert.equal(replyBlocker({ hasPhone: false, optedOut: true, texting: 'none' }), 'no_phone');
+  assert.equal(replyBlocker({ hasPhone: true, optedOut: true, texting: 'pending' }), 'opted_out');
+  assert.equal(replyBlocker({ hasPhone: true, optedOut: false, texting: 'none' }), 'no_line');
+  assert.equal(replyBlocker({ hasPhone: true, optedOut: false, texting: 'pending' }), 'sms_pending');
+  assert.equal(replyBlocker({ hasPhone: true, optedOut: false, texting: 'ready' }), null);
+  assert.equal(textingState(null), 'none');
+  assert.equal(textingState({ status: 'released', smsStatus: 'ready' }), 'none');
+  assert.equal(textingState({ status: 'active', smsStatus: 'pending' }), 'pending');
+  assert.equal(textingState({ status: 'active', smsStatus: 'ready' }), 'ready');
 });
 
 test('reply bodies: trimmed, not empty, at most two texts long', () => {
@@ -349,21 +377,23 @@ Expected: FAIL, `Cannot find module './contactsShared'`.
 // (lib/contacts.ts), the API routes and the PROOF Leads tab. Client-safe: no
 // Node imports, no database. Identity (phone, email) is masked here before
 // anything reaches a browser; the words of a text or form are shown as written.
+// Stages, taps and their follow-ups are slice 3's (lib/sequenceShared.ts);
+// quiet hours are slice 2's (lib/leadShared.ts). Nothing here re-defines them.
 import { TIER_RANK, type OnboardingTier } from '@/data/onboardingItems';
-import { callerKey, formatCallLength, maskNumber, SMS_MAX_CHARS, type CallOutcome } from '@/lib/phoneShared';
+import { QUIET_END_HOUR, QUIET_START_HOUR, isQuietHours } from '@/lib/leadShared';
+import { DEFAULT_TIME_ZONE, callerKey, formatCallLength, maskNumber, SMS_MAX_CHARS, type CallOutcome } from '@/lib/phoneShared';
 import { buttonLabel, campaignLabel } from '@/lib/projectsShared';
+import { holdForQuietHours, safeTimeZone } from '@/lib/sequenceSchedule';
+import { LEAD_ACTION_LABELS, STAGE_EFFECTS, normalizeEmail, type LeadAction, type LeadStage, type SequenceKind } from '@/lib/sequenceShared';
 
 // ───────────────────────────── Vocabulary ─────────────────────────────
 
-export const CONTACT_STAGES = ['new', 'contacted', 'booked', 'won', 'lost'] as const;
-export type ContactStage = (typeof CONTACT_STAGES)[number];
-export const isContactStage = (v: unknown): v is ContactStage => typeof v === 'string' && (CONTACT_STAGES as readonly string[]).includes(v);
-export const STAGE_LABELS: Record<ContactStage, string> = { new: 'New', contacted: 'Contacted', booked: 'Booked', won: 'Won', lost: 'Lost' };
+/** Slice 3's stages, in order, for the badge and the list. */
+export const CONTACT_STAGES: readonly LeadStage[] = ['new', 'contacted', 'booked', 'won', 'lost'];
+export const STAGE_LABELS: Record<LeadStage, string> = { new: 'New', contacted: 'Contacted', booked: 'Booked', won: 'Won', lost: 'Lost' };
 
-/** What the client can tap on a contact: every stage, plus 'quote_sent', which is not a stage (it starts the quote follow-up). */
-export const CONTACT_ACTIONS = ['new', 'contacted', 'quote_sent', 'booked', 'won', 'lost'] as const;
-export type ContactAction = (typeof CONTACT_ACTIONS)[number];
-export const isContactAction = (v: unknown): v is ContactAction => typeof v === 'string' && (CONTACT_ACTIONS as readonly string[]).includes(v);
+/** The stages code may set by itself (an answered call or typed text; a booking). Both are slice 3 LeadActions. */
+export type SystemStage = Extract<LeadAction, 'contacted' | 'booked'>;
 
 /** How the person first reached the client. 'click' = a tap on the site's call or text button, then that call or text. */
 export const CONTACT_SOURCES = ['call', 'text', 'form', 'chat', 'booking', 'click', 'messenger', 'instagram'] as const;
@@ -377,9 +407,6 @@ export type ContactEventKind = (typeof CONTACT_EVENT_KINDS)[number];
 /** The facts of one event, copied from its source row. Never a recording URL. */
 export type EventPayload = Record<string, unknown>;
 
-/** The slice-3 sequences the inbox starts and stops. */
-export type SequenceKind = 'new_lead' | 'quote' | 'review';
-
 export interface Contact {
   id: number;
   onboardingId: number;
@@ -388,7 +415,7 @@ export interface Contact {
   /** Lowercase or null. */
   email: string | null;
   name: string | null;
-  stage: ContactStage;
+  stage: LeadStage;
   source: ContactSource;
   utmSource: string | null;
   utmMedium: string | null;
@@ -396,6 +423,8 @@ export interface Contact {
   firstSeenAt: string;
   lastActivityAt: string;
   stageChangedAt: string | null;
+  /** When "Quote sent" was first tapped; a second tap does not restart the quote follow-up (slice 3's rule). */
+  quoteSentAt: string | null;
 }
 
 export interface ContactEvent {
@@ -414,12 +443,12 @@ export interface ContactEvent {
 
 /** A call or text this many minutes after a tap on the site's call or text button is that tap's person. */
 export const CLICK_ATTACH_MINUTES = 10;
-/** Without push, the owner gets at most one text per lead in this many minutes. */
+/** Without push, the owner gets at most one fallback text and email per lead in this many minutes. */
 export const OWNER_TEXT_THROTTLE_MINUTES = 30;
-/** Manual replies typed from 9 pm to 8 am client-local wait until 8 am (spec, slice 4 "Compliance"). */
-export const QUIET_START_HOUR = 21;
-export const QUIET_END_HOUR = 8;
-export const DEFAULT_TIME_ZONE = 'America/Chicago';
+
+const hourWord = (h: number): string => (h === 0 ? '12 am' : h < 12 ? `${h} am` : h === 12 ? '12 pm' : `${h - 12} pm`);
+/** "8 pm to 8 am", from slice 2's quiet-hours constants. */
+export const QUIET_WINDOW = `${hourWord(QUIET_START_HOUR)} to ${hourWord(QUIET_END_HOUR)}`;
 
 export const inboxEnabled = (tier: OnboardingTier): boolean => TIER_RANK[tier] >= TIER_RANK.axeoncore;
 
@@ -431,14 +460,6 @@ const num = (v: unknown): number | null => {
 };
 
 // ───────────────────────────── Identity ─────────────────────────────
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-export function normalizeEmail(raw: unknown): string | null {
-  if (typeof raw !== 'string') return null;
-  const e = raw.trim().toLowerCase();
-  return e.length <= 254 && EMAIL_RE.test(e) ? e : null;
-}
 
 /** The two keys a contact can be found by. Null when the event identifies nobody (a withheld caller, a form with neither). */
 export function contactKeyFor(input: { phone?: unknown; email?: unknown }): { phone: string | null; email: string | null } | null {
@@ -461,54 +482,43 @@ export function parseContactId(raw: unknown): number | null {
 
 // ───────────────────────────── Stages ─────────────────────────────
 
-const STAGE_RANK: Record<ContactStage, number> = { new: 0, contacted: 1, booked: 2, won: 3, lost: 3 };
-
-export function stageAfterAction(current: ContactStage, action: ContactAction): ContactStage {
-  if (action === 'quote_sent') return current === 'new' ? 'contacted' : current;
-  return action;
-}
+const STAGE_RANK: Record<LeadStage, number> = { new: 0, contacted: 1, booked: 2, won: 3, lost: 3 };
 
 /**
- * The stage to move to, or null for no change. The client can move a contact
- * anywhere (a mis-tap must be undoable). Code only moves forward and never
- * touches a Won or Lost contact.
+ * A move code makes by itself, or null for none. Code only moves forward and
+ * never touches a Won or Lost contact; the client's taps go through slice 3's
+ * applyLeadStage instead (lib/leadStages.ts), which can move a lead anywhere.
  */
-export function nextStage(current: ContactStage, proposed: ContactStage, by: 'client' | 'system'): ContactStage | null {
-  if (proposed === current) return null;
-  if (by === 'client') return proposed;
+export function nextSystemStage(current: LeadStage, proposed: SystemStage): SystemStage | null {
   if (current === 'won' || current === 'lost') return null;
   return STAGE_RANK[proposed] > STAGE_RANK[current] ? proposed : null;
 }
 
 /** The stage an event implies on its own: an answered call or a typed text means Contacted, a booking means Booked. */
-export function systemStageFor(kind: ContactEventKind, payload: EventPayload): ContactStage | null {
+export function systemStageFor(kind: ContactEventKind, payload: EventPayload): SystemStage | null {
   if (kind === 'call') return payload.outcome === 'answered' ? 'contacted' : null;
   if (kind === 'text_out') return payload.messageKind === 'manual' ? 'contacted' : null;
   if (kind === 'booking') return 'booked';
   return null;
 }
 
-export function outcomeForStage(stage: ContactStage): 'won' | 'lost' | null {
+export function outcomeForStage(stage: LeadStage): 'won' | 'lost' | null {
   return stage === 'won' || stage === 'lost' ? stage : null;
 }
 
 /**
- * Stages drive slice 3's sequences (spec, "Slice 4 additions"). Contacted stops
- * the new-lead follow-up; Booked, Won and Lost also stop the quote follow-up
- * (a quote is only sent after first contact, so Contacted leaves that one
- * running); Won starts the review request; "Quote sent" starts the quote follow-up.
+ * The follow-ups a stage move starts and stops. Delegates to slice 3's
+ * STAGE_EFFECTS (one source of truth). Stops always apply (stopping is
+ * idempotent); starts only on a real change, as applyLeadStage does.
  */
-export function sequenceEffects(action: ContactAction, changedTo: ContactStage | null): { stop: SequenceKind[]; start: SequenceKind[] } {
-  const stop: SequenceKind[] =
-    changedTo === 'contacted' ? ['new_lead'] : changedTo === 'booked' || changedTo === 'won' || changedTo === 'lost' ? ['new_lead', 'quote'] : [];
-  const start: SequenceKind[] = [];
-  if (action === 'quote_sent') start.push('quote');
-  if (changedTo === 'won') start.push('review');
-  return { stop, start };
+export function sequenceEffects(action: LeadAction, changed: boolean): { stop: SequenceKind[]; start: SequenceKind[] } {
+  const effect = STAGE_EFFECTS[action];
+  return { stop: [...effect.stop], start: changed ? [...effect.start] : [] };
 }
 
-export function noteForAction(action: ContactAction): string {
-  return action === 'quote_sent' ? 'Marked: quote sent' : `Marked ${STAGE_LABELS[action]}`;
+/** The timeline note for one of the client's taps, in slice 3's words. */
+export function noteForAction(action: LeadAction): string {
+  return `Tapped "${LEAD_ACTION_LABELS[action]}"`;
 }
 
 // ───────────────────────────── Merging ─────────────────────────────
@@ -516,7 +526,7 @@ export function noteForAction(action: ContactAction): string {
 export interface MergePlan {
   keepId: number;
   dropId: number;
-  merged: Pick<Contact, 'name' | 'phone' | 'email' | 'stage' | 'stageChangedAt' | 'source' | 'utmSource' | 'utmMedium' | 'utmCampaign' | 'firstSeenAt' | 'lastActivityAt'>;
+  merged: Pick<Contact, 'name' | 'phone' | 'email' | 'stage' | 'stageChangedAt' | 'quoteSentAt' | 'source' | 'utmSource' | 'utmMedium' | 'utmCampaign' | 'firstSeenAt' | 'lastActivityAt'>;
 }
 
 /**
@@ -524,8 +534,8 @@ export interface MergePlan {
  * and the email of the other). The older row is kept (earlier first-seen, then
  * lower id); it keeps its first touch (source, campaign) and fills any gap from
  * the newer row. The furthest stage wins; between Won and Lost, the later mark.
- * If both rows had a phone, the kept row's phone stays and the other's events
- * still move over.
+ * The earliest "Quote sent" stands. If both rows had a phone, the kept row's
+ * phone stays and the other's events still move over.
  */
 export function mergeDecision(a: Contact, b: Contact): MergePlan {
   const aFirst = Date.parse(a.firstSeenAt);
@@ -536,6 +546,7 @@ export function mergeDecision(a: Contact, b: Contact): MergePlan {
   const dropLater = Date.parse(drop.stageChangedAt ?? '') > Date.parse(keep.stageChangedAt ?? '');
   const stageFrom = dropRank > keepRank || (dropRank === keepRank && drop.stage !== keep.stage && dropLater) ? drop : keep;
   const utmFrom = keep.utmSource ? keep : drop.utmSource ? drop : keep;
+  const quotes = [a.quoteSentAt, b.quoteSentAt].filter((q): q is string => q !== null).sort();
   return {
     keepId: keep.id,
     dropId: drop.id,
@@ -545,6 +556,7 @@ export function mergeDecision(a: Contact, b: Contact): MergePlan {
       email: keep.email ?? drop.email,
       stage: stageFrom.stage,
       stageChangedAt: stageFrom.stageChangedAt,
+      quoteSentAt: quotes[0] ?? null,
       source: keep.source,
       utmSource: utmFrom.utmSource,
       utmMedium: utmFrom.utmMedium,
@@ -633,27 +645,11 @@ export function eventSummary(kind: ContactEventKind, p: EventPayload): string {
     case 'note':
       return str(p.text) ?? 'note';
     case 'alert':
-      return p.channel === 'sms' ? 'you were sent a text about this lead' : 'you were notified';
+      return p.channel === 'sms' ? 'you were sent a text about this lead' : p.channel === 'email' ? 'you were emailed about this lead' : 'you were sent a notification';
   }
 }
 
 // ───────────────────────────── Display ─────────────────────────────
-
-const ZONES = new Map<string, string>();
-/** A usable IANA zone, or Central when the stored one is wrong. */
-function zone(timeZone: string): string {
-  const hit = ZONES.get(timeZone);
-  if (hit) return hit;
-  let ok = DEFAULT_TIME_ZONE;
-  try {
-    new Intl.DateTimeFormat('en-US', { timeZone }).format(0);
-    ok = timeZone;
-  } catch {
-    ok = DEFAULT_TIME_ZONE;
-  }
-  ZONES.set(timeZone, ok);
-  return ok;
-}
 
 export function maskEmail(email: string): string {
   const at = email.indexOf('@');
@@ -711,7 +707,9 @@ export interface DashboardContact {
   name: string | null;
   /** Masked number, masked email, or "Unknown". */
   who: string;
-  stage: ContactStage;
+  stage: LeadStage;
+  /** Whether "Quote sent" was tapped; the time itself stays server-side (as slice 3's DashboardSubmission). */
+  quoteSent: boolean;
   sourceLabel: string;
   firstSeenAt: string;
   lastActivityAt: string;
@@ -731,6 +729,7 @@ export function toDashboardContact(c: Contact, last: { kind: ContactEventKind; s
     name: c.name,
     who: contactWho(c),
     stage: c.stage,
+    quoteSent: c.quoteSentAt !== null,
     sourceLabel: sourceLabelFor(c),
     firstSeenAt: c.firstSeenAt,
     lastActivityAt: c.lastActivityAt,
@@ -792,7 +791,7 @@ export function toDashboardEvent(e: ContactEvent): DashboardEvent {
   };
 }
 
-/** A reply typed in quiet hours, waiting for 8 am; or one that could not go out. */
+/** A reply typed in quiet hours, waiting for 8 am; or one that did not go out. */
 export interface HeldReply {
   id: number;
   body: string;
@@ -807,6 +806,9 @@ export interface DashboardContactView {
   held: HeldReply[];
 }
 
+/** Can replies go out from this client's line: yes, waiting on carrier approval, or no tracked number. */
+export type Texting = 'ready' | 'pending' | 'none';
+
 export interface DashboardInbox {
   contacts: DashboardContact[];
   nextCursor: string | null;
@@ -814,8 +816,7 @@ export interface DashboardInbox {
   selected: DashboardContactView | null;
   /** The client's time zone, for the quiet-hours notice. */
   timeZone: string;
-  /** Can replies go out: yes, waiting on carrier approval, or no tracked number. */
-  texting: 'ready' | 'pending' | 'none';
+  texting: Texting;
 }
 
 /** "<ms>_<id>" of the last row on a page; the next page starts strictly after it. */
@@ -836,32 +837,21 @@ export function decodeCursor(raw: unknown): { at: string; id: number } | null {
 
 export type ReplyWindow = { ok: true } | { ok: false; sendAt: string };
 
-function localClock(now: Date, timeZone: string): { hour: number; minute: number } {
-  const parts = new Intl.DateTimeFormat('en-US', { timeZone: zone(timeZone), hour: 'numeric', minute: 'numeric', hourCycle: 'h23' }).formatToParts(now);
-  const hour = Number(parts.find((p) => p.type === 'hour')?.value ?? 0) % 24;
-  const minute = Number(parts.find((p) => p.type === 'minute')?.value ?? 0);
-  return { hour, minute };
-}
-
 /**
- * Can a typed reply go out now? From 9 pm to 8 am client-local it waits until
- * 8:00 am. On the two daylight-saving nights a year the held time can land an
- * hour off, never more.
+ * Can a typed reply go out now? Slice 2's quiet hours (8 pm to 8 am
+ * client-local, isQuietHours) hold it to 8:00 am (slice 3's holdForQuietHours,
+ * which also handles a wrong zone and daylight saving).
  */
 export function canReplyNow(now: Date, timeZone: string): ReplyWindow {
-  const { hour, minute } = localClock(now, timeZone);
-  if (hour >= QUIET_END_HOUR && hour < QUIET_START_HOUR) return { ok: true };
-  const minutesToOpen = hour >= QUIET_START_HOUR ? (24 - hour + QUIET_END_HOUR) * 60 - minute : (QUIET_END_HOUR - hour) * 60 - minute;
-  const sendAt = new Date(now.getTime() + minutesToOpen * 60_000);
-  sendAt.setUTCSeconds(0, 0);
-  return { ok: false, sendAt: sendAt.toISOString() };
+  if (!isQuietHours(now, timeZone)) return { ok: true };
+  return { ok: false, sendAt: holdForQuietHours(now, timeZone).toISOString() };
 }
 
 export function quietNotice(sendAtIso: string, timeZone: string, queued: boolean): string {
-  const when = new Intl.DateTimeFormat('en-US', { timeZone: zone(timeZone), weekday: 'short', hour: 'numeric', minute: '2-digit' }).format(new Date(sendAtIso));
+  const when = new Intl.DateTimeFormat('en-US', { timeZone: safeTimeZone(timeZone), weekday: 'short', hour: 'numeric', minute: '2-digit' }).format(new Date(sendAtIso));
   return queued
-    ? `Quiet hours (9 pm to 8 am): your text goes out ${when}.`
-    : `It is quiet hours (9 pm to 8 am) where you are. A text sent now goes out ${when}.`;
+    ? `Quiet hours (${QUIET_WINDOW}): your text goes out ${when}.`
+    : `It is quiet hours (${QUIET_WINDOW}) where you are. A text sent now goes out ${when}.`;
 }
 
 export const REPLY_REFUSALS = ['empty', 'too_long', 'no_phone', 'no_line', 'sms_pending', 'opted_out', 'bad_number'] as const;
@@ -884,6 +874,26 @@ export function validateReplyBody(raw: unknown): { ok: true; body: string } | { 
   if (body.length > SMS_MAX_CHARS) return { ok: false, reason: 'too_long' };
   return { ok: true, body };
 }
+
+/** What a client's line allows. getLine already returns active lines only; the status check keeps this honest for any caller. */
+export function textingState(line: { status: string; smsStatus: string } | null): Texting {
+  if (!line || line.status !== 'active') return 'none';
+  return line.smsStatus === 'ready' ? 'ready' : 'pending';
+}
+
+/**
+ * Why a reply can never go out, or null. One order for the server
+ * (replyToContact) and the reply box: no phone, opted out (the banner the spec
+ * asks for), no line, carrier approval pending. Quiet hours are not a refusal:
+ * the reply is held (canReplyNow).
+ */
+export function replyBlocker(input: { hasPhone: boolean; optedOut: boolean; texting: Texting }): Exclude<ReplyRefusal, 'empty' | 'too_long' | 'bad_number'> | null {
+  if (!input.hasPhone) return 'no_phone';
+  if (input.optedOut) return 'opted_out';
+  if (input.texting === 'none') return 'no_line';
+  if (input.texting === 'pending') return 'sms_pending';
+  return null;
+}
 ```
 
 - [ ] **Step 4: Run the tests**
@@ -895,9 +905,10 @@ Expected: PASS, every test. Then `npm run lint` (clean).
 
 ```bash
 git add lib/contactsShared.ts lib/contactsShared.test.ts package.json
-git commit -m "feat(inbox): client-safe contact, stage, merge and quiet-hours rules
+git commit -m "feat(inbox): client-safe contact, merge, masking and reply rules on slice 2 and 3 helpers
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR"
 ```
 
 ---
@@ -905,16 +916,22 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ### Task 3: Tables (`contacts`, `contact_events`, `push_subscriptions`, `held_replies`)
 
 **Files:**
-- Modify: `lib/db.ts` (`ensureSchema()`, at the end of the async block, after the `plan_items` statements)
-- Modify: `scripts/init-db.mjs` (before `console.log('Schema ready.');`)
+- Modify: `lib/db.ts` (`ensureSchema()`, at the end of the async block, after slice 3's last statement)
+- Modify: `scripts/init-db.mjs` (after the same statement, before `console.log('Schema ready.');`)
 
 **Interfaces:**
 - Consumes: `onboardings(id)`, `client_accounts(id)` (existing).
-- Produces: the four tables below, used by Tasks 4 to 11. `held_replies` is not in the spec's table list; it is the smallest thing that makes "held and sent at 8 am" true without bending slice 3's `sequence_runs`.
+- Produces: the four tables below, used by Tasks 4 to 11. `contacts.quote_sent_at` mirrors `form_submissions.quote_sent_at` so slice 3's "a second Quote sent tap does not restart the follow-up" rule holds on contacts too. `held_replies` is not in the spec's table list; it is the smallest thing that makes "held and sent at 8 am" true without bending slice 3's `sequence_runs`; `claimed_at` lets the cron retire a row whose send was interrupted instead of showing "goes out 8 AM" forever.
 
 - [ ] **Step 1: Add the tables to `lib/db.ts`**
 
-Inside `ensureSchema()`, after `await sql\`CREATE INDEX IF NOT EXISTS plan_items_onboarding_idx …\`;` and before the closing `})().catch(`, add:
+Inside `ensureSchema()`, directly after
+
+```ts
+      await sql`ALTER TABLE sequence_runs ADD COLUMN IF NOT EXISTS template_updated_at TIMESTAMPTZ;`;
+```
+
+and before the closing `})().catch((err) => {`, add:
 
 ```ts
       // The leads inbox (lib/contacts.ts, slice 4): one contact per phone or email
@@ -935,6 +952,7 @@ Inside `ensureSchema()`, after `await sql\`CREATE INDEX IF NOT EXISTS plan_items
           first_seen_at TIMESTAMPTZ NOT NULL DEFAULT now(),
           last_activity_at TIMESTAMPTZ NOT NULL DEFAULT now(),
           stage_changed_at TIMESTAMPTZ,
+          quote_sent_at TIMESTAMPTZ,
           created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
           CONSTRAINT contacts_identity_check CHECK (phone IS NOT NULL OR email IS NOT NULL)
         );
@@ -982,6 +1000,7 @@ Inside `ensureSchema()`, after `await sql\`CREATE INDEX IF NOT EXISTS plan_items
           send_at TIMESTAMPTZ NOT NULL,
           status TEXT NOT NULL DEFAULT 'held' CHECK (status IN ('held', 'sending', 'sent', 'failed')),
           error TEXT,
+          claimed_at TIMESTAMPTZ,
           created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
           sent_at TIMESTAMPTZ
         );
@@ -992,7 +1011,13 @@ Inside `ensureSchema()`, after `await sql\`CREATE INDEX IF NOT EXISTS plan_items
 
 - [ ] **Step 2: Mirror them in `scripts/init-db.mjs`**
 
-Before `console.log('Schema ready.');` paste the same statements with the indentation of that file (two spaces, `await sql\`…\`;`), the same comments, in the same order. Nothing else changes.
+Directly after
+
+```js
+  await sql`ALTER TABLE sequence_runs ADD COLUMN IF NOT EXISTS template_updated_at TIMESTAMPTZ;`;
+```
+
+and before `console.log('Schema ready.');`, paste the same statements with the indentation of that file (two spaces, `await sql\`…\`;`), the same comments, in the same order. Nothing else changes.
 
 - [ ] **Step 3: Check it**
 
@@ -1000,7 +1025,7 @@ Run: `npm run lint`
 Expected: clean.
 
 With a local database: `npm run db:init` then
-`psql "$POSTGRES_URL" -c "\d contact_events"` shows `contact_events_ref_uniq` as `UNIQUE, btree (ref_table, ref_id, kind, ref_part) WHERE ref_id IS NOT NULL`, and `\d contacts` shows both partial unique indexes. Running `npm run db:init` a second time prints `Schema ready.` with no error.
+`psql "$POSTGRES_URL" -c "\d contact_events"` shows `contact_events_ref_uniq` as `UNIQUE, btree (ref_table, ref_id, kind, ref_part) WHERE ref_id IS NOT NULL`, and `\d contacts` shows both partial unique indexes and `quote_sent_at`. Running `npm run db:init` a second time prints `Schema ready.` with no error.
 
 - [ ] **Step 4: Commit**
 
@@ -1008,34 +1033,36 @@ With a local database: `npm run db:init` then
 git add lib/db.ts scripts/init-db.mjs
 git commit -m "feat(inbox): contacts, contact_events, push_subscriptions, held_replies tables
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR"
 ```
 
 ---
 
-### Task 4: The contacts module (`lib/contacts.ts`)
+### Task 4: The contacts module (`lib/contacts.ts`) and the slice 3 store seam
 
 **Files:**
 - Create: `lib/contacts.ts`
+- Modify: `lib/leadStages.ts` (the contacts-backed stores; `defaultDeps` exported and switched to them)
 
 **Interfaces:**
-- Consumes: Task 2 (`contactKeyFor`, `cleanName`, `eventSummary`, `isLeadActivity`, `mergeDecision`, `messageEventKind`, `nextStage`, `noteForAction`, `outcomeForStage`, `sequenceEffects`, `sourceForKind`, `stageAfterAction`, `systemStageFor`, `toDashboardContact`, `toDashboardEvent`, `encodeCursor`, `isContactAction`, `CLICK_ATTACH_MINUTES`, types); Task 3 tables; `setLeadOutcome` (`lib/siteStats.ts`); `startRun`, `stopRunsFor` (`lib/sequences.ts`, A6, loaded with a dynamic `import()`); `form_submissions` (A1); `phone_calls.direction`, `phone_calls.lead_id` (A3); `lead_stages` (A8).
-- Produces:
-  - `interface ContactEventInput { onboardingId: number; kind: ContactEventKind; refTable: string | null; refId: number | null; refPart?: number; phone?: string | null; email?: string | null; name?: string | null; source?: ContactSource; utm?: { source: string | null; medium: string | null; campaign: string | null } | null; summary: string; payload: EventPayload; createdAt: string }`
+- Consumes: Task 2 (`contactKeyFor`, `cleanName`, `eventSummary`, `isLeadActivity`, `mergeDecision`, `messageEventKind`, `nextSystemStage`, `noteForAction`, `outcomeForStage`, `sequenceEffects`, `sourceForKind`, `systemStageFor`, `toDashboardContact`, `toDashboardEvent`, `encodeCursor`, `CLICK_ATTACH_MINUTES`, types); Task 3 tables; `DbId`, `DbTime`, `iso`, `errText` (`lib/dbRows.ts`); `setLeadOutcome` (`lib/siteStats.ts`); `isLeadStage`, `LeadAction`, `LeadStage` (`lib/sequenceShared.ts`); `startRun`, `stopRunsFor` (`lib/sequences.ts`, A6, loaded with a dynamic `import()` because `lib/sequences.ts` imports this module in Task 6); `form_submissions` incl. `is_test`, `stage`, `quote_sent_at`, `stage_changed_at` (A1); `phone_calls.direction`, `phone_calls.lead_id` (A3); `LeadStore`, `formSubmissionStore`, `StageDeps` (`lib/leadStages.ts`, A8).
+- Produces (`lib/contacts.ts`; it imports nothing from `lib/leadStages.ts`, `lib/sequences.ts` or `lib/phoneLines.ts` at the top, so there is no import cycle):
+  - `interface ContactEventInput { onboardingId: number; kind: ContactEventKind; refTable: string | null; refId: number | null; refPart?: number; phone?: string | null; email?: string | null; name?: string | null; source?: ContactSource; utm?: { source: string | null; medium: string | null; campaign: string | null } | null; summary: string; payload: EventPayload; createdAt: string; createIfMissing?: boolean; replay?: boolean }`
   - `interface UpsertResult { contactId: number; eventId: number; createdContact: boolean; insertedEvent: boolean }`
-  - `upsertContactEvent(input: ContactEventInput): Promise<UpsertResult | null>` — the one entry point every producer uses.
-  - `projectCall(callSid: string): Promise<UpsertResult | null>`, `projectMessage(messageSid: string): Promise<UpsertResult | null>`, `projectForm(formId: number): Promise<UpsertResult | null>`.
+  - `upsertContactEvent(input: ContactEventInput): Promise<UpsertResult | null>`: the one entry point every producer uses. Null when the event identifies nobody, or when `createIfMissing` is false and no contact matches.
+  - `projectCall(callSid: string, opts?: { replay?: boolean })`, `projectMessage(messageSid: string, opts?)`, `projectForm(formId: number, opts?)`: each `Promise<UpsertResult | null>`.
   - `getContact(onboardingId: number, contactId: number): Promise<Contact | null>`
   - `mergeContacts(onboardingId: number, aId: number, bId: number): Promise<Contact>`
-  - `setStage(onboardingId: number, contactId: number, action: ContactAction, by: 'client' | 'system'): Promise<Contact | null>` (the brief's `setStage(contactId, stage, by)`, scoped by onboarding so a route can never touch another client's contact)
+  - `writeContactStage(onboardingId: number, contactId: number, stage: LeadStage, action: LeadAction): Promise<void>`: what a client tap writes on a contact (stage, quote time, note, its forms, the close-rate mark); called only through the `LeadStore`s below, so `applyLeadStage` keeps owning the follow-ups.
   - `setContactName(onboardingId: number, contactId: number, raw: unknown): Promise<Contact | null>`
-  - `attachClickToContact(onboardingId: number, contactId: number, at: string, kind: 'call' | 'text_in'): Promise<number | null>`
-  - `attachedClickIds(onboardingId: number, ids: number[]): Promise<Set<number>>`
+  - `attachClickToContact(onboardingId: number, contactId: number, at: string, kind: 'call' | 'text_in'): Promise<number | null>`, `attachedClickIds(onboardingId: number, ids: number[]): Promise<Set<number>>`
   - `contactIdForRef(onboardingId: number, refTable: string, refId: number): Promise<number | null>`
-  - `recordAlert(onboardingId: number, contactId: number, channel: 'sms' | 'push'): Promise<void>`, `alertedRecently(contactId: number, minutes: number): Promise<boolean>`
+  - `recordAlert(onboardingId: number, contactId: number, channel: 'sms' | 'push' | 'email'): Promise<void>`, `alertedRecently(contactId: number, minutes: number): Promise<boolean>` (counts only the `sms` and `email` fallbacks)
   - `listInbox(onboardingId: number, opts?: { limit?: number; cursor?: { at: string; id: number } | null }): Promise<{ contacts: DashboardContact[]; nextCursor: string | null }>`
   - `contactTimeline(onboardingId: number, contactId: number): Promise<DashboardContactView | null>`
   - `interface BackfillResult { onboardingId: number; calls: number; messages: number; forms: number; stagesCopied: number }`, `backfill(onboardingId: number): Promise<BackfillResult>`, `backfillAll(): Promise<BackfillResult[]>`
+- Produces (`lib/leadStages.ts`): `formContactStore: LeadStore` (form id; refTable `form_submissions`), `contactStore: LeadStore` (contact id; refTable `contacts`), `export const defaultDeps` now using `formContactStore`, and `contactStageDeps: StageDeps`.
 
 - [ ] **Step 1: Write the module**
 
@@ -1047,23 +1074,23 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 // and chats) so the inbox is one indexed read. The source rows stay the truth:
 // every project* function re-reads its source row and upserts on (ref_table,
 // ref_id, kind, ref_part), so a retried webhook or a second backfill changes
-// nothing. upsertContactEvent is the one entry point every producer calls.
-// Server-only.
+// nothing. upsertContactEvent is the one entry point every producer calls. Only
+// the lead's own action (a call, an inbound text, a form) creates a contact;
+// outbound sends attach to one that exists. Admin test leads never become one.
+// Client stage taps do not start here: they run through slice 3's applyLeadStage
+// (lib/leadStages.ts) with a contacts-backed LeadStore, which calls
+// writeContactStage. Server-only.
 import { db, type VercelPoolClient } from '@vercel/postgres';
 import { ensureSchema, isDatabaseConfigured, sql } from '@/lib/db';
+import { errText, iso, type DbId, type DbTime } from '@/lib/dbRows';
 import { setLeadOutcome } from '@/lib/siteStats';
 import {
-  CLICK_ATTACH_MINUTES, cleanName, contactKeyFor, encodeCursor, eventSummary, isContactAction, isLeadActivity, mergeDecision,
-  messageEventKind, nextStage, noteForAction, outcomeForStage, sequenceEffects, sourceForKind, stageAfterAction, systemStageFor,
-  toDashboardContact, toDashboardEvent,
-  type Contact, type ContactAction, type ContactEvent, type ContactEventKind, type ContactSource, type ContactStage,
-  type DashboardContact, type DashboardContactView, type EventPayload, type SequenceKind,
+  CLICK_ATTACH_MINUTES, cleanName, contactKeyFor, encodeCursor, eventSummary, isLeadActivity, mergeDecision, messageEventKind,
+  nextSystemStage, noteForAction, outcomeForStage, sequenceEffects, sourceForKind, systemStageFor, toDashboardContact, toDashboardEvent,
+  type Contact, type ContactEvent, type ContactEventKind, type ContactSource, type DashboardContact, type DashboardContactView,
+  type EventPayload, type SystemStage,
 } from '@/lib/contactsShared';
-
-// node-postgres hands back BIGSERIAL ids as strings and TIMESTAMPTZ as Date.
-type DbId = number | string;
-type DbTime = Date | string;
-const iso = (t: DbTime): string => new Date(t).toISOString();
+import { isLeadStage, type LeadAction, type LeadStage } from '@/lib/sequenceShared';
 
 interface ContactRow {
   id: DbId;
@@ -1071,7 +1098,7 @@ interface ContactRow {
   phone: string | null;
   email: string | null;
   name: string | null;
-  stage: ContactStage;
+  stage: string;
   source: ContactSource;
   utm_source: string | null;
   utm_medium: string | null;
@@ -1079,6 +1106,7 @@ interface ContactRow {
   first_seen_at: DbTime;
   last_activity_at: DbTime;
   stage_changed_at: DbTime | null;
+  quote_sent_at: DbTime | null;
 }
 
 const toContact = (r: ContactRow): Contact => ({
@@ -1087,7 +1115,7 @@ const toContact = (r: ContactRow): Contact => ({
   phone: r.phone,
   email: r.email,
   name: r.name,
-  stage: r.stage,
+  stage: isLeadStage(r.stage) ? r.stage : 'new',
   source: r.source,
   utmSource: r.utm_source,
   utmMedium: r.utm_medium,
@@ -1095,6 +1123,7 @@ const toContact = (r: ContactRow): Contact => ({
   firstSeenAt: iso(r.first_seen_at),
   lastActivityAt: iso(r.last_activity_at),
   stageChangedAt: r.stage_changed_at ? iso(r.stage_changed_at) : null,
+  quoteSentAt: r.quote_sent_at ? iso(r.quote_sent_at) : null,
 });
 
 interface EventRow {
@@ -1142,6 +1171,10 @@ export interface ContactEventInput {
   payload: EventPayload;
   /** When it happened (the source row's time), ISO. */
   createdAt: string;
+  /** False for anything outbound: attach to an existing contact or skip (spec: the inbox is who reached out). Default true. */
+  createIfMissing?: boolean;
+  /** The backfill: history, not news. Stage moves are recorded but no follow-up is stopped or started. */
+  replay?: boolean;
 }
 
 export interface UpsertResult {
@@ -1170,6 +1203,36 @@ async function findByEmail(onboardingId: number, email: string): Promise<Contact
   return rows[0] ? toContact(rows[0]) : null;
 }
 
+// ───────────────────────────── Keeping forms and clicks in step ─────────────────────────────
+
+/**
+ * Slice 3's form list (FormLeads, the admin) reads form_submissions.stage; it
+ * must agree with the contact. Every (non-test) form projected onto this
+ * contact gets its stage, and its quote time on a "Quote sent" tap.
+ */
+async function mirrorFormStage(onboardingId: number, contactId: number, stage: LeadStage, action: LeadAction | null): Promise<void> {
+  await sql`
+    UPDATE form_submissions
+    SET stage = ${stage},
+        stage_changed_at = CASE WHEN stage IS DISTINCT FROM ${stage}::text THEN now() ELSE stage_changed_at END,
+        quote_sent_at = CASE WHEN ${action ?? ''}::text = 'quote_sent' THEN COALESCE(quote_sent_at, now()) ELSE quote_sent_at END
+    WHERE onboarding_id = ${onboardingId} AND NOT is_test
+      AND id IN (SELECT ref_id FROM contact_events WHERE contact_id = ${contactId} AND ref_table = 'form_submissions' AND kind = 'form');`;
+}
+
+async function clickIdFor(contactId: number): Promise<number | null> {
+  const { rows } = await sql<{ ref_id: DbId }>`
+    SELECT ref_id FROM contact_events WHERE contact_id = ${contactId} AND kind = 'click' AND ref_table = 'site_events'
+    ORDER BY created_at LIMIT 1;`;
+  return rows[0] ? Number(rows[0].ref_id) : null;
+}
+
+/** Won/Lost onto the matched website tap, so the close rate learns from it (an unmatched contact is counted by lib/siteStats.ts directly). */
+async function writeBackOutcome(onboardingId: number, contactId: number, stage: LeadStage): Promise<void> {
+  const clickId = await clickIdFor(contactId);
+  if (clickId) await setLeadOutcome(onboardingId, clickId, outcomeForStage(stage));
+}
+
 // ───────────────────────────── Resolving and merging ─────────────────────────────
 
 async function inTransaction<T>(work: (q: VercelPoolClient) => Promise<T>): Promise<T> {
@@ -1180,7 +1243,7 @@ async function inTransaction<T>(work: (q: VercelPoolClient) => Promise<T>): Prom
     await client.sql`COMMIT`;
     return out;
   } catch (err) {
-    await client.sql`ROLLBACK`.catch(() => undefined);
+    await client.sql`ROLLBACK`.catch((rollbackErr) => console.error('[contacts] rollback failed', errText(rollbackErr)));
     throw err;
   } finally {
     client.release();
@@ -1191,17 +1254,19 @@ async function inTransaction<T>(work: (q: VercelPoolClient) => Promise<T>): Prom
  * Fold two contacts into the older one (spec, "Dedupe rules"). One transaction,
  * in this order: re-point the events and held replies, delete the newer row,
  * then give the kept row the merged fields. Deleting first matters: the newer
- * row still holds the phone or email the kept row is about to take.
+ * row still holds the phone or email the kept row is about to take. Afterwards
+ * the kept row's forms take the merged stage, and a merged Won/Lost reaches the
+ * kept row's matched tap (which the dropped row's mark never did).
  */
 export async function mergeContacts(onboardingId: number, aId: number, bId: number): Promise<Contact> {
   await ensureSchema();
-  return inTransaction(async (q) => {
+  const merged = await inTransaction(async (q) => {
     const { rows } = await q.sql<ContactRow>`
       SELECT * FROM contacts WHERE onboarding_id = ${onboardingId} AND id IN (${aId}, ${bId}) ORDER BY id FOR UPDATE;`;
     if (rows.length < 2) {
       // A concurrent event already merged them; the survivor is the answer.
       if (!rows[0]) throw new Error('contacts: nothing to merge');
-      return toContact(rows[0]);
+      return { contact: toContact(rows[0]), changed: false };
     }
     const plan = mergeDecision(toContact(rows[0]), toContact(rows[1]));
     const m = plan.merged;
@@ -1211,13 +1276,19 @@ export async function mergeContacts(onboardingId: number, aId: number, bId: numb
     const { rows: kept } = await q.sql<ContactRow>`
       UPDATE contacts SET
         name = ${m.name}, phone = ${m.phone}, email = ${m.email},
-        stage = ${m.stage}, stage_changed_at = ${m.stageChangedAt},
+        stage = ${m.stage}, stage_changed_at = ${m.stageChangedAt}, quote_sent_at = ${m.quoteSentAt},
         source = ${m.source}, utm_source = ${m.utmSource}, utm_medium = ${m.utmMedium}, utm_campaign = ${m.utmCampaign},
         first_seen_at = ${m.firstSeenAt}, last_activity_at = ${m.lastActivityAt}
       WHERE id = ${plan.keepId}
       RETURNING *;`;
-    return toContact(kept[0]);
+    return { contact: toContact(kept[0]), changed: true };
   });
+  if (merged.changed) {
+    const c = merged.contact;
+    await mirrorFormStage(onboardingId, c.id, c.stage, null);
+    if (outcomeForStage(c.stage)) await writeBackOutcome(onboardingId, c.id, c.stage);
+  }
+  return merged.contact;
 }
 
 interface Seed {
@@ -1231,9 +1302,16 @@ interface Seed {
  * The contact this event belongs to. Phone first (a phone number is the
  * identity), then email. If the phone and the email point at two different
  * contacts, they are merged. Otherwise a found contact gains whatever key or
- * name it lacked; nobody found means a new contact.
+ * name it lacked; nobody found means a new contact, unless the caller said not
+ * to create one (outbound sends): then null.
  */
-async function resolveContact(onboardingId: number, key: { phone: string | null; email: string | null }, seed: Seed, attempt = 0): Promise<{ contact: Contact; created: boolean }> {
+async function resolveContact(
+  onboardingId: number,
+  key: { phone: string | null; email: string | null },
+  seed: Seed,
+  create: boolean,
+  attempt = 0,
+): Promise<{ contact: Contact; created: boolean } | null> {
   const [byPhone, byEmail] = await Promise.all([
     key.phone ? findByPhone(onboardingId, key.phone) : Promise.resolve(null),
     key.email ? findByEmail(onboardingId, key.email) : Promise.resolve(null),
@@ -1243,6 +1321,7 @@ async function resolveContact(onboardingId: number, key: { phone: string | null;
   }
   const found = byPhone ?? byEmail;
   if (!found) {
+    if (!create) return null;
     const { rows } = await sql<ContactRow>`
       INSERT INTO contacts (onboarding_id, phone, email, name, source, utm_source, utm_medium, utm_campaign, first_seen_at, last_activity_at)
       VALUES (${onboardingId}, ${key.phone}, ${key.email}, ${seed.name}, ${seed.source},
@@ -1252,7 +1331,7 @@ async function resolveContact(onboardingId: number, key: { phone: string | null;
     if (rows[0]) return { contact: toContact(rows[0]), created: true };
     // Another request created this person a moment ago: look again, once.
     if (attempt > 0) throw new Error('contacts: could not resolve a contact');
-    return resolveContact(onboardingId, key, seed, attempt + 1);
+    return resolveContact(onboardingId, key, seed, create, attempt + 1);
   }
   try {
     const { rows } = await sql<ContactRow>`
@@ -1265,7 +1344,7 @@ async function resolveContact(onboardingId: number, key: { phone: string | null;
     return { contact: rows[0] ? toContact(rows[0]) : found, created: false };
   } catch (err) {
     // The phone or email was just taken by another contact: the next pass sees both and merges.
-    if (isUniqueViolation(err) && attempt === 0) return resolveContact(onboardingId, key, seed, 1);
+    if (isUniqueViolation(err) && attempt === 0) return resolveContact(onboardingId, key, seed, create, 1);
     throw err;
   }
 }
@@ -1308,21 +1387,22 @@ async function insertEvent(contactId: number, e: EventWrite, onConflict: 'update
  * activity, and on a fresh event only: moves the stage forward when the event
  * implies it, and matches a brand-new caller or texter to a tap on the site's
  * call button in the 10 minutes before. Returns null when the event identifies
- * nobody (a withheld caller).
+ * nobody (a withheld caller) or is outbound to someone who is not a contact.
  */
 export async function upsertContactEvent(input: ContactEventInput): Promise<UpsertResult | null> {
   if (!isDatabaseConfigured()) return null;
   const key = contactKeyFor({ phone: input.phone, email: input.email });
   if (!key) return null;
   await ensureSchema();
-  const { contact, created } = await resolveContact(input.onboardingId, key, {
-    name: cleanName(input.name),
-    source: input.source ?? sourceForKind(input.kind),
-    utm: input.utm ?? null,
-    at: input.createdAt,
-  });
+  const resolved = await resolveContact(
+    input.onboardingId,
+    key,
+    { name: cleanName(input.name), source: input.source ?? sourceForKind(input.kind), utm: input.utm ?? null, at: input.createdAt },
+    input.createIfMissing !== false,
+  );
+  if (!resolved) return null;
   const ev = await insertEvent(
-    contact.id,
+    resolved.contact.id,
     {
       onboardingId: input.onboardingId,
       kind: input.kind,
@@ -1345,12 +1425,12 @@ export async function upsertContactEvent(input: ContactEventInput): Promise<Upse
   }
   if (ev.inserted) {
     const proposed = systemStageFor(input.kind, input.payload);
-    if (proposed) await setStage(input.onboardingId, ev.contactId, proposed, 'system');
-    if (created && (input.kind === 'call' || input.kind === 'text_in')) {
+    if (proposed) await advanceStage(input.onboardingId, ev.contactId, proposed, input.replay === true);
+    if (resolved.created && (input.kind === 'call' || input.kind === 'text_in')) {
       await attachClickToContact(input.onboardingId, ev.contactId, input.createdAt, input.kind);
     }
   }
-  return { contactId: ev.contactId, eventId: ev.id, createdContact: created, insertedEvent: ev.inserted };
+  return { contactId: ev.contactId, eventId: ev.id, createdContact: resolved.created, insertedEvent: ev.inserted };
 }
 
 // ───────────────────────────── Tracker clicks ─────────────────────────────
@@ -1412,15 +1492,9 @@ export async function attachedClickIds(onboardingId: number, ids: number[]): Pro
   return new Set(rows.map((r) => Number(r.ref_id)));
 }
 
-async function clickIdFor(contactId: number): Promise<number | null> {
-  const { rows } = await sql<{ ref_id: DbId }>`
-    SELECT ref_id FROM contact_events WHERE contact_id = ${contactId} AND kind = 'click' AND ref_table = 'site_events'
-    ORDER BY created_at LIMIT 1;`;
-  return rows[0] ? Number(rows[0].ref_id) : null;
-}
-
-/** The contact a source row was projected onto (slice 3's stage route still sends a source row). */
+/** The contact a source row was projected onto (slice 3's form-lead taps send a form id). */
 export async function contactIdForRef(onboardingId: number, refTable: string, refId: number): Promise<number | null> {
+  if (!isDatabaseConfigured()) return null;
   await ensureSchema();
   const { rows } = await sql<{ contact_id: DbId }>`
     SELECT contact_id FROM contact_events WHERE onboarding_id = ${onboardingId} AND ref_table = ${refTable} AND ref_id = ${refId} LIMIT 1;`;
@@ -1429,55 +1503,63 @@ export async function contactIdForRef(onboardingId: number, refTable: string, re
 
 // ───────────────────────────── Stage ─────────────────────────────
 
-async function applySequenceEffects(c: Contact, fx: { stop: SequenceKind[]; start: SequenceKind[] }): Promise<void> {
-  if (fx.stop.length === 0 && fx.start.length === 0) return;
+/**
+ * A move code makes by itself (an answered call, a typed text, a booking): only
+ * forward, never off Won/Lost (nextSystemStage). The contact's forms follow, and
+ * the follow-ups change through slice 3's STAGE_EFFECTS (sequenceEffects). No
+ * client is waiting on this, and the webhook that caused it already stops the
+ * same runs itself ('answered', 'replied'), so a follow-up failure here is
+ * logged, not raised: raising would fail the webhook after its row was saved.
+ */
+async function advanceStage(onboardingId: number, contactId: number, proposed: SystemStage, replay: boolean): Promise<void> {
+  const before = await getContact(onboardingId, contactId);
+  if (!before) return;
+  const next = nextSystemStage(before.stage, proposed);
+  if (!next) return;
+  const { rows } = await sql<ContactRow>`
+    UPDATE contacts SET stage = ${next}, stage_changed_at = now()
+    WHERE id = ${contactId} AND onboarding_id = ${onboardingId} AND stage = ${before.stage}
+    RETURNING *;`;
+  if (!rows[0]) return; // someone moved it in between; their move stands
+  const c = toContact(rows[0]);
+  await mirrorFormStage(onboardingId, contactId, next, null);
+  if (replay) return; // the backfill records history; it does not stop today's follow-ups
+  const fx = sequenceEffects(next, true);
   try {
-    // Loaded here, not at the top: lib/sequences.ts sends through lib/phoneLines.ts, which projects into this module.
+    // Loaded here, not at the top: lib/sequences.ts imports this module (Task 6).
     const { startRun, stopRunsFor } = await import('@/lib/sequences');
-    if (fx.stop.length > 0) await stopRunsFor(c.onboardingId, { phone: c.phone, email: c.email, kinds: fx.stop }, `stage:${c.stage}`);
-    for (const kind of fx.start) await startRun(c.onboardingId, kind, { phone: c.phone, email: c.email, name: c.name }, { table: 'contacts', id: c.id });
+    if (fx.stop.length > 0) await stopRunsFor(onboardingId, { phone: c.phone, email: c.email, kinds: fx.stop }, `stage:${next}`);
+    for (const kind of fx.start) await startRun(onboardingId, kind, { name: c.name, phone: c.phone, email: c.email }, { table: 'contacts', id: c.id });
   } catch (err) {
-    // A follow-up problem must not undo the client's tap.
-    console.error('contacts: sequence change failed', c.id, err instanceof Error ? err.message : err);
+    console.error('[contacts] system stage saved, follow-up not updated', onboardingId, contactId, next, errText(err));
   }
 }
 
 /**
- * Move a contact. The client can move it anywhere; code (an answered call, a
- * typed text, a booking) only moves it forward (nextStage). Then: a note on the
- * timeline for the client's own taps, the slice-3 follow-ups started or stopped,
- * and Won/Lost written onto the matched website tap so the close rate learns
- * from it (an unmatched contact is counted by lib/siteStats.ts directly).
- * Returns the contact as it now stands, or null if it is not this client's.
+ * What one of the client's taps writes on a contact. Called only by the
+ * LeadStores in lib/leadStages.ts, so slice 3's applyLeadStage stays the one
+ * place that decides the stage (STAGE_EFFECTS) and starts or stops follow-ups
+ * (and returns STAGE_ENGINE_WARNING when that fails). Here: the stage and the
+ * first quote time, the contact's forms kept in step, a timeline note, and
+ * Won/Lost onto the matched website tap when the outcome changed.
  */
-export async function setStage(onboardingId: number, contactId: number, action: ContactAction, by: 'client' | 'system'): Promise<Contact | null> {
+export async function writeContactStage(onboardingId: number, contactId: number, stage: LeadStage, action: LeadAction): Promise<void> {
   const before = await getContact(onboardingId, contactId);
-  if (!before) return null;
-  const next = nextStage(before.stage, stageAfterAction(before.stage, action), by);
-  let current = before;
-  if (next) {
-    const { rows } = await sql<ContactRow>`
-      UPDATE contacts SET stage = ${next}, stage_changed_at = now()
-      WHERE id = ${contactId} AND onboarding_id = ${onboardingId} AND stage = ${before.stage}
-      RETURNING *;`;
-    // Someone moved it in between; their move stands.
-    if (!rows[0]) return getContact(onboardingId, contactId);
-    current = toContact(rows[0]);
-  }
-  if (by === 'client' && (next || action === 'quote_sent')) {
-    const text = noteForAction(action);
-    await insertEvent(
-      contactId,
-      { onboardingId, kind: 'note', refTable: null, refId: null, refPart: 0, summary: text, payload: { text, action }, createdAt: new Date().toISOString() },
-      'update',
-    );
-  }
-  await applySequenceEffects(current, sequenceEffects(action, next));
-  if (next && outcomeForStage(next) !== outcomeForStage(before.stage)) {
-    const clickId = await clickIdFor(contactId);
-    if (clickId) await setLeadOutcome(onboardingId, clickId, outcomeForStage(next));
-  }
-  return current;
+  if (!before) return;
+  await sql`
+    UPDATE contacts
+    SET stage = ${stage},
+        stage_changed_at = CASE WHEN stage IS DISTINCT FROM ${stage}::text THEN now() ELSE stage_changed_at END,
+        quote_sent_at = CASE WHEN ${action}::text = 'quote_sent' THEN COALESCE(quote_sent_at, now()) ELSE quote_sent_at END
+    WHERE id = ${contactId} AND onboarding_id = ${onboardingId};`;
+  await mirrorFormStage(onboardingId, contactId, stage, action);
+  const text = noteForAction(action);
+  await insertEvent(
+    contactId,
+    { onboardingId, kind: 'note', refTable: null, refId: null, refPart: 0, summary: text, payload: { text, action }, createdAt: new Date().toISOString() },
+    'update',
+  );
+  if (outcomeForStage(stage) !== outcomeForStage(before.stage)) await writeBackOutcome(onboardingId, contactId, stage);
 }
 
 export async function setContactName(onboardingId: number, contactId: number, raw: unknown): Promise<Contact | null> {
@@ -1488,7 +1570,7 @@ export async function setContactName(onboardingId: number, contactId: number, ra
 
 // ───────────────────────────── Alerts ─────────────────────────────
 
-export async function recordAlert(onboardingId: number, contactId: number, channel: 'sms' | 'push'): Promise<void> {
+export async function recordAlert(onboardingId: number, contactId: number, channel: 'sms' | 'push' | 'email'): Promise<void> {
   const payload: EventPayload = { channel };
   await insertEvent(
     contactId,
@@ -1497,34 +1579,39 @@ export async function recordAlert(onboardingId: number, contactId: number, chann
   );
 }
 
+/** Was the owner already texted or emailed about this lead lately (the fallback throttle)? Pushes do not count. */
 export async function alertedRecently(contactId: number, minutes: number): Promise<boolean> {
   const { rows } = await sql`
     SELECT 1 FROM contact_events
-    WHERE contact_id = ${contactId} AND kind = 'alert' AND created_at > now() - make_interval(mins => ${Math.round(minutes)})
+    WHERE contact_id = ${contactId} AND kind = 'alert' AND payload->>'channel' IN ('sms', 'email')
+      AND created_at > now() - make_interval(mins => ${Math.round(minutes)})
     LIMIT 1;`;
   return rows.length > 0;
 }
 
 // ───────────────────────────── Projections (one per source table) ─────────────────────────────
 
-/** A call on the tracked line, or a slice-2 call-connect (whose lead is the form's phone, not the caller id). */
-export async function projectCall(callSid: string): Promise<UpsertResult | null> {
+/**
+ * A call on the tracked line, or a slice-2 call-connect. A connect call's
+ * from_number is already the lead's phone (startConnectCall). A connect call
+ * about an admin test lead is skipped, like the test lead itself.
+ */
+export async function projectCall(callSid: string, opts: { replay?: boolean } = {}): Promise<UpsertResult | null> {
   if (!isDatabaseConfigured()) return null;
   await ensureSchema();
   const { rows } = await sql<{
     id: DbId; onboarding_id: number; call_sid: string; outcome: 'answered' | 'missed'; started_at: DbTime; duration_seconds: number | null;
-    has_recording: boolean; text_back_sent_at: DbTime | null; direction: string; lead_number: string | null; form_name: string | null;
+    has_recording: boolean; text_back_sent_at: DbTime | null; direction: string; from_number: string; form_name: string | null; form_is_test: boolean;
   }>`
     SELECT c.id, c.onboarding_id, c.call_sid, c.outcome, c.started_at, c.duration_seconds,
-           c.recording_url IS NOT NULL AS has_recording, c.text_back_sent_at, c.direction,
-           CASE WHEN c.direction = 'connect' THEN f.phone ELSE c.from_number END AS lead_number,
-           f.name AS form_name
+           c.recording_url IS NOT NULL AS has_recording, c.text_back_sent_at, c.direction, c.from_number,
+           f.name AS form_name, COALESCE(f.is_test, false) AS form_is_test
     FROM phone_calls c
     LEFT JOIN form_submissions f ON f.id = c.lead_id
     WHERE c.call_sid = ${callSid}
     LIMIT 1;`;
   const r = rows[0];
-  if (!r || !r.lead_number || r.lead_number === 'unknown') return null;
+  if (!r || r.form_is_test) return null;
   const payload: EventPayload = {
     callSid: r.call_sid,
     outcome: r.outcome,
@@ -1538,16 +1625,21 @@ export async function projectCall(callSid: string): Promise<UpsertResult | null>
     kind: 'call',
     refTable: 'phone_calls',
     refId: Number(r.id),
-    phone: r.lead_number,
+    phone: r.from_number,
     name: r.form_name,
     summary: eventSummary('call', payload),
     payload,
     createdAt: iso(r.started_at),
+    replay: opts.replay,
   });
 }
 
-/** A text on the tracked line, either way. Owner alerts are skipped: they go to the owner, not a lead. */
-export async function projectMessage(messageSid: string): Promise<UpsertResult | null> {
+/**
+ * A text on the tracked line. Inbound creates the contact; outbound (text-back,
+ * manual reply, sequence, reminder, confirmation) only attaches to an existing
+ * one. Owner alerts are skipped: they go to the owner, not a lead.
+ */
+export async function projectMessage(messageSid: string, opts: { replay?: boolean } = {}): Promise<UpsertResult | null> {
   if (!isDatabaseConfigured()) return null;
   await ensureSchema();
   const { rows } = await sql<{ id: DbId; onboarding_id: number; message_sid: string; direction: 'inbound' | 'outbound'; from_number: string; to_number: string; body: string; kind: string; created_at: DbTime }>`
@@ -1557,12 +1649,12 @@ export async function projectMessage(messageSid: string): Promise<UpsertResult |
   if (!r) return null;
   const kind = messageEventKind(r.direction, r.kind);
   if (!kind) return null;
-  const lead = r.direction === 'inbound' ? r.from_number : r.to_number;
+  const inbound = r.direction === 'inbound';
   const payload: EventPayload = {
     messageSid: r.message_sid,
     body: r.body,
     messageKind: r.kind,
-    automatic: r.direction === 'outbound' && r.kind !== 'manual',
+    automatic: !inbound && r.kind !== 'manual',
     channel: 'sms',
   };
   return upsertContactEvent({
@@ -1570,15 +1662,17 @@ export async function projectMessage(messageSid: string): Promise<UpsertResult |
     kind,
     refTable: 'phone_messages',
     refId: Number(r.id),
-    phone: lead,
+    phone: inbound ? r.from_number : r.to_number,
     summary: eventSummary(kind, payload),
     payload,
     createdAt: iso(r.created_at),
+    createIfMissing: inbound,
+    replay: opts.replay,
   });
 }
 
-/** A website form (slice 2). Phone and email both join the contact, which is where the automatic merge happens. */
-export async function projectForm(formId: number): Promise<UpsertResult | null> {
+/** A website form (slice 2), never an admin test lead. Phone and email both join the contact, which is where the automatic merge happens. */
+export async function projectForm(formId: number, opts: { replay?: boolean } = {}): Promise<UpsertResult | null> {
   if (!isDatabaseConfigured()) return null;
   await ensureSchema();
   const { rows } = await sql<{
@@ -1586,7 +1680,7 @@ export async function projectForm(formId: number): Promise<UpsertResult | null> 
     utm_source: string | null; utm_medium: string | null; utm_campaign: string | null; created_at: DbTime;
   }>`
     SELECT id, onboarding_id, name, phone, email, message, page, utm_source, utm_medium, utm_campaign, created_at
-    FROM form_submissions WHERE id = ${formId} LIMIT 1;`;
+    FROM form_submissions WHERE id = ${formId} AND NOT is_test LIMIT 1;`;
   const r = rows[0];
   if (!r) return null;
   const payload: EventPayload = { name: r.name, message: r.message, page: r.page };
@@ -1603,6 +1697,7 @@ export async function projectForm(formId: number): Promise<UpsertResult | null> 
     summary: eventSummary('form', payload),
     payload,
     createdAt: iso(r.created_at),
+    replay: opts.replay,
   });
 }
 
@@ -1642,7 +1737,12 @@ export async function listInbox(onboardingId: number, opts: { limit?: number; cu
   return { contacts, nextCursor };
 }
 
-/** One contact's page: the masked header, the latest 300 events oldest first, and replies waiting for 8 am. */
+/**
+ * One contact's page: the masked header, the latest 300 events oldest first,
+ * and replies waiting for 8 am. A row still 'sending' is shown as waiting; the
+ * cron turns one stuck there into 'failed' (lib/inboxReply.ts), so it never
+ * reads "goes out at 8 AM" forever.
+ */
 export async function contactTimeline(onboardingId: number, contactId: number): Promise<DashboardContactView | null> {
   const contact = await getContact(onboardingId, contactId);
   if (!contact) return null;
@@ -1678,35 +1778,36 @@ export interface BackfillResult {
 }
 
 /**
- * Slice 3 kept the client's taps in lead_stages (A8) until contacts existed.
- * Copy each onto its contact once, only over 'new', without re-running the
- * follow-ups (slice 3 already started or stopped them when the tap happened).
+ * Slice 3 kept the client's taps on form_submissions (stage, quote_sent_at,
+ * stage_changed_at) until contacts existed. Copy each contact's latest form mark
+ * onto it, without re-running the follow-ups (slice 3 already started or stopped
+ * them when the tap happened). A client's tap beats a move the replay made by
+ * itself (an old answered call), so the copy goes over any stage, unless the
+ * contact has already been tapped in the inbox (it has a note): those taps
+ * mirror onto its forms anyway. A second run finds nothing to change.
  */
-async function migrateTemporaryStages(onboardingId: number): Promise<number> {
-  const { rows: exists } = await sql<{ t: string | null }>`SELECT to_regclass('public.lead_stages')::text AS t;`;
-  if (!exists[0]?.t) return 0;
-  const { rows } = await sql<{ contact_id: DbId; stage: string; updated_at: DbTime }>`
-    SELECT DISTINCT ON (e.contact_id) e.contact_id, s.stage, s.updated_at
-    FROM lead_stages s
-    JOIN contact_events e ON e.onboarding_id = s.onboarding_id AND e.ref_table = s.ref_table AND e.ref_id = s.ref_id
-    WHERE s.onboarding_id = ${onboardingId}
-    ORDER BY e.contact_id, s.updated_at DESC;`;
-  let copied = 0;
-  for (const r of rows) {
-    if (!isContactAction(r.stage)) continue;
-    const stage = stageAfterAction('new', r.stage);
-    const res = await sql`
-      UPDATE contacts SET stage = ${stage}, stage_changed_at = ${iso(r.updated_at)}
-      WHERE id = ${Number(r.contact_id)} AND stage = 'new' AND ${stage} <> 'new';`;
-    copied += res.rowCount ?? 0;
-  }
-  return copied;
+async function copyFormStages(onboardingId: number): Promise<number> {
+  const res = await sql`
+    UPDATE contacts c
+    SET stage = f.stage, stage_changed_at = COALESCE(f.stage_changed_at, c.stage_changed_at, now()), quote_sent_at = COALESCE(c.quote_sent_at, f.quote_sent_at)
+    FROM (
+      SELECT DISTINCT ON (e.contact_id) e.contact_id, s.stage, s.stage_changed_at, s.quote_sent_at
+      FROM form_submissions s
+      JOIN contact_events e ON e.ref_table = 'form_submissions' AND e.ref_id = s.id AND e.kind = 'form'
+      WHERE s.onboarding_id = ${onboardingId} AND NOT s.is_test AND s.stage <> 'new'
+      ORDER BY e.contact_id, s.stage_changed_at DESC NULLS LAST
+    ) f
+    WHERE c.id = f.contact_id AND c.onboarding_id = ${onboardingId}
+      AND (c.stage <> f.stage OR (c.quote_sent_at IS NULL AND f.quote_sent_at IS NOT NULL))
+      AND NOT EXISTS (SELECT 1 FROM contact_events n WHERE n.contact_id = c.id AND n.kind = 'note');`;
+  return res.rowCount ?? 0;
 }
 
 /**
- * Build one client's contacts from every call, text and form that exists, in
- * the order they happened, through the same projections the webhooks use.
- * Safe to run any number of times. Sends nothing: no push, no text.
+ * Build one client's contacts from every call, text and (non-test) form that
+ * exists, in the order they happened, through the same projections the
+ * webhooks use, in replay mode. Safe to run any number of times. Sends nothing:
+ * no push, no text, no follow-up started or stopped.
  */
 export async function backfill(onboardingId: number): Promise<BackfillResult> {
   await ensureSchema();
@@ -1716,20 +1817,20 @@ export async function backfill(onboardingId: number): Promise<BackfillResult> {
       UNION ALL
       SELECT 'message', message_sid, NULL::bigint, created_at FROM phone_messages WHERE onboarding_id = ${onboardingId} AND kind <> 'alert'
       UNION ALL
-      SELECT 'form', NULL::text, id, created_at FROM form_submissions WHERE onboarding_id = ${onboardingId}
+      SELECT 'form', NULL::text, id, created_at FROM form_submissions WHERE onboarding_id = ${onboardingId} AND NOT is_test
     ) s
     ORDER BY at, src;`;
   const out: BackfillResult = { onboardingId, calls: 0, messages: 0, forms: 0, stagesCopied: 0 };
   for (const r of rows) {
     if (r.src === 'call' && r.sid) {
-      if (await projectCall(r.sid)) out.calls += 1;
+      if (await projectCall(r.sid, { replay: true })) out.calls += 1;
     } else if (r.src === 'message' && r.sid) {
-      if (await projectMessage(r.sid)) out.messages += 1;
+      if (await projectMessage(r.sid, { replay: true })) out.messages += 1;
     } else if (r.src === 'form' && r.id !== null) {
-      if (await projectForm(Number(r.id))) out.forms += 1;
+      if (await projectForm(Number(r.id), { replay: true })) out.forms += 1;
     }
   }
-  out.stagesCopied = await migrateTemporaryStages(onboardingId);
+  out.stagesCopied = await copyFormStages(onboardingId);
   return out;
 }
 
@@ -1739,7 +1840,7 @@ export async function backfillAll(): Promise<BackfillResult[]> {
     SELECT DISTINCT onboarding_id FROM (
       SELECT onboarding_id FROM phone_calls
       UNION SELECT onboarding_id FROM phone_messages
-      UNION SELECT onboarding_id FROM form_submissions
+      UNION SELECT onboarding_id FROM form_submissions WHERE NOT is_test
     ) s ORDER BY onboarding_id;`;
   const results: BackfillResult[] = [];
   for (const r of rows) results.push(await backfill(Number(r.onboarding_id)));
@@ -1747,29 +1848,99 @@ export async function backfillAll(): Promise<BackfillResult[]> {
 }
 ```
 
-- [ ] **Step 2: Type-check**
+- [ ] **Step 2: Swap slice 3's default store for a contacts-backed one (`lib/leadStages.ts`)**
 
-Run: `npm run lint`
-Expected: clean. If `stopRunsFor` / `startRun` signatures differ from A6, fix the two calls inside `applySequenceEffects` only (Task 1 table).
+Slice 3's header already says "slice 4 adds a contacts store with the same shape, makes it the default, and nothing else here changes." `applyLeadStage`, `StageDeps`, `formSubmissionStore` and the tests stay as they are.
 
-- [ ] **Step 3: Check the merge order against a local database**
-
-With a local database and two hand-made contacts for one onboarding (one with phone `+15155550134`, one with email `sarah@example.com`, the email one created later), run in `npx tsx`:
+Add the import, after `import { startRun, stopRunsFor, … } from '@/lib/sequences';`:
 
 ```ts
-import { upsertContactEvent } from '@/lib/contacts';
-await upsertContactEvent({ onboardingId: 1, kind: 'note', refTable: null, refId: null, phone: '+15155550134', email: 'sarah@example.com', summary: 'test', payload: { text: 'test' }, createdAt: new Date().toISOString() });
+import { contactIdForRef, getContact, writeContactStage } from '@/lib/contacts';
 ```
 
-Expected: one contact left with both keys, every event of the other row now points at it, no unique-violation error. Run it twice: still one contact, two `note` events (notes have no source row, so they are not deduped; every projection with a source row is).
+Directly after the closing `};` of `export const formSubmissionStore: LeadStore = { … };`, add:
 
-- [ ] **Step 4: Commit**
+```ts
+/**
+ * Slice 4's default for form-lead taps ({ id } on /api/proof/leads/stage).
+ * form_submissions keeps its stage exactly as slice 3 writes it (FormLeads and
+ * the admin read it), and the contact that form was projected onto gets the
+ * same stage, a timeline note, its other forms kept in step, and the close-rate
+ * mark (lib/contacts.ts writeContactStage). A form not yet projected (the
+ * backfill has not run) is staged exactly as in slice 3.
+ */
+export const formContactStore: LeadStore = {
+  refTable: 'form_submissions',
+  find: (onboardingId, id) => formSubmissionStore.find(onboardingId, id),
+  async setStage(onboardingId, id, stage, action) {
+    await formSubmissionStore.setStage(onboardingId, id, stage, action);
+    const contactId = await contactIdForRef(onboardingId, 'form_submissions', id);
+    if (contactId) await writeContactStage(onboardingId, contactId, stage, action);
+  },
+};
+
+/** Slice 4: taps on an inbox contact ({ contactId } on /api/proof/leads/stage). Runs started here carry ref_table 'contacts'. */
+export const contactStore: LeadStore = {
+  refTable: 'contacts',
+  async find(onboardingId, id) {
+    const c = await getContact(onboardingId, id);
+    return c ? { name: c.name, phone: c.phone, email: c.email, stage: c.stage, quoteSentAt: c.quoteSentAt } : null;
+  },
+  setStage: (onboardingId, id, stage, action) => writeContactStage(onboardingId, id, stage, action),
+};
+```
+
+Replace
+
+```ts
+const defaultDeps: StageDeps = {
+  store: formSubmissionStore,
+```
+
+with
+
+```ts
+export const defaultDeps: StageDeps = {
+  store: formContactStore,
+```
+
+and directly after that object's closing `};` add:
+
+```ts
+/** The same engine for an inbox contact. */
+export const contactStageDeps: StageDeps = { ...defaultDeps, store: contactStore };
+```
+
+Import graph check: `lib/leadStages.ts` → `lib/contacts.ts` → (`lib/db`, `lib/dbRows`, `lib/siteStats`, `lib/contactsShared`, `lib/sequenceShared`); `lib/contacts.ts` reaches `lib/sequences.ts` only through the dynamic `import()` in `advanceStage`. No cycle.
+
+- [ ] **Step 3: Type-check and run slice 3's stage tests**
+
+Run: `npm run lint && npm run test:sequences`
+Expected: clean, and every test in `lib/leadStages.test.ts` (and the rest of `test:sequences`) still passes unchanged: the tests inject their own `deps`, and `applyLeadStage`'s behaviour did not change.
+
+- [ ] **Step 4: Check merge, idempotency and the outbound rule against a local database**
+
+With a local database, one onboarding (id 1) and two hand-made contacts for it (one with phone `+15155550134`, one with email `sarah@example.com`, the email one created later), run in `npx tsx`:
+
+```ts
+import { projectForm, upsertContactEvent } from '@/lib/contacts';
+const note = (createIfMissing?: boolean) =>
+  upsertContactEvent({ onboardingId: 1, kind: 'note', refTable: null, refId: null, phone: '+15155550134', email: 'sarah@example.com', summary: 'test', payload: { text: 'test' }, createdAt: new Date().toISOString(), createIfMissing });
+console.log(await note());
+console.log(await note());
+console.log(await upsertContactEvent({ onboardingId: 1, kind: 'text_out', refTable: null, refId: null, phone: '+15155550199', summary: 'x', payload: { automatic: true }, createdAt: new Date().toISOString(), createIfMissing: false }));
+```
+
+Expected: one contact left with both keys, every event of the other row now points at it, no unique-violation error; the second call leaves still one contact and two `note` events (notes have no source row, so they are not deduped; every projection with a source row is); the third call prints `null` and creates no contact for `+15155550199`. Then `UPDATE form_submissions SET is_test = true WHERE id = <some form>` and `await projectForm(<that id>)` prints `null`.
+
+- [ ] **Step 5: Commit**
 
 ```bash
-git add lib/contacts.ts
-git commit -m "feat(inbox): contacts module: upsert, merge, stage, click matching, projections, backfill
+git add lib/contacts.ts lib/leadStages.ts
+git commit -m "feat(inbox): contacts module and contacts-backed LeadStore behind slice 3's applyLeadStage
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR"
 ```
 
 ---
@@ -1780,7 +1951,7 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 - Modify: `lib/siteStats.ts` (`markedForMonth`, `observedCloseRate`)
 
 **Interfaces:**
-- Consumes: `contacts`, `contact_events` (Task 3); `setStage` writing to `site_events.outcome` for matched contacts (Task 4).
+- Consumes: `contacts`, `contact_events` (Task 3); `writeContactStage` and `mergeContacts` writing to `site_events.outcome` for matched contacts (Task 4).
 - Produces: no new exports. Both functions now count inbox contacts marked Won or Lost that no website tap stands for.
 
 - [ ] **Step 1: Replace the query in `markedForMonth`**
@@ -1790,7 +1961,7 @@ Replace the `const res = await sql<{ won: number; lost: number }>\`…\`;` state
 ```ts
   // Taps on the site (marked in the anonymous list, or through a matched contact), plus inbox
   // contacts marked Won or Lost that no tap stands for. A matched contact is only counted
-  // through its tap (lib/contacts.ts setStage writes the mark there), never twice.
+  // through its tap (lib/contacts.ts writes the mark there), never twice.
   const res = await sql<{ won: number; lost: number }>`
     SELECT (count(*) FILTER (WHERE outcome = 'won'))::int AS won, (count(*) FILTER (WHERE outcome = 'lost'))::int AS lost
     FROM (
@@ -1836,7 +2007,7 @@ The rest of both functions is unchanged.
 Run: `npm run test:onboarding && npm run lint`
 Expected: PASS (these tests do not touch SQL) and clean.
 
-With a local database: mark one unmatched contact Won through the inbox (Task 8 route, or `setStage` in `npx tsx`), then `markedForMonth(<id>, '<this month>')` returns `won` one higher; mark a contact that has a click event Won and the count goes up by exactly one (through the tap), not two.
+With a local database: tap "Job done" on an unmatched contact through `POST /api/proof/leads/stage` `{ contactId, action: 'won' }` (Task 8), or `applyLeadStage(<onb>, <contact>, 'won', contactStageDeps)` in `npx tsx`; then `markedForMonth(<onb>, '<this month>')` returns `won` one higher. Do the same for a contact that has a click event: the count goes up by exactly one (through the tap), not two. Merge an unmatched Won contact into one that has a click (Task 4 step 4's script with those keys): the count stays the same.
 
 - [ ] **Step 4: Commit**
 
@@ -1844,37 +2015,38 @@ With a local database: mark one unmatched contact Won through the inbox (Task 8 
 git add lib/siteStats.ts
 git commit -m "feat(inbox): Won and Lost from the inbox count toward the client's close rate
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR"
 ```
 
 ---
 
 ### Task 6: Producers: every call, text and form lands in the inbox
 
-Each producer keeps writing its own table first, then calls one projection. A projection failure is logged and never fails the webhook or the send: the source row is already safe, and the backfill (Task 8) rebuilds anything missed.
+Each producer keeps writing its own table first, then calls one projection. A projection failure is logged and never fails the webhook or the send: the source row is already safe, and the backfill (Task 8) rebuilds anything missed. Slice 3's blocks in the same files stay exactly as they are; every change below is an insertion at a quoted anchor.
 
 **Files:**
 - Modify: `lib/phoneLines.ts` (`sendClientSms`)
 - Modify: `app/api/phone/voice/status/route.ts`
 - Modify: `app/api/phone/recording/route.ts`
 - Modify: `app/api/phone/sms/route.ts`
-- Modify: `app/api/lead/route.ts` (slice 2, A4)
-- Modify: the slice-2 connect status route that calls `recordCall` for `direction = 'connect'` (A5)
-- Modify: `app/api/cron/sequences/route.ts` (slice 3, A7)
+- Modify: `app/api/lead/route.ts`
+- Modify: `app/api/phone/connect/status/route.ts`
+- Modify: `lib/sequences.ts` (`claimAndSend`, the email branch)
 
 **Interfaces:**
 - Consumes: `projectCall`, `projectMessage`, `projectForm`, `upsertContactEvent` (Task 4); `eventSummary` (Task 2).
-- Produces: no new exports. After this task every new call, text (both ways, every kind but `alert`), form and sequence email has a `contact_events` row.
+- Produces: no new exports. After this task every new call, inbound text and (non-test) form has a `contact_events` row; outbound texts and sequence emails to an existing contact join its timeline.
 
-| File | Where | The call |
+| File | Where (anchor) | The call |
 |---|---|---|
-| `lib/phoneLines.ts` | `sendClientSms`, after the `recordMessage` try/catch | `await projectMessage(sid)` (covers manual replies, text-backs, sequence texts, confirmations, reminders; skips owner alerts) |
-| `app/api/phone/voice/status/route.ts` | right after `recordCall`, and again after a text-back went out | `await projectCall(p.CallSid)` |
-| `app/api/phone/recording/route.ts` | after `attachRecording` | `await projectCall(p.CallSid)` |
-| `app/api/phone/sms/route.ts` | after `recordMessage` (inbound) | `await projectMessage(p.MessageSid)` |
-| `app/api/lead/route.ts` | first line inside `after()`, before the alerts | `await projectForm(submission.id)` |
-| slice-2 connect status route | after its `recordCall(...)` | `await projectCall(<the CallSid it recorded>)` |
-| `app/api/cron/sequences/route.ts` | after a successful `sendSequenceEmail(...)` | `await upsertContactEvent({ … kind: 'sequence', refTable: 'sequence_runs', refId: run.id, refPart: run.step … })` |
+| `lib/phoneLines.ts` | `sendClientSms`, after the `recordMessage` try/catch, before `return { sent: true, sid };` | `projectMessage(sid)` (attaches; skips owner alerts) |
+| `app/api/phone/voice/status/route.ts` | after `return fail('[phone/status] recordCall', err);\n  }`, and after the text-back block | `projectCall(p.CallSid)` |
+| `app/api/phone/recording/route.ts` | after the `attachRecording` try/catch | `projectCall(p.CallSid)` |
+| `app/api/phone/sms/route.ts` | after `await recordMessage(line.onboardingId, { … kind: 'inbound', … });` | `projectMessage(p.MessageSid)` |
+| `app/api/lead/route.ts` | first statement inside the `after()` callback's `try {` | `projectForm(saved.id)` |
+| `app/api/phone/connect/status/route.ts` | after `await recordCall(line.onboardingId, { … direction: 'connect', leadId, });` | `projectCall(p.CallSid)` |
+| `lib/sequences.ts` | after `if (r.skipped) refusal = 'email_opted_out';` in `claimAndSend` | `upsertContactEvent({ kind: 'sequence', refTable: 'sequence_runs', refId: run.id, refPart: d.step, createIfMissing: false, … })` |
 
 - [ ] **Step 1: `sendClientSms` projects every outbound text**
 
@@ -1884,16 +2056,31 @@ In `lib/phoneLines.ts` add the import:
 import { projectMessage } from '@/lib/contacts';
 ```
 
-In `sendClientSms`, after the existing `try { await recordMessage(…) } catch (err) { … }` block and before `return { sent: true, sid };`, add:
+In `sendClientSms`, replace
 
 ```ts
-  // Into the leads inbox (lib/contacts.ts); owner alerts are skipped there. Never fails the send.
+  } catch (err) {
+    console.error('phone: outbound row not recorded', sid, err);
+  }
+  return { sent: true, sid };
+```
+
+with
+
+```ts
+  } catch (err) {
+    console.error('phone: outbound row not recorded', sid, err);
+  }
+  // Into the leads inbox (lib/contacts.ts): attaches to an existing contact; owner alerts are skipped there. Never fails the send.
   try {
     await projectMessage(sid);
   } catch (err) {
-    console.error('phone: outbound text not added to the inbox', sid, err);
+    console.error('phone: outbound text not added to the inbox', sid, errText(err));
   }
+  return { sent: true, sid };
 ```
+
+(`errText` is already imported in this file from `@/lib/dbRows`.)
 
 - [ ] **Step 2: The call status webhook projects before and after the text-back**
 
@@ -1903,24 +2090,43 @@ In `app/api/phone/voice/status/route.ts` add the import:
 import { projectCall } from '@/lib/contacts';
 ```
 
-Replace everything from `if (outcome === 'answered') return twiml(emptyTwiml());` to the end of `POST` with:
+Replace
 
 ```ts
+  } catch (err) {
+    return fail('[phone/status] recordCall', err);
+  }
+  if (outcome === 'answered') {
+```
+
+with
+
+```ts
+  } catch (err) {
+    return fail('[phone/status] recordCall', err);
+  }
   // Into the leads inbox before any text-back, so a brand-new caller is created as a
   // caller (and matched to a tap on the site's call button) rather than as a texter.
+  // An answered call moves the contact to Contacted. Never fails the webhook.
   await projectCall(p.CallSid).catch((err) => {
     console.error('[phone/status] inbox', err instanceof Error ? err.message : err);
     return null;
   });
-  if (outcome === 'answered') return twiml(emptyTwiml());
+  if (outcome === 'answered') {
+```
 
-  // The call row is saved; a text-back problem must not make Twilio retry the whole webhook.
-  let textedBack = false;
-  if (from !== 'unknown') {
-    try {
-      const onboarding = await getOnboardingById(line.onboardingId).catch(() => null);
-      textedBack = await sendTextBack(line, onboarding?.businessName ?? null, from, p.CallSid);
-    } catch (err) {
+Then replace
+
+```ts
+      console.error('[phone/status] sendTextBack', err instanceof Error ? err.message : err);
+    }
+  }
+  // A missed caller who has not replied in 30 minutes gets the new-lead follow-up (the wait lives in the engine).
+```
+
+with
+
+```ts
       console.error('[phone/status] sendTextBack', err instanceof Error ? err.message : err);
     }
   }
@@ -1928,99 +2134,169 @@ Replace everything from `if (outcome === 'answered') return twiml(emptyTwiml());
   if (textedBack) {
     await projectCall(p.CallSid).catch((err) => console.error('[phone/status] inbox', err instanceof Error ? err.message : err));
   }
-  return twiml(afterDialTwiml({ textedBack }));
-}
+  // A missed caller who has not replied in 30 minutes gets the new-lead follow-up (the wait lives in the engine).
 ```
+
+Slice 3's `stopRunsFor(…, 'answered')` block and the `startMissedCallFollowUp` block are untouched.
 
 - [ ] **Step 3: The recording webhook refreshes the call's event**
 
-In `app/api/phone/recording/route.ts` add `import { projectCall } from '@/lib/contacts';` and, after the closing `}` of the existing `try { … } catch (err) { … }` inside the `if (p.CallSid && p.RecordingUrl && …)` block, add:
+In `app/api/phone/recording/route.ts` add `import { projectCall } from '@/lib/contacts';` and replace
 
 ```ts
+      console.error('[phone/recording]', err instanceof Error ? err.message : err);
+      return new Response(null, { status: 500 });
+    }
+  }
+```
+
+with
+
+```ts
+      console.error('[phone/recording]', err instanceof Error ? err.message : err);
+      return new Response(null, { status: 500 });
+    }
     // The inbox's play button appears once the event knows a recording exists. No URL is copied.
     await projectCall(p.CallSid).catch((err) => console.error('[phone/recording] inbox', err instanceof Error ? err.message : err));
+  }
 ```
 
 - [ ] **Step 4: Inbound texts**
 
-In `app/api/phone/sms/route.ts` add `import { projectMessage } from '@/lib/contacts';` and, directly after the `await recordMessage(line.onboardingId, { … kind: 'inbound', … });` call, add:
+In `app/api/phone/sms/route.ts` add `import { projectMessage } from '@/lib/contacts';` and replace
 
 ```ts
+        kind: 'inbound',
+        status: 'received',
+      });
+      if (from !== 'unknown') {
+```
+
+with
+
+```ts
+        kind: 'inbound',
+        status: 'received',
+      });
       await projectMessage(p.MessageSid).catch((err) => {
         console.error('[phone/sms] inbox', err instanceof Error ? err.message : err);
         return null;
       });
+      if (from !== 'unknown') {
 ```
 
 (Task 10 turns this into `const projected = …` to send the alert.)
 
 - [ ] **Step 5: Website forms (slice 2)**
 
-In `app/api/lead/route.ts` add `import { projectForm } from '@/lib/contacts';`. Inside the `after(async () => { … })` callback, as its first statement, add (using the route's own name for the saved row, assumed `submission`):
+In `app/api/lead/route.ts` add `import { projectForm } from '@/lib/contacts';` and replace
 
 ```ts
-    await projectForm(submission.id).catch((err) => {
-      console.error('[lead] inbox', err instanceof Error ? err.message : err);
-      return null;
-    });
+    after(async () => {
+      try {
+        const owner = await getOnboardingById(onboardingId);
 ```
 
-(Task 10 turns this into `const projected = …` and passes the contact to the alert.)
+with
+
+```ts
+    after(async () => {
+      try {
+        // Into the leads inbox first (lib/contacts.ts), so the alert can link to the contact. Never stops delivery.
+        await projectForm(saved.id).catch((err) => {
+          console.error('[lead] inbox', saved.id, err instanceof Error ? err.message : err);
+          return null;
+        });
+        const owner = await getOnboardingById(onboardingId);
+```
+
+(Task 10 turns this into `const projected = …` and passes the contact to `deliverLead`. The admin's "Send test lead" never goes through this route, and `projectForm` skips `is_test` rows anyway.)
 
 - [ ] **Step 6: Call-connect calls (slice 2)**
 
-In the route Task 1 found for A5, add `import { projectCall } from '@/lib/contacts';` and directly after its `await recordCall(…)` call, add:
+In `app/api/phone/connect/status/route.ts` add `import { projectCall } from '@/lib/contacts';` and replace
 
 ```ts
-  await projectCall(p.CallSid).catch((err) => console.error('[phone/connect] inbox', err instanceof Error ? err.message : err));
+          direction: 'connect',
+          leadId,
+        });
 ```
 
-(`p.CallSid` is the sid that route passed to `recordCall`; use the same expression.) `projectCall` reads the lead's phone from `form_submissions` through `lead_id`, so the call joins the form's contact, and an answered call-connect moves it to Contacted.
+with
 
-- [ ] **Step 7: Sequence emails (slice 3)**
+```ts
+          direction: 'connect',
+          leadId,
+        });
+        // Into the leads inbox: the call joins the form's contact (its from_number is the lead's phone); answered moves it to Contacted.
+        await projectCall(p.CallSid).catch((err) => console.error('[phone/connect/status] inbox', leadId, err instanceof Error ? err.message : err));
+```
 
-In `app/api/cron/sequences/route.ts` add:
+- [ ] **Step 7: Sequence emails (slice 3, inside `claimAndSend`)**
+
+In `lib/sequences.ts` add:
 
 ```ts
 import { upsertContactEvent } from '@/lib/contacts';
 import { eventSummary } from '@/lib/contactsShared';
 ```
 
-Directly after a successful `await sendSequenceEmail(…)` (inside the same branch), add:
+In `claimAndSend`, replace
 
 ```ts
-      // Into the inbox timeline; one event per run step (ref_part), never a second on a retry.
-      await upsertContactEvent({
-        onboardingId: run.onboardingId,
-        kind: 'sequence',
-        refTable: 'sequence_runs',
-        refId: run.id,
-        refPart: run.step,
-        phone: run.contactPhone,
-        email: run.contactEmail,
-        name: run.contactName,
-        summary: eventSummary('sequence', { channel: 'email' }),
-        payload: { channel: 'email', step: run.step },
-        createdAt: new Date().toISOString(),
-      }).catch((err) => console.error('[cron/sequences] inbox', err instanceof Error ? err.message : err));
+        idempotencyKey: `seq-${run.id}-${claimedStep}`,
+      });
+      if (r.skipped) refusal = 'email_opted_out';
+    }
 ```
 
-SMS steps need nothing here: they go through `sendClientSms(…, 'sequence')`, which projects them (Step 1).
+with
+
+```ts
+        idempotencyKey: `seq-${run.id}-${claimedStep}`,
+      });
+      if (r.skipped) refusal = 'email_opted_out';
+      else {
+        // Into the inbox timeline of an existing contact (never creates one): one event per run step (ref_part = the
+        // step that went out). Caught here, not thrown: a throw inside this try would put an email that already left
+        // back in the queue and send it again.
+        await upsertContactEvent({
+          onboardingId: run.onboardingId,
+          kind: 'sequence',
+          refTable: 'sequence_runs',
+          refId: run.id,
+          refPart: d.step,
+          phone: run.contactPhone,
+          email: run.contactEmail,
+          name: run.contactName,
+          summary: eventSummary('sequence', { channel: 'email' }),
+          payload: { channel: 'email', step: d.step },
+          createdAt: new Date().toISOString(),
+          createIfMissing: false,
+        }).catch((err) => console.error('sequences: email not added to the inbox', run.id, errText(err)));
+      }
+    }
+```
+
+SMS steps need nothing here: they go through `sendClientSms(…, 'sequence' | 'reminder')`, which projects them (Step 1).
 
 - [ ] **Step 8: Type-check and test**
 
-Run: `npm run lint && npm run test:phone`
+Run: `npm run lint && npm run test:phone && npm run test:sequences && npm run test:leads`
 Expected: clean and PASS.
 
-With a local database that has a `phone_calls` row: in `npx tsx`, `await (await import('@/lib/contacts')).projectCall('<that CallSid>')` returns `{ contactId, eventId, createdContact: true, insertedEvent: true }`; a second call returns the same ids with `createdContact: false, insertedEvent: false` (Review Focus 3).
+- [ ] **Step 9: Check idempotency against a local database**
 
-- [ ] **Step 9: Commit**
+With a local database that has a `phone_calls` row: in `npx tsx`, `await (await import('@/lib/contacts')).projectCall('<that CallSid>')` returns `{ contactId, eventId, createdContact: true, insertedEvent: true }`; a second call returns the same ids with `createdContact: false, insertedEvent: false` (Review Focus 3). A `phone_messages` row with `direction = 'outbound'`, `kind = 'sequence'` to a number that is no contact: `projectMessage('<its sid>')` returns `null` and no contact is created.
+
+- [ ] **Step 10: Commit**
 
 ```bash
-git add lib/phoneLines.ts app/api/phone app/api/lead app/api/cron/sequences
+git add lib/phoneLines.ts lib/sequences.ts app/api/phone/voice/status/route.ts app/api/phone/recording/route.ts app/api/phone/sms/route.ts app/api/phone/connect/status/route.ts app/api/lead/route.ts
 git commit -m "feat(inbox): every call, text, form and follow-up email projects into the inbox
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR"
 ```
 
 ---
@@ -2033,11 +2309,11 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 - Modify: `vercel.json` (one cron entry)
 
 **Interfaces:**
-- Consumes: `getContact` (Task 4); `canReplyNow`, `isReplyRefusal`, `validateReplyBody`, `ReplyRefusal` (Task 2); `getLine`, `isOptedOut`, `sendClientSms` (`lib/phoneLines.ts`); `line.timeZone` (A3); `held_replies` (Task 3).
+- Consumes: `getContact` (Task 4); `canReplyNow`, `isReplyRefusal`, `replyBlocker`, `textingState`, `validateReplyBody`, `ReplyRefusal` (Task 2); `getLine`, `isOptedOut`, `sendClientSms` (`lib/phoneLines.ts`); `errText` (`lib/dbRows.ts`); `line.timeZone` (A3); `held_replies` incl. `claimed_at` (Task 3).
 - Produces:
   - `type ReplyResult = { status: 'sent' } | { status: 'held'; id: number; sendAt: string } | { status: 'refused'; reason: ReplyRefusal }`
   - `replyToContact(onboardingId: number, contactId: number, rawBody: unknown, now?: Date): Promise<ReplyResult | null>` (null = not this client's contact)
-  - `sendDueHeldReplies(limit?: number): Promise<{ sent: number; failed: number }>`
+  - `sendDueHeldReplies(limit?: number): Promise<{ sent: number; failed: number; interrupted: number }>`
   - `GET|POST /api/cron/held-replies` every 15 minutes.
 
 - [ ] **Step 1: Write the reply module**
@@ -2047,33 +2323,37 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 // Texting a lead back from the PROOF inbox. sendClientSms (lib/phoneLines.ts)
 // already enforces the 10DLC gate and the opt-out list; this adds what the
 // inbox needs: the contact is this client's and has a phone, and it is not
-// quiet hours (9 pm to 8 am client-local, spec slice 4 "Compliance"). A reply
-// typed in quiet hours is held in held_replies and sent at 8 am by
-// /api/cron/held-replies. Server-only.
+// quiet hours (8 pm to 8 am client-local; slice 2's isQuietHours through
+// canReplyNow). A reply typed in quiet hours is held in held_replies and sent
+// at 8 am by /api/cron/held-replies. Server-only.
 import { ensureSchema, isDatabaseConfigured, sql } from '@/lib/db';
+import { errText } from '@/lib/dbRows';
 import { getContact } from '@/lib/contacts';
-import { canReplyNow, isReplyRefusal, validateReplyBody, type ReplyRefusal } from '@/lib/contactsShared';
+import { canReplyNow, isReplyRefusal, replyBlocker, textingState, validateReplyBody, type ReplyRefusal } from '@/lib/contactsShared';
 import { getLine, isOptedOut, sendClientSms } from '@/lib/phoneLines';
 
 export type ReplyResult = { status: 'sent' } | { status: 'held'; id: number; sendAt: string } | { status: 'refused'; reason: ReplyRefusal };
 
 const refused = (reason: ReplyRefusal): ReplyResult => ({ status: 'refused', reason });
 
+/** A row claimed this long ago and still 'sending' was interrupted mid-send. */
+const STUCK_MINUTES = 30;
+
 /**
- * Null when the contact is not this client's. The order matters (Review Focus 4):
- * every reason a text could never go out is checked before anything is held,
- * so nothing waits overnight only to be refused at 8 am.
+ * Null when the contact is not this client's. The order is Review Focus 4:
+ * the body (validateReplyBody), then every reason a text could never go out
+ * (replyBlocker: no phone, opted out, no line, carrier approval pending), and
+ * only then quiet hours, so nothing waits overnight only to be refused at 8 am.
  */
 export async function replyToContact(onboardingId: number, contactId: number, rawBody: unknown, now: Date = new Date()): Promise<ReplyResult | null> {
   const contact = await getContact(onboardingId, contactId);
   if (!contact) return null;
   const checked = validateReplyBody(rawBody);
   if (!checked.ok) return refused(checked.reason);
-  if (!contact.phone) return refused('no_phone');
-  const line = await getLine(onboardingId);
-  if (!line || line.status !== 'active') return refused('no_line');
-  if (line.smsStatus !== 'ready') return refused('sms_pending');
-  if (await isOptedOut(onboardingId, contact.phone)) return refused('opted_out');
+  const [line, optedOut] = await Promise.all([getLine(onboardingId), contact.phone ? isOptedOut(onboardingId, contact.phone) : Promise.resolve(false)]);
+  const blocked = replyBlocker({ hasPhone: contact.phone !== null, optedOut, texting: textingState(line) });
+  if (blocked) return refused(blocked);
+  if (!line || !contact.phone) return refused('no_line'); // unreachable after replyBlocker; narrows the types
   const window = canReplyNow(now, line.timeZone);
   if (!window.ok) {
     await ensureSchema();
@@ -2089,16 +2369,21 @@ export async function replyToContact(onboardingId: number, contactId: number, ra
 }
 
 /**
- * The 8 am send. Rows are claimed ('sending') before anything is sent, so two
- * overlapping cron runs never send one twice; a crash after the claim leaves
- * the row 'sending' (not sent) rather than risking a double text. The gates run
- * again inside sendClientSms: someone who texted STOP overnight is not texted.
+ * The 8 am send. Rows are claimed ('sending', claimed_at) before anything is
+ * sent, so two overlapping cron runs never send one twice. A row still
+ * 'sending' STUCK_MINUTES after its claim was interrupted (a crash or timeout
+ * mid-send): it becomes 'failed' and is never re-sent, because the text may
+ * have left; the client sees "did not go out" and can send it again. The gates
+ * run again inside sendClientSms: someone who texted STOP overnight is not texted.
  */
-export async function sendDueHeldReplies(limit = 100): Promise<{ sent: number; failed: number }> {
-  if (!isDatabaseConfigured()) return { sent: 0, failed: 0 };
+export async function sendDueHeldReplies(limit = 100): Promise<{ sent: number; failed: number; interrupted: number }> {
+  if (!isDatabaseConfigured()) return { sent: 0, failed: 0, interrupted: 0 };
   await ensureSchema();
+  const stuck = await sql`
+    UPDATE held_replies SET status = 'failed', error = 'interrupted'
+    WHERE status = 'sending' AND claimed_at < now() - make_interval(mins => ${STUCK_MINUTES});`;
   const { rows } = await sql<{ id: number | string; onboarding_id: number; contact_id: number | string; body: string }>`
-    UPDATE held_replies SET status = 'sending'
+    UPDATE held_replies SET status = 'sending', claimed_at = now()
     WHERE id IN (
       SELECT id FROM held_replies WHERE status = 'held' AND send_at <= now()
       ORDER BY send_at LIMIT ${limit}
@@ -2121,7 +2406,7 @@ export async function sendDueHeldReplies(limit = 100): Promise<{ sent: number; f
         if (!res.sent) error = res.reason;
       }
     } catch (err) {
-      error = err instanceof Error ? err.message.slice(0, 200) : 'send failed';
+      error = errText(err).slice(0, 200) || 'send failed';
     }
     if (error) {
       failed += 1;
@@ -2131,7 +2416,7 @@ export async function sendDueHeldReplies(limit = 100): Promise<{ sent: number; f
       await sql`UPDATE held_replies SET status = 'sent', sent_at = now() WHERE id = ${id};`;
     }
   }
-  return { sent, failed };
+  return { sent, failed, interrupted: stuck.rowCount ?? 0 };
 }
 ```
 
@@ -2145,6 +2430,7 @@ export async function sendDueHeldReplies(limit = 100): Promise<{ sent: number; f
 // Vercel Cron calls this with GET and `Authorization: Bearer $CRON_SECRET`.
 import { NextResponse } from 'next/server';
 import { isDatabaseConfigured } from '@/lib/db';
+import { errText } from '@/lib/dbRows';
 import { sendDueHeldReplies } from '@/lib/inboxReply';
 
 export const runtime = 'nodejs';
@@ -2160,7 +2446,7 @@ async function run(req: Request) {
   try {
     return NextResponse.json(await sendDueHeldReplies());
   } catch (err) {
-    console.error('[cron:held-replies]', err instanceof Error ? err.message : err);
+    console.error('[cron:held-replies]', errText(err));
     return NextResponse.json({ error: 'held replies failed' }, { status: 500 });
   }
 }
@@ -2175,9 +2461,16 @@ export async function POST(req: Request) {
 
 - [ ] **Step 3: Schedule it**
 
-In `vercel.json` `crons`, add after the `audits` entry (keep the slice-3 `sequences` entry if it is there):
+In `vercel.json` `crons`, replace
 
 ```json
+    { "path": "/api/cron/sequences", "schedule": "*/15 * * * *" }
+```
+
+with
+
+```json
+    { "path": "/api/cron/sequences", "schedule": "*/15 * * * *" },
     { "path": "/api/cron/held-replies", "schedule": "*/15 * * * *" }
 ```
 
@@ -2185,48 +2478,46 @@ In `vercel.json` `crons`, add after the `audits` entry (keep the slice-3 `sequen
 
 - [ ] **Step 4: Type-check and try it**
 
-Run: `npm run lint`
-Expected: clean.
+Run: `npm run lint && npm run test:inbox`
+Expected: clean, PASS (`replyBlocker` and `canReplyNow` are pinned there).
 
-With a local database, a line in `ready`, and a contact: in `npx tsx`, `replyToContact(<onb>, <contact>, 'test', new Date('2026-10-14T02:30:00Z'))` returns `{ status: 'held', sendAt: '2026-10-14T13:00:00.000Z', … }` (for an `America/Chicago` line) and writes a `held_replies` row; the same with `'   '` returns `{ status: 'refused', reason: 'empty' }` and writes nothing. `curl -H "Authorization: Bearer $CRON_SECRET" localhost:3000/api/cron/held-replies` returns `{"sent":0,"failed":0}` before 8 am.
+With a local database, a line in `ready`, and a contact with a phone: in `npx tsx`, `replyToContact(<onb>, <contact>, 'test', new Date('2026-10-14T01:30:00Z'))` returns `{ status: 'held', sendAt: '2026-10-14T13:00:00.000Z', … }` (8:30 pm on an `America/Chicago` line) and writes a `held_replies` row; the same with `'   '` returns `{ status: 'refused', reason: 'empty' }` and writes nothing; with the contact's number in `phone_opt_outs` it returns `{ status: 'refused', reason: 'opted_out' }` and writes nothing. `curl -H "Authorization: Bearer $CRON_SECRET" localhost:3000/api/cron/held-replies` returns `{"sent":0,"failed":0,"interrupted":0}` before 8 am. Set one row to `status = 'sending', claimed_at = now() - interval '1 hour'` and call the cron again: `interrupted` is 1 and the row is `failed`.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add lib/inboxReply.ts app/api/cron/held-replies vercel.json
+git add lib/inboxReply.ts app/api/cron/held-replies/route.ts vercel.json
 git commit -m "feat(inbox): reply from the tracked number; quiet-hours replies held to 8 am
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR"
 ```
 
 ---
 
-### Task 8: Inbox API, admin backfill, and slice 3's stage route
+### Task 8: Inbox API, admin backfill, and the inbox path on slice 3's stage route
 
 **Files:**
 - Create: `lib/inboxServer.ts`
 - Create: `app/api/proof/inbox/route.ts` (GET list)
 - Create: `app/api/proof/inbox/[contactId]/route.ts` (GET one, PUT name)
 - Create: `app/api/proof/inbox/[contactId]/reply/route.ts` (POST)
-- Create: `app/api/proof/inbox/[contactId]/stage/route.ts` (POST)
 - Create: `app/api/proof/inbox/[contactId]/email/route.ts` (GET, redirect to `mailto:`)
 - Create: `app/api/admin/contacts/backfill/route.ts` (POST)
-- Modify: `app/api/proof/leads/stage/route.ts` (slice 3, A8: rewritten onto `contacts.stage`)
-- Modify: every slice-3 file that reads or writes `lead_stages` (A8), plus its `CREATE TABLE` in `lib/db.ts` and `scripts/init-db.mjs`
+- Modify: `app/api/proof/leads/stage/route.ts` (slice 3: `{ id, action }` unchanged for every tier; `{ contactId, action }` added for inbox contacts)
 
 **Interfaces:**
-- Consumes: `getSignedInClient` (`lib/proofServer.ts`), `getOnboardingById` (`lib/onboarding.ts`), `requireAdmin` (`lib/adminAuth.ts`); Task 2 (`inboxEnabled`, `parseContactId`, `decodeCursor`, `isContactAction`, `REPLY_REFUSAL_COPY`); Task 4 (`listInbox`, `contactTimeline`, `getContact`, `setStage`, `setContactName`, `contactIdForRef`, `backfill`, `backfillAll`); Task 7 (`replyToContact`).
+- Consumes: `getSignedInClient` (`lib/proofServer.ts`), `getOnboardingById` (`lib/onboarding.ts`), `requireAdmin` (`lib/adminAuth.ts`), `readBody` (`lib/billingApi.ts`), `errText` (`lib/dbRows.ts`); Task 2 (`inboxEnabled`, `parseContactId`, `decodeCursor`, `REPLY_REFUSAL_COPY`); Task 4 (`listInbox`, `contactTimeline`, `getContact`, `setContactName`, `backfill`, `backfillAll`; `applyLeadStage`, `contactStageDeps`, `LeadNotFoundError` from `lib/leadStages.ts`); `parseStageRequest` (`lib/sequenceShared.ts`); Task 7 (`replyToContact`).
 - Produces:
-  - `inboxAccount(): Promise<{ ok: true; account: ClientAccount } | { ok: false; response: NextResponse }>`, `NO_STORE`, `inboxFailure(tag, err): NextResponse` (`lib/inboxServer.ts`).
+  - `inboxAccount(): Promise<{ ok: true; account: ClientAccount } | { ok: false; response: NextResponse }>`, `NO_STORE`, `inboxFailure(tag, err): NextResponse`, `INBOX_TIER_ERROR` (`lib/inboxServer.ts`).
   - `GET /api/proof/inbox?cursor=` → `{ contacts: DashboardContact[]; nextCursor: string | null }`
   - `GET /api/proof/inbox/<id>` → `DashboardContactView`; `PUT` `{ name }` → `{ ok: true, name }`
   - `POST /api/proof/inbox/<id>/reply` `{ body }` → `{ ok: true, status: 'sent' }` | `{ ok: true, status: 'held', sendAt }` | 400/409 `{ error, reason }`
-  - `POST /api/proof/inbox/<id>/stage` `{ action }` → `{ ok: true, stage }`
   - `GET /api/proof/inbox/<id>/email` → 302 `mailto:`
   - `POST /api/admin/contacts/backfill` `{ onboardingId? }` → `{ ok: true, results: BackfillResult[] }`
-  - `POST /api/proof/leads/stage` `{ contactId, action }` or `{ refTable, refId, action }` → `{ ok: true, contactId, stage }`
+  - `POST /api/proof/leads/stage`: `{ id, action }` → `{ ok: true, id, stage, started, stopped, warning? }` exactly as slice 3 (every tier; `applyLeadStage` with `defaultDeps`, now the contacts-backed form store); `{ contactId, action }` → `{ ok: true, contactId, stage, started, stopped, warning? }` (AxeonCORE and up; `applyLeadStage` with `contactStageDeps`). Both use slice 3's `LEAD_ACTIONS`; there is no separate inbox stage route.
 
-Every client route answers 401 without a session, 403 on Essentials, 404 for a contact id that is not this client's (all queries are scoped by `account.onboardingId`), and sends `Cache-Control: private, no-store`.
+Every `/api/proof/inbox` route answers 401 without a session, 403 on Essentials, 404 for a contact id that is not this client's (all queries are scoped by `account.onboardingId`), and sends `Cache-Control: private, no-store`.
 
 - [ ] **Step 1: The shared guard**
 
@@ -2237,6 +2528,7 @@ Every client route answers 401 without a session, 403 on Essentials, 404 for a c
 // the onboarding id), so another client's contact id is a plain 404. Server-only.
 import { NextResponse } from 'next/server';
 import { inboxEnabled } from '@/lib/contactsShared';
+import { errText } from '@/lib/dbRows';
 import { getOnboardingById } from '@/lib/onboarding';
 import type { ClientAccount } from '@/lib/proofAuth';
 import { getSignedInClient } from '@/lib/proofServer';
@@ -2244,19 +2536,20 @@ import { getSignedInClient } from '@/lib/proofServer';
 export type InboxAuth = { ok: true; account: ClientAccount } | { ok: false; response: NextResponse };
 
 export const NO_STORE = { 'Cache-Control': 'private, no-store' } as const;
+export const INBOX_TIER_ERROR = 'The leads inbox comes with AxeonCORE';
 
 export async function inboxAccount(): Promise<InboxAuth> {
   const account = await getSignedInClient();
-  if (!account) return { ok: false, response: NextResponse.json({ error: 'Please sign in again' }, { status: 401 }) };
+  if (!account) return { ok: false, response: NextResponse.json({ error: 'Please sign in again' }, { status: 401, headers: NO_STORE }) };
   const onboarding = await getOnboardingById(account.onboardingId).catch(() => null);
   if (!onboarding || !inboxEnabled(onboarding.tier)) {
-    return { ok: false, response: NextResponse.json({ error: 'The leads inbox comes with AxeonCORE' }, { status: 403 }) };
+    return { ok: false, response: NextResponse.json({ error: INBOX_TIER_ERROR }, { status: 403, headers: NO_STORE }) };
   }
   return { ok: true, account };
 }
 
 export function inboxFailure(tag: string, err: unknown): NextResponse {
-  console.error(tag, err instanceof Error ? err.message : err);
+  console.error(tag, errText(err));
   return NextResponse.json({ error: 'That did not work. Try again in a minute.' }, { status: 502, headers: NO_STORE });
 }
 ```
@@ -2373,49 +2666,18 @@ export async function POST(req: Request, ctx: { params: Promise<{ contactId: str
 }
 ```
 
-- [ ] **Step 5: Stage**
-
-```ts
-// app/api/proof/inbox/[contactId]/stage/route.ts
-// POST { action }: the client's tap on a stage chip or "Quote sent". setStage
-// (lib/contacts.ts) also starts or stops the follow-ups and feeds Won/Lost to the close rate.
-import { NextResponse } from 'next/server';
-import { setStage } from '@/lib/contacts';
-import { isContactAction, parseContactId } from '@/lib/contactsShared';
-import { inboxAccount, inboxFailure, NO_STORE } from '@/lib/inboxServer';
-
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
-
-export async function POST(req: Request, ctx: { params: Promise<{ contactId: string }> }) {
-  const auth = await inboxAccount();
-  if (!auth.ok) return auth.response;
-  const contactId = parseContactId((await ctx.params).contactId);
-  if (!contactId) return NextResponse.json({ error: 'That lead is not in your inbox' }, { status: 404, headers: NO_STORE });
-  const body = (await req.json().catch(() => null)) as { action?: unknown } | null;
-  if (!body || !isContactAction(body.action)) return NextResponse.json({ error: 'Pick New, Contacted, Quote sent, Booked, Won or Lost' }, { status: 400, headers: NO_STORE });
-  try {
-    const contact = await setStage(auth.account.onboardingId, contactId, body.action, 'client');
-    if (!contact) return NextResponse.json({ error: 'That lead is not in your inbox' }, { status: 404, headers: NO_STORE });
-    return NextResponse.json({ ok: true, stage: contact.stage }, { headers: NO_STORE });
-  } catch (err) {
-    return inboxFailure('[proof/inbox/stage]', err);
-  }
-}
-```
-
-- [ ] **Step 6: Email (the one place a full address leaves the server)**
+- [ ] **Step 5: Email (the one place a full address leaves the server)**
 
 ```ts
 // app/api/proof/inbox/[contactId]/email/route.ts
 // GET: opens the client's mail app to this lead (spec: email replies open the
-// mail app; PROOF sends no email in this slice). A redirect, so the address is
-// never in the inbox page's data; only a tap on "Email" reveals it, to the
-// signed-in owner, in their own mail app.
+// mail app; PROOF sends no email to leads in this slice). A redirect, so the
+// address is never in the inbox page's data; only a tap on "Email" reveals it,
+// to the signed-in owner, in their own mail app.
 import { NextResponse } from 'next/server';
 import { getContact } from '@/lib/contacts';
 import { parseContactId } from '@/lib/contactsShared';
-import { inboxAccount, NO_STORE } from '@/lib/inboxServer';
+import { inboxAccount, inboxFailure, NO_STORE } from '@/lib/inboxServer';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -2424,22 +2686,29 @@ export async function GET(_req: Request, ctx: { params: Promise<{ contactId: str
   const auth = await inboxAccount();
   if (!auth.ok) return auth.response;
   const contactId = parseContactId((await ctx.params).contactId);
-  const contact = contactId ? await getContact(auth.account.onboardingId, contactId).catch(() => null) : null;
-  if (!contact?.email) return NextResponse.json({ error: 'No email for this lead' }, { status: 404, headers: NO_STORE });
-  return new Response(null, { status: 302, headers: { Location: `mailto:${contact.email}`, ...NO_STORE } });
+  if (!contactId) return NextResponse.json({ error: 'No email for this lead' }, { status: 404, headers: NO_STORE });
+  try {
+    const contact = await getContact(auth.account.onboardingId, contactId);
+    if (!contact?.email) return NextResponse.json({ error: 'No email for this lead' }, { status: 404, headers: NO_STORE });
+    return new Response(null, { status: 302, headers: { Location: `mailto:${contact.email}`, ...NO_STORE } });
+  } catch (err) {
+    return inboxFailure('[proof/inbox/email]', err);
+  }
 }
 ```
 
-- [ ] **Step 7: Admin backfill**
+- [ ] **Step 6: Admin backfill**
 
 ```ts
 // app/api/admin/contacts/backfill/route.ts
-// POST { onboardingId? }: build the inbox from every call, text and form that
-// already exists (lib/contacts.ts backfill), for one client or all of them.
-// Idempotent: run it again and nothing doubles. Sends nothing to anyone.
+// POST { onboardingId? }: build the inbox from every call, text and (non-test)
+// form that already exists (lib/contacts.ts backfill), for one client or all of
+// them. Idempotent: run it again and nothing doubles. Sends nothing to anyone
+// and starts or stops no follow-up (replay mode).
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/adminAuth';
 import { backfill, backfillAll } from '@/lib/contacts';
+import { errText } from '@/lib/dbRows';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -2454,78 +2723,103 @@ export async function POST(req: Request) {
     const results = id ? [await backfill(id)] : await backfillAll();
     return NextResponse.json({ ok: true, results });
   } catch (err) {
-    console.error('[admin/contacts/backfill]', err instanceof Error ? err.message : err);
-    return NextResponse.json({ error: err instanceof Error ? err.message : 'Backfill failed' }, { status: 500 });
+    console.error('[admin/contacts/backfill]', errText(err));
+    return NextResponse.json({ error: errText(err) || 'Backfill failed' }, { status: 500 });
   }
 }
 ```
 
-- [ ] **Step 8: Replace slice 3's temporary stage storage**
+(`backfillAll` runs every client in one request with `maxDuration = 300`; with more than a few thousand rows in total, call it once per client with `{ onboardingId }` instead.)
 
-Rewrite `app/api/proof/leads/stage/route.ts` whole:
+- [ ] **Step 7: Add the inbox path to slice 3's stage route**
+
+Rewrite `app/api/proof/leads/stage/route.ts` whole. The `{ id, action }` path keeps slice 3's parsing, auth, errors and response byte for byte; only the store behind `applyLeadStage`'s default changed (Task 4), so `FormLeads` / `LeadStageTaps` keep working for every tier.
 
 ```ts
 // app/api/proof/leads/stage/route.ts
-// Slice 3's stage taps, now stored on the contact (contacts.stage) instead of
-// the temporary lead_stages table. Takes { contactId, action } from the inbox,
-// or the slice-3 shape { refTable, refId, action } (a source row the contact
-// was projected from). The inbox's own route is /api/proof/inbox/<id>/stage.
+// POST { id, action } from the signed-in client's Leads tab: Quote sent, Talked to
+// them, Booked, Job done or Not a fit on one of their form leads. Moves the stage
+// and starts or stops the follow-ups that go with it (lib/leadStages.ts). Only the
+// client's own leads: applyLeadStage looks the id up with their onboarding id.
+// Every plan; since slice 4 the form's contact follows (formContactStore).
+// POST { contactId, action } (slice 4, AxeonCORE and up): the same taps on an
+// inbox contact, through the same applyLeadStage with the contact store.
 import { NextResponse } from 'next/server';
-import { contactIdForRef, setStage } from '@/lib/contacts';
-import { isContactAction, parseContactId } from '@/lib/contactsShared';
-import { inboxAccount, inboxFailure, NO_STORE } from '@/lib/inboxServer';
+import { readBody } from '@/lib/billingApi';
+import { inboxEnabled } from '@/lib/contactsShared';
+import { errText } from '@/lib/dbRows';
+import { applyLeadStage, contactStageDeps, defaultDeps, LeadNotFoundError, type StageDeps } from '@/lib/leadStages';
+import { getOnboardingById } from '@/lib/onboarding';
+import { getSignedInClient } from '@/lib/proofServer';
+import { parseStageRequest, type LeadAction } from '@/lib/sequenceShared';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+const bad = (error: string) => NextResponse.json({ error }, { status: 400 });
+
 export async function POST(req: Request) {
-  const auth = await inboxAccount();
-  if (!auth.ok) return auth.response;
-  const body = (await req.json().catch(() => null)) as { contactId?: unknown; refTable?: unknown; refId?: unknown; action?: unknown } | null;
-  if (!body || !isContactAction(body.action)) return NextResponse.json({ error: 'Pick a stage' }, { status: 400, headers: NO_STORE });
+  const account = await getSignedInClient();
+  if (!account) return NextResponse.json({ error: 'Please sign in again' }, { status: 401 });
+  let parsed: { id: number; action: LeadAction };
+  // { contactId } is the inbox; anything else is slice 3's { id } form-lead tap.
+  let inbox = false;
   try {
-    const onboardingId = auth.account.onboardingId;
-    let contactId = parseContactId(body.contactId);
-    const refId = parseContactId(body.refId);
-    if (!contactId && typeof body.refTable === 'string' && refId) contactId = await contactIdForRef(onboardingId, body.refTable, refId);
-    if (!contactId) return NextResponse.json({ error: 'Which lead?' }, { status: 400, headers: NO_STORE });
-    const contact = await setStage(onboardingId, contactId, body.action, 'client');
-    if (!contact) return NextResponse.json({ error: 'That lead is not in your inbox' }, { status: 404, headers: NO_STORE });
-    return NextResponse.json({ ok: true, contactId, stage: contact.stage }, { headers: NO_STORE });
+    const raw = await readBody(req);
+    inbox = raw.contactId !== undefined;
+    // parseStageRequest's own messages are written for the client; the inbox path reuses it with the contact id.
+    parsed = parseStageRequest(inbox ? { id: raw.contactId, action: raw.action } : raw);
   } catch (err) {
-    return inboxFailure('[proof/leads/stage]', err);
+    return bad(errText(err));
+  }
+  const { id, action } = parsed;
+  let deps: StageDeps = defaultDeps;
+  if (inbox) {
+    const onboarding = await getOnboardingById(account.onboardingId).catch(() => null);
+    if (!onboarding || !inboxEnabled(onboarding.tier)) return NextResponse.json({ error: 'The leads inbox comes with AxeonCORE' }, { status: 403 });
+    deps = contactStageDeps;
+  }
+  try {
+    // A follow-up failure is not an error here: the stage is saved and the result carries a warning (200).
+    const result = await applyLeadStage(account.onboardingId, id, action, deps);
+    return NextResponse.json(inbox ? { ok: true, contactId: id, ...result } : { ok: true, id, ...result });
+  } catch (err) {
+    if (err instanceof LeadNotFoundError) return bad(err.message);
+    // Anything else (a database error) is logged, never shown.
+    console.error('[proof/leads/stage]', account.onboardingId, inbox ? 'contact' : 'form', id, action, errText(err));
+    return bad('Could not save that. Please try again.');
   }
 }
 ```
 
-Then run `grep -rn "lead_stages" lib app components scripts` and, for each hit outside `lib/contacts.ts` (whose `migrateTemporaryStages` reads it once during the backfill):
+There is no `lead_stages` table and nothing else to migrate: slice 3's marks are on `form_submissions` and reach contacts through the backfill's `copyFormStages` (Task 4).
 
-- A function that **writes** a stage there: delete it and its callers' calls (the route above replaced its only caller).
-- A function that **reads** a stage from there: replace its body with `const id = await contactIdForRef(onboardingId, refTable, refId); const c = id ? await getContact(onboardingId, id) : null; return c?.stage ?? 'new';` (imports from `@/lib/contacts`).
-- The `CREATE TABLE IF NOT EXISTS lead_stages` statement (and its indexes) in `lib/db.ts` and `scripts/init-db.mjs`: delete. Production keeps the table until the go-live step in Task 12 drops it, after the backfill has copied it.
+- [ ] **Step 8: Type-check and exercise the routes**
 
-- [ ] **Step 9: Type-check and exercise the routes**
-
-Run: `npm run lint`
-Expected: clean.
+Run: `npm run lint && npm run test:sequences`
+Expected: clean, PASS.
 
 Run `npm run dev`, sign in as a test AxeonCORE client, then in the browser console:
 
 ```js
 await (await fetch('/api/proof/inbox')).json();                                   // { contacts: [...], nextCursor }
 await (await fetch('/api/proof/inbox/999999')).status;                            // 404
-await (await fetch('/api/proof/inbox/1/stage', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'nope' }) })).status; // 400
+const post = (body) => fetch('/api/proof/leads/stage', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+await (await post({ contactId: 1, action: 'nope' })).status;                      // 400
+await (await post({ contactId: <a contact id>, action: 'booked' })).json();       // { ok: true, contactId, stage: 'booked', started: [], stopped }
+await (await post({ id: <a form id>, action: 'quote_sent' })).json();             // { ok: true, id, stage: 'contacted', started, stopped } as in slice 3
 ```
 
-Signed in as an Essentials client, `fetch('/api/proof/inbox')` is 403. Signed out, 401. In the JSON from the first call, no `who` value contains a full number.
+After the last call, that form's contact shows stage Contacted with a `Tapped "Quote sent"` note in its timeline. Signed in as an Essentials client: `fetch('/api/proof/inbox')` is 403, `post({ contactId: 1, action: 'won' })` is 403, and `post({ id: <their form id>, action: 'booked' })` still answers `{ ok: true, id, stage: 'booked', … }`. Signed out, 401. In the JSON from the first call, no `who` value contains a full number.
 
-- [ ] **Step 10: Commit**
+- [ ] **Step 9: Commit**
 
 ```bash
-git add lib/inboxServer.ts app/api/proof/inbox app/api/admin/contacts app/api/proof/leads/stage lib scripts
-git commit -m "feat(inbox): client inbox API, admin backfill, stage taps stored on the contact
+git add lib/inboxServer.ts app/api/proof/inbox app/api/admin/contacts/backfill/route.ts app/api/proof/leads/stage/route.ts
+git commit -m "feat(inbox): client inbox API, admin backfill, contact taps on the slice 3 stage route
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR"
 ```
 
 ---
@@ -2533,7 +2827,7 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ### Task 9: Push notifications (`web-push`, service worker, "Turn on notifications")
 
 **Files:**
-- Modify: `package.json` (dependency `web-push` `3.6.7`, dev dependency `@types/web-push` `3.6.4`; both published January 2024)
+- Modify: `package.json` (dependency `web-push` `3.6.7`, published 2024-01-16; dev dependency `@types/web-push` `3.6.4`, published 2024-10-22; both well over two weeks old)
 - Create: `lib/pushShared.ts`
 - Test: `lib/pushShared.test.ts`
 - Create: `lib/push.ts`
@@ -2545,9 +2839,9 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 - Create: `app/api/proof/push/subscribe/route.ts`
 
 **Interfaces:**
-- Consumes: `push_subscriptions` (Task 3); `inboxAccount`, `NO_STORE` (Task 8); `client_accounts` (existing).
+- Consumes: `push_subscriptions` (Task 3); `inboxAccount`, `NO_STORE` (Task 8); `client_accounts` (existing); `errText` (`lib/dbRows.ts`).
 - Produces:
-  - `lib/pushShared.ts`: `type LeadActivity = 'text' | 'call' | 'form' | 'messenger' | 'instagram'`, `interface PushMessage { title; body; url }`, `interface PushSubscriptionInput { endpoint; keys: { p256dh; auth } }`, `leadLink(contactId): string`, `leadPushMessage(what, contactId): PushMessage`, `ownerAlertText(what, contactId, appOrigin): string`, `isValidSubscription(raw): raw is PushSubscriptionInput`, `urlBase64ToUint8Array(base64): Uint8Array<ArrayBuffer>`, `needsHomeScreenInstall(userAgent, standalone): boolean`.
+  - `lib/pushShared.ts`: `type LeadActivity = 'text' | 'call' | 'form' | 'messenger' | 'instagram'`, `interface PushMessage { title; body; url }`, `interface PushSubscriptionInput { endpoint; keys: { p256dh; auth } }`, `LEAD_ALERT_TITLES`, `leadLink(contactId): string`, `leadPushMessage(what, contactId): PushMessage`, `ownerAlertText(what, contactId, appOrigin): string`, `isValidSubscription(raw): raw is PushSubscriptionInput`, `urlBase64ToUint8Array(base64): Uint8Array<ArrayBuffer>`, `needsHomeScreenInstall(userAgent, standalone): boolean`.
   - `lib/push.ts`: `isPushConfigured(): boolean`, `savePushSubscription(accountId: number, sub: PushSubscriptionInput): Promise<void>`, `sendPush(accountId: number, msg: PushMessage): Promise<number>` (devices reached; prunes dead subscriptions on 404/410), `pushToClient(onboardingId: number, msg: PushMessage): Promise<number>`.
   - `<NotificationsButton publicKey={…} />`; `POST /api/proof/push/subscribe` `{ subscription }` → `{ ok: true }`.
 
@@ -2558,6 +2852,8 @@ Expected: `package.json` gains `"web-push": "3.6.7"` under `dependencies` and `"
 
 - [ ] **Step 2: Write the failing tests**
 
+The privacy guarantee is structural: `leadPushMessage` and `ownerAlertText` take only a fixed activity word, a contact id and the app origin, so no name, number or message words can reach them. The tests pin their exact output, so any field or text added later fails here.
+
 ```ts
 // lib/pushShared.test.ts
 // Run with: npm run test:inbox
@@ -2565,25 +2861,23 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { isValidSubscription, leadPushMessage, needsHomeScreenInstall, ownerAlertText, urlBase64ToUint8Array } from './pushShared';
 
-const PHONEISH = /\d{3}\D{0,2}\d{3}\D?\d{4}/;
-
 test('a push says what happened and where to look, nothing else (Review Focus 1)', () => {
-  for (const what of ['text', 'call', 'form', 'messenger', 'instagram'] as const) {
-    const m = leadPushMessage(what, 42);
-    assert.equal(m.url, '/proof?tab=leads&contact=42');
-    assert.equal(m.body, 'Open AxeonPROOF to see it and reply.');
-    assert.doesNotMatch(JSON.stringify(m), PHONEISH);
-    assert.deepEqual(Object.keys(m).sort(), ['body', 'title', 'url']);
-  }
-  assert.equal(leadPushMessage('text', 42).title, 'New text from a lead');
-  assert.equal(leadPushMessage('call', 42).title, 'Missed call from a lead');
-  assert.equal(leadPushMessage('form', 42).title, 'New form from your website');
+  assert.deepEqual(leadPushMessage('text', 42), { title: 'New text from a lead', body: 'Open AxeonPROOF to see it and reply.', url: '/proof?tab=leads&contact=42' });
+  assert.deepEqual(leadPushMessage('call', 42), { title: 'Missed call from a lead', body: 'Open AxeonPROOF to see it and reply.', url: '/proof?tab=leads&contact=42' });
+  assert.deepEqual(leadPushMessage('form', 42), { title: 'New form from your website', body: 'Open AxeonPROOF to see it and reply.', url: '/proof?tab=leads&contact=42' });
+  assert.deepEqual(leadPushMessage('messenger', 7).title, 'New Facebook message from a lead');
+  assert.deepEqual(leadPushMessage('instagram', 7).title, 'New Instagram message from a lead');
 });
 
 test('the owner text has no lead details either', () => {
-  const t = ownerAlertText('text', 42, 'https://app.axeonstudio.co/');
-  assert.equal(t, 'New text from a lead. See it and reply in AxeonPROOF: https://app.axeonstudio.co/proof?tab=leads&contact=42');
-  assert.doesNotMatch(t, PHONEISH);
+  assert.equal(
+    ownerAlertText('text', 42, 'https://app.axeonstudio.co/'),
+    'New text from a lead. See it and reply in AxeonPROOF: https://app.axeonstudio.co/proof?tab=leads&contact=42',
+  );
+  assert.equal(
+    ownerAlertText('call', 9, 'https://app.axeonstudio.co'),
+    'Missed call from a lead. See it and reply in AxeonPROOF: https://app.axeonstudio.co/proof?tab=leads&contact=9',
+  );
 });
 
 test('subscriptions: https on a known push service, base64url keys', () => {
@@ -2623,8 +2917,8 @@ Expected: FAIL, `Cannot find module './pushShared'`.
 // Lead notifications: what a push says and where it opens, the key conversion
 // the browser needs, and the subscription shape the server accepts. Client-safe.
 // A push never carries a phone number, a name or the words of a message: a fixed
-// title, one fixed line, and a link inside PROOF. The same goes for the text the
-// owner gets when push is not on.
+// title, one fixed line, and a link inside PROOF. The same goes for the text and
+// the email the owner gets when push is not on (lib/leadNotify.ts).
 
 export type LeadActivity = 'text' | 'call' | 'form' | 'messenger' | 'instagram';
 
@@ -2640,7 +2934,7 @@ export interface PushSubscriptionInput {
   keys: { p256dh: string; auth: string };
 }
 
-const TITLES: Record<LeadActivity, string> = {
+export const LEAD_ALERT_TITLES: Record<LeadActivity, string> = {
   text: 'New text from a lead',
   call: 'Missed call from a lead',
   form: 'New form from your website',
@@ -2651,12 +2945,12 @@ const TITLES: Record<LeadActivity, string> = {
 export const leadLink = (contactId: number): string => `/proof?tab=leads&contact=${contactId}`;
 
 export function leadPushMessage(what: LeadActivity, contactId: number): PushMessage {
-  return { title: TITLES[what], body: 'Open AxeonPROOF to see it and reply.', url: leadLink(contactId) };
+  return { title: LEAD_ALERT_TITLES[what], body: 'Open AxeonPROOF to see it and reply.', url: leadLink(contactId) };
 }
 
 /** The fallback text to the owner's cell when no device has push on. */
 export function ownerAlertText(what: LeadActivity, contactId: number, appOrigin: string): string {
-  return `${TITLES[what]}. See it and reply in AxeonPROOF: ${appOrigin.replace(/\/$/, '')}${leadLink(contactId)}`;
+  return `${LEAD_ALERT_TITLES[what]}. See it and reply in AxeonPROOF: ${appOrigin.replace(/\/$/, '')}${leadLink(contactId)}`;
 }
 
 // The browsers' push services. The server POSTs to whatever endpoint a browser
@@ -2709,10 +3003,11 @@ Expected: PASS (both files).
 // Web push to the client's own devices (spec, "Cross-slice decisions": push via
 // web-push). VAPID keys come from WEB_PUSH_PUBLIC_KEY / WEB_PUSH_PRIVATE_KEY,
 // generated once with `npx web-push generate-vapid-keys`. Without them every
-// send reports 0 devices and callers fall back to a text. A subscription the
-// push service says is gone (404/410) is deleted. Server-only.
+// send reports 0 devices and callers fall back to a text and an email. A
+// subscription the push service says is gone (404/410) is deleted. Server-only.
 import webpush from 'web-push';
 import { ensureSchema, isDatabaseConfigured, sql } from '@/lib/db';
+import { errText } from '@/lib/dbRows';
 import type { PushMessage, PushSubscriptionInput } from '@/lib/pushShared';
 
 let configured: boolean | null = null;
@@ -2754,9 +3049,9 @@ export async function sendPush(accountId: number, msg: PushMessage): Promise<num
       } catch (err) {
         const status = (err as { statusCode?: number }).statusCode;
         if (status === 404 || status === 410) {
-          await sql`DELETE FROM push_subscriptions WHERE id = ${s.id};`.catch(() => undefined);
+          await sql`DELETE FROM push_subscriptions WHERE id = ${s.id};`.catch((delErr) => console.error('[push] dead subscription not removed', s.id, errText(delErr)));
         } else {
-          console.error('[push] send failed', status ?? '', err instanceof Error ? err.message : err);
+          console.error('[push] send failed', status ?? '', errText(err));
         }
         return 0;
       }
@@ -2809,7 +3104,7 @@ self.addEventListener('notificationclick', (event) => {
       const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
       for (const w of windows) {
         if ('focus' in w) {
-          await w.navigate(url).catch(() => undefined);
+          await w.navigate(url).catch(() => undefined); // an uncontrolled window cannot be navigated; focusing it is enough
           return w.focus();
         }
       }
@@ -2837,7 +3132,7 @@ self.addEventListener('notificationclick', (event) => {
 }
 ```
 
-Save it as `public/proof.webmanifest`. In `app/proof/layout.tsx` extend `metadata`:
+Save it as `public/proof.webmanifest`. (iOS uses `apple-icon.png` for the Home Screen; Android push does not need an install. Chrome's own install prompt also wants a 512x512 icon, which this slice does not add; that affects the prompt only, not notifications.) In `app/proof/layout.tsx` extend `metadata`:
 
 ```ts
 export const metadata: Metadata = {
@@ -2961,6 +3256,7 @@ export function NotificationsButton({ publicKey, api = '/api/proof/push/subscrib
 // signed-in client (AxeonCORE and up). Only real push-service endpoints are
 // accepted (lib/pushShared.ts isValidSubscription).
 import { NextResponse } from 'next/server';
+import { errText } from '@/lib/dbRows';
 import { inboxAccount, NO_STORE } from '@/lib/inboxServer';
 import { isPushConfigured, savePushSubscription } from '@/lib/push';
 import { isValidSubscription } from '@/lib/pushShared';
@@ -2979,7 +3275,7 @@ export async function POST(req: Request) {
     await savePushSubscription(auth.account.id, sub);
     return NextResponse.json({ ok: true }, { headers: NO_STORE });
   } catch (err) {
-    console.error('[proof/push/subscribe]', err instanceof Error ? err.message : err);
+    console.error('[proof/push/subscribe]', errText(err));
     return NextResponse.json({ error: 'That did not save. Try again.' }, { status: 502, headers: NO_STORE });
   }
 }
@@ -2993,73 +3289,267 @@ Expected: PASS, clean, and a build that compiles `web-push` into the Node routes
 - [ ] **Step 10: Commit**
 
 ```bash
-git add package.json package-lock.json lib/pushShared.ts lib/pushShared.test.ts lib/push.ts public/sw.js public/proof.webmanifest app/proof/layout.tsx next.config.mjs components/proof/NotificationsButton.tsx app/api/proof/push
+git add package.json package-lock.json lib/pushShared.ts lib/pushShared.test.ts lib/push.ts public/sw.js public/proof.webmanifest app/proof/layout.tsx next.config.mjs components/proof/NotificationsButton.tsx app/api/proof/push/subscribe/route.ts
 git commit -m "feat(inbox): web push for lead alerts, service worker, installable PROOF
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR"
 ```
 
 ---
 
-### Task 10: Alerts: push first, a text to the owner as the fallback
+### Task 10: Alerts: push first; a text (outside quiet hours) and an email as the fallback
 
 **Files:**
 - Create: `lib/leadNotify.ts`
+- Modify: `lib/emailLogShared.ts` (one email kind) and `lib/email.ts` (`sendLeadActivityEmail`)
+- Modify: `lib/leadShared.ts` (`DeliveryReport['text']` gains `'pushed'`) and `lib/leadShared.test.ts`
+- Modify: `lib/leads.ts` (`deliverLead`: push first for forms)
+- Modify: `app/api/lead/route.ts` (pass the contact to `deliverLead`)
 - Modify: `app/api/phone/sms/route.ts` (inbound text → alert)
 - Modify: `app/api/phone/voice/status/route.ts` (missed call → alert)
-- Modify: `app/api/lead/route.ts` and the slice-2 alert function (A4): form → push first, SMS fallback
 
 **Interfaces:**
-- Consumes: `pushToClient` (Task 9); `leadPushMessage`, `ownerAlertText`, `LeadActivity` (Task 9); `recordAlert`, `alertedRecently` (Task 4); `OWNER_TEXT_THROTTLE_MINUTES` (Task 2); `getLine`, `sendClientSms` (`lib/phoneLines.ts`, `'alert'` kind per A2); `APP_ORIGIN` (`lib/hostRouting.ts`).
-- Produces: `type NotifyResult = 'push' | 'sms' | 'none'`; `notifyLeadActivity(onboardingId: number, contactId: number, what: LeadActivity, smsFallback?: () => Promise<unknown>): Promise<NotifyResult>`. Slice 6 (Messenger, Instagram) calls the same function with `'messenger'` / `'instagram'` after its own `upsertContactEvent`; nothing else is needed for those channels.
+- Consumes: `pushToClient` (Task 9); `leadLink`, `leadPushMessage`, `ownerAlertText`, `LEAD_ALERT_TITLES`, `LeadActivity` (Task 9); `recordAlert`, `alertedRecently` (Task 4); `inboxEnabled`, `OWNER_TEXT_THROTTLE_MINUTES` (Task 2); `getLine`, `sendOwnerAlert` (`lib/phoneLines.ts`, A2); `isQuietHours` (`lib/leadShared.ts`, A9); `getOnboardingById` (`lib/onboarding.ts`); `APP_ORIGIN` (`lib/hostRouting.ts`); `getClient`, `sendChecked`, `clientLayout`, `button`, `escapeHtml`, `CLIENT_FROM_ADDRESS`, `CLIENT_REPLY_TO` (`lib/email.ts`, A12).
+- Produces:
+  - `lib/leadNotify.ts`: `pushLeadAlert(onboardingId: number, contactId: number, what: LeadActivity): Promise<number>` (devices reached; never throws); `interface NotifyResult { pushed: number; sms: boolean; email: boolean }`; `notifyLeadActivity(onboardingId: number, contactId: number, what: LeadActivity, now?: Date): Promise<NotifyResult>`. Slice 6 (Messenger, Instagram) calls `notifyLeadActivity` with `'messenger'` / `'instagram'` after its own `upsertContactEvent`.
+  - `lib/email.ts`: `sendLeadActivityEmail({ to, businessName, title, url }): Promise<boolean>`; email kind `lead_activity_alert`.
+  - `deliverLead(owner, lead, opts: { now?; test?; contactId?: number | null })`; `DeliveryReport['text']` may be `'pushed'`.
 
-- [ ] **Step 1: Write the notifier**
+How each lead activity alerts the owner (spec: "Push … and, as a fallback, a text to the owner's cell"; "Cross-slice decisions": "an SMS … and an email through Resend"; quiet hours apply to every automated outbound text):
+
+| Activity | First | If no device took the push |
+|---|---|---|
+| Inbound text (not STOP/START) | push | owner text (not 8 pm to 8 am) and an email, at most once per lead per 30 minutes |
+| Missed call | push | the same |
+| Website form | push (after slice 2's duplicate check, so a repeat form within 5 minutes pushes nothing) | slice 2's owner text exactly as today (its own quiet-hours and 10DLC plan); slice 2's lead email always goes regardless |
+
+- [ ] **Step 1: The fallback email**
+
+In `lib/emailLogShared.ts` `EMAIL_KINDS`, after the `client_lead_alert` line, add:
+
+```ts
+  lead_activity_alert: { label: 'Lead text or missed call (to client)', category: 'leads' },
+```
+
+In `lib/email.ts`, directly after the closing `}` of `export async function sendClientLeadAlert(…)`, add:
+
+```ts
+/**
+ * Slice 4: a lead texted or missed-called and no device has push on. No lead
+ * details (the same rule as the push): the words and the number stay in PROOF.
+ */
+export async function sendLeadActivityEmail(input: { to: string; businessName: string | null; title: string; url: string }): Promise<boolean> {
+  const resend = getClient('lead_activity_alert');
+  if (!resend) return false;
+  await sendChecked(resend, {
+    from: CLIENT_FROM_ADDRESS,
+    replyTo: CLIENT_REPLY_TO,
+    to: input.to,
+    subject: input.businessName ? `${input.title} · ${input.businessName}` : input.title,
+    html: clientLayout(
+      escapeHtml(input.title),
+      `<p style="margin:0 0 12px">Open AxeonPROOF to see it and text them back from your tracked number.</p>${button(input.url, 'Open the lead')}`,
+    ),
+  });
+  return true;
+}
+```
+
+- [ ] **Step 2: Write the notifier**
 
 ```ts
 // lib/leadNotify.ts
 // Telling the owner a lead just did something (spec, slice 4 "Push" and
-// "Slice 4 additions"): a push to every device they turned notifications on
-// for; if none took it, a text to their cell through their own line, at most
-// one per lead per OWNER_TEXT_THROTTLE_MINUTES. A missed call gets push only:
-// the forwarded call already rang (and shows as missed on) the owner's phone.
-// Callers that already have their own fallback (slice 2's form alert) pass it.
-// Server-only.
+// "Cross-slice decisions"): a push to every device they turned notifications on
+// for; if none took it, a text to their cell through their own line (never
+// 8 pm to 8 am: quiet hours apply to every automated text) and an email, at
+// most once per lead per OWNER_TEXT_THROTTLE_MINUTES. Each channel fails on its
+// own and the result says what actually went. Forms use pushLeadAlert only:
+// deliverLead (lib/leads.ts) already owns their text and email. Server-only.
 import { alertedRecently, recordAlert } from '@/lib/contacts';
-import { OWNER_TEXT_THROTTLE_MINUTES } from '@/lib/contactsShared';
+import { inboxEnabled, OWNER_TEXT_THROTTLE_MINUTES } from '@/lib/contactsShared';
+import { errText } from '@/lib/dbRows';
+import { sendLeadActivityEmail } from '@/lib/email';
 import { APP_ORIGIN } from '@/lib/hostRouting';
-import { getLine, sendClientSms } from '@/lib/phoneLines';
+import { isQuietHours } from '@/lib/leadShared';
+import { getOnboardingById } from '@/lib/onboarding';
+import { getLine, sendOwnerAlert } from '@/lib/phoneLines';
 import { pushToClient } from '@/lib/push';
-import { leadPushMessage, ownerAlertText, type LeadActivity } from '@/lib/pushShared';
+import { LEAD_ALERT_TITLES, leadLink, leadPushMessage, ownerAlertText, type LeadActivity } from '@/lib/pushShared';
 
-export type NotifyResult = 'push' | 'sms' | 'none';
-
-async function textOwner(onboardingId: number, contactId: number, what: LeadActivity): Promise<boolean> {
-  const line = await getLine(onboardingId);
-  if (!line || line.status !== 'active') return false;
-  if (await alertedRecently(contactId, OWNER_TEXT_THROTTLE_MINUTES)) return false;
-  const res = await sendClientSms(line, line.forwardTo, ownerAlertText(what, contactId, APP_ORIGIN), 'alert');
-  if (res.sent) await recordAlert(onboardingId, contactId, 'sms');
-  return res.sent;
+export interface NotifyResult {
+  /** Devices that accepted the push. */
+  pushed: number;
+  sms: boolean;
+  email: boolean;
 }
 
-export async function notifyLeadActivity(onboardingId: number, contactId: number, what: LeadActivity, smsFallback?: () => Promise<unknown>): Promise<NotifyResult> {
-  let pushed = 0;
+const note = (onboardingId: number, contactId: number, channel: 'sms' | 'push' | 'email') =>
+  recordAlert(onboardingId, contactId, channel).catch((err) => console.error('[leadNotify] alert not noted', contactId, channel, errText(err)));
+
+/** Push to the client's devices. How many took it; 0 when push is off or failed. Never throws. */
+export async function pushLeadAlert(onboardingId: number, contactId: number, what: LeadActivity): Promise<number> {
   try {
-    pushed = await pushToClient(onboardingId, leadPushMessage(what, contactId));
+    const n = await pushToClient(onboardingId, leadPushMessage(what, contactId));
+    if (n > 0) await note(onboardingId, contactId, 'push');
+    return n;
   } catch (err) {
-    console.error('[leadNotify] push', err instanceof Error ? err.message : err);
+    console.error('[leadNotify] push', contactId, errText(err));
+    return 0;
   }
-  if (pushed > 0) return 'push';
-  if (smsFallback) {
-    await smsFallback();
-    return 'sms';
+}
+
+/** For inbound texts and missed calls (and later Messenger / Instagram). Never throws. */
+export async function notifyLeadActivity(onboardingId: number, contactId: number, what: LeadActivity, now: Date = new Date()): Promise<NotifyResult> {
+  const out: NotifyResult = { pushed: await pushLeadAlert(onboardingId, contactId, what), sms: false, email: false };
+  if (out.pushed > 0) return out;
+  try {
+    if (await alertedRecently(contactId, OWNER_TEXT_THROTTLE_MINUTES)) return out;
+  } catch (err) {
+    // Cannot tell: alert anyway. A second text beats a missed lead.
+    console.error('[leadNotify] throttle check failed', contactId, errText(err));
   }
-  if (what === 'call') return 'none';
-  return (await textOwner(onboardingId, contactId, what)) ? 'sms' : 'none';
+  const onboarding = await getOnboardingById(onboardingId).catch(() => null);
+  if (!onboarding || !inboxEnabled(onboarding.tier)) return out;
+
+  try {
+    const line = await getLine(onboardingId);
+    if (line && line.status === 'active' && !isQuietHours(now, line.timeZone)) {
+      const r = await sendOwnerAlert(line, ownerAlertText(what, contactId, APP_ORIGIN));
+      if (r.sent) {
+        out.sms = true;
+        await note(onboardingId, contactId, 'sms');
+      }
+    }
+  } catch (err) {
+    console.error('[leadNotify] owner text', contactId, errText(err));
+  }
+
+  try {
+    const sent = await sendLeadActivityEmail({
+      to: onboarding.clientEmail,
+      businessName: onboarding.businessName,
+      title: LEAD_ALERT_TITLES[what],
+      url: `${APP_ORIGIN}${leadLink(contactId)}`,
+    });
+    if (sent) {
+      out.email = true;
+      await note(onboardingId, contactId, 'email');
+    }
+  } catch (err) {
+    console.error('[leadNotify] email', contactId, errText(err));
+  }
+  return out;
 }
 ```
 
-- [ ] **Step 2: Inbound texts alert the owner**
+- [ ] **Step 3: `DeliveryReport` learns "pushed" (`lib/leadShared.ts`)**
+
+Replace
+
+```ts
+  text: SmsSkip | 'sent' | 'opted_out' | 'bad_number' | 'failed' | 'duplicate';
+```
+
+with
+
+```ts
+  /** 'pushed': slice 4 sent a push to the owner's devices instead of the text. */
+  text: SmsSkip | 'sent' | 'opted_out' | 'bad_number' | 'failed' | 'duplicate' | 'pushed';
+```
+
+and in `TEXT_WORDS`, after `duplicate: 'duplicate: same person wrote again within 5 minutes',`, add:
+
+```ts
+  pushed: 'skipped, a notification went to their phone instead',
+```
+
+(`detailsWereTexted('pushed')` stays false, so the call-connect whisper does not claim the details were texted.)
+
+In `lib/leadShared.test.ts`, inside `test('describeDelivery reads as one line for the admin card', () => {`, add as its last line:
+
+```ts
+  assert.equal(describeDelivery({ email: 'sent', text: 'pushed', connect: 'started' }), "Email: sent · Text: skipped, a notification went to their phone instead · Call connect: calling the owner's cell now");
+```
+
+- [ ] **Step 4: Forms: push first inside `deliverLead` (`lib/leads.ts`)**
+
+Add the imports:
+
+```ts
+import { inboxEnabled } from '@/lib/contactsShared';
+import { pushLeadAlert } from '@/lib/leadNotify';
+```
+
+Change the signature
+
+```ts
+export async function deliverLead(owner: LeadOwner, lead: FormSubmission, opts: { now?: Date; test?: boolean } = {}): Promise<DeliveryReport> {
+```
+
+to
+
+```ts
+export async function deliverLead(owner: LeadOwner, lead: FormSubmission, opts: { now?: Date; test?: boolean; contactId?: number | null } = {}): Promise<DeliveryReport> {
+```
+
+Replace
+
+```ts
+  // The text goes before the call, so "we texted you their details" is already true when the owner hears it.
+  let text: DeliveryReport['text'];
+  if (plan.text !== 'send') text = plan.text;
+  else if (!line) text = 'no_line';
+  else {
+    try {
+      const r = await sendOwnerAlert(line, leadAlertText(lead));
+```
+
+with
+
+```ts
+  // Slice 4: a push to the owner's devices first; the owner text is the fallback (spec, "Slice 4 additions").
+  // After the duplicate check above, so a repeat form within the window pushes nothing either. The email always went.
+  const pushed = opts.contactId && !opts.test && inboxEnabled(owner.tier) ? await pushLeadAlert(owner.id, opts.contactId, 'form') : 0;
+
+  // The text goes before the call, so "we texted you their details" is already true when the owner hears it.
+  let text: DeliveryReport['text'];
+  if (pushed > 0) text = 'pushed';
+  else if (plan.text !== 'send') text = plan.text;
+  else if (!line) text = 'no_line';
+  else {
+    try {
+      const r = await sendOwnerAlert(line, leadAlertText(lead));
+```
+
+Nothing else in `deliverLead` changes (call connect, the follow-up start and the report stay as they are).
+
+- [ ] **Step 5: The lead route passes the contact**
+
+In `app/api/lead/route.ts`, replace Task 6's
+
+```ts
+        await projectForm(saved.id).catch((err) => {
+          console.error('[lead] inbox', saved.id, err instanceof Error ? err.message : err);
+          return null;
+        });
+        const owner = await getOnboardingById(onboardingId);
+        if (owner) await deliverLead(owner, saved);
+```
+
+with
+
+```ts
+        const projected = await projectForm(saved.id).catch((err) => {
+          console.error('[lead] inbox', saved.id, err instanceof Error ? err.message : err);
+          return null;
+        });
+        const owner = await getOnboardingById(onboardingId);
+        if (owner) await deliverLead(owner, saved, { contactId: projected?.contactId ?? null });
+```
+
+- [ ] **Step 6: Inbound texts alert the owner**
 
 In `app/api/phone/sms/route.ts` add:
 
@@ -3068,26 +3558,32 @@ import { after } from 'next/server';
 import { notifyLeadActivity } from '@/lib/leadNotify';
 ```
 
-Replace the projection Task 6 added (`await projectMessage(p.MessageSid).catch(…);`) with:
+Replace Task 6's
+
+```ts
+      await projectMessage(p.MessageSid).catch((err) => {
+        console.error('[phone/sms] inbox', err instanceof Error ? err.message : err);
+        return null;
+      });
+```
+
+with
 
 ```ts
       const projected = await projectMessage(p.MessageSid).catch((err) => {
         console.error('[phone/sms] inbox', err instanceof Error ? err.message : err);
         return null;
       });
-      // After Twilio has its answer: push first, a text to the owner if push is not on. Not for STOP / START.
-      if (projected && from !== 'unknown' && !isStopWord(p.Body) && !isStartWord(p.Body)) {
+      // After Twilio has its answer: push first, then a text and an email if push is not on. Not for STOP / START.
+      if (projected && !isStopWord(p.Body) && !isStartWord(p.Body)) {
         const onboardingId = line.onboardingId;
-        after(() =>
-          notifyLeadActivity(onboardingId, projected.contactId, 'text').then(
-            () => undefined,
-            (err) => console.error('[phone/sms] alert', err instanceof Error ? err.message : err),
-          ),
-        );
+        after(() => notifyLeadActivity(onboardingId, projected.contactId, 'text').then(() => undefined));
       }
 ```
 
-- [ ] **Step 3: Missed calls alert the owner (push only)**
+(`notifyLeadActivity` never throws; `projectMessage` returns null for a withheld sender.)
+
+- [ ] **Step 7: Missed calls alert the owner**
 
 In `app/api/phone/voice/status/route.ts` add:
 
@@ -3096,75 +3592,72 @@ import { after } from 'next/server';
 import { notifyLeadActivity } from '@/lib/leadNotify';
 ```
 
-Change the first projection Task 6 added from `await projectCall(p.CallSid).catch(…)` to `const projected = await projectCall(p.CallSid).catch(…)` (same body). Then, directly before the final `return twiml(afterDialTwiml({ textedBack }));`, add:
+Change Task 6's first projection from
 
 ```ts
-  // Only missed calls reach here (answered returned above).
+  await projectCall(p.CallSid).catch((err) => {
+```
+
+to
+
+```ts
+  const projected = await projectCall(p.CallSid).catch((err) => {
+```
+
+(same body). Then replace
+
+```ts
+  return twiml(afterDialTwiml({ textedBack }));
+}
+```
+
+with
+
+```ts
+  // Only missed calls reach here (answered returned above): push first, then a text and an email.
   if (projected) {
     const onboardingId = line.onboardingId;
-    after(() =>
-      notifyLeadActivity(onboardingId, projected.contactId, 'call').then(
-        () => undefined,
-        (err) => console.error('[phone/status] alert', err instanceof Error ? err.message : err),
-      ),
-    );
+    after(() => notifyLeadActivity(onboardingId, projected.contactId, 'call').then(() => undefined));
   }
+  return twiml(afterDialTwiml({ textedBack }));
+}
 ```
 
-- [ ] **Step 4: Forms: push first, slice 2's text as the fallback**
+- [ ] **Step 8: Type-check and try it**
 
-In `app/api/lead/route.ts`, change Task 6's `await projectForm(submission.id).catch(…)` to `const projected = await projectForm(submission.id).catch(…)` (same body), and pass `projected?.contactId ?? null` as a new last argument to the alert call, e.g. `await sendLeadAlerts(onboarding, line, submission, projected?.contactId ?? null);`.
-
-In the alert function (A4, assumed `sendLeadAlerts` in `lib/leadAlerts.ts`):
-
-1. Add the parameter `contactId: number | null = null` at the end of its signature.
-2. Add `import { notifyLeadActivity } from '@/lib/leadNotify';`.
-3. Leave the alert email exactly as it is (it always goes).
-4. Replace the statement that texts the owner, `await sendClientSms(line, line.forwardTo, smsBody, 'alert');` (keep the body expression it passes today; `smsBody` stands for that existing expression's variable), and any `if (line …)` guard wrapped directly around it, with:
-
-```ts
-  // Push first; the owner text is the fallback (spec, "Slice 4 additions").
-  const textOwner = async () => {
-    if (line && line.status === 'active') await sendClientSms(line, line.forwardTo, smsBody, 'alert');
-  };
-  if (contactId) await notifyLeadActivity(onboarding.id, contactId, 'form', textOwner);
-  else await textOwner();
-```
-
-If the existing guard checked more than `line` (for example `line.smsStatus === 'ready'`), keep that condition inside `textOwner` as well; `sendClientSms` checks `sms_status` itself either way.
-
-- [ ] **Step 5: Type-check and try it**
-
-Run: `npm run lint && npm run test:phone && npm run test:inbox`
+Run: `npm run lint && npm run test:phone && npm run test:inbox && npm run test:leads && npm run test:sequences`
 Expected: clean and PASS.
 
-With `WEB_PUSH_*` unset locally, `notifyLeadActivity(<onb>, <contact>, 'call')` in `npx tsx` returns `'none'`; `'text'` with a `ready` line returns `'sms'` the first time and `'none'` the second time within 30 minutes (throttle), and the contact's timeline shows one "you were sent a text about this lead" alert.
+With `WEB_PUSH_*` unset locally, an AxeonCORE onboarding with a `ready` line and `RESEND_API_KEY` set: in `npx tsx`, `notifyLeadActivity(<onb>, <contact>, 'text', new Date('2026-10-13T18:00:00Z'))` returns `{ pushed: 0, sms: true, email: true }` the first time and `{ pushed: 0, sms: false, email: false }` a second time within 30 minutes (throttle); the contact's timeline shows one "you were sent a text about this lead" and one "you were emailed about this lead". With `new Date('2026-10-14T03:00:00Z')` (10 pm Central) on a fresh contact it returns `{ pushed: 0, sms: false, email: true }`. `deliverLead` through the admin's "Send test lead" still reports the text as before (no `contactId`, `test: true`).
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 9: Commit**
 
 ```bash
-git add lib/leadNotify.ts app/api/phone app/api/lead lib
-git commit -m "feat(inbox): lead alerts go push-first with a throttled text fallback
+git add lib/leadNotify.ts lib/emailLogShared.ts lib/email.ts lib/leadShared.ts lib/leadShared.test.ts lib/leads.ts app/api/lead/route.ts app/api/phone/sms/route.ts app/api/phone/voice/status/route.ts
+git commit -m "feat(inbox): lead alerts go push-first with a quiet-hours text and email fallback
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR"
 ```
 
 ---
 
-### Task 11: The Leads tab becomes the inbox
+### Task 11: The Leads tab becomes the inbox (AxeonCORE and up); Essentials unchanged
 
 **Files:**
-- Modify: `lib/proofDashboardData.ts` (load the inbox for the Leads tab; hide matched taps from the anonymous list; pass the push key)
+- Modify: `lib/proofDashboardData.ts` (load the inbox for the Leads tab; skip the separate form list for inbox clients; hide matched taps from the anonymous list; pass the push key)
+- Modify: `components/proof/LeadStageTaps.tsx` (optional `target` and `onSaved` props; default behaviour unchanged)
 - Create: `components/proof/InboxTab.tsx`
-- Modify: `components/proof/ProofDashboard.tsx` (new props; Leads branch; header button)
+- Modify: `components/proof/ProofDashboard.tsx` (new props; inbox branch added in front of today's Leads branch; header button)
 - Modify: `app/proof/page.tsx` and `app/admin/onboarding/[token]/preview/page.tsx` (`?contact=`)
 
 **Interfaces:**
-- Consumes: `listInbox`, `contactTimeline`, `attachedClickIds` (Task 4); `inboxEnabled`, `parseContactId`, `DashboardInbox` and the display helpers (Task 2); `NotificationsButton` (Task 9); `getLine` and `line.timeZone` (A3); `LeadLog` (existing).
+- Consumes: `listInbox`, `contactTimeline`, `attachedClickIds` (Task 4); `inboxEnabled`, `parseContactId`, `textingState`, `replyBlocker`, `DashboardInbox` and the display helpers (Task 2); `NotificationsButton` (Task 9); `getLine` and `line.timeZone` (A3); `DEFAULT_TIME_ZONE` (`lib/phoneShared.ts`); `LeadLog`, `FormLeads`, `LeadStageTaps` (existing); `POST /api/proof/leads/stage` `{ contactId, action }` (Task 8).
 - Produces:
   - `loadDashboardData(onboarding, tab = 'overview', opts: { contactId?: number | null } = {})`; `DashboardData` gains `inbox: DashboardInbox | null` and `pushKey: string | null`.
-  - `ProofDashboard` props `inbox?: DashboardInbox | null`, `inboxApi?: string | null` (null = read-only), `pushKey?: string | null`.
-  - `<InboxTab inbox={…} api={…} />`.
+  - `ProofDashboard` props `inbox?: DashboardInbox | null`, `inboxApi?: string | null` (null = read-only), `pushKey?: string | null`; `stageApi` unchanged.
+  - `<LeadStageTaps … target?: 'form' | 'contact'; onSaved?: () => void />`: `'form'` (default) posts `{ id, action }` exactly as today; `'contact'` posts `{ contactId: id, action }`.
+  - `<InboxTab inbox={…} api={…} stageApi={…} />`.
 
 - [ ] **Step 1: Load the inbox in `lib/proofDashboardData.ts`**
 
@@ -3172,7 +3665,19 @@ Add the imports:
 
 ```ts
 import { attachedClickIds, contactTimeline, listInbox } from '@/lib/contacts';
-import { DEFAULT_TIME_ZONE, inboxEnabled, type DashboardInbox } from '@/lib/contactsShared';
+import { inboxEnabled, textingState, type DashboardInbox } from '@/lib/contactsShared';
+```
+
+and change
+
+```ts
+import { toDashboardCall, type CallsSummary, type DashboardCall } from '@/lib/phoneShared';
+```
+
+to
+
+```ts
+import { DEFAULT_TIME_ZONE, toDashboardCall, type CallsSummary, type DashboardCall } from '@/lib/phoneShared';
 ```
 
 Change the `DashboardData` type so the page-level props stay outside it:
@@ -3187,11 +3692,34 @@ Change the signature:
 export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey = 'overview', opts: { contactId?: number | null } = {}): Promise<DashboardData> {
 ```
 
+Replace
+
+```ts
+  const [thisMonth, lastMonth, thisForms, lastForms] = await Promise.all([
+    monthTraffic(onboarding.id, month, effectiveCloseRate(tracking)),
+    monthTraffic(onboarding.id, previous, effectiveCloseRate(tracking)),
+    listSubmissions(onboarding.id, month),
+    listSubmissions(onboarding.id, previous),
+  ]);
+```
+
+with
+
+```ts
+  // AxeonCORE and up get the leads inbox, where every form is a contact; the separate form list is Essentials' view.
+  const inboxOn = inboxEnabled(onboarding.tier);
+  const [thisMonth, lastMonth, thisForms, lastForms] = await Promise.all([
+    monthTraffic(onboarding.id, month, effectiveCloseRate(tracking)),
+    monthTraffic(onboarding.id, previous, effectiveCloseRate(tracking)),
+    inboxOn ? Promise.resolve([]) : listSubmissions(onboarding.id, month),
+    inboxOn ? Promise.resolve([]) : listSubmissions(onboarding.id, previous),
+  ]);
+```
+
 After the `const phone: DashboardPhone | null = …;` block, add:
 
 ```ts
-  // The leads inbox (AxeonCORE and up): loaded only for the Leads tab; ?contact=<id> opens one person.
-  const inboxOn = inboxEnabled(onboarding.tier);
+  // The leads inbox: loaded only for the Leads tab; ?contact=<id> opens one person.
   const inbox: DashboardInbox | null =
     inboxOn && tab === 'leads'
       ? await (async (): Promise<DashboardInbox> => {
@@ -3199,20 +3727,24 @@ After the `const phone: DashboardPhone | null = …;` block, add:
             listInbox(onboarding.id, { limit: 50 }),
             opts.contactId ? contactTimeline(onboarding.id, opts.contactId) : Promise.resolve(null),
           ]);
-          return {
-            ...list,
-            selected,
-            timeZone: line?.timeZone ?? DEFAULT_TIME_ZONE,
-            texting: !line ? 'none' : line.smsStatus === 'ready' ? 'ready' : 'pending',
-          };
+          return { ...list, selected, timeZone: line?.timeZone ?? DEFAULT_TIME_ZONE, texting: textingState(line) };
         })()
       : null;
   // Taps already matched to a caller live in the inbox; the anonymous list keeps the rest.
-  const attached = inboxOn ? await attachedClickIds(onboarding.id, [...thisLeads, ...lastLeads].map((r) => r.id)) : new Set<number>();
+  const attached = inboxOn && tab === 'leads' ? await attachedClickIds(onboarding.id, [...thisLeads, ...lastLeads].map((r) => r.id)) : new Set<number>();
   const pushKey = inboxOn && process.env.WEB_PUSH_PUBLIC_KEY && process.env.WEB_PUSH_PRIVATE_KEY ? process.env.WEB_PUSH_PUBLIC_KEY : null;
 ```
 
-In the returned object, change the two lead months to filter matched taps out:
+In the returned object, replace
+
+```ts
+    leads: [
+      { month, label: `${monthLabel(month)} so far`, rows: thisLeads },
+      { month: previous, label: monthLabel(previous), rows: lastLeads },
+    ],
+```
+
+with
 
 ```ts
     leads: [
@@ -3221,14 +3753,81 @@ In the returned object, change the two lead months to filter matched taps out:
     ],
 ```
 
-and add, next to `phone,`:
+and replace `    phone,` with:
 
 ```ts
+    phone,
     inbox,
     pushKey,
 ```
 
-- [ ] **Step 2: Write the inbox tab**
+(The `forms` entry stays as it is; for inbox clients it is two empty months.)
+
+- [ ] **Step 2: Let `LeadStageTaps` post for a contact (`components/proof/LeadStageTaps.tsx`)**
+
+Same taps, labels, Job done confirm and notes; two optional props. With neither passed, the component behaves exactly as today, so `FormLeads` is untouched.
+
+Add to the header comment, after its last line:
+
+```ts
+// The leads inbox (slice 4) reuses it with target="contact": the same taps post
+// { contactId, action }, and onSaved lets the inbox refresh its list.
+```
+
+Replace
+
+```tsx
+export function LeadStageTaps({ id, stage, quoteSent: initialQuoteSent, api }: { id: number; stage: LeadStage; quoteSent: boolean; api: string | null }) {
+```
+
+with
+
+```tsx
+export function LeadStageTaps({
+  id,
+  stage,
+  quoteSent: initialQuoteSent,
+  api,
+  target = 'form',
+  onSaved,
+}: {
+  id: number;
+  stage: LeadStage;
+  quoteSent: boolean;
+  api: string | null;
+  /** 'form' posts { id, action } (a form lead, slice 3); 'contact' posts { contactId, action } (an inbox contact, slice 4). */
+  target?: 'form' | 'contact';
+  /** Called after a tap saved, e.g. to refresh the inbox list. */
+  onSaved?: () => void;
+}) {
+```
+
+Replace
+
+```tsx
+      const res = await fetch(api, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, action }) });
+```
+
+with
+
+```tsx
+      const res = await fetch(api, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(target === 'contact' ? { contactId: id, action } : { id, action }) });
+```
+
+and replace
+
+```tsx
+      else if (started.includes('review')) setNote('The review request goes out in about two hours.');
+```
+
+with
+
+```tsx
+      else if (started.includes('review')) setNote('The review request goes out in about two hours.');
+      onSaved?.();
+```
+
+- [ ] **Step 3: Write the inbox tab**
 
 ```tsx
 'use client';
@@ -3238,19 +3837,23 @@ and add, next to `phone,`:
 // person who reached out, newest activity first, and that person's page: who
 // they are, where they came from, a stage, every call, text and form in order
 // with the recording attached, and a reply box that texts from the client's
-// tracked number. Everything arrives pre-masked from the server (lib/contacts.ts);
-// no full number is ever in this component. `api` is null in the admin's "View
-// as client", which makes the tab read-only. Not a CRM: no tasks, no pipeline
-// board, no custom fields.
+// tracked number. The stage taps are slice 3's (LeadStageTaps: Quote sent,
+// Talked to them, Booked, Job done, Not a fit), posting { contactId } to the
+// same stage route. Everything arrives pre-masked from the server
+// (lib/contacts.ts); no full number is ever in this component. `api` and
+// `stageApi` are null in the admin's "View as client", which makes the tab
+// read-only. Not a CRM: no tasks, no pipeline board, no custom fields.
 import Link from 'next/link';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Bell, Bot, CalendarCheck, FileText, Mail, MessageSquare, MousePointerClick, PhoneCall, Send, StickyNote } from 'lucide-react';
+import { LeadStageTaps } from '@/components/proof/LeadStageTaps';
 import {
-  CONTACT_STAGES, REPLY_REFUSAL_COPY, STAGE_LABELS, canReplyNow, formatWhen, quietNotice, relativeWhen, shortName,
-  type ContactAction, type ContactEventKind, type ContactStage, type DashboardContact, type DashboardContactView, type DashboardEvent, type DashboardInbox,
+  REPLY_REFUSAL_COPY, STAGE_LABELS, canReplyNow, formatWhen, quietNotice, relativeWhen, replyBlocker, shortName,
+  type ContactEventKind, type DashboardContact, type DashboardContactView, type DashboardEvent, type DashboardInbox,
 } from '@/lib/contactsShared';
 import { SMS_MAX_CHARS } from '@/lib/phoneShared';
+import type { LeadStage } from '@/lib/sequenceShared';
 
 type Icon = typeof PhoneCall;
 
@@ -3259,7 +3862,7 @@ const KIND_ICONS: Record<ContactEventKind, Icon> = {
   click: MousePointerClick, note: StickyNote, alert: Bell, sequence: MessageSquare, reminder: CalendarCheck, messenger: MessageSquare, instagram: MessageSquare,
 };
 
-const STAGE_TONES: Record<ContactStage, string> = {
+const STAGE_TONES: Record<LeadStage, string> = {
   new: 'bg-blue-50 text-blue-800 ring-blue-200',
   contacted: 'bg-amber-50 text-amber-800 ring-amber-200',
   booked: 'bg-violet-50 text-violet-800 ring-violet-200',
@@ -3269,7 +3872,7 @@ const STAGE_TONES: Record<ContactStage, string> = {
 
 const OUTGOING: readonly ContactEventKind[] = ['text_out', 'sequence', 'reminder'];
 
-function StageBadge({ stage }: { stage: ContactStage }) {
+function StageBadge({ stage }: { stage: LeadStage }) {
   return <span className={`inline-flex shrink-0 rounded-md px-2 py-0.5 text-xs font-semibold ring-1 ${STAGE_TONES[stage]}`}>{STAGE_LABELS[stage]}</span>;
 }
 
@@ -3404,55 +4007,19 @@ function NameLine({ contact, api }: { contact: DashboardContact; api: string | n
   );
 }
 
-function StageChips({ contact, api }: { contact: DashboardContact; api: string | null }) {
+/** Slice 3's taps on this contact. Read-only chips when stageApi is null (admin preview). */
+function StageLine({ contact, stageApi }: { contact: DashboardContact; stageApi: string | null }) {
   const router = useRouter();
-  const [busy, setBusy] = useState<ContactAction | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  async function act(action: ContactAction) {
-    if (!api) return;
-    setBusy(action);
-    setError(null);
-    try {
-      const res = await fetch(`${api}/${contact.id}/stage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action }) });
-      if (!res.ok) throw new Error(errorText(await res.json().catch(() => null), 'That did not save. Try again.'));
-      router.refresh();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'That did not save. Try again.');
-    } finally {
-      setBusy(null);
-    }
-  }
-
   return (
     <div className="mt-4">
-      <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Stage">
-        {CONTACT_STAGES.map((s) => {
-          const active = s === contact.stage;
-          return (
-            <button
-              key={s}
-              type="button"
-              aria-pressed={active}
-              disabled={!api || busy !== null}
-              onClick={() => (active ? undefined : act(s))}
-              className={`rounded-full px-3 py-1 text-xs font-semibold ring-1 transition-colors disabled:cursor-default ${active ? STAGE_TONES[s] : 'bg-white text-neutral-600 ring-neutral-200 hover:bg-neutral-50'}`}
-            >
-              {busy === s ? 'Saving…' : STAGE_LABELS[s]}
-            </button>
-          );
-        })}
-        <button
-          type="button"
-          disabled={!api || busy !== null}
-          onClick={() => act('quote_sent')}
-          className="ml-1 rounded-full px-3 py-1 text-xs font-semibold text-blue-700 ring-1 ring-blue-200 hover:bg-blue-50 disabled:cursor-default disabled:opacity-60"
-        >
-          {busy === 'quote_sent' ? 'Saving…' : 'Quote sent'}
-        </button>
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-semibold text-neutral-500">Stage</span>
+        <StageBadge stage={contact.stage} />
       </div>
-      <p className="mt-2 text-xs text-neutral-500">Won and Lost count toward your close rate.</p>
-      {error ? <p role="alert" className="mt-1 text-xs text-red-700">{error}</p> : null}
+      <div className="mt-2">
+        <LeadStageTaps id={contact.id} stage={contact.stage} quoteSent={contact.quoteSent} api={stageApi} target="contact" onSaved={() => router.refresh()} />
+      </div>
+      <p className="mt-2 text-xs text-neutral-500">Job done and Not a fit count toward your close rate.</p>
     </div>
   );
 }
@@ -3518,7 +4085,8 @@ function ReplyBox({ contact, api, timeZone, texting }: { contact: DashboardConta
     setQuiet(w.ok ? null : quietNotice(w.sendAt, timeZone, false));
   }, [timeZone]);
 
-  const blocked = contact.optedOut ? 'opted_out' : !contact.hasPhone ? 'no_phone' : texting === 'none' ? 'no_line' : texting === 'pending' ? 'sms_pending' : null;
+  // The same order the server refuses in (lib/contactsShared.ts replyBlocker).
+  const blocked = replyBlocker({ hasPhone: contact.hasPhone, optedOut: contact.optedOut, texting });
 
   async function send(e: FormEvent) {
     e.preventDefault();
@@ -3546,7 +4114,7 @@ function ReplyBox({ contact, api, timeZone, texting }: { contact: DashboardConta
       <div className="border-t border-neutral-100 p-4">
         {blocked === 'opted_out' ? (
           <p role="status" className="rounded-lg bg-amber-50 px-3 py-2 text-sm font-medium text-amber-900 ring-1 ring-amber-200">
-            This person asked not to be texted.
+            {REPLY_REFUSAL_COPY.opted_out}
           </p>
         ) : (
           <p className="text-sm text-neutral-500">{REPLY_REFUSAL_COPY[blocked]}</p>
@@ -3587,7 +4155,7 @@ function ReplyBox({ contact, api, timeZone, texting }: { contact: DashboardConta
   );
 }
 
-function ContactView({ view, api, timeZone, texting }: { view: DashboardContactView; api: string | null; timeZone: string; texting: DashboardInbox['texting'] }) {
+function ContactView({ view, api, stageApi, timeZone, texting }: { view: DashboardContactView; api: string | null; stageApi: string | null; timeZone: string; texting: DashboardInbox['texting'] }) {
   const c = view.contact;
   const timeline = useRef<HTMLOListElement>(null);
   // Newest at the bottom, next to the reply box, like any text thread.
@@ -3624,7 +4192,7 @@ function ContactView({ view, api, timeZone, texting }: { view: DashboardContactV
             <dd className="inline font-medium text-neutral-800">{formatWhen(c.lastActivityAt)}</dd>
           </div>
         </dl>
-        <StageChips contact={c} api={api} />
+        <StageLine contact={c} stageApi={stageApi} />
       </header>
       <ol ref={timeline} className="max-h-[60vh] space-y-4 overflow-y-auto p-4" aria-label="Everything from this lead">
         {view.events.length === 0 ? <li className="text-sm text-neutral-500">Nothing yet.</li> : view.events.map((e) => <EventItem key={e.id} e={e} api={api} />)}
@@ -3632,7 +4200,7 @@ function ContactView({ view, api, timeZone, texting }: { view: DashboardContactV
           <li key={`held-${h.id}`} className="flex justify-end">
             <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ring-1 ${h.status === 'failed' ? 'bg-red-50 text-red-900 ring-red-200' : 'bg-amber-50 text-amber-950 ring-amber-200'}`}>
               <p className="whitespace-pre-wrap break-words">{h.body}</p>
-              <p className="mt-1 text-[11px]">{h.status === 'failed' ? 'This text did not go out. Send it again from the box below.' : quietNotice(h.sendAt, timeZone, true)}</p>
+              <p className="mt-1 text-[11px]">{h.status === 'failed' ? 'This text may not have gone out. Check with them, or send it again from the box below.' : quietNotice(h.sendAt, timeZone, true)}</p>
             </div>
           </li>
         ))}
@@ -3642,7 +4210,7 @@ function ContactView({ view, api, timeZone, texting }: { view: DashboardContactV
   );
 }
 
-export function InboxTab({ inbox, api }: { inbox: DashboardInbox; api: string | null }) {
+export function InboxTab({ inbox, api, stageApi }: { inbox: DashboardInbox; api: string | null; stageApi: string | null }) {
   const selected = inbox.selected;
   return (
     <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(300px,400px)_1fr]">
@@ -3651,7 +4219,7 @@ export function InboxTab({ inbox, api }: { inbox: DashboardInbox; api: string | 
       </div>
       <div className={selected ? '' : 'hidden lg:block'}>
         {selected ? (
-          <ContactView key={selected.contact.id} view={selected} api={api} timeZone={inbox.timeZone} texting={inbox.texting} />
+          <ContactView key={selected.contact.id} view={selected} api={api} stageApi={stageApi} timeZone={inbox.timeZone} texting={inbox.texting} />
         ) : (
           <div className="rounded-2xl border border-dashed border-neutral-300 p-8 text-center text-sm text-neutral-500">
             Pick a lead to see every call, text and form from them, and to text them back.
@@ -3663,7 +4231,7 @@ export function InboxTab({ inbox, api }: { inbox: DashboardInbox; api: string | 
 }
 ```
 
-- [ ] **Step 3: Wire it into `components/proof/ProofDashboard.tsx`**
+- [ ] **Step 4: Wire it into `components/proof/ProofDashboard.tsx`**
 
 Add the imports:
 
@@ -3684,7 +4252,7 @@ Add to the destructured props (after `phone = null,`):
 and to the props type (after `phone?: DashboardPhone | null;`):
 
 ```tsx
-  /** The leads inbox for AxeonCORE and up, loaded for the Leads tab only (lib/proofDashboardData.ts). Null: today's Leads list. */
+  /** The leads inbox for AxeonCORE and up, loaded for the Leads tab only (lib/proofDashboardData.ts). Null: today's Leads tab. */
   inbox?: DashboardInbox | null;
   /** Where the inbox calls home: '/api/proof/inbox' on the client's page; null in the admin preview (read-only). */
   inboxApi?: string | null;
@@ -3698,7 +4266,15 @@ In the header row, inside `<div className="flex items-center gap-2">` (the one h
             {pushKey && !preview ? <NotificationsButton publicKey={pushKey} /> : null}
 ```
 
-Replace the Leads branch, from `tab === 'leads' ? (` up to (not including) `) : tab === 'email' ? (`, with:
+Then, in the Leads branch, replace exactly
+
+```tsx
+          tab === 'leads' ? (
+            <div className="mt-6">
+              <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Included in your plan</p>
+```
+
+with
 
 ```tsx
           tab === 'leads' ? (
@@ -3709,7 +4285,7 @@ Replace the Leads branch, from `tab === 'leads' ? (` up to (not including) `) : 
                 <p className="mt-2 max-w-2xl text-sm text-neutral-600">
                   Everyone who called, texted or sent your form, newest first. Tap a person to see everything from them, mark how it went, and text them back from your tracked number.
                 </p>
-                <InboxTab inbox={inbox} api={preview ? null : inboxApi} />
+                <InboxTab inbox={inbox} api={preview ? null : inboxApi} stageApi={preview ? null : stageApi} />
                 {leads.some((m) => m.rows.length > 0) ? (
                   <div className="mt-10">
                     <h3 className="text-base font-semibold text-neutral-950">Website taps we could not match to a caller</h3>
@@ -3721,27 +4297,34 @@ Replace the Leads branch, from `tab === 'leads' ? (` up to (not including) `) : 
                 ) : null}
               </div>
             ) : (
-              <div className="mt-6">
-                <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Included in your plan</p>
-                <h2 className="mt-3 text-2xl font-bold tracking-tight text-neutral-950">Leads</h2>
-                <p className="mt-2 max-w-2xl text-sm text-neutral-600">Every call, text, email, form and booking from your site, the day it happens. Tap Booked on the ones that turned into a job and your numbers get more exact every month.</p>
-                {leads.some((m) => m.rows.length > 0) ? (
-                  <LeadLog months={leads} api={leadApi} />
-                ) : (
-                  <Card className="mt-4 p-8 text-center">
-                    <p className="text-sm font-semibold text-neutral-900">No one has reached out yet this month.</p>
-                    <p className="mt-1 text-sm text-neutral-500">Calls, texts, forms and bookings from your site show up here within a minute.</p>
-                  </Card>
-                )}
-              </div>
-            )
+            <div className="mt-6">
+              <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Included in your plan</p>
 ```
 
-The `: (` branch is today's Leads tab exactly as it is in the file now. If slice 2 added its form-submission list to that block, it stays in this Essentials branch only; if slice 3 added stage buttons (Quote sent and the like) to it, remove them from the dashboard: the inbox has them, and `/api/proof/leads/stage` (Task 8) still accepts their posts.
+and replace exactly
 
-- [ ] **Step 4: Pass `?contact=` from both pages**
+```tsx
+                </Card>
+              )}
+            </div>
+          ) : tab === 'email' ? (
+```
 
-`app/proof/page.tsx`, whole file:
+with
+
+```tsx
+                </Card>
+              )}
+            </div>
+            )
+          ) : tab === 'email' ? (
+```
+
+Everything between those two edits, today's Leads tab (its heading, `{forms.some((m) => m.rows.length > 0) ? <FormLeads months={forms} stageApi={preview ? null : stageApi} /> : null}`, the `LeadLog`, and the empty-state `Card`), is left byte for byte as it is: it is now the Essentials branch. (Run the formatter on the file afterwards if the repo's style wants that block re-indented; no content changes.)
+
+- [ ] **Step 5: Pass `?contact=` from both pages**
+
+`app/proof/page.tsx`, whole file (it keeps `stageApi`):
 
 ```tsx
 // app/proof/page.tsx
@@ -3774,35 +4357,47 @@ export default async function ProofPage({ searchParams }: { searchParams: Promis
 
   const key = isProofTab(tab) ? tab : 'overview';
   const data = await loadDashboardData(onboarding, key, { contactId: parseContactId(contact) });
-  return <ProofDashboard email={account.email} {...data} leadApi="/api/proof/leads" inboxApi="/api/proof/inbox" scanApi="/api/proof/scan" tab={key} />;
+  return (
+    <ProofDashboard
+      email={account.email}
+      {...data}
+      leadApi="/api/proof/leads"
+      stageApi="/api/proof/leads/stage"
+      inboxApi="/api/proof/inbox"
+      scanApi="/api/proof/scan"
+      tab={key}
+    />
+  );
 }
 ```
 
 (A signed-out tap on a notification lands on the sign-in page; after signing in the client opens Leads. The sign-in form's redirect is unchanged in this slice.)
 
-In `app/admin/onboarding/[token]/preview/page.tsx`: change the `searchParams` type to `Promise<{ tab?: string; contact?: string }>`, read `const { tab, contact } = await searchParams;`, add `import { parseContactId } from '@/lib/contactsShared';`, and load with `loadDashboardData(onboarding, key, { contactId: parseContactId(contact) })`. Pass no `inboxApi`: the preview's inbox is read-only (no reply, no stage taps, no Email button, recordings shown as "Recorded").
+In `app/admin/onboarding/[token]/preview/page.tsx`: change the `searchParams` type to `Promise<{ tab?: string; contact?: string }>`, replace `const { tab } = await searchParams;` with `const { tab, contact } = await searchParams;`, add `import { parseContactId } from '@/lib/contactsShared';`, and replace `const data = await loadDashboardData(onboarding, key);` with `const data = await loadDashboardData(onboarding, key, { contactId: parseContactId(contact) });`. Pass no `inboxApi` and no `stageApi` (as today): the preview's inbox is read-only (no reply, read-only stage chips, no Email button, recordings shown as "Recorded").
 
-- [ ] **Step 5: Type-check, build and look at it**
+- [ ] **Step 6: Type-check, build and look at it**
 
 Run: `npm run lint && npm run build`
 Expected: clean; build succeeds.
 
 `npm run dev`, then as an AxeonCORE test client with the backfill run (Task 8) and a line:
 
-1. Leads tab: one row per person, newest first; rows read like `Mike R. · (515) 555-01··` / `Called · 2 min ago · missed, texted back`.
-2. Tap a row: the URL gains `&contact=<id>`; header, stage chips, timeline (calls with a player, texts as bubbles with "sent automatically" on the text-back, forms with their fields), reply box. On a phone the list hides and "All leads" goes back.
-3. View source / React DevTools props: no `+1` number and no full email anywhere (Review Focus 1).
-4. An opted-out contact shows "This person asked not to be texted." and no reply box. A contact with only an email shows the email copy and an Email button.
-5. Admin "View as client" → Leads: same list and timeline, no reply box ("Read-only preview"), chips disabled, no Email button, no notifications button.
-6. An Essentials client's Leads tab is unchanged.
+1. Leads tab: one row per person, newest first; rows read like `Mike R. · (515) 555-01··` / `Called · 2 min ago · missed, texted back`. No "Messages from your website form" list: those forms are contacts here.
+2. Tap a row: the URL gains `&contact=<id>`; header, stage badge and slice 3's taps (Quote sent, Talked to them, Booked, Job done, Not a fit; Job done asks first), timeline (calls with a player, texts as bubbles with "sent automatically" on the text-back, forms with their fields, a `Tapped "…"` note per tap), reply box. On a phone the list hides and "All leads" goes back.
+3. Tap Booked: the badge and the list row change to Booked after the refresh; the matching form row in the database has `stage = 'booked'`.
+4. View source / React DevTools props: no `+1` number and no full email anywhere (Review Focus 1).
+5. An opted-out contact shows "This person asked not to be texted." and no reply box. A contact with only an email shows the email copy and an Email button.
+6. Admin "View as client" → Leads: same list and timeline, no reply box ("Read-only preview"), stage chips read-only, no Email button, no notifications button.
+7. An Essentials client's Leads tab is unchanged: the form list with its taps (which still save), the tracker list, and the empty state.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
-git add lib/proofDashboardData.ts components/proof/InboxTab.tsx components/proof/ProofDashboard.tsx app/proof/page.tsx "app/admin/onboarding/[token]/preview/page.tsx"
+git add lib/proofDashboardData.ts components/proof/LeadStageTaps.tsx components/proof/InboxTab.tsx components/proof/ProofDashboard.tsx app/proof/page.tsx "app/admin/onboarding/[token]/preview/page.tsx"
 git commit -m "feat(inbox): Leads tab becomes the leads inbox for AxeonCORE and up
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR"
 ```
 
 ---
@@ -3825,7 +4420,7 @@ After the Twilio block (after `PHONE_WEBHOOK_ORIGIN=`), add:
 
 # --- Web push (lib/push.ts): lead notifications in AxeonPROOF ---
 # Generate once with: npx web-push generate-vapid-keys
-# Without them every lead alert falls back to a text to the owner's cell.
+# Without them every lead alert falls back to a text to the owner's cell (not 8 pm to 8 am) and an email.
 WEB_PUSH_PUBLIC_KEY=
 WEB_PUSH_PRIVATE_KEY=
 # Optional. Contact for the push services; default mailto:hello@axeonstudio.co
@@ -3846,50 +4441,62 @@ The PROOF Leads tab is one list of every person who reached out: a contact per
 phone number or email, a stage, everything they did in order, and a reply box.
 It is not a CRM: no tasks, pipeline board, custom fields or import. A client who
 needs those runs Jobber, Housecall Pro or ServiceTitan, and the right answer is a
-"send booked leads to" integration, built when a client asks.
+"send booked leads to" integration, built when a client asks. Essentials keeps
+the Leads tab it had (form list with taps, tracker list).
 
 | Piece | Where |
 | --- | --- |
-| Rules, masking, quiet hours (client-safe) | `lib/contactsShared.ts` |
-| Contacts, merge, stage, projections, backfill | `lib/contacts.ts` |
+| Rules, masking, reply order (client-safe) | `lib/contactsShared.ts` |
+| Contacts, merge, projections, backfill | `lib/contacts.ts` |
+| Stage taps (form leads and contacts) | `lib/leadStages.ts` (`applyLeadStage`, `formContactStore`, `contactStore`), `POST /api/proof/leads/stage` `{ id }` or `{ contactId }` |
 | Replies and held replies | `lib/inboxReply.ts`, `/api/cron/held-replies` (every 15 min) |
 | Push | `lib/pushShared.ts`, `lib/push.ts`, `public/sw.js`, `public/proof.webmanifest` |
-| Alerts (push first, text fallback) | `lib/leadNotify.ts` |
-| Client API | `/api/proof/inbox`, `/api/proof/inbox/<id>` (+ `/reply`, `/stage`, `/email`), `/api/proof/push/subscribe` |
+| Alerts (push first, text and email fallback) | `lib/leadNotify.ts`; forms in `deliverLead` (`lib/leads.ts`) |
+| Client API | `/api/proof/inbox`, `/api/proof/inbox/<id>` (+ `/reply`, `/email`), `/api/proof/push/subscribe` |
 | Admin | `POST /api/admin/contacts/backfill` `{ onboardingId? }` |
-| UI | `components/proof/InboxTab.tsx`, `components/proof/NotificationsButton.tsx` |
+| UI | `components/proof/InboxTab.tsx`, `components/proof/NotificationsButton.tsx`, `LeadStageTaps` (`target="contact"`) |
 | Tables | `contacts`, `contact_events`, `push_subscriptions`, `held_replies` |
-| Tests | `npm run test:inbox` |
+| Tests | `npm run test:inbox` (plus `test:sequences` for the stage engine) |
 
 **How a lead becomes a contact.** Every producer writes its own table first
 (`phone_calls`, `phone_messages`, `form_submissions`), then calls one projection
 in `lib/contacts.ts`. The projection re-reads the source row and upserts one
 `contact_events` row keyed on the source row, so retries and re-runs never
-double anything. A phone number is the identity; a form with only an email is
-keyed by email. When one event carries the phone of one contact and the email of
-another, the two merge into the older one. A tap on the site's call or text
-button joins a brand-new caller or texter who shows up within 10 minutes; any
-other tap stays in "Website taps we could not match to a caller" below the inbox.
+double anything. Only the lead's own action creates a contact (a call, a text to
+the tracked number, a form); texts and follow-up emails we send join a contact
+that already exists and never create one. Admin test leads never become
+contacts. A phone number is the identity; a form with only an email is keyed by
+email. When one event carries the phone of one contact and the email of another,
+the two merge into the older one. A tap on the site's call or text button joins a
+brand-new caller or texter who shows up within 10 minutes; any other tap stays in
+"Website taps we could not match to a caller" below the inbox.
 
-**Stages.** New, Contacted, Booked, Won, Lost, plus a "Quote sent" tap. An
+**Stages.** New, Contacted, Booked, Won, Lost. The client taps slice 3's buttons:
+Quote sent, Talked to them, Booked, Job done (Won), Not a fit (Lost), on a form
+lead (Essentials and up) or on a contact (inbox). Both go through the same
+`applyLeadStage`, and the form and its contact always show the same stage. An
 answered call or a typed reply moves New to Contacted by itself; code never moves
-a contact backwards or off Won/Lost. Contacted stops the new-lead follow-up;
-Booked, Won and Lost stop the quote follow-up too; Won starts the review request;
-"Quote sent" starts the quote follow-up. Won and Lost count toward the client's
+a contact backwards or off Won/Lost. Contacted, Booked, Won and Lost stop the
+new-lead and quote follow-ups; Won starts the review request; Quote sent starts
+the quote follow-up (`STAGE_EFFECTS`). Won and Lost count toward the client's
 close rate: through the matched website tap if there is one, directly otherwise.
 
 **Replies** go out from the tracked number through `sendClientSms`, so the opt-out
-list and the 10DLC gate apply. Between 9 pm and 8 am client-local a reply is held
-and sent at 8 am; the client sees when. Email replies open the client's mail app.
+list and the 10DLC gate apply. Between 8 pm and 8 am client-local a reply is held
+and sent at 8 am; the client sees when. A held reply whose send was interrupted
+shows as "may not have gone out" and is never sent twice. Email replies open the
+client's mail app.
 
-**Privacy.** The browser only gets masked numbers and emails. A push says "New
-text from a lead" and links to the lead, nothing else. Recordings play through
+**Privacy.** The browser only gets masked numbers and emails. A push, the
+fallback text and the fallback email say "New text from a lead" (or "Missed
+call", "New form") and link to the lead, nothing else. Recordings play through
 the signed-in recording route.
 
 **Push.** "Turn on notifications" in the PROOF header. On an iPhone, PROOF must be
-added to the Home Screen first (the button explains). With no device turned on,
-an inbound text sends the owner one text per lead per 30 minutes; a form uses
-slice 2's alert text; a missed call sends nothing extra (their phone already shows it).
+added to the Home Screen first (the button explains). With no device turned on:
+an inbound text or a missed call sends the owner one text (never 8 pm to 8 am)
+and one email per lead per 30 minutes; a form uses slice 2's alert text, and
+slice 2's lead email always goes.
 ```
 
 In the `## Environment variables` table, add:
@@ -3902,7 +4509,7 @@ In the `## Environment variables` table, add:
 
 - [ ] **Step 3: Full check**
 
-Run: `npm run test:inbox && npm run test:phone && npm run test:onboarding && npm run lint && npm run build`
+Run: `npm run test:inbox && npm run test:sequences && npm run test:leads && npm run test:phone && npm run test:onboarding && npm run lint && npm run build`
 Expected: all PASS, clean, build succeeds.
 
 - [ ] **Step 4: Commit**
@@ -3911,19 +4518,21 @@ Expected: all PASS, clean, build succeeds.
 git add docs/onboarding.md .env.example
 git commit -m "docs(inbox): the leads inbox, push keys, go-live
 
-Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01YQUJc6ai2kbkCaDk39UxNR"
 ```
 
 - [ ] **Step 5: Go-live (owner, not code)**
 
 1. **VAPID keys.** Run `npx web-push generate-vapid-keys` once. In Vercel (Production and Preview) set `WEB_PUSH_PUBLIC_KEY`, `WEB_PUSH_PRIVATE_KEY`, and `WEB_PUSH_SUBJECT=mailto:hello@axeonstudio.co`. Redeploy. Keep the private key only in Vercel.
 2. **Tables.** They create themselves on the first request (`ensureSchema`); `npm run db:init` against production does the same.
-3. **Backfill once.** Signed in to the admin on `app.axeonstudio.co`, in the browser console: `await (await fetch('/api/admin/contacts/backfill', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })).json()`. Each client's `calls`, `messages` and `forms` should match the counts of those rows (minus withheld callers and owner alerts). Running it again returns the same numbers and adds nothing.
-4. **Retire slice 3's temporary table.** After the backfill shows `stagesCopied` for the clients who had taps: `psql "$POSTGRES_URL" -c "DROP TABLE IF EXISTS lead_stages;"`.
-5. **Cron.** Vercel → Settings → Cron Jobs lists `/api/cron/held-replies` every 15 minutes.
-6. **Reply test.** As an AxeonCORE test client whose line is `ready`, with your own cell as the lead: open Leads → your contact → send "Test from PROOF" in the daytime. It arrives from the tracked number; the timeline shows it as yours and the stage moves to Contacted. After 9 pm Central, send another: the box says it goes out at 8:00 AM; it arrives between 8:00 and 8:15.
+3. **Backfill once.** Signed in to the admin on `app.axeonstudio.co`, in the browser console: `await (await fetch('/api/admin/contacts/backfill', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })).json()`. Per client, `calls` should match that client's `phone_calls` rows minus withheld callers and connect calls about test leads; `forms` should match its `form_submissions` rows with `is_test = false`; `messages` counts inbound texts plus outbound texts to someone who is a contact (owner alerts and texts to non-contacts are not counted). `stagesCopied` is the number of contacts that took a stage already tapped on a form in slice 3. Running it again returns the same `calls`, `messages` and `forms`, `stagesCopied: 0`, and adds nothing.
+4. **Cron.** Vercel → Settings → Cron Jobs lists `/api/cron/held-replies` every 15 minutes.
+5. **Reply test.** As an AxeonCORE test client whose line is `ready`, with your own cell as the lead: open Leads → your contact → send "Test from PROOF" in the daytime. It arrives from the tracked number; the timeline shows it as yours and the stage moves to Contacted. After 8 pm Central, send another: the box says it goes out at 8:00 AM; it arrives between 8:00 and 8:15.
+6. **Stage test.** Tap Quote sent on that contact: the quote follow-up starts (the note says so). If the contact came from a form, the same form in an Essentials-style form list (admin "View as client" of an Essentials client, or the database) shows Contacted too.
 7. **Push test, Android.** Chrome on an Android phone, PROOF signed in → "Turn on notifications" → allow. Text the tracked number from another phone: "New text from a lead" arrives with no number or words in it; tapping it opens that contact.
 8. **Push test, iPhone.** Safari → Share → Add to Home Screen → open AxeonPROOF from the Home Screen → "Turn on notifications" → allow → repeat the text.
-9. **Fallback test.** Turn notifications off for PROOF in the phone's settings, text the tracked number twice within a few minutes: the owner's cell gets one "New text from a lead…" text, not two.
+9. **Fallback test.** Turn notifications off for PROOF in the phone's settings, then in the daytime text the tracked number twice within a few minutes: the owner's cell gets one "New text from a lead…" text and the client's email one "New text from a lead" email, not two of either.
 10. **Opt-out test.** Reply STOP from the test phone: the contact shows "This person asked not to be texted." and the reply box is gone.
-11. **Close rate.** Mark a test contact Won, then Lost, then New: the admin's report preview for that client shows the marked count go up by one and back.
+11. **Close rate.** Tap Job done on a test contact, then Not a fit, then Talked to them: the admin's report preview for that client shows the marked count go up by one and back.
+12. **Essentials unchanged.** As an Essentials test client, the Leads tab still shows the form list with its taps; a tap saves and answers as before.
