@@ -25,7 +25,7 @@ export function answerVerification(req: Request): Response {
  * never buffered past the cap. A stream that fails reads as empty (and then
  * fails the signature check).
  */
-async function readRaw(req: Request, max: number): Promise<Buffer | 'too_big'> {
+export async function readRaw(req: Request, max: number): Promise<Buffer | 'too_big'> {
   if (!req.body) return Buffer.alloc(0);
   const reader = req.body.getReader();
   const chunks: Uint8Array[] = [];

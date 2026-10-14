@@ -660,6 +660,8 @@ async function main() {
   `;
   await sql`CREATE INDEX IF NOT EXISTS social_posts_due_idx ON social_posts (status, scheduled_at);`;
   await sql`CREATE INDEX IF NOT EXISTS social_posts_client_idx ON social_posts (onboarding_id, created_at DESC);`;
+  // Matches lib/db.ts: set just before a publish call, cleared only by a clear answer, so a reel is never published twice.
+  await sql`ALTER TABLE social_posts ADD COLUMN IF NOT EXISTS publish_unclear BOOLEAN NOT NULL DEFAULT false;`;
   await sql`
     CREATE TABLE IF NOT EXISTS meta_deletions (
       code_hash TEXT PRIMARY KEY,

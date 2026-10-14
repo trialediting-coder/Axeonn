@@ -11,6 +11,7 @@ import { errText } from '@/lib/dbRows';
 import { SITE_ORIGIN } from '@/lib/hostRouting';
 import { metaUnavailable, parseSignedRequest } from '@/lib/meta';
 import { forgetMetaUser, recordDeletion, type MetaForgetResult } from '@/lib/metaPages';
+import { readRaw } from '@/lib/metaWebhook';
 import { secretRedact } from '@/lib/metaShared';
 
 export type MetaCallbackKind = 'deauthorize' | 'data-deletion';
@@ -42,9 +43,10 @@ const realDeps: MetaCallbackDeps = {
 async function signedRequestFrom(req: Request): Promise<string | null> {
   const declared = Number(req.headers.get('content-length'));
   if (Number.isFinite(declared) && declared > CALLBACK_MAX_BODY) return null;
-  const form = await req.formData().catch(() => null);
-  const value = form?.get('signed_request');
-  return typeof value === 'string' ? value : null;
+  // Streamed with the cap, so a chunked body with no Content-Length is never read past it.
+  const raw = await readRaw(req, CALLBACK_MAX_BODY);
+  if (raw === 'too_big') return null;
+  return new URLSearchParams(raw.toString('utf8')).get('signed_request');
 }
 
 export async function handleMetaCallback(req: Request, kind: MetaCallbackKind, deps: MetaCallbackDeps = realDeps): Promise<Response> {

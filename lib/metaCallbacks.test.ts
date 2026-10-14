@@ -92,6 +92,33 @@ test('an oversized body is refused without parsing', async () => {
   assert.deepEqual(calls.forget, []);
 });
 
+test('a chunked body with no Content-Length is cut off at the cap, not read in full', async () => {
+  const { deps, calls } = stubs();
+  let pulled = 0;
+  const chunk = new TextEncoder().encode(`signed_request=${'a'.repeat(1023)}`.slice(0, 1024));
+  const body = new ReadableStream<Uint8Array>({
+    pull(controller) {
+      pulled += 1;
+      if (pulled > 1000) controller.close();
+      else controller.enqueue(chunk);
+    },
+  });
+  const req = new Request('https://axeonstudio.co/api/meta/data-deletion', {
+    method: 'POST',
+    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    body,
+    duplex: 'half',
+  } as RequestInit & { duplex: 'half' });
+  assert.equal(req.headers.get('content-length'), null);
+  const res = await handleMetaCallback(req, 'data-deletion', deps);
+  assert.equal(res.status, 400);
+  assert.deepEqual(calls.forget, []);
+  assert.ok(pulled * 1024 <= CALLBACK_MAX_BODY + 4 * 1024, `stopped near the cap (read ${pulled} KB)`);
+  // A normal streamed form still works.
+  const ok = await handleMetaCallback(post(form(SIGNED_REQUEST)), 'deauthorize', deps);
+  assert.equal(ok.status, 200);
+});
+
 test('a storage failure is a 500 and the log never carries the signed_request, the user id or a token', async () => {
   const logged: string[] = [];
   const original = console.error;
