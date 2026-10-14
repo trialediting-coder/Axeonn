@@ -450,8 +450,6 @@ html, #root {
   --animate-proof-extend: proofExtend 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-proof-fly: proofFly 1.4s linear both;
   --animate-proof-backdrop: proofBackdrop 1.4s linear both;
-  --animate-proof-punch: proofPunch 0.5s cubic-bezier(0.2, 1.2, 0.3, 1) both;
-  --animate-proof-nudge: proofNudge 0.35s cubic-bezier(0.2, 1, 0.3, 1) both;
 }
 @keyframes proofDraw {
   from { stroke-dashoffset: 1; }
@@ -485,17 +483,6 @@ html, #root {
   0%, 78% { background-color: rgb(10 10 10); }
   100% { background-color: transparent; }
 }
-/* PROOF lands: big, bright and blurred, then snaps sharp with a little overshoot. */
-@keyframes proofPunch {
-  0% { opacity: 0; transform: translateX(-28%) scale(2.2); filter: blur(14px) brightness(2.4); }
-  55% { opacity: 1; transform: translateX(0) scale(0.94); filter: blur(0) brightness(1.9); }
-  100% { opacity: 1; transform: translateX(0) scale(1); filter: blur(0) brightness(1); }
-}
-/* The impact: Axeon gets knocked a few pixels left as PROOF lands. */
-@keyframes proofNudge {
-  0%, 100% { transform: translateX(0); }
-  40% { transform: translateX(-7px); }
-}
 @keyframes proofExtend {
   from { opacity: 0; transform: translateX(-60%); }
   to { opacity: 1; transform: translateX(0); }
@@ -508,7 +495,7 @@ html, #root {
 /* When the entry curtain is skipped (seen this session, reduced motion) the hero does not wait for it. */
 .proof-no-intro .proof-hero-stagger { animation-delay: 0ms !important; }
 @media (prefers-reduced-motion: reduce) {
-  .animate-proof-rise, .animate-proof-grow, .animate-proof-width, .animate-proof-draw, .animate-proof-pop, .animate-proof-slide, .animate-proof-zoom-in, .animate-proof-zoom-out, .animate-proof-settle, .animate-proof-extend, .animate-proof-fly, .animate-proof-backdrop, .animate-proof-punch, .animate-proof-nudge { animation: none; }
+  .animate-proof-rise, .animate-proof-grow, .animate-proof-width, .animate-proof-draw, .animate-proof-pop, .animate-proof-slide, .animate-proof-zoom-in, .animate-proof-zoom-out, .animate-proof-settle, .animate-proof-extend, .animate-proof-fly, .animate-proof-backdrop { animation: none; }
 }
 
 /* /axeonproof hero window: on touch screens the dashboard pans by itself and

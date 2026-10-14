@@ -2,7 +2,7 @@
 
 // components/axeonproof/PageIntro.tsx
 // The page's entrance, built from the Axeon mark: the two bars rise, the dot
-// lands, "Axeon" slides in, then "PROOF" punches in from behind it. Then the
+// lands, "Axeon" slides in, then "PROOF" extends out smoothly from behind it. Then the
 // camera flies through the lockup, slow at first then fast, out of frame
 // while the black holds, the black clears, and the page is
 // there, settling in from a slight zoom of its own (app/axeonproof/page.tsx). Once per session, never
@@ -49,12 +49,10 @@ export function PageIntro() {
           <circle cx="21" cy="18" r="2" className="animate-proof-pop [transform-box:fill-box] [transform-origin:center]" style={d(520)} />
         </svg>
         <span className="flex items-baseline overflow-hidden text-4xl font-extrabold leading-none tracking-tight text-white sm:text-6xl">
-          <span className="relative z-10 inline-block animate-proof-nudge" style={d(1080)}>
-            <span className="inline-block animate-proof-slide bg-neutral-950" style={d(650)}>
-              Axeon
-            </span>
+          <span className="relative z-10 inline-block animate-proof-slide bg-neutral-950" style={d(650)}>
+            Axeon
           </span>
-          <span className="inline-block animate-proof-punch font-black tracking-[0.02em] text-blue-500" style={d(1000)}>
+          <span className="inline-block animate-proof-extend font-black tracking-[0.02em] text-blue-500" style={d(1000)}>
             PROOF
           </span>
         </span>
