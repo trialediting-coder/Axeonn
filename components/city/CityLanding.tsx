@@ -1,0 +1,303 @@
+import Link from 'next/link';
+import { ArrowRight, MapPin, PhoneCall, Check } from 'lucide-react';
+import { niches } from '@/data/nichesData';
+import { cityPages, cityPricingFaq, METRO_SYSTEM, type CityPage } from '@/data/cityPages';
+import { FAQAccordion } from '@/components/common/FAQAccordion';
+import { Testimonials } from '@/components/home/Testimonials';
+import { JsonLd, BreadcrumbJsonLd } from '@/components/common/JsonLd';
+import { BUSINESS, cityAreaServed, serviceJsonLd } from '@/lib/seo';
+
+const TEL_HREF = `tel:${BUSINESS.telephone.replace(/-/g, '')}`;
+const EYEBROW = 'text-xs font-mono font-bold tracking-widest text-blue-600 uppercase';
+
+// One suburb landing page. Same look and building blocks as /des-moines-web-design,
+// with the copy, FAQ and featured industries coming from data/cityPages.ts.
+export function CityLanding({ page }: { page: CityPage }) {
+  const path = `/${page.slug}`;
+  const faqs = [...page.faq, cityPricingFaq(page.city)];
+  const featured = page.featuredNiches
+    .map((slug) => niches.find((n) => n.slug === slug))
+    .filter((n): n is (typeof niches)[number] => Boolean(n));
+  const otherCities = cityPages.filter((c) => c.slug !== page.slug);
+
+  const serviceLd = serviceJsonLd({
+    path,
+    serviceType: 'Web Design & Digital Marketing',
+    name: `Axeon Studio — ${page.city} Web Design & Digital Marketing`,
+    description: page.description,
+    areaServed: cityAreaServed(page.city),
+  });
+
+  const faqLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: { '@type': 'Answer', text: item.answer },
+    })),
+  };
+
+  return (
+    <main className="w-full bg-white text-neutral-950">
+      <JsonLd data={serviceLd} />
+      <JsonLd data={faqLd} />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Des Moines Web Design', path: '/des-moines-web-design' },
+          { name: page.linkLabel, path },
+        ]}
+      />
+
+      {/* Hero */}
+      <section className="relative w-full px-6 sm:px-10 lg:px-16 xl:px-24 pt-36 pb-20 sm:pt-44 sm:pb-28 bg-neutral-950 text-white overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-[520px] h-[520px] bg-blue-600/25 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative z-10 max-w-5xl mx-auto">
+          <p className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-4 inline-flex items-center gap-2">
+            <MapPin size={15} /> {page.eyebrow}
+          </p>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight leading-[1.05] font-display mb-6">
+            {page.h1}
+          </h1>
+          <p className="text-lg sm:text-xl text-neutral-300 leading-relaxed max-w-3xl mb-10">{page.intro}</p>
+          <div className="flex flex-wrap items-center gap-4">
+            <Link
+              href="/book"
+              className="inline-flex items-center gap-2 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
+            >
+              Book My Free Call <ArrowRight size={18} />
+            </Link>
+            <a
+              href={TEL_HREF}
+              className="inline-flex items-center gap-2 px-7 py-4 rounded-full border border-neutral-700 hover:border-neutral-500 text-white font-bold text-base transition-colors"
+            >
+              <PhoneCall size={18} /> {BUSINESS.telephoneDisplay}
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* Local context: why this city, in this city's terms */}
+      <section className="w-full py-20 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+          <div className="lg:col-span-7">
+            <p className={`${EYEBROW} mb-3`}>[ {page.city.toUpperCase()} ]</p>
+            <h2 className="text-4xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.05]">
+              {page.localHeading}
+            </h2>
+            {page.localBody.map((para) => (
+              <p key={para.slice(0, 32)} className="mt-5 text-lg text-neutral-600 leading-relaxed">
+                {para}
+              </p>
+            ))}
+
+            {/* Proven right here: the A-1 result as a stat. */}
+            <Link
+              href="/insights/a-1-auto-detailing-website-case-study"
+              className="group mt-10 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 rounded-3xl bg-neutral-950 text-white p-6 sm:p-8"
+            >
+              <span className="text-6xl sm:text-7xl font-black font-display tracking-tighter text-blue-500 leading-none">
+                #1
+              </span>
+              <span className="block">
+                <span className="block text-lg sm:text-xl font-bold leading-snug">
+                  Proven in the metro: A-1 Auto Detailing ranks #1 for &ldquo;Pleasant Hill auto detailing,&rdquo; up
+                  from page 2.
+                </span>
+                <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-300 group-hover:text-white">
+                  Read the case study <ArrowRight size={14} />
+                </span>
+              </span>
+            </Link>
+          </div>
+
+          <div className="lg:col-span-5">
+            <p className={`${EYEBROW} mb-3`}>[ WHAT WE DO FOR YOU ]</p>
+            <ul className="divide-y divide-neutral-200 border-y border-neutral-200">
+              {page.focusPoints.map((point) => (
+                <li key={point.title} className="flex gap-4 py-5">
+                  <Check size={20} className="mt-1 shrink-0 text-blue-600" />
+                  <div>
+                    <h3 className="text-lg font-bold">{point.title}</h3>
+                    <p className="mt-1 text-neutral-600 leading-relaxed">{point.description}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <a
+              href={TEL_HREF}
+              className="mt-6 inline-flex items-center gap-2 text-base font-bold text-blue-600 hover:text-blue-700"
+            >
+              <PhoneCall size={18} /> Talk to the founder: {BUSINESS.telephoneDisplay}
+            </a>
+          </div>
+        </div>
+      </section>
+      {/* The system, as one slim strip */}
+      <section className="w-full py-10 sm:py-12 px-4 sm:px-10 lg:px-16 xl:px-24 bg-[#F7F6F3] border-y border-neutral-200">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-5 lg:gap-10">
+            <div className="lg:w-72 shrink-0">
+              <p className={EYEBROW}>[ THE SYSTEM ]</p>
+              <h2 className="mt-2 text-2xl font-extrabold font-display tracking-tight leading-tight">
+                How We Get {page.city} Businesses More Customers
+              </h2>
+            </div>
+            <ol className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
+              {METRO_SYSTEM.map((item, idx) => (
+                <li key={item.step}>
+                  <Link
+                    href={item.href}
+                    className="group flex items-center justify-between gap-3 rounded-2xl bg-white border border-neutral-200 px-5 py-4 hover:border-blue-400 transition-colors"
+                  >
+                    <span>
+                      <span className="block text-xs font-mono font-bold text-neutral-400">0{idx + 1}</span>
+                      <span className="block text-lg font-extrabold font-display tracking-tight">{item.step}</span>
+                      <span className="block text-sm text-neutral-500">{item.title}</span>
+                    </span>
+                    <ArrowRight size={16} className="shrink-0 text-blue-600 group-hover:translate-x-0.5 transition-transform" />
+                  </Link>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <p className="mt-6 text-sm sm:text-base text-neutral-700">
+            Essentials $149/mo, AxeonCORE $299/mo, AxeonGROWTH $999/mo. $99 to start.{' '}
+            <Link href="/pricing" className="font-semibold text-blue-600 hover:underline">
+              See all three plans &rarr;
+            </Link>
+          </p>
+        </div>
+      </section>
+
+      {/* Industries: this city's likely fits first, then a link to all */}
+      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
+        <div className="max-w-6xl mx-auto">
+          <p className={`${EYEBROW} mb-3`}>[ WHO WE HELP ]</p>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight mb-4">
+            Industries We Serve in {page.city}
+          </h2>
+          <p className="text-lg text-neutral-600 max-w-3xl mb-10 leading-relaxed">
+            Pick yours to see where customers slip away and how we get you found, chosen, and booked.
+          </p>
+          <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {featured.map((niche) => (
+              <li key={niche.slug}>
+                <Link
+                  href={`/solutions/${niche.slug}`}
+                  className="flex items-center justify-between rounded-xl border border-neutral-200 px-5 py-4 hover:border-blue-400 hover:bg-blue-50/40 transition-colors font-semibold"
+                >
+                  {niche.name}
+                  <ArrowRight size={16} className="text-blue-600" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-8 text-neutral-600">
+            Something else?{' '}
+            <Link href="/solutions" className="text-blue-600 font-semibold hover:underline">
+              See every industry we work with.
+            </Link>
+          </p>
+        </div>
+      </section>
+
+      {/* Serving the metro: links between the local pages */}
+      <section className="w-full py-16 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-10 items-start">
+          <div className="lg:col-span-5">
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">Serving the Metro</h2>
+            <p className="text-neutral-300 leading-relaxed">
+              Based in West Des Moines, IA 50266. In-person meetings and on-site video shoots anywhere in the Des
+              Moines metro, including {page.city}.
+            </p>
+            <address className="not-italic mt-6 text-neutral-300 space-y-1">
+              <div className="font-semibold text-white">{BUSINESS.name}</div>
+              <div>West Des Moines, Iowa 50266</div>
+              <div>
+                <a href={TEL_HREF} className="hover:text-blue-400">
+                  {BUSINESS.telephoneDisplay}
+                </a>
+              </div>
+              <div>
+                <a href={`mailto:${BUSINESS.email}`} className="hover:text-blue-400">
+                  {BUSINESS.email}
+                </a>
+              </div>
+            </address>
+          </div>
+          <div className="lg:col-span-7">
+            <h3 className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-4">Nearby</h3>
+            <ul className="flex flex-wrap gap-2.5">
+              <li>
+                <Link
+                  href="/des-moines-web-design"
+                  className="inline-block px-4 py-2 rounded-full border border-neutral-700 hover:border-blue-400 text-sm font-medium text-neutral-200"
+                >
+                  Des Moines Web Design
+                </Link>
+              </li>
+              {otherCities.map((c) => (
+                <li key={c.slug}>
+                  <Link
+                    href={`/${c.slug}`}
+                    className="inline-block px-4 py-2 rounded-full border border-neutral-700 hover:border-blue-400 text-sm font-medium text-neutral-200"
+                  >
+                    {c.linkLabel}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <Testimonials />
+
+      {/* FAQ */}
+      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
+        <div className="max-w-3xl mx-auto">
+          <p className={`${EYEBROW} mb-3`}>[ FAQ ]</p>
+          <h2 className="text-3xl sm:text-4xl font-extrabold font-display tracking-tight mb-10">
+            Questions {page.city} Business Owners Ask
+          </h2>
+          <FAQAccordion items={faqs} defaultOpenCount={1} />
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-4">
+            [ 90-DAY CUSTOMER GUARANTEE ]
+          </p>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-tight mb-6">
+            Ready for more customers?
+          </h2>
+          <p className="text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-10">
+            More calls and leads in your first 90 days than you were getting before, or we keep working for free until
+            you do.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <Link
+              href="/book"
+              className="inline-flex items-center gap-2 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
+            >
+              Book My Free Call <ArrowRight size={18} />
+            </Link>
+            <a
+              href={TEL_HREF}
+              className="inline-flex items-center gap-2 px-7 py-4 rounded-full border border-neutral-700 hover:border-neutral-500 text-white font-bold text-base transition-colors"
+            >
+              <PhoneCall size={18} /> {BUSINESS.telephoneDisplay}
+            </a>
+          </div>
+          <p className="mt-6 text-xs text-neutral-500 max-w-xl mx-auto leading-relaxed">
+            Included with AxeonCORE and AxeonGROWTH. Baseline set together on your kickoff call. Applies while
+            you&apos;re on your plan and answering new leads within one business day.
+          </p>
+        </div>
+      </section>
+    </main>
+  );
+}

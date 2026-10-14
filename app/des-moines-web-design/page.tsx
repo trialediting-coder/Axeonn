@@ -6,6 +6,7 @@ import { FAQAccordion } from '@/components/common/FAQAccordion';
 import { Testimonials } from '@/components/home/Testimonials';
 import { JsonLd, BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { BUSINESS, METRO_CITIES, serviceJsonLd } from '@/lib/seo';
+import { cityPages, METRO_SYSTEM as SYSTEM } from '@/data/cityPages';
 
 export const metadata = buildMetadata({
   path: '/des-moines-web-design',
@@ -24,31 +25,6 @@ const webDesignServiceJsonLd = serviceJsonLd({
 
 const TEL_HREF = `tel:${BUSINESS.telephone.replace(/-/g, '')}`;
 
-// One system, three jobs. Lead-system pieces are AxeonCORE; ads and video are AxeonGROWTH (or add-ons).
-const SYSTEM = [
-  {
-    step: 'Get found',
-    title: 'SEO & Ads',
-    description:
-      'Show up on Google, the map, and AI answers when people across the metro search for what you do. Google & Meta Ads come with AxeonGROWTH, or as a +$399/mo add-on to AxeonCORE.',
-    href: '/marketing-solutions/seo',
-  },
-  {
-    step: 'Get chosen',
-    title: 'Website & Video',
-    description:
-      'A fast, custom site with your reviews up front, plus on-site video with AxeonGROWTH, so you look like the obvious pick.',
-    href: '/marketing-solutions/website',
-  },
-  {
-    step: 'Get booked',
-    title: 'AI Chat & Lead Capture',
-    description:
-      'Tap-to-call and a quote form on every page. On AxeonCORE, AI chat and automatic follow-up answer every lead in seconds.',
-    href: '/marketing-solutions/ai-chat-scheduling',
-  },
-];
-
 const LOCAL_REASONS = [
   {
     icon: PhoneCall,
@@ -60,7 +36,7 @@ const LOCAL_REASONS = [
     icon: Clapperboard,
     title: 'On-site video shot at your location',
     description:
-      'AxeonCORE includes a half-day shoot at your shop, office, or clinic anywhere in the metro — a hero film for the site, vertical cuts for social, and a photo set. No out-of-town crew, no travel fees.',
+      'AxeonGROWTH includes a half-day shoot at your shop, office, or clinic anywhere in the metro — a hero film for the site, vertical cuts for social, and a photo set. No out-of-town crew, no travel fees.',
   },
   {
     icon: MapPin,
@@ -85,7 +61,7 @@ const LOCAL_FAQ = [
   {
     question: 'Can we meet in person?',
     answer:
-      'Yes. Strategy calls are usually a video call because it is faster for everyone, but if you are in the Des Moines metro and want to meet at your location, that is easy to arrange — and it happens anyway for the on-site videography included in AxeonCORE.',
+      'Yes. Strategy calls are usually a video call because it is faster for everyone, but if you are in the Des Moines metro and want to meet at your location, that is easy to arrange — and it happens anyway for the on-site video shoot included in AxeonGROWTH.',
   },
   {
     question: 'How much does a website cost in Des Moines?',
@@ -100,7 +76,7 @@ const LOCAL_FAQ = [
   {
     question: 'What industries do you build for in the Des Moines area?',
     answer:
-      'Our purpose-built systems cover dental practices, med spas, HVAC, roofing, law firms, accounting firms, home remodeling, real estate, landscaping, and auto detailing — and we build for any local small business that needs a site that produces calls, not just a brochure.',
+      'Our purpose-built systems cover dental practices, med spas, HVAC, roofing, law firms, accounting firms, home remodeling, real estate, landscaping, auto detailing, concrete, plumbing, electrical, and handyman services — and we build for any local small business that needs a site that produces calls, not just a brochure.',
   },
 ];
 
@@ -324,16 +300,28 @@ export default function DesMoinesWebDesignPage() {
             </address>
           </div>
           <div className="lg:col-span-7">
-            <h3 className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-4">Des Moines Metro</h3>
+            <h3 className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-4">Serving the Metro</h3>
             <ul className="flex flex-wrap gap-2.5">
-              {METRO_CITIES.map((city) => (
-                <li
-                  key={city}
-                  className="px-4 py-2 rounded-full border border-neutral-700 text-sm font-medium text-neutral-200"
-                >
-                  {city}, IA
-                </li>
-              ))}
+              {METRO_CITIES.map((city) => {
+                const cityPage = cityPages.find((c) => c.city === city);
+                return cityPage ? (
+                  <li key={city}>
+                    <Link
+                      href={`/${cityPage.slug}`}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-blue-500/60 hover:border-blue-400 hover:bg-blue-500/10 text-sm font-semibold text-white transition-colors"
+                    >
+                      {city}, IA <ArrowRight size={13} className="text-blue-400" />
+                    </Link>
+                  </li>
+                ) : (
+                  <li
+                    key={city}
+                    className="px-4 py-2 rounded-full border border-neutral-700 text-sm font-medium text-neutral-200"
+                  >
+                    {city}, IA
+                  </li>
+                );
+              })}
             </ul>
             <p className="mt-6 text-sm text-neutral-400">
               Also serving Polk, Dallas, Warren, and Story counties, and businesses statewide — {cityList} are

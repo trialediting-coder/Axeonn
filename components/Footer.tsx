@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { marketingSolutions } from '@/data/marketingSolutionsData';
+import { cityPages } from '@/data/cityPages';
 
 export interface FooterProps {
   year: number;
@@ -27,6 +28,7 @@ const WHO_WE_HELP_LINKS: FooterLink[] = [
   { label: 'All Industries', href: '/solutions' },
   { label: 'Small Business', href: '/solutions#small-business' },
   { label: 'Des Moines Businesses', href: '/des-moines-web-design' },
+  ...cityPages.map((city) => ({ label: city.linkLabel, href: `/${city.slug}` })),
   { label: 'Iowa Nonprofits', href: '/nonprofits' },
 ];
 
@@ -70,6 +72,7 @@ export function Footer({ year }: FooterProps) {
   // the page never ends with two calls to action back to back.
   const pageHasCloser =
     ['/', '/pricing', '/process', '/why-axeon', '/des-moines-web-design', '/about', '/marketing-solutions', '/axeonproof', '/partners', '/nonprofits', '/book', '/faq', '/insights'].includes(pathname) ||
+    cityPages.some((city) => pathname === `/${city.slug}`) ||
     pathname.startsWith('/marketing-solutions/') ||
     pathname.startsWith('/solutions/');
 
