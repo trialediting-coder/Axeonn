@@ -12,6 +12,7 @@ import { TIER_LABELS, type OnboardingTier } from '@/data/onboardingItems';
 import { OUTLOOK_NOTE, SETUP_GUIDES, gmailUrl, type Mailbox } from '@/lib/businessEmailShared';
 import { sequenceEmailHtml, sequenceEmailText, sequenceFromAddress } from '@/lib/sequenceShared';
 import { isEmailOptedOut, unsubscribeUrl } from '@/lib/unsubscribe';
+import { APP_ORIGIN } from '@/lib/hostRouting';
 
 const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_EMAIL;
 // Resend rejects sends from a domain that hasn't been verified in the
@@ -1370,4 +1371,55 @@ export async function sendSequenceEmail(input: {
   }, input.idempotencyKey ? { idempotencyKey: input.idempotencyKey } : undefined);
   if (error) throw new Error(`Resend rejected the email: ${error.message}`);
   return { id: data?.id ?? null };
+}
+
+// ───────────────────────── Online booking and website chat (lib/bookings.ts, lib/leadHooks.ts) ─────────────────────────
+
+/**
+ * To the person who booked: what, when, a cancel link, and an .ics file so it
+ * lands in their phone's calendar. Brand-neutral (no Axeon logo): it is the
+ * client's customer reading it. From "<Business> via Axeon", the follow-up
+ * sender (sequenceFromAddress); replies go to the client.
+ */
+export async function sendBookingEmail(input: {
+  to: string;
+  businessName: string | null;
+  replyTo: string | null;
+  when: string;
+  service: string;
+  cancelUrl: string;
+  ics: string;
+}): Promise<void> {
+  const resend = requireClient('booking_confirm');
+  const business = input.businessName?.trim() || 'us';
+  const what = input.service.trim() || 'Your appointment';
+  const html = `
+    <div style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;max-width:520px;margin:0 auto;padding:28px 20px;color:#111827;line-height:1.55">
+      <h1 style="margin:0 0 12px;font-size:22px;line-height:1.25">You're booked with ${escapeHtml(business)}</h1>
+      <p style="margin:0 0 4px;font-weight:700">${escapeHtml(what)}</p>
+      <p style="margin:0 0 18px">${escapeHtml(input.when)}</p>
+      <p style="margin:0 0 18px">Open the attached calendar file to add it to your calendar.</p>
+      <p style="margin:0;font-size:14px;color:#6b7280">Need to cancel? <a href="${escapeHtml(input.cancelUrl)}" style="color:#111827">Cancel this booking</a>.</p>
+    </div>`;
+  await sendChecked(resend, {
+    from: sequenceFromAddress(input.businessName, SEQUENCE_FROM_ADDRESS),
+    to: input.to,
+    ...(input.replyTo ? { replyTo: input.replyTo } : {}),
+    subject: `You're booked: ${what}, ${input.when}`,
+    html,
+    text: `You're booked with ${business}: ${what}, ${input.when}.\nNeed to cancel? ${input.cancelUrl}`,
+    attachments: [{ filename: 'booking.ics', content: Buffer.from(input.ics, 'utf8'), contentType: 'text/calendar; charset=utf-8; method=PUBLISH' }],
+  });
+}
+
+/** A booking or chat alert for a client with no tracked line yet (lib/leadHooks.ts alertOwner). Plain text: it is read on a phone. */
+export async function sendOwnerNoticeEmail(input: { to: string; subject: string; text: string }): Promise<void> {
+  const resend = requireClient('owner_notice');
+  await sendChecked(resend, {
+    from: CLIENT_FROM_ADDRESS,
+    replyTo: CLIENT_REPLY_TO,
+    to: input.to,
+    subject: input.subject,
+    text: `${input.text}\n\nEvery booking is in AxeonPROOF: ${APP_ORIGIN}/?tab=bookings`,
+  });
 }

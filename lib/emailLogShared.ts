@@ -11,6 +11,7 @@ export const EMAIL_CATEGORIES = {
   business_email: 'Business email',
   account: 'Codes & passwords',
   alerts: 'Alerts to you',
+  bookings: 'Bookings and chat',
   leads: 'Client lead alerts',
   followups: 'Lead follow-ups',
 } as const;
@@ -44,6 +45,8 @@ export const EMAIL_KINDS = {
   audit_failed: { label: 'Scheduled audit failed', category: 'alerts' },
   blog_draft_ready: { label: 'Blog draft ready', category: 'alerts' },
   blog_generation_failed: { label: 'Blog generation failed', category: 'alerts' },
+  booking_confirm: { label: 'Booking confirmation (to their customer)', category: 'bookings' },
+  owner_notice: { label: 'Booking or chat alert (to the client)', category: 'bookings' },
   sequence_start_failed: { label: 'Follow-up did not start', category: 'alerts' },
   sequence_email: { label: 'Follow-up email to a lead', category: 'followups' },
 } as const satisfies Record<string, { label: string; category: EmailCategory }>;
