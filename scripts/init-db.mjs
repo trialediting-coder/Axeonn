@@ -495,6 +495,87 @@ async function main() {
   await sql`CREATE INDEX IF NOT EXISTS held_replies_contact_idx ON held_replies (contact_id);`;
   // The number the reply was typed to; the 8 am send goes there or not at all (NULL: older rows, the contact's current phone).
   await sql`ALTER TABLE held_replies ADD COLUMN IF NOT EXISTS to_phone TEXT;`;
+  // Online booking (lib/bookings.ts): one settings row per client and every booking.
+  await sql`
+    CREATE TABLE IF NOT EXISTS booking_settings (
+      onboarding_id INTEGER PRIMARY KEY REFERENCES onboardings(id) ON DELETE CASCADE,
+      enabled BOOLEAN NOT NULL DEFAULT false,
+      slot_minutes INTEGER NOT NULL DEFAULT 60,
+      buffer_minutes INTEGER NOT NULL DEFAULT 15,
+      lead_days INTEGER NOT NULL DEFAULT 14,
+      hours JSONB NOT NULL DEFAULT '{}'::jsonb,
+      service_names TEXT[] NOT NULL DEFAULT '{}',
+      confirm_message TEXT,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS bookings (
+      id BIGSERIAL PRIMARY KEY,
+      onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+      contact_name TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      email TEXT,
+      service TEXT NOT NULL DEFAULT '',
+      starts_at TIMESTAMPTZ NOT NULL,
+      ends_at TIMESTAMPTZ NOT NULL,
+      status TEXT NOT NULL DEFAULT 'booked' CHECK (status IN ('booked', 'cancelled', 'done')),
+      source TEXT NOT NULL CHECK (source IN ('widget', 'chat', 'manual')),
+      cancel_token TEXT UNIQUE NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS bookings_client_time_idx ON bookings (onboarding_id, starts_at);`;
+  // The backstop behind createBooking's lock: one live booking per start time per client.
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS bookings_one_per_slot ON bookings (onboarding_id, starts_at) WHERE status = 'booked';`;
+  // Website chat (lib/chat.ts, lib/chatCrawl.ts): the client's pages as text, settings, sessions, messages.
+  await sql`
+    CREATE TABLE IF NOT EXISTS site_pages (
+      id SERIAL PRIMARY KEY,
+      onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+      url TEXT NOT NULL,
+      title TEXT NOT NULL DEFAULT '',
+      text TEXT NOT NULL,
+      fetched_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      UNIQUE (onboarding_id, url)
+    );
+  `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS chat_settings (
+      onboarding_id INTEGER PRIMARY KEY REFERENCES onboardings(id) ON DELETE CASCADE,
+      enabled BOOLEAN NOT NULL DEFAULT false,
+      greeting TEXT,
+      trained_at TIMESTAMPTZ,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS chat_sessions (
+      id TEXT PRIMARY KEY,
+      onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+      visitor TEXT NOT NULL DEFAULT '',
+      phone TEXT,
+      name TEXT,
+      page TEXT,
+      contact_logged_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      last_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS chat_sessions_client_idx ON chat_sessions (onboarding_id, last_at DESC);`;
+  await sql`
+    CREATE TABLE IF NOT EXISTS chat_messages (
+      id BIGSERIAL PRIMARY KEY,
+      session_id TEXT NOT NULL REFERENCES chat_sessions(id) ON DELETE CASCADE,
+      onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+      role TEXT NOT NULL CHECK (role IN ('user', 'assistant', 'tool')),
+      content TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS chat_messages_session_idx ON chat_messages (session_id, id);`;
+  await sql`CREATE INDEX IF NOT EXISTS chat_messages_client_time_idx ON chat_messages (onboarding_id, created_at);`;
   console.log('Schema ready.');
 }
 
