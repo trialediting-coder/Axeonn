@@ -13,6 +13,7 @@ import { getLine, sendOwnerAlert, startConnectCall } from '@/lib/phoneLines';
 import { REPORT_TIME_ZONE, isValidMonth } from '@/lib/siteStats';
 import { normalizePhone } from '@/lib/phoneShared';
 import { startLeadFollowUp } from '@/lib/sequences';
+import { isLeadStage } from '@/lib/sequenceShared';
 import { DUPLICATE_WINDOW_MINUTES, isRecentDuplicate, leadAlertText, planLeadDelivery, type DeliveryReport, type FormSubmission, type LeadInput } from '@/lib/leadShared';
 import type { Onboarding } from '@/lib/onboarding';
 
@@ -40,6 +41,8 @@ interface SubmissionRow {
   utm_campaign: string | null;
   is_test: boolean;
   connect_pressed_at: DbTime | null;
+  stage: string;
+  quote_sent_at: DbTime | null;
   alert_text_status: string | null;
   created_at: DbTime;
 }
@@ -57,6 +60,8 @@ const toSubmission = (r: SubmissionRow): FormSubmission => ({
   utmCampaign: r.utm_campaign,
   isTest: r.is_test,
   connectPressedAt: r.connect_pressed_at ? iso(r.connect_pressed_at) : null,
+  stage: isLeadStage(r.stage) ? r.stage : 'new',
+  quoteSentAt: r.quote_sent_at ? iso(r.quote_sent_at) : null,
   createdAt: iso(r.created_at),
 });
 

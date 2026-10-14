@@ -290,6 +290,7 @@ export function ProofDashboard({
   leads = [],
   forms = [],
   leadApi = null,
+  stageApi = null,
   tab = 'overview',
   upgradeRequest = null,
   live: liveTraffic = null,
@@ -324,6 +325,8 @@ export function ProofDashboard({
   forms?: FormMonth[];
   /** Where the Customer / Not taps post: the client's own API, or the admin API from View as client. */
   leadApi?: string | null;
+  /** Where the form-lead taps post (Quote sent, Talked to them, Booked, Job done, Not a fit). Null in the admin preview: read-only there. */
+  stageApi?: string | null;
   /** Which tab is open (?tab=). Tabs outside the plan show the upgrade page. */
   tab?: ProofTabKey;
   /** The plan the client asked to move to, if they pressed the button (lib/upgrades.ts). */
@@ -533,7 +536,7 @@ export function ProofDashboard({
               <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Included in your plan</p>
               <h2 className="mt-3 text-2xl font-bold tracking-tight text-neutral-950">Leads</h2>
               <p className="mt-2 max-w-2xl text-sm text-neutral-600">Every call, text, email, form and booking from your site, the day it happens. Tap Booked on the ones that turned into a job and your numbers get more exact every month.</p>
-              {forms.some((m) => m.rows.length > 0) ? <FormLeads months={forms} /> : null}
+              {forms.some((m) => m.rows.length > 0) ? <FormLeads months={forms} stageApi={preview ? null : stageApi} /> : null}
               {leads.some((m) => m.rows.length > 0) ? (
                 <LeadLog months={leads} api={leadApi} />
               ) : forms.some((m) => m.rows.length > 0) ? null : (

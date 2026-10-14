@@ -346,13 +346,18 @@ export const LEAD_ACTION_LABELS: Record<LeadAction, string> = {
 export function parseStageRequest(raw: Record<string, unknown>): { id: number; action: LeadAction } {
   const id = Number(raw.id);
   if (!Number.isInteger(id) || id <= 0) throw new Error('Which lead?');
-  if (!isLeadAction(raw.action)) throw new Error('Pick Quote sent, Booked, Job done or Not a fit');
+  if (!isLeadAction(raw.action)) throw new Error('Pick Quote sent, Talked to them, Booked, Job done or Not a fit');
   return { id, action: raw.action };
 }
 
-/** Whether a tap shows as pressed. Quote sent stays pressed once tapped; the others follow the stage. */
+/**
+ * Whether a tap shows as pressed. Quote sent stays pressed once tapped; the others follow the stage.
+ * Talked to them and Quote sent both land on 'contacted', so once a quote went out only Quote sent shows pressed.
+ */
 export function stageTapActive(action: LeadAction, stage: LeadStage, quoteSent: boolean): boolean {
-  return action === 'quote_sent' ? quoteSent : STAGE_EFFECTS[action].stage === stage;
+  if (action === 'quote_sent') return quoteSent;
+  if (action === 'contacted') return stage === 'contacted' && !quoteSent;
+  return STAGE_EFFECTS[action].stage === stage;
 }
 
 // ─────────────────────────── Emails ───────────────────────────

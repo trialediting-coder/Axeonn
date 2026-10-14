@@ -3,6 +3,7 @@
 // page, and whether the owner took the call connect call. The rows arrive
 // pre-masked (toDashboardSubmission); the full details are in the lead email.
 import { PhoneCall } from 'lucide-react';
+import { LeadStageTaps } from '@/components/proof/LeadStageTaps';
 import type { DashboardSubmission } from '@/lib/leadShared';
 
 export interface FormMonth {
@@ -16,7 +17,7 @@ const when = (iso: string) =>
 
 const pageName = (path: string) => (!path || path === '/' ? 'Home page' : path.replace(/^\//, '').replace(/[-_/]+/g, ' '));
 
-export function FormLeads({ months }: { months: FormMonth[] }) {
+export function FormLeads({ months, stageApi = null }: { months: FormMonth[]; stageApi?: string | null }) {
   const total = months.reduce((n, m) => n + m.rows.length, 0);
   const calledBack = months.reduce((n, m) => n + m.rows.filter((r) => r.calledBack).length, 0);
   return (
@@ -52,6 +53,7 @@ export function FormLeads({ months }: { months: FormMonth[] }) {
                       <PhoneCall size={12} /> Called back
                     </span>
                   ) : null}
+                  <LeadStageTaps id={r.id} stage={r.stage} quoteSent={r.quoteSent} api={stageApi} />
                 </li>
               ))}
             </ul>

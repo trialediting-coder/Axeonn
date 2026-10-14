@@ -4,6 +4,7 @@
 // a call connect call), and the words the owner reads and hears. Client-safe:
 // no Node imports, no database. The server half is lib/leads.ts.
 import { TIER_RANK, type OnboardingTier } from '@/data/onboardingItems';
+import { type LeadStage } from '@/lib/sequenceShared';
 import { DEFAULT_TIME_ZONE, formatPhone, maskNumber, normalizePhone, type SmsStatus } from '@/lib/phoneShared';
 
 /** The hidden field the form snippet carries. People never fill it; form-filling bots do. */
@@ -339,6 +340,9 @@ export interface FormSubmission extends LeadInput {
   isTest: boolean;
   /** When the owner pressed 1 on the call connect call. */
   connectPressedAt: string | null;
+  /** Set by the Leads-tab taps (lib/leadStages.ts); 'new' until tapped. */
+  stage: LeadStage;
+  quoteSentAt: string | null;
   createdAt: string;
 }
 
@@ -352,6 +356,9 @@ export interface DashboardSubmission {
   page: string;
   /** The owner pressed 1 and we dialed the lead. */
   calledBack: boolean;
+  stage: LeadStage;
+  /** Whether a quote was marked sent; the time itself stays server-side. */
+  quoteSent: boolean;
 }
 
 export function toDashboardSubmission(s: FormSubmission): DashboardSubmission {
@@ -362,6 +369,8 @@ export function toDashboardSubmission(s: FormSubmission): DashboardSubmission {
     phone: s.phone ? maskNumber(s.phone) : null,
     page: s.page,
     calledBack: s.connectPressedAt !== null,
+    stage: s.stage,
+    quoteSent: s.quoteSentAt !== null,
   };
 }
 

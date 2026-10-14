@@ -141,6 +141,11 @@ test('parseStageRequest and stageTapActive', () => {
   assert.equal(stageTapActive('quote_sent', 'contacted', false), false);
   assert.equal(stageTapActive('booked', 'booked', false), true);
   assert.equal(stageTapActive('won', 'booked', false), false);
+  assert.equal(stageTapActive('contacted', 'contacted', false), true);
+  // Quote sent also lands on contacted; only Quote sent shows pressed then.
+  assert.equal(stageTapActive('contacted', 'contacted', true), false);
+  assert.equal(stageTapActive('quote_sent', 'contacted', true), true);
+  assert.throws(() => parseStageRequest({ id: 3, action: 'customer' }), /Talked to them/);
 });
 
 test('sequence emails come from the business via Axeon and escape everything', () => {

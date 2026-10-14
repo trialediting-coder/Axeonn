@@ -184,10 +184,12 @@ test('backLink and replyPage: only http(s) links back, and everything shown is e
 test('toDashboardSubmission sends the dashboard a masked phone and no email or message', () => {
   const s: FormSubmission = {
     id: 7, onboardingId: 3, name: '', phone: '+15155550134', email: 'jane@example.com', message: 'secret', page: '/quote',
-    utmSource: null, utmMedium: null, utmCampaign: null, isTest: false, connectPressedAt: '2026-07-15T17:01:00.000Z', createdAt: '2026-07-15T17:00:00.000Z',
+    utmSource: null, utmMedium: null, utmCampaign: null, isTest: false, connectPressedAt: '2026-07-15T17:01:00.000Z', stage: 'new', quoteSentAt: null, createdAt: '2026-07-15T17:00:00.000Z',
   };
   const d = toDashboardSubmission(s);
-  assert.deepEqual(d, { id: 7, at: '2026-07-15T17:00:00.000Z', name: 'Someone', phone: '(515) 555-01··', page: '/quote', calledBack: true });
+  assert.deepEqual(d, { id: 7, at: '2026-07-15T17:00:00.000Z', name: 'Someone', phone: '(515) 555-01··', page: '/quote', calledBack: true, stage: 'new', quoteSent: false });
+  assert.deepEqual(Object.keys(d).sort(), ['at', 'calledBack', 'id', 'name', 'page', 'phone', 'quoteSent', 'stage']);
+  assert.equal(toDashboardSubmission({ ...s, stage: 'contacted', quoteSentAt: '2026-07-16T10:00:00.000Z' }).quoteSent, true);
   const json = JSON.stringify(d);
   assert.ok(!json.includes('5550134') && !json.includes('jane@') && !json.includes('secret'));
   assert.equal(toDashboardSubmission({ ...s, phone: null, connectPressedAt: null }).calledBack, false);
