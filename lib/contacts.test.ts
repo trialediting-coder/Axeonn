@@ -2,7 +2,21 @@
 // Run with: npm run test:inbox. The pure parts of lib/contacts.ts: no database.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { formStagesBelow, planFormStageCopy, toContact, toEvent } from './contacts';
+import { formStagesBelow, planFormStageCopy, splitDroppedRuns, toContact, toEvent } from './contacts';
+
+test('merge: a dropped run whose kind the kept contact already holds is removed; the rest move over', () => {
+  const plan = splitDroppedRuns(['review', 'quote'], [
+    { id: 11, kind: 'review' },
+    { id: 12, kind: 'new_lead' },
+    { id: 13, kind: 'quote' },
+  ]);
+  assert.deepEqual(plan, { remove: [11, 13], repoint: [12] });
+});
+
+test('merge: nothing on the kept contact means every dropped run moves over', () => {
+  assert.deepEqual(splitDroppedRuns([], [{ id: 1, kind: 'review' }]), { remove: [], repoint: [1] });
+  assert.deepEqual(splitDroppedRuns(['review'], []), { remove: [], repoint: [] });
+});
 
 test('a move code makes by itself only lifts forms that are behind it, never off Won/Lost', () => {
   assert.deepEqual(formStagesBelow('contacted'), ['new']);

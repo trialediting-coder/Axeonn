@@ -208,6 +208,19 @@ async function inTransaction<T>(work: (q: VercelPoolClient) => Promise<T>): Prom
 }
 
 /**
+ * A merge's sequence runs (pure): the dropped contact's runs of a kind the kept
+ * contact already holds are removed (the run key is one per kind and ref, and
+ * the kept row's run stands); every other dropped run moves to the kept row.
+ */
+export function splitDroppedRuns(keptKinds: string[], dropped: { id: number; kind: string }[]): { remove: number[]; repoint: number[] } {
+  const held = new Set(keptKinds);
+  return {
+    remove: dropped.filter((r) => held.has(r.kind)).map((r) => r.id),
+    repoint: dropped.filter((r) => !held.has(r.kind)).map((r) => r.id),
+  };
+}
+
+/**
  * Fold two contacts into the older one (spec, "Dedupe rules"). One transaction,
  * in this order: re-point the events and held replies, delete the newer row,
  * then give the kept row the merged fields. Deleting first matters: the newer
@@ -230,7 +243,19 @@ export async function mergeContacts(onboardingId: number, aId: number, bId: numb
     await q.sql`UPDATE contact_events SET contact_id = ${plan.keepId} WHERE contact_id = ${plan.dropId} AND onboarding_id = ${onboardingId};`;
     await q.sql`UPDATE held_replies SET contact_id = ${plan.keepId} WHERE contact_id = ${plan.dropId} AND onboarding_id = ${onboardingId};`;
     // Follow-ups started from an inbox tap on the dropped row (ref_table 'contacts') now belong to the kept row.
-    await q.sql`UPDATE sequence_runs SET ref_id = ${plan.keepId} WHERE onboarding_id = ${onboardingId} AND ref_table = 'contacts' AND ref_id = ${plan.dropId};`;
+    // A run key is (onboarding_id, kind, ref_table, ref_id) and finished runs keep theirs, so a dropped run of a
+    // kind the kept row already holds would collide (and fail every retry of this merge): those are deleted.
+    const { rows: keptRuns } = await q.sql<{ kind: string }>`
+      SELECT kind FROM sequence_runs WHERE onboarding_id = ${onboardingId} AND ref_table = 'contacts' AND ref_id = ${plan.keepId};`;
+    const { rows: droppedRuns } = await q.sql<{ id: DbId; kind: string }>`
+      SELECT id, kind FROM sequence_runs WHERE onboarding_id = ${onboardingId} AND ref_table = 'contacts' AND ref_id = ${plan.dropId} FOR UPDATE;`;
+    const runs = splitDroppedRuns(keptRuns.map((r) => r.kind), droppedRuns.map((r) => ({ id: Number(r.id), kind: r.kind })));
+    if (runs.remove.length > 0) {
+      await q.sql`DELETE FROM sequence_runs WHERE onboarding_id = ${onboardingId} AND id = ANY(${runs.remove as unknown as string}::bigint[]);`;
+    }
+    if (runs.repoint.length > 0) {
+      await q.sql`UPDATE sequence_runs SET ref_id = ${plan.keepId} WHERE onboarding_id = ${onboardingId} AND id = ANY(${runs.repoint as unknown as string}::bigint[]);`;
+    }
     await q.sql`DELETE FROM contacts WHERE id = ${plan.dropId} AND onboarding_id = ${onboardingId};`;
     const { rows: kept } = await q.sql<ContactRow>`
       UPDATE contacts SET
