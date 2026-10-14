@@ -13,7 +13,7 @@ import { DEFAULT_TIME_ZONE, callerKey, formatCallLength, maskNumber, SMS_MAX_CHA
 import { buttonLabel, campaignLabel } from '@/lib/projectsShared';
 import { holdForQuietHours, safeTimeZone } from '@/lib/sequenceSchedule';
 import { LEAD_ACTION_LABELS, STAGE_EFFECTS, normalizeEmail, type LeadAction, type LeadStage, type SequenceKind } from '@/lib/sequenceShared';
-import { metaKindLabel } from '@/lib/metaShared';
+import { attachmentOnlyLabel, metaKindLabel } from '@/lib/metaShared';
 
 // ───────────────────────────── Vocabulary ─────────────────────────────
 
@@ -421,7 +421,8 @@ export function toDashboardEvent(e: ContactEvent): DashboardEvent {
     verb: metaDirection ? metaKindLabel(e.kind, metaDirection) : eventVerb(e.kind),
     summary: e.summary || eventSummary(e.kind, p),
     automatic: p.automatic === true || e.kind === 'sequence' || e.kind === 'reminder',
-    text: isMessage ? str(p.body) : null,
+    // A Facebook / Instagram DM with only a photo or sticker reads "Sent a photo", never an empty bubble.
+    text: isMessage ? str(p.body) || (metaDirection ? attachmentOnlyLabel(p.attachments) : '') : null,
     call:
       e.kind === 'call' && typeof p.callSid === 'string'
         ? { callSid: p.callSid, outcome: p.outcome === 'answered' ? 'answered' : 'missed', durationSeconds: num(p.durationSeconds), hasRecording: p.hasRecording === true }

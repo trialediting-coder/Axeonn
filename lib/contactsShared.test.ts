@@ -194,6 +194,26 @@ test('toDashboardEvent: calls carry the sid for the recording route, texts their
   assert.deepEqual(form.fields, [{ label: 'Name', value: 'Sarah' }, { label: 'Message', value: 'Leaky faucet' }, { label: 'Page', value: 'contact' }]);
 });
 
+test('toDashboardEvent: an attachment-only Facebook or Instagram DM reads "Sent a photo", never an empty bubble', () => {
+  const photo = toDashboardEvent(event({ kind: 'messenger', summary: '[photo]', payload: { direction: 'in', body: '', attachments: ['image'] } }));
+  assert.equal(photo.text, 'Sent a photo');
+  assert.equal(photo.metaDirection, 'in');
+  const many = toDashboardEvent(event({ kind: 'instagram', summary: '[photo] [photo]', payload: { direction: 'in', body: '', attachments: ['image', 'image'] } }));
+  assert.equal(many.text, 'Sent 2 photos');
+  const mixed = toDashboardEvent(event({ kind: 'instagram', payload: { direction: 'in', body: '', attachments: ['image', 'audio'] } }));
+  assert.equal(mixed.text, 'Sent 2 attachments');
+  const unknown = toDashboardEvent(event({ kind: 'messenger', payload: { direction: 'in', body: '', attachments: ['fallback'] } }));
+  assert.equal(unknown.text, 'Sent an attachment');
+  const none = toDashboardEvent(event({ kind: 'messenger', payload: { direction: 'in' } }));
+  assert.equal(none.text, 'Sent an attachment');
+  // Words win when there are any; a URL-looking attachment type is never echoed.
+  const worded = toDashboardEvent(event({ kind: 'messenger', payload: { direction: 'in', body: 'Here it is', attachments: ['image'] } }));
+  assert.equal(worded.text, 'Here it is');
+  assert.equal(toDashboardEvent(event({ kind: 'messenger', payload: { direction: 'in', body: '', attachments: ['https://evil.example/x'] } })).text, 'Sent an attachment');
+  // An empty SMS stays as it was (slice 4).
+  assert.equal(toDashboardEvent(event({ kind: 'text_in', payload: { body: '' } })).text, '');
+});
+
 test('cursors round-trip and reject junk', () => {
   const c = encodeCursor('2026-10-13T14:05:00.123Z', 42);
   assert.deepEqual(decodeCursor(c), { at: '2026-10-13T14:05:00.123Z', id: 42 });

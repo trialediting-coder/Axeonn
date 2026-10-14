@@ -173,6 +173,31 @@ export function attachmentWord(type: string): string {
   return ATTACHMENT_WORDS[type] ?? '[attachment]';
 }
 
+const SENT_LABELS: Record<string, string> = {
+  image: 'a photo',
+  video: 'a video',
+  audio: 'a voice message',
+  file: 'a file',
+  share: 'a shared post',
+  ig_reel: 'a reel',
+  reel: 'a reel',
+  story_mention: 'a story mention',
+  location: 'a location',
+  sticker: 'a sticker',
+};
+
+/**
+ * The bubble for a DM with no words (photo, sticker, voice message…): "Sent a photo",
+ * "Sent 3 photos", "Sent an attachment". Plain text only; Meta's URLs are never shown.
+ */
+export function attachmentOnlyLabel(types: unknown): string {
+  const list = (Array.isArray(types) ? types : []).filter((t): t is string => typeof t === 'string');
+  if (!list.length) return 'Sent an attachment';
+  if (list.length === 1) return `Sent ${SENT_LABELS[list[0]] ?? 'an attachment'}`;
+  if (list.every((t) => t === 'image')) return `Sent ${list.length} photos`;
+  return `Sent ${list.length} attachments`;
+}
+
 /** The one line the inbox shows: the text, then a word per attachment, cut to 140 characters. */
 export function messagePreview(m: Pick<MetaInboundMessage, 'text' | 'attachments'>): string {
   const parts = [m.text.replace(/\s+/g, ' ').trim(), ...m.attachments.map((a) => attachmentWord(a.type))].filter(Boolean);
