@@ -81,6 +81,28 @@ export function holdForQuietHours(at: Date, timeZone: string): Date {
   return zonedTime(p.year, p.month, p.day + nextDay, QUIET_END_HOUR, 0, tz);
 }
 
+/**
+ * Sending hours (outside 8 pm to 8 am client-local) between two instants, in ms.
+ * Lateness is measured with this, so a step the engine itself held over quiet
+ * hours (a 7:55 pm step held at the 8 pm tick, a retry or gap crossing 8 pm, a
+ * cron outage overnight) is not counted late for the night. Stops counting past
+ * a day of sending time; callers only compare against LATE_STEP_SKIP_HOURS.
+ */
+export function sendingMsBetween(from: Date, to: Date, timeZone: string): number {
+  const tz = safeTimeZone(timeZone);
+  const end = to.getTime();
+  let total = 0;
+  let t = holdForQuietHours(from, tz).getTime();
+  for (let guard = 0; t < end && guard < 400 && total <= 24 * 60 * MINUTE; guard++) {
+    const p = localParts(new Date(t), tz);
+    const windowEnd = zonedTime(p.year, p.month, p.day, QUIET_START_HOUR, 0, tz).getTime();
+    const segEnd = Math.min(windowEnd, end);
+    total += Math.max(0, segEnd - t);
+    t = holdForQuietHours(new Date(Math.max(segEnd, t + MINUTE)), tz).getTime();
+  }
+  return total;
+}
+
 export function nextSendAt(from: Date, offsetMinutes: number, timeZone: string): Date {
   return holdForQuietHours(new Date(from.getTime() + offsetMinutes * MINUTE), timeZone);
 }
@@ -104,8 +126,8 @@ export interface PlanInput {
  * The next step at or after fromStep that this contact can receive, and when.
  * A text step is skipped without a phone or approved texting, an email step
  * without an address. A late step goes now, not in the past, unless it is more
- * than LATE_STEP_SKIP_HOURS past its earliest send time (quiet hours counted)
- * and not the last step the contact can receive: then it is skipped. Nothing
+ * than LATE_STEP_SKIP_HOURS of sending hours (quiet hours not counted) past its
+ * due time and not the last step the contact can receive: then it is skipped. Nothing
  * goes within MIN_SEND_GAP_MINUTES of the run's previous send. Reminders that are
  * already well past, or that quiet hours would push onto the appointment, are
  * skipped; reminders ignore the late-step and gap rules.
@@ -121,7 +143,7 @@ export function planSend(p: PlanInput): { step: number; at: Date } | null {
     if (!reachable(s)) continue;
     const due = new Date(p.anchorAt.getTime() + s.offsetMinutes * MINUTE);
     if (p.kind === 'reminder' && due.getTime() < p.now.getTime() - REMINDER_GRACE_MINUTES * MINUTE) continue;
-    if (p.kind !== 'reminder' && i < lastReachable && p.now.getTime() - holdForQuietHours(due, p.timeZone).getTime() > LATE_STEP_SKIP_HOURS * 60 * MINUTE) continue;
+    if (p.kind !== 'reminder' && i < lastReachable && sendingMsBetween(due, p.now, p.timeZone) > LATE_STEP_SKIP_HOURS * 60 * MINUTE) continue;
     const at = nextSendAt(due.getTime() > floorMs ? due : new Date(floorMs), 0, p.timeZone);
     if (p.kind === 'reminder' && at.getTime() >= p.anchorAt.getTime()) continue;
     return { step: i, at };

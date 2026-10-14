@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { isQuietHours } from './leadShared';
 import { DEFAULT_TEMPLATES, STOP_LINE, validateTemplate, type SequenceTemplate } from './sequenceShared';
 import {
-  connectCallDecision, decideRun, holdForQuietHours, isDefiniteRejection, localParts, mayBeInReactivationWindow, nextSendAt, planSend,
+  connectCallDecision, decideRun, holdForQuietHours, sendingMsBetween, isDefiniteRejection, localParts, mayBeInReactivationWindow, nextSendAt, planSend,
   reactivationWindow, redactDigits, safeTimeZone, scheduleReactivation, zonedTime, type RunContext, type RunState,
 } from './sequenceSchedule';
 
@@ -252,10 +252,12 @@ test('mayBeInReactivationWindow covers every time zone and nothing more', () => 
 });
 
 test('a step more than 12 hours late is skipped, not sent; a 2-hour-late one still goes', () => {
-  // Step 0 was due at 10:05 am; it is now 11:06 pm, 13 hours on: skip to the email step, held to its time.
-  assert.deepEqual(decideRun(run(), ctx({ now: at('2026-10-14T04:06:00Z') })), { type: 'hold', step: 1, until: at('2026-10-14T15:00:00Z') });
+  // Step 0 was due at 10:05 am; it is now 10:06 am next day, 12 h 1 min of sending hours on: skip to the email step.
+  const late = decideRun(run(), ctx({ now: at('2026-10-14T15:06:00Z') }));
+  assert.equal(late.type, 'send');
+  if (late.type === 'send') assert.equal(late.step, 1);
   const base = { kind: 'new_lead' as const, steps: DEFAULT_TEMPLATES.new_lead, anchorAt: at('2026-10-13T15:00:00Z'), timeZone: CHI, canSms: true, canEmail: true, fromStep: 0 };
-  assert.deepEqual(planSend({ ...base, now: at('2026-10-14T04:06:00Z') }), { step: 1, at: at('2026-10-14T15:00:00Z') });
+  assert.deepEqual(planSend({ ...base, now: at('2026-10-14T15:06:00Z') }), { step: 1, at: at('2026-10-14T15:06:00Z') });
   // Two hours late: sent now.
   const d = decideRun(run(), ctx({ now: at('2026-10-13T17:05:00Z') }));
   assert.equal(d.type, 'send');
@@ -316,4 +318,22 @@ test('isDefiniteRejection: a Twilio 4xx or missing config is a refusal; anything
 test('redactDigits hides phone numbers but keeps short codes', () => {
   assert.equal(redactDigits('Twilio 400 (21211): The To number +15155550134 is invalid'), 'Twilio 400 (21211): The To number +[number] is invalid');
   assert.equal(redactDigits('no digits'), 'no digits');
+});
+
+test('lateness counts sending hours only: a step the engine held over a night is not skipped', () => {
+  const H = 3_600_000;
+  // Due 7:55 pm, missed the 7:45 tick, held at the 8:00 pm tick to 8 am, picked up at 8:00 am: 5 minutes late.
+  assert.equal(sendingMsBetween(at('2026-10-14T00:55:00Z'), at('2026-10-14T13:00:00Z'), CHI), 5 * 60_000);
+  const evening = decideRun(run({ anchorAt: at('2026-10-14T00:50:00Z') }), ctx({ now: at('2026-10-14T13:00:00Z') }));
+  assert.equal(evening.type, 'send');
+  if (evening.type === 'send') assert.equal(evening.step, 0);
+  // Due 9 am, cron down until 11 pm, picked up at 8 am next day: 11 sending hours late, sent.
+  assert.equal(sendingMsBetween(at('2026-10-13T14:00:00Z'), at('2026-10-14T13:00:00Z'), CHI), 11 * H);
+  const outage = decideRun(run({ anchorAt: at('2026-10-13T13:55:00Z') }), ctx({ now: at('2026-10-14T13:00:00Z') }));
+  assert.equal(outage.type, 'send');
+  if (outage.type === 'send') assert.equal(outage.step, 0);
+  // Due 9 am day 1, picked up 9 pm day 2 (held to 8 am day 3): 23 sending hours late, skipped.
+  assert.equal(sendingMsBetween(at('2026-10-13T14:00:00Z'), at('2026-10-15T02:00:00Z'), CHI), 23 * H);
+  const stale = decideRun(run({ anchorAt: at('2026-10-13T13:55:00Z') }), ctx({ now: at('2026-10-15T02:00:00Z') }));
+  assert.notEqual(stale.type === 'send' || stale.type === 'hold' ? stale.step : -1, 0);
 });

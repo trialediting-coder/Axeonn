@@ -8,6 +8,7 @@ import { readBody } from '@/lib/billingApi';
 import { errText } from '@/lib/dbRows';
 import { applyLeadStage, LeadNotFoundError } from '@/lib/leadStages';
 import { getSignedInClient } from '@/lib/proofServer';
+import { redactDigits } from '@/lib/sequenceSchedule';
 import { parseStageRequest } from '@/lib/sequenceShared';
 
 export const runtime = 'nodejs';
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
   } catch (err) {
     if (err instanceof LeadNotFoundError) return bad(err.message);
     // Anything else (a database error) is logged, never shown.
-    console.error('[proof/leads/stage]', account.onboardingId, id, action, errText(err));
+    console.error('[proof/leads/stage]', account.onboardingId, id, action, redactDigits(errText(err)));
     return bad('Could not save that. Please try again.');
   }
 }

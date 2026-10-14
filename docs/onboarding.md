@@ -560,8 +560,10 @@ lead's id, not by time: while it is still ringing or in progress (under an hour
 old) the new-lead step waits, checked again every 15 minutes, so nothing is
 texted to someone the owner is talking to. A stage tap works from the table
 below and stops runs with reason `stage:<action>` (for example `stage:won`; the
-admin card shows "Stopped by a tap: won"). A text Twilio refuses because the
-number cannot take texts stops the run with `bad_number`. Editing a template
+admin card shows "Stopped by a tap: won"). A phone number that fails US number
+checks before Twilio is ever called stops the run with `bad_number`; a number
+Twilio itself rejects (a 400 such as 21211) is a definite refusal, retried like
+any other, and ends as `failed`. Editing a template
 stops its running follow-ups (`template_changed`), so a lead is never sent a mix
 of old and new wording; new leads get the new one. Turning a template off stops
 its running follow-ups on the next 15-minute run, also as `template_changed`:
@@ -624,8 +626,8 @@ or times, and never to write the STOP line (the system adds it).
   the other way round. This is guaranteed per run, not per person: someone in two
   follow-ups (a new lead, then a quote) gets it on the first text of each.
 - A step (not a reminder, not the last step the person can receive) more than 12
-  hours past its send time, quiet hours counted, is skipped rather than sent
-  late. Two sends of one run are never less than 2 hours apart (reminders
+  sending hours late (the 8 pm to 8 am quiet hours are not counted) is skipped
+  rather than sent late. Two sends of one run are never less than 2 hours apart (reminders
   excepted): a step that comes due sooner waits.
 - A reminder more than 30 minutes past its time is skipped rather than sent late,
   and one that quiet hours would push onto the appointment is skipped too.

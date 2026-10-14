@@ -469,7 +469,7 @@ async function claimAndSend(run: SequenceRun, c: ClientContext, d: SendDecision,
     try {
       await sql`UPDATE sequence_runs SET next_at = now(), updated_at = now() WHERE id = ${run.id} AND status = 'active' AND step = ${run.step};`;
     } catch (err) {
-      console.error('sequences: run not released (its lease ends in 10 minutes)', run.id, errText(err));
+      console.error('sequences: run not released (its lease ends in 10 minutes)', run.id, clip(errText(err)));
     }
     return 'released';
   }
