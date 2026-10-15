@@ -20,7 +20,12 @@ import { GuaranteeScrubber } from '@/components/axeonproof/GuaranteeScrubber';
 import { PageIntro } from '@/components/axeonproof/PageIntro';
 import { DashboardShell } from '@/components/axeonproof/DashboardShell';
 import { OverviewScreen } from '@/components/axeonproof/screens';
+import { FlowField } from '@/components/axeonproof/FlowField';
 import { EXAMPLE } from '@/data/proofPage';
+import { Instrument_Serif } from 'next/font/google';
+
+// One serif-italic accent word in the hero headline; the rest stays Plus Jakarta Sans.
+const serif = Instrument_Serif({ subsets: ['latin'], weight: '400', style: 'italic', display: 'swap' });
 
 const DESCRIPTION =
   'AxeonPROOF is the client dashboard every Axeon client signs into: every call, lead and booked job, where each one came from, and how the 90-day guarantee is tracking. Click through a live example.';
@@ -64,33 +69,44 @@ export default function AxeonProofPage() {
       <PageIntro />
       <PointerGlow />
 
-      {/* Hero: centered headline, then the live dashboard standing up out of the dark. */}
-      <section style={{ animationDelay: '2850ms' }} className="proof-hero-stagger animate-proof-settle relative overflow-hidden px-4 pb-14 pt-32 sm:px-8 sm:pb-20 sm:pt-40 lg:px-14">
+      {/* Hero: the silk flow behind a centered pitch (New pill, headline with one
+          serif-italic word, two buttons), then the live dashboard rising out of
+          the flow in a glass bezel. */}
+      <section style={{ animationDelay: '2850ms' }} className="proof-hero-stagger animate-proof-settle relative isolate overflow-hidden px-4 pb-20 pt-32 sm:px-8 sm:pb-28 sm:pt-40 lg:px-14">
+        <div aria-hidden className="absolute inset-x-0 top-0 -z-10 h-[min(1400px,150vh)] [mask-image:linear-gradient(to_bottom,black_55%,transparent)]">
+          <FlowField className="h-full w-full opacity-90" />
+          <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-neutral-950 to-transparent" />
+          <div className="absolute inset-0 bg-[radial-gradient(48%_32%_at_50%_24%,rgba(10,10,10,0.7),transparent)]" />
+        </div>
         <div className={`relative ${WRAP}`}>
           <div className="mx-auto max-w-4xl text-center">
             <div className="proof-hero-stagger animate-proof-rise" style={{ animationDelay: '3000ms' }}>
-              <Eyebrow label="AxeonPROOF" onDark className="mb-6" />
-            </div>
-            <h1 style={{ animationDelay: '3100ms' }} className="proof-hero-stagger animate-proof-rise text-balance font-display text-5xl font-black leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl">
-              Every call, lead and booked job. One screen.
-            </h1>
-            <p style={{ animationDelay: '3250ms' }} className="proof-hero-stagger animate-proof-rise mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-neutral-400 sm:text-xl">
-              The dashboard every Axeon client signs into. What your marketing brought in this month, where each customer came from, and what we are building next.
-            </p>
-            <div style={{ animationDelay: '3400ms' }} className="proof-hero-stagger animate-proof-rise mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
-              <Link href="/book" data-track="cta_click" data-track-cta="axeonproof_hero" className={CTA}>
-                Book My Free Demo <ArrowRight size={18} />
-              </Link>
-              <a href={APP_URL} className="inline-flex items-center gap-1.5 py-2 text-sm font-semibold text-neutral-400 transition-colors hover:text-white">
-                Already a client? Sign in <ExternalLink size={14} />
+              <a href="#proof-live" className="mb-7 inline-flex items-center gap-2.5 rounded-full bg-white/[0.06] py-1 pl-1 pr-4 text-xs font-semibold text-neutral-200 ring-1 ring-white/15 backdrop-blur-md transition-colors hover:bg-white/10 sm:text-sm">
+                <span className="rounded-full bg-blue-600 px-2.5 py-0.5 text-[11px] font-bold text-white sm:text-xs">New</span>
+                Say hello to AxeonPROOF
               </a>
             </div>
+            <h1 style={{ animationDelay: '3100ms' }} className="proof-hero-stagger animate-proof-rise text-balance font-display text-5xl font-extrabold leading-[1.02] tracking-tight sm:text-6xl lg:text-[5.25rem]">
+              Every call, lead <em className={`${serif.className} font-normal text-blue-300`}>and</em> booked job, on one screen.
+            </h1>
+            <p style={{ animationDelay: '3250ms' }} className="proof-hero-stagger animate-proof-rise mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-neutral-300 sm:text-xl">
+              The dashboard every Axeon client signs into. What your marketing brought in this month, where each customer came from, and what we are building next.
+            </p>
+            <div style={{ animationDelay: '3400ms' }} className="proof-hero-stagger animate-proof-rise mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+              <Link href="/book" data-track="cta_click" data-track-cta="axeonproof_hero" className={`${CTA} w-full max-w-xs sm:w-auto`}>
+                Book My Free Demo <ArrowRight size={18} />
+              </Link>
+              <a href="#proof-live" className="inline-flex w-full max-w-xs items-center justify-center gap-2 rounded-full sm:w-auto bg-white/[0.06] px-8 py-4 font-bold text-white ring-1 ring-white/15 backdrop-blur-md transition-colors hover:bg-white/10">
+                See It Live
+              </a>
+            </div>
+            <a href={APP_URL} style={{ animationDelay: '3450ms' }} className="proof-hero-stagger animate-proof-rise mt-5 inline-flex items-center gap-1.5 py-1 text-sm font-semibold text-neutral-400 transition-colors hover:text-white">
+              Already a client? Sign in <ExternalLink size={14} />
+            </a>
           </div>
         </div>
-      </section>
 
-      <section className="relative px-4 pb-20 sm:px-8 sm:pb-28 lg:px-14">
-        <div className={`${WRAP} max-w-[1400px]`}>
+        <div id="proof-live" className={`relative mt-14 scroll-mt-24 sm:mt-20 ${WRAP} max-w-[1400px]`}>
           <ProofWindow caption={`${EXAMPLE.name} is an example business and this is an example month, not a client's results. The screens are the real app.`}>
             <DashboardShell tab="overview">
               <OverviewScreen />
@@ -159,8 +175,11 @@ export default function AxeonProofPage() {
         </div>
       </section>
 
-      {/* What each plan switches on; every card goes to pricing. */}
-      <section className={SECTION}>
+      {/* What each plan switches on; every card goes to pricing. Glass cards over the flow. */}
+      <section className={`${SECTION} relative isolate overflow-hidden`}>
+        <div aria-hidden className="absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)]">
+          <FlowField className="h-full w-full opacity-70" gain={0.85} />
+        </div>
         <div className={WRAP}>
           <div className="mb-12 max-w-3xl">
             <Eyebrow label="Included with your plan" onDark className="mb-4" />
@@ -173,7 +192,7 @@ export default function AxeonProofPage() {
                 href="/pricing"
                 data-track="cta_click"
                 data-track-cta={`axeonproof_plan_${p.name.toLowerCase()}`}
-                className={`group flex flex-col rounded-3xl p-6 transition-colors sm:p-8 ${p.featured ? 'bg-blue-600 text-white hover:bg-blue-500' : 'ring-1 ring-white/10 hover:bg-white/5 hover:ring-white/20'}`}
+                className={`group flex flex-col rounded-3xl p-6 transition-colors sm:p-8 ${p.featured ? 'bg-blue-600/90 text-white shadow-2xl shadow-blue-600/30 ring-1 ring-white/25 backdrop-blur-xl hover:bg-blue-500/90' : 'bg-neutral-950/40 ring-1 ring-white/15 backdrop-blur-xl hover:bg-neutral-950/30 hover:ring-white/25'}`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>

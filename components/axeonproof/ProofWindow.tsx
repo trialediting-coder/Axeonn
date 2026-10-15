@@ -105,8 +105,9 @@ export function ProofWindow({ children, caption }: { children: ReactNode; captio
 
   return (
     <figure ref={figureRef} className="mx-auto w-full max-w-6xl proof-hero-stagger animate-proof-rise" style={{ perspective: '1800px', animationDelay: '3500ms', animationDuration: '0.9s' }}>
+      {/* Glass bezel around the window, so it reads as a device floating over the flow. */}
       <div
-        className="overflow-hidden rounded-2xl bg-[#f3f4f7] shadow-[0_50px_140px_-30px_rgba(37,99,235,0.35)] ring-1 ring-white/10 sm:rounded-[20px]"
+        className="rounded-[22px] bg-white/[0.06] p-1.5 shadow-[0_50px_140px_-30px_rgba(37,99,235,0.45)] ring-1 ring-white/15 backdrop-blur-md sm:rounded-[28px] sm:p-2.5"
         style={{
           transform: `rotateX(${tilt.toFixed(2)}deg) scale(${(0.94 + 0.06 * flat).toFixed(3)})`,
           transformOrigin: '50% 0%',
@@ -114,6 +115,7 @@ export function ProofWindow({ children, caption }: { children: ReactNode; captio
           willChange: 'transform',
         }}
       >
+      <div className="overflow-hidden rounded-2xl bg-[#f3f4f7] ring-1 ring-black/20 sm:rounded-[20px]">
         <div className="flex items-center gap-3 border-b border-neutral-200 bg-white px-3 py-2 sm:px-4 sm:py-2.5">
           <span className="flex gap-1.5" aria-hidden>
             <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
@@ -141,6 +143,7 @@ export function ProofWindow({ children, caption }: { children: ReactNode; captio
             </p>
           ) : null}
         </div>
+      </div>
       </div>
       <figcaption className="mt-5 text-center text-xs leading-relaxed text-neutral-500 sm:text-sm">{caption}</figcaption>
     </figure>
