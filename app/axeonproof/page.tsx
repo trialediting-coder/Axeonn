@@ -90,33 +90,31 @@ export default function AxeonProofPage() {
           then the live dashboard rising out of the flow in a glass bezel. */}
       <section style={{ animationDelay: '2850ms' }} className="proof-hero-stagger animate-proof-settle relative px-4 pb-20 pt-32 sm:px-8 sm:pb-28 sm:pt-40 lg:px-14">
         <div className={`${WRAP} max-w-[1400px]`}>
-          <div className="grid gap-8 lg:grid-cols-[1.45fr_1fr] lg:items-end lg:gap-16">
-            <div>
-              <div className="proof-hero-stagger animate-proof-rise" style={{ animationDelay: '3000ms' }}>
-                <Pill tag="New" href="#proof-live" className="mb-7">
-                  Say hello to AxeonPROOF
-                </Pill>
-              </div>
-              <h1 style={{ animationDelay: '3100ms' }} className="proof-hero-stagger animate-proof-rise text-balance font-display text-5xl font-extrabold leading-[1.0] tracking-tight sm:text-6xl lg:text-7xl xl:text-[5.5rem]">
-                Every call, lead <Accent>and</Accent> booked job, on one screen.
-              </h1>
+          {/* Centered, but wide: the headline runs across two lines on desktop, with room between each piece. */}
+          <div className="mx-auto flex max-w-[1240px] flex-col items-center text-center">
+            <div className="proof-hero-stagger animate-proof-rise" style={{ animationDelay: '3000ms' }}>
+              <Pill tag="New" href="#proof-live">
+                Say hello to AxeonPROOF
+              </Pill>
             </div>
-            <div className="lg:pb-2">
-              <p style={{ animationDelay: '3250ms' }} className="proof-hero-stagger animate-proof-rise max-w-xl text-lg leading-relaxed text-neutral-300 sm:text-xl">
-                The dashboard every Axeon client signs into. What your marketing brought in this month, where each customer came from, and what we are building next.
-              </p>
-              <div style={{ animationDelay: '3400ms' }} className="proof-hero-stagger animate-proof-rise mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
-                <Link href="/book" data-track="cta_click" data-track-cta="axeonproof_hero" className={CTA}>
-                  Book My Free Demo <ArrowRight size={18} />
-                </Link>
-                <a href="#proof-live" className={CTA_GLASS}>
-                  See It Live
-                </a>
-              </div>
-              <a href={APP_URL} style={{ animationDelay: '3450ms' }} className="proof-hero-stagger animate-proof-rise mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-200 underline decoration-white/30 underline-offset-4 transition-colors hover:text-white hover:decoration-white">
-                Already a client? Sign in <ExternalLink size={14} />
+            <h1 style={{ animationDelay: '3100ms' }} className="proof-hero-stagger animate-proof-rise mt-8 text-balance font-display text-5xl font-extrabold leading-[1.04] tracking-tight sm:text-6xl lg:text-wrap lg:text-7xl xl:text-[5.25rem]">
+              Every call, lead <Accent>and</Accent> booked job,
+              <br className="hidden lg:block" /> on one screen.
+            </h1>
+            <p style={{ animationDelay: '3250ms' }} className="proof-hero-stagger animate-proof-rise mt-8 max-w-3xl text-lg leading-relaxed text-neutral-300 sm:text-xl">
+              The dashboard every Axeon client signs into. What your marketing brought in this month, where each customer came from, and what we are building next.
+            </p>
+            <div style={{ animationDelay: '3400ms' }} className="proof-hero-stagger animate-proof-rise mt-10 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row sm:gap-4">
+              <Link href="/book" data-track="cta_click" data-track-cta="axeonproof_hero" className={`${CTA} w-full max-w-xs sm:w-auto`}>
+                Book My Free Demo <ArrowRight size={18} />
+              </Link>
+              <a href="#proof-live" className={`${CTA_GLASS} w-full max-w-xs sm:w-auto`}>
+                See It Live
               </a>
             </div>
+            <a href={APP_URL} style={{ animationDelay: '3450ms' }} className="proof-hero-stagger animate-proof-rise mt-7 inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-200 underline decoration-white/30 underline-offset-4 transition-colors hover:text-white hover:decoration-white">
+              Already a client? Sign in <ExternalLink size={14} />
+            </a>
           </div>
 
           <div id="proof-live" className="relative mt-16 scroll-mt-24 sm:mt-20">
