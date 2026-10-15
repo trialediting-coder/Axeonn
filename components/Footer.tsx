@@ -42,9 +42,8 @@ const SOLUTION_LINKS: FooterLink[] = [
 ];
 
 const SOCIAL_LINKS: FooterLink[] = [
-  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/hayder-hatem-4a6720318/' },
-  { label: 'Instagram', href: 'https://www.instagram.com/hayderhatemm/' },
-  { label: 'X', href: 'https://x.com/HayderHatemm' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/company/axeon-studio' },
+  { label: 'Facebook', href: 'https://www.facebook.com/profile.php?id=61593868815413' },
 ];
 
 function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) {
@@ -119,26 +118,9 @@ export function Footer({ year }: FooterProps) {
         {/* Contact + link columns */}
         <div className="mt-14 lg:mt-20 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
           <div className="lg:col-span-4">
-            <div className="flex items-center gap-4">
-              <picture>
-                <source srcSet="/hayder_hatem.webp" type="image/webp" />
-                <img
-                  src="/hayder_hatem.png"
-                  alt="Hayder Hatem"
-                  loading="lazy"
-                  decoding="async"
-                  width={48}
-                  height={48}
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/images/founder-avatar-fallback.webp';
-                  }}
-                  className="w-12 h-12 rounded-full object-cover border border-neutral-200"
-                />
-              </picture>
-              <div>
-                <div className="text-base font-extrabold text-neutral-950 font-display">Hayder Hatem</div>
-                <div className="text-sm text-neutral-500">Founder · West Des Moines, Iowa</div>
-              </div>
+            <div>
+              <div className="text-base font-extrabold text-neutral-950 font-display">Axeon Studio</div>
+              <div className="text-sm text-neutral-500">West Des Moines, Iowa</div>
             </div>
             <div className="mt-4">
               <a

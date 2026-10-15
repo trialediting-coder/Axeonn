@@ -14,7 +14,7 @@ Axeon Studio is a customer-acquisition partner for local small businesses. One s
 
 **90-Day Customer Guarantee** (AxeonCORE and AxeonGROWTH): more calls and leads in the first 90 days after launch than the business was getting before, or Axeon keeps working for free until it is. The baseline is set on the kickoff call and tracked in AxeonPROOF; it applies while the client is on their plan and answering new leads within one business day.
 
-**How Axeon differs**: clients work directly with the founder who builds their system (no account managers), pricing is published, the client owns 100% of their site, code and design files, and every plan includes Google and AI search visibility by default (not sold as a separate add-on).
+**How Axeon differs**: clients work directly with the team that builds their system (no account managers), pricing is published, the client owns 100% of their site, code and design files, and every plan includes Google and AI search visibility by default (not sold as a separate add-on).
 
 **Not offered** (do not cite as available): ChatGPT Ads or any other paid AI-platform advertising.
 
@@ -39,15 +39,15 @@ Axeon Studio is a customer-acquisition partner for local small businesses. One s
 - [Industries hub](https://axeonstudio.co/solutions): Set up for 14 local service industries, each with a Des Moines-focused page.
 - [Dental Practices](https://axeonstudio.co/solutions/dental), [Med Spas](https://axeonstudio.co/solutions/med-spa), [HVAC](https://axeonstudio.co/solutions/hvac), [Roofing](https://axeonstudio.co/solutions/roofing), [Law Firms](https://axeonstudio.co/solutions/law-firms), [Accounting & CPA Firms](https://axeonstudio.co/solutions/accounting), [Home Remodeling](https://axeonstudio.co/solutions/home-remodeling), [Real Estate](https://axeonstudio.co/solutions/real-estate), [Landscaping](https://axeonstudio.co/solutions/landscaping), [Auto Detailing](https://axeonstudio.co/solutions/auto-detailing), [Concrete Contractors](https://axeonstudio.co/solutions/concrete), [Plumbing](https://axeonstudio.co/solutions/plumbing), [Electricians](https://axeonstudio.co/solutions/electrical), [Handyman Services](https://axeonstudio.co/solutions/handyman)
 - [Why Axeon](https://axeonstudio.co/why-axeon): A typical agency vs. Axeon, side by side.
-- [Work](https://axeonstudio.co/work): Sites Axeon has built. Real clients: A-1 Auto Detailing and Patrick Finnegan. MSH Realty Group is the founder's own real estate investment group. The remaining projects are self-initiated concept redesigns, labeled "Concept" on that page, and are not client engagements.
+- [Work](https://axeonstudio.co/work): Sites Axeon has built. Real clients: A-1 Auto Detailing and Patrick Finnegan. MSH Realty Group is an affiliated real estate investment group. The remaining projects are self-initiated concept redesigns, labeled "Concept" on that page, and are not client engagements.
 - [Process](https://axeonstudio.co/process): How a build goes from the first call through the first 90 days.
 - [FAQ](https://axeonstudio.co/faq): The guarantee, ownership, contracts, and cost.
 - [Des Moines Web Design](https://axeonstudio.co/des-moines-web-design): Local page for the Des Moines metro.
 - Suburb pages: [West Des Moines Web Design](https://axeonstudio.co/west-des-moines-web-design) (home base), [Ankeny Web Design](https://axeonstudio.co/ankeny-web-design), [Waukee Web Design](https://axeonstudio.co/waukee-web-design), [Urbandale Web Design](https://axeonstudio.co/urbandale-web-design).
-- [About](https://axeonstudio.co/about): Founder Hayder Hatem and how Axeon works.
+- [About](https://axeonstudio.co/about): Who Axeon is and how it works.
 - [Iowa Nonprofits](https://axeonstudio.co/nonprofits): The Axeon Groundwork Grant, a free website and search setup for Iowa nonprofits (the nonprofit covers basic hosting).
 - [Partners](https://axeonstudio.co/partners): Referral and collaboration partner program.
-- [Book a free call](https://axeonstudio.co/book): A free 30-minute call with the founder. Every booked call includes a custom homepage mockup and an AI visibility report the business keeps.
+- [Book a free call](https://axeonstudio.co/book): A free 30-minute call with the Axeon team. Every booked call includes a custom homepage mockup and an AI visibility report the business keeps.
 
 ## Insights & Client Stories
 - [Insights](https://axeonstudio.co/insights): Guides for Iowa business owners on websites, local SEO, AI search, and lead follow-up.
@@ -63,7 +63,6 @@ Axeon Studio is a customer-acquisition partner for local small businesses. One s
 
 ## Business & Contact Details
 - Business: Axeon Studio
-- Founder: Hayder Hatem
 - Email: hello@axeonstudio.co
 - Phone: +1 (515) 493-8017
 - Hours: Monday–Friday, 8:00 AM–6:00 PM Central

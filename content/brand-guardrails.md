@@ -131,4 +131,4 @@ local-only.
 
 ## Voice
 - Direct, specific, no jargon-stuffed corporate language.
-- Iowa-based, West Des Moines. Founder: Hayder Hatem.
+- Iowa-based, West Des Moines. Present Axeon as a company: never name the founder or use a personal "I" voice in public copy (owner, 2026-10-14).

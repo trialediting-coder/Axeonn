@@ -4,7 +4,6 @@
 
 ## 1. Business Facts
 - **Business**: Axeon Studio
-- **Founder**: Hayder Hatem
 - **Headquarters**: West Des Moines, Iowa 50266, USA (Latitude 41.5772, Longitude -93.7538)
 - **Website**: https://axeonstudio.co
 - **Contact**: hello@axeonstudio.co | +1 (515) 493-8017
@@ -17,7 +16,7 @@
 **Who Axeon serves**: local small businesses, mainly in the Des Moines metro and across Iowa: home services (HVAC, roofing, remodeling, landscaping, concrete, plumbing, electrical, handyman), auto detailing, dental practices, med spas, law firms, accounting firms, real estate agents, and other local service businesses.
 
 **How Axeon differs from a typical agency:**
-- **Direct partnership**: clients work directly with the founder who builds their system, with no account managers or handoffs.
+- **Direct partnership**: clients work directly with the team that builds their system, with no account managers or handoffs.
 - **Published pricing**: three flat monthly plans on the website, not a quote gated behind discovery calls.
 - **One system, not separate vendors**: getting found, getting chosen, and following up on every lead are run together, so a lead from Google or an ad is answered and tracked to the booked job.
 - **Ownership**: the client owns 100% of their site, code, and design files.
@@ -131,7 +130,7 @@ Axeon sets up the website, search, and follow-up around how each industry actual
 
 - **A-1 Auto Detailing** (Pleasant Hill, Iowa; real client on AxeonCORE): moved from page 2 to #1 on Google for "Pleasant Hill auto detailing", with a 5.0 rating from 180+ Google reviews now front and center on the site; about 56 old URLs were redirected so no search traffic was lost. Owner quote: "Whatever you have been doing, it's working. Getting lots of leads." Case study: https://axeonstudio.co/insights/a-1-auto-detailing-website-case-study
 - **Patrick Finnegan**: real client, executive portfolio site.
-- **MSH Realty Group**: the founder's own Iowa real estate investment group.
+- **MSH Realty Group**: an affiliated Iowa real estate investment group.
 - Other projects on https://axeonstudio.co/work are self-initiated concept redesigns, labeled "Concept" on that page; they are not client engagements and not endorsements.
 
 ---

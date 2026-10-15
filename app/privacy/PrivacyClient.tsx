@@ -531,7 +531,7 @@ export default function PrivacyClient() {
               </p>
               <div className="p-5 rounded-xl bg-white border border-gray-200 space-y-1.5 text-sm">
                 <div className="font-bold text-gray-950 text-base">Axeon Studio</div>
-                <div className="text-gray-600">Attention: Hayder Hatem, Founder</div>
+                <div className="text-gray-600">Attention: Privacy</div>
                 <div className="text-gray-600">West Des Moines, Iowa, United States</div>
                 <div className="pt-2 text-gray-900 font-medium">
                   Direct Email:{' '}

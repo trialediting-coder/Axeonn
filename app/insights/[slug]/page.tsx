@@ -8,7 +8,7 @@ import { getPostBySlug, listPosts } from '@/lib/posts';
 import { niches } from '@/data/nichesData';
 import { buildMetadata } from '@/lib/metadata';
 import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
-import { FOUNDER, FOUNDER_ID, ORG_ID, SITE_URL } from '@/lib/seo';
+import { ORG_ID, SITE_URL } from '@/lib/seo';
 
 // Matches /insights's own revalidate window -- without this the route has
 // no revalidate and no generateStaticParams, so it fully re-queries Postgres
@@ -67,11 +67,9 @@ export default async function InsightPostPage({
     image: post.coverImageUrl ?? `${SITE_URL}/og-axeon-card.png`,
     datePublished: post.publishedAt,
     dateModified: post.updatedAt,
-    // A named human author (with a profile page and social proof) is an
-    // E-E-A-T signal; an anonymous "Organization" author is not.
-    // Full details for both live in the site-wide graph (lib/seo.ts); restating
-    // them here gave the same @id two different shapes.
-    author: { '@id': FOUNDER_ID },
+    // Articles are published under the company, not a named person (owner, 2026-10-14).
+    // Full details live in the site-wide graph (lib/seo.ts).
+    author: { '@id': ORG_ID },
     publisher: { '@id': ORG_ID },
     mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE_URL}/insights/${post.slug}` },
     inLanguage: 'en-US',
@@ -116,9 +114,8 @@ export default async function InsightPostPage({
         </h1>
         <p className="text-sm text-neutral-400 mb-8">
           <Link href="/about" className="text-neutral-600 font-medium hover:text-blue-600">
-            {FOUNDER.name}
+            Axeon Studio
           </Link>
-          {' · Founder, Axeon Studio'}
           {post.publishedAt && (
             <>
               {' · '}

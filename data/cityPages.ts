@@ -78,7 +78,7 @@ export const cityPages: CityPage[] = [
     eyebrow: 'West Des Moines, Iowa · Home Base',
     h1: 'West Des Moines Web Design That Gets You More Customers',
     intro:
-      'Axeon Studio is based in West Des Moines. We get local businesses more customers: found on Google, chosen over the competition, and booked. The team down the road builds it, and the founder answers the phone.',
+      'Axeon Studio is based in West Des Moines. We get local businesses more customers: found on Google, chosen over the competition, and booked. The team down the road builds it and answers the phone.',
     localHeading: 'Built in West Des Moines, for West Des Moines.',
     localBody: [
       'West Des Moines is not one market. A business near Jordan Creek competes with regional chains and big national names for the same searches, while a shop in Valley Junction is trying to be the local pick people already want to support. Both need to show up when someone nearby searches, and both need a site that makes calling feel easy.',
@@ -106,7 +106,7 @@ export const cityPages: CityPage[] = [
       {
         question: 'Are you actually located in West Des Moines?',
         answer:
-          'Yes. Axeon Studio is based in West Des Moines, Iowa 50266. The founder, Hayder Hatem, builds every site and answers the phone himself, and we can meet at your location anywhere in the metro.',
+          'Yes. Axeon Studio is based in West Des Moines, Iowa 50266. The team that builds your site answers the phone, and we can meet at your location anywhere in the metro.',
       },
       {
         question: 'Can you help my business show up for West Des Moines searches?',

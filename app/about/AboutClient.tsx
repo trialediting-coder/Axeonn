@@ -45,9 +45,9 @@ const STEPS = [
   },
 ];
 
-const HOW_I_WORK = [
-  'You talk to me. No account managers, no hand-offs to a junior team.',
-  'I take on a handful of clients at a time, so your project never sits in a queue.',
+const HOW_WE_WORK = [
+  'You talk to the people building your system. No account managers, no hand-offs to a junior team.',
+  'We take on a handful of clients at a time, so your project never sits in a queue.',
   'You go live in a fraction of the time a typical agency takes. Not six months.',
   'Your calls and leads are tracked from day one, with a report every month.',
 ];
@@ -80,8 +80,8 @@ export default function AboutClient() {
 
             <div className="lg:col-span-5 flex flex-col justify-end hero-rise">
               <p className="text-base sm:text-lg text-neutral-600 leading-relaxed">
-                I started Axeon in West Des Moines to fix that. We get Iowa businesses more calls, more booked jobs, and
-                more customers. And you work directly with me.
+                Axeon was built in West Des Moines to fix that. We get Iowa businesses more calls, more booked jobs, and
+                more customers. And you work directly with the team doing the work.
               </p>
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <button
@@ -190,34 +190,21 @@ export default function AboutClient() {
           </div>
         </div>
       </section>
-      {/* SECTION 3: Founder story */}
+      {/* SECTION 3: Why Axeon exists */}
       <section className="flex flex-col justify-center px-4 sm:px-8 lg:px-14 xl:px-20 border-b border-neutral-200/80 py-12 lg:py-16 relative bg-[#FAF9F8]">
         <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
             <div className="lg:col-span-5"
             >
-              <div className="relative w-full aspect-[4/4.6] max-w-md mx-auto lg:max-w-none rounded-3xl overflow-hidden shadow-xl border border-neutral-200/90 group bg-neutral-200">
-                <picture>
-                  <source srcSet="/hayder_hatem.webp" type="image/webp" />
-                  <img
-                    src="/hayder_hatem.png"
-                    alt="Hayder Hatem, founder of Axeon Studio"
-                    loading="eager"
-                    decoding="async"
-                    width={600}
-                    height={750}
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
-                  />
-                </picture>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
-                <div className="absolute bottom-6 left-6 right-6 text-white">
-                  <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-blue-300 font-semibold mb-1">
-                    <MapPin size={13} />
-                    <span>West Des Moines, Iowa</span>
-                  </div>
-                  <div className="text-2xl sm:text-3xl font-extrabold font-display leading-tight">Hayder Hatem</div>
-                  <div className="text-xs text-neutral-300 mt-1 font-medium">Founder, Axeon Studio</div>
+              <div className="relative w-full max-w-md mx-auto lg:max-w-none rounded-3xl overflow-hidden shadow-xl border border-neutral-800 bg-neutral-950 text-white p-8 sm:p-10">
+                <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-blue-300 font-semibold mb-3">
+                  <MapPin size={13} />
+                  <span>West Des Moines, Iowa</span>
                 </div>
+                <div className="text-3xl sm:text-4xl font-extrabold font-display leading-tight">Axeon Studio</div>
+                <p className="mt-3 text-sm sm:text-base text-neutral-400 leading-relaxed">
+                  A local growth studio for Iowa businesses. Built here, answering the phone here.
+                </p>
               </div>
 
               <div className="mt-5 p-5 rounded-2xl bg-white border border-neutral-200/80 shadow-xs max-w-md mx-auto lg:max-w-none">
@@ -237,7 +224,7 @@ export default function AboutClient() {
                   </a>
                 </div>
                 <div className="text-xs text-neutral-500 mt-1.5">
-                  You talk to me on every call. Not a sales rep, not an account manager.
+                  You talk to the team building your system. Not a sales rep, not an account manager.
                 </div>
               </div>
             </div>
@@ -246,20 +233,20 @@ export default function AboutClient() {
             >
               <div>
                 <span className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">
-                  [ A PERSONAL NOTE FROM HAYDER ]
+                  [ WHY AXEON EXISTS ]
                 </span>
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-neutral-950 font-display tracking-tight mt-2">
-                  Why I started Axeon.
+                  Why Axeon exists.
                 </h2>
                 <div className="mt-5 space-y-4 text-sm sm:text-base lg:text-lg text-neutral-600 leading-relaxed">
                   <p>
-                    I kept watching Iowa business owners pay agencies for a pretty website that never brought in a
+                    Too many Iowa business owners pay agencies for a pretty website that never brought in a
                     customer. And when someone did call, nobody answered until the next day. By then they&apos;d called a
                     competitor.
                   </p>
                   <p>
-                    So I built <strong className="text-neutral-950 font-display">Axeon</strong> around the only number
-                    that matters to an owner: new customers. Then I put a guarantee on it.
+                    So <strong className="text-neutral-950 font-display">Axeon</strong> is built around the only number
+                    that matters to an owner: new customers. And we put a guarantee on it.
                   </p>
                 </div>
               </div>
@@ -294,11 +281,11 @@ export default function AboutClient() {
         </div>
       </section>
 
-      {/* SECTION 4: dark statement band — how I work */}
+      {/* SECTION 4: dark statement band — how we work */}
       <section className="px-4 sm:px-8 lg:px-14 xl:px-20 py-16 sm:py-24 lg:py-28 bg-neutral-950 text-white">
         <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
           <div className="lg:col-span-5">
-            <span className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">[ HOW I WORK ]</span>
+            <span className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">[ HOW WE WORK ]</span>
             <h2 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-[1.05] mt-3">
               You&apos;ll never talk to an account manager.
             </h2>
@@ -308,7 +295,7 @@ export default function AboutClient() {
             </p>
           </div>
           <ol className="lg:col-span-7 divide-y divide-white/10 border-y border-white/10">
-            {HOW_I_WORK.map((item, idx) => (
+            {HOW_WE_WORK.map((item, idx) => (
               <li key={item} className="flex items-baseline gap-5 sm:gap-8 py-6 sm:py-7">
                 <span className="text-3xl sm:text-5xl font-black font-display text-blue-500 tabular-nums shrink-0">
                   0{idx + 1}
@@ -330,7 +317,7 @@ export default function AboutClient() {
             Let&apos;s get you more customers.
           </h2>
           <p className="text-base sm:text-lg text-neutral-600 mt-4 leading-relaxed max-w-2xl mx-auto">
-            Book a free 30-minute call with me. You&apos;ll get a custom homepage mockup and an AI visibility report,
+            Book a free 30-minute call with our team. You&apos;ll get a custom homepage mockup and an AI visibility report,
             yours to keep either way.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">

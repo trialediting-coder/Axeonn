@@ -28,9 +28,9 @@ const TEL_HREF = `tel:${BUSINESS.telephone.replace(/-/g, '')}`;
 const LOCAL_REASONS = [
   {
     icon: PhoneCall,
-    title: 'You call the person who built it',
+    title: 'You call the team that built it',
     description:
-      'Axeon is a West Des Moines studio, not a national agency with an Iowa landing page. The founder answers the phone, sits in on your strategy call, and builds the site himself.',
+      'Axeon is a West Des Moines studio, not a national agency with an Iowa landing page. The people building your site answer the phone and sit in on your strategy call. No call centers, no hand-offs.',
   },
   {
     icon: Clapperboard,
@@ -131,27 +131,16 @@ export default function DesMoinesWebDesignPage() {
         </div>
       </section>
 
-      {/* Why local: one message -- the person who builds it answers the phone. */}
+      {/* Why local: one message -- the team that builds it answers the phone. */}
       <section className="w-full py-20 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
           <div className="lg:col-span-5">
-            <div className="relative w-full max-w-sm mx-auto lg:max-w-none aspect-[4/4.6] rounded-3xl overflow-hidden bg-neutral-200 border border-neutral-200 shadow-xl">
-              <picture>
-                <source srcSet="/hayder_hatem.webp" type="image/webp" />
-                <img
-                  src="/hayder_hatem.png"
-                  alt="Hayder Hatem, founder of Axeon Studio in West Des Moines"
-                  loading="lazy"
-                  decoding="async"
-                  width={600}
-                  height={750}
-                  className="w-full h-full object-cover object-center"
-                />
-              </picture>
-              <div className="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-black/80 to-transparent text-white">
-                <div className="text-lg font-extrabold font-display">Hayder Hatem</div>
-                <div className="text-xs text-neutral-300">Founder · West Des Moines, Iowa</div>
-              </div>
+            <div className="relative w-full max-w-sm mx-auto lg:max-w-none rounded-3xl overflow-hidden bg-neutral-950 text-white border border-neutral-800 shadow-xl p-8 sm:p-10">
+              <div className="text-xs font-mono font-bold tracking-widest text-blue-300 uppercase">[ WEST DES MOINES, IOWA ]</div>
+              <div className="mt-3 text-3xl sm:text-4xl font-extrabold font-display leading-tight">Axeon Studio</div>
+              <p className="mt-3 text-sm text-neutral-400 leading-relaxed">
+                Built in the metro, answering the phone in the metro.
+              </p>
             </div>
           </div>
 
@@ -160,7 +149,7 @@ export default function DesMoinesWebDesignPage() {
               [ WHY A LOCAL TEAM ]
             </p>
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-[1.05]">
-              The person who builds it answers the phone.
+              The team that builds it answers the phone.
             </h2>
             <p className="mt-5 text-lg text-neutral-600 leading-relaxed">{LOCAL_REASONS[0].description}</p>
             <a

@@ -128,7 +128,7 @@ export function CityLanding({ page }: { page: CityPage }) {
               href={TEL_HREF}
               className="mt-6 inline-flex items-center gap-2 text-base font-bold text-blue-600 hover:text-blue-700"
             >
-              <PhoneCall size={18} /> Talk to the founder: {BUSINESS.telephoneDisplay}
+              <PhoneCall size={18} /> Talk to our team: {BUSINESS.telephoneDisplay}
             </a>
           </div>
         </div>

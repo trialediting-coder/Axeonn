@@ -297,7 +297,7 @@ export default function TermsClient() {
             </h2>
             <div className="mt-3.5 space-y-3 text-gray-700 text-[15px] sm:text-base">
               <p>
-                TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL AXEONSTUDIO, ITS FOUNDER, EMPLOYEES, CONTRACTORS, OR AGENTS BE LIABLE TO YOU OR ANY THIRD PARTY FOR ANY INDIRECT, INCIDENTAL, CONSEQUENTIAL, SPECIAL, PUNITIVE, OR EXEMPLARY DAMAGES (INCLUDING LOST REVENUE, LOST PROFITS, BUSINESS INTERRUPTION, LOSS OF DATA, OR GOODWILL) ARISING OUT OF OR IN CONNECTION WITH YOUR USE OF OUR WEBSITE OR CONTRACTED DIGITAL SERVICES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+                TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL AXEONSTUDIO, ITS OWNERS, EMPLOYEES, CONTRACTORS, OR AGENTS BE LIABLE TO YOU OR ANY THIRD PARTY FOR ANY INDIRECT, INCIDENTAL, CONSEQUENTIAL, SPECIAL, PUNITIVE, OR EXEMPLARY DAMAGES (INCLUDING LOST REVENUE, LOST PROFITS, BUSINESS INTERRUPTION, LOSS OF DATA, OR GOODWILL) ARISING OUT OF OR IN CONNECTION WITH YOUR USE OF OUR WEBSITE OR CONTRACTED DIGITAL SERVICES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
               </p>
               <p>
                 IN ALL CIRCUMSTANCES, AXEONSTUDIO&apos;S AGGREGATE CUMULATIVE MONETARY LIABILITY UNDER THESE TERMS OR ANY ASSOCIATED SOW SHALL BE STRICTLY LIMITED TO THE ACTUAL FEES PAID BY YOU TO AXEONSTUDIO FOR THE SPECIFIC SERVICE AT ISSUE DURING THE THREE (3) MONTHS IMMEDIATELY PRECEDING THE CLAIM.
@@ -313,7 +313,7 @@ export default function TermsClient() {
             </h2>
             <div className="mt-3.5 space-y-3 text-gray-700 text-[15px] sm:text-base">
               <p>
-                You agree to defend, indemnify, and hold harmless Axeon Studio, its founder, and affiliates against any third-party claims, liabilities, losses, damages, and expenses (including reasonable legal fees) arising from or relating to: (a) materials or content provided by you that infringe upon third-party copyrights or trademarks; (b) your violation of these Terms; or (c) your unauthorized commercial use or modification of delivered source code.
+                You agree to defend, indemnify, and hold harmless Axeon Studio, its owners, and affiliates against any third-party claims, liabilities, losses, damages, and expenses (including reasonable legal fees) arising from or relating to: (a) materials or content provided by you that infringe upon third-party copyrights or trademarks; (b) your violation of these Terms; or (c) your unauthorized commercial use or modification of delivered source code.
               </p>
             </div>
           </section>
@@ -362,7 +362,7 @@ export default function TermsClient() {
               </p>
               <div className="mt-4 p-5 rounded-xl bg-white border border-gray-200 space-y-1.5 text-sm">
                 <div className="font-bold text-gray-950 text-base">Axeon Studio</div>
-                <div className="text-gray-600">Attention: Hayder Hatem, Founder</div>
+                <div className="text-gray-600">Attention: Legal</div>
                 <div className="text-gray-600">West Des Moines, Iowa, United States</div>
                 <div className="pt-2 text-gray-900 font-medium">
                   Direct Inquiries:{' '}

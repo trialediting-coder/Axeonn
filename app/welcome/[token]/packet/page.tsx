@@ -119,8 +119,8 @@ export default async function WelcomePacketPage({ params }: { params: Promise<{ 
       />
 
       <p className="mt-8">We are glad you are here. Let&apos;s go get you customers.</p>
-      <p className="mt-4 font-bold text-neutral-950">Hayder Hatem</p>
-      <p className="text-sm text-neutral-500">Founder, Axeon Studio · West Des Moines, Iowa</p>
+      <p className="mt-4 font-bold text-neutral-950">The Axeon Studio team</p>
+      <p className="text-sm text-neutral-500">West Des Moines, Iowa</p>
     </DocPaper>
   );
 }

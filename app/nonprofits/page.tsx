@@ -216,27 +216,10 @@ export default function NonprofitsPage() {
         </dl>
       </section>
 
-      {/* Why: founder quote */}
+      {/* Why: mission statement */}
       <section className="w-full lg:min-h-[100dvh] flex items-center py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
         <figure className="max-w-6xl mx-auto w-full grid lg:grid-cols-12 gap-10 lg:gap-16 items-center">
-          <div className="lg:col-span-5">
-            <div className="relative mx-auto max-w-sm lg:max-w-none">
-              <div aria-hidden="true" className="absolute -inset-3 rounded-[2rem] bg-blue-600/10 rotate-2" />
-              <picture>
-                <source srcSet="/hayder_hatem.webp" type="image/webp" />
-                <img
-                  src="/hayder_hatem.png"
-                  alt="Hayder Hatem, founder of Axeon Studio"
-                  loading="lazy"
-                  decoding="async"
-                  width={600}
-                  height={750}
-                  className="relative w-full aspect-[4/5] object-cover object-top rounded-[1.75rem] shadow-xl"
-                />
-              </picture>
-            </div>
-          </div>
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-10 lg:col-start-2">
             <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-6">[ WHY WE DO THIS ]</p>
             <span aria-hidden="true" className="block font-display text-8xl leading-none text-blue-600/25 -mb-6">
               &ldquo;
@@ -252,27 +235,20 @@ export default function NonprofitsPage() {
                 work happens quietly, carried by small teams who give far more than they ever get back.
               </p>
               <p className="text-lg text-neutral-700 leading-relaxed">
-                My own life is why that matters to me. Time around a hospital showed me how much it means when
-                someone finds care at the right moment, and what it costs when they don’t. Being an immigrant
-                taught me what it feels like to look for help in a new place, sometimes in a language you are still
-                learning. And every trail I have hiked in this state is cared for by people who love it enough to
-                protect it on almost nothing.
-              </p>
-              <p className="text-lg text-neutral-700 leading-relaxed">
                 Those missions deserve to be found. But most small nonprofits cannot pay agency rates, so they get
                 by with an outdated website or none at all, and the people who need them most never find them. That
                 is a problem we know how to fix, so we are fixing it for free, for as many Iowa nonprofits as we
                 can.
               </p>
               <p className="text-lg text-neutral-950 font-semibold leading-relaxed">
-                This state has given me a lot. This is one way I get to give some of it back.
+                This state has given us a lot. This is one way we get to give some of it back.
               </p>
             </blockquote>
             <figcaption className="mt-8 flex items-center gap-4">
               <span aria-hidden="true" className="h-px w-10 bg-blue-600" />
               <span>
-                <span className="block font-bold text-neutral-950">Hayder Hatem</span>
-                <span className="block text-sm text-neutral-500">Founder, Axeon Studio · West Des Moines</span>
+                <span className="block font-bold text-neutral-950">Axeon Studio</span>
+                <span className="block text-sm text-neutral-500">West Des Moines, Iowa</span>
               </span>
             </figcaption>
           </div>

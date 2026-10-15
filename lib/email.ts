@@ -1088,7 +1088,7 @@ export function renderMonthlyReportEmail(input: MonthlyReportEmailInput): { subj
       </div>`
       : '';
   const ownerLine = ramp
-    ? `<p class="ax-muted" style="margin:0 0 18px;font-family:${FONT};font-size:13px;line-height:1.5;color:${BRAND.muted}">${escapeHtml(OWNER_NAME)} reads every one of these before it goes out. Reply and it goes straight to ${escapeHtml(OWNER_NAME)}.</p>`
+    ? `<p class="ax-muted" style="margin:0 0 18px;font-family:${FONT};font-size:13px;line-height:1.5;color:${BRAND.muted}">A real person on our team reads every one of these before it goes out. Reply and it goes straight to us.</p>`
     : '';
   const work = `${rH2(ramp ? 'What we built this month' : 'What Axeon did this month')}
     ${didSomething ? rSteps(input.done) : ''}
@@ -1148,8 +1148,6 @@ export async function sendReportPreviewToOwner(input: MonthlyReportEmailInput & 
   });
   return true;
 }
-
-const OWNER_NAME = process.env.OWNER_NAME || 'Hayder';
 
 /** To the owner: a client tapped "No" or wrote a sentence (lib/feedback.ts). Never for a plain "Yes". */
 export async function sendFeedbackNotification(input: {

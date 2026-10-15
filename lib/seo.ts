@@ -8,7 +8,6 @@ import { MINIMUM_TERM, pricingTiers } from '@/data/pricingData';
 
 export const SITE_URL = 'https://axeonstudio.co';
 export const ORG_ID = `${SITE_URL}/#organization`;
-export const FOUNDER_ID = `${SITE_URL}/#founder`;
 export const WEBSITE_ID = `${SITE_URL}/#website`;
 
 // Bump when static page content materially changes. Used as the sitemap
@@ -37,22 +36,11 @@ export const BUSINESS = {
   },
   // Real published pricing floor/ceiling — never widen to an unsourced range.
   priceRange: '$149-$999',
-  // Company profiles only; the founder's personal accounts live on FOUNDER.
+  // Company profiles only; no personal accounts.
   // Add the Google Business Profile, Yelp and Clutch URLs here once claimed.
   sameAs: [
     'https://www.linkedin.com/company/axeon-studio',
     'https://www.facebook.com/profile.php?id=61593868815413',
-  ],
-} as const;
-
-export const FOUNDER = {
-  name: 'Hayder Hatem',
-  jobTitle: 'Founder & Principal Systems Architect',
-  image: `${SITE_URL}/hayder_hatem.webp`,
-  sameAs: [
-    'https://www.linkedin.com/in/hayder-hatem-4a6720318/',
-    'https://x.com/HayderHatemm',
-    'https://www.instagram.com/hayderhatemm/',
   ],
 } as const;
 
@@ -174,22 +162,7 @@ export function localBusinessJsonLd() {
       'Axeon Studio gets Des Moines-area businesses more customers: local SEO and AI search visibility, Google, Meta and Local Services Ads, websites built to turn visitors into calls, and instant lead follow-up, run by one West Des Moines team and backed by a 90-day customer guarantee.',
     knowsAbout: KNOWS_ABOUT,
     hasOfferCatalog: planOfferCatalog(),
-    founder: { '@id': FOUNDER_ID },
     sameAs: BUSINESS.sameAs,
-  };
-}
-
-export function founderJsonLd() {
-  return {
-    '@type': 'Person',
-    '@id': FOUNDER_ID,
-    name: FOUNDER.name,
-    jobTitle: FOUNDER.jobTitle,
-    image: FOUNDER.image,
-    url: `${SITE_URL}/about`,
-    worksFor: { '@id': ORG_ID },
-    address: BUSINESS.address,
-    sameAs: FOUNDER.sameAs,
   };
 }
 
@@ -208,7 +181,7 @@ export function websiteJsonLd() {
 export function siteGraphJsonLd() {
   return {
     '@context': 'https://schema.org',
-    '@graph': [localBusinessJsonLd(), founderJsonLd(), websiteJsonLd()],
+    '@graph': [localBusinessJsonLd(), websiteJsonLd()],
   };
 }
 

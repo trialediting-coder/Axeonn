@@ -107,7 +107,7 @@ const STEPS = [
 
 const PROMISES = [
   'We only take partners whose clients we are confident we can help.',
-  'Every referral gets a fast, personal reply from the founder.',
+  'Every referral gets a fast, personal reply from our team.',
   'Referral rewards are paid when they pay their first invoice.',
 ];
 

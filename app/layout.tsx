@@ -24,7 +24,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   display: 'swap',
 });
 
-// Site-wide structured data (ProfessionalService + founder Person + WebSite)
+// Site-wide structured data (ProfessionalService + WebSite)
 // lives in lib/seo.ts so every page's Service schema can reference the same
 // @id instead of re-inlining NAP.
 const siteGraph = siteGraphJsonLd();
