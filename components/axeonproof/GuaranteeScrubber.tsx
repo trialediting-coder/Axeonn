@@ -7,6 +7,7 @@
 // data/proofPage.ts, labelled on screen.
 import { useId, useState } from 'react';
 import { EXAMPLE } from '@/data/proofPage';
+import { GLASS, LABEL } from '@/components/axeonproof/ui';
 
 const { baseline, now, day: TODAY } = EXAMPLE.guarantee;
 const DAYS = 90;
@@ -21,11 +22,11 @@ export function GuaranteeScrubber() {
   const bars = Array.from({ length: 18 }, (_, i) => atDay(Math.round(((i + 1) * DAYS) / 18)));
   const max = Math.max(...bars);
   return (
-    <div className="rounded-3xl bg-white/[0.04] p-5 ring-1 ring-white/10 sm:p-7">
+    <div className={`rounded-3xl p-5 sm:p-7 ${GLASS}`}>
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
-          <label htmlFor={id} className="text-xs font-mono font-bold uppercase tracking-widest text-blue-400">
-            [ Drag through the 90 days ]
+          <label htmlFor={id} className={LABEL}>
+            Drag through the 90 days
           </label>
           <p className="mt-3 text-sm text-neutral-400">
             Day <span className="font-bold text-white tabular-nums">{day}</span> of 90 · {projected ? 'at this pace' : 'measured'}

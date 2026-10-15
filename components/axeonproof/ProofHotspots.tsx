@@ -8,23 +8,26 @@ import { useState } from 'react';
 import { CARD_NOTES, CARD_ORDER } from '@/data/proofPage';
 import { AnalyticsCards } from '@/components/axeonproof/screens';
 import { Reveal } from '@/components/axeonproof/motion';
+import { BEZEL, GLASS } from '@/components/axeonproof/ui';
 
 export function ProofHotspots() {
   const [active, setActive] = useState<string>(CARD_ORDER[0]);
   const note = CARD_NOTES[active];
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:gap-10">
-      <Reveal className="@container rounded-2xl bg-[#f3f4f7] p-3 shadow-[0_40px_120px_-30px_rgba(37,99,235,0.3)] ring-1 ring-white/10 sm:p-4">
-        <div className="-mt-4">
-          <AnalyticsCards active={active} onActive={setActive} />
+      <Reveal className={BEZEL}>
+        <div className="@container rounded-2xl bg-[#f3f4f7] p-3 ring-1 ring-black/20 sm:rounded-[20px] sm:p-4">
+          <div className="-mt-4">
+            <AnalyticsCards active={active} onActive={setActive} />
+          </div>
         </div>
       </Reveal>
       <div className="lg:pt-2">
-        <div key={active} className="animate-proof-rise rounded-2xl bg-blue-600 p-6 text-white">
-          <p className="text-xs font-mono font-bold uppercase tracking-widest text-blue-100">[ {note.title} ]</p>
+        <div key={active} className="animate-proof-rise rounded-3xl bg-blue-600/90 p-6 text-white shadow-2xl shadow-blue-600/30 ring-1 ring-white/25 backdrop-blur-xl">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-blue-100">{note.title}</p>
           <p className="mt-3 text-lg font-semibold leading-snug">{note.body}</p>
         </div>
-        <ul className="mt-4 divide-y divide-white/10 rounded-2xl bg-white/5 ring-1 ring-white/10">
+        <ul className={`mt-4 divide-y divide-white/10 overflow-hidden rounded-3xl ${GLASS}`}>
           {CARD_ORDER.map((key) => (
             <li key={key}>
               <button

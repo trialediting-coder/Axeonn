@@ -1,7 +1,7 @@
 'use client';
 
 // components/axeonproof/FlowField.tsx
-// The slow silk "flow" behind the /axeonproof hero and plans: two luminous
+// The slow silk "flow" fixed behind the whole /axeonproof page: two luminous
 // ribbons of fine fibres in Axeon blue with a cyan sheen and a violet edge,
 // folding across the dark. One small WebGL shader drawn at reduced resolution,
 // paused off screen and in background tabs. Reduced motion: one still frame.
@@ -14,6 +14,7 @@ const FRAG = `precision highp float;
 uniform vec2 uRes;
 uniform float uTime;
 uniform float uGain;
+uniform float uScroll;
 
 vec3 ribbon(vec2 p, float t, float k, float amp, float width, float ph, vec3 deep, vec3 sheenCol) {
   float c = amp * sin(p.x * k + t * 0.35 + ph) + amp * 0.55 * sin(p.x * k * 2.1 - t * 0.22 + ph * 1.7);
@@ -41,8 +42,10 @@ void main() {
   vec3 violet = vec3(0.49, 0.30, 0.95);
 
   vec3 col = vec3(0.0);
-  col += 1.3 * ribbon(p + vec2(0.0, 0.05), t, 1.05, 0.3, 0.44, 0.0, deep, mix(blue, cyan, 0.5));
-  col += 0.8 * ribbon(p + vec2(0.3, -0.24), t * 0.8, 1.5, 0.2, 0.2, 2.1, deep * 0.8, mix(violet, cyan, 0.3));
+  // Scrolling folds the silk: each ribbon's phase drifts with the page, in opposite directions.
+  float s = uScroll;
+  col += 1.3 * ribbon(p + vec2(0.0, 0.05 + 0.04 * sin(s * 0.7)), t, 1.05, 0.3, 0.44, s * 1.1, deep, mix(blue, cyan, 0.5));
+  col += 0.8 * ribbon(p + vec2(0.3, -0.24), t * 0.8, 1.5, 0.2, 0.2, 2.1 - s * 0.8, deep * 0.8, mix(violet, cyan, 0.3));
 
   float vig = smoothstep(1.6, 0.1, length(p * vec2(0.7, 1.0)));
   col *= vig * uGain;
@@ -107,7 +110,13 @@ export function FlowField({ className = '', gain = 1, scale = 0.55 }: { classNam
       gl.viewport(0, 0, canvas.width, canvas.height);
       gl.uniform2f(uRes, canvas.width, canvas.height);
     };
+    // Page scroll in screen heights, eased so the silk glides rather than jumps.
+    const uScroll = gl.getUniformLocation(prog, 'uScroll');
+    let scroll = window.scrollY / Math.max(1, window.innerHeight);
     const draw = (now: number) => {
+      const target = window.scrollY / Math.max(1, window.innerHeight);
+      scroll = still ? target : scroll + (target - scroll) * 0.06;
+      gl.uniform1f(uScroll, scroll);
       gl.uniform1f(uTime, (now - t0) / 1000);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     };
@@ -134,7 +143,13 @@ export function FlowField({ className = '', gain = 1, scale = 0.55 }: { classNam
     });
     io.observe(canvas);
     document.addEventListener('visibilitychange', start);
+    // Reduced motion: no loop, so redraw the still frame at the new scroll position.
+    const onScroll = () => {
+      if (still) draw(t0 + 14000);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
     return () => {
+      window.removeEventListener('scroll', onScroll);
       ro.disconnect();
       io.disconnect();
       document.removeEventListener('visibilitychange', start);

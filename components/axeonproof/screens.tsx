@@ -33,12 +33,15 @@ function StatTile({ tile, ms }: { tile: ExampleTile; ms: number }) {
   const Icon = TILE_ICONS[tile.key];
   return (
     <Card className="relative flex flex-col p-4 @3xl:px-5 @3xl:pb-4 @3xl:pt-5" ms={ms}>
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-tr from-blue-700 to-blue-500 text-white shadow-md shadow-blue-600/30 @3xl:absolute @3xl:-top-4 @3xl:left-5 @3xl:h-12 @3xl:w-12 @3xl:rounded-xl">
-        <Icon size={18} />
-      </span>
-      <div className="mt-3 @3xl:mt-0 @3xl:text-right">
-        <p className="text-xs font-medium leading-snug text-neutral-500 @3xl:text-sm">{tile.label}</p>
-        <p className="mt-1 text-2xl font-bold tracking-tight text-neutral-950 @3xl:text-3xl">
+      {/* The icon sits in the card's own row; it used to float over the top edge and cover long labels. */}
+      <div className="flex flex-col gap-3 @3xl:flex-row @3xl:items-center">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-tr from-blue-700 to-blue-500 text-white shadow-md shadow-blue-600/30 @3xl:h-10 @3xl:w-10 @3xl:rounded-xl">
+          <Icon size={18} />
+        </span>
+        <p className="min-w-0 text-xs font-medium leading-snug text-neutral-500 @3xl:text-sm">{tile.label}</p>
+      </div>
+      <div className="mt-1 @3xl:mt-3">
+        <p className="text-2xl font-bold tracking-tight text-neutral-950 @3xl:text-3xl">
           <CountUp value={tile.value} prefix={tile.prefix} delay={ms} />
         </p>
         <p className="mt-1 hidden text-[10px] font-semibold uppercase tracking-wide text-neutral-400 @3xl:block">{EXAMPLE.month} so far</p>

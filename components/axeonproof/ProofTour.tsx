@@ -1,18 +1,20 @@
 'use client';
 
 // components/axeonproof/ProofTour.tsx
-// Every AxeonPROOF tab, driven by the visitor: a tab list that mirrors the
-// app's own sidebar, and the live screen for the tab they pick, rendered for
-// the example business. Arrow keys move between tabs; the sidebar inside the
-// frame is clickable too.
+// Every AxeonPROOF tab, driven by the visitor: a glass tab bar across the top
+// that plays through the tabs by itself (a progress line runs under the active
+// one) until the visitor touches anything, the live screen for the tab in a
+// glass bezel, and a glass panel beside it with what the tab is for, which plan
+// has it, a Desktop/Phone toggle and prev/next. Arrow keys move between tabs;
+// the sidebar inside the frame is clickable too. Reduced motion: no autoplay.
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Monitor, Smartphone } from 'lucide-react';
-import { ArrowLeft, ArrowRight, Activity, Bot, CalendarCheck, CreditCard, LayoutGrid, Mail, Megaphone, PhoneCall, Star } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Activity, Bot, CalendarCheck, CreditCard, LayoutGrid, Mail, Megaphone, Monitor, Pause, PhoneCall, Play, Smartphone, Star } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { PROOF_TABS, TIER_SHORT, type ProofTabKey } from '@/lib/proofTabs';
+import { PROOF_TABS, type ProofTabKey } from '@/lib/proofTabs';
 import { PLAN_CHIP, TAB_NOTES } from '@/data/proofPage';
 import { DashboardShell } from '@/components/axeonproof/DashboardShell';
 import { ScreenFor } from '@/components/axeonproof/screens';
+import { BEZEL, GLASS, LABEL } from '@/components/axeonproof/ui';
 
 const ICONS: Record<ProofTabKey, LucideIcon> = {
   overview: LayoutGrid,
@@ -27,170 +29,217 @@ const ICONS: Record<ProofTabKey, LucideIcon> = {
 };
 
 const CHIP_STYLE: Record<string, string> = {
-  essentials: 'bg-white/10 text-neutral-300',
+  essentials: 'bg-white/10 text-neutral-200 ring-1 ring-white/15',
   axeoncore: 'bg-blue-600 text-white',
   axeongrowth: 'bg-white text-neutral-950',
 };
 
+const DWELL = 7000; // ms on each tab while playing
+
 export function ProofTour() {
   const [index, setIndex] = useState(0);
   const [device, setDevice] = useState<'desktop' | 'phone'>('desktop');
+  const [playing, setPlaying] = useState(false);
+  const [inView, setInView] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const stripRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLSpanElement>(null);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const tab = PROOF_TABS[index];
+  const n = PROOF_TABS.length;
 
-  const go = useCallback((next: number) => {
-    const n = (next + PROOF_TABS.length) % PROOF_TABS.length;
-    setIndex(n);
-    tabRefs.current[n]?.focus();
+  // Autoplay starts on (unless reduced motion) and only runs while the tour is on screen.
+  useEffect(() => {
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) setPlaying(true);
+    const el = rootRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.35 });
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
 
+  // The progress line under the active tab; when it fills, the next tab.
+  useEffect(() => {
+    const bar = barRef.current;
+    if (!bar || !playing || !inView) return;
+    const anim = bar.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: DWELL, easing: 'linear' });
+    anim.onfinish = () => setIndex((i) => (i + 1) % n);
+    return () => anim.cancel();
+  }, [index, playing, inView, n]);
+
+  // Keep the active tab in view inside the bar (scrolls the bar only, never the page).
+  useEffect(() => {
+    const strip = stripRef.current;
+    const btn = tabRefs.current[index];
+    if (!strip || !btn || strip.scrollWidth <= strip.clientWidth) return;
+    strip.scrollTo({ left: btn.offsetLeft - strip.clientWidth / 2 + btn.clientWidth / 2, behavior: 'smooth' });
+  }, [index]);
+
+  // Any hand on the controls stops the autoplay.
+  const pick = useCallback(
+    (next: number, focus = false) => {
+      const i = (next + n) % n;
+      setPlaying(false);
+      setIndex(i);
+      if (focus) tabRefs.current[i]?.focus();
+    },
+    [n],
+  );
+
   const onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+    const keys: Record<string, number> = { ArrowRight: index + 1, ArrowDown: index + 1, ArrowLeft: index - 1, ArrowUp: index - 1, Home: 0, End: n - 1 };
+    if (e.key in keys) {
       e.preventDefault();
-      go(index + 1);
-    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-      e.preventDefault();
-      go(index - 1);
-    } else if (e.key === 'Home') {
-      e.preventDefault();
-      go(0);
-    } else if (e.key === 'End') {
-      e.preventDefault();
-      go(PROOF_TABS.length - 1);
+      pick(keys[e.key], true);
     }
   };
 
-  // Keep the active chip in view on the phone's horizontal strip (not on first paint, or the page would jump here).
-  const mounted = useRef(false);
-  useEffect(() => {
-    if (!mounted.current) {
-      mounted.current = true;
-      return;
-    }
-    tabRefs.current[index]?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
-  }, [index]);
+  const onTab = (k: ProofTabKey) => pick(PROOF_TABS.findIndex((t) => t.key === k));
+  const stop = () => setPlaying(false);
+  const Icon = ICONS[tab.key];
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[240px_1fr] lg:gap-8">
-      <div
-        role="tablist"
-        aria-label="AxeonPROOF tabs"
-        aria-orientation="vertical"
-        onKeyDown={onKeyDown}
-        className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0 [&::-webkit-scrollbar]:hidden"
-      >
-        {PROOF_TABS.map((t, i) => {
-          const Icon = ICONS[t.key];
-          const active = i === index;
-          return (
-            <button
-              key={t.key}
-              ref={(el) => {
-                tabRefs.current[i] = el;
-              }}
-              role="tab"
-              id={`proof-tab-${t.key}`}
-              aria-selected={active}
-              aria-controls="proof-tour-panel"
-              tabIndex={active ? 0 : -1}
-              type="button"
-              onClick={() => setIndex(i)}
-              className={`flex shrink-0 items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-left text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 lg:w-full lg:py-3 ${
-                active ? 'bg-blue-600 text-white shadow-md shadow-blue-600/25' : 'bg-white/5 text-neutral-300 ring-1 ring-white/10 hover:bg-white/10 hover:text-white lg:bg-transparent lg:ring-0'
-              }`}
-            >
-              <Icon size={17} className={active ? 'text-white' : 'text-neutral-500'} />
-              <span className="whitespace-nowrap">{t.label}</span>
-              {t.tier !== 'essentials' ? (
-                <span className={`ml-auto hidden rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide lg:inline ${active ? 'bg-white/20 text-white' : 'text-blue-400'}`}>
-                  {TIER_SHORT[t.tier]}
-                </span>
-              ) : null}
-            </button>
-          );
-        })}
+    <div ref={rootRef}>
+      {/* Tab bar */}
+      <div className={`rounded-2xl p-1.5 ${GLASS}`}>
+        <div
+          ref={stripRef}
+          role="tablist"
+          aria-label="AxeonPROOF tabs"
+          onKeyDown={onKeyDown}
+          className="flex gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {PROOF_TABS.map((t, i) => {
+            const TabIcon = ICONS[t.key];
+            const active = i === index;
+            return (
+              <button
+                key={t.key}
+                ref={(el) => {
+                  tabRefs.current[i] = el;
+                }}
+                role="tab"
+                id={`proof-tab-${t.key}`}
+                aria-selected={active}
+                aria-controls="proof-tour-panel"
+                tabIndex={active ? 0 : -1}
+                type="button"
+                onClick={() => pick(i)}
+                className={`relative flex flex-1 shrink-0 items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-xl px-3.5 py-2.5 text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-400 ${
+                  active ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-neutral-300 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                <TabIcon size={16} className={active ? 'text-white' : 'text-neutral-400'} />
+                {t.label}
+                {active && playing ? <span ref={barRef} aria-hidden className="absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 bg-white/80" /> : null}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      <div id="proof-tour-panel" role="tabpanel" aria-labelledby={`proof-tab-${tab.key}`} className="min-w-0">
-        <div className="mb-3 flex items-center justify-end gap-1 rounded-full bg-white/10 p-1 text-xs font-semibold text-neutral-400 sm:ml-auto sm:w-fit" role="group" aria-label="Screen size">
-          {(['desktop', 'phone'] as const).map((d) => (
-            <button
-              key={d}
-              type="button"
-              onClick={() => setDevice(d)}
-              aria-pressed={device === d}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-colors ${device === d ? 'bg-white text-neutral-950 shadow-sm' : 'hover:text-white'}`}
-            >
-              {d === 'desktop' ? <Monitor size={14} /> : <Smartphone size={14} />}
-              {d === 'desktop' ? 'Desktop' : 'Phone'}
-            </button>
-          ))}
+      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_320px] lg:gap-8">
+        {/* The screen */}
+        <div id="proof-tour-panel" role="tabpanel" aria-labelledby={`proof-tab-${tab.key}`} className="min-w-0">
+          {device === 'desktop' ? (
+            <div className={BEZEL}>
+              <div className="overflow-hidden rounded-2xl bg-[#f3f4f7] ring-1 ring-black/20 sm:rounded-[20px]">
+                <div className="flex items-center gap-3 border-b border-neutral-200 bg-white px-3 py-2 sm:px-4">
+                  <span className="flex gap-1.5" aria-hidden>
+                    <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
+                  </span>
+                  <span className="mx-auto flex h-7 w-full max-w-xs items-center justify-center rounded-md bg-neutral-100 text-[11px] font-medium text-neutral-500 sm:text-xs">
+                    app.axeonstudio.co/?tab={tab.key}
+                  </span>
+                </div>
+                <div key={tab.key} className="h-[560px] overflow-y-auto overscroll-contain sm:h-[640px]" onWheel={stop} onPointerDown={stop}>
+                  <DashboardShell tab={tab.key} onTab={onTab}>
+                    <ScreenFor tab={tab.key} full={false} />
+                  </DashboardShell>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="mx-auto w-full max-w-[400px] rounded-[2.75rem] bg-white/[0.06] p-2.5 shadow-[0_50px_140px_-30px_rgba(37,99,235,0.45)] ring-1 ring-white/15 backdrop-blur-md">
+              <div className="relative overflow-hidden rounded-[2.25rem] bg-[#f3f4f7] ring-1 ring-black/20">
+                <div className="flex items-center justify-between bg-white px-6 pb-1 pt-3 text-[11px] font-semibold text-neutral-900">
+                  <span>9:41</span>
+                  <span className="h-5 w-24 rounded-full bg-neutral-950" aria-hidden />
+                  <span>100%</span>
+                </div>
+                <div key={tab.key} className="h-[620px] overflow-y-auto overscroll-contain" onWheel={stop} onPointerDown={stop}>
+                  <DashboardShell tab={tab.key} onTab={onTab}>
+                    <ScreenFor tab={tab.key} full={false} />
+                  </DashboardShell>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-        {device === 'desktop' ? (
-          <div className="overflow-hidden rounded-2xl bg-[#f3f4f7] shadow-[0_40px_120px_-30px_rgba(37,99,235,0.3)] ring-1 ring-white/10">
-            <div className="flex items-center gap-3 border-b border-neutral-200 bg-white px-3 py-2 sm:px-4">
-              <span className="flex gap-1.5" aria-hidden>
-                <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
-                <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
-                <span className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
-              </span>
-              <span className="mx-auto flex h-7 w-full max-w-xs items-center justify-center rounded-md bg-neutral-100 text-[11px] font-medium text-neutral-500 sm:text-xs">
-                app.axeonstudio.co/?tab={tab.key}
-              </span>
-            </div>
-            <div key={tab.key} className="max-h-[640px] overflow-y-auto overscroll-contain">
-              <DashboardShell tab={tab.key} onTab={(k) => setIndex(PROOF_TABS.findIndex((t) => t.key === k))}>
-                <ScreenFor tab={tab.key} full={false} />
-              </DashboardShell>
-            </div>
-          </div>
-        ) : (
-          <div className="mx-auto w-full max-w-[390px] rounded-[2.5rem] bg-neutral-950 p-2.5 shadow-[0_30px_80px_-30px_rgba(16,24,40,0.6)]">
-            <div className="relative overflow-hidden rounded-[2rem] bg-[#f3f4f7]">
-              <div className="flex items-center justify-between bg-white px-6 pb-1 pt-3 text-[11px] font-semibold text-neutral-900">
-                <span>9:41</span>
-                <span className="h-5 w-24 rounded-full bg-neutral-950" aria-hidden />
-                <span>100%</span>
-              </div>
-              <div key={tab.key} className="h-[640px] overflow-y-auto overscroll-contain">
-                <DashboardShell tab={tab.key} onTab={(k) => setIndex(PROOF_TABS.findIndex((t) => t.key === k))}>
-                  <ScreenFor tab={tab.key} full={false} />
-                </DashboardShell>
-              </div>
-            </div>
-          </div>
-        )}
 
-        <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-xl font-extrabold tracking-tight text-white">{tab.label}</h3>
-              <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${CHIP_STYLE[tab.tier]}`}>{PLAN_CHIP[tab.tier]}</span>
-            </div>
-            <p className="mt-1.5 max-w-xl text-base leading-relaxed text-neutral-400">{TAB_NOTES[tab.key]}</p>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
+        {/* What this tab is */}
+        <aside className={`flex flex-col rounded-3xl p-6 sm:p-7 ${GLASS}`}>
+          <div className="flex items-center justify-between gap-3">
+            <p className={LABEL}>
+              Tab {index + 1} of {n}
+            </p>
             <button
               type="button"
-              onClick={() => go(index - 1)}
-              aria-label="Previous tab"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white ring-1 ring-white/15 transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+              onClick={() => setPlaying((p) => !p)}
+              aria-label={playing ? 'Pause the tour' : 'Play the tour'}
+              className="inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-xs font-semibold text-neutral-300 ring-1 ring-white/15 transition-colors hover:bg-white/10 hover:text-white"
             >
-              <ArrowLeft size={16} />
+              {playing ? <Pause size={13} /> : <Play size={13} />}
+              {playing ? 'Pause' : 'Play'}
             </button>
-            <span className="text-xs font-semibold tabular-nums text-neutral-500">
-              {index + 1} / {PROOF_TABS.length}
+          </div>
+
+          <div key={tab.key} className="animate-proof-rise">
+            <span className="mt-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-700 to-blue-500 text-white shadow-lg shadow-blue-600/30">
+              <Icon size={22} />
             </span>
-            <button
-              type="button"
-              onClick={() => go(index + 1)}
-              aria-label="Next tab"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white ring-1 ring-white/15 transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-            >
-              <ArrowRight size={16} />
-            </button>
+            <h3 className="mt-5 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">{tab.label}</h3>
+            <span className={`mt-3 inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold ${CHIP_STYLE[tab.tier]}`}>{PLAN_CHIP[tab.tier]}</span>
+            <p className="mt-4 text-base leading-relaxed text-neutral-300">{TAB_NOTES[tab.key]}</p>
           </div>
-        </div>
+
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6 lg:mt-auto">
+            <div className="flex items-center gap-1 rounded-full bg-white/[0.06] p-1 text-xs font-semibold text-neutral-300 ring-1 ring-white/10" role="group" aria-label="Screen size">
+              {(['desktop', 'phone'] as const).map((d) => (
+                <button
+                  key={d}
+                  type="button"
+                  onClick={() => setDevice(d)}
+                  aria-pressed={device === d}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-colors ${device === d ? 'bg-white text-neutral-950 shadow-sm' : 'hover:text-white'}`}
+                >
+                  {d === 'desktop' ? <Monitor size={14} /> : <Smartphone size={14} />}
+                  {d === 'desktop' ? 'Desktop' : 'Phone'}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => pick(index - 1)}
+                aria-label="Previous tab"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white ring-1 ring-white/15 transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400"
+              >
+                <ArrowLeft size={16} />
+              </button>
+              <button
+                type="button"
+                onClick={() => pick(index + 1)}
+                aria-label="Next tab"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white shadow-md shadow-blue-600/30 transition-colors hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400"
+              >
+                <ArrowRight size={16} />
+              </button>
+            </div>
+          </div>
+        </aside>
       </div>
     </div>
   );
