@@ -2,8 +2,9 @@
 
 // components/axeonproof/FlowField.tsx
 // The slow silk "flow" fixed behind the whole /axeonproof page: two luminous
-// ribbons of fine fibres in Axeon blue with a cyan sheen and a violet edge,
-// folding across the dark. One small WebGL shader drawn at reduced resolution,
+// ribbons of fine fibres in Axeon blue with a cyan sheen (all blue, no
+// purple, per the owner), folding across the dark and thinning out between
+// sweeps as the page scrolls. One small WebGL shader drawn at reduced resolution,
 // paused off screen and in background tabs. Reduced motion: one still frame.
 // No WebGL: a static blue glow in CSS.
 import { useEffect, useRef, useState } from 'react';
@@ -25,7 +26,7 @@ vec3 ribbon(vec2 p, float t, float k, float amp, float width, float ph, vec3 dee
   float fibers = pow(0.5 + 0.5 * sin(v * 30.0 + twist * 3.0), 6.0);
   float sheen = exp(-pow((v - twist * 0.6) * 2.2, 2.0));
   float rim = exp(-pow((abs(v) - 1.0) * 10.0, 2.0));
-  float halo = exp(-abs(v) * 1.1) * 0.22;
+  float halo = exp(-abs(v) * 1.4) * 0.12;
   vec3 col = mix(deep, sheenCol, sheen);
   return col * (inside * (0.22 + 0.6 * sheen + 0.3 * fibers) + rim * 0.45 + halo);
 }
@@ -39,16 +40,19 @@ void main() {
   vec3 blue = vec3(0.145, 0.388, 0.922);
   vec3 deep = vec3(0.07, 0.16, 0.55);
   vec3 cyan = vec3(0.35, 0.85, 1.0);
-  vec3 violet = vec3(0.49, 0.30, 0.95);
+  vec3 sky = vec3(0.23, 0.51, 0.96);
 
   vec3 col = vec3(0.0);
-  // Scrolling folds the silk: each ribbon's phase drifts with the page, in opposite directions.
+  // Scrolling moves the silk: the ribbons fold and sweep across the screen as
+  // the page moves, and between sweeps the flow thins out to near-black, so
+  // the page has empty stretches. Full strength at the top for the hero.
   float s = uScroll;
-  col += 1.3 * ribbon(p + vec2(0.0, 0.05 + 0.04 * sin(s * 0.7)), t, 1.05, 0.3, 0.44, s * 1.1, deep, mix(blue, cyan, 0.5));
-  col += 0.8 * ribbon(p + vec2(0.3, -0.24), t * 0.8, 1.5, 0.2, 0.2, 2.1 - s * 0.8, deep * 0.8, mix(violet, cyan, 0.3));
+  col += 1.3 * ribbon(p + vec2(0.0, 0.05 + 0.45 * sin(s * 0.6)), t, 1.05, 0.3, 0.44, s * 1.1, deep, mix(blue, cyan, 0.5));
+  col += 0.7 * ribbon(p + vec2(0.3, -0.24 + 0.4 * sin(s * 0.6 + 2.0)), t * 0.8, 1.5, 0.2, 0.2, 2.1 - s * 0.8, deep * 0.8, mix(sky, cyan, 0.35));
 
+  float presence = mix(0.12, 1.0, smoothstep(0.2, 0.75, 0.5 + 0.5 * cos(s * 0.95)));
   float vig = smoothstep(1.6, 0.1, length(p * vec2(0.7, 1.0)));
-  col *= vig * uGain;
+  col *= vig * uGain * presence;
   col = 1.0 - exp(-col * 2.0);
   float n = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453);
   col += (n - 0.5) / 255.0;

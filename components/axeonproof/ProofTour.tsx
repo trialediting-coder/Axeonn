@@ -125,7 +125,7 @@ export function ProofTour() {
                 tabIndex={active ? 0 : -1}
                 type="button"
                 onClick={() => pick(i)}
-                className={`relative flex flex-1 shrink-0 items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-xl px-3.5 py-2.5 text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-400 ${
+                className={`relative flex flex-none items-center lg:flex-1 justify-center gap-2 overflow-hidden whitespace-nowrap rounded-xl px-3.5 py-2.5 text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-400 ${
                   active ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-neutral-300 hover:bg-white/10 hover:text-white'
                 }`}
               >

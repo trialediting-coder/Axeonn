@@ -15,19 +15,20 @@ export function ProofHotspots() {
   const note = CARD_NOTES[active];
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:gap-10">
-      <Reveal className={BEZEL}>
-        <div className="@container rounded-2xl bg-[#f3f4f7] p-3 ring-1 ring-black/20 sm:rounded-[20px] sm:p-4">
+      {/* Phones: the note comes first and the cards scroll inside a capped frame, so tapping a card shows its note on screen. */}
+      <Reveal className={`order-2 lg:order-none ${BEZEL}`}>
+        <div className="@container max-h-[560px] overflow-y-auto overscroll-contain rounded-2xl bg-[#f3f4f7] p-3 ring-1 ring-black/20 sm:rounded-[20px] sm:p-4 lg:max-h-none lg:overflow-visible">
           <div className="-mt-4">
             <AnalyticsCards active={active} onActive={setActive} />
           </div>
         </div>
       </Reveal>
-      <div className="lg:pt-2">
+      <div className="order-1 lg:order-none lg:pt-2">
         <div key={active} className="animate-proof-rise rounded-3xl bg-blue-600/90 p-6 text-white shadow-2xl shadow-blue-600/30 ring-1 ring-white/25 backdrop-blur-xl">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-blue-100">{note.title}</p>
           <p className="mt-3 text-lg font-semibold leading-snug">{note.body}</p>
         </div>
-        <ul className={`mt-4 divide-y divide-white/10 overflow-hidden rounded-3xl ${GLASS}`}>
+        <ul className={`mt-4 hidden divide-y divide-white/10 overflow-hidden rounded-3xl lg:block ${GLASS}`}>
           {CARD_ORDER.map((key) => (
             <li key={key}>
               <button

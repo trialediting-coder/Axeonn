@@ -5,7 +5,7 @@
 // and what each plan switches on (each plan links to pricing). Example data
 // lives in data/proofPage.ts. Owner 2026-10-13: whole page black, cleaner and
 // wider, one Live pill, "Book My Free Demo". 2026-10-14: one silk flow behind
-// the whole page (FlowField, fixed), the cursor lines above it, and every
+// the whole page (FlowField, fixed), no cursor effect, and every
 // section in the hero's language (components/axeonproof/ui.tsx).
 import Link from 'next/link';
 import type { ReactNode } from 'react';
@@ -17,7 +17,6 @@ import { GUARANTEE_LINE, GUARANTEE_TERMS } from '@/components/marketing-solution
 import { ProofWindow } from '@/components/axeonproof/ProofWindow';
 import { ProofTour } from '@/components/axeonproof/ProofTour';
 import { ProofHotspots } from '@/components/axeonproof/ProofHotspots';
-import { PointerGlow } from '@/components/axeonproof/PointerGlow';
 import { GuaranteeScrubber } from '@/components/axeonproof/GuaranteeScrubber';
 import { PageIntro } from '@/components/axeonproof/PageIntro';
 import { DashboardShell } from '@/components/axeonproof/DashboardShell';
@@ -79,12 +78,11 @@ export default function AxeonProofPage() {
       <PageIntro />
 
       {/* One flow behind the whole page, fixed to the screen so every section
-          sits on the same silk; the cursor lines draw above it, under content. */}
-      <div aria-hidden className="pointer-events-none fixed inset-0 -z-20">
+          sits on the same silk. No cursor effect (owner removed it 2026-10-14). */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10">
         <FlowField className="h-full w-full" />
         <div className="absolute inset-0 bg-neutral-950/30" />
       </div>
-      <PointerGlow />
 
       {/* Hero: headline across the left, the pitch and buttons on the right,
           then the live dashboard rising out of the flow in a glass bezel. */}
@@ -153,7 +151,7 @@ export default function AxeonProofPage() {
                 Each card answers a question an owner <Accent>actually</Accent> asks.
               </>
             }
-            intro="Hover or tap a card. Every number comes straight from the site and the tracked phone number, not from a report someone typed up."
+            intro="Hover or tap a card to see what it tells you. Every number comes straight from the site and the tracked phone number, not from a report someone typed up."
           />
           <ProofHotspots />
         </div>
@@ -246,10 +244,10 @@ export default function AxeonProofPage() {
             A free 30-minute call. We walk through what PROOF would show for your business, and where customers are slipping away today.
           </p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-            <Link href="/book" data-track="cta_click" data-track-cta="axeonproof_closing" className={CTA}>
+            <Link href="/book" data-track="cta_click" data-track-cta="axeonproof_closing" className={`${CTA} w-full max-w-xs sm:w-auto`}>
               Book My Free Demo <ArrowRight size={18} />
             </Link>
-            <Link href="/pricing" className={CTA_GLASS}>
+            <Link href="/pricing" className={`${CTA_GLASS} w-full max-w-xs sm:w-auto`}>
               Compare Plans
             </Link>
           </div>
