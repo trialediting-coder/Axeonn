@@ -39,14 +39,23 @@ const lastMonth = () => {
 };
 const str = (v: number | string | null | undefined) => (v == null ? '' : String(v));
 
+/** The "Clear data" choices; keys match CLEAR_RANGES in lib/siteStats.ts. */
+const CLEAR_LABELS = { hour: 'Last hour', today: 'Today', all: 'All time' } as const;
+
 /** Admin: project dates + baseline, Project Updates and Monthly Reports for one client. */
 export function ProjectPanel({ token, initial, guarantee, tier }: { token: string; initial: Data; guarantee: boolean; tier: OnboardingTier }) {
   const [data, setData] = useState(initial);
   const [notice, setNotice] = useState<Notice>(null);
   const [busy, setBusy] = useState<string | null>(null);
-  const api = `/api/admin/onboarding/${token}/project`;
+  const [clearRange, setClearRange] = useState<keyof typeof CLEAR_LABELS>('today');
+  const api =`/api/admin/onboarding/${token}/project`;
 
-  async function call(method: string, body: Record<string, unknown>, okText: string, key: string): Promise<boolean> {
+  async function call(
+    method: string,
+    body: Record<string, unknown>,
+    okText: string | ((json: Record<string, unknown>) => string),
+    key: string
+  ): Promise<boolean> {
     setBusy(key);
     setNotice(null);
     const res = await fetch(api, { method, headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
@@ -69,7 +78,7 @@ export function ProjectPanel({ token, initial, guarantee, tier }: { token: strin
     setNotice(
       json.emailError
         ? { ok: false, text: key === 'auto-report' ? `Not sent: ${json.emailError}` : `Saved, but the email failed: ${json.emailError}` }
-        : { ok: true, text: okText }
+        : { ok: true, text: typeof okText === 'function' ? okText(json as Record<string, unknown>) : okText }
     );
     return true;
   }
@@ -477,6 +486,44 @@ export function ProjectPanel({ token, initial, guarantee, tier }: { token: strin
           </button>
           <span className="text-xs text-neutral-500">
             Sends the same email the 1st-of-the-month job would, including anything saved in the Monthly Report box for that month.
+          </span>
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-neutral-200 pt-4">
+          <select
+            className={`${adminInput} h-8 w-auto py-0 text-sm`}
+            value={clearRange}
+            onChange={(e) => setClearRange(e.target.value as keyof typeof CLEAR_LABELS)}
+            aria-label="How much to clear"
+          >
+            {Object.entries(CLEAR_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            disabled={busy === 'clear-traffic'}
+            className={btn('danger', 'sm')}
+            onClick={() => {
+              const label = CLEAR_LABELS[clearRange].toLowerCase();
+              if (!confirm(`Delete every tracked visit and click from ${label} for this client? This cannot be undone.`)) return;
+              void call(
+                'POST',
+                { kind: 'clear-traffic', range: clearRange },
+                (json) => {
+                  const n = Number(json.cleared ?? 0);
+                  return n ? `Cleared ${n.toLocaleString()} tracked event${n === 1 ? '' : 's'} (${label}).` : `Nothing tracked in ${label} to clear.`;
+                },
+                'clear-traffic'
+              );
+            }}
+          >
+            <Trash2 size={14} /> {busy === 'clear-traffic' ? 'Clearing…' : 'Clear data'}
+          </button>
+          <span className="text-xs text-neutral-500">
+            Wipes test visits and clicks from the numbers above, their dashboard and the next report. Reports already saved or sent keep their numbers.
           </span>
         </div>
       </div>

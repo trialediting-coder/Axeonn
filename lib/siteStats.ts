@@ -11,6 +11,7 @@
 // people that month and no row identifies anyone.
 import { createHash, createHmac, randomInt } from 'node:crypto';
 import { sql, ensureSchema, isDatabaseConfigured } from '@/lib/db';
+import type { DbId } from '@/lib/dbRows';
 import { SITE_ORIGIN } from '@/lib/hostRouting';
 import { CONVERSION_NAMES, type CloseRateEstimate, type TrafficDetail, type TrafficSummary } from '@/lib/projectsShared';
 import { OBSERVED_FULL_MARKED, OBSERVED_MIN_MARKED, OBSERVED_MONTHS, type LeadOutcome, type LeadRow, type ObservedCloseRate } from '@/lib/projectsShared';
@@ -952,6 +953,45 @@ export async function firstEventAt(onboardingId: number): Promise<string | null>
   const res = await sql<{ at: string | null }>`SELECT min(created_at) AS at FROM site_events WHERE onboarding_id = ${onboardingId};`;
   const at = res.rows[0]?.at;
   return at ? new Date(at).toISOString() : null;
+}
+
+/** How much of a client's tracked visits the admin's "Clear data" wipes. */
+export const CLEAR_RANGES = ['hour', 'today', 'all'] as const;
+export type ClearRange = (typeof CLEAR_RANGES)[number];
+
+export function validateClearRange(raw: unknown): ClearRange {
+  if (typeof raw === 'string' && (CLEAR_RANGES as readonly string[]).includes(raw)) return raw as ClearRange;
+  throw new Error('Pick how much to clear');
+}
+
+/**
+ * Deletes a client's tracked visits and clicks (our own test traffic, usually).
+ * "today" starts at midnight on the clients' clock. Clicks already matched to a
+ * lead leave that lead's timeline too; the lead itself and any saved monthly
+ * report stay. Returns how many events were removed.
+ */
+export async function clearSiteEvents(onboardingId: number, range: ClearRange): Promise<number> {
+  if (!isDatabaseConfigured()) return 0;
+  await ensureSchema();
+  const res =
+    range === 'all'
+      ? await sql<{ id: DbId }>`DELETE FROM site_events WHERE onboarding_id = ${onboardingId} RETURNING id;`
+      : range === 'today'
+        ? await sql<{ id: DbId }>`
+            DELETE FROM site_events
+            WHERE onboarding_id = ${onboardingId}
+              AND created_at >= (date_trunc('day', now() AT TIME ZONE ${REPORT_TIME_ZONE}) AT TIME ZONE ${REPORT_TIME_ZONE})
+            RETURNING id;`
+        : await sql<{ id: DbId }>`
+            DELETE FROM site_events WHERE onboarding_id = ${onboardingId} AND created_at >= now() - interval '1 hour' RETURNING id;`;
+  const ids = res.rows.map((r) => Number(r.id));
+  if (ids.length > 0) {
+    await sql`
+      DELETE FROM contact_events
+      WHERE onboarding_id = ${onboardingId} AND ref_table = 'site_events'
+        AND ref_id = ANY(${ids as unknown as string}::bigint[]);`;
+  }
+  return ids.length;
 }
 
 /** Drops raw events past the retention window. Reports keep their summaries. */

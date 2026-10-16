@@ -17,6 +17,7 @@ import {
   trackingSnippet,
   validateCloseRate,
   validateSiteUrl,
+  validateClearRange,
   visitorHash,
 } from './siteStats';
 import { autoReportEligibility, reportHasContent } from './autoReports';
@@ -685,4 +686,12 @@ test('the loss line uses real counts with a stated rule of thumb, and the report
   assert.match(upgradeNudge({ tier: 'essentials', traffic: big, proofUrl: 'https://app.axeonstudio.co/' }), /23 people pressed Call this month.*href="https:\/\/app\.axeonstudio\.co\/\?tab=calls"/);
   assert.equal(upgradeNudge({ tier: 'essentials', traffic: small, proofUrl: 'https://app.axeonstudio.co/' }), '', 'under the bar: nothing');
   assert.equal(upgradeNudge({ tier: 'axeoncore', traffic: big, proofUrl: 'https://app.axeonstudio.co/' }), '', 'already on CORE: nothing');
+});
+
+test('validateClearRange accepts the three admin choices and nothing else', () => {
+  assert.equal(validateClearRange('hour'), 'hour');
+  assert.equal(validateClearRange('today'), 'today');
+  assert.equal(validateClearRange('all'), 'all');
+  assert.throws(() => validateClearRange('week'));
+  assert.throws(() => validateClearRange(undefined));
 });

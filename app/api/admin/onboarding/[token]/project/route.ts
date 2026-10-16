@@ -7,6 +7,7 @@
 //   POST   { kind: 'update', ... }        post an update (emails the client)
 //   POST   { kind: 'report', send, ... }  save a month's report (emails when send !== false)
 //   POST   { kind: 'tracking', ... }      website address, close rate, automatic reports on/off
+//   POST   { kind: 'clear-traffic', range } delete tracked visits/clicks: 'hour' | 'today' | 'all' (test traffic)
 //   POST   { kind: 'auto-report', month } build and email the month's report now (lib/autoReports.ts)
 //   POST   { kind: 'lead-outcome', id, outcome } mark a lead won / lost / null on the client's behalf (View as client)
 //   POST   { kind: 'audit' }              measure the client on Google now (lib/audits.ts); the first hit sets the baseline
@@ -24,7 +25,7 @@ import { APP_ORIGIN } from '@/lib/hostRouting';
 import { getOnboardingByToken, type Onboarding } from '@/lib/onboarding';
 import { sendAutoReport } from '@/lib/autoReports';
 import { setReferralPaid } from '@/lib/referrals';
-import { getTrackingSettings, hasTraffic, isValidMonth, setLeadOutcome, setTrackingSettings, trackingOverview, validateAvgJobValue, validateCloseRate, validateCloseRateMode, validateSiteUrl } from '@/lib/siteStats';
+import { clearSiteEvents, getTrackingSettings, hasTraffic, isValidMonth, setLeadOutcome, setTrackingSettings, trackingOverview, validateAvgJobValue, validateClearRange, validateCloseRate, validateCloseRateMode, validateSiteUrl } from '@/lib/siteStats';
 import { isLeadOutcome } from '@/lib/projectsShared';
 import { feedbackUrl, listFeedback } from '@/lib/feedback';
 import { applyBaseline, completePendingReviews, getAudit, getAuditSettings, listAuditsForOnboarding, runAudit, setAuditSettings, subjectForOnboarding } from '@/lib/audits';
@@ -156,6 +157,9 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
         autoReports: body.autoReports !== false,
         avgJobValue: validateAvgJobValue(body.avgJobValue),
       });
+    } else if (body.kind === 'clear-traffic') {
+      const cleared = await clearSiteEvents(onboarding.id, validateClearRange(body.range));
+      return NextResponse.json({ ...(await present(onboarding.id)), emailError, cleared });
     } else if (body.kind === 'lead-outcome') {
       const id = Number(body.id);
       const outcome = body.outcome == null ? null : body.outcome;
