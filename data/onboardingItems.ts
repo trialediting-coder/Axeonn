@@ -284,6 +284,28 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
   },
 
   // ───────────────────────── Essentials: Axeon handles these ─────────────────────────
+  // Axeon's lists mirror each plan's features in data/pricingData.ts; keep them in step.
+  {
+    key: 'website',
+    kind: 'axeon',
+    tier: 'essentials',
+    title: 'Your new website',
+    description: 'Custom, mobile-first pages built around how you sell, with 2 rounds of revisions before launch.',
+  },
+  {
+    key: 'google-visibility',
+    kind: 'axeon',
+    tier: 'essentials',
+    title: 'Show up on Google and in AI answers',
+    description: 'Your pages and business details set up so Google, the map results and tools like ChatGPT can find and recommend you.',
+  },
+  {
+    key: 'gbp-upkeep',
+    kind: 'axeon',
+    tier: 'essentials',
+    title: 'Google Business Profile upkeep',
+    description: 'We keep your listing current, so you keep showing up in the map results.',
+  },
   {
     key: 'ga4',
     kind: 'axeon',
@@ -303,7 +325,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     kind: 'axeon',
     tier: 'essentials',
     title: 'Hosting and security',
-    description: 'Fast hosting, SSL, backups, and monitoring.',
+    description: 'Fast hosting, SSL, backups, and uptime monitoring, so we know before your customers do if the site ever goes down.',
   },
   {
     key: 'business-email',
@@ -317,7 +339,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     kind: 'axeon',
     tier: 'essentials',
     title: 'Quote request form with instant alerts',
-    description: 'Wired to the number and email you gave us above.',
+    description: 'Every request lands on your phone and in your inbox, at the number and email you gave us.',
   },
   {
     key: 'monthly-report',
@@ -361,7 +383,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
         type: 'textarea',
         required: true,
         placeholder: 'Mike (owner) 515-555-0134, Sarah (office) 515-555-0199',
-        hint: 'Names and mobiles. Speed-to-lead rings these people.',
+        hint: 'Names and mobiles. Instant call-back rings these people.',
         sensitive: true,
       },
     ],
@@ -440,7 +462,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
         required: true,
         options: [
           'I will text a number when I finish a job',
-          'Mark it done in the CRM pipeline',
+          'Mark it done in my lead list',
           'When the booking time passes',
           'Not sure, recommend something',
         ],
@@ -474,18 +496,89 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     description: 'Every call, lead, and booked job, and where each came from. Live once the site is.',
   },
   {
+    key: 'core-pages',
+    kind: 'axeon',
+    tier: 'axeoncore',
+    title: '5 to 7 pages written to turn visitors into calls',
+    description: 'Built around the services you want more of.',
+  },
+  {
+    key: 'tracked-numbers',
+    kind: 'axeon',
+    tier: 'axeoncore',
+    title: 'Tracked phone numbers with call recording',
+    description: 'Shows which pages and listings make your phone ring, and lets you hear what every caller asked for.',
+  },
+  {
+    key: 'missed-call-text',
+    kind: 'axeon',
+    tier: 'axeoncore',
+    title: 'Missed-call text-back',
+    description: 'Anyone who calls and cannot reach you gets an instant text, so they do not move on to the next company.',
+  },
+  {
+    key: 'instant-callback',
+    kind: 'axeon',
+    tier: 'axeoncore',
+    title: 'Instant call-back on form leads',
+    description: 'When someone fills out your form, your phone rings and connects you to them while they are still on your site.',
+  },
+  {
+    // Key kept from the old "CRM pipeline" item so saved statuses carry over.
     key: 'crm',
     kind: 'axeon',
     tier: 'axeoncore',
-    title: 'CRM pipeline and automated follow-up',
-    description: 'Built from your answers above. You will get a walkthrough before it goes live.',
+    title: 'Automatic follow-up and one list of every lead',
+    description: 'Texts and emails go out the second a lead comes in, in your words. You get a walkthrough before it goes live.',
+  },
+  {
+    key: 'inbox',
+    kind: 'axeon',
+    tier: 'axeoncore',
+    title: 'One inbox for texts, emails and website chat',
+    description: 'Answer every lead from your phone. Facebook and Instagram messages are coming soon.',
   },
   {
     key: 'ai-chat',
     kind: 'axeon',
     tier: 'axeoncore',
     title: 'AI chat and online scheduling',
-    description: 'Trained on your services and connected to your calendar.',
+    description: 'Trained on your services and connected to your calendar, so leads book themselves 24/7.',
+  },
+  {
+    key: 'quote-followup',
+    kind: 'axeon',
+    tier: 'axeoncore',
+    title: 'Quote follow-up',
+    description: 'Estimates that have not closed get 3 automatic follow-ups, so fewer jobs slip away.',
+  },
+  {
+    key: 'appointment-reminders',
+    kind: 'axeon',
+    tier: 'axeoncore',
+    title: 'Appointment reminders by text',
+    description: 'So fewer people no-show.',
+  },
+  {
+    key: 'past-customers',
+    kind: 'axeon',
+    tier: 'axeoncore',
+    title: 'A text to past customers every quarter',
+    description: 'Brings repeat work back in.',
+  },
+  {
+    key: 'review-requests',
+    kind: 'axeon',
+    tier: 'axeoncore',
+    title: 'Review requests switched on',
+    description: 'A request goes out after every job, so your Google rating keeps climbing.',
+  },
+  {
+    key: 'last-chance-offer',
+    kind: 'axeon',
+    tier: 'axeoncore',
+    title: 'Last-chance offer on your site',
+    description: 'Visitors about to leave see the offer you picked, tied to the service they were looking at.',
   },
 
   // ───────────────────────── AxeonGROWTH: the client's part ─────────────────────────
@@ -625,10 +718,45 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
 
   // ───────────────────────── AxeonGROWTH: Axeon handles these ─────────────────────────
   {
+    key: 'ads-management',
+    kind: 'axeon',
+    tier: 'axeongrowth',
+    title: 'Google and Meta ads run for you',
+    description: 'On the services you want more of, in your own ad account, tracked to the booked job.',
+  },
+  {
+    key: 'local-services-ads',
+    kind: 'axeon',
+    tier: 'axeongrowth',
+    title: 'Google Local Services Ads',
+    description: 'The pay-per-lead spots at the very top of the search, for trades Google offers them to.',
+  },
+  {
+    key: 'ai-receptionist',
+    kind: 'axeon',
+    tier: 'axeongrowth',
+    title: 'AI phone receptionist',
+    description: 'Trained on the answers you gave us. Picks up every call 24/7, answers questions, and books the job.',
+  },
+  {
+    key: 'video-edit',
+    kind: 'axeon',
+    tier: 'axeongrowth',
+    title: 'Your video shoot, edited',
+    description: 'A hero film for your site, 3 vertical cuts for social and ads, and a photo set.',
+  },
+  {
+    key: 'social-reels',
+    kind: 'axeon',
+    tier: 'axeongrowth',
+    title: 'Social reels from your footage',
+    description: 'We keep cutting short videos from your shoot and post them to Facebook and Instagram for you.',
+  },
+  {
     key: 'ad-tracking',
     kind: 'axeon',
     tier: 'axeongrowth',
-    title: 'Ad conversion tracking',
+    title: 'Ad reporting in AxeonPROOF',
     description: 'Every ad dollar shown next to the calls and jobs it brought in.',
   },
   {
@@ -637,6 +765,13 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     tier: 'axeongrowth',
     title: 'New service page every month',
     description: 'Starts the month after launch, from your services list.',
+  },
+  {
+    key: 'review-campaigns',
+    kind: 'axeon',
+    tier: 'axeongrowth',
+    title: 'Full review campaigns',
+    description: 'To grow your Google rating faster.',
   },
 ];
 
