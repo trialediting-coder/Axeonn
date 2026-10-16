@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
+import posthog from 'posthog-js';
 
 declare global {
   interface Window {
@@ -45,11 +46,15 @@ export const EVENTS = {
   checkoutStarted: 'checkout_started',
 } as const;
 
-/** Global GA4 event dispatcher (no-op until gtag has loaded). */
+/**
+ * Global event dispatcher: GA4 (no-op until gtag has loaded) and PostHog (no-op
+ * where instrumentation-client.ts did not start it: /admin, GPC, previews).
+ */
 export function trackEvent(eventName: string, eventParams: Record<string, unknown> = {}) {
-  if (typeof window === 'undefined' || typeof window.gtag !== 'function') return;
+  if (typeof window === 'undefined') return;
   try {
-    window.gtag('event', eventName, eventParams);
+    if (typeof window.gtag === 'function') window.gtag('event', eventName, eventParams);
+    if (posthog.__loaded) posthog.capture(eventName, eventParams);
   } catch {
     // Telemetry must never break the page.
   }

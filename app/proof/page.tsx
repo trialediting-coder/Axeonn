@@ -7,6 +7,7 @@ import { getOnboardingById } from '@/lib/onboarding';
 import { ProofAuthShell } from '@/components/proof/ProofAuthShell';
 import { SignInForm } from '@/components/proof/ProofForms';
 import { ProofDashboard } from '@/components/proof/ProofDashboard';
+import { ProofAnalyticsIdentify } from '@/components/proof/ProofAnalyticsIdentify';
 import { loadDashboardData } from '@/lib/proofDashboardData';
 import { isProofTab } from '@/lib/proofTabs';
 import { parseContactId } from '@/lib/contactsShared';
@@ -29,14 +30,17 @@ export default async function ProofPage({ searchParams }: { searchParams: Promis
   const key = isProofTab(tab) ? tab : 'overview';
   const data = await loadDashboardData(onboarding, key, { contactId: parseContactId(contact) });
   return (
-    <ProofDashboard
-      email={account.email}
-      {...data}
-      leadApi="/api/proof/leads"
-      stageApi="/api/proof/leads/stage"
-      inboxApi="/api/proof/inbox"
-      scanApi="/api/proof/scan"
-      tab={key}
-    />
+    <>
+      <ProofAnalyticsIdentify accountId={account.id} businessName={onboarding.businessName ?? onboarding.clientName ?? `client ${onboarding.id}`} plan={onboarding.tier} />
+      <ProofDashboard
+        email={account.email}
+        {...data}
+        leadApi="/api/proof/leads"
+        stageApi="/api/proof/leads/stage"
+        inboxApi="/api/proof/inbox"
+        scanApi="/api/proof/scan"
+        tab={key}
+      />
+    </>
   );
 }

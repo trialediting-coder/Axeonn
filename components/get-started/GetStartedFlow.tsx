@@ -251,6 +251,8 @@ export function GetStartedFlow({
     advanceTimer.current = null;
     hasInteracted.current = true;
     setStepError('');
+    // Forward moves only, numbered from 1, so a funnel shows which question people leave on.
+    if (next > step) trackEvent('get_started_step', { step: next + 1, step_name: CHOICE_STEPS[next]?.key ?? 'contact' });
     setStep(next);
   }
 
