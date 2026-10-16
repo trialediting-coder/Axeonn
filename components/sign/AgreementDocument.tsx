@@ -1,5 +1,5 @@
-import { AGREEMENT_INTRO, SCHEDULE_A, SCHEDULE_A_DEFINITIONS, agreementSections, termSummary } from '@/data/agreementTemplate';
-import { agreementValues, fillTemplate, minimumMonthsOf, prettyDate, type Agreement } from '@/lib/agreements';
+import { AGREEMENT_INTRO, SCHEDULE_A_DEFINITIONS, agreementSections, termSummary } from '@/data/agreementTemplate';
+import { agreementSchedule, agreementValues, fillTemplate, minimumMonthsOf, prettyDate, type Agreement } from '@/lib/agreements';
 import { DocFacts, DocH2 } from '@/components/docs/DocPaper';
 
 const AXEON_SIGNER = { name: 'Hayder Hatem', title: 'Founder' };
@@ -7,7 +7,7 @@ const AXEON_SIGNER = { name: 'Hayder Hatem', title: 'Founder' };
 /** The agreement exactly as lib/agreements.ts#agreementText words it, laid out like the template. */
 export function AgreementDocument({ agreement: a }: { agreement: Agreement }) {
   const v = agreementValues(a);
-  const s = SCHEDULE_A[a.tier];
+  const s = agreementSchedule(a);
   const signed = a.signedAt && a.signedName;
   return (
     <>

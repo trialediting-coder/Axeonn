@@ -103,3 +103,18 @@ test('a $0 setup fee reads as monthly only', () => {
   assert.equal(a.setupCents, 0);
   assert.equal(agreementValues(a).fees, '$49 / month with no setup fee; the first month is due at signing');
 });
+
+test('Hosted Website agreement lists only the site and hosting', () => {
+  const a = { ...validateAgreementInput({ ...RAW, tier: 'website' }), number: 'AX-2026-002' };
+  assert.equal(a.tier, 'essentials', 'billed and onboarded as Essentials');
+  assert.equal(a.scope, 'website');
+  assert.equal(a.setupCents, 0);
+  assert.equal(a.monthlyCents, 4900);
+  const text = agreementText(a);
+  assert.ok(text.includes('Plan: Hosted Website'));
+  assert.ok(text.includes('A custom, professionally designed, mobile-friendly website (up to 4 pages)'));
+  assert.ok(!text.includes('Google Business Profile upkeep\n'), 'GBP upkeep is not promised');
+  assert.ok(!text.includes('Monthly calls & leads report by email'));
+  const full = agreementText({ ...validateAgreementInput({ ...RAW, tier: 'essentials' }), number: 'AX-2026-002' });
+  assert.ok(full.includes('Monthly calls & leads report by email'), 'full plans keep their Schedule A');
+});

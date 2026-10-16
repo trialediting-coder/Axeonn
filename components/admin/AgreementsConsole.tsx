@@ -23,7 +23,7 @@ export interface AgreementRow {
 }
 
 interface Options {
-  tiers: Array<{ value: AgreementRow['tier']; label: string; setup: number; monthly: number }>;
+  tiers: Array<{ value: AgreementRow['tier'] | 'website'; label: string; setup: number; monthly: number }>;
   entityTypes: readonly string[];
   axeonEntities: readonly string[];
   addOns: readonly string[];
@@ -41,7 +41,7 @@ const today = () => new Date().toISOString().slice(0, 10);
 
 export function AgreementsConsole({ initialRows, options, dbError }: { initialRows: AgreementRow[]; options: Options; dbError: string | null }) {
   const [rows, setRows] = useState(initialRows);
-  const [tier, setTier] = useState<AgreementRow['tier']>('axeoncore');
+  const [tier, setTier] = useState<AgreementRow['tier'] | 'website'>('axeoncore');
   const plan = options.tiers.find((t) => t.value === tier)!;
   const [form, setForm] = useState({
     clientEmail: '',
@@ -123,7 +123,7 @@ export function AgreementsConsole({ initialRows, options, dbError }: { initialRo
         </div>
         <label className="block">
           <span className={adminLabel}>Plan</span>
-          <select className={adminInput} value={tier} onChange={(e) => setTier(e.target.value as AgreementRow['tier'])}>
+          <select className={adminInput} value={tier} onChange={(e) => setTier(e.target.value as AgreementRow['tier'] | 'website')}>
             {options.tiers.map((t) => (
               <option key={t.value} value={t.value}>
                 {t.label} · {dollars(t.setup)} + {dollars(t.monthly)}/mo

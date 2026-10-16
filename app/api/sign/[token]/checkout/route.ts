@@ -2,8 +2,7 @@
 // After signing: open Stripe Checkout for the setup fee + monthly plan. The
 // webhook marks the agreement paid and starts onboarding.
 import { NextResponse } from 'next/server';
-import { TIER_LABELS } from '@/data/onboardingItems';
-import { agreementUrl, getAgreement } from '@/lib/agreements';
+import { agreementPlanLabel, agreementUrl, getAgreement } from '@/lib/agreements';
 import { createAgreementCheckout } from '@/lib/billing';
 import { clientIp, notFound, rateLimited } from '@/lib/welcomeApi';
 
@@ -26,7 +25,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
       contactName: a.contactName || a.signedName || a.signerName,
       businessName: a.legalName,
       tier: a.tier,
-      planLabel: TIER_LABELS[a.tier],
+      planLabel: agreementPlanLabel(a),
       setupCents: a.setupCents,
       monthlyCents: a.monthlyCents,
       cancelUrl: agreementUrl(a.token),

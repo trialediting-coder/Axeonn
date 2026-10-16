@@ -1,10 +1,10 @@
 import { redirect } from 'next/navigation';
 import { adminMain } from '@/components/admin/ui';
 import { AgreementsConsole, type AgreementRow } from '@/components/admin/AgreementsConsole';
-import { AGREEMENT_ADD_ONS, AXEON_ENTITY_OPTIONS, ENTITY_TYPES, PLAN_DEFAULT_FEES } from '@/data/agreementTemplate';
+import { AGREEMENT_ADD_ONS, AXEON_ENTITY_OPTIONS, ENTITY_TYPES, PLAN_DEFAULT_FEES, WEBSITE_PLAN_LABEL } from '@/data/agreementTemplate';
 import { ONBOARDING_TIERS, TIER_LABELS } from '@/data/onboardingItems';
 import { auth } from '@/lib/auth';
-import { agreementUrl, listAgreements } from '@/lib/agreements';
+import { WEBSITE_DEFAULT_FEES, agreementUrl, listAgreements } from '@/lib/agreements';
 import { isDatabaseConfigured } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
@@ -36,12 +36,16 @@ export default async function AgreementsAdminPage() {
           initialRows={rows}
           dbError={dbError}
           options={{
-            tiers: ONBOARDING_TIERS.map((t) => ({
-              value: t,
-              label: TIER_LABELS[t],
-              setup: PLAN_DEFAULT_FEES[t].setupCents,
-              monthly: PLAN_DEFAULT_FEES[t].monthlyCents,
-            })),
+            tiers: [
+              // Website only: Schedule A lists the site and hosting, nothing else (data/agreementTemplate.ts SCHEDULE_WEBSITE).
+              { value: 'website' as const, label: WEBSITE_PLAN_LABEL, setup: WEBSITE_DEFAULT_FEES.setupCents, monthly: WEBSITE_DEFAULT_FEES.monthlyCents },
+              ...ONBOARDING_TIERS.map((t) => ({
+                value: t,
+                label: TIER_LABELS[t],
+                setup: PLAN_DEFAULT_FEES[t].setupCents,
+                monthly: PLAN_DEFAULT_FEES[t].monthlyCents,
+              })),
+            ],
             entityTypes: ENTITY_TYPES,
             axeonEntities: AXEON_ENTITY_OPTIONS,
             addOns: AGREEMENT_ADD_ONS,

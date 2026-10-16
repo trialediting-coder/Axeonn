@@ -227,6 +227,22 @@ export const SCHEDULE_A: Record<OnboardingTier, { title: string; lead?: string; 
   },
 };
 
+/**
+ * The "Hosted Website" agreement: a site and its hosting, nothing else. Billed
+ * like Essentials (same Stripe plan and onboarding), but this is all it promises.
+ */
+export const WEBSITE_PLAN_LABEL = 'Hosted Website';
+export const SCHEDULE_WEBSITE: { title: string; lead?: string; items: string[] } = {
+  title: WEBSITE_PLAN_LABEL,
+  items: [
+    'A custom, professionally designed, mobile-friendly website (up to 4 pages)',
+    'Hosting, SSL security & backups while this Agreement is in effect (Sec. 7.1)',
+    'Client owns site, code & design files (Sec. 6.2)',
+    'Changes after launch are quoted separately (Sec. 1.2)',
+    'Not included: Google Business Profile upkeep, SEO work, lead alerts, monthly reports, business email, AxeonPROOF, or the 90-day guarantee',
+  ],
+};
+
 export const SCHEDULE_A_DEFINITIONS = [
   "Definitions: A “small edit” is a text, image, or link change on an existing page taking 30 minutes or less. One “edit” is a single request of 30 minutes or less. A “page” is one URL on Client's site. Unused edits do not roll over. Design revisions before launch: up to two (2) rounds on the homepage mockup and one (1) round per additional page; further rounds are billed under Section 1.2.",
   "Launch: The Services “go live” on the date Client's domain first points to the Axeon-built website or, for Clients without a website component, the date the first Subscription System is activated.",

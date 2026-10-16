@@ -15,6 +15,8 @@ import {
   PLAN_DEFAULT_FEES,
   SCHEDULE_A,
   SCHEDULE_A_DEFINITIONS,
+  SCHEDULE_WEBSITE,
+  WEBSITE_PLAN_LABEL,
   agreementSections,
   termSummary,
 } from '@/data/agreementTemplate';
@@ -45,7 +47,18 @@ export interface AgreementFields {
   noMinimum?: boolean;
   /** Minimum term in whole months, 0 = none. Missing on older agreements: noMinimum decides (0 or 3). */
   minimumMonths?: number;
+  /** 'website': the Hosted Website agreement (tier stays 'essentials' for billing and onboarding). Missing = the full plan. */
+  scope?: 'website';
 }
+
+/** Hosted Website defaults: no setup fee, $49 a month. */
+export const WEBSITE_DEFAULT_FEES = { setupCents: 0, monthlyCents: 4900 };
+
+/** Schedule A for this agreement: the plan's column, or the Hosted Website list. */
+export const agreementSchedule = (a: Pick<AgreementFields, 'tier' | 'scope'>) => (a.scope === 'website' ? SCHEDULE_WEBSITE : SCHEDULE_A[a.tier]);
+
+/** The plan name the agreement and checkout show. */
+export const agreementPlanLabel = (a: Pick<AgreementFields, 'tier' | 'scope'>) => (a.scope === 'website' ? WEBSITE_PLAN_LABEL : TIER_LABELS[a.tier]);
 
 export const DEFAULT_MINIMUM_MONTHS = 3;
 export const MAX_MINIMUM_MONTHS = 24;
@@ -105,7 +118,7 @@ export function agreementValues(a: AgreementFields) {
     effectiveDate: prettyDate(a.effectiveDate),
     axeonEntity: a.axeonEntity,
     hourlyRate: a.hourlyRate,
-    plan: TIER_LABELS[a.tier],
+    plan: agreementPlanLabel(a),
     fees:
       a.setupCents > 0
         ? `${money(a.setupCents)} to start + ${money(a.monthlyCents)} / month; the first month is billed with the setup fee, so ${money(a.setupCents + a.monthlyCents)} is due at signing`
@@ -119,7 +132,7 @@ export const fillTemplate = (text: string, v: Record<string, string>) => text.re
 /** The full agreement as plain text: exactly what the client reads and signs. */
 export function agreementText(a: AgreementFields & { number: string }): string {
   const v = agreementValues(a);
-  const s = SCHEDULE_A[a.tier];
+  const s = agreementSchedule(a);
   return [
     `Client Services Agreement · Agreement No. ${a.number} · Version ${AGREEMENT_VERSION}`,
     fillTemplate(AGREEMENT_INTRO, v),
@@ -147,8 +160,10 @@ export function validateAgreementInput(raw: Record<string, unknown>): AgreementF
   const s = (k: string, max = 200) => (typeof raw[k] === 'string' ? (raw[k] as string).trim().slice(0, max) : '');
   const email = s('clientEmail').toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Enter a valid client email');
-  if (!isOnboardingTier(raw.tier)) throw new Error('Choose a plan');
-  const tier = raw.tier;
+  const website = raw.tier === 'website';
+  if (!website && !isOnboardingTier(raw.tier)) throw new Error('Choose a plan');
+  const tier: OnboardingTier = website ? 'essentials' : (raw.tier as OnboardingTier);
+  const defaults = website ? WEBSITE_DEFAULT_FEES : PLAN_DEFAULT_FEES[tier];
   const cents = (k: string, fallback: number) => {
     const v = raw[k];
     if (v === undefined || v === '') return fallback;
@@ -165,8 +180,9 @@ export function validateAgreementInput(raw: Record<string, unknown>): AgreementF
     signerTitle: s('signerTitle', 80),
     address: s('address', 300),
     tier,
-    setupCents: cents('setup', PLAN_DEFAULT_FEES[tier].setupCents),
-    monthlyCents: cents('monthly', PLAN_DEFAULT_FEES[tier].monthlyCents),
+    setupCents: cents('setup', defaults.setupCents),
+    monthlyCents: cents('monthly', defaults.monthlyCents),
+    ...(website ? { scope: 'website' as const } : {}),
     addOns: s('addOns', 500),
     hourlyRate: s('hourlyRate', 40),
     axeonEntity: s('axeonEntity', 80),
