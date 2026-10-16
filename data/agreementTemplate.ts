@@ -149,15 +149,34 @@ const NO_MINIMUM_PARAGRAPHS: Record<string, string> = {
   '10.1': '10.1 By Client for convenience. Client may terminate this Agreement for any reason by giving written notice under Section 2.2, effective at the end of the then-current term. If Client stops payment or abandons the project, all Fees for the then-current term become immediately due.',
 };
 
-export const agreementSections = (noMinimum: boolean): AgreementSection[] =>
-  noMinimum
-    ? AGREEMENT_SECTIONS.map((sec) => ({
-        ...sec,
-        paragraphs: sec.paragraphs.map((p) => NO_MINIMUM_PARAGRAPHS[p.slice(0, p.indexOf(' '))] ?? p),
-      }))
-    : AGREEMENT_SECTIONS;
+const NUMBER_WORDS = [
+  'zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve',
+  'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty',
+  'twenty-one', 'twenty-two', 'twenty-three', 'twenty-four',
+];
 
-export const termSummary = (noMinimum: boolean) => (noMinimum ? 'Month-to-month, no minimum' : '3 months, then month-to-month');
+/** "six (6) months", the way the template writes terms. */
+const monthsInWords = (n: number) => `${NUMBER_WORDS[n] ?? String(n)} (${n}) month${n === 1 ? '' : 's'}`;
+
+/**
+ * The sections for a minimum term in months (the admin's "Minimum term" field).
+ * 3 reads exactly as above, so agreements signed before the field existed keep
+ * their text. 0 swaps in the no-minimum paragraphs. Any other number only
+ * changes the length in Sec. 2.1; Sec. 10.1 already refers to "the Initial Term".
+ */
+export const agreementSections = (minimumMonths: number): AgreementSection[] => {
+  if (minimumMonths === 3) return AGREEMENT_SECTIONS;
+  const swap = (p: string) =>
+    minimumMonths === 0
+      ? (NO_MINIMUM_PARAGRAPHS[p.slice(0, p.indexOf(' '))] ?? p)
+      : p.startsWith('2.1 ')
+        ? p.replace('three (3) months', monthsInWords(minimumMonths))
+        : p;
+  return AGREEMENT_SECTIONS.map((sec) => ({ ...sec, paragraphs: sec.paragraphs.map(swap) }));
+};
+
+export const termSummary = (minimumMonths: number) =>
+  minimumMonths === 0 ? 'Month-to-month, no minimum' : `${minimumMonths} month${minimumMonths === 1 ? '' : 's'}, then month-to-month`;
 
 /** Schedule A: only the selected Plan's column is shown, as the template instructs. */
 export const SCHEDULE_A: Record<OnboardingTier, { title: string; lead?: string; items: string[] }> = {

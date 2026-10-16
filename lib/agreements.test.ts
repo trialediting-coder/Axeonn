@@ -2,7 +2,7 @@
 // Run with: npm run test:onboarding   (pure helpers; no database)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { agreementText, hashAgreementText, isAgreementToken, money, newAgreementToken, validateAgreementInput } from './agreements';
+import { agreementText, agreementValues, hashAgreementText, isAgreementToken, money, newAgreementToken, validateAgreementInput } from './agreements';
 
 const RAW = {
   clientEmail: 'Mike@A1Detail.com',
@@ -75,4 +75,31 @@ test('money formats cents', () => {
   assert.equal(money(9900), '$99');
   assert.equal(money(150000), '$1,500');
   assert.equal(money(24950), '$249.50');
+});
+
+test('minimum term: any whole number of months, 3 keeps the original text, 0 = none', () => {
+  const base = { ...validateAgreementInput(RAW), number: 'AX-2026-001' };
+  assert.equal(base.minimumMonths, 3);
+  const legacy = { ...base };
+  delete (legacy as { minimumMonths?: number }).minimumMonths;
+  assert.equal(agreementText(legacy), agreementText(base), 'agreements signed before minimumMonths keep their text');
+
+  const six = { ...validateAgreementInput({ ...RAW, minimumMonths: '6' }), number: 'AX-2026-001' };
+  const t6 = agreementText(six);
+  assert.ok(t6.includes('Initial Term: 6 months, then month-to-month'));
+  assert.ok(t6.includes('initial term of six (6) months'));
+  assert.ok(t6.includes('may not terminate for convenience during the Initial Term'), 'still a commitment');
+
+  const none = { ...validateAgreementInput({ ...RAW, minimumMonths: 0 }), number: 'AX-2026-001' };
+  assert.equal(none.noMinimum, true);
+  assert.ok(agreementText(none).includes('Initial Term: Month-to-month, no minimum'));
+
+  assert.throws(() => validateAgreementInput({ ...RAW, minimumMonths: 25 }));
+  assert.throws(() => validateAgreementInput({ ...RAW, minimumMonths: 1.5 }));
+});
+
+test('a $0 setup fee reads as monthly only', () => {
+  const a = validateAgreementInput({ ...RAW, setup: '0', monthly: '49' });
+  assert.equal(a.setupCents, 0);
+  assert.equal(agreementValues(a).fees, '$49 / month with no setup fee; the first month is due at signing');
 });

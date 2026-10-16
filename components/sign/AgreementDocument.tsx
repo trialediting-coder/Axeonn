@@ -1,5 +1,5 @@
 import { AGREEMENT_INTRO, SCHEDULE_A, SCHEDULE_A_DEFINITIONS, agreementSections, termSummary } from '@/data/agreementTemplate';
-import { agreementValues, fillTemplate, prettyDate, type Agreement } from '@/lib/agreements';
+import { agreementValues, fillTemplate, minimumMonthsOf, prettyDate, type Agreement } from '@/lib/agreements';
 import { DocFacts, DocH2 } from '@/components/docs/DocPaper';
 
 const AXEON_SIGNER = { name: 'Hayder Hatem', title: 'Founder' };
@@ -21,11 +21,11 @@ export function AgreementDocument({ agreement: a }: { agreement: Agreement }) {
           ['Business address', a.address],
           ['Plan', v.plan],
           ['Fees', v.fees],
-          ['Initial Term', termSummary(!!a.noMinimum)],
+          ['Initial Term', termSummary(minimumMonthsOf(a))],
           ['Add-ons', v.addOns],
         ]}
       />
-      {agreementSections(!!a.noMinimum).map((sec) => (
+      {agreementSections(minimumMonthsOf(a)).map((sec) => (
         <section key={sec.heading}>
           <DocH2>{sec.heading}</DocH2>
           {sec.paragraphs.map((p) => (

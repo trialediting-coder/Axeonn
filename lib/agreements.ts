@@ -41,9 +41,18 @@ export interface AgreementFields {
   hourlyRate: string;
   axeonEntity: string;
   effectiveDate: string; // YYYY-MM-DD
-  /** Month-to-month with no 3-month minimum. Missing on older agreements = false. */
+  /** Month-to-month with no 3-month minimum. Missing on older agreements = false. Superseded by minimumMonths. */
   noMinimum?: boolean;
+  /** Minimum term in whole months, 0 = none. Missing on older agreements: noMinimum decides (0 or 3). */
+  minimumMonths?: number;
 }
+
+export const DEFAULT_MINIMUM_MONTHS = 3;
+export const MAX_MINIMUM_MONTHS = 24;
+
+/** The agreement's minimum term in months, reading older agreements the way they were signed. */
+export const minimumMonthsOf = (a: Pick<AgreementFields, 'minimumMonths' | 'noMinimum'>): number =>
+  typeof a.minimumMonths === 'number' ? a.minimumMonths : a.noMinimum ? 0 : DEFAULT_MINIMUM_MONTHS;
 
 export interface Agreement extends AgreementFields {
   id: number;
@@ -75,6 +84,21 @@ export function prettyDate(iso: string | null | undefined): string {
   return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'America/Chicago' });
 }
 
+/**
+ * The minimum term from the admin form: `minimumMonths` (0-24), or the older
+ * `noMinimum` checkbox. noMinimum is kept in step so older readers still agree.
+ */
+function minimumFields(raw: Record<string, unknown>): Pick<AgreementFields, 'minimumMonths' | 'noMinimum'> {
+  const v = raw.minimumMonths;
+  let months = raw.noMinimum === true ? 0 : DEFAULT_MINIMUM_MONTHS;
+  if (v !== undefined && v !== '') {
+    const n = Number(v);
+    if (!Number.isInteger(n) || n < 0 || n > MAX_MINIMUM_MONTHS) throw new Error(`Minimum term must be 0 to ${MAX_MINIMUM_MONTHS} whole months`);
+    months = n;
+  }
+  return { minimumMonths: months, noMinimum: months === 0 };
+}
+
 /** Every value that appears in the agreement, as shown. */
 export function agreementValues(a: AgreementFields) {
   return {
@@ -82,7 +106,10 @@ export function agreementValues(a: AgreementFields) {
     axeonEntity: a.axeonEntity,
     hourlyRate: a.hourlyRate,
     plan: TIER_LABELS[a.tier],
-    fees: `${money(a.setupCents)} to start + ${money(a.monthlyCents)} / month; the first month is billed with the setup fee, so ${money(a.setupCents + a.monthlyCents)} is due at signing`,
+    fees:
+      a.setupCents > 0
+        ? `${money(a.setupCents)} to start + ${money(a.monthlyCents)} / month; the first month is billed with the setup fee, so ${money(a.setupCents + a.monthlyCents)} is due at signing`
+        : `${money(a.monthlyCents)} / month with no setup fee; the first month is due at signing`,
     addOns: a.addOns.trim() || 'None',
   };
 }
@@ -102,9 +129,9 @@ export function agreementText(a: AgreementFields & { number: string }): string {
     `Business address: ${a.address}`,
     `Plan: ${v.plan}`,
     `Fees: ${v.fees}`,
-    `Initial Term: ${termSummary(!!a.noMinimum)}`,
+    `Initial Term: ${termSummary(minimumMonthsOf(a))}`,
     `Add-ons: ${v.addOns}`,
-    ...agreementSections(!!a.noMinimum).flatMap((sec) => [sec.heading, ...sec.paragraphs.map((p) => fillTemplate(p, v))]),
+    ...agreementSections(minimumMonthsOf(a)).flatMap((sec) => [sec.heading, ...sec.paragraphs.map((p) => fillTemplate(p, v))]),
     'Schedule A · Services included in the Plan',
     s.title,
     ...(s.lead ? [s.lead] : []),
@@ -143,7 +170,7 @@ export function validateAgreementInput(raw: Record<string, unknown>): AgreementF
     addOns: s('addOns', 500),
     hourlyRate: s('hourlyRate', 40),
     axeonEntity: s('axeonEntity', 80),
-    noMinimum: raw.noMinimum === true,
+    ...minimumFields(raw),
     effectiveDate: /^\d{4}-\d{2}-\d{2}$/.test(s('effectiveDate')) ? s('effectiveDate') : new Date().toISOString().slice(0, 10),
   };
   for (const [key, label] of [

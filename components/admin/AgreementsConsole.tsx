@@ -14,6 +14,7 @@ export interface AgreementRow {
   setupCents: number;
   monthlyCents: number;
   noMinimum?: boolean;
+  minimumMonths?: number;
   signedName: string | null;
   signedAt: string | null;
   paidAt: string | null;
@@ -58,7 +59,7 @@ export function AgreementsConsole({ initialRows, options, dbError }: { initialRo
     axeonEntity: options.axeonEntities[0],
     effectiveDate: today(),
   });
-  const [noMinimum, setNoMinimum] = useState(false);
+  const [minimumMonths, setMinimumMonths] = useState('3');
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(dbError ? { ok: false, text: dbError } : null);
 
@@ -77,7 +78,7 @@ export function AgreementsConsole({ initialRows, options, dbError }: { initialRo
     const res = await fetch('/api/admin/agreements', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ ...form, tier, noMinimum }),
+      body: JSON.stringify({ ...form, tier, minimumMonths }),
     });
     const data = (await res.json().catch(() => ({}))) as { error?: string; emailed?: boolean; emailError?: string; agreement?: AgreementRow };
     setBusy(false);
@@ -155,11 +156,20 @@ export function AgreementsConsole({ initialRows, options, dbError }: { initialRo
           {field('setup', 'Setup fee ($)', { inputMode: 'decimal', placeholder: String(plan.setup / 100) })}
           {field('monthly', 'Monthly ($)', { inputMode: 'decimal', placeholder: String(plan.monthly / 100) })}
         </div>
-        <label className="flex items-start gap-2 text-sm text-neutral-800">
-          <input type="checkbox" className="mt-0.5" checked={noMinimum} onChange={(e) => setNoMinimum(e.target.checked)} />
-          <span>
-            No minimum (month-to-month)
-            <span className="block text-xs text-neutral-500">Off: 3-month minimum (Sec. 2.1, 10.1). On: cancel any month with 30 days' notice.</span>
+        <label className="block">
+          <span className={adminLabel}>Minimum term (months)</span>
+          <input
+            className={adminInput}
+            type="number"
+            min={0}
+            max={24}
+            step={1}
+            inputMode="numeric"
+            value={minimumMonths}
+            onChange={(e) => setMinimumMonths(e.target.value)}
+          />
+          <span className="mt-1 block text-xs text-neutral-500">
+            Months they commit to before it goes month-to-month (Sec. 2.1, 10.1). 0 = no minimum: cancel any month with 30 days&apos; notice.
           </span>
         </label>
         <label className="block">
@@ -212,7 +222,10 @@ export function AgreementsConsole({ initialRows, options, dbError }: { initialRo
                   </p>
                   <p className="text-xs text-neutral-500 truncate">
                     {r.clientEmail} · {dollars(r.setupCents)} + {dollars(r.monthlyCents)}/mo
-                    {r.noMinimum ? ' · no minimum' : ''}
+                    {(() => {
+                      const m = typeof r.minimumMonths === 'number' ? r.minimumMonths : r.noMinimum ? 0 : 3;
+                      return m === 0 ? ' · no minimum' : m === 3 ? '' : ` · ${m}-month minimum`;
+                    })()}
                     {r.signedAt ? ` · signed by ${r.signedName} ${new Date(r.signedAt).toLocaleDateString()}` : ''}
                   </p>
                 </div>
