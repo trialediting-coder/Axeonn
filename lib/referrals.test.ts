@@ -8,7 +8,7 @@ import { ONBOARDING_ITEMS } from '@/data/onboardingItems';
 
 test('the "how did you find us" item exists for every plan with a referrer field', () => {
   const item = ONBOARDING_ITEMS.find((i) => i.key === HOW_FOUND_KEY)!;
-  assert.ok(item && item.tier === 'essentials' && item.kind === 'confirm');
+  assert.ok(item && item.tier === 'website' && item.kind === 'confirm');
   assert.deepEqual(item.fields!.map((f) => f.key), ['source', 'referredBy']);
   assert.ok(item.fields![0].options!.includes('Someone referred me'));
 });

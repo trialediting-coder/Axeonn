@@ -6,6 +6,7 @@
 // running and why some stopped. Hidden for Essentials. Nothing sends from here.
 'use client';
 
+import { TIER_RANK } from '@/data/onboardingItems';
 import { useId, useMemo, useState } from 'react';
 import { adminInput, adminLabel, btn } from '@/components/admin/ui';
 import { parsePastCustomers } from '@/lib/pastCustomersShared';
@@ -34,7 +35,7 @@ export function SequencesPanel({ token, tier, initial }: { token: string; tier: 
   const preview = useMemo(() => (csv ? parsePastCustomers(csv.text) : null), [csv]);
   const ids = useId();
 
-  if (tier === 'essentials') return null;
+  if ((TIER_RANK[tier as keyof typeof TIER_RANK] ?? 0) < TIER_RANK.axeoncore) return null;
 
   async function call(label: string, method: 'POST' | 'PUT', body: Record<string, unknown>): Promise<boolean> {
     setBusy(label);

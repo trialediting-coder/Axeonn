@@ -106,8 +106,7 @@ test('a $0 setup fee reads as monthly only', () => {
 
 test('Hosted Website agreement lists only the site and hosting', () => {
   const a = { ...validateAgreementInput({ ...RAW, tier: 'website' }), number: 'AX-2026-002' };
-  assert.equal(a.tier, 'essentials', 'billed and onboarded as Essentials');
-  assert.equal(a.scope, 'website');
+  assert.equal(a.tier, 'website', 'its own plan: website-only onboarding');
   assert.equal(a.setupCents, 0);
   assert.equal(a.monthlyCents, 4900);
   const text = agreementText(a);

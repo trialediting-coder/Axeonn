@@ -4,6 +4,7 @@
 // snippet for their site, and the last 20 conversations to read back.
 'use client';
 
+import { TIER_RANK } from '@/data/onboardingItems';
 import { useState } from 'react';
 import { adminInput, adminLabel, btn } from '@/components/admin/ui';
 import { SITE_ORIGIN } from '@/lib/hostRouting';
@@ -23,7 +24,7 @@ export function ChatPanel({ token, tier, initial }: { token: string; tier: strin
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
-  if (tier === 'essentials') return null;
+  if ((TIER_RANK[tier as keyof typeof TIER_RANK] ?? 0) < TIER_RANK.axeoncore) return null;
 
   async function send(method: 'PUT' | 'POST', body: Record<string, unknown>, kind: 'save' | 'train') {
     setBusy(kind);

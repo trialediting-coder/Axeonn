@@ -429,7 +429,7 @@ export function auditLeaks(results: AuditResults, city: string): Leak[] {
 // ───────────────────────────── Caps & schedule ─────────────────────────────
 
 /** Client self-scans per month, by plan (owner decision 2026-10-12). */
-export const TIER_SCAN_CAP: Record<OnboardingTier, number> = { essentials: 0, axeoncore: 3, axeongrowth: 10 };
+export const TIER_SCAN_CAP: Record<OnboardingTier, number> = { website: 0, essentials: 0, axeoncore: 3, axeongrowth: 10 };
 export const scanCapFor = (tier: OnboardingTier, override: number | null | undefined): number => override ?? TIER_SCAN_CAP[tier];
 export const scansRemaining = (used: number, cap: number): number => Math.max(0, cap - used);
 

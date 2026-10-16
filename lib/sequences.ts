@@ -4,6 +4,7 @@
 // decision is made by decideRun (lib/sequenceSchedule.ts, pure and tested);
 // this file loads the facts, claims the step, and sends through sendClientSms
 // (lib/phoneLines.ts) or sendSequenceEmail (lib/email.ts). Server-only.
+import { TIER_RANK } from '@/data/onboardingItems';
 import { ensureSchema, sql } from '@/lib/db';
 import { errText, iso, type DbId, type DbTime } from '@/lib/dbRows';
 import { sendSequenceEmail } from '@/lib/email';
@@ -197,7 +198,7 @@ const varsFor = (c: ClientContext, contactName: string | null): TemplateVars =>
     reviewLink: c.settings.reviewLink,
     bookingLink: c.settings.bookingLink,
   });
-const tierAllowed = (o: Onboarding | null): boolean => Boolean(o && o.tier !== 'essentials' && o.status !== 'closed');
+const tierAllowed = (o: Onboarding | null): boolean => Boolean(o && TIER_RANK[o.tier] >= TIER_RANK.axeoncore && o.status !== 'closed');
 /** Resend, plus the secret the unsubscribe link is signed with: no email goes out without its unsubscribe link. */
 const emailConfigured = (): boolean => Boolean(process.env.RESEND_API_KEY && unsubscribeSecret());
 const smsReady = (line: PhoneLine | null): boolean => line?.smsStatus === 'ready';

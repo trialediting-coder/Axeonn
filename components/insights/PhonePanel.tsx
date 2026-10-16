@@ -4,6 +4,7 @@
 // with this month's running cost.
 'use client';
 
+import { TIER_RANK } from '@/data/onboardingItems';
 import { useState } from 'react';
 import { adminInput, adminLabel, btn } from '@/components/admin/ui';
 import type { PhoneCall, PhoneLine } from '@/lib/phoneShared';
@@ -38,7 +39,7 @@ export function PhonePanel({ token, tier, initial, asked, businessName }: { toke
   const [testPhone, setTestPhone] = useState('');
   const [testResult, setTestResult] = useState<string | null>(null);
 
-  if (tier === 'essentials') return null;
+  if ((TIER_RANK[tier as keyof typeof TIER_RANK] ?? 0) < TIER_RANK.axeoncore) return null;
 
   function syncForm(l: PhoneLine) {
     setForwardTo(formatPhone(l.forwardTo));

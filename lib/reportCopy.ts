@@ -106,6 +106,7 @@ export function reportHighlights(input: {
  * month. From content/brand-guardrails.md, in plain words.
  */
 export const ALWAYS_ON: Record<OnboardingTier, readonly string[]> = {
+  website: ['hosting, security and backups'],
   essentials: [
     'hosting, security and backups',
     'your Google Business Profile kept current',

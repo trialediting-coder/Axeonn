@@ -50,6 +50,7 @@ import type { BillingSummary } from '@/lib/clientBilling';
 import { REFERRAL, referralHeadline, referralMailto } from '@/lib/referral';
 import { SITE_ORIGIN } from '@/lib/hostRouting';
 import type { OnboardingItem } from '@/data/onboardingItems';
+import { TIER_RANK } from '@/data/onboardingItems';
 import type { ItemState, Onboarding, Progress } from '@/lib/onboarding';
 import type { MonthlyReport, ProjectDetails, ProjectUpdate } from '@/lib/projects';
 import { DEVICE_LABELS, WEEKDAY_LABELS, buttonLabel, campaignLabel, hourLabel, monthLabel, sourceLabel, type TrafficSummary } from '@/lib/projectsShared';
@@ -521,7 +522,7 @@ export function ProofDashboard({
           <div className="flex items-center gap-2">
             {pushKey && !preview ? <NotificationsButton publicKey={pushKey} /> : null}
             <span className="inline-flex items-center rounded-md bg-white px-2.5 py-1 text-xs font-semibold text-neutral-700 ring-1 ring-neutral-200">
-              {onboarding.tier === 'essentials' ? planLabel : <AxeonLogo product={TIER_SHORT[onboarding.tier]} size="sm" mark={false} />}
+              {TIER_RANK[onboarding.tier] < TIER_RANK.axeoncore ? planLabel : <AxeonLogo product={TIER_SHORT[onboarding.tier]} size="sm" mark={false} />}
             </span>
             {live ? (
               <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-200">

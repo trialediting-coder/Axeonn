@@ -147,7 +147,7 @@ test('the setup card asks for addresses and where Google sends sign-ins, never a
 test('mailbox allowance is 1 / 3 / 5 by plan, extras counted at the add-on price', async () => {
   const { EXTRA_MAILBOX_PRICE, MAILBOXES_INCLUDED, mailboxAllowance } = await import('./businessEmailShared');
   const { allowanceLine } = await import('./businessEmail');
-  assert.deepEqual(MAILBOXES_INCLUDED, { essentials: 1, axeoncore: 3, axeongrowth: 5 });
+  assert.deepEqual(MAILBOXES_INCLUDED, { website: 0, essentials: 1, axeoncore: 3, axeongrowth: 5 });
   const box = (n: number) => ({ mailboxes: Array.from({ length: n }, (_, i) => ({ address: `p${i}@a1detail.com`, person: '', status: 'active' as const })) });
   assert.deepEqual(mailboxAllowance('essentials', null), { included: 1, used: 0, extra: 0, left: 1, extraMonthly: 0 });
   assert.deepEqual(mailboxAllowance('essentials', box(3)), { included: 1, used: 3, extra: 2, left: 0, extraMonthly: 2 * EXTRA_MAILBOX_PRICE });

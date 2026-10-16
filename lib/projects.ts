@@ -7,6 +7,7 @@
 // "estimated new customers", is always labelled as an estimate. Nothing is invented.
 import { sql, ensureSchema, isDatabaseConfigured } from '@/lib/db';
 import type { OnboardingTier } from '@/data/onboardingItems';
+import { TIER_RANK } from '@/data/onboardingItems';
 import { UPDATE_STATUSES, UPDATE_TYPES, buttonLabel, type Line, type TrafficSummary } from '@/lib/projectsShared';
 import { reportFillPatch, type AuditRow } from '@/lib/auditShared';
 
@@ -113,7 +114,7 @@ export interface MonthlyReport extends ReportBody {
 // ───────────────────────────── Pure helpers ─────────────────────────────
 
 /** The 90-day guarantee applies to AxeonCORE and AxeonGROWTH only. */
-export const tierHasGuarantee = (tier: OnboardingTier) => tier !== 'essentials';
+export const tierHasGuarantee = (tier: OnboardingTier) => TIER_RANK[tier] >= TIER_RANK.axeoncore;
 
 /** Day N of the 90-day window (1-based) from kickoff, or null before kickoff / after day 90. */
 export function guaranteeDay(kickoffAt: string | null, now: number = Date.now()): number | null {

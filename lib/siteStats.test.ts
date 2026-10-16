@@ -653,6 +653,7 @@ test('every tab is visible, tabs outside the plan are locked, and the price read
   assert.deepEqual(locked('essentials'), ['calls', 'bookings', 'reviews', 'ads', 'receptionist']);
   assert.deepEqual(locked('axeoncore'), ['ads', 'receptionist']);
   assert.deepEqual(locked('axeongrowth'), []);
+  assert.deepEqual(PROOF_TABS.filter((t) => tabLocked(t, 'website')).map((t) => t.key), PROOF_TABS.filter((t) => t.key !== 'billing').map((t) => t.key), 'website plan: billing only');
   assert.equal(upgradeMath('essentials', 'axeoncore', 300).delta, 150);
   assert.match(upgradeMath('essentials', 'axeoncore', 300).line, /^At your average job of \$300, that is one extra job a month/);
   assert.match(upgradeMath('essentials', 'axeoncore', 100).line, /2 extra jobs/);
@@ -663,7 +664,7 @@ test('every tab is visible, tabs outside the plan are locked, and the price read
   assert.match(lockedHeadline(proofTab('calls'), t), /^15 people reached out through your site last month, and 12 of them pressed Call\. When the phone rings out, AxeonCORE texts them back/);
   assert.match(lockedHeadline(proofTab('calls'), null), /^When a call rings out, AxeonCORE/);
   assert.match(lockedHeadline(proofTab('ads'), t), /without a dollar of ads\. AxeonGROWTH/);
-  for (const tab of PROOF_TABS.filter((x) => x.tier !== 'essentials')) {
+  for (const tab of PROOF_TABS.filter((x) => x.tier !== 'essentials' && x.tier !== 'website')) {
     assert.ok(tab.includes.length >= 3, `${tab.key} has bullets`);
     assert.ok(tab.ghost && tab.ghost.tiles.length === 4 && tab.ghost.rows.length >= 6 && tab.ghost.bars.length >= 8, `${tab.key} has a ghost dashboard`);
     assert.doesNotMatch(lockedHeadline(tab, t) + tab.includes.join(' '), /conversion/i);

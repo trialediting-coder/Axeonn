@@ -503,14 +503,14 @@ export interface AgreementCheckoutInput {
   clientEmail: string;
   contactName: string;
   businessName: string;
-  tier: 'essentials' | 'axeoncore' | 'axeongrowth';
+  tier: 'website' | 'essentials' | 'axeoncore' | 'axeongrowth';
   planLabel: string;
   setupCents: number;
   monthlyCents: number;
   cancelUrl: string;
 }
 
-const AGREEMENT_TIER_KEYS = { essentials: 'core-web-build', axeoncore: 'axeoncore', axeongrowth: 'axeongrowth' } as const;
+const AGREEMENT_TIER_KEYS = { website: 'hosted-website', essentials: 'core-web-build', axeoncore: 'axeoncore', axeongrowth: 'axeongrowth' } as const;
 
 /**
  * Checkout for a signed Client Services Agreement: the monthly plan as a

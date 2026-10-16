@@ -232,6 +232,7 @@ export function displayValue(field: ItemField, value: unknown): string {
 export function tierFromStripeKey(key: string | null | undefined): OnboardingTier | null {
   if (!key) return null;
   const base = key.replace(/-monthly$/, '');
+  if (base === 'hosted-website') return 'website';
   if (base === 'core-web-build') return 'essentials';
   if (base === 'axeoncore') return 'axeoncore';
   if (base === 'axeongrowth') return 'axeongrowth';

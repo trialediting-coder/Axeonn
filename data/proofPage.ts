@@ -170,7 +170,8 @@ export const TAB_NOTES: Record<ProofTabKey, string> = {
 
 /** The chip next to a tab: which plan switches it on. */
 export const PLAN_CHIP: Record<OnboardingTier, string> = {
-  essentials: 'Every plan',
+  website: 'Every plan',
+  essentials: 'Essentials',
   axeoncore: 'AxeonCORE',
   axeongrowth: 'AxeonGROWTH',
 };

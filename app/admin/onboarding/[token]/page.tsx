@@ -10,7 +10,7 @@ import { getProjectDetails, listMonthlyReports, listProjectUpdates, tierHasGuara
 import { monthOf, trackingOverview } from '@/lib/siteStats';
 import { listFeedback } from '@/lib/feedback';
 import { getUpgradeRequest } from '@/lib/upgrades';
-import { TIER_LABELS } from '@/data/onboardingItems';
+import { TIER_LABELS, TIER_RANK } from '@/data/onboardingItems';
 import { BusinessEmailPanel } from '@/components/insights/BusinessEmailPanel';
 import { getBusinessEmail } from '@/lib/businessEmail';
 import { PhonePanel } from '@/components/insights/PhonePanel';
@@ -59,7 +59,7 @@ export default async function OnboardingDetailPage({ params, searchParams }: { p
   const phone = phoneLine
     ? { line: phoneLine, calls: await recentCalls(onboarding.id, 30, { includeConnect: true }), cost: await monthCost(onboarding.id, monthOf()) }
     : { line: null, calls: [], cost: null };
-  const sequences = onboarding.tier === 'essentials' ? null : await sequencesAdminData(onboarding.id);
+  const sequences = TIER_RANK[onboarding.tier] < TIER_RANK.axeoncore ? null : await sequencesAdminData(onboarding.id);
   const [metaPages, socialPosts] = await Promise.all([
     pagesFor(onboarding.id).catch(() => []),
     onboarding.tier === 'axeongrowth' ? listSocialPosts(onboarding.id).catch(() => []) : Promise.resolve([]),

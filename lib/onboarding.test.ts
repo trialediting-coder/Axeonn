@@ -341,3 +341,11 @@ test('connect items are optional (S6-R13): META_PORTAL_LIVE never reopens a fini
   // Finishing it is still possible and does not change the counts.
   assert.deepEqual(computeProgress('axeoncore', { ...states, 'meta-connect': done('meta-connect') }, true), live);
 });
+
+test('website plan: only website steps, no email or lead items', async () => {
+  const { itemsForTier } = await import('../data/onboardingItems');
+  const keys = itemsForTier('website', false).map((i) => i.key);
+  for (const k of ['business-basics', 'services', 'logo', 'photos', 'website-domain', 'website', 'hosting']) assert.ok(keys.includes(k), `${k} is on the website plan`);
+  for (const k of ['domain', 'lead-routing', 'gbp-access', 'gbp-upkeep', 'business-email', 'monthly-report', 'quote-form']) assert.ok(!keys.includes(k), `${k} is not`);
+  assert.ok(!itemsForTier('essentials', false).some((i) => i.key === 'website-domain'), 'Essentials keeps its own domain + email card');
+});

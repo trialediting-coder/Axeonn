@@ -179,7 +179,24 @@ export const termSummary = (minimumMonths: number) =>
   minimumMonths === 0 ? 'Month-to-month, no minimum' : `${minimumMonths} month${minimumMonths === 1 ? '' : 's'}, then month-to-month`;
 
 /** Schedule A: only the selected Plan's column is shown, as the template instructs. */
+/**
+ * The "Hosted Website" agreement: a site and its hosting, nothing else. Its own
+ * plan ('website'): onboarding asks only for website steps and AxeonPROOF shows billing only.
+ */
+export const WEBSITE_PLAN_LABEL = 'Hosted Website';
+export const SCHEDULE_WEBSITE: { title: string; lead?: string; items: string[] } = {
+  title: WEBSITE_PLAN_LABEL,
+  items: [
+    'A custom, professionally designed, mobile-friendly website (up to 4 pages)',
+    'Hosting, SSL security & backups while this Agreement is in effect (Sec. 7.1)',
+    'Client owns site, code & design files (Sec. 6.2)',
+    'Changes after launch are quoted separately (Sec. 1.2)',
+    'Not included: Google Business Profile upkeep, SEO work, lead alerts, monthly reports, business email, AxeonPROOF, or the 90-day guarantee',
+  ],
+};
+
 export const SCHEDULE_A: Record<OnboardingTier, { title: string; lead?: string; items: string[] }> = {
+  website: SCHEDULE_WEBSITE,
   essentials: {
     title: 'Essentials',
     items: [
@@ -227,22 +244,6 @@ export const SCHEDULE_A: Record<OnboardingTier, { title: string; lead?: string; 
   },
 };
 
-/**
- * The "Hosted Website" agreement: a site and its hosting, nothing else. Billed
- * like Essentials (same Stripe plan and onboarding), but this is all it promises.
- */
-export const WEBSITE_PLAN_LABEL = 'Hosted Website';
-export const SCHEDULE_WEBSITE: { title: string; lead?: string; items: string[] } = {
-  title: WEBSITE_PLAN_LABEL,
-  items: [
-    'A custom, professionally designed, mobile-friendly website (up to 4 pages)',
-    'Hosting, SSL security & backups while this Agreement is in effect (Sec. 7.1)',
-    'Client owns site, code & design files (Sec. 6.2)',
-    'Changes after launch are quoted separately (Sec. 1.2)',
-    'Not included: Google Business Profile upkeep, SEO work, lead alerts, monthly reports, business email, AxeonPROOF, or the 90-day guarantee',
-  ],
-};
-
 export const SCHEDULE_A_DEFINITIONS = [
   "Definitions: A “small edit” is a text, image, or link change on an existing page taking 30 minutes or less. One “edit” is a single request of 30 minutes or less. A “page” is one URL on Client's site. Unused edits do not roll over. Design revisions before launch: up to two (2) rounds on the homepage mockup and one (1) round per additional page; further rounds are billed under Section 1.2.",
   "Launch: The Services “go live” on the date Client's domain first points to the Axeon-built website or, for Clients without a website component, the date the first Subscription System is activated.",
@@ -258,6 +259,7 @@ export const AGREEMENT_ADD_ONS = [
 
 /** Default fees per Plan, from /pricing. The admin can change them per agreement. */
 export const PLAN_DEFAULT_FEES: Record<OnboardingTier, { setupCents: number; monthlyCents: number }> = {
+  website: { setupCents: 0, monthlyCents: 4900 },
   essentials: { setupCents: 9900, monthlyCents: 14900 },
   axeoncore: { setupCents: 9900, monthlyCents: 29900 },
   axeongrowth: { setupCents: 150000, monthlyCents: 99900 },

@@ -18,7 +18,7 @@
 // with data/pricingData.ts and content/brand-guardrails.md.
 import type { OnboardingTier } from '@/data/onboardingItems';
 
-export const MAILBOXES_INCLUDED: Record<OnboardingTier, number> = { essentials: 1, axeoncore: 3, axeongrowth: 5 };
+export const MAILBOXES_INCLUDED: Record<OnboardingTier, number> = { website: 0, essentials: 1, axeoncore: 3, axeongrowth: 5 };
 export const EXTRA_MAILBOX_PRICE = 10;
 
 /** Every mailbox counts once it is on the list, Active or still being set up. */

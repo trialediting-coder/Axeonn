@@ -186,11 +186,11 @@ export const PROOF_TABS: readonly ProofTab[] = [
   // Every plan: the business email at their domain, its spam checks, and requests (components/proof/EmailTab.tsx).
   { key: 'email', label: 'Email', tier: 'essentials', promise: '', includes: [] },
   // Every plan: the client's plan, card and invoices, live from Stripe (components/proof/BillingTab.tsx).
-  { key: 'billing', label: 'Billing', tier: 'essentials', promise: '', includes: [] },
+  { key: 'billing', label: 'Billing', tier: 'website', promise: '', includes: [] },
 ];
 
-export const TIER_PRICE: Record<OnboardingTier, number> = { essentials: 149, axeoncore: 299, axeongrowth: 999 };
-export const TIER_SHORT: Record<OnboardingTier, string> = { essentials: 'Essentials', axeoncore: 'CORE', axeongrowth: 'GROWTH' };
+export const TIER_PRICE: Record<OnboardingTier, number> = { website: 49, essentials: 149, axeoncore: 299, axeongrowth: 999 };
+export const TIER_SHORT: Record<OnboardingTier, string> = { website: 'Website', essentials: 'Essentials', axeoncore: 'CORE', axeongrowth: 'GROWTH' };
 
 export const isProofTab = (v: unknown): v is ProofTabKey => PROOF_TABS.some((t) => t.key === v);
 export const proofTab = (key: ProofTabKey): ProofTab => PROOF_TABS.find((t) => t.key === key)!;

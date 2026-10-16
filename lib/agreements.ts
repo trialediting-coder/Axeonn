@@ -47,12 +47,9 @@ export interface AgreementFields {
   noMinimum?: boolean;
   /** Minimum term in whole months, 0 = none. Missing on older agreements: noMinimum decides (0 or 3). */
   minimumMonths?: number;
-  /** 'website': the Hosted Website agreement (tier stays 'essentials' for billing and onboarding). Missing = the full plan. */
+  /** Legacy: 'website' marked a Hosted Website agreement billed as Essentials, before the 'website' tier existed. */
   scope?: 'website';
 }
-
-/** Hosted Website defaults: no setup fee, $49 a month. */
-export const WEBSITE_DEFAULT_FEES = { setupCents: 0, monthlyCents: 4900 };
 
 /** Schedule A for this agreement: the plan's column, or the Hosted Website list. */
 export const agreementSchedule = (a: Pick<AgreementFields, 'tier' | 'scope'>) => (a.scope === 'website' ? SCHEDULE_WEBSITE : SCHEDULE_A[a.tier]);
@@ -160,10 +157,9 @@ export function validateAgreementInput(raw: Record<string, unknown>): AgreementF
   const s = (k: string, max = 200) => (typeof raw[k] === 'string' ? (raw[k] as string).trim().slice(0, max) : '');
   const email = s('clientEmail').toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Enter a valid client email');
-  const website = raw.tier === 'website';
-  if (!website && !isOnboardingTier(raw.tier)) throw new Error('Choose a plan');
-  const tier: OnboardingTier = website ? 'essentials' : (raw.tier as OnboardingTier);
-  const defaults = website ? WEBSITE_DEFAULT_FEES : PLAN_DEFAULT_FEES[tier];
+  if (!isOnboardingTier(raw.tier)) throw new Error('Choose a plan');
+  const tier = raw.tier as OnboardingTier;
+  const defaults = PLAN_DEFAULT_FEES[tier];
   const cents = (k: string, fallback: number) => {
     const v = raw[k];
     if (v === undefined || v === '') return fallback;
@@ -182,7 +178,6 @@ export function validateAgreementInput(raw: Record<string, unknown>): AgreementF
     tier,
     setupCents: cents('setup', defaults.setupCents),
     monthlyCents: cents('monthly', defaults.monthlyCents),
-    ...(website ? { scope: 'website' as const } : {}),
     addOns: s('addOns', 500),
     hourlyRate: s('hourlyRate', 40),
     axeonEntity: s('axeonEntity', 80),

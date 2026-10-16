@@ -107,7 +107,7 @@ export function ensureSchema(): Promise<void> {
         CREATE TABLE IF NOT EXISTS onboardings (
           id SERIAL PRIMARY KEY,
           token TEXT UNIQUE NOT NULL,
-          tier TEXT NOT NULL CHECK (tier IN ('essentials', 'axeoncore', 'axeongrowth')),
+          tier TEXT NOT NULL CHECK (tier IN ('website', 'essentials', 'axeoncore', 'axeongrowth')),
           client_email TEXT NOT NULL,
           client_name TEXT,
           business_name TEXT,
@@ -128,6 +128,9 @@ export function ensureSchema(): Promise<void> {
           updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
         );
       `;
+      // The Hosted Website plan (2026-10-16) joins the tiers; the inline CHECK is named onboardings_tier_check.
+      await sql`ALTER TABLE onboardings DROP CONSTRAINT IF EXISTS onboardings_tier_check;`;
+      await sql`ALTER TABLE onboardings ADD CONSTRAINT onboardings_tier_check CHECK (tier IN ('website', 'essentials', 'axeoncore', 'axeongrowth'));`;
       await sql`CREATE INDEX IF NOT EXISTS onboardings_email_idx ON onboardings (client_email);`;
       await sql`CREATE INDEX IF NOT EXISTS onboardings_created_idx ON onboardings (created_at DESC);`;
       // One row per checklist item the client or Axeon has touched. A missing row

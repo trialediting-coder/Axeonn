@@ -18,17 +18,19 @@ import { META_CONNECT_ITEM } from '@/lib/metaShared';
 // through the platform's own invite flow. assertNoCredentialFields() in
 // lib/onboarding.ts enforces this at test time.
 
-export const ONBOARDING_TIERS = ['essentials', 'axeoncore', 'axeongrowth'] as const;
+// 'website' (2026-10-16): the Hosted Website agreement, a site and its hosting only.
+export const ONBOARDING_TIERS = ['website', 'essentials', 'axeoncore', 'axeongrowth'] as const;
 export type OnboardingTier = (typeof ONBOARDING_TIERS)[number];
 
 export const TIER_LABELS: Record<OnboardingTier, string> = {
+  website: 'Hosted Website',
   essentials: 'Essentials',
   axeoncore: 'AxeonCORE',
   axeongrowth: 'AxeonGROWTH',
 };
 
 /** Higher tiers include every item from the tiers below them. */
-export const TIER_RANK: Record<OnboardingTier, number> = { essentials: 0, axeoncore: 1, axeongrowth: 2 };
+export const TIER_RANK: Record<OnboardingTier, number> = { website: -1, essentials: 0, axeoncore: 1, axeongrowth: 2 };
 
 export type ItemKind = 'axeon' | 'accept' | 'confirm';
 
@@ -73,6 +75,8 @@ export interface OnboardingItem {
    * done. Hidden from every portal until META_PORTAL_LIVE=1 (after Meta App Review).
    */
   connect?: 'meta';
+  /** Shown only on these plans, instead of "this plan and up" (the website plan's own domain card). */
+  onlyFor?: readonly OnboardingTier[];
 }
 
 const SERVICES_HINT = 'The ones you want more of, most important first.';
@@ -82,7 +86,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
   {
     key: 'business-basics',
     kind: 'confirm',
-    tier: 'essentials',
+    tier: 'website',
     title: 'Confirm your business details',
     description: 'This is what goes on your site and your Google listing. Fix anything that is wrong.',
     minutes: 2,
@@ -118,7 +122,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     // admin Data page as a referral owed $300 once this client's first invoice is paid (lib/referrals.ts).
     key: 'how-found',
     kind: 'confirm',
-    tier: 'essentials',
+    tier: 'website',
     title: 'How did you find us?',
     description: 'One tap. If someone sent you our way, tell us who so we can thank them: they get $300 and you get a month free.',
     minutes: 1,
@@ -136,7 +140,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
   {
     key: 'services',
     kind: 'confirm',
-    tier: 'essentials',
+    tier: 'website',
     title: 'The services you want more of',
     description: 'We build the pages and the Google work around these.',
     minutes: 1,
@@ -161,7 +165,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
   {
     key: 'logo',
     kind: 'confirm',
-    tier: 'essentials',
+    tier: 'website',
     title: 'Your logo',
     description: 'Text or email us the file, or tell us to start with a clean text wordmark. We never wait on a logo to launch.',
     minutes: 1,
@@ -179,7 +183,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
   {
     key: 'photos',
     kind: 'accept',
-    tier: 'essentials',
+    tier: 'website',
     title: 'Send 5 to 10 photos of real work',
     description: 'Straight from your phone is perfect. Real photos outperform stock every time.',
     minutes: 3,
@@ -256,6 +260,33 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     ],
   },
   {
+    // The website plan has no business email, so its domain card asks only about the domain.
+    key: 'website-domain',
+    kind: 'confirm',
+    tier: 'website',
+    onlyFor: ['website'],
+    title: 'Your website address',
+    description: 'Tell us where your domain lives, or let us register one for you. Never type a password here; we will send a secure invite instead.',
+    minutes: 1,
+    fields: [
+      {
+        key: 'domainStatus',
+        label: 'Do you own a domain already?',
+        type: 'select',
+        required: true,
+        options: ['Yes, I own one', 'No, please register one for me', 'Not sure'],
+      },
+      { key: 'domainName', label: 'Domain (if you have one)', type: 'text', placeholder: 'a1autodetailing.com' },
+      {
+        key: 'registrar',
+        label: 'Where is it registered?',
+        type: 'select',
+        options: ['GoDaddy', 'Google Domains / Squarespace', 'Namecheap', 'Wix', 'Network Solutions', 'Other', "I don't know"],
+        hint: 'We will send a delegate invite for that registrar so you never share a login.',
+      },
+    ],
+  },
+  {
     key: 'lead-routing',
     kind: 'confirm',
     tier: 'essentials',
@@ -288,7 +319,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
   {
     key: 'website',
     kind: 'axeon',
-    tier: 'essentials',
+    tier: 'website',
     title: 'Your new website',
     description: 'Custom, mobile-first pages built around how you sell, with 2 rounds of revisions before launch.',
   },
@@ -323,7 +354,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
   {
     key: 'hosting',
     kind: 'axeon',
-    tier: 'essentials',
+    tier: 'website',
     title: 'Hosting and security',
     description: 'Fast hosting, SSL, backups, and uptime monitoring, so we know before your customers do if the site ever goes down.',
   },
@@ -778,7 +809,9 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
 /** Every item a plan includes, in display order. */
 export function itemsForTier(tier: OnboardingTier, metaLive: boolean = process.env.META_PORTAL_LIVE === '1'): OnboardingItem[] {
   const rank = TIER_RANK[tier];
-  return ONBOARDING_ITEMS.filter((item) => TIER_RANK[item.tier] <= rank && (item.connect !== 'meta' || metaLive));
+  return ONBOARDING_ITEMS.filter(
+    (item) => (item.onlyFor ? item.onlyFor.includes(tier) : TIER_RANK[item.tier] <= rank) && (item.connect !== 'meta' || metaLive)
+  );
 }
 
 export function getItem(key: string): OnboardingItem | undefined {

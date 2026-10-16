@@ -4,6 +4,7 @@
 // client on the phone) or disconnect. Tokens never reach this component.
 'use client';
 
+import { TIER_RANK } from '@/data/onboardingItems';
 import { useState } from 'react';
 import { btn } from '@/components/admin/ui';
 import type { MetaPagePublic } from '@/lib/metaShared';
@@ -14,7 +15,7 @@ export function MetaPanel({ token, tier, configured, initial }: { token: string;
   const [error, setError] = useState<string | null>(null);
 
   // Essentials has no inbox: no card, unless pages are still stored from before a downgrade (so they can be disconnected).
-  const canConnect = tier !== 'essentials';
+  const canConnect = (TIER_RANK[tier as keyof typeof TIER_RANK] ?? 0) >= TIER_RANK.axeoncore;
   if (!canConnect && !pages.length) return null;
   const broken = pages.filter((p) => p.status === 'needs_reconnect').length;
 

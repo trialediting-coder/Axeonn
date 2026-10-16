@@ -7,6 +7,7 @@
 //   POST { action: 'import', csv, attest: true }         past-customer CSV with the consent attestation
 //   POST { action: 'start_lead', id }                    start the new-lead follow-up for one recent form lead
 // Nothing here sends a message; the 15-minute cron sends.
+import { TIER_RANK } from '@/data/onboardingItems';
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/adminAuth';
 import { draftSequenceTemplates } from '@/lib/anthropic';
@@ -26,7 +27,7 @@ export const maxDuration = 60; // a Claude draft takes 10 to 30 seconds
 async function load(token: string) {
   const onboarding = await getOnboardingByToken(token);
   if (!onboarding) throw new Error('Onboarding not found');
-  if (onboarding.tier === 'essentials') throw new Error('Follow-up sequences are part of AxeonCORE and up');
+  if (TIER_RANK[onboarding.tier] < TIER_RANK.axeoncore) throw new Error('Follow-up sequences are part of AxeonCORE and up');
   return onboarding;
 }
 
