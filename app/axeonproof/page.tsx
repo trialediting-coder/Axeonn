@@ -229,7 +229,7 @@ export default function AxeonProofPage() {
               </Link>
             ))}
           </div>
-          <p className="mt-6 text-sm text-neutral-400">$99 to start on Essentials and AxeonCORE. Three-month minimum, then month to month.</p>
+          <p className="mt-6 text-sm text-neutral-400">$99 to start on Essentials and AxeonCORE.</p>
         </div>
       </section>
 

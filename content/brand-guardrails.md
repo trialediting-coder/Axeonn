@@ -26,8 +26,10 @@ local-only.
   monthly prices: never write "from $299/mo" or "starting at" for a single
   plan; "plans from $149/mo" is fine when describing the range.
 - Every plan: $99 to start (AxeonGROWTH: $1,500, which covers the on-site
-  video shoot), a 3-month minimum matched to the 90-day guarantee, then
-  month-to-month. A year paid up front gets 2 months free.
+  video shoot). A year paid up front gets 2 months free.
+- Never state a minimum term ("3-month minimum", "month-to-month after...")
+  anywhere customers read (owner, 2026-10-18). The term is discussed on the
+  call and set in the signed agreement. The $500/month ad-spend minimum stays.
 - Essentials: $149/month. The entry tier: up to 4 pages, SEO/AEO/GEO, Google
   Business Profile upkeep, quote form with instant lead alerts, hosting and
   security, 2 small edits a month, a monthly calls & leads email report,

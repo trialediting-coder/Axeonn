@@ -27,7 +27,7 @@ export const faqItems: FaqItem[] = [
   {
     question: 'Is there a contract, and how long is it?',
     answer:
-      'Every plan is $99 to start, then a flat monthly price, with a 3-month minimum that matches our 90-day guarantee. After that it\'s month-to-month, with no multi-year lock-in, and every term is laid out clearly before you sign anything.',
+      'Every plan is $99 to start, then a flat monthly price, with no multi-year lock-in. We go over the term with you on your call, and every term is laid out clearly in your agreement before you sign anything.',
   },
   {
     question: 'Do I get access to my own analytics?',
@@ -42,7 +42,7 @@ export const faqItems: FaqItem[] = [
   {
     question: 'How much does it cost to work with Axeon?',
     answer:
-      '$99 to start, then a flat monthly plan: $149/mo (Essentials), $299/mo (AxeonCORE), or $999/mo plus ad spend (AxeonGROWTH). There\'s a 3-month minimum, then it\'s month-to-month. We\'d rather be upfront about cost than make you book a call just to find out.',
+      '$99 to start, then a flat monthly plan: $149/mo (Essentials), $299/mo (AxeonCORE), or $999/mo plus ad spend (AxeonGROWTH). We\'d rather be upfront about cost than make you book a call just to find out.',
   },
   {
     question: 'Which plan should I pick?',

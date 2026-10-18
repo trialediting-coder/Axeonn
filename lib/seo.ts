@@ -4,7 +4,7 @@
 // and public/llms.txt — inconsistent NAP across schema/page/citations is the
 // most common local-SEO self-inflicted wound.
 
-import { MINIMUM_TERM, pricingTiers } from '@/data/pricingData';
+import { pricingTiers } from '@/data/pricingData';
 
 export const SITE_URL = 'https://axeonstudio.co';
 export const ORG_ID = `${SITE_URL}/#organization`;
@@ -114,7 +114,7 @@ function planOfferCatalog() {
       return {
         '@type': 'Offer',
         name: tier.name,
-        description: `${tier.focus}. ${tier.price}${tier.billingNote}, ${tier.startFee}. ${MINIMUM_TERM}.`,
+        description: `${tier.focus}. ${tier.price}${tier.billingNote}, ${tier.startFee}.`,
         url: `${SITE_URL}/pricing`,
         price,
         priceCurrency: 'USD',

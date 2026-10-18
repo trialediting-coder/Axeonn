@@ -21,6 +21,8 @@ const BANNED_PHRASE_PATTERNS: { pattern: RegExp; reason: string }[] = [
   { pattern: /your business.? your partner/i, reason: 'Uses the retired tagline "Your Business. Your Partner." (current tagline: "We Get You Customers, Not Clicks.").' },
   { pattern: /axeoncore retainer/i, reason: 'References the retired "AxeonCORE retainer" plan name.' },
   { pattern: /\$\s?490|\b490\s*(\/|per|a)\s*mo/i, reason: 'References the retired $490/month plan.' },
+  // No minimum term in customer copy (owner, 2026-10-18): it is discussed on the call. The ad-spend minimum is fine.
+  { pattern: /\b(\d+|one|two|three|six|twelve)[- ]month minimum|minimum (term|commitment|contract)/i, reason: 'States a minimum term; the term is discussed on the call, never in customer copy.' },
   // Monthly prices are flat: $149 / $299 / $999 plans, +$399 ads and +$199 receptionist add-ons, $500 ad-spend minimum.
   { pattern: /\$\s?(?!149\b|299\b|999\b|399\b|199\b|500\b)\d[\d,]*\s*(\/|per|a)\s*(mo|month)\b/i, reason: 'States a monthly price that is not one of the published ones ($149, $299, $999, +$399, +$199, $500 ad spend).' },
   { pattern: /\$\s?(284|574|2,?800|5,?800)\b/, reason: 'Cites a retired price ($284/$574 monthly or $2,800/$5,800 setup).' },

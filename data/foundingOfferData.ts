@@ -9,7 +9,7 @@
  *   conspicuously alongside the offer, so `terms` must always be rendered
  *   wherever `headline` is.
  * - Never call it "free" (2026-10-05): the offer is "$0 to start + first month
- *   of AxeonCORE free", with the 3-month minimum stated in `terms`. The anchor
+ *   of AxeonCORE free", with the monthly price stated in `terms`. The anchor
  *   is real: the $99 start fee plus one $299 month = $398.
  * - `totalSpots` is the real cap. If spots are claimed, lower `spotsRemaining`
  *   here rather than inventing urgency elsewhere; a fake counter is a
@@ -41,7 +41,7 @@ export const foundingOffer = {
   ctaHint: 'A free 30-minute call. No pressure.',
   decline: 'Not right now',
   terms:
-    'Iowa businesses, limited spots, subject to fit. After the free first month, AxeonCORE is $299/mo with a 3-month minimum.',
+    'Iowa businesses, limited spots, subject to fit. After the free first month, AxeonCORE is $299/mo. Full terms on your call.',
 } as const;
 
 export type FoundingOffer = typeof foundingOffer;

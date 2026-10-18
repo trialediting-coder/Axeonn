@@ -22,7 +22,6 @@ import {
   pricingFaqs,
   guaranteeSentence,
   FEATURED_BULLETS,
-  MINIMUM_TERM,
   ANNUAL_DEAL,
   type HighlightIcon,
   type PricingTier,
@@ -87,7 +86,7 @@ export function PricingSection({
             Simple monthly pricing. $99 to start.
           </h2>
           <p className="text-lg sm:text-2xl text-neutral-600 leading-relaxed max-w-3xl mx-auto">
-            No big build fee. A {MINIMUM_TERM.toLowerCase()}, matched to our 90-day guarantee. {ANNUAL_DEAL}
+            No big build fee. {ANNUAL_DEAL}
           </p>
         </div>
 
@@ -283,7 +282,11 @@ function PlanCard({ tier }: { tier: PricingTier }) {
       <p className={`mt-2 text-lg sm:text-xl font-bold ${isPremium ? 'text-white' : 'text-neutral-900'}`}>
         {tier.startFee}
       </p>
-      <p className={`mt-1 text-sm sm:text-base leading-relaxed mb-8 ${muted}`}>{tier.startNote}</p>
+      {tier.startNote ? (
+        <p className={`mt-1 text-sm sm:text-base leading-relaxed mb-8 ${muted}`}>{tier.startNote}</p>
+      ) : (
+        <div className="mb-8" />
+      )}
 
       {tier.inherits && (
         <p className={`text-sm sm:text-base font-bold uppercase tracking-wide mb-4 ${muted}`}>{tier.inherits}</p>

@@ -11,6 +11,7 @@ export interface PricingTier {
   /** What it costs to get started, e.g. "$99 to start". */
   startFee: string;
   /** One line under the start fee: what the start fee covers, or the term. */
+  /** Small line under the start fee; empty for none. Never a minimum term (owner, 2026-10-18). */
   startNote: string;
   turnaround: string;
   /** Short badge rendered above the card (e.g. "Recommended"). */
@@ -39,12 +40,12 @@ export interface AddOn {
 // entry tier that still has value, AxeonCORE is the middle and the one we sell,
 // AxeonGROWTH is the obviously-more-expensive top tier. CORE and GROWTH include
 // AxeonPROOF. Flat monthly prices (no "from"), $99 to start ($1,500 on GROWTH,
-// which covers the video shoot), 3-month minimum matched to the 90-day
-// guarantee, then month-to-month; a year paid up front gets 2 months free.
+// which covers the video shoot); a year paid up front gets 2 months free. Never
+// state a minimum term in customer copy (owner, 2026-10-18): it is discussed on the
+// call and set in the signed agreement. The ad-spend minimum is fine to state.
 // Business email: 1 / 3 / 5 mailboxes, extras $10/mo (MAILBOXES_INCLUDED in lib/businessEmailShared.ts).
 // Keep in sync with content/brand-guardrails.md, lib/postValidation.ts,
 // data/getStartedPackages.ts and priceRange in lib/seo.ts.
-export const MINIMUM_TERM = '3-month minimum, then month-to-month';
 export const ANNUAL_DEAL = 'Pay a year up front and get 2 months free.';
 export const AD_SPEND_RULE =
   'Ad spend is separate: $500/mo minimum, paid on your own card into your own ad account, with no markup.';
@@ -57,7 +58,7 @@ export const pricingTiers: PricingTier[] = [
     price: '$149',
     billingNote: '/mo',
     startFee: '$99 to start',
-    startNote: MINIMUM_TERM,
+    startNote: '',
     turnaround: 'Our Fastest Launch',
     bestFor: 'Right for you if you mainly need more people to find you. It brings in calls and leads; you handle the follow-up yourself.',
     features: [
@@ -81,7 +82,7 @@ export const pricingTiers: PricingTier[] = [
     price: '$299',
     billingNote: '/mo',
     startFee: '$99 to start',
-    startNote: MINIMUM_TERM,
+    startNote: '',
     turnaround: 'Fast Launch',
     badge: 'Recommended',
     bestFor: 'The plan we recommend: it doesn\'t just bring in leads, it captures, follows up on, and tracks every one, so more of them turn into paying customers. Backed by our 90-day guarantee.',
@@ -121,7 +122,7 @@ export const pricingTiers: PricingTier[] = [
     price: '$999',
     billingNote: '/mo + ad spend',
     startFee: '$1,500 to start',
-    startNote: `Covers your on-site video shoot. ${MINIMUM_TERM}.`,
+    startNote: 'Covers your on-site video shoot.',
     turnaround: 'Fast Launch',
     bestFor: 'Right for you if you want customers coming in this week, not just this year: we run your ads, answer your phones, and film your business.',
     inherits: 'Everything in AxeonCORE, plus:',
@@ -175,7 +176,7 @@ export interface PricingFaq {
 export const pricingFaqs: PricingFaq[] = [
   {
     q: 'How does the pricing work?',
-    a: 'You pay $99 to start (AxeonGROWTH is $1,500, which covers your on-site video shoot), then a flat monthly price: $149 for Essentials, $299 for AxeonCORE, or $999 for AxeonGROWTH. There\'s a 3-month minimum, which matches our 90-day guarantee. After that it\'s month-to-month. Pay a year up front and you get 2 months free.',
+    a: 'You pay $99 to start (AxeonGROWTH is $1,500, which covers your on-site video shoot), then a flat monthly price: $149 for Essentials, $299 for AxeonCORE, or $999 for AxeonGROWTH. Pay a year up front and you get 2 months free.',
   },
   {
     q: 'What is the 90-day customer guarantee?',

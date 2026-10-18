@@ -79,7 +79,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
     {
       question: 'What does it cost?',
       answer:
-        '$99 to start, with no big build fee. Then a flat monthly plan: $149/mo for Essentials, or $299/mo for AxeonCORE, which adds the full lead system, our AxeonPROOF dashboard, and the 90-day guarantee. There\u2019s a 3-month minimum, then it\u2019s month-to-month.',
+        '$99 to start, with no big build fee. Then a flat monthly plan: $149/mo for Essentials, or $299/mo for AxeonCORE, which adds the full lead system, our AxeonPROOF dashboard, and the 90-day guarantee.',
     },
     {
       question: 'Do I get anything if I don\u2019t sign up?',
@@ -128,7 +128,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
               A New Website for Your {funnel.business.replace(/\b\w/g, (c) => c.toUpperCase())}, $99 to Start
             </h1>
             <p className="mt-4 text-base sm:text-lg font-semibold text-white">
-              No big build fee: $99 to start, then plans from $149/mo. 3-month minimum, then month-to-month.
+              No big build fee: $99 to start, then plans from $149/mo.
             </p>
             <p className="mt-4 text-lg sm:text-xl text-neutral-300 leading-relaxed max-w-xl">
               {funnel.result}
