@@ -113,14 +113,18 @@ export async function sendDashboardInviteFor(onboarding: Onboarding): Promise<vo
 export async function sendNudgeFor(onboarding: Onboarding): Promise<void> {
   if (onboarding.status === 'closed') throw new Error('This onboarding is closed');
   const states = await getItemStates(onboarding.id);
-  // Connect items are optional (S6-R13): never nag about them.
+  // Connect items are optional (S6-R13): never nag about them. Only the current round
+  // is listed: the basics until they are done, then the before-launch items.
   const open = orderedItems(onboarding.tier).client.filter((i) => !i.connect && states[i.key]?.status !== 'done');
   if (open.length === 0) throw new Error('Nothing is open for this client');
+  const round1 = open.filter((i) => !i.later);
+  const round = round1.length > 0 ? 'start' : 'launch';
   const sent = await sendNudgeEmail({
     to: onboarding.clientEmail,
     clientName: onboarding.clientName,
     url: welcomeUrl(onboarding.token),
-    openItems: open.map((i) => i.title),
+    openItems: (round === 'start' ? round1 : open).map((i) => i.title),
+    round,
   });
   if (!sent) throw new Error('Email is not configured (RESEND_API_KEY)');
   await markNudgeSent(onboarding.id);

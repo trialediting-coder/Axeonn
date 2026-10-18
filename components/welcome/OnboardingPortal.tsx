@@ -185,7 +185,7 @@ export function OnboardingPortal(props: PortalProps) {
         {!round2Open && round2.length > 0 && (
           <div className="mt-3 rounded-[24px] border border-dashed border-neutral-300 px-5 py-4 sm:px-6 flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-neutral-600 leading-relaxed">
-              <span className="font-semibold text-neutral-800">Then a few things before launch.</span> No rush, we will text you when it is time.
+              <span className="font-semibold text-neutral-800">Then a few things before launch.</span> No rush, we will email you when it is time.
             </p>
             <button type="button" onClick={() => setShowRound2(true)} className="text-sm font-semibold text-blue-600 hover:text-blue-700">
               Show them now

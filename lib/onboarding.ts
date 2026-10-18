@@ -67,6 +67,11 @@ export interface Progress {
   axeonDone: number;
   /** Client-side completion, 0..100. This is what the client's progress bar shows. */
   percent: number;
+  /** Round 1: the client items needed to start the build (no `later` flag). */
+  round1Total: number;
+  round1Done: number;
+  /** When the last round-1 item was finished; null until round 1 is done. Starts the round-2 reminders. */
+  round1CompletedAt: string | null;
 }
 
 export interface OnboardingInput {
@@ -332,46 +337,69 @@ export function computeProgress(tier: OnboardingTier, states: Record<string, Ite
   let clientDone = 0;
   let axeonTotal = 0;
   let axeonDone = 0;
+  let round1Total = 0;
+  let round1Done = 0;
+  let round1Last = 0;
   for (const item of items) {
-    const done = states[item.key]?.status === 'done';
+    const state = states[item.key];
+    const done = state?.status === 'done';
     if (item.kind === 'axeon') {
       axeonTotal += 1;
       if (done) axeonDone += 1;
     } else {
       clientTotal += 1;
       if (done) clientDone += 1;
+      if (!item.later) {
+        round1Total += 1;
+        if (done) {
+          round1Done += 1;
+          const at = Date.parse(state?.completedAt ?? state?.updatedAt ?? '');
+          if (Number.isFinite(at)) round1Last = Math.max(round1Last, at);
+        }
+      }
     }
   }
   const percent = clientTotal === 0 ? 100 : Math.round((clientDone / clientTotal) * 100);
-  return { clientTotal, clientDone, axeonTotal, axeonDone, percent };
+  const round1CompletedAt = round1Total > 0 && round1Done >= round1Total && round1Last > 0 ? new Date(round1Last).toISOString() : null;
+  return { clientTotal, clientDone, axeonTotal, axeonDone, percent, round1Total, round1Done, round1CompletedAt };
 }
 
 // ───────────────────────────── Nudge schedule ─────────────────────────────
 
-/** Days after the portal opens when a reminder goes out if client items are still open. */
+/** Days after the portal opens when a reminder goes out if round-1 items are still open. */
 export const NUDGE_DAYS = [1, 3, 7] as const;
+/**
+ * Days after round 1 is finished when the "before launch" email goes out (day 2: the
+ * portal's "we will email you when it is time"), then reminders if round 2 is still open.
+ */
+export const ROUND2_NUDGE_DAYS = [2, 5, 9] as const;
 
 /**
- * Which nudge step (1, 3 or 7) is due right now, or null. At most one email per
- * step: a step is due once its day has passed and no nudge (automatic or from the
- * admin button) went out since that day. Skips clients who touched the portal in
- * the last 24 hours, closed or finished portals, and portals whose welcome email
- * never went out (nudging before the welcome would confuse people).
+ * Which nudge step is due right now, or null. Round 1 counts from the portal opening
+ * (days 1, 3, 7) and only while round-1 items are open, so a client who finished the
+ * basics is never told they are behind. Round 2 counts from the moment round 1 was
+ * finished (days 2, 5, 9). At most one email per step: a step is due once its day has
+ * passed and no nudge (automatic or from the admin button) went out since that day.
+ * Skips clients who touched the portal in the last 24 hours, closed or finished
+ * portals, and portals whose welcome email never went out (nudging before the welcome
+ * would confuse people). Without round fields it treats every item as round 1.
  */
 export function nudgeStepDue(
   o: Pick<Onboarding, 'status' | 'welcomeSentAt' | 'nudgeSentAt' | 'lastClientActivityAt' | 'createdAt'>,
-  progress: Pick<Progress, 'clientDone' | 'clientTotal'>,
+  progress: Pick<Progress, 'clientDone' | 'clientTotal'> & Partial<Pick<Progress, 'round1Done' | 'round1Total' | 'round1CompletedAt'>>,
   now: number = Date.now()
 ): number | null {
   if (o.status !== 'active' || !o.welcomeSentAt) return null;
   if (progress.clientDone >= progress.clientTotal) return null;
   const DAY = 86_400_000;
-  const created = new Date(o.createdAt).getTime();
-  if (!Number.isFinite(created)) return null;
-  const age = (now - created) / DAY;
-  const step = [...NUDGE_DAYS].reverse().find((d) => age >= d);
+  const round1Open = progress.round1Total === undefined || (progress.round1Done ?? 0) < progress.round1Total;
+  const anchor = round1Open ? new Date(o.createdAt).getTime() : Date.parse(progress.round1CompletedAt ?? '');
+  if (!Number.isFinite(anchor)) return null;
+  const days: readonly number[] = round1Open ? NUDGE_DAYS : ROUND2_NUDGE_DAYS;
+  const age = (now - anchor) / DAY;
+  const step = [...days].reverse().find((d) => age >= d);
   if (!step) return null;
-  const stepAt = created + step * DAY;
+  const stepAt = anchor + step * DAY;
   const lastNudge = o.nudgeSentAt ? new Date(o.nudgeSentAt).getTime() : 0;
   if (lastNudge >= stepAt) return null;
   const lastActive = o.lastClientActivityAt ? new Date(o.lastClientActivityAt).getTime() : 0;

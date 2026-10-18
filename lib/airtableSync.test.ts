@@ -71,13 +71,13 @@ test('portal fields carry plan, status, admin link, and a 0..1 progress that kee
     status: 'active',
     lastClientActivityAt: null,
   } as unknown as Onboarding;
-  const f = portalFields(o, { clientTotal: 12, clientDone: 0, axeonTotal: 8, axeonDone: 0, percent: 0 });
+  const f = portalFields(o, { clientTotal: 12, clientDone: 0, axeonTotal: 8, axeonDone: 0, percent: 0, round1Total: 8, round1Done: 0, round1CompletedAt: null });
   assert.equal(f.Plan, 'AxeonCORE');
   assert.equal(f['Portal Status'], 'In progress');
   assert.equal(f['Portal Progress'], 0);
   assert.match(String(f['Portal Admin Link']), /\/admin\/onboarding\/ABCDEFGHJKMNPQRSTUVW$/);
   assert.equal('Portal Last Activity' in f, false);
-  const done = portalFields({ ...o, status: 'complete' } as Onboarding, { clientTotal: 12, clientDone: 12, axeonTotal: 8, axeonDone: 3, percent: 100 });
+  const done = portalFields({ ...o, status: 'complete' } as Onboarding, { clientTotal: 12, clientDone: 12, axeonTotal: 8, axeonDone: 3, percent: 100, round1Total: 8, round1Done: 8, round1CompletedAt: null });
   assert.equal(done['Portal Status'], 'Complete');
   assert.equal(done['Portal Progress'], 1);
 });

@@ -321,29 +321,40 @@ export async function sendVerificationCodeEmail(input: { to: string; code: strin
   });
 }
 
-/** A gentle reminder listing what is still open, sent from the admin board. */
+/**
+ * A gentle reminder listing what is still open, from the daily cron or the admin board.
+ * round 'start': the basics we need to begin. round 'launch': the before-launch items,
+ * which the portal promises to email about once the basics are in.
+ */
 export async function sendNudgeEmail(input: {
   to: string;
   clientName: string | null;
   url: string;
   openItems: string[];
+  round?: 'start' | 'launch';
 }): Promise<boolean> {
   const resend = getClient('onboarding_nudge');
   if (!resend) return false;
   const first = input.clientName?.split(' ')[0];
   const items = input.openItems.map((t) => `<li style="margin:0 0 6px">${escapeHtml(t)}</li>`).join('');
+  const launch = input.round === 'launch';
+  const count = input.openItems.length === 1 ? 'one thing' : `${input.openItems.length} things`;
   await sendChecked(resend, {
     from: CLIENT_FROM_ADDRESS,
     replyTo: CLIENT_REPLY_TO,
     to: input.to,
-    subject: `Quick one: ${input.openItems.length === 1 ? 'one thing' : `${input.openItems.length} things`} left to finish your Axeon setup`,
+    subject: launch ? `Your site is coming along: ${count} before launch` : `Quick one: ${count} left to finish your Axeon setup`,
     html: clientLayout(
-      'Almost there.',
+      launch ? 'Getting ready to launch.' : 'Almost there.',
       `
         <p style="margin:0 0 12px">${first ? `Hi ${escapeHtml(first)},` : 'Hi there,'}</p>
-        <p style="margin:0 0 12px">Your build is moving. A few items on your setup page still need you, and each one takes a minute or two:</p>
+        <p style="margin:0 0 12px">${
+          launch
+            ? 'Thanks for getting us the basics. Your build is underway. Before we launch, a few last things need you. Each takes a minute or two, or you can tell us on a call:'
+            : 'Your build is moving. A few items on your setup page still need you, and each one takes a minute or two:'
+        }</p>
         <ul style="margin:0 0 12px;padding-left:20px">${items}</ul>
-        ${button(input.url, 'Finish my setup')}
+        ${button(input.url, launch ? 'Finish before launch' : 'Finish my setup')}
       `
     ),
   });

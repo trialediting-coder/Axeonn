@@ -317,6 +317,43 @@ test('nudgeStepDue skips finished, closed, unwelcomed, and recently active clien
   assert.equal(nudgeStepDue({ ...base, lastClientActivityAt: new Date(now - 2 * DAY).toISOString() }, open, now), 3);
 });
 
+test('nudgeStepDue: round 1 reminders stop once the basics are in; round 2 starts 2 days later', () => {
+  const DAY = 86_400_000;
+  const created = Date.parse('2026-10-01T15:00:00Z');
+  const base = {
+    status: 'active' as const,
+    welcomeSentAt: new Date(created).toISOString(),
+    nudgeSentAt: null as string | null,
+    lastClientActivityAt: new Date(created + 0.2 * DAY).toISOString(),
+    createdAt: new Date(created).toISOString(),
+  };
+  const finished = new Date(created + 0.2 * DAY).toISOString();
+  const round2Open = { clientDone: 8, clientTotal: 14, round1Done: 8, round1Total: 8, round1CompletedAt: finished };
+  // Basics done on day 0: no "you are behind" email on day 1, 3 or 7 of the old schedule.
+  assert.equal(nudgeStepDue(base, round2Open, created + 1.5 * DAY), null, 'day 1 is quiet after round 1');
+  // The "before launch" email: 2 days after round 1 finished.
+  assert.equal(nudgeStepDue(base, round2Open, created + 2.3 * DAY), 2);
+  const after2 = { ...base, nudgeSentAt: new Date(created + 2.3 * DAY).toISOString() };
+  assert.equal(nudgeStepDue(after2, round2Open, created + 4 * DAY), null);
+  assert.equal(nudgeStepDue(after2, round2Open, created + 5.3 * DAY), 5);
+  // Round 1 still open: the original day 1, 3, 7 schedule.
+  const round1Open = { clientDone: 3, clientTotal: 14, round1Done: 3, round1Total: 8, round1CompletedAt: null };
+  assert.equal(nudgeStepDue({ ...base, lastClientActivityAt: null }, round1Open, created + 1.2 * DAY), 1);
+});
+
+test('computeProgress reports round 1 and when it was finished', () => {
+  const round1 = orderedItems('essentials').client.filter((i) => !i.later);
+  const states: Record<string, ItemState> = {};
+  round1.forEach((i, n) => {
+    states[i.key] = { ...done(i.key), completedAt: new Date(Date.parse('2026-10-01T10:00:00Z') + n * 60_000).toISOString() };
+  });
+  const p = computeProgress('essentials', states);
+  assert.equal(p.round1Total, round1.length);
+  assert.equal(p.round1Done, round1.length);
+  assert.equal(p.round1CompletedAt, new Date(Date.parse('2026-10-01T10:00:00Z') + (round1.length - 1) * 60_000).toISOString());
+  assert.equal(computeProgress('essentials', {}).round1CompletedAt, null);
+});
+
 test('isEditable: active always, complete for 60 days, closed never', () => {
   const now = Date.now();
   assert.equal(isEditable({ status: 'active', completedAt: null }, now), true);
