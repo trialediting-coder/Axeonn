@@ -17,6 +17,7 @@ import { createHash, createHmac, randomInt, timingSafeEqual } from 'node:crypto'
 import { sql, ensureSchema, isDatabaseConfigured } from '@/lib/db';
 import { APP_ORIGIN } from '@/lib/hostRouting';
 import {
+  CALL_INSTEAD_KEY,
   ONBOARDING_ITEMS,
   TIER_RANK,
   getItem,
@@ -285,7 +286,7 @@ export function validateItemData(item: OnboardingItem, raw: unknown): Record<str
       out[field.key] = Array.from(new Set(picked));
       continue;
     }
-    const str = cleanString(value, field.type === 'textarea' ? MAX_TEXTAREA : MAX_TEXT);
+    const str = cleanString(value, field.max ?? (field.type === 'textarea' ? MAX_TEXTAREA : MAX_TEXT));
     if (!str) {
       if (field.required) throw new Error(`"${field.label}" is required.`);
       out[field.key] = '';
@@ -567,21 +568,24 @@ export async function saveClientItem(
   onboarding: Onboarding,
   itemKey: string,
   rawData: unknown,
-  markDone: boolean
+  markDone: boolean,
+  callInstead: boolean = false
 ): Promise<ItemState> {
   if (!isEditable(onboarding)) throw new Error('This setup is finished and can no longer be edited.');
   const item = getItem(itemKey);
   if (!item || !itemBelongsToTier(itemKey, onboarding.tier)) throw new Error('Unknown item');
   if (item.kind === 'axeon') throw new Error('Axeon handles this one');
   if (item.connect) throw new Error('Use the Connect button to finish this step.');
-  const data = validateItemData(item, rawData);
-  const status: ItemStatus = markDone ? 'done' : 'pending';
+  // "Tell you on a call" skips the fields: done, with only the flag saved (data/onboardingItems.ts `callable`).
+  if (callInstead && !item.callable) throw new Error('This one needs an answer here.');
+  const data = callInstead ? { [CALL_INSTEAD_KEY]: 'yes' } : validateItemData(item, rawData);
+  const status: ItemStatus = markDone || callInstead ? 'done' : 'pending';
   await ensureSchema();
   const res = await sql<ItemRow>`
     INSERT INTO onboarding_items (onboarding_id, item_key, status, data, completed_by, completed_at)
     VALUES (
       ${onboarding.id}, ${itemKey}, ${status}, ${JSON.stringify(data)}::jsonb,
-      ${markDone ? 'client' : null}, ${markDone ? new Date().toISOString() : null}
+      ${status === 'done' ? 'client' : null}, ${status === 'done' ? new Date().toISOString() : null}
     )
     ON CONFLICT (onboarding_id, item_key) DO UPDATE SET
       status = EXCLUDED.status,

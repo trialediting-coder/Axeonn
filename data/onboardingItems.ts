@@ -51,6 +51,10 @@ export interface ItemField {
   prefill?: 'businessName' | 'clientName' | 'clientEmail' | 'phone';
   /** Shown masked (last 4) once saved, since links get forwarded. */
   sensitive?: boolean;
+  /** Longest answer kept, when tighter than the type's default (a text message is 320). */
+  max?: number;
+  /** For select: a line shown under the field once that option is picked. */
+  optionHints?: Readonly<Record<string, string>>;
 }
 
 export interface OnboardingItem {
@@ -77,7 +81,20 @@ export interface OnboardingItem {
   connect?: 'meta';
   /** Shown only on these plans, instead of "this plan and up" (the website plan's own domain card). */
   onlyFor?: readonly OnboardingTier[];
+  /**
+   * Not needed to start the build, only before launch. The portal shows these as a
+   * second round once the first is done, so the first visit looks short. Progress,
+   * completion and nudges still count every item.
+   */
+  later?: boolean;
+  /** Long answers the client may give on a call instead: one tap marks it done with { callInstead: 'yes' }. */
+  callable?: boolean;
 }
+
+/** Saved on a callable item when the client chose to answer it on a call. */
+export const CALL_INSTEAD_KEY = 'callInstead';
+
+const INVOICING_OPTIONS = ['QuickBooks Online', 'Jobber', 'Housecall Pro', 'Square or Clover', 'Paper, cash or check', 'Other'] as const;
 
 const SERVICES_HINT = 'The ones you want more of, most important first.';
 
@@ -313,6 +330,34 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
       },
     ],
   },
+  {
+    // Partner integrations (QuickBooks Online, Jobber) connect from the dashboard; the
+    // others get a hint. Essentials only learns the tool here; nothing is configured for it.
+    key: 'jobs-invoicing',
+    kind: 'confirm',
+    tier: 'essentials',
+    later: true,
+    title: 'How you invoice and get paid',
+    description: 'So leads and paid jobs can line up in one place.',
+    minutes: 1,
+    fields: [
+      {
+        key: 'invoicing',
+        label: 'How do you invoice customers and collect payment today?',
+        type: 'select',
+        required: true,
+        options: INVOICING_OPTIONS,
+        optionHints: {
+          'QuickBooks Online': 'We will send you a secure link to connect it. You never share a login.',
+          Jobber: 'We will send you a secure link to connect it. You never share a login.',
+          'Housecall Pro': 'In Housecall Pro, add hello@axeonstudio.co as an admin user so we can connect your jobs. No password needed.',
+          'Square or Clover': 'Nothing changes for you. Leads come to your phone and inbox, and you keep billing the way you do now.',
+          Other: 'Nothing changes for you. Leads come to your phone and inbox, and you keep billing the way you do now.',
+          'Paper, cash or check': 'Want to get paid faster? We are a QuickBooks and Jobber partner. Ask us on your call and we will send our partner link with partner pricing.',
+        },
+      },
+    ],
+  },
 
   // ───────────────────────── Essentials: Axeon handles these ─────────────────────────
   // Axeon's lists mirror each plan's features in data/pricingData.ts; keep them in step.
@@ -383,6 +428,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
   // ───────────────────────── AxeonCORE: the client's part ─────────────────────────
   {
     key: 'phone-setup',
+    later: true,
     kind: 'confirm',
     tier: 'axeoncore',
     title: 'Phone setup for call tracking and missed-call text-back',
@@ -417,10 +463,20 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
         hint: 'Names and mobiles. Instant call-back rings these people.',
         sensitive: true,
       },
+      {
+        // Read by app/api/phone/voice/status when the phone line has no admin-set message.
+        key: 'textBack',
+        label: 'The text people get when you miss their call',
+        type: 'textarea',
+        max: 320,
+        placeholder: "Hi, it's [your business]. Sorry we missed your call! Reply here with what you need and we'll get right back to you.",
+        hint: 'Leave it blank to use the message shown. It goes out right after a missed call.',
+      },
     ],
   },
   {
     key: 'calendar',
+    later: true,
     kind: 'accept',
     tier: 'axeoncore',
     title: 'Share your calendar for online booking',
@@ -435,6 +491,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
   },
   {
     key: META_CONNECT_ITEM,
+    later: true,
     kind: 'accept',
     tier: 'axeoncore',
     connect: 'meta',
@@ -450,6 +507,8 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
   },
   {
     key: 'sales-process',
+    later: true,
+    callable: true,
     kind: 'confirm',
     tier: 'axeoncore',
     title: 'How you sell, in your own words',
@@ -480,6 +539,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
   },
   {
     key: 'reviews',
+    later: true,
     kind: 'confirm',
     tier: 'axeoncore',
     title: 'Review requests after every job',
@@ -502,6 +562,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
   },
   {
     key: 'exit-offer',
+    later: true,
     kind: 'confirm',
     tier: 'axeoncore',
     title: 'One offer for visitors about to leave',
@@ -615,6 +676,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
   // ───────────────────────── AxeonGROWTH: the client's part ─────────────────────────
   {
     key: 'google-ads',
+    later: true,
     kind: 'accept',
     tier: 'axeongrowth',
     title: 'Link your Google Ads account',
@@ -629,6 +691,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
   },
   {
     key: 'meta-ads',
+    later: true,
     kind: 'accept',
     tier: 'axeongrowth',
     title: 'Accept our Meta Business partner request',
@@ -643,6 +706,8 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
   },
   {
     key: 'ad-plan',
+    later: true,
+    callable: true,
     kind: 'confirm',
     tier: 'axeongrowth',
     title: 'Your ad budget and target area',
@@ -670,10 +735,20 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
         required: true,
         placeholder: 'ZIP codes, cities, or "25 miles around Pleasant Hill"',
       },
+      {
+        key: 'bookedOut',
+        label: 'How far out are you booked right now?',
+        type: 'select',
+        required: true,
+        options: ['I can take work in a day or two', '1 to 2 weeks out', '3 to 4 weeks out', 'More than a month out'],
+        hint: 'So we spend less on ads when you are already busy. We ask again on your monthly call.',
+      },
     ],
   },
   {
     key: 'receptionist',
+    later: true,
+    callable: true,
     kind: 'confirm',
     tier: 'axeongrowth',
     title: 'What your AI receptionist should know',
@@ -712,6 +787,8 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
   },
   {
     key: 'video-shoot',
+    later: true,
+    callable: true,
     kind: 'confirm',
     tier: 'axeongrowth',
     title: 'Schedule your video shoot',
@@ -731,6 +808,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
   },
   {
     key: 'strategy-call',
+    later: true,
     kind: 'confirm',
     tier: 'axeongrowth',
     title: 'A standing time for your monthly strategy call',

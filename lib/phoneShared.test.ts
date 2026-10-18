@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   areaCodeOf, callOutcome, callResultLabel, callerKey, callerLabel, DEFAULT_TIME_ZONE, formatCallLength, formatCallWhen,
-  formatPhone, isStartWord, isStopWord, isUsTimeZone, maskNumber, normalizePhone, textBackMessage, TEXT_BACK_DEFAULT, toDashboardCall, US_TIME_ZONES,
+  formatPhone, isStartWord, isStopWord, isUsTimeZone, maskNumber, normalizePhone, portalTextBack, textBackMessage, TEXT_BACK_DEFAULT, toDashboardCall, US_TIME_ZONES,
 } from './phoneShared';
 
 test('normalizePhone turns any US spelling into E.164 and rejects the rest', () => {
@@ -122,4 +122,14 @@ test('isUsTimeZone accepts the seven US zones the admin can pick and nothing els
   for (const z of US_TIME_ZONES) assert.equal(isUsTimeZone(z.id), true, z.id);
   assert.equal(isUsTimeZone(DEFAULT_TIME_ZONE), true);
   for (const bad of ['Europe/London', 'CST', '', null, 5]) assert.equal(isUsTimeZone(bad), false, String(bad));
+});
+
+test('portalTextBack keeps the client wording, adds the opt-out line once, and stays within 320', () => {
+  assert.equal(portalTextBack(''), null);
+  assert.equal(portalTextBack('   '), null);
+  assert.equal(portalTextBack(undefined), null);
+  assert.equal(portalTextBack('On a job, will call back soon.'), 'On a job, will call back soon. Reply STOP to opt out.');
+  assert.equal(portalTextBack('Busy now. Text STOP to opt out.'), 'Busy now. Text STOP to opt out.');
+  const long = portalTextBack('x'.repeat(400));
+  assert.ok(long && long.length <= 320 && long.endsWith('Reply STOP to opt out.'));
 });

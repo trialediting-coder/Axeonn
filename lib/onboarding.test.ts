@@ -74,8 +74,33 @@ test('higher tiers include everything from the tiers below', () => {
   for (const k of essentials) assert.ok(core.includes(k), `AxeonCORE missing ${k}`);
   for (const k of core) assert.ok(growth.includes(k), `AxeonGROWTH missing ${k}`);
   assert.ok(core.length > essentials.length && growth.length > core.length);
-  // Essentials stays short: that is the whole point for a $149 client.
-  assert.ok(orderedItems('essentials').client.length <= 8, 'Essentials asks the client for more than 8 things');
+  // The first visit stays short on every plan: round 1 (items without `later`) is what the client sees first.
+  for (const tier of ONBOARDING_TIERS) {
+    const round1 = orderedItems(tier).client.filter((i) => !i.later);
+    assert.ok(round1.length <= 8, `${tier} asks for ${round1.length} things before the build can start`);
+  }
+  assert.ok(orderedItems('essentials').client.length <= 9, 'Essentials asks the client for more than 9 things');
+});
+
+test('option hints and callable items are well formed', () => {
+  for (const item of ONBOARDING_ITEMS) {
+    if (item.callable) assert.equal(item.kind, 'confirm', `${item.key}: only confirm cards can be answered on a call`);
+    for (const f of item.fields ?? []) {
+      for (const opt of Object.keys(f.optionHints ?? {})) assert.ok(f.options?.includes(opt), `${item.key}.${f.key}: hint for unknown option "${opt}"`);
+    }
+  }
+});
+
+test('validateItemData honors a field max (the missed-call text is one SMS-sized message)', () => {
+  const phone = ONBOARDING_ITEMS.find((i) => i.key === 'phone-setup')!;
+  const data = validateItemData(phone, {
+    mainNumber: '515-555-0134',
+    trackingPreference: 'Not sure, recommend something',
+    answerers: 'Mike 515-555-0134',
+    textBack: 'x'.repeat(500),
+  });
+  assert.equal((data.textBack as string).length, 320);
+  assert.equal(validateItemData(phone, { mainNumber: '515-555-0134', trackingPreference: 'Not sure, recommend something', answerers: 'Mike' }).textBack, '');
 });
 
 test('every tier has a friendly estimate and all tiers are covered', () => {

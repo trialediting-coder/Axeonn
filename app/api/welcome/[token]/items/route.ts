@@ -1,6 +1,7 @@
 // app/api/welcome/[token]/items/route.ts
 // Public but cookie-gated: the verified client saves one checklist item. Confirm
-// cards send { itemKey, data, done }, accept buttons send { itemKey, done: true }.
+// cards send { itemKey, data, done }, accept buttons send { itemKey, done: true },
+// and a callable card's "tell you on a call" sends { itemKey, callInstead: true }.
 // Validation lives in lib/onboarding.saveClientItem so no route can skip it.
 import { NextResponse, after } from 'next/server';
 import { saveClientItem } from '@/lib/onboarding';
@@ -20,12 +21,12 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ token: string
     return NextResponse.json({ ok: false, error: 'Verify this device first.', reason: 'unverified' }, { status: 401 });
   }
 
-  const body = (await req.json().catch(() => null)) as { itemKey?: unknown; data?: unknown; done?: unknown } | null;
+  const body = (await req.json().catch(() => null)) as { itemKey?: unknown; data?: unknown; done?: unknown; callInstead?: unknown } | null;
   if (!body || typeof body.itemKey !== 'string') {
     return NextResponse.json({ ok: false, error: 'Invalid request' }, { status: 400 });
   }
   try {
-    const state = await saveClientItem(onboarding, body.itemKey, body.data ?? {}, body.done === true);
+    const state = await saveClientItem(onboarding, body.itemKey, body.data ?? {}, body.done === true, body.callInstead === true);
     // Airtable mirror and the "finished" alert run after the client has their response.
     after(() => afterOnboardingChange(onboarding.token));
     return NextResponse.json({ ok: true, item: state });

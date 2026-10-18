@@ -101,6 +101,18 @@ export function isStartWord(body: unknown): boolean {
   return typeof body === 'string' && START_WORDS.has(body.trim().toUpperCase());
 }
 
+/**
+ * The missed-call text the client wrote in the portal (phone-setup.textBack), or null
+ * to keep the default. Adds the opt-out line when they left it off, within 320 characters.
+ */
+export function portalTextBack(raw: unknown): string | null {
+  const text = typeof raw === 'string' ? raw.replace(/\s+/g, ' ').trim() : '';
+  if (!text) return null;
+  if (/\bSTOP\b/i.test(text)) return text.slice(0, 320);
+  const optOut = ' Reply STOP to opt out.';
+  return text.slice(0, 320 - optOut.length).trimEnd() + optOut;
+}
+
 export function textBackMessage(businessName: string | null, custom: string | null): string {
   const trimmed = custom?.trim();
   if (trimmed) return trimmed;

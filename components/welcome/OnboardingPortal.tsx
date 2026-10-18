@@ -9,8 +9,8 @@
 
 import { useMemo, useState, type FormEvent, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Check, CheckCircle2, ChevronDown, Clock, Loader2, Lock, Pencil, Sparkles } from 'lucide-react';
-import type { ItemField, OnboardingItem } from '@/data/onboardingItems';
+import { Check, CheckCircle2, ChevronDown, Clock, Loader2, Lock, Pencil, Phone, Sparkles } from 'lucide-react';
+import { CALL_INSTEAD_KEY, type ItemField, type OnboardingItem } from '@/data/onboardingItems';
 import type { ItemState } from '@/lib/onboarding';
 
 export interface PortalProps {
@@ -62,32 +62,45 @@ async function patchItem(token: string, body: unknown): Promise<ItemState> {
 
 export function OnboardingPortal(props: PortalProps) {
   const [states, setStates] = useState<Record<string, ItemState>>(props.states);
-  const firstPending = props.items.client.find((i) => states[i.key]?.status !== 'done')?.key ?? null;
+  const isDone = (i: OnboardingItem) => states[i.key]?.status === 'done';
+  // Round 1 is what we need to start building; round 2 (`later` items) waits until it is
+  // done, so the first visit looks short. The server still counts every item.
+  const round1 = props.items.client.filter((i) => !i.later);
+  const round2 = props.items.client.filter((i) => i.later);
+  const round1Done = round1.every(isDone);
+  const [showRound2, setShowRound2] = useState(false);
+  const round2Open = round1Done || showRound2;
+  const visible = round2Open ? props.items.client : round1;
+  const firstPending = visible.find((i) => !isDone(i))?.key ?? null;
   const [openKey, setOpenKey] = useState<string | null>(firstPending);
+  const [showAxeon, setShowAxeon] = useState(false);
 
-  const { done, total } = useMemo(() => {
-    // Connect items (Facebook / Instagram) are optional and never count toward progress (S6-R13), matching the server.
-    const counted = props.items.client.filter((i) => !i.connect);
-    const total = counted.length;
-    const done = counted.filter((i) => states[i.key]?.status === 'done').length;
-    return { done, total };
-  }, [props.items.client, states]);
-  const percent = total === 0 ? 100 : Math.round((done / total) * 100);
-  const complete = total > 0 && done === total;
+  // Connect items (Facebook / Instagram) are optional and never count toward progress (S6-R13), matching the server.
+  const counted = (round1Done ? props.items.client : round1).filter((i) => !i.connect);
+  const total = counted.length;
+  const done = counted.filter(isDone).length;
+  const allCounted = props.items.client.filter((i) => !i.connect);
+  const complete = allCounted.length > 0 && allCounted.every(isDone);
+  // Front-loaded: opening the portal already shows a start, so the bar never sits at zero.
+  const percent = total === 0 || done === total ? 100 : Math.round(12 + (88 * done) / total);
+  const minutesLeft = counted.filter((i) => !isDone(i)).reduce((sum, i) => sum + (i.minutes ?? 1), 0);
 
   function onSaved(state: ItemState) {
     const next = { ...states, [state.itemKey]: state };
     setStates(next);
     // Advance to the next pending card so the client keeps moving.
-    const nextPending = props.items.client.find((i) => next[i.key]?.status !== 'done' && i.key !== state.itemKey);
+    const pool = round2Open || round1.every((i) => next[i.key]?.status === 'done') ? props.items.client : round1;
+    const nextPending = pool.find((i) => next[i.key]?.status !== 'done' && i.key !== state.itemKey);
     setOpenKey(state.status === 'done' ? (nextPending?.key ?? null) : state.itemKey);
   }
 
   const sortedClient = useMemo(() => {
-    const pending = props.items.client.filter((i) => states[i.key]?.status !== 'done');
-    const finished = props.items.client.filter((i) => states[i.key]?.status === 'done');
+    const pending = visible.filter((i) => states[i.key]?.status !== 'done');
+    const finished = visible.filter((i) => states[i.key]?.status === 'done');
     return [...pending, ...finished];
-  }, [props.items.client, states]);
+  }, [visible, states]);
+
+  const axeonDone = props.items.axeon.filter(isDone).length;
 
   return (
     <motion.div
@@ -102,20 +115,22 @@ export function OnboardingPortal(props: PortalProps) {
         <h1 className="mt-3 text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-950 font-display leading-tight">
           {complete
             ? 'You are all set.'
-            : props.businessName
-              ? `Let’s get ${props.businessName} launched.`
-              : 'Let’s get you launched.'}
+            : round1Done
+              ? 'Your build has started.'
+              : props.businessName
+                ? `Let’s get ${props.businessName} launched.`
+                : 'Let’s get you launched.'}
         </h1>
         <p className="mt-3 text-base text-neutral-600 leading-relaxed">
           {complete
             ? 'Everything we need from you is in. We will text you as each piece goes live, and you can come back here any time to change an answer.'
-            : 'A few quick things from you. Each takes a minute or two, and you can stop and come back on any device.'}
+            : round1Done
+              ? 'We have what we need to start. A few last things before launch, whenever you have a minute.'
+              : 'Just the basics to start your build. Tap through, and you can stop and come back on any device.'}
         </p>
         <div className="mt-6">
           <div className="flex items-center justify-between text-sm font-semibold text-neutral-700 mb-2">
-            <span>
-              {done} of {total} done
-            </span>
+            <span>{complete ? 'All done' : minutesLeft <= 1 ? 'About a minute left' : `About ${minutesLeft} minutes left`}</span>
             <span className="font-mono text-neutral-500">{percent}%</span>
           </div>
           <div className="h-2.5 rounded-full bg-neutral-100 overflow-hidden" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
@@ -136,7 +151,6 @@ export function OnboardingPortal(props: PortalProps) {
 
       {/* Client items */}
       <section className="mt-8">
-        <h2 className="px-1 text-xs font-mono font-bold tracking-widest text-neutral-500 uppercase mb-3">Your part</h2>
         <div className="space-y-3">
           <AnimatePresence initial={false}>
             {sortedClient.map((item) => (
@@ -167,36 +181,72 @@ export function OnboardingPortal(props: PortalProps) {
             ))}
           </AnimatePresence>
         </div>
+        {!round2Open && round2.length > 0 && (
+          <div className="mt-3 rounded-[24px] border border-dashed border-neutral-300 px-5 py-4 sm:px-6 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-neutral-600 leading-relaxed">
+              <span className="font-semibold text-neutral-800">Then a few things before launch.</span> No rush, we will text you when it is time.
+            </p>
+            <button type="button" onClick={() => setShowRound2(true)} className="text-sm font-semibold text-blue-600 hover:text-blue-700">
+              Show them now
+            </button>
+          </div>
+        )}
       </section>
 
-      {/* Axeon items */}
-      <section className="mt-10">
-        <h2 className="px-1 text-xs font-mono font-bold tracking-widest text-neutral-500 uppercase mb-3">Axeon handles this</h2>
-        <div className="rounded-[24px] border border-neutral-200 bg-neutral-50/70 divide-y divide-neutral-200">
-          {props.items.axeon.map((item) => {
-            const isDone = states[item.key]?.status === 'done';
-            return (
-              <div key={item.key} className="flex items-start gap-3 px-5 py-4">
-                <span
-                  className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
-                    isDone ? 'bg-green-100 text-green-700' : 'bg-white border border-neutral-200 text-neutral-400'
-                  }`}
-                >
-                  {isDone ? <Check size={14} className="stroke-[3]" /> : <Clock size={13} />}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <p className="text-base font-semibold text-neutral-800">{item.title}</p>
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${isDone ? 'bg-green-100 text-green-700' : 'bg-neutral-200/70 text-neutral-600'}`}>
-                      {isDone ? 'Set up' : 'In progress'}
-                    </span>
-                  </div>
-                  <p className="mt-0.5 text-sm text-neutral-600 leading-relaxed">{item.description}</p>
-                </div>
+      {/* Axeon items, folded to one line so the page stays short */}
+      <section className="mt-8">
+        <button
+          type="button"
+          onClick={() => setShowAxeon((v) => !v)}
+          aria-expanded={showAxeon}
+          className="w-full flex items-center gap-3 rounded-[24px] border border-neutral-200 bg-neutral-50/70 px-5 py-4 text-left cursor-pointer"
+        >
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+            <Sparkles size={15} />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-base font-semibold text-neutral-800">We are handling {props.items.axeon.length} things for you</span>
+            <span className="block text-sm text-neutral-600">{axeonDone > 0 ? `${axeonDone} set up so far. ` : ''}Nothing needed from you.</span>
+          </span>
+          <ChevronDown size={18} className={`shrink-0 text-neutral-400 transition-transform ${showAxeon ? 'rotate-180' : ''}`} />
+        </button>
+        <AnimatePresence initial={false}>
+          {showAxeon && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              className="overflow-hidden"
+            >
+              <div className="mt-3 rounded-[24px] border border-neutral-200 bg-neutral-50/70 divide-y divide-neutral-200">
+                {props.items.axeon.map((item) => {
+                  const itemDone = isDone(item);
+                  return (
+                    <div key={item.key} className="flex items-start gap-3 px-5 py-4">
+                      <span
+                        className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
+                          itemDone ? 'bg-green-100 text-green-700' : 'bg-white border border-neutral-200 text-neutral-400'
+                        }`}
+                      >
+                        {itemDone ? <Check size={14} className="stroke-[3]" /> : <Clock size={13} />}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                          <p className="text-base font-semibold text-neutral-800">{item.title}</p>
+                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${itemDone ? 'bg-green-100 text-green-700' : 'bg-neutral-200/70 text-neutral-600'}`}>
+                            {itemDone ? 'Set up' : 'In progress'}
+                          </span>
+                        </div>
+                        <p className="mt-0.5 text-sm text-neutral-600 leading-relaxed">{item.description}</p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
-        </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </section>
 
       <p className="mt-10 text-center text-sm text-neutral-500 leading-relaxed">
@@ -246,7 +296,6 @@ function CardShell({
             ) : null}
           </span>
           {!open && isDone && summary ? <span className="mt-1 block text-sm text-neutral-600 leading-relaxed">{summary}</span> : null}
-          {!open && !isDone ? <span className="mt-1 block text-sm text-neutral-600 leading-relaxed">{item.description}</span> : null}
         </span>
         <ChevronDown size={18} className={`mt-1.5 shrink-0 text-neutral-400 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
@@ -302,8 +351,13 @@ function ConfirmCard({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const status: Status = state?.status === 'done' ? 'done' : 'pending';
+  const onCall = state?.data?.[CALL_INSTEAD_KEY] === 'yes';
+  // Optional fields stay tucked away unless they already hold an answer.
+  const required = fields.filter((f) => f.required);
+  const optional = fields.filter((f) => !f.required);
+  const [showOptional, setShowOptional] = useState(() => optional.some((f) => display(f, values[f.key]) !== ''));
 
-  const summary = fields
+  const summary = onCall ? 'We will cover this on a call.' : fields
     .map((f) => {
       const v = display(f, state?.data?.[f.key]);
       return v ? `${f.label}: ${v}` : null;
@@ -312,13 +366,12 @@ function ConfirmCard({
     .slice(0, 2)
     .join(' · ');
 
-  async function submit(e: FormEvent) {
-    e.preventDefault();
+  async function save(body: Record<string, unknown>) {
     if (!editable) return;
     setBusy(true);
     setError(null);
     try {
-      const saved = await patchItem(token, { itemKey: item.key, data: values, done: true });
+      const saved = await patchItem(token, { itemKey: item.key, ...body });
       onSaved(saved);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not save.');
@@ -327,13 +380,28 @@ function ConfirmCard({
     }
   }
 
+  function submit(e: FormEvent) {
+    e.preventDefault();
+    void save({ data: values, done: true });
+  }
+
+  const renderField = (f: ItemField) => (
+    <Field key={f.key} field={f} value={values[f.key]} disabled={!editable || busy} onChange={(v) => setValues((p) => ({ ...p, [f.key]: v }))} />
+  );
+
   return (
     <CardShell item={item} status={status} open={open} onToggle={onToggle} summary={summary}>
       <p className="text-sm text-neutral-600 leading-relaxed mb-4">{item.description}</p>
       <form onSubmit={submit} className="space-y-4">
-        {fields.map((f) => (
-          <Field key={f.key} field={f} value={values[f.key]} disabled={!editable || busy} onChange={(v) => setValues((p) => ({ ...p, [f.key]: v }))} />
-        ))}
+        {required.map(renderField)}
+        {optional.length > 0 &&
+          (showOptional ? (
+            optional.map(renderField)
+          ) : (
+            <button type="button" onClick={() => setShowOptional(true)} className="text-sm font-semibold text-blue-600 hover:text-blue-700">
+              + Add more detail (optional)
+            </button>
+          ))}
         {error && (
           <p role="alert" className="text-sm text-red-600">
             {error}
@@ -349,6 +417,16 @@ function ConfirmCard({
             {status === 'done' ? 'Save changes' : 'Looks right, save it'}
           </button>
           {status === 'done' && <span className="text-sm text-green-700 font-medium inline-flex items-center gap-1.5"><Check size={14} /> Saved</span>}
+          {item.callable && !onCall && (
+            <button
+              type="button"
+              disabled={!editable || busy}
+              onClick={() => save({ callInstead: true })}
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-500 hover:text-neutral-800 disabled:opacity-50"
+            >
+              <Phone size={14} /> Rather tell us on a call
+            </button>
+          )}
         </div>
       </form>
     </CardShell>
@@ -501,6 +579,31 @@ function Field({
   }
 
   const str = typeof value === 'string' ? value : '';
+  const optionHint = field.optionHints?.[str] ? <p className="mt-2 rounded-xl bg-blue-50 px-3.5 py-2.5 text-sm text-blue-900 leading-relaxed">{field.optionHints[str]}</p> : null;
+  // Six options or fewer are one tap each instead of a dropdown.
+  if (field.type === 'select' && (field.options ?? []).length <= 6) {
+    return (
+      <fieldset>
+        <legend className="block text-sm font-semibold text-neutral-800">
+          {field.label}
+          {field.required ? <span className="text-blue-600"> *</span> : null}
+        </legend>
+        {hint}
+        <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {(field.options ?? []).map((opt) => {
+            const checked = str === opt;
+            return (
+              <label key={opt} className={`flex items-center gap-2.5 rounded-2xl border px-3.5 py-2.5 text-sm font-medium cursor-pointer transition-colors ${checked ? 'border-blue-600 bg-blue-50/60 text-neutral-950' : 'border-neutral-200 text-neutral-800 hover:border-neutral-300'}`}>
+                <input type="radio" name={id} className="accent-blue-600" checked={checked} disabled={disabled} onChange={() => onChange(opt)} />
+                {opt}
+              </label>
+            );
+          })}
+        </div>
+        {optionHint}
+      </fieldset>
+    );
+  }
   if (field.type === 'select') {
     return (
       <div>
@@ -514,6 +617,7 @@ function Field({
           ))}
         </select>
         {hint}
+        {optionHint}
       </div>
     );
   }
@@ -521,7 +625,7 @@ function Field({
     return (
       <div>
         {label}
-        <textarea id={id} rows={3} value={str} disabled={disabled} placeholder={field.placeholder} onChange={(e) => onChange(e.target.value)} className={`${inputClass} mt-1.5 resize-y min-h-[88px]`} />
+        <textarea id={id} rows={3} value={str} disabled={disabled} placeholder={field.placeholder} maxLength={field.max} onChange={(e) => onChange(e.target.value)} className={`${inputClass} mt-1.5 resize-y min-h-[88px]`} />
         {hint}
       </div>
     );

@@ -6,8 +6,8 @@ import { after } from 'next/server';
 import { readTwilioRequest } from '@/lib/phoneWebhook';
 import { lineForNumber, recordCall, sendTextBack } from '@/lib/phoneLines';
 import { afterDialTwiml, emptyTwiml, TWIML_HEADERS } from '@/lib/phoneTwiml';
-import { callOutcome, callerKey, normalizePhone } from '@/lib/phoneShared';
-import { getOnboardingById } from '@/lib/onboarding';
+import { callOutcome, callerKey, normalizePhone, portalTextBack } from '@/lib/phoneShared';
+import { getItemStates, getOnboardingById } from '@/lib/onboarding';
 import { startMissedCallFollowUp, stopRunsFor } from '@/lib/sequences';
 import { projectCall } from '@/lib/contacts';
 import { notifyLeadActivity } from '@/lib/leadNotify';
@@ -86,7 +86,9 @@ export async function POST(req: Request) {
   if (from !== 'unknown') {
     try {
       const onboarding = await getOnboardingById(line.onboardingId).catch(() => null);
-      textedBack = await sendTextBack(line, onboarding?.businessName ?? null, from, p.CallSid);
+      // A message set on the line in admin wins; otherwise the one the client wrote in the portal.
+      const portal = line.textBackMessage ? null : await getItemStates(line.onboardingId).then((s) => portalTextBack(s['phone-setup']?.data?.textBack)).catch(() => null);
+      textedBack = await sendTextBack(portal ? { ...line, textBackMessage: portal } : line, onboarding?.businessName ?? null, from, p.CallSid);
     } catch (err) {
       console.error('[phone/status] sendTextBack', err instanceof Error ? err.message : err);
     }

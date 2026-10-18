@@ -7,7 +7,7 @@
 
 import { useState } from 'react';
 import { btn } from '@/components/admin/ui';
-import { TIER_LABELS, type ItemField, type OnboardingItem } from '@/data/onboardingItems';
+import { CALL_INSTEAD_KEY, TIER_LABELS, type ItemField, type OnboardingItem } from '@/data/onboardingItems';
 import type { ItemState, Onboarding, Progress } from '@/lib/onboarding';
 
 interface Detail {
@@ -207,7 +207,9 @@ function ItemList({
                     </span>
                   )}
                 </div>
-                {item.kind === 'confirm' && state?.data && Object.keys(state.data).length > 0 && (
+                {state?.data?.[CALL_INSTEAD_KEY] === 'yes' ? (
+                  <p className="mt-2 text-sm font-medium text-amber-700">Client will answer this on a call. Ask it there.</p>
+                ) : item.kind === 'confirm' && state?.data && Object.keys(state.data).length > 0 && (
                   <dl className="mt-2 grid grid-cols-1 sm:grid-cols-[180px_1fr] gap-x-4 gap-y-1.5 text-sm">
                     {(item.fields ?? []).map((f) => (
                       <Answer key={f.key} field={f} value={state.data[f.key]} />
