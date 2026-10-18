@@ -207,8 +207,8 @@ export const pricingFaqs: PricingFaq[] = [
     a: 'We come to your location for a half-day shoot — your team, your space, your work. You get a hero film cut for your website, three vertical cuts sized for social and ads, and a photo set for your site and profiles. It\'s included in AxeonGROWTH and is a $1,500 add-on for the other plans.',
   },
   {
-    q: 'What happens after the first 3 months?',
-    a: 'Your plan keeps running month-to-month, and you can cancel any time. By then you\'ll have 90 days of calls and leads in your monthly reports to judge it by. You own 100% of the site, code, and design files on every plan.',
+    q: 'What happens after the first 90 days?',
+    a: 'By then you\'ll have 90 days of calls and leads in your monthly reports to judge it by, and we go over them with you. You own 100% of the site, code, and design files on every plan.',
   },
   {
     q: 'What if I don\'t like the initial design?',
