@@ -10,7 +10,7 @@
 import { useMemo, useState, type FormEvent, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Check, CheckCircle2, ChevronDown, Clock, Loader2, Lock, Pencil, Phone, Sparkles } from 'lucide-react';
-import { CALL_INSTEAD_KEY, type ItemField, type OnboardingItem } from '@/data/onboardingItems';
+import { CALL_INSTEAD_KEY, SETUP_MINUTES, type ItemField, type OnboardingItem } from '@/data/onboardingItems';
 import type { ItemState } from '@/lib/onboarding';
 
 export interface PortalProps {
@@ -83,7 +83,8 @@ export function OnboardingPortal(props: PortalProps) {
   const complete = allCounted.length > 0 && allCounted.every(isDone);
   // Front-loaded: opening the portal already shows a start, so the bar never sits at zero.
   const percent = total === 0 || done === total ? 100 : Math.round(12 + (88 * done) / total);
-  const minutesLeft = counted.filter((i) => !isDone(i)).reduce((sum, i) => sum + (i.minutes ?? 1), 0);
+  // Owner call (2026-10-17): the setup is promised as about 5 minutes, so the count starts there and only drops below it near the end.
+  const minutesLeft = Math.min(SETUP_MINUTES, counted.filter((i) => !isDone(i)).reduce((sum, i) => sum + (i.minutes ?? 1), 0));
 
   function onSaved(state: ItemState) {
     const next = { ...states, [state.itemKey]: state };
@@ -291,9 +292,6 @@ function CardShell({
         <span className="min-w-0 flex-1">
           <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <span className={`text-base sm:text-lg font-bold tracking-tight ${isDone ? 'text-neutral-700' : 'text-neutral-950'}`}>{item.title}</span>
-            {!isDone && item.minutes ? (
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">{item.minutes} min</span>
-            ) : null}
           </span>
           {!open && isDone && summary ? <span className="mt-1 block text-sm text-neutral-600 leading-relaxed">{summary}</span> : null}
         </span>

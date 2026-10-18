@@ -103,12 +103,8 @@ test('validateItemData honors a field max (the missed-call text is one SMS-sized
   assert.equal(validateItemData(phone, { mainNumber: '515-555-0134', trackingPreference: 'Not sure, recommend something', answerers: 'Mike' }).textBack, '');
 });
 
-test('every tier has a friendly estimate and all tiers are covered', () => {
-  for (const tier of ONBOARDING_TIERS) {
-    const minutes = estimatedMinutes(tier);
-    assert.ok(minutes >= 5 && minutes % 5 === 0, `${tier}: ${minutes}`);
-  }
-  assert.ok(estimatedMinutes('axeongrowth') > estimatedMinutes('essentials'));
+test('every tier is quoted the same short setup time', () => {
+  for (const tier of ONBOARDING_TIERS) assert.equal(estimatedMinutes(tier), 5, tier);
 });
 
 // ───────────── Tokens and codes ─────────────

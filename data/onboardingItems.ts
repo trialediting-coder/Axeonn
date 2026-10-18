@@ -91,6 +91,9 @@ export interface OnboardingItem {
   callable?: boolean;
 }
 
+/** The time the client is quoted for setup, in the welcome email and the portal header (owner call 2026-10-17). */
+export const SETUP_MINUTES = 5;
+
 /** Saved on a callable item when the client chose to answer it on a call. */
 export const CALL_INSTEAD_KEY = 'callInstead';
 

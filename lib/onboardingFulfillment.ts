@@ -14,17 +14,16 @@ import {
   type Onboarding,
   type OnboardingInput,
 } from '@/lib/onboarding';
-import { TIER_LABELS, TIER_RANK, type OnboardingTier } from '@/data/onboardingItems';
+import { SETUP_MINUTES, TIER_LABELS, TIER_RANK, type OnboardingTier } from '@/data/onboardingItems';
 import { sendDashboardInviteEmail, sendNudgeEmail, sendWelcomeEmail } from '@/lib/email';
 import { getItemStates, markNudgeSent } from '@/lib/onboarding';
 import { hasAccountForOnboarding } from '@/lib/proofAuth';
 import { afterOnboardingChange } from '@/lib/onboardingSync';
 import { isDatabaseConfigured, sql } from '@/lib/db';
 
-/** Sum of the per-item estimates, rounded up to a friendly number for the email. */
-export function estimatedMinutes(tier: OnboardingTier): number {
-  const total = orderedItems(tier).client.filter((item) => !item.connect).reduce((sum, item) => sum + (item.minutes ?? 1), 0);
-  return Math.max(5, Math.ceil(total / 5) * 5);
+/** The setup time quoted in the welcome email: the same on every plan, matching the portal header. */
+export function estimatedMinutes(_tier: OnboardingTier): number {
+  return SETUP_MINUTES;
 }
 
 export async function sendWelcomeFor(onboarding: Onboarding): Promise<boolean> {
