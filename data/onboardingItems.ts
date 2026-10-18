@@ -357,7 +357,8 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
           'Housecall Pro': 'In Housecall Pro, add hello@axeonstudio.co as an admin user so we can connect your jobs. No password needed.',
           'Square or Clover': 'Nothing changes for you. Leads come to your phone and inbox, and you keep billing the way you do now.',
           Other: 'Nothing changes for you. Leads come to your phone and inbox, and you keep billing the way you do now.',
-          'Paper, cash or check': 'Want to get paid faster? We are a QuickBooks and Jobber partner. Ask us on your call and we will send our partner link with partner pricing.',
+          'Paper, cash or check':
+            "Don't worry! Axeon is an official partner with industry-standard platforms like Intuit QuickBooks and Jobber. We will send you our direct partner onboarding link with exclusive partner pricing, so you can send digital invoices, take card payments online and get paid faster.",
         },
       },
     ],
