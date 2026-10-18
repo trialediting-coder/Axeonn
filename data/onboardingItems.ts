@@ -331,7 +331,8 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     ],
   },
   {
-    // Partner integrations (QuickBooks Online, Jobber) connect from the dashboard; the
+    // Partner integrations (QuickBooks Online, Jobber) connect from the dashboard (owner: live
+    // 2026-10-19; the hint already says so on purpose); the
     // others get a hint. Essentials only learns the tool here; nothing is configured for it.
     key: 'jobs-invoicing',
     kind: 'confirm',
@@ -348,8 +349,8 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
         required: true,
         options: INVOICING_OPTIONS,
         optionHints: {
-          'QuickBooks Online': 'We will send you a secure link to connect it. You never share a login.',
-          Jobber: 'We will send you a secure link to connect it. You never share a login.',
+          'QuickBooks Online': 'Connect it in one tap from your AxeonPROOF dashboard. You never share a login.',
+          Jobber: 'Connect it in one tap from your AxeonPROOF dashboard. You never share a login.',
           'Housecall Pro': 'In Housecall Pro, add hello@axeonstudio.co as an admin user so we can connect your jobs. No password needed.',
           'Square or Clover': 'Nothing changes for you. Leads come to your phone and inbox, and you keep billing the way you do now.',
           Other: 'Nothing changes for you. Leads come to your phone and inbox, and you keep billing the way you do now.',
