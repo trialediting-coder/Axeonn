@@ -26,6 +26,14 @@ const OPEN_AFTER_MS = 5_000;
 // Pages where the visitor is already converting or deciding on price.
 // /nonprofits has its own free program (Groundwork Grant); a second free offer there confuses it.
 const EXCLUDED_PATHS = ['/pricing', '/book', '/get-started', '/get-started/success', '/nonprofits'];
+// Pages for people who already pay us, or who came for something else: a personal
+// payment link, the after-payment page, report feedback, Meta data deletion. The
+// dashboard, portal, admin and contracts never mount this at all (HideOnAdFunnel).
+const EXCLUDED_PREFIXES = ['/pay/', '/billing/', '/f/', '/meta/'];
+
+function isExcluded(pathname: string): boolean {
+  return EXCLUDED_PATHS.includes(pathname) || EXCLUDED_PREFIXES.some((p) => pathname.startsWith(p));
+}
 
 type OfferState = 'hidden' | 'open' | 'minimized';
 
@@ -44,28 +52,53 @@ function siteEnteredAt(): number {
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
 
-function readStorage(key: string): string | null {
+// localStorage first; sessionStorage when it is blocked, so a visitor whose browser
+// refuses localStorage still sees the popup once per visit, not on every page load.
+function stores(): Storage[] {
+  const out: Storage[] = [];
   try {
-    return window.localStorage.getItem(key);
+    out.push(window.localStorage);
   } catch {
-    return null;
+    // blocked
   }
+  try {
+    out.push(window.sessionStorage);
+  } catch {
+    // blocked
+  }
+  return out;
+}
+
+function readStorage(key: string): string | null {
+  for (const store of stores()) {
+    try {
+      const v = store.getItem(key);
+      if (v !== null) return v;
+    } catch {
+      // try the next one
+    }
+  }
+  return null;
 }
 
 function writeStorage(key: string, value: string): void {
-  try {
-    window.localStorage.setItem(key, value);
-  } catch {
-    // Storage unavailable (private browsing, etc.) — the in-memory `shown`
-    // flag still prevents re-showing within this session.
+  for (const store of stores()) {
+    try {
+      store.setItem(key, value);
+      return;
+    } catch {
+      // try the next one
+    }
   }
 }
 
 function removeStorage(key: string): void {
-  try {
-    window.localStorage.removeItem(key);
-  } catch {
-    // ignore
+  for (const store of stores()) {
+    try {
+      store.removeItem(key);
+    } catch {
+      // ignore
+    }
   }
 }
 
@@ -87,13 +120,13 @@ export function FreeWebsiteOfferPopup() {
   }, [isLeadModalOpen]);
 
   // Re-evaluated on every page change: restores the side tab, or schedules the
-  // first open for when the visitor reaches OPEN_AFTER_MS of time on site.
+  // first (and only) open for when the visitor reaches OPEN_AFTER_MS of time on site.
   useEffect(() => {
     if (!foundingOffer.active || foundingOffer.spotsRemaining <= 0) return;
     // Never on the pricing page: the $0 offer would undercut the published
     // prices at the exact decision moment. /book and /get-started are
     // already conversion flows; the popup would only interrupt them.
-    if (EXCLUDED_PATHS.includes(pathname)) return;
+    if (isExcluded(pathname)) return;
     if (readStorage(CLAIMED_KEY) === '1') return; // already on the calendar once
     const dismissedAt = Number(readStorage(DISMISS_KEY));
     if (dismissedAt && Date.now() - dismissedAt < COOLDOWN_MS) return;
@@ -111,7 +144,7 @@ export function FreeWebsiteOfferPopup() {
         retryId = window.setTimeout(show, 5_000);
         return;
       }
-      if (EXCLUDED_PATHS.includes(window.location.pathname)) return;
+      if (isExcluded(window.location.pathname)) return;
       // On the homepage, never cover the hero: wait until they scroll past it.
       if (window.location.pathname === '/' && window.scrollY < window.innerHeight * 0.85) {
         const onScroll = () => {
@@ -124,6 +157,9 @@ export function FreeWebsiteOfferPopup() {
         return;
       }
       shownRef.current = true;
+      // The full popup opens once per visitor. Saved the moment it opens, not when it is
+      // closed, so a refresh, a second tab or a new visit brings back only the side tab.
+      writeStorage(MINIMIZED_KEY, '1');
       triggerRef.current = document.activeElement as HTMLElement | null;
       setState('open');
       trackEvent(EVENTS.popupShown, {
@@ -218,7 +254,7 @@ export function FreeWebsiteOfferPopup() {
     typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // Conversion/pricing pages never show the popup or its side tab.
-  if (EXCLUDED_PATHS.includes(pathname)) return null;
+  if (isExcluded(pathname)) return null;
 
   const sheet = isMobile === true;
 
