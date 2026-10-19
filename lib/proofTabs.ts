@@ -189,7 +189,7 @@ export const PROOF_TABS: readonly ProofTab[] = [
   { key: 'billing', label: 'Billing', tier: 'website', promise: '', includes: [] },
 ];
 
-export const TIER_PRICE: Record<OnboardingTier, number> = { website: 49, essentials: 149, axeoncore: 299, axeongrowth: 999 };
+export const TIER_PRICE: Record<OnboardingTier, number> = { website: 49, essentials: 149, axeoncore: 799, axeongrowth: 1999 };
 export const TIER_SHORT: Record<OnboardingTier, string> = { website: 'Website', essentials: 'Essentials', axeoncore: 'CORE', axeongrowth: 'GROWTH' };
 
 export const isProofTab = (v: unknown): v is ProofTabKey => PROOF_TABS.some((t) => t.key === v);
@@ -205,7 +205,7 @@ export function upgradeMath(current: OnboardingTier, target: OnboardingTier, avg
     const jobs = Math.max(1, Math.ceil(delta / avgJobValue));
     return { delta, line: `At your average job of ${money(avgJobValue)}, that is ${jobs === 1 ? 'one extra job' : `${jobs} extra jobs`} a month to cover it.${adSpend}` };
   }
-  return { delta, line: `For most shops that is one or two extra jobs a month.${adSpend}` };
+  return { delta, line: `Tell us your average job and we will show what it takes to cover it.${adSpend}` };
 }
 
 /** Rule-of-thumb rates the loss line uses. Stated on screen, never presented as the client's own measurement. */

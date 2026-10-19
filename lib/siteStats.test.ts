@@ -654,11 +654,11 @@ test('every tab is visible, tabs outside the plan are locked, and the price read
   assert.deepEqual(locked('axeoncore'), ['ads', 'receptionist']);
   assert.deepEqual(locked('axeongrowth'), []);
   assert.deepEqual(PROOF_TABS.filter((t) => tabLocked(t, 'website')).map((t) => t.key), PROOF_TABS.filter((t) => t.key !== 'billing').map((t) => t.key), 'website plan: billing only');
-  assert.equal(upgradeMath('essentials', 'axeoncore', 300).delta, 150);
-  assert.match(upgradeMath('essentials', 'axeoncore', 300).line, /^At your average job of \$300, that is one extra job a month/);
-  assert.match(upgradeMath('essentials', 'axeoncore', 100).line, /2 extra jobs/);
-  assert.match(upgradeMath('essentials', 'axeoncore', null).line, /one or two extra jobs/);
-  assert.equal(upgradeMath('axeoncore', 'axeongrowth', 300).delta, 700);
+  assert.equal(upgradeMath('essentials', 'axeoncore', 300).delta, 650);
+  assert.match(upgradeMath('essentials', 'axeoncore', 300).line, /^At your average job of \$300, that is 3 extra jobs a month/);
+  assert.match(upgradeMath('essentials', 'axeoncore', 3500).line, /one extra job/);
+  assert.match(upgradeMath('essentials', 'axeoncore', null).line, /Tell us your average job/);
+  assert.equal(upgradeMath('axeoncore', 'axeongrowth', 300).delta, 1200);
   assert.match(upgradeMath('axeoncore', 'axeongrowth', 300).line, /Plus the ad budget you set/);
   const t = summarize({ views: 300, visitors: 120, clicks: 20, buttons: [{ name: 'call', count: 12 }, { name: 'form', count: 3 }], pages: [], sources: [], closeRate: null });
   assert.match(lockedHeadline(proofTab('calls'), t), /^15 people reached out through your site last month, and 12 of them pressed Call\. When the phone rings out, AxeonCORE texts them back/);

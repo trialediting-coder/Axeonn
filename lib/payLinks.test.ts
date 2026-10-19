@@ -22,20 +22,22 @@ test('isValidToken rejects lowercase, wrong length, and ambiguous characters', (
   assert.equal(isValidToken('K7QZ2MPD'), true);
 });
 
-test('validatePayLinkInput accepts a setup link and strips videography from AxeonCORE', () => {
+test('validatePayLinkInput accepts a setup link and strips videography from AxeonGROWTH, which includes it', () => {
   const input = validatePayLinkInput({
     clientEmail: '  Jane@Example.com ',
-    clientName: 'Smith Roofing',
+    clientName: 'Hintz Family Dentistry',
     kind: 'deposit',
-    tier: 'axeoncore',
+    tier: 'axeongrowth',
     addOns: ['addon-videography', 'addon-extra-page', 'addon-extra-page'],
-    note: 'Deposit for the new site',
+    note: 'Implementation, month-to-month',
   });
   assert.equal(input.clientEmail, 'jane@example.com');
   assert.equal(input.kind, 'deposit');
-  assert.equal(input.tier, 'axeoncore');
+  assert.equal(input.tier, 'axeongrowth');
   assert.deepEqual(input.addOns, ['addon-extra-page']);
   assert.equal(input.expiresInDays, 30);
+  const core = validatePayLinkInput({ clientEmail: 'jane@example.com', kind: 'deposit', tier: 'axeoncore', addOns: ['addon-videography'] });
+  assert.deepEqual(core.addOns, ['addon-videography'], 'AxeonCORE can buy the shoot');
 });
 
 test('validatePayLinkInput accepts a plan link without a tier', () => {

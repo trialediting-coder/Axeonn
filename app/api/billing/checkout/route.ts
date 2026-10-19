@@ -100,8 +100,8 @@ function parseSelfServe(body: Record<string, unknown>): SelfServeRequest {
     if (!isCatalogKey(key) || !ADDON_KEYS.includes(key)) throw new ClientError('Unknown add-on selected.');
     if (!addOns.includes(key)) addOns.push(key);
   }
-  // AxeonCORE already includes videography; never charge for it twice.
-  const filtered = tier === 'axeoncore' ? addOns.filter((k) => k !== 'addon-videography') : addOns;
+  // AxeonGROWTH already includes videography; never charge for it twice.
+  const filtered = tier === 'axeongrowth' ? addOns.filter((k) => k !== 'addon-videography') : addOns;
 
   return { email, name, tier, kind, addOns: filtered };
 }

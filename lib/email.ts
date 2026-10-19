@@ -544,7 +544,7 @@ export async function sendAgreementEmail(input: {
         <p style="margin:0 0 12px">${firstName(input.contactName)}</p>
         <p style="margin:0 0 12px">Here is the Client Services Agreement for <b>${escapeHtml(input.businessName)}</b> on the ${escapeHtml(
           input.planLabel
-        )} plan. Read it, sign by typing your name, then pay the setup fee and first month. It takes about five minutes.</p>
+        )} plan. Read it, sign by typing your name, then make the first payment shown on the page. It takes about five minutes.</p>
         ${button(input.url, 'Review and sign')}
         <p style="margin:0 0 12px;font-size:14px;color:#525252">As soon as payment goes through, you get your setup page by email and we start building.</p>
       `

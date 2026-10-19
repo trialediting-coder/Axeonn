@@ -20,10 +20,11 @@ import { getStripe } from '@/lib/stripe';
 import { SITE_URL } from '@/lib/seo';
 import { computeSplit, type PaymentKind } from '@/lib/billingMath';
 
-// Tiers are the one-time "to start" fee ($99, or $1,500 on AxeonGROWTH for the
-// video shoot); the monthly plan for each tier lives in PLANS below. Pricing
-// changed 2026-10-05 (data/pricingData.ts); the retired $2,800/$5,800 builds and
-// the directory/landing-page add-ons were archived in Stripe on 2026-10-08.
+// Tiers are the one-time implementation fee a month-to-month client pays upfront
+// ($3,000 AxeonCORE, $5,000 AxeonGROWTH; credited on a 12-month agreement); the
+// monthly plan for each tier lives in PLANS below. Pricing changed 2026-10-19
+// (data/pricingData.ts, data/agreementTemplate.ts). Essentials ('core-web-build')
+// is kept for existing clients only.
 export const CATALOG = {
   'core-web-build': { label: 'Essentials', kind: 'tier' },
   axeoncore: { label: 'AxeonCORE', kind: 'tier' },
@@ -49,31 +50,32 @@ export const STANDARD_CARE_AMOUNT_CENTS = 4900;
 
 // Monthly plans: recurring Prices matched by lookup_key (seeded by
 // scripts/stripe-seed.mjs). amountCents here is the seeded amount used for display
-// fallbacks; the Stripe Price is what actually gets charged. The per-tier plans
-// match /pricing ($149 / $299 / $999); the recurring add-ons and the $49 basics
-// plan are private presets the admin mints pay links for, never shown on the site.
+// fallbacks; the Stripe Price is what actually gets charged. The public plans
+// match /pricing ($799 / $1,999); Essentials ($149, existing clients), the
+// recurring add-ons and the $49 basics plan are private presets the admin mints
+// pay links for, never shown on the site.
 export const PLANS = {
   'core-web-build-monthly': {
     label: 'Essentials Monthly Plan',
     amountCents: 14900,
     tier: 'core-web-build',
-    public: true,
+    public: false,
   },
   'axeoncore-monthly': {
     label: 'AxeonCORE Monthly Plan',
-    amountCents: 29900,
+    amountCents: 79900,
     tier: 'axeoncore',
     public: true,
   },
   'axeongrowth-monthly': {
     label: 'AxeonGROWTH Monthly Plan',
-    amountCents: 99900,
+    amountCents: 199900,
     tier: 'axeongrowth',
     public: true,
   },
   'addon-ads-monthly': {
-    label: 'Google & Meta Ads Management (AxeonCORE add-on)',
-    amountCents: 39900,
+    label: 'Local Services Ads Management (AxeonCORE add-on)',
+    amountCents: 75000,
     tier: null,
     public: false,
   },

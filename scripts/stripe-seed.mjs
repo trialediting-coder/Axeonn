@@ -10,9 +10,12 @@
 // Keys listed in ARCHIVE get their price and product deactivated (never deleted),
 // so past invoices and subscriptions are untouched.
 //
-// Pricing as of 2026-10-05 (data/pricingData.ts): $99 to start ($1,500 on
-// AxeonGROWTH, covers the video shoot), then $149 / $299 / $999 a month. The
-// $49 Website Hosting & Care plan stays as-is for existing clients (A-1).
+// Pricing as of 2026-10-19 (data/pricingData.ts, data/agreementTemplate.ts):
+// AxeonCORE $799/mo and AxeonGROWTH $1,999/mo on a 12-month agreement with the
+// implementation fee credited. The one-time "implementation" prices below are
+// what month-to-month clients pay upfront ($3,000 / $5,000). Essentials and the
+// $49 Website Hosting & Care plan stay as-is for existing clients; neither is sold
+// publicly. Existing subscriptions keep the Price they were created with.
 //
 // Tax codes are exact Stripe product tax codes pulled from the Tax Codes API on
 // 2026-09-23. Stripe has no code for video production, so the videography add-on
@@ -39,29 +42,29 @@ const CATALOG = [
   {
     key: 'core-web-build',
     name: 'Essentials · to start',
-    description: 'One-time start fee for the Essentials plan: up to 4 custom, mobile-first pages, SEO/AEO/GEO, lead alerts, tracking.',
+    description: 'One-time start fee for the Essentials plan (existing clients only): up to 4 custom, mobile-first pages, SEO/AEO/GEO, lead alerts, tracking.',
     amount: 9900,
     taxCode: TAX.websiteDesign,
   },
   {
     key: 'axeoncore',
-    name: 'AxeonCORE · to start',
+    name: 'AxeonCORE · implementation',
     description:
-      'One-time start fee for AxeonCORE: 5-7 page site, lead capture and follow-up, AI chat and scheduling, tracked numbers, AxeonPROOF, 90-day guarantee.',
-    amount: 9900,
+      'One-time implementation fee for AxeonCORE on a month-to-month agreement (credited in full on a 12-month agreement): practice website, missed-call text-back, 60-second inquiry response, booking, review requests, AxeonPROOF.',
+    amount: 300000,
     taxCode: TAX.websiteDesign,
   },
   {
     key: 'axeongrowth',
-    name: 'AxeonGROWTH · to start',
-    description: 'One-time start fee for AxeonGROWTH. Covers the on-site video shoot (hero film, 3 vertical cuts, photo set).',
-    amount: 150000,
+    name: 'AxeonGROWTH · implementation',
+    description: 'One-time implementation fee for AxeonGROWTH on a month-to-month agreement (credited in full on a 12-month agreement). Includes the first on-site photo and video shoot.',
+    amount: 500000,
     taxCode: TAX.generalServices,
   },
   {
     key: 'addon-videography',
     name: 'Custom On-Site Videography',
-    description: 'Half-day shoot at your location: hero film, 3 vertical cuts, photo set. Included in AxeonGROWTH.',
+    description: 'Half-day shoot at your practice: hero film, 3 vertical cuts, photo set. Included in AxeonGROWTH.',
     amount: 150000,
     taxCode: TAX.generalServices,
   },
@@ -99,7 +102,7 @@ const PLAN_PRODUCTS = [
   {
     key: 'core-web-build-plan',
     name: 'Essentials Monthly Plan',
-    description: 'Essentials: custom site, hosting, security, 2 edits a month, monthly calls & leads report. 3-month minimum.',
+    description: 'Essentials (existing clients only): custom site, hosting, security, 2 edits a month, monthly calls & leads report.',
     taxCode: TAX.websiteHosting,
     price: {
       key: 'core-web-build-monthly',
@@ -111,12 +114,13 @@ const PLAN_PRODUCTS = [
   {
     key: 'axeoncore-plan',
     name: 'AxeonCORE Monthly Plan',
-    description: 'AxeonCORE: site plus lead capture, follow-up, tracked numbers, AxeonPROOF, 5 edits a month, 90-day guarantee. 3-month minimum.',
+    description:
+      'AxeonCORE patient & client intake infrastructure: practice website, 24/7 missed-call text-back, 60-second inquiry response, online booking, review requests, AxeonPROOF, 2 hours of updates a month. 12-month agreement.',
     taxCode: TAX.websiteHosting,
     price: {
       key: 'axeoncore-monthly',
-      nickname: 'AxeonCORE - $299/month',
-      amount: 29900,
+      nickname: 'AxeonCORE - $799/month',
+      amount: 79900,
       recurring: { interval: 'month' },
     },
   },
@@ -124,31 +128,31 @@ const PLAN_PRODUCTS = [
     key: 'axeongrowth-plan',
     name: 'AxeonGROWTH Monthly Plan',
     description:
-      'AxeonGROWTH: everything in AxeonCORE plus Google, Meta and Local Services Ads management, AI phone receptionist, a new service page every month, monthly strategy call. Ad spend billed separately. 3-month minimum.',
+      'AxeonGROWTH: everything in AxeonCORE plus Local Services Ads and search ads management, quarterly database reactivation, AI phone receptionist, multi-provider routing, quarterly photo & video, monthly strategy call. Ad spend billed separately. 12-month agreement.',
     taxCode: TAX.websiteHosting,
     price: {
       key: 'axeongrowth-monthly',
-      nickname: 'AxeonGROWTH - $999/month',
-      amount: 99900,
+      nickname: 'AxeonGROWTH - $1,999/month',
+      amount: 199900,
       recurring: { interval: 'month' },
     },
   },
   {
     key: 'addon-ads-plan',
-    name: 'Google & Meta Ads Management (AxeonCORE add-on)',
-    description: 'Ads run for you on the services you want more of, tracked to the booked job. Ad spend billed separately by Google and Meta.',
+    name: 'Local Services Ads Management (AxeonCORE add-on)',
+    description: 'Google Local Services Ads and search ads for the services you want more of, tracked to the booked consultation. Ad spend billed separately by Google; $500/month minimum.',
     taxCode: TAX.generalServices,
     price: {
       key: 'addon-ads-monthly',
-      nickname: 'Ads Management - $399/month',
-      amount: 39900,
+      nickname: 'LSA & Search Ads Management - $750/month',
+      amount: 75000,
       recurring: { interval: 'month' },
     },
   },
   {
     key: 'addon-ai-receptionist-plan',
     name: 'AI Phone Receptionist (add-on)',
-    description: 'Picks up every call 24/7, answers questions, and books the job.',
+    description: 'Picks up every call 24/7, answers common questions, and books the appointment.',
     taxCode: TAX.generalServices,
     price: {
       key: 'addon-ai-receptionist-monthly',

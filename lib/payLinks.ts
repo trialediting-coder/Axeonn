@@ -174,7 +174,7 @@ export function validatePayLinkInput(raw: Record<string, unknown>): PayLinkInput
     if (!isCatalogKey(key) || !ADDON_KEYS.includes(key)) throw new Error('Unknown add-on');
     if (!addOns.includes(key)) addOns.push(key);
   }
-  const filtered = tier === 'axeoncore' ? addOns.filter((k) => k !== 'addon-videography') : addOns;
+  const filtered = tier === 'axeongrowth' ? addOns.filter((k) => k !== 'addon-videography') : addOns;
   return { clientEmail: email, clientName, kind, tier, addOns: filtered, note, expiresInDays: days };
 }
 

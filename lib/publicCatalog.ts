@@ -47,20 +47,20 @@ export interface PublicCatalog {
 
 const FALLBACK_CENTS: Record<CatalogKey, number> = {
   'core-web-build': 9900,
-  axeoncore: 9900,
-  axeongrowth: 150000,
+  axeoncore: 300000,
+  axeongrowth: 500000,
   'addon-videography': 150000,
   'addon-extra-page': 45000,
 };
 
 const DESCRIPTIONS: Record<CatalogKey, string> = {
   'core-web-build':
-    'To start on Essentials: up to 4 custom, mobile-first pages with SEO, AEO and GEO built in, lead alerts, and tracking. Then $149 a month.',
+    'Essentials (existing clients): up to 4 custom, mobile-first pages with SEO, AEO and GEO built in, lead alerts, and tracking. Then $149 a month.',
   axeoncore:
-    'To start on AxeonCORE: a 5–7 page site plus lead capture, follow-up, tracked phone numbers, AxeonPROOF, and the 90-day guarantee. Then $299 a month.',
+    'AxeonCORE implementation, month-to-month: your practice website, 24/7 missed-call text-back, 60-second replies to web inquiries, online booking, review requests, and AxeonPROOF. Then $799 a month.',
   axeongrowth:
-    'To start on AxeonGROWTH: covers your on-site video shoot. Then $999 a month for ads management, the AI receptionist, and a new page every month.',
-  'addon-videography': 'Half-day shoot at your location: a hero film, 3 vertical cuts, and a photo set.',
+    'AxeonGROWTH implementation, month-to-month: everything in AxeonCORE plus Local Services Ads, database reactivation, the AI receptionist, and your first photo and video shoot. Then $1,999 a month.',
+  'addon-videography': 'Half-day shoot at your practice: a hero film, 3 vertical cuts, and a photo set.',
   'addon-extra-page': 'One additional custom-designed service page.',
 };
 
