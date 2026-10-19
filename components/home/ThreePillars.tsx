@@ -32,7 +32,7 @@ const PILLARS: Pillar[] = [
     promise: 'Answered.',
     detail:
       'Every missed call gets a text back and every web inquiry gets a first reply within 60 seconds, 24/7, so the patient or client hears from you before they call the next practice.',
-    href: '/marketing-solutions/lead-generation',
+    href: '/marketing-solutions#intake',
     cta: 'How every inquiry gets answered',
     image: '/philosophy/marketing.webp',
     alt: 'Person looking up a local business on a map on their phone',
@@ -43,7 +43,7 @@ const PILLARS: Pillar[] = [
     promise: 'Booked.',
     detail:
       'Online consultation booking and a two-way text inbox for your front desk, so the conversation ends with a time on the calendar instead of a callback list.',
-    href: '/marketing-solutions/website',
+    href: '/marketing-solutions#website',
     cta: 'How consultations get booked',
     image: '/philosophy/technology.webp',
     alt: 'Laptop showing a revenue and analytics dashboard',

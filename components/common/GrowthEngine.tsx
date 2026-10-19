@@ -16,7 +16,7 @@ const engineModules: EngineModule[] = [
     icon: Megaphone,
     title: 'Google Ads & LSA',
     body: 'Local Services Ads and search ads on the services you want more of, reported in AxeonPROOF.',
-    href: '/marketing-solutions/advertising',
+    href: '/marketing-solutions#growth',
   },
   {
     icon: PhoneCall,
