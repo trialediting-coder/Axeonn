@@ -36,7 +36,7 @@ function fakes(lead: LeadRecord | null, startOk = true) {
 
 const mike: LeadRecord = { name: 'Mike Smith', phone: '+15155550134', email: 'mike@example.com', stage: 'new', quoteSentAt: null };
 
-test('Job done stops the follow-ups and starts the review request for that lead', async () => {
+test('Completed stops the follow-ups and starts the review request for that lead', async () => {
   const { log, deps } = fakes(mike);
   const r = await applyLeadStage(4, 7, 'won', deps);
   assert.deepEqual(r, { stage: 'won', started: ['review'], stopped: 2 });

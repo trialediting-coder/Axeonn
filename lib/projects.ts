@@ -484,7 +484,7 @@ export function reportStats(r: ReportBody, prev: ReportBody | null, d: ProjectDe
       label: 'Estimated new customers',
       value: `~${t.estimatedCustomers}`,
       sub: [
-        value != null ? `about $${Math.round(value).toLocaleString('en-US')} in work` : null,
+        value != null ? `about $${Math.round(value).toLocaleString('en-US')} in revenue` : null,
         t.markedWon ? `${t.markedWon} booked, marked by you` : null,
         t.observedCloseRate
           ? `${t.closeRate}% close rate ${t.observedCloseRate.weight >= 1 ? 'from the leads you marked' : 'from your marks and our estimate'}`

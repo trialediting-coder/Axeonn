@@ -101,7 +101,7 @@ function webMetric(key: WebKey, t: TrafficSummary, prev: TrafficSummary | null, 
   const now = t[key];
   const value = key === 'estimatedCustomers' ? `~${now}` : String(now);
   const before = prev?.[key] ?? null;
-  const worth = avgJobValue && t.estimatedCustomers > 0 ? `about $${Math.round(t.estimatedCustomers * avgJobValue).toLocaleString('en-US')} in work · ` : '';
+  const worth = avgJobValue && t.estimatedCustomers > 0 ? `about $${Math.round(t.estimatedCustomers * avgJobValue).toLocaleString('en-US')} in revenue · ` : '';
   const confirmed = t.markedWon ? `${t.markedWon} booked, marked by you · ` : '';
   const estimateSub =
     worth +
@@ -337,7 +337,7 @@ export function ProofDashboard({
   forms?: FormMonth[];
   /** Where the Customer / Not taps post: the client's own API, or the admin API from View as client. */
   leadApi?: string | null;
-  /** Where the form-lead taps post (Quote sent, Talked to them, Booked, Job done, Not a fit). Null in the admin preview: read-only there. */
+  /** Where the form-lead taps post (Quote sent, Talked to them, Booked, Completed, Not a fit). Null in the admin preview: read-only there. */
   stageApi?: string | null;
   /** Which tab is open (?tab=). Tabs outside the plan show the upgrade page. */
   tab?: ProofTabKey;

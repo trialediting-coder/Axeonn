@@ -126,7 +126,7 @@ test('formatOffset reads like a person', () => {
   assert.equal(formatOffset(-120), '2 hours before');
 });
 
-test('only Job done starts the review request, every other tap stops it; Booked starts nothing; every stage but Quote sent stops both follow-ups', () => {
+test('only Completed starts the review request, every other tap stops it; Booked starts nothing; every stage but Quote sent stops both follow-ups', () => {
   assert.deepEqual(STAGE_EFFECTS.booked.start, []);
   for (const a of LEAD_ACTIONS) assert.equal(STAGE_EFFECTS[a].start.includes('review'), a === 'won', a);
   for (const a of LEAD_ACTIONS) assert.equal(STAGE_EFFECTS[a].stop.includes('review'), a !== 'won', a);

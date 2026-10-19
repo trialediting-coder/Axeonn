@@ -40,7 +40,7 @@ export const SEQUENCE_LABELS: Record<SequenceKind, { title: string; trigger: str
   new_lead: { title: 'New lead follow-up', trigger: 'A form comes in, or a missed caller has not replied in 30 minutes' },
   quote: { title: 'Quote follow-up', trigger: 'The client taps Quote sent on a lead' },
   reminder: { title: 'Appointment reminders', trigger: 'A customer books online or through the website chat' },
-  review: { title: 'Review request', trigger: 'The client taps Job done on a lead' },
+  review: { title: 'Review request', trigger: 'The client taps Completed on a lead' },
   reactivation: { title: 'Past-customer check-in', trigger: 'First week of January, April, July and October, to the uploaded customer list' },
 };
 
@@ -327,7 +327,7 @@ export const isLeadStage = (v: unknown): v is LeadStage => v === 'new' || v === 
 
 /**
  * Spec, "Slice 4 additions": Contacted/Booked/Won/Lost stop new_lead and quote; Won starts review; Quote sent starts quote.
- * Every tap but Job done also stops a running review request: a corrective tap (the job was not done after all) takes it back.
+ * Every tap but Completed also stops a running review request: a corrective tap (the work was not finished after all) takes it back.
  */
 export const STAGE_EFFECTS: Record<LeadAction, { stage: LeadStage; start: SequenceKind[]; stop: SequenceKind[] }> = {
   quote_sent: { stage: 'contacted', start: ['quote'], stop: ['new_lead', 'review'] },
@@ -337,19 +337,19 @@ export const STAGE_EFFECTS: Record<LeadAction, { stage: LeadStage; start: Sequen
   lost: { stage: 'lost', start: [], stop: ['new_lead', 'quote', 'review'] },
 };
 
-/** Client-facing tap labels. "Job done", not "Won" or "Booked": the review request follows it. */
+/** Client-facing tap labels. "Completed", not "Won" or "Booked": the review request follows it. */
 export const LEAD_ACTION_LABELS: Record<LeadAction, string> = {
   quote_sent: 'Quote sent',
   contacted: 'Talked to them',
   booked: 'Booked',
-  won: 'Job done',
+  won: 'Completed',
   lost: 'Not a fit',
 };
 
 export function parseStageRequest(raw: Record<string, unknown>): { id: number; action: LeadAction } {
   const id = Number(raw.id);
   if (!Number.isInteger(id) || id <= 0) throw new Error('Which lead?');
-  if (!isLeadAction(raw.action)) throw new Error('Pick Quote sent, Talked to them, Booked, Job done or Not a fit');
+  if (!isLeadAction(raw.action)) throw new Error('Pick Quote sent, Talked to them, Booked, Completed or Not a fit');
   return { id, action: raw.action };
 }
 

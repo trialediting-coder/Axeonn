@@ -6,7 +6,7 @@
 // they are, where they came from, a stage, every call, text and form in order
 // with the recording attached, and a reply box that texts from the client's
 // tracked number. The stage taps are slice 3's (LeadStageTaps: Quote sent,
-// Talked to them, Booked, Job done, Not a fit), posting { contactId } to the
+// Talked to them, Booked, Completed, Not a fit), posting { contactId } to the
 // same stage route. Everything arrives pre-masked from the server
 // (lib/contacts.ts); no full number is ever in this component. `api` and
 // `stageApi` are null in the admin's "View as client", which makes the tab
@@ -189,7 +189,7 @@ function StageLine({ contact, stageApi }: { contact: DashboardContact; stageApi:
       <div className="mt-2">
         <LeadStageTaps id={contact.id} stage={contact.stage} quoteSent={contact.quoteSent} api={stageApi} target="contact" onSaved={() => router.refresh()} />
       </div>
-      <p className="mt-2 text-xs text-neutral-500">Job done and Not a fit count toward your close rate.</p>
+      <p className="mt-2 text-xs text-neutral-500">Completed and Not a fit count toward your close rate.</p>
     </div>
   );
 }

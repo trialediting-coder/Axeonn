@@ -1,8 +1,8 @@
 // components/proof/LeadStageTaps.tsx
 // The taps on a form lead in the client's Leads tab: Quote sent, Talked to them,
-// Booked, Job done, Not a fit. Each one sets the lead's stage and starts or stops
+// Booked, Completed, Not a fit. Each one sets the lead's stage and starts or stops
 // the automatic follow-ups (POST /api/proof/leads/stage, lib/leadStages.ts). Taps
-// set a stage; they do not toggle off. Job done asks first: it sends a review
+// set a stage; they do not toggle off. Completed asks first: it sends a review
 // request. With no api (the admin "View as client" page) the taps are read-only
 // chips that still show where the lead stands.
 // The leads inbox (slice 4) reuses it with target="contact": the same taps post
@@ -36,7 +36,7 @@ export function LeadStageTaps({
 
   async function tap(action: LeadAction) {
     if (!api || busy || stageTapActive(action, current.stage, current.quoteSent)) return;
-    if (action === 'won' && !window.confirm('Mark this job done? If review requests are on, they get one message in about two hours asking for a Google review.')) return;
+    if (action === 'won' && !window.confirm('Mark this as completed? If review requests are on, they get one message in about two hours asking for a Google review.')) return;
     const before = current;
     setCurrent({ stage: STAGE_EFFECTS[action].stage, quoteSent: before.quoteSent || action === 'quote_sent' });
     setBusy(true);

@@ -168,7 +168,7 @@ test('report stats lead with the website numbers when they exist', () => {
   assert.equal(withWeb[1].value, '~3'); // 9 × 30% = 2.7
   assert.match(withWeb[0].sub ?? '', /\+4 vs last month/);
   const withValue = reportStats({ ...emptyReportBody(), traffic }, null, details, { avgJobValue: 300 });
-  assert.match(withValue[1].sub ?? '', /about \$900 in work/);
+  assert.match(withValue[1].sub ?? '', /about \$900 in revenue/);
   // Without tracking, the four typed-in boxes show as before.
   const plain = reportStats(emptyReportBody(), null, details);
   assert.equal(plain.length, 4);
@@ -498,7 +498,7 @@ test('the headline leads with people, then customers, then money, then the chang
   });
   const prev = { ...t, conversions: 20 };
   const s = headlineSentence({ business: 'A-1 Auto Detailing', monthLabel: 'September', prevMonthLabel: 'August', traffic: t, prev, avgJobValue: 300 });
-  assert.equal(s, '30 people reached out to A-1 Auto Detailing through your website in September, and about 15 of them likely became new customers, worth around $4,500 in work. That is up 10 from August.');
+  assert.equal(s, '30 people reached out to A-1 Auto Detailing through your website in September, and about 15 of them likely became new customers, worth around $4,500 in revenue. That is up 10 from August.');
   const quiet = headlineSentence({ business: 'A-1', monthLabel: 'September', traffic: { ...t, conversions: 0, estimatedCustomers: 0 } });
   assert.match(quiet, /Nobody has reached out through it yet/);
   assert.equal(money(11700), '$11,700');

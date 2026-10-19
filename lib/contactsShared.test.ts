@@ -68,11 +68,11 @@ test('stages drive the follow-ups through slice 3 STAGE_EFFECTS, one source of t
     assert.deepEqual(sequenceEffects(a, true), { stop: STAGE_EFFECTS[a].stop, start: STAGE_EFFECTS[a].start });
     assert.deepEqual(sequenceEffects(a, false), { stop: STAGE_EFFECTS[a].stop, start: [] });
   }
-  // Slice 3's real table: every tap but Job done also stops a running review request.
+  // Slice 3's real table: every tap but Completed also stops a running review request.
   assert.deepEqual(sequenceEffects('contacted', true), { stop: ['new_lead', 'quote', 'review'], start: [] });
   assert.deepEqual(sequenceEffects('won', true), { stop: ['new_lead', 'quote'], start: ['review'] });
   assert.deepEqual(sequenceEffects('quote_sent', true), { stop: ['new_lead', 'review'], start: ['quote'] });
-  assert.equal(noteForAction('won'), 'Tapped "Job done"');
+  assert.equal(noteForAction('won'), 'Tapped "Completed"');
   assert.equal(noteForAction('quote_sent'), 'Tapped "Quote sent"');
 });
 
@@ -150,7 +150,7 @@ test('one-line summaries', () => {
   assert.equal(eventSummary('form', {}), 'sent your form');
   assert.equal(eventSummary('click', { name: 'call', path: '/services' }), 'tapped call button on services');
   assert.equal(eventSummary('sequence', { channel: 'email' }), 'follow-up email sent');
-  assert.equal(eventSummary('note', { text: 'Tapped "Job done"' }), 'Tapped "Job done"');
+  assert.equal(eventSummary('note', { text: 'Tapped "Completed"' }), 'Tapped "Completed"');
   assert.equal(eventSummary('alert', { channel: 'sms' }), 'you were sent a text about this lead');
   assert.equal(eventSummary('alert', { channel: 'email' }), 'you were emailed about this lead');
   assert.equal(eventSummary('alert', { channel: 'push' }), 'you were sent a notification');

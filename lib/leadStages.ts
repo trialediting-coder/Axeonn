@@ -1,5 +1,5 @@
 // lib/leadStages.ts
-// The PROOF taps (Quote sent, Booked, Job done, Not a fit) → a lead's stage and
+// The PROOF taps (Quote sent, Booked, Completed, Not a fit) → a lead's stage and
 // the follow-ups that start or stop with it (STAGE_EFFECTS in lib/sequenceShared.ts).
 // Storage sits behind LeadStore: slice 3 keeps the stage on form_submissions;
 // slice 4 adds a contacts store with the same shape, makes it the default, and

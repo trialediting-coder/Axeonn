@@ -13,7 +13,7 @@ export const money = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
 
 const pageName = (path: string) => (path === '/' ? 'home' : path.replace(/^\//, '').replace(/[-_/]+/g, ' '));
 
-/** "about $11,700 in work" from the estimated customers and the client's average job, or null when unset. */
+/** "about $11,700 in revenue" from the estimated customers and the client's average customer, or null when unset. */
 export function estimatedValue(t: TrafficSummary, avgJobValue: number | null | undefined): { low: number; mid: number; high: number } | null {
   if (!avgJobValue || avgJobValue <= 0 || t.estimatedCustomers <= 0) return null;
   return {
@@ -41,7 +41,7 @@ export function headlineSentence(input: {
     if (t.estimatedCustomers > 0) {
       s += `, and about ${t.estimatedCustomers} of them likely became new customers`;
       const v = estimatedValue(t, input.avgJobValue);
-      if (v) s += `, worth around ${money(v.mid)} in work`;
+      if (v) s += `, worth around ${money(v.mid)} in revenue`;
     }
     s += '.';
     if (prev && prev.conversions > 0) {

@@ -1,6 +1,6 @@
 // app/api/proof/leads/stage/route.ts
 // POST { id, action } from the signed-in client's Leads tab: Quote sent, Talked
-// to them, Booked, Job done or Not a fit on one of their form leads. Moves the
+// to them, Booked, Completed or Not a fit on one of their form leads. Moves the
 // stage and starts or stops the follow-ups that go with it (lib/leadStages.ts).
 // Only the client's own leads: applyLeadStage looks the id up with their
 // onboarding id. Every plan; since slice 4 the form's contact follows
