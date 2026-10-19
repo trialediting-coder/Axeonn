@@ -83,19 +83,15 @@ const hostOf = (url: string) => {
 };
 
 // How the script talks about each niche: who we work with, and what their customers type into Google.
-const NICHE_WORDS: Record<string, { who: string; search: string }> = {
-  'auto detailing': { who: 'detailers', search: 'detailing' },
-  dental: { who: 'dental offices', search: 'dentist' },
-  'med spa': { who: 'med spas', search: 'med spa' },
-  hvac: { who: 'HVAC companies', search: 'furnace repair' },
-  roofing: { who: 'roofers', search: 'roofer' },
-  'law firm': { who: 'law firms', search: 'lawyer' },
-  'accounting/cpa': { who: 'accountants', search: 'CPA' },
-  'home remodeling': { who: 'remodelers', search: 'remodeling contractor' },
-  'real estate': { who: 'real estate teams', search: 'realtor' },
-  landscaping: { who: 'landscapers', search: 'landscaping' },
+// AxeonCORE is sold to practices only (2026-10-19); older trade leads still show, flagged as not a fit.
+const NICHE_WORDS: Record<string, { who: string; patient: string }> = {
+  dental: { who: 'dental practices', patient: 'patient' },
+  'med spa': { who: 'med spas', patient: 'client' },
+  'law firm': { who: 'law firms', patient: 'client' },
+  'accounting/cpa': { who: 'accounting firms', patient: 'client' },
 };
-const nicheWords = (niche: string) => NICHE_WORDS[(niche || 'auto detailing').toLowerCase()] ?? { who: 'local businesses', search: 'near me' };
+const PRACTICE_NICHES = new Set(Object.keys(NICHE_WORDS));
+const nicheWords = (niche: string) => NICHE_WORDS[(niche || '').toLowerCase()] ?? { who: 'practices', patient: 'customer' };
 const firstName = (contact: string) => contact.trim().split(/[\s,(]/)[0] ?? '';
 
 export function CallDeck({ initialLeads, dbError, initialAudits = {} }: { initialLeads: CallLead[]; dbError: string | null; initialAudits?: Record<string, AuditSummary> }) {
@@ -637,47 +633,72 @@ export function CallDeck({ initialLeads, dbError, initialAudits = {} }: { initia
 
         {showScript && lead && (
           <aside className="rounded-2xl border border-neutral-200 bg-white p-5 text-sm leading-relaxed text-neutral-800 shadow-sm">
-            <h3 className="text-xs font-bold uppercase tracking-wide text-neutral-500">Script · sell the outcome, not the site</h3>
-            <p className="mt-3">
-              Hey, is this {firstName(lead.contact) ? <b>{firstName(lead.contact)}</b> : <>the owner of <b>{lead.business}</b></>}? This is Hayder, I&apos;m in West Des Moines. Thirty seconds.
+            <h3 className="text-xs font-bold uppercase tracking-wide text-neutral-500">Script · the after-hours audit</h3>
+            {!PRACTICE_NICHES.has((lead.niche || '').toLowerCase()) && (
+              <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-[13px] text-amber-900">
+                Not a practice ({lead.niche || 'no niche'}). AxeonCORE is built for dental, med spa, law and accounting. Mark it Not a fit unless they are one.
+              </p>
+            )}
+            <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-neutral-500">Before you dial</p>
+            <p className="mt-1">
+              Call the main line once after hours (5:15 PM works). Note what a new {nicheWords(lead.niche).patient} gets: voicemail, a text back, or nothing. That&apos;s the opener.
             </p>
-            <p className="mt-2">
-              I work with {nicheWords(lead.niche).who} on one thing: more booked jobs from people searching Google. One of mine, A-1 in Pleasant Hill, is #1 on the map now
-              and his 180 reviews finally show up when someone searches.
+            <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-neutral-500">Front desk</p>
+            <p className="mt-1">
+              Hi, this is Hayder with Axeon Studio in West Des Moines. Quick one: who decides how new {nicheWords(lead.niche).patient} calls and website inquiries get answered? Is that
+              you, or {firstName(lead.contact) ? <b>{firstName(lead.contact)}</b> : 'the practice manager'}?
             </p>
-            <p className="mt-2">
-              I looked you up.{' '}
+            <p className="mt-3 text-xs font-semibold uppercase tracking-wide text-neutral-500">Decision maker</p>
+            <p className="mt-1">
+              I called {lead.business} after hours to see what a new {nicheWords(lead.niche).patient} gets. [Say what happened: voicemail, no text back.] I put together a free
+              after-hours audit for you: that call, how fast your website answers an inquiry, and your reviews next to the top three {nicheWords(lead.niche).who} near you
               {lead.reviews ? (
                 <>
-                  You&apos;ve got <b>{lead.reviews} reviews</b>
-                  {lead.rating ? <> at {lead.rating} stars</> : null}
+                  {' '}
+                  (you&apos;re at <b>{lead.reviews}</b>
+                  {lead.rating ? <> at {lead.rating} stars</> : null})
                 </>
-              ) : (
-                <>You&apos;ve got good work out there</>
-              )}
-              , and when someone searches &ldquo;{nicheWords(lead.niche).search} {lead.city || 'near me'}&rdquo;{' '}
-              {lead.siteStatus === 'Has website' || lead.siteStatus === 'Decent' ? 'your site gives them nowhere to book' : "you're not on the first screen"}, so that work isn&apos;t earning you anything.
+              ) : null}
+              . It&apos;s a short video, no charge. Where should I send it?
             </p>
-            <p className="mt-2 font-semibold text-blue-900">Quick question: when someone finds you today, where do they go? Facebook?</p>
-            <p className="mt-2">
-              Here&apos;s what I&apos;d do. I put together a free rundown of what happens when people search for you, what it&apos;s costing you, and what it looks like fixed.
-              Takes me a day. No charge. If it&apos;s useful we talk, if not you keep it. Can I text it to this number?
+            <p className="mt-2 font-semibold text-blue-900">If they engage: ask, don&apos;t pitch.</p>
+            <ul className="mt-1 list-disc pl-5 space-y-1 text-[13px]">
+              <li>What&apos;s a new {nicheWords(lead.niche).patient} worth to you over the first year?</li>
+              <li>Roughly how many calls or web inquiries come in after hours or while the front desk is busy?</li>
+              <li>When a form comes in at 6:30 PM, what happens, and when does someone reply?</li>
+            </ul>
+            <p className="mt-2 text-[13px] text-neutral-600">
+              Do the math out loud with their numbers, as an example: inquiries missed × how many you&apos;d have booked × what one is worth. Let them say the number.
+            </p>
+            <h4 className="mt-4 text-xs font-bold uppercase tracking-wide text-neutral-500">Price, once they&apos;ve said what one is worth</h4>
+            <p className="mt-1 text-[13px]">
+              $799 a month on a 12-month agreement, and the $3,000 setup is credited. If we&apos;re not live in 30 days, replies take longer than 60 seconds, or review requests aren&apos;t
+              going out, you can walk in the first 90 days. Month-to-month is there too: $3,000 setup upfront, then $799.
             </p>
             <h4 className="mt-4 text-xs font-bold uppercase tracking-wide text-neutral-500">If they say</h4>
             <ul className="mt-2 space-y-1.5 text-[13px]">
               <li>
-                <b>&ldquo;I get all my work from Facebook.&rdquo;</b> Facebook is rented. Google is where people with a card in hand are looking today. Both, not either.
+                <b>&ldquo;12 months is too long.&rdquo;</b> This isn&apos;t an ad retainer. We build your intake system and credit the $3,000 setup over the year. If we miss what we
+                promise in the first 90 days, you walk.
               </li>
               <li>
-                <b>&ldquo;I already have a website.&rdquo;</b> Does it tell you how many calls it made last month? If not, you&apos;re paying for a brochure.
+                <b>&ldquo;$799 is a lot. We already have a website.&rdquo;</b> Agreed, for a website. The question is what happens at 6 PM when someone wants a consult. One new{' '}
+                {nicheWords(lead.niche).patient} every few months covers it.
               </li>
               <li>
-                <b>&ldquo;I&apos;m busy enough.&rdquo;</b> Then it&apos;s price, not volume. #1 with your reviews lets you charge more and skip the low-dollar jobs.
+                <b>&ldquo;We have an answering service.&rdquo;</b> Does it text back in 60 seconds and put them on your calendar, or take a message for tomorrow?
               </li>
               <li>
-                <b>&ldquo;How much?&rdquo;</b> $299 a month, ninety days to show more booked jobs or you stop paying. Only after they&apos;ve said what a job is worth.
+                <b>&ldquo;Let me think about it / talk to my partners.&rdquo;</b> Is it the system or the math? I&apos;ll send a one-page summary with your numbers and get 15 minutes
+                with your partners.
+              </li>
+              <li>
+                <b>&ldquo;Can we try it month to month?&rdquo;</b> Yes: $3,000 setup today, then $799. On the 12-month agreement the setup is credited, so most practices pick that.
               </li>
             </ul>
+            <p className="mt-3 text-[13px] text-neutral-600">
+              Close: we take one practice per specialty within 5 miles. I can hold your area for 48 hours while you decide.
+            </p>
           </aside>
         )}
       </div>
