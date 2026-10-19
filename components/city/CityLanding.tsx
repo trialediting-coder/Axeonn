@@ -11,7 +11,7 @@ const TEL_HREF = `tel:${BUSINESS.telephone.replace(/-/g, '')}`;
 const EYEBROW = 'text-xs font-mono font-bold tracking-widest text-blue-600 uppercase';
 
 // One suburb landing page. Same look and building blocks as /des-moines-web-design,
-// with the copy, FAQ and featured industries coming from data/cityPages.ts.
+// with the copy, FAQ and featured practice types coming from data/cityPages.ts.
 export function CityLanding({ page }: { page: CityPage }) {
   const path = `/${page.slug}`;
   const faqs = [...page.faq, cityPricingFaq(page.city)];
@@ -22,8 +22,8 @@ export function CityLanding({ page }: { page: CityPage }) {
 
   const serviceLd = serviceJsonLd({
     path,
-    serviceType: 'Web Design & Digital Marketing',
-    name: `Axeon Studio — ${page.city} Web Design & Digital Marketing`,
+    serviceType: 'Practice Websites & Patient Intake',
+    name: `Axeon Studio — ${page.city} Practice Websites & Patient Intake`,
     description: page.description,
     areaServed: cityAreaServed(page.city),
   });
@@ -62,10 +62,12 @@ export function CityLanding({ page }: { page: CityPage }) {
           <p className="text-lg sm:text-xl text-neutral-300 leading-relaxed max-w-3xl mb-10">{page.intro}</p>
           <div className="flex flex-wrap items-center gap-4">
             <Link
-              href="/book"
+              href="/audit"
+              data-track="cta_click"
+              data-track-cta="audit_city"
               className="inline-flex items-center gap-2 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
             >
-              Book My Free Call <ArrowRight size={18} />
+              Get your free after-hours audit <ArrowRight size={18} />
             </Link>
             <a
               href={TEL_HREF}
@@ -91,21 +93,23 @@ export function CityLanding({ page }: { page: CityPage }) {
               </p>
             ))}
 
-            {/* Proven right here: the A-1 result as a stat. */}
+            {/* Proof we can honestly offer: the free audit, run on their own practice. */}
             <Link
-              href="/insights/a-1-auto-detailing-website-case-study"
+              href="/audit"
+              data-track="cta_click"
+              data-track-cta="audit_city_card"
               className="group mt-10 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 rounded-3xl bg-neutral-950 text-white p-6 sm:p-8"
             >
-              <span className="text-6xl sm:text-7xl font-black font-display tracking-tighter text-blue-500 leading-none">
-                #1
+              <span className="text-5xl sm:text-6xl font-black font-display tracking-tighter text-blue-500 leading-none whitespace-nowrap">
+                60 sec
               </span>
               <span className="block">
                 <span className="block text-lg sm:text-xl font-bold leading-snug">
-                  Proven in the metro: A-1 Auto Detailing ranks #1 for &ldquo;Pleasant Hill auto detailing,&rdquo; up
-                  from page 2.
+                  How fast does your practice answer after hours? We call, time your website&apos;s reply and compare your
+                  reviews to the top 3 nearby. Free.
                 </span>
                 <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-300 group-hover:text-white">
-                  Read the case study <ArrowRight size={14} />
+                  Get your free after-hours audit <ArrowRight size={14} />
                 </span>
               </span>
             </Link>
@@ -140,7 +144,7 @@ export function CityLanding({ page }: { page: CityPage }) {
             <div className="lg:w-72 shrink-0">
               <p className={EYEBROW}>[ THE SYSTEM ]</p>
               <h2 className="mt-2 text-2xl font-extrabold font-display tracking-tight leading-tight">
-                How We Get {page.city} Businesses More Customers
+                What Every {page.city} Practice Gets
               </h2>
             </div>
             <ol className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -162,9 +166,9 @@ export function CityLanding({ page }: { page: CityPage }) {
             </ol>
           </div>
           <p className="mt-6 text-sm sm:text-base text-neutral-700">
-            Essentials $149/mo, AxeonCORE $299/mo, AxeonGROWTH $999/mo. $99 to start.{' '}
+            AxeonCORE from $799/mo. AxeonGROWTH from $1,999/mo plus ad spend.{' '}
             <Link href="/pricing" className="font-semibold text-blue-600 hover:underline">
-              See all three plans &rarr;
+              See pricing &rarr;
             </Link>
           </p>
         </div>
@@ -175,12 +179,12 @@ export function CityLanding({ page }: { page: CityPage }) {
         <div className="max-w-6xl mx-auto">
           <p className={`${EYEBROW} mb-3`}>[ WHO WE HELP ]</p>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight mb-4">
-            Industries We Serve in {page.city}
+            Practices We Serve in {page.city}
           </h2>
           <p className="text-lg text-neutral-600 max-w-3xl mb-10 leading-relaxed">
-            Pick yours to see where customers slip away and how we get you found, chosen, and booked.
+            Pick yours to see where new patients and clients slip away, and how we answer them within 60 seconds.
           </p>
-          <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <ul className="grid sm:grid-cols-2 gap-3">
             {featured.map((niche) => (
               <li key={niche.slug}>
                 <Link
@@ -194,9 +198,9 @@ export function CityLanding({ page }: { page: CityPage }) {
             ))}
           </ul>
           <p className="mt-8 text-neutral-600">
-            Something else?{' '}
+            A different kind of practice?{' '}
             <Link href="/solutions" className="text-blue-600 font-semibold hover:underline">
-              See every industry we work with.
+              See who we work with.
             </Link>
           </p>
         </div>
@@ -208,8 +212,8 @@ export function CityLanding({ page }: { page: CityPage }) {
           <div className="lg:col-span-5">
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">Serving the Metro</h2>
             <p className="text-neutral-300 leading-relaxed">
-              Based in West Des Moines, IA 50266. In-person meetings and on-site video shoots anywhere in the Des
-              Moines metro, including {page.city}.
+              Based in West Des Moines, IA 50266. In-person kickoffs and front-desk training anywhere in the Des Moines
+              metro, including {page.city}.
             </p>
             <address className="not-italic mt-6 text-neutral-300 space-y-1">
               <div className="font-semibold text-white">{BUSINESS.name}</div>
@@ -259,7 +263,7 @@ export function CityLanding({ page }: { page: CityPage }) {
         <div className="max-w-3xl mx-auto">
           <p className={`${EYEBROW} mb-3`}>[ FAQ ]</p>
           <h2 className="text-3xl sm:text-4xl font-extrabold font-display tracking-tight mb-10">
-            Questions {page.city} Business Owners Ask
+            Questions {page.city} Practice Owners Ask
           </h2>
           <FAQAccordion items={faqs} defaultOpenCount={1} />
         </div>
@@ -269,21 +273,22 @@ export function CityLanding({ page }: { page: CityPage }) {
       <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-4">
-            [ 90-DAY CUSTOMER GUARANTEE ]
+            [ 90-DAY PERFORMANCE COMMITMENT ]
           </p>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-tight mb-6">
-            Ready for more customers?
+            Find out what happens after hours
           </h2>
           <p className="text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-10">
-            More calls and leads in your first 90 days than you were getting before, or we keep working for free until
-            you do.
+            Live within 30 days of getting your materials. Every missed call and web inquiry gets a reply within 60 seconds. Every completed appointment gets a review request. If we miss any of those in the first 90 days and don&apos;t fix it within 15 days, you can walk away and owe nothing for the rest of the term.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
-              href="/book"
+              href="/audit"
+              data-track="cta_click"
+              data-track-cta="audit_city"
               className="inline-flex items-center gap-2 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
             >
-              Book My Free Call <ArrowRight size={18} />
+              Get your free after-hours audit <ArrowRight size={18} />
             </Link>
             <a
               href={TEL_HREF}
@@ -293,8 +298,8 @@ export function CityLanding({ page }: { page: CityPage }) {
             </a>
           </div>
           <p className="mt-6 text-xs text-neutral-500 max-w-xl mx-auto leading-relaxed">
-            Included with AxeonCORE and AxeonGROWTH. Baseline set together on your kickoff call. Applies while
-            you&apos;re on your plan and answering new leads within one business day.
+            Included with AxeonCORE and AxeonGROWTH. We commit to speed, replies and review requests, never to a number of
+            patients, clients or rankings.
           </p>
         </div>
       </section>

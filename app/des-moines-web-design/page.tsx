@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, MapPin, PhoneCall, Clapperboard, Handshake } from 'lucide-react';
+import { ArrowRight, MapPin, PhoneCall, Users, ShieldCheck } from 'lucide-react';
 import { buildMetadata } from '@/lib/metadata';
 import { niches } from '@/data/nichesData';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
@@ -10,17 +10,17 @@ import { cityPages, METRO_SYSTEM as SYSTEM } from '@/data/cityPages';
 
 export const metadata = buildMetadata({
   path: '/des-moines-web-design',
-  title: 'Des Moines Web Design & Marketing Agency | Axeon Studio',
+  title: 'Des Moines Practice Websites & Patient Intake | Axeon Studio',
   description:
-    'Des Moines web design, local SEO, and ads that get you more customers, from one West Des Moines team. $99 to start, plans from $149/mo, backed by a 90-day guarantee.',
+    'Websites and 60-second patient and client intake for Des Moines dental, med spa, law and accounting practices, from one West Des Moines team. From $799/mo with a 90-day performance commitment.',
 });
 
 const webDesignServiceJsonLd = serviceJsonLd({
   path: '/des-moines-web-design',
-  serviceType: 'Web Design & Digital Marketing',
-  name: 'Axeon Studio — Des Moines Web Design & Digital Marketing',
+  serviceType: 'Practice Websites & Patient Intake',
+  name: 'Axeon Studio — Des Moines Practice Websites & Patient Intake',
   description:
-    'Custom websites, local SEO and AI search, AI chat & scheduling, automatic lead follow-up, and on-site video for businesses across the Des Moines metro.',
+    'Practice websites, 24/7 missed-call text-back, 60-second replies to web inquiries, online consultation booking and automated review requests for practices across the Des Moines metro.',
 });
 
 const TEL_HREF = `tel:${BUSINESS.telephone.replace(/-/g, '')}`;
@@ -30,53 +30,53 @@ const LOCAL_REASONS = [
     icon: PhoneCall,
     title: 'You call the team that built it',
     description:
-      'Axeon is a West Des Moines studio, not a national agency with an Iowa landing page. The people building your site answer the phone and sit in on your strategy call. No call centers, no hand-offs.',
+      'Axeon is a West Des Moines studio, not a national agency with an Iowa landing page. The people who install your intake answer the phone and train your front desk. No call centers, no hand-offs.',
   },
   {
-    icon: Clapperboard,
-    title: 'On-site video shot at your location',
+    icon: Users,
+    title: 'Front-desk training in person',
     description:
-      'AxeonGROWTH includes a half-day shoot at your shop, office, or clinic anywhere in the metro — a hero film for the site, vertical cuts for social, and a photo set. No out-of-town crew, no travel fees.',
+      'We meet your team at your office anywhere in the metro, walk through the two-way text inbox, and set up the booking rules with the people who use them every day.',
   },
   {
     icon: MapPin,
-    title: 'Built for how Des Moines actually searches',
+    title: 'One practice per specialty within 5 miles',
     description:
-      'Suburb-level intent matters here — a Waukee homeowner and a downtown Des Moines law firm search differently. Every build is set up to show up on Google and in AI answers for searches across the metro, not a generic "near me" template.',
+      'Territory exclusivity while your account is in good standing. We will not install the same system for the practice down the street.',
   },
   {
-    icon: Handshake,
-    title: 'Proven right here in the metro',
+    icon: ShieldCheck,
+    title: 'A commitment you can hold us to',
     description:
-      'A-1 Auto Detailing in Pleasant Hill went from page 2 to #1 on Google for "Pleasant Hill auto detailing" after we rebuilt their site. Published pricing, and every plan is backed by our 90-day customer guarantee.',
+      'Live within 30 days of getting your materials, 60-second replies, and a review request after every visit, or you can walk away.',
   },
 ];
 
 const LOCAL_FAQ = [
   {
-    question: 'Do you only work with businesses in Des Moines?',
+    question: 'Do you only work with practices in Des Moines?',
     answer:
-      'No, but the metro is home base. We are located in West Des Moines and serve the whole Des Moines area — including Ankeny, Urbandale, Waukee, Clive, Johnston, Grimes, Altoona, and Norwalk — in person. We also build for businesses across Iowa and the rest of the United States remotely; the only piece that requires proximity is the on-site video shoot.',
+      'No, but the metro is home base. We are located in West Des Moines and serve the whole Des Moines area in person, including Ankeny, Urbandale, Waukee, Clive, Johnston, Grimes, Altoona, and Norwalk. We also work with practices across Iowa remotely.',
   },
   {
     question: 'Can we meet in person?',
     answer:
-      'Yes. Strategy calls are usually a video call because it is faster for everyone, but if you are in the Des Moines metro and want to meet at your location, that is easy to arrange — and it happens anyway for the on-site video shoot included in AxeonGROWTH.',
+      'Yes. Most calls are video calls because it is faster for everyone, but if your practice is in the metro we are happy to meet at your office, and we usually do for kickoff and front-desk training.',
   },
   {
-    question: 'How much does a website cost in Des Moines?',
+    question: 'How much does Axeon cost for a Des Moines practice?',
     answer:
-      'Our pricing is published: $99 to start, then a flat monthly plan. Essentials is $149/mo. AxeonCORE is $299/mo and adds our AxeonPROOF dashboard, one simple list of every lead, AI chat & online scheduling, automatic follow-up, and our 90-day customer guarantee. AxeonGROWTH is $999/mo plus ad spend and adds Google & Meta ads, Google Local Services Ads, an AI phone receptionist, and a half-day on-site video shoot.',
+      'AxeonCORE is from $799/mo on a 12-month agreement, with the $3,000 setup included. Month-to-month is available if you pay the setup upfront. AxeonGROWTH is from $1,999/mo plus ad spend and adds Google Local Services Ads and search ads management, past-patient reactivation and an AI phone receptionist.',
   },
   {
-    question: 'Will my business show up when people search on Google or ask ChatGPT?',
+    question: 'What kinds of practices do you work with?',
     answer:
-      'That is the point of every build. Showing up on Google and in AI answers is included by default. We set up your site behind the scenes so Google Maps and Search can find you, and so AI assistants like ChatGPT, Perplexity, and Gemini can recommend you.',
+      'Established private practices: dental practices, med spas and aesthetic clinics, law firms, and accounting and CPA firms. If your practice books consultations or appointments, start with the free after-hours audit and we will tell you honestly whether it fits.',
   },
   {
-    question: 'What industries do you build for in the Des Moines area?',
+    question: 'Does the intake collect any health or financial details?',
     answer:
-      'Our purpose-built systems cover dental practices, med spas, HVAC, roofing, law firms, accounting firms, home remodeling, real estate, landscaping, auto detailing, concrete, plumbing, electrical, and handyman services — and we build for any local small business that needs a site that produces calls, not just a brochure.',
+      'No. Intake collects name, contact, service and preferred time only. Never symptoms, insurance, health or financial details.',
   },
 ];
 
@@ -107,19 +107,21 @@ export default function DesMoinesWebDesignPage() {
             <MapPin size={15} /> West Des Moines, Iowa · Serving the Des Moines Metro
           </p>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight leading-[1.05] font-display mb-6">
-            Des Moines Web Design That Gets You More Customers
+            Des Moines Practices: Every Inquiry Answered in 60 Seconds
           </h1>
           <p className="text-lg sm:text-xl text-neutral-300 leading-relaxed max-w-3xl mb-10">
-            Axeon Studio gets businesses across the Des Moines metro more customers: found on Google, chosen
-            over the competition, and booked. One West Des Moines team runs it all, backed by our 90-Day Customer
-            Guarantee.
+            Axeon Studio installs patient and client intake for dental, med spa, law and accounting practices across the
+            Des Moines metro. Every missed call and web inquiry gets a reply within 60 seconds, 24/7, the consultation gets
+            booked, and every patient gets asked for a review after the visit.
           </p>
           <div className="flex flex-wrap items-center gap-4">
             <Link
-              href="/book"
+              href="/audit"
+              data-track="cta_click"
+              data-track-cta="audit_des_moines"
               className="inline-flex items-center gap-2 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
             >
-              Book My Free Call <ArrowRight size={18} />
+              Get your free after-hours audit <ArrowRight size={18} />
             </Link>
             <a
               href={TEL_HREF}
@@ -171,24 +173,19 @@ export default function DesMoinesWebDesignPage() {
               ))}
             </ul>
 
-            {/* Proven right here: the A-1 result as a stat. */}
-            <Link
-              href="/insights/a-1-auto-detailing-website-case-study"
-              className="group mt-8 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 rounded-3xl bg-neutral-950 text-white p-6 sm:p-8"
-            >
-              <span className="text-6xl sm:text-7xl font-black font-display tracking-tighter text-blue-500 leading-none">
-                #1
-              </span>
-              <span className="block">
-                <span className="block text-lg sm:text-xl font-bold leading-snug">
-                  {LOCAL_REASONS[3].title}: A-1 Auto Detailing ranks #1 for &ldquo;Pleasant Hill auto detailing,&rdquo;
-                  up from page 2.
-                </span>
-                <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-300 group-hover:text-white">
-                  Read the case study <ArrowRight size={14} />
-                </span>
-              </span>
-            </Link>
+            <div className="mt-8 flex gap-4 rounded-3xl bg-neutral-950 text-white p-6 sm:p-8">
+              <ShieldCheck size={22} className="mt-1 shrink-0 text-blue-400" />
+              <div>
+                <h3 className="text-lg sm:text-xl font-bold leading-snug">{LOCAL_REASONS[3].title}</h3>
+                <p className="mt-2 text-neutral-300 leading-relaxed">{LOCAL_REASONS[3].description}</p>
+                <Link
+                  href="/audit"
+                  className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-300 hover:text-white"
+                >
+                  Start with the free after-hours audit <ArrowRight size={14} />
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -200,7 +197,7 @@ export default function DesMoinesWebDesignPage() {
             <div className="lg:w-72 shrink-0">
               <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ THE SYSTEM ]</p>
               <h2 className="mt-2 text-2xl font-extrabold font-display tracking-tight leading-tight">
-                How We Get Metro Businesses More Customers
+                What Every Metro Practice Gets
               </h2>
             </div>
             <ol className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -222,9 +219,9 @@ export default function DesMoinesWebDesignPage() {
             </ol>
           </div>
           <p className="mt-6 text-sm sm:text-base text-neutral-700">
-            Essentials $149/mo, AxeonCORE $299/mo, AxeonGROWTH $999/mo. $99 to start.{' '}
+            AxeonCORE from $799/mo. AxeonGROWTH from $1,999/mo plus ad spend.{' '}
             <Link href="/pricing" className="font-semibold text-blue-600 hover:underline">
-              See all three plans &rarr;
+              See pricing &rarr;
             </Link>
           </p>
         </div>
@@ -235,13 +232,12 @@ export default function DesMoinesWebDesignPage() {
         <div className="max-w-6xl mx-auto">
           <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ WHO WE HELP ]</p>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight mb-4">
-            Industries We Serve Across Des Moines
+            Practices We Serve Across Des Moines
           </h2>
           <p className="text-lg text-neutral-600 max-w-3xl mb-10 leading-relaxed">
-            Pick yours to see how we get it found, chosen, and booked. Built around how your customers buy, not a
-            template with your logo on it.
+            Pick yours to see where new patients and clients slip away, and how we answer them within 60 seconds.
           </p>
-          <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <ul className="grid sm:grid-cols-2 gap-3">
             {niches.map((niche) => (
               <li key={niche.slug}>
                 <Link
@@ -255,9 +251,9 @@ export default function DesMoinesWebDesignPage() {
             ))}
           </ul>
           <p className="mt-8 text-neutral-600">
-            Something else?{' '}
-            <Link href="/solutions#small-business" className="text-blue-600 font-semibold hover:underline">
-              We build for any Des Moines small business.
+            A different kind of practice?{' '}
+            <Link href="/solutions#other-practices" className="text-blue-600 font-semibold hover:underline">
+              See whether it fits.
             </Link>
           </p>
         </div>
@@ -269,8 +265,8 @@ export default function DesMoinesWebDesignPage() {
           <div className="lg:col-span-5">
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">Service Area</h2>
             <p className="text-neutral-300 leading-relaxed">
-              Based in West Des Moines, IA 50266. In-person meetings and on-site video shoots anywhere in the
-              metro; remote builds for the rest of Iowa and the United States.
+              Based in West Des Moines, IA 50266. In-person kickoffs and front-desk training anywhere in the metro;
+              remote setup for practices across Iowa.
             </p>
             <address className="not-italic mt-6 text-neutral-300 space-y-1">
               <div className="font-semibold text-white">{BUSINESS.name}</div>
@@ -313,8 +309,8 @@ export default function DesMoinesWebDesignPage() {
               })}
             </ul>
             <p className="mt-6 text-sm text-neutral-400">
-              Also serving Polk, Dallas, Warren, and Story counties, and businesses statewide — {cityList} are
-              simply where we can show up in person.
+              Also serving Polk, Dallas, Warren, and Story counties, and practices statewide. {cityList} are simply
+              where we can show up in person.
             </p>
           </div>
         </div>
@@ -327,7 +323,7 @@ export default function DesMoinesWebDesignPage() {
         <div className="max-w-3xl mx-auto">
           <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ FAQ ]</p>
           <h2 className="text-3xl sm:text-4xl font-extrabold font-display tracking-tight mb-10">
-            Questions Des Moines Business Owners Ask
+            Questions Des Moines Practice Owners Ask
           </h2>
           <FAQAccordion items={LOCAL_FAQ} defaultOpenCount={1} />
         </div>
@@ -337,21 +333,24 @@ export default function DesMoinesWebDesignPage() {
       <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-4">
-            [ 90-DAY CUSTOMER GUARANTEE ]
+            [ 90-DAY PERFORMANCE COMMITMENT ]
           </p>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-tight mb-6">
-            Ready for more customers?
+            Find out what happens after hours
           </h2>
           <p className="text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-10">
-            More calls and leads in your first 90 days than you were getting before, or we keep working for free until
-            you do.
+            Live within 30 days of getting your materials. Every missed call and web inquiry gets a reply within 60 seconds.
+            Every completed appointment gets a review request. If we miss any of those in the first 90 days and don&apos;t
+            fix it within 15 days, you can walk away and owe nothing for the rest of the term.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
-              href="/book"
+              href="/audit"
+              data-track="cta_click"
+              data-track-cta="audit_des_moines"
               className="inline-flex items-center gap-2 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
             >
-              Book My Free Call <ArrowRight size={18} />
+              Get your free after-hours audit <ArrowRight size={18} />
             </Link>
             <a
               href={TEL_HREF}
@@ -361,8 +360,7 @@ export default function DesMoinesWebDesignPage() {
             </a>
           </div>
           <p className="mt-6 text-xs text-neutral-500 max-w-xl mx-auto leading-relaxed">
-            Baseline set together on your kickoff call. Applies while you&apos;re on a monthly plan and answering new
-            leads within one business day.
+            We commit to speed, replies and review requests, never to a number of patients, clients or rankings.
           </p>
         </div>
       </section>

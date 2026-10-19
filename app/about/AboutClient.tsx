@@ -6,50 +6,46 @@ import { useRouter } from 'next/navigation';
 import {
   ArrowRight,
   ArrowUpRight,
-  Search,
+  LayoutTemplate,
   Star,
   PhoneCall,
   ShieldCheck,
   MapPin,
   Calendar,
-  Quote,
 } from 'lucide-react';
-import { LEVI_QUOTE } from '@/components/common/ClientQuote';
 
-const CASE_STUDY = '/insights/a-1-auto-detailing-website-case-study';
-
-// Approved facts only (content/brand-guardrails.md): A-1 is the one published
-// client, and every outside stat links to its source.
-const HERO_PROOF = [
-  { value: '#1', label: 'on Google for "Pleasant Hill auto detailing," up from page 2' },
-  { value: '5.0', label: 'Google rating from 180+ reviews' },
-  { value: '0.3–0.8s', label: 'page loads on the new site' },
+// What we commit to, stated as facts we control (no client results: Axeon has
+// no practice clients yet, and never promises a number of patients or leads).
+const HERO_FACTS = [
+  { value: '60 sec', label: 'to the first reply on every missed call and web inquiry, 24/7' },
+  { value: '30 days', label: 'to go live once we have your materials' },
+  { value: '5 miles', label: 'one practice per specialty, while your account is in good standing' },
 ];
 
-// The three steps; the guarantee is rendered as the fourth, blue cell.
+// The three layers; the performance commitment is rendered as the fourth, blue cell.
 const STEPS = [
   {
-    icon: Search,
-    title: 'Get Found',
-    description: 'Show up first on Google, Maps, and AI search when people nearby look for what you do.',
-  },
-  {
-    icon: Star,
-    title: 'Get Chosen',
-    description: 'Real reviews, real prices, and a fast mobile site, so you win the side-by-side comparison.',
+    icon: LayoutTemplate,
+    title: 'Practice Website',
+    description: 'Providers and credentials, services, real reviews and online booking on a fast, mobile-first site.',
   },
   {
     icon: PhoneCall,
-    title: 'Get Booked',
-    description: 'Instant call connect, missed-call text-back, and automatic follow-up until they book.',
+    title: '60-Second Intake',
+    description: 'Every missed call and web inquiry answered within 60 seconds, 24/7, with a two-way text inbox for the front desk.',
+  },
+  {
+    icon: Star,
+    title: 'Review Engine',
+    description: 'An automatic review request after every completed appointment.',
   },
 ];
 
 const HOW_WE_WORK = [
   'You talk to the people building your system. No account managers, no hand-offs to a junior team.',
-  'We take on a handful of clients at a time, so your project never sits in a queue.',
-  'You go live in a fraction of the time a typical agency takes. Not six months.',
-  'Your calls and leads are tracked from day one, with a report every month.',
+  'We take one practice per specialty in each area, so we are never building for your competitor down the street.',
+  'You go live within 30 days of getting your materials. Not six months.',
+  'Every reply and booking shows up in AxeonPROOF, your client portal, with a report every month.',
 ];
 
 export default function AboutClient() {
@@ -73,44 +69,45 @@ export default function AboutClient() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-end">
             <div className="lg:col-span-7 hero-rise">
               <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-neutral-950 font-display tracking-tight leading-[1.08]">
-                Your website is fine.
-                <span className="block text-blue-600 mt-2">It just doesn&apos;t make any money.</span>
+                Your practice is great.
+                <span className="block text-blue-600 mt-2">Your voicemail is losing patients.</span>
               </h1>
             </div>
 
             <div className="lg:col-span-5 flex flex-col justify-end hero-rise">
               <p className="text-base sm:text-lg text-neutral-600 leading-relaxed">
-                Axeon was built in West Des Moines to fix that. We get Iowa businesses more calls, more booked jobs, and
-                more customers. And you work directly with the team doing the work.
+                Axeon was built in West Des Moines to fix that. We install patient and client intake for dental, med spa,
+                law and accounting practices, so every call and inquiry gets an answer within 60 seconds. You work
+                directly with the team doing the work.
               </p>
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => router.push('/book')}
+                  onClick={() => router.push('/audit')}
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm tracking-tight shadow-sm transition-all duration-200 cursor-pointer"
                 >
-                  <span>Get More Customers</span>
+                  <span>Get your free after-hours audit</span>
                   <ArrowRight size={16} />
                 </button>
                 <button
                   type="button"
-                  onClick={() => router.push(CASE_STUDY)}
+                  onClick={() => router.push('/axeonproof')}
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white hover:bg-neutral-100 text-neutral-800 border border-neutral-300 font-semibold text-sm tracking-tight transition-all duration-200 cursor-pointer"
                 >
-                  <span>See Client Results</span>
+                  <span>Tour AxeonPROOF</span>
                   <ArrowUpRight size={16} />
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Proof row (replaces the stock team photo) */}
+          {/* What we commit to (replaces the stock team photo) */}
           <div className="mt-12 sm:mt-16 rounded-2xl sm:rounded-3xl bg-neutral-950 text-white border border-neutral-800 shadow-xl p-6 sm:p-10">
             <div className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-6">
-              [ CLIENT SPOTLIGHT: A-1 AUTO DETAILING ]
+              [ WHAT WE COMMIT TO ]
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-10">
-              {HERO_PROOF.map((p) => (
+              {HERO_FACTS.map((p) => (
                 <div key={p.label} className="border-l-2 border-blue-600 pl-4">
                   <p className="text-3xl sm:text-5xl font-black font-display tracking-tight">{p.value}</p>
                   <p className="mt-1.5 text-sm text-neutral-400 leading-snug">{p.label}</p>
@@ -118,25 +115,25 @@ export default function AboutClient() {
               ))}
             </div>
             <Link
-              href={CASE_STUDY}
+              href="/marketing-solutions"
               className="py-2 mt-8 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-300 hover:text-white transition-colors"
             >
-              See how we did it <ArrowRight size={14} />
+              See how it works <ArrowRight size={14} />
             </Link>
           </div>
         </div>
       </section>
 
-      {/* SECTION 2: the system in one row (three steps + the guarantee) */}
+      {/* SECTION 2: the system in one row (three layers + the performance commitment) */}
       <section className="px-4 sm:px-8 lg:px-14 xl:px-20 border-b border-neutral-200/80 py-12 lg:py-16 bg-[#F7F6F3]">
         <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3 mb-8 sm:mb-10">
             <div>
               <span className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">
-                [ FROM SEARCH TO BOOKED JOB ]
+                [ FROM FIRST CALL TO BOOKED CONSULT ]
               </span>
               <h2 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-neutral-950 font-display tracking-tight mt-2">
-                Found. Chosen. Booked. Guaranteed.
+                Answered. Booked. Reviewed. Committed.
               </h2>
             </div>
             <Link
@@ -174,13 +171,12 @@ export default function AboutClient() {
             >
               <div className="flex items-center gap-2 text-xs font-mono font-bold tracking-widest uppercase text-blue-100">
                 <ShieldCheck size={16} />
-                <span>Guaranteed</span>
+                <span>Performance commitment</span>
               </div>
               <div>
                 <div className="text-5xl sm:text-6xl font-black font-display tracking-tight leading-none">90 days</div>
                 <p className="mt-3 text-sm sm:text-base text-blue-50 leading-relaxed">
-                  More calls and leads in your first 90 days than you were getting before, or we keep working for free
-                  until you do.
+                  Live within 30 days of getting your materials. Every missed call and web inquiry gets a reply within 60 seconds. Every completed appointment gets a review request. Miss any of those in the first 90 days and don&apos;t get it fixed within 15 days? Walk away and owe nothing for the rest of the term.
                 </p>
               </div>
               <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-white">
@@ -203,7 +199,7 @@ export default function AboutClient() {
                 </div>
                 <div className="text-3xl sm:text-4xl font-extrabold font-display leading-tight">Axeon Studio</div>
                 <p className="mt-3 text-sm sm:text-base text-neutral-400 leading-relaxed">
-                  A local growth studio for Iowa businesses. Built here, answering the phone here.
+                  Patient and client intake for private practices. Built here, answering the phone here.
                 </p>
               </div>
 
@@ -240,42 +236,30 @@ export default function AboutClient() {
                 </h2>
                 <div className="mt-5 space-y-4 text-sm sm:text-base lg:text-lg text-neutral-600 leading-relaxed">
                   <p>
-                    Too many Iowa business owners pay agencies for a pretty website that never brought in a
-                    customer. And when someone did call, nobody answered until the next day. By then they&apos;d called a
-                    competitor.
+                    Good practices lose new patients and clients every week without knowing it. The call comes in after
+                    hours or during a busy morning, goes to voicemail, and the person books with whoever answered first.
+                    The web form waits until tomorrow.
                   </p>
                   <p>
-                    So <strong className="text-neutral-950 font-display">Axeon</strong> is built around the only number
-                    that matters to an owner: new customers. And we put a guarantee on it.
+                    So <strong className="text-neutral-950 font-display">Axeon</strong> installs the intake that answers
+                    them: a reply within 60 seconds, a way to book, and a review request after the visit. We commit to
+                    those in writing, and you can walk away if we miss them.
                   </p>
                 </div>
               </div>
 
-              <figure className="p-6 sm:p-7 rounded-2xl bg-neutral-900 text-white border border-neutral-800 shadow-md">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0 text-blue-400">
-                    <Quote size={20} />
-                  </div>
-                  <div>
-                    <blockquote className="text-lg sm:text-xl font-bold font-display italic text-neutral-100 leading-snug">
-                      &ldquo;{LEVI_QUOTE.text}&rdquo;
-                    </blockquote>
-                    <figcaption className="mt-3 flex flex-wrap items-center gap-2 text-xs font-mono uppercase tracking-wider text-neutral-400">
-                      <span className="text-blue-400 font-bold">{LEVI_QUOTE.name}</span>
-                      <span>•</span>
-                      <span>
-                        {LEVI_QUOTE.role}, {LEVI_QUOTE.place}
-                      </span>
-                    </figcaption>
-                    <Link
-                      href={LEVI_QUOTE.href}
-                      className="py-2 mt-3 inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-300 hover:text-white transition-colors"
-                    >
-                      Read the A-1 case study <ArrowRight size={13} />
-                    </Link>
-                  </div>
-                </div>
-              </figure>
+              <div className="p-6 sm:p-7 rounded-2xl bg-neutral-900 text-white border border-neutral-800 shadow-md">
+                <div className="text-xs font-mono font-bold uppercase tracking-wider text-blue-400">Who we work with</div>
+                <p className="mt-3 text-lg sm:text-xl font-bold font-display text-neutral-100 leading-snug">
+                  Established private practices: dental offices, med spas, law firms and accounting firms.
+                </p>
+                <Link
+                  href="/solutions"
+                  className="py-2 mt-3 inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-300 hover:text-white transition-colors"
+                >
+                  See the practices we serve <ArrowRight size={13} />
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -291,7 +275,7 @@ export default function AboutClient() {
             </h2>
             <p className="mt-5 text-base sm:text-lg text-neutral-400 leading-relaxed max-w-md">
               Out here you earn trust by doing what you said you would. No big-city office overhead, so your money goes
-              into what brings you customers.
+              into the system that answers your patients.
             </p>
           </div>
           <ol className="lg:col-span-7 divide-y divide-white/10 border-y border-white/10">
@@ -314,20 +298,20 @@ export default function AboutClient() {
         <div className="w-full max-w-4xl mx-auto text-center">
           <span className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ LET&apos;S TALK ]</span>
           <h2 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-neutral-950 font-display tracking-tight mt-3">
-            Let&apos;s get you more customers.
+            Find out what happens after hours.
           </h2>
           <p className="text-base sm:text-lg text-neutral-600 mt-4 leading-relaxed max-w-2xl mx-auto">
-            Book a free 30-minute call with our team. You&apos;ll get a custom homepage mockup and an AI visibility report,
-            yours to keep either way.
+            We call your practice after hours, check how fast your website answers an inquiry, and compare your reviews to
+            the top 3 nearby practices. You get a short video walkthrough of what we found. No charge.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
             <button
               type="button"
-              onClick={() => router.push('/book')}
+              onClick={() => router.push('/audit')}
               className="inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base tracking-tight shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer"
             >
               <Calendar size={18} />
-              <span>Get More Customers</span>
+              <span>Get your free after-hours audit</span>
             </button>
             <a
               href="tel:5154938017"

@@ -7,9 +7,9 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/work',
-  title: 'Our Work: Iowa Website Design Portfolio | Axeon Studio',
+  title: 'Recent Builds: Website Portfolio | Axeon Studio',
   description:
-    'Websites designed and built by Axeon Studio for local businesses in Iowa and beyond: auto detailing, remodeling, family dentistry and more.',
+    'Recent websites designed and built by Axeon Studio for businesses in Iowa and beyond, including concept builds. Every build is custom and mobile-first.',
 });
 
 const CASE_STUDY = '/insights/a-1-auto-detailing-website-case-study';
@@ -29,19 +29,19 @@ export default function WorkPage() {
 
   return (
     <>
-      <BreadcrumbJsonLd items={[{ name: 'Our Work', path: '/work' }]} />
+      <BreadcrumbJsonLd items={[{ name: 'Recent builds', path: '/work' }]} />
       <main className="pt-28 sm:pt-32 pb-20 lg:pb-28 px-4 sm:px-8 lg:px-14">
         <div className="w-full max-w-[1720px] mx-auto">
           <div className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3 sm:mb-4">
-            [ OUR WORK ]
+            [ RECENT BUILDS ]
           </div>
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10 sm:mb-14">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-neutral-950 font-display tracking-tight leading-[1.08]">
-              Sites built to bring in customers.
+              Recent builds.
             </h1>
             <p className="text-sm sm:text-base lg:text-lg text-neutral-600 max-w-xl leading-relaxed lg:text-right">
-              Every site is designed around how that business actually gets customers. Click any project to see the
-              live build.
+              Real sites we have designed and built, plus a few labeled concept builds. Click any project to see the live
+              build.
             </p>
           </div>
 
@@ -76,7 +76,7 @@ export default function WorkPage() {
               </a>
               <div className="lg:col-span-5 p-6 sm:p-10 lg:p-12 flex flex-col">
                 <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">
-                  [ CLIENT RESULT · {featured.location} ]
+                  [ CLIENT BUILD · {featured.location} ]
                 </p>
                 <p className="mt-5 text-[96px] sm:text-[130px] leading-[0.85] font-black font-display tracking-tighter text-white">
                   #1
@@ -118,17 +118,19 @@ export default function WorkPage() {
           <div className="mt-16 sm:mt-20 pt-8 sm:pt-10 border-t border-neutral-200/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="max-w-2xl">
               <div className="text-xs font-mono font-semibold tracking-wider text-neutral-500 uppercase mb-1.5">
-                [ WANT ONE FOR YOUR BUSINESS? ]
+                [ RUN A PRACTICE? ]
               </div>
               <h2 className="text-xl sm:text-2xl lg:text-[26px] font-bold text-neutral-950 font-display tracking-tight">
-                Book a free consultation and we&rsquo;ll mock up your homepage.
+                Start with a free after-hours audit of your practice.
               </h2>
             </div>
             <Link
-              href="/get-started"
+              href="/audit"
+              data-track="cta_click"
+              data-track-cta="audit_work"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white font-semibold text-sm tracking-tight transition-colors"
             >
-              Get Started
+              Get your free audit
               <ArrowUpRight className="w-4 h-4" />
             </Link>
           </div>

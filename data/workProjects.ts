@@ -5,9 +5,11 @@ export interface WorkProject {
   summary: string;
   image: string;
   url: string;
-  // Matches a slug in data/nichesData.ts so the project also shows on that industry page.
+  // Matches a slug in data/nichesData.ts so the project also shows on that
+  // practice page. Trade and portfolio builds keep a descriptive slug that no
+  // longer matches a practice page, so they only appear on /work.
   niche: string;
-  // Self-initiated redesigns, not paid engagements.
+  // Self-initiated redesigns, not paid engagements. Always labeled "Concept build".
   concept?: boolean;
   // Month the site was built, shown on every card.
   date: string;
@@ -15,6 +17,9 @@ export interface WorkProject {
   pinned?: boolean;
 }
 
+// Recent builds (owner rule 2026-10-19): real Axeon work stays here, but it is
+// never the headline proof on practice pages. Hintz Family Dentistry is an
+// unsolicited concept build, never a client.
 const PROJECTS: WorkProject[] = [
   {
     name: 'MSH Realty Group',
@@ -70,7 +75,7 @@ const PROJECTS: WorkProject[] = [
     industry: 'Family Dentistry',
     location: 'Ankeny, IA',
     summary:
-      'A warm, family-first site with a full Spanish version and an insurance checker that answers the Medicaid and Hawk-I question in one tap.',
+      'A self-initiated concept: a warm, family-first site with a full Spanish version and an insurance checker that answers the Medicaid and Hawk-I question in one tap. Not a client.',
     image: '/images/work/hintz.webp',
     url: 'https://hintz-family-dentistry.vercel.app/',
     concept: true,

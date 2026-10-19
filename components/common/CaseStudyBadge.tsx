@@ -3,16 +3,19 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { X, ArrowRight } from 'lucide-react';
+import { X, ArrowRight, Gauge } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLeadModal } from '@/components/common/LeadModalProvider';
 import { trackEvent, EVENTS } from '@/components/providers/AnalyticsTracker';
 
-const POPUP_ID = 'a1_case_study_badge';
-const STORY_PATH = '/insights/a-1-auto-detailing-website-case-study';
+// Site-wide corner card. Until 2026-10-19 it promoted the A-1 Auto Detailing
+// case study; after the practice repositioning it points to AxeonPROOF, the
+// client portal, so trade results are no longer pushed on practice visitors.
+const POPUP_ID = 'axeonproof_badge';
+const STORY_PATH = '/axeonproof';
 
-const DISMISS_KEY = 'axeon-a1-badge-dismissed-at';
-const CLICKED_KEY = 'axeon-a1-badge-clicked-at';
+const DISMISS_KEY = 'axeon-proof-badge-dismissed-at';
+const CLICKED_KEY = 'axeon-proof-badge-clicked-at';
 const DISMISS_COOLDOWN_MS = 14 * 24 * 60 * 60 * 1000;
 const CLICKED_COOLDOWN_MS = 60 * 24 * 60 * 60 * 1000; // already read it
 
@@ -23,7 +26,7 @@ const SCROLL_DEPTH = 0.3;
 const FALLBACK_DELAY_MS = 20_000;
 
 // Pages where a promo card would be noise or would sit on top of a flow.
-const HIDDEN_PREFIXES = [STORY_PATH, '/admin', '/book', '/pay', '/billing'];
+const HIDDEN_PREFIXES = [STORY_PATH, '/admin', '/book', '/audit', '/go', '/pay', '/billing'];
 
 function readStorage(key: string): string | null {
   try {
@@ -128,7 +131,7 @@ export function CaseStudyBadge() {
           animate={{ opacity: 1, x: 0, y: 0 }}
           exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, x: -24 }}
           transition={prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 320, damping: 30 }}
-          aria-label="Client story"
+          aria-label="AxeonPROOF client portal"
           data-track-location="case_study_badge"
           className="fixed z-40 left-4 bottom-[max(1rem,env(safe-area-inset-bottom))] w-[calc(100vw-2rem)] max-w-[340px] sm:max-w-[440px] sm:left-6 sm:bottom-6"
         >
@@ -136,29 +139,28 @@ export function CaseStudyBadge() {
             <button
               type="button"
               onClick={dismiss}
-              aria-label="Dismiss client story"
+              aria-label="Dismiss"
               className="absolute top-2 right-2 z-10 p-2 rounded-full bg-white/90 hover:bg-neutral-100 text-neutral-500 hover:text-neutral-800 transition-colors cursor-pointer"
             >
               <X size={14} />
             </button>
 
             <Link href={STORY_PATH} onClick={open} className="group flex items-stretch gap-3 sm:gap-4 p-3 sm:p-4 pr-9 sm:pr-10">
-              <img
-                src="https://www.a-1autodetailing.net/img/og-card.jpg"
-                alt=""
-                loading="lazy"
-                decoding="async"
-                className="w-20 sm:w-32 shrink-0 rounded-xl object-cover bg-neutral-100"
-              />
+              <span
+                aria-hidden="true"
+                className="w-16 sm:w-24 shrink-0 rounded-xl bg-neutral-950 text-blue-400 flex items-center justify-center"
+              >
+                <Gauge className="w-7 h-7 sm:w-9 sm:h-9" />
+              </span>
               <span className="flex flex-col justify-center min-w-0">
                 <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.18em] uppercase text-blue-600">
-                  Client story
+                  AxeonPROOF
                 </span>
                 <span className="mt-1 text-sm sm:text-lg font-extrabold leading-snug tracking-tight">
-                  Page 2 to #1 on Google. Here’s how.
+                  See every reply and booking, live.
                 </span>
                 <span className="mt-1.5 inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-neutral-500 group-hover:text-blue-600 transition-colors">
-                  How we fixed it for A-1 Auto Detailing
+                  Tour the client portal
                   <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
                 </span>
               </span>

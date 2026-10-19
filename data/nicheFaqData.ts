@@ -3,178 +3,72 @@ export interface NicheFaqItem {
   answer: string;
 }
 
-// 2 niche-specific FAQ items per niche, shown first on /solutions/[slug] and
-// /go/[slug]. Every answer sticks to services Axeon really offers (see
-// content/brand-guardrails.md): the lead-system pieces (AI chat, automatic
-// follow-up, missed-call text-back, call connect, CRM pipeline) are AxeonCORE,
-// so answers that rely on them say so.
+// 2-3 practice-specific FAQ items per practice type, shown first on
+// /solutions/[slug] and /go/[slug]. Every answer sticks to what AxeonCORE
+// really includes (content/brand-guardrails.md) and never promises a number
+// of patients, clients, revenue or rankings.
 export const nicheFaqData: Record<string, NicheFaqItem[]> = {
   dental: [
     {
-      question: 'What happens when a patient needs an emergency appointment?',
+      question: 'What happens when a new patient calls after hours?',
       answer:
-        'Your intake asks what the visit is for and flags emergencies, so you can fit them in same-day instead of finding them in a general inbox tomorrow.',
+        'If nobody picks up, they get a text from your practice within 60 seconds, 24/7. It asks what kind of visit they want and offers a time, so a new-patient exam or an implant or Invisalign consult gets booked instead of lost to voicemail.',
     },
     {
-      question: 'What about patients who call after hours?',
+      question: 'Does the intake collect any health or insurance information?',
       answer:
-        'They can book online any time. On AxeonCORE, AI chat answers their questions and missed calls get a text back right away, so they are not lost to voicemail.',
+        'No. Intake collects name, contact, service and preferred time only. Never symptoms, insurance or health details. Anything clinical stays in your practice management software and your front desk.',
+    },
+    {
+      question: 'Do we have to replace Dentrix, Eaglesoft or Open Dental?',
+      answer:
+        'No. Axeon handles the first reply, the booking request and the review ask. Your practice management software stays exactly as it is.',
     },
   ],
   'med-spa': [
     {
-      question: 'How does this handle different treatment interests?',
+      question: 'How fast does someone get an answer when they ask about a treatment at night?',
       answer:
-        'The consult request asks which treatment they want, such as injectables, laser, or body contouring, so you know what they came for before you call them back.',
+        'Within 60 seconds, any hour. The reply asks which treatment they are interested in and offers a consultation time, so they book with you before they keep shopping around.',
     },
     {
-      question: 'Can it cut down on consult no-shows?',
+      question: 'Can my front desk follow up on treatment plans and memberships?',
       answer:
-        'Yes. On AxeonCORE, automatic text and email reminders go out before every consult, and your lead list shows which consults turned into treatments.',
-    },
-  ],
-  hvac: [
-    {
-      question: 'What happens with after-hours emergency calls?',
-      answer:
-        'Your intake separates no-heat and no-cool emergencies from routine tune-ups. On AxeonCORE, missed calls get a text back right away, even at 2 AM, so the customer does not move on to the next company.',
+        'Yes. Every conversation lands in a two-way text inbox, so your team can check in after a consult, answer questions about a plan or membership, and see the whole thread in one place.',
     },
     {
-      question: 'Does it help fill seasonal tune-up bookings?',
+      question: 'Does the intake collect any health information?',
       answer:
-        'Yes. Customers can book tune-ups online, and on AxeonCORE automatic follow-up invites past customers back before each season.',
-    },
-  ],
-  roofing: [
-    {
-      question: 'How does this handle storm-damage leads?',
-      answer:
-        'The inspection request captures the address, damage photos, and whether it is an insurance claim, so you know what you are walking into before the visit.',
-    },
-    {
-      question: "What if a bid doesn't get signed right away?",
-      answer:
-        "On AxeonCORE, automatic follow-up checks in on open bids and your lead list shows every one, so storm leads don't go cold while a homeowner is still deciding.",
+        'No. Intake collects name, contact, service and preferred time only. Never symptoms, medical history or health details.',
     },
   ],
   'law-firms': [
     {
-      question: 'How are case evaluations qualified before they reach an attorney?',
+      question: 'Does the automated reply give legal advice or create an attorney-client relationship?',
       answer:
-        'A practice-area intake asks the questions an attorney needs, so you see the facts before you ever get on a call.',
+        'No. The first reply only acknowledges the inquiry and offers a consultation time. It collects name, contact and the type of matter, never case facts, so your team can run a conflict check before anything confidential is shared.',
     },
     {
-      question: 'Does this help track cases through to a signed retainer?',
+      question: 'How do you handle attorney advertising rules?',
       answer:
-        'Yes. On AxeonCORE, your lead list tracks every case evaluation through to a signed retainer, with automatic follow-up for people who have not signed yet.',
+        'Site copy is written with attorney advertising rules in mind: no promised outcomes, no results-based claims, and you approve every word before launch. Review requests only go out when you decide a matter allows it.',
+    },
+    {
+      question: 'Do we have to switch from Clio or MyCase?',
+      answer:
+        'No. Axeon handles the first reply and the consultation booking. Your practice management software stays as it is.',
     },
   ],
   accounting: [
     {
-      question: 'How does this separate simple tax questions from bigger advisory leads?',
+      question: 'What happens to new-client calls during tax season?',
       answer:
-        "Intake separates tax prep, bookkeeping, and advisory requests up front, so higher-value leads don't get buried during tax season.",
+        'When your staff cannot pick up, the caller gets a text from your firm within 60 seconds. Intake asks whether they need tax prep, bookkeeping or advisory work, so the bigger engagements do not get buried under routine questions.',
     },
     {
-      question: 'What about document collection?',
+      question: 'Does the intake collect tax documents or financial details?',
       answer:
-        'On AxeonCORE, automatic emails tell each new client which documents to have ready, instead of chasing files over scattered email threads.',
-    },
-  ],
-  'home-remodeling': [
-    {
-      question: 'How does this qualify budget before an in-home visit?',
-      answer:
-        'Intake asks for project type, scope, and budget range, so you know which jobs are serious before you drive out.',
-    },
-    {
-      question: 'What happens to quotes that go quiet?',
-      answer:
-        'On AxeonCORE, your lead list tracks every bid and automatic follow-up checks in on open quotes before another contractor does.',
-    },
-  ],
-  'real-estate': [
-    {
-      question: 'How are buyer and seller leads handled differently?',
-      answer:
-        'Intake sorts buyers from sellers at the very first click, so each one gets the right next step.',
-    },
-    {
-      question: 'What happens after a home valuation request?',
-      answer:
-        'It books straight into your calendar. On AxeonCORE, automatic text and email follow-up keeps the lead warm until they are ready to move.',
-    },
-  ],
-  landscaping: [
-    {
-      question: 'How does this separate recurring maintenance from one-time jobs?',
-      answer:
-        "Intake separates weekly maintenance from one-time hardscape and design bids, so they don't pile into the same inbox.",
-    },
-    {
-      question: 'What happens during the spring rush?',
-      answer:
-        'Estimate requests come in with photos and property size, so you can quote faster. On AxeonCORE, missed calls get a text back right away.',
-    },
-  ],
-  'auto-detailing': [
-    {
-      question: 'How do customers pick the right package?',
-      answer:
-        "Your site lays out each package, such as a wash, full detail, or ceramic coating, with starting prices, so customers pick the right one before they book and there's no confusion at drop-off.",
-    },
-    {
-      question: 'Does this handle mobile detailing too?',
-      answer:
-        'Yes. Customers choose mobile or in-shop when they book, so every request lands in the right place.',
-    },
-  ],
-  concrete: [
-    {
-      question: 'Can customers send photos and sizes with their quote request?',
-      answer:
-        'Yes. The quote request asks for the project type, rough size, photos, and whether there is old concrete to tear out, so you know what you are bidding before you drive out.',
-    },
-    {
-      question: 'What happens to bids that go quiet?',
-      answer:
-        'On AxeonCORE, your lead list tracks every bid and automatic follow-up checks in on open quotes, so a driveway or patio job does not go to whoever happened to call back first.',
-    },
-  ],
-  plumbing: [
-    {
-      question: 'What happens with after-hours emergency calls?',
-      answer:
-        'Your intake flags emergencies like leaks and no hot water so urgent jobs go first. On AxeonCORE, missed calls get a text back right away, even late at night, so the homeowner does not move on to the next plumber.',
-    },
-    {
-      question: 'Does it help with bigger jobs like water heater replacements?',
-      answer:
-        'Yes. Quote requests come in with the details and photos you need, and on AxeonCORE your lead list and automatic follow-up keep every water heater and repipe quote moving until it is booked.',
-    },
-  ],
-  electrical: [
-    {
-      question: 'How does this handle service calls versus bigger projects?',
-      answer:
-        'Intake asks what the job is, such as a repair, panel upgrade, or EV charger, and collects photos, so you know which calls are quick fixes and which are worth a site visit.',
-    },
-    {
-      question: 'What about calls that come in while my crew is on a job?',
-      answer:
-        'On AxeonCORE, missed calls get a text back right away and your lead list shows every open quote, so nothing slips while you are working.',
-    },
-  ],
-  handyman: [
-    {
-      question: 'Can customers send their whole list of repairs at once?',
-      answer:
-        'Yes. The request form takes the full list with photos in one place, so you can quote the whole visit instead of piecing it together from texts and voicemails.',
-    },
-    {
-      question: 'Can customers book a time without calling me?',
-      answer:
-        'On AxeonCORE, customers can pick a time online from your real availability, and missed calls get a text back right away while you are on a job.',
+        'No. It collects name, contact, the service they need and a preferred time. Documents and financial details stay in your own portal and process.',
     },
   ],
 };

@@ -7,10 +7,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import { TrustBadges } from '@/components/common/TrustBadges';
 import { useLeadModal } from '@/components/common/LeadModalProvider';
 
-// One word cycles in the otherwise-fixed headline "Get More ___",
-// mirroring Scorpion's "MAXIMIZE Your ___" rotating-word pattern. Every word
-// is an outcome the owner wants, never a deliverable (we sell customers).
-const ROTATING_WORDS = ['Customers', 'Calls', 'Booked Jobs', 'Revenue'];
+// One phrase cycles in the otherwise-fixed headline "Stop Losing ___ to
+// Voicemail". Each is who a practice loses when nobody answers in time.
+const ROTATING_WORDS = ['New Patients', 'Consultations', 'New Clients'];
 const ROTATE_INTERVAL_MS = 2200;
 
 // Matches Tailwind's `sm` breakpoint: below it the hero uses the portrait phone media.
@@ -204,7 +203,7 @@ export function Hero() {
         which produced accidental navigations from stray taps and polluted the
         click data. The two explicit CTAs below are the only actions now.
       */}
-      {/* The hero stops short of the viewport so the "Helping 50+ Iowa Businesses" strip below is in the first screen. */}
+      {/* The hero stops short of the viewport so the "what's included" strip below is in the first screen. */}
       <div className="relative w-full bg-neutral-950 text-white flex flex-col px-6 sm:px-10 lg:px-16 xl:px-20 pt-20 sm:pt-28 pb-6 sm:pb-10 overflow-hidden">
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <video
@@ -267,9 +266,9 @@ export function Hero() {
           {/* Phones: the two flex-1 spacers center the headline + CTAs and pin the
               badges to the bottom of the hero, right above the "Helping 50+" band. */}
           <div aria-hidden="true" className="flex-1 sm:hidden" />
-          <h1 className="hero-rise text-center sm:text-left text-[min(3.25rem,13.5vw)] sm:text-6xl lg:text-7xl xl:text-8xl font-black tracking-[-0.03em] [word-spacing:0.12em] leading-[1.05] font-display text-white">
-            Get More
-            {/* The rotating word always sits on its own line. */}
+          <h1 className="hero-rise text-center sm:text-left text-[min(2.75rem,11vw)] sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-[-0.03em] [word-spacing:0.12em] leading-[1.05] font-display text-white">
+            Stop Losing
+            {/* The rotating phrase always sits on its own line. */}
             <span className="grid">
               <AnimatePresence mode="wait" initial={false}>
                 <motion.span
@@ -284,6 +283,7 @@ export function Hero() {
                 </motion.span>
               </AnimatePresence>
             </span>
+            <span className="block">to Voicemail</span>
           </h1>
 
           <p
@@ -291,23 +291,24 @@ export function Hero() {
             className="hero-rise hidden sm:block mt-6 text-lg lg:text-xl text-neutral-300 font-normal leading-relaxed max-w-xl"
           >
             {/* Desktop only: on phones the hero is headline, CTAs and badges (owner, 2026-10-10). */}
-            We get Iowa businesses found on Google, chosen over the competition, and
-            booked solid. Backed by our 90-day customer guarantee.
+            Axeon answers every missed call and web inquiry within 60 seconds, 24/7,
+            books the consultation, and asks every patient for a review after the visit.
+            Built for dental, med spa, law and accounting practices.
           </p>
 
           <div
             style={{ animationDelay: '0.25s' }}
             className="hero-rise mt-12 sm:mt-8 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4"
           >
-            {/* Primary: the dedicated intake page (same form as the contact section) */}
+            {/* Primary: the free after-hours audit */}
             <Link
-              href="/get-started"
+              href="/audit"
               id="hero-primary-cta"
               data-track="cta_click"
-              data-track-cta="get_started_hero"
+              data-track-cta="audit_hero"
               className="group inline-flex items-center justify-center gap-3 px-8 py-4 sm:py-[18px] rounded-full bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg font-bold transition-all duration-200 cursor-pointer shadow-lg shadow-blue-600/25 hover:scale-[1.02] active:scale-[0.98]"
             >
-              <span>Get More Customers</span>
+              <span>Get your free after-hours audit</span>
               <div className="w-8 h-8 rounded-full bg-white/15 text-white flex items-center justify-center shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
                 <ArrowUpRight size={15} />
               </div>
@@ -320,7 +321,7 @@ export function Hero() {
               onClick={() => openLeadModal('hero')}
               className="inline-flex items-center justify-center gap-1.5 py-2 sm:py-4 text-base sm:text-lg font-semibold text-white/85 hover:text-white underline underline-offset-4 decoration-white/30 hover:decoration-white transition-colors cursor-pointer"
             >
-              or book a free call
+              or book a call
             </button>
           </div>
 

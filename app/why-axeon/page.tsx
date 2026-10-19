@@ -4,9 +4,9 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/why-axeon',
-  title: 'Des Moines Marketing Agency vs. Typical Agency | Axeon Studio',
+  title: 'Why Axeon: Intake vs. a Typical Practice Website | Axeon Studio',
   description:
-    'Typical agency vs. Axeon, side by side: who gets your Des Moines business found, chosen and booked. Backed by the 90-Day Customer Guarantee.',
+    'A typical agency builds your practice a website. Axeon installs the intake behind it: 60-second replies, consultation booking and review requests, with a 90-day performance commitment.',
 });
 
 export default function WhyAxeonPage() {

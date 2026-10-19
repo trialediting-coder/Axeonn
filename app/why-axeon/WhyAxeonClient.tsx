@@ -27,7 +27,7 @@ export default function WhyAxeonClient() {
             transition={{ duration: 0.7, delay: 0.1 }}
             className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-neutral-950 font-display leading-[1.08] mb-6"
           >
-            Same budget. More customers.
+            A website is not intake.
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -35,8 +35,8 @@ export default function WhyAxeonClient() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="text-lg text-neutral-600 leading-relaxed"
           >
-            Typical agency vs. Axeon on the three things that bring you customers: getting
-            found, getting chosen and getting booked.
+            A typical agency builds your practice a website and hands it over. Axeon installs what happens after
+            someone finds you: the reply, the booking and the review.
           </motion.p>
         </div>
       </section>
@@ -48,7 +48,7 @@ export default function WhyAxeonClient() {
         eyebrow="02 · GET CHOSEN"
         layout="giant"
         tone="warm"
-        heading="Found is half the job. They pick the business they trust."
+        heading="New patients compare reviews before they call."
         stat={{
           value: '97%',
           label: 'of people read reviews before choosing a local business.',
@@ -56,34 +56,34 @@ export default function WhyAxeonClient() {
           href: 'https://www.brightlocal.com/research/local-consumer-review-survey/',
         }}
         typical={[
-          'Your reviews stay on Google, nowhere near the page people decide on.',
-          'Stock photos and copy that could be anyone.',
+          'Reviews depend on patients remembering to leave one.',
+          'Stock photos and provider bios that could be any practice.',
         ]}
         axeon={[
-          'Your real rating and reviews right where people decide.',
-          'Your own work, prices and proof up front.',
-          'Your Google Business Profile kept up every month.',
+          'An automatic review request after every completed appointment.',
+          'Your providers, credentials and real reviews up front.',
+          'Your Google Business Profile kept current.',
         ]}
       />
 
       <VersusSection
         id="get-booked"
         eyebrow="03 · GET BOOKED"
-        heading="Every missed call is a customer calling someone else."
+        heading="Every missed call is a new patient calling another practice."
         stat={{
-          value: '62%',
-          label: 'of calls to small businesses go unanswered.',
-          source: '411 Locals call study',
-          href: 'https://411locals.us/small-business-owners-dont-answer-62-of-phone-calls/',
+          value: '21×',
+          label: 'more likely to qualify when a lead hears back within 5 minutes instead of 30.',
+          source: 'MIT / InsideSales lead response study',
+          href: 'https://25649.fs1.hubspotusercontent-na2.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf',
         }}
         typical={[
-          'A contact form that lands in an inbox nobody checks.',
-          'No follow-up, so warm leads go cold.',
+          'After-hours calls go to voicemail.',
+          'A contact form that lands in a shared inbox until tomorrow.',
         ]}
         axeon={[
-          'Tap-to-call and quote forms built to book the job.',
-          'With AxeonCORE: your website, lead list and follow-up working as one system.',
-          'A monthly calls & leads report, so you see what is working.',
+          'Every missed call and web inquiry answered within 60 seconds, 24/7.',
+          'Online consultation booking and a two-way text inbox for the front desk.',
+          'AxeonPROOF shows every recovered inquiry and booking, with a monthly report.',
         ]}
       />
 

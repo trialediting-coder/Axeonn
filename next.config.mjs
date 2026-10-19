@@ -1,3 +1,19 @@
+// Routes retired on 2026-10-19 (practice repositioning). Each 301s below.
+const RETIRED_NICHES = [
+  'hvac',
+  'roofing',
+  'home-remodeling',
+  'landscaping',
+  'auto-detailing',
+  'concrete',
+  'plumbing',
+  'electrical',
+  'handyman',
+  'real-estate',
+];
+const RETIRED_FUNNELS = ['hvac', 'roofing', 'home-remodeling', 'real-estate', 'landscaping', 'auto-detailing'];
+const RETIRED_SERVICE_PAGES = ['website', 'seo', 'lead-generation', 'ai-chat-scheduling', 'advertising', 'video-photography'];
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
@@ -50,6 +66,18 @@ const nextConfig = {
       // bookmarks and notification emails still land in the right place.
       { source: '/insights/admin', destination: '/admin', permanent: true },
       { source: '/insights/admin/:path*', destination: '/admin/:path*', permanent: true },
+
+      // 2026-10-19 repositioning to private practices (dental, med spa, law,
+      // accounting). Retired trade industry pages go to the practice hub.
+      ...RETIRED_NICHES.map((slug) => ({ source: `/solutions/${slug}`, destination: '/solutions', permanent: true })),
+      // Retired paid-ad funnels go straight to the free after-hours audit.
+      ...RETIRED_FUNNELS.map((slug) => ({ source: `/go/${slug}`, destination: '/audit', permanent: true })),
+      // The six service pages were consolidated into the "How it works" hub.
+      ...RETIRED_SERVICE_PAGES.map((slug) => ({
+        source: `/marketing-solutions/${slug}`,
+        destination: '/marketing-solutions',
+        permanent: true,
+      })),
     ];
   },
 };

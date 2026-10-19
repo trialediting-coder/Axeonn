@@ -1,8 +1,9 @@
 // Suburb landing pages (/west-des-moines-web-design, /ankeny-web-design, ...),
-// rendered by components/city/CityLanding.tsx. Each city gets its own copy,
-// not a name swap. Local details are kept general and true: no invented client
-// counts, local stats or reviews (content/brand-guardrails.md). The only proof
-// used is the approved A-1 Auto Detailing result.
+// rendered by components/city/CityLanding.tsx. The URLs stay as they are for
+// search; since 2026-10-19 the copy speaks to private practices (dental, med
+// spa, law, accounting) in each city. Each city gets its own copy, not a name
+// swap. Local details are kept general and true: no invented clients, local
+// stats or reviews (content/brand-guardrails.md), and no client results.
 
 export interface CityFaq {
   question: string;
@@ -28,42 +29,41 @@ export interface CityPage {
   localHeading: string;
   localBody: string[];
   focusPoints: CityFocusPoint[];
-  /** Niche slugs (data/nichesData.ts) shown first in the industries list. */
+  /** Practice slugs (data/nichesData.ts), in the order this city shows them. */
   featuredNiches: string[];
   faq: CityFaq[];
 }
 
-/** One system, three jobs: shared by /des-moines-web-design and the suburb pages. */
+/** The three AxeonCORE layers: shared by /des-moines-web-design and the suburb pages. */
 export const METRO_SYSTEM = [
   {
-    step: 'Get found',
-    title: 'SEO & Ads',
+    step: 'Practice website',
+    title: 'Providers, services, reviews, booking',
     description:
-      'Show up on Google, the map, and AI answers when people across the metro search for what you do. Google & Meta Ads come with AxeonGROWTH, or as a +$399/mo add-on to AxeonCORE.',
-    href: '/marketing-solutions/seo',
+      'A custom, mobile-first site with your providers and credentials, services, real reviews and online consultation booking.',
+    href: '/marketing-solutions#website',
   },
   {
-    step: 'Get chosen',
-    title: 'Website & Video',
+    step: '60-second intake',
+    title: 'Every call and inquiry answered',
     description:
-      'A fast, custom site with your reviews up front, plus on-site video with AxeonGROWTH, so you look like the obvious pick.',
-    href: '/marketing-solutions/website',
+      'Every missed call and web inquiry gets a reply within 60 seconds, 24/7, plus a two-way text inbox for your front desk.',
+    href: '/marketing-solutions#intake',
   },
   {
-    step: 'Get booked',
-    title: 'AI Chat & Lead Capture',
-    description:
-      'Tap-to-call and a quote form on every page. On AxeonCORE, AI chat and automatic follow-up answer every lead in seconds.',
-    href: '/marketing-solutions/ai-chat-scheduling',
+    step: 'Review engine',
+    title: 'A review ask after every visit',
+    description: 'An automatic review request after every completed appointment.',
+    href: '/marketing-solutions#reviews',
   },
 ];
 
 /** Published pricing, phrased once for every metro FAQ. */
 export function cityPricingFaq(city: string): CityFaq {
   return {
-    question: `How much does a website cost in ${city}?`,
+    question: `How much does Axeon cost for a ${city} practice?`,
     answer:
-      'Our pricing is published: $99 to start, then a flat monthly plan. Essentials is $149/mo. AxeonCORE is $299/mo and adds our AxeonPROOF dashboard, one simple list of every lead, AI chat & online scheduling, automatic follow-up, and our 90-day customer guarantee. AxeonGROWTH is $999/mo plus ad spend and adds Google & Meta ads, Google Local Services Ads, an AI phone receptionist, and a half-day on-site video shoot.',
+      'AxeonCORE is from $799/mo on a 12-month agreement, with the $3,000 setup included. Month-to-month is available if you pay the setup upfront. It includes the practice website, 60-second intake and booking, the review engine and the AxeonPROOF client portal. AxeonGROWTH is from $1,999/mo plus ad spend and adds Google Local Services Ads and search ads management, past-patient reactivation and an AI phone receptionist.',
   };
 }
 
@@ -71,208 +71,201 @@ export const cityPages: CityPage[] = [
   {
     slug: 'west-des-moines-web-design',
     city: 'West Des Moines',
-    linkLabel: 'West Des Moines Web Design',
-    title: 'West Des Moines Web Design & Marketing | Axeon Studio',
+    linkLabel: 'West Des Moines Practices',
+    title: 'West Des Moines Practice Websites & Intake | Axeon Studio',
     description:
-      'West Des Moines web design, local SEO, and ads from a team based right here in 50266. More calls and booked jobs, plans from $149/mo, backed by a 90-day guarantee.',
+      'Websites and 60-second patient intake for West Des Moines dental, med spa, law and accounting practices, from a team based here. From $799/mo with a 90-day performance commitment.',
     eyebrow: 'West Des Moines, Iowa · Home Base',
-    h1: 'West Des Moines Web Design That Gets You More Customers',
+    h1: 'Every After-Hours Call Answered, for West Des Moines Practices',
     intro:
-      'Axeon Studio is based in West Des Moines. We get local businesses more customers: found on Google, chosen over the competition, and booked. The team down the road builds it and answers the phone.',
-    localHeading: 'Built in West Des Moines, for West Des Moines.',
+      'Axeon Studio is based in West Des Moines. We install patient and client intake for local practices: every missed call and web inquiry answered within 60 seconds, consultations booked, and a review request after every visit.',
+    localHeading: 'Built in West Des Moines, for practices here.',
     localBody: [
-      'West Des Moines is not one market. A business near Jordan Creek competes with regional chains and big national names for the same searches, while a shop in Valley Junction is trying to be the local pick people already want to support. Both need to show up when someone nearby searches, and both need a site that makes calling feel easy.',
-      'Because we are based here, we can meet at your location, shoot video on-site, and look at your competition the way your customers do: from the same searches, in the same part of town.',
+      'Practices in West Des Moines compete with a lot of nearby options for the same searches. A new patient comparing three dentists, or a business owner looking for a CPA, often calls more than one. The practice that answers first, with a clear way to book, tends to get the appointment.',
+      'Because we are based here, we can meet at your office, walk through how your front desk handles calls today, and look at your competition the way new patients do: from the same searches, in the same part of town.',
     ],
     focusPoints: [
       {
-        title: 'Show up for searches in your part of town',
+        title: 'Answer the calls your front desk cannot',
         description:
-          'We set up your Google Business Profile, your service pages, and the behind-the-scenes details of your site so you show up for West Des Moines searches, not just a generic "near me."',
+          'After hours, at lunch, or while the team is checking patients in: every missed call gets a text reply within 60 seconds.',
       },
       {
-        title: 'Look like the obvious pick next to the chains',
-        description:
-          'Your reviews, your real work, and a clear next step up front, so you win the comparison against bigger names.',
+        title: 'Look like the obvious pick',
+        description: 'Your providers, credentials and real reviews up front, with online consultation booking on every page.',
       },
       {
         title: 'Meet in person whenever it helps',
-        description:
-          'Strategy calls, a walk-through of your shop, or the on-site video shoot with AxeonGROWTH. We are local, so it is easy.',
+        description: 'Kickoff, training for your front desk, or a quarterly review. We are local, so it is easy.',
       },
     ],
-    featuredNiches: ['dental', 'med-spa', 'law-firms', 'accounting', 'real-estate', 'home-remodeling'],
+    featuredNiches: ['dental', 'med-spa', 'law-firms', 'accounting'],
     faq: [
       {
         question: 'Are you actually located in West Des Moines?',
         answer:
-          'Yes. Axeon Studio is based in West Des Moines, Iowa 50266. The team that builds your site answers the phone, and we can meet at your location anywhere in the metro.',
+          'Yes. Axeon Studio is based in West Des Moines, Iowa 50266. The team that builds your system answers the phone, and we can meet at your office anywhere in the metro.',
       },
       {
-        question: 'Can you help my business show up for West Des Moines searches?',
+        question: 'What happens when someone calls my practice after hours?',
         answer:
-          'That is the point of every build. We set up your Google Business Profile, write pages around the services you offer and the areas you serve, and set up your site so Google and AI assistants like ChatGPT can recommend you for local searches.',
+          'If nobody picks up, they get a text from your practice within 60 seconds, 24/7, with a way to book a consultation. Your front desk sees the whole conversation in the morning in a two-way text inbox.',
       },
       {
-        question: 'Do you work with businesses near Jordan Creek and Valley Junction?',
+        question: 'Do you work with only one practice of each kind?',
         answer:
-          'Yes. We work with businesses all over West Des Moines and the rest of the metro, from offices and shops near Jordan Creek to local spots in Valley Junction.',
+          'Yes. One practice per specialty within 5 miles, while your account is in good standing. We will not install the same system for the practice down the street.',
       },
     ],
   },
   {
     slug: 'ankeny-web-design',
     city: 'Ankeny',
-    linkLabel: 'Ankeny Web Design',
-    title: 'Ankeny Web Design & Local SEO | Axeon Studio',
+    linkLabel: 'Ankeny Practices',
+    title: 'Ankeny Practice Websites & Patient Intake | Axeon Studio',
     description:
-      'Ankeny web design and local SEO for a fast-growing city: get found by new neighbors first and turn searches into calls. Plans from $149/mo, 90-day guarantee.',
+      'Websites and 60-second patient intake for Ankeny dental, med spa, law and accounting practices: new residents answered and booked first. From $799/mo, 90-day performance commitment.',
     eyebrow: 'Ankeny, Iowa · North Metro',
-    h1: 'Ankeny Web Design That Brings In More Customers',
+    h1: 'Ankeny Is Growing. Answer Every New Patient First.',
     intro:
-      'Ankeny keeps growing, and every new neighborhood is full of people searching for a dentist, a plumber, or a contractor they have not picked yet. We make sure they find you first and call you, not the next name on the map.',
-    localHeading: 'New neighbors are picking their go-to businesses right now.',
+      'Every new Ankeny neighborhood is full of people who have not picked a dentist, a med spa, a lawyer or a CPA yet. We make sure that when they call or send a form, your practice answers within 60 seconds and gets the consultation on the calendar.',
+    localHeading: 'New neighbors are choosing their practices right now.',
     localBody: [
-      'Ankeny is one of the fastest-growing cities in Iowa. When people move into a new home, they do not have a dentist, an HVAC company, or a landscaper yet. They search, skim a few reviews, and call whoever looks the most trustworthy and easiest to book.',
-      'That window is short, and it is why Ankeny is a strong market for trades and home services. New construction keeps contractors, concrete crews, and landscapers busy, and the businesses that answer fast and look established win the work.',
+      'Ankeny is one of the fastest-growing cities in Iowa. When people move into a new home, they do not have a family dentist or an accountant yet. They search, skim a few reviews, and call whoever looks trustworthy and easy to book.',
+      'That window is short. A family that calls at 6:30 PM and reaches voicemail will try the next practice on the map. The practices that answer fast and look established win those first visits.',
     ],
     focusPoints: [
       {
         title: 'Get found by people who just moved in',
         description:
-          'Local SEO and a Google Business Profile set up for Ankeny searches, so new homeowners find you the first time they look.',
+          'A practice website and Google Business Profile set up for Ankeny searches, with your providers and reviews up front.',
       },
       {
-        title: 'Answer while you are on the job',
-        description:
-          'Tap-to-call and a quote form on every page. On AxeonCORE, missed calls get a text back right away, so a busy crew does not mean a lost job.',
+        title: 'Answer while your team is with patients',
+        description: 'Missed calls get a text back within 60 seconds, so a full schedule never means a missed new patient.',
       },
       {
-        title: 'Look established from day one',
-        description:
-          'Your reviews and real project photos up front, so a homeowner who has never heard of you still feels good about calling.',
+        title: 'Build reviews with every visit',
+        description: 'An automatic review request after every completed appointment, so your rating keeps up with your growth.',
       },
     ],
-    featuredNiches: ['home-remodeling', 'concrete', 'hvac', 'plumbing', 'landscaping', 'dental'],
+    featuredNiches: ['dental', 'accounting', 'med-spa', 'law-firms'],
     faq: [
       {
-        question: 'Do you work with businesses in Ankeny?',
+        question: 'Do you work with practices in Ankeny?',
         answer:
-          'Yes. Ankeny is part of our home metro, a short drive north of our West Des Moines base. We can meet at your location, and the on-site video shoot with AxeonGROWTH happens right at your shop or job site.',
+          'Yes. Ankeny is part of our home metro, a short drive north of our West Des Moines base. We can meet at your office for kickoff and front-desk training.',
       },
       {
-        question: 'I am a contractor in Ankeny. Will this help me get more project leads?',
+        question: 'We are busy already. Why does after-hours intake matter?',
         answer:
-          'It is built for that. Your site and Google Business Profile are set up so homeowners searching in Ankeny find you, and your quote form asks for the details you need, like project type and photos, before you drive out.',
+          'Because new patients and clients often reach out when your team is busy or gone for the day. If nobody answers, they try the next practice. AxeonCORE replies to every missed call and web inquiry within 60 seconds, so the new ones still get booked.',
       },
       {
-        question: 'What if I am too busy to answer every call?',
+        question: 'Does the intake collect any health or financial details?',
         answer:
-          'That is common for Ankeny trades. On AxeonCORE, missed calls get a text back right away, AI chat answers questions on your site, and automatic follow-up keeps quotes from going cold.',
+          'No. Intake collects name, contact, service and preferred time only. Never symptoms, insurance, health or financial details.',
       },
     ],
   },
   {
     slug: 'waukee-web-design',
     city: 'Waukee',
-    linkLabel: 'Waukee Web Design',
-    title: 'Waukee Web Design & Marketing | Axeon Studio',
+    linkLabel: 'Waukee Practices',
+    title: 'Waukee Practice Websites & Client Intake | Axeon Studio',
     description:
-      'Waukee web design and marketing that helps newer businesses get chosen over established names. Local SEO, fast sites, plans from $149/mo, 90-day guarantee.',
+      'Websites and 60-second client intake that help newer Waukee practices get chosen over established names. From $799/mo with a 90-day performance commitment.',
     eyebrow: 'Waukee, Iowa · West Metro',
-    h1: 'Waukee Web Design That Wins You More Customers',
+    h1: 'Waukee Practices: Answer First, Even Against Older Names',
     intro:
-      'Waukee is growing fast, and new businesses open next to ones that have been around for years. We help you get found and get chosen, even when the other option has a head start.',
-    localHeading: 'New business, established competition.',
+      'Waukee is growing fast, and new practices open next to ones that have been around for years. You may not have their head start on reviews, but you can answer every call and inquiry within 60 seconds while others send people to voicemail.',
+    localHeading: 'New practice, established competition.',
     localBody: [
-      'A lot of Waukee businesses are new, and many compete with names that have been around for years, in Waukee or just down the road in West Des Moines. The established names usually have more reviews and an older Google listing. That is a real head start.',
-      'You close the gap with a site that looks like the obvious pick, a Google Business Profile set up right from the start, and a steady habit of asking happy customers for reviews.',
+      'Many Waukee practices are new, and many compete with names that have been around for years, in Waukee or just down the road in West Des Moines. The established names usually have more reviews and an older Google listing. That is a real head start.',
+      'You close the gap where you can control it: a site that looks like the obvious pick, a reply within 60 seconds to every inquiry, and a review request after every visit.',
     ],
     focusPoints: [
       {
         title: 'Start your Google presence right',
         description:
-          'A properly set up Google Business Profile, service pages, and local SEO from day one, so you are not playing catch-up a year from now.',
+          'A properly set up Google Business Profile and a fast practice website from day one, so you are not playing catch-up a year from now.',
       },
       {
-        title: 'Win the side-by-side comparison',
+        title: 'Win on response time',
         description:
-          'Clear services, real photos, and an easy next step, so a customer comparing you to an older name picks you.',
+          'Every missed call and web inquiry answered within 60 seconds, 24/7. Speed is something a new practice can win on right away.',
       },
       {
         title: 'Build reviews on purpose',
-        description:
-          'On AxeonCORE, review requests go out automatically after the job, so your rating grows with every happy customer.',
+        description: 'An automatic review request after every completed appointment, so your rating grows with every patient.',
       },
     ],
-    featuredNiches: ['med-spa', 'dental', 'auto-detailing', 'landscaping', 'real-estate', 'handyman'],
+    featuredNiches: ['med-spa', 'dental', 'law-firms', 'accounting'],
     faq: [
       {
-        question: 'I just opened in Waukee. Is it too early for a real website?',
+        question: 'We just opened in Waukee. Is it too early for this?',
         answer:
-          'No, it is the best time. Setting up your website and Google Business Profile correctly from the start is easier than fixing them later, and it gives every early customer a place to find you and leave a review.',
+          'No, it is a good time. Setting up your website, Google Business Profile and intake correctly from the start is easier than fixing them later, and every early patient gets asked for a review.',
       },
       {
-        question: 'How do I compete with businesses that have way more reviews?',
+        question: 'How do we compete with practices that have far more reviews?',
         answer:
-          'You will not out-review them overnight, so you win elsewhere: a faster, clearer site, real photos of your work, and a quick answer to every lead. On AxeonCORE, automatic review requests help your rating grow after every job.',
+          'You will not out-review them overnight, so you win elsewhere: a faster, clearer site and a reply within 60 seconds to every call and inquiry. Automatic review requests then help your rating grow after every visit.',
       },
       {
         question: 'Do you serve Waukee in person?',
         answer:
-          'Yes. Waukee is next door to our West Des Moines base. We can meet at your location, and the on-site video shoot with AxeonGROWTH happens right where you work.',
+          'Yes. Waukee is next door to our West Des Moines base. We can meet at your office for kickoff and front-desk training.',
       },
     ],
   },
   {
     slug: 'urbandale-web-design',
     city: 'Urbandale',
-    linkLabel: 'Urbandale Web Design',
-    title: 'Urbandale Web Design & Local SEO | Axeon Studio',
+    linkLabel: 'Urbandale Practices',
+    title: 'Urbandale Practice Websites & Patient Intake | Axeon Studio',
     description:
-      'Urbandale web design and local SEO that turns searches into calls for established businesses. One West Des Moines team, plans from $149/mo, 90-day guarantee.',
+      'Websites and 60-second patient intake for established Urbandale practices with outdated sites. One West Des Moines team, from $799/mo, 90-day performance commitment.',
     eyebrow: 'Urbandale, Iowa · Northwest Metro',
-    h1: 'Urbandale Web Design That Turns Searches Into Calls',
+    h1: 'Urbandale Practices: A Great Reputation Still Needs an Answer',
     intro:
-      'Urbandale is full of established businesses with loyal customers and websites that have not kept up. We rebuild your site so the people searching today find you, trust you, and call.',
-    localHeading: 'Great reputation, outdated website.',
+      'Urbandale has many established practices with loyal patients and clients, and websites and phone setups that have not kept up. We rebuild the site and install intake so new people who find you today get answered within 60 seconds.',
+    localHeading: 'Great reputation, outdated front door.',
     localBody: [
-      'The business corridors along Douglas Avenue, 86th Street, and Merle Hay Road are full of companies that have served the area for years. Many of them run on word of mouth and a website built a long time ago.',
-      'Word of mouth still matters, but even a referral looks you up before calling. If your site is slow, hard to use on a phone, or hides your reviews, they call someone who looks more current.',
+      'Many established practices run on referrals and a website built a long time ago. The phone still goes to voicemail at 5 PM, and the contact form still emails a shared inbox.',
+      'Referrals still matter, but even a referral looks you up before calling. If your site is slow on a phone or the call goes unanswered, they call someone who looks easier to reach.',
     ],
     focusPoints: [
       {
         title: 'A rebuild that keeps what is working',
         description:
-          'We move your existing pages over carefully and redirect your old links, so you keep the Google rankings you have already earned.',
+          'We move your existing pages over carefully and redirect your old links, so you keep the search visibility you have already earned.',
       },
       {
-        title: 'Turn your reputation into calls',
-        description:
-          'Your reviews, your years in business, and your real work front and center, with tap-to-call on every page.',
+        title: 'Answer every new inquiry',
+        description: 'Missed calls and web inquiries get a reply within 60 seconds, 24/7, with online consultation booking.',
       },
       {
-        title: 'Show up for nearby searches',
-        description:
-          'Local SEO for Urbandale and the surrounding metro, so people searching close by find you first.',
+        title: 'Turn loyal patients into reviews',
+        description: 'An automatic review request after every completed appointment.',
       },
     ],
-    featuredNiches: ['accounting', 'law-firms', 'hvac', 'electrical', 'auto-detailing', 'home-remodeling'],
+    featuredNiches: ['accounting', 'law-firms', 'dental', 'med-spa'],
     faq: [
       {
-        question: 'Most of our work comes from referrals. Why rebuild an old website?',
+        question: 'Most of our new patients come from referrals. Why change anything?',
         answer:
-          'Because most referrals still look you up first. A site that is fast, works well on a phone, and shows your reviews makes that referral pick up the phone instead of second-guessing.',
+          'Because most referrals still look you up and call first. A site that works well on a phone, and a reply within 60 seconds when nobody can pick up, make sure that referral turns into a booked visit.',
       },
       {
-        question: 'Will a new site hurt the Google rankings we already have?',
+        question: 'Will a new site hurt the search visibility we already have?',
         answer:
-          'Not if it is done carefully. We move your content over and redirect every old URL to its new page. That is how we rebuilt A-1 Auto Detailing’s site, which went from page 2 to #1 on Google for "Pleasant Hill auto detailing."',
+          'Not if it is done carefully. We move your content over and redirect every old URL to its new page, so links and bookmarks keep working.',
       },
       {
-        question: 'Do you work with businesses in Urbandale?',
+        question: 'Do you work with practices in Urbandale?',
         answer:
-          'Yes. Urbandale is a short drive from our West Des Moines base, and we can meet at your location anywhere in the metro.',
+          'Yes. Urbandale is a short drive from our West Des Moines base, and we can meet at your office anywhere in the metro.',
       },
     ],
   },

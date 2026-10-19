@@ -1,13 +1,13 @@
 import type { Niche } from '@/data/nichesData';
 
-// The fix for the leaks above. A header strip carries the site-wide
-// found / chosen / booked story (same steps as the /go pages), then the niche's
-// own workflow as a timeline: horizontal on desktop, vertical on mobile. Each
-// step that plugs a leak says which one.
+// The fix for the leaks above. A header strip carries the three layers every
+// AxeonCORE practice gets (same layers as /marketing-solutions), then the
+// practice's own workflow as a timeline: horizontal on desktop, vertical on
+// mobile. Each step that plugs a leak says which one.
 const SYSTEM = [
-  { title: 'Found first', body: 'On Google, on the map, and in AI answers when people nearby search.' },
-  { title: 'Chosen first', body: 'A fast site with your reviews up front that makes you the obvious pick.' },
-  { title: 'Booked first', body: 'Tap-to-call and a quote form on every page. On AxeonCORE, AI chat and follow-up answer in seconds.' },
+  { title: 'Practice website', body: 'Providers and credentials, services, reviews and booking on one fast, mobile-first site.' },
+  { title: '60-second intake', body: 'Every missed call and web inquiry gets a reply within 60 seconds, 24/7, and a way to book.' },
+  { title: 'Review engine', body: 'An automatic review request after every appointment, so your reputation keeps up with your work.' },
 ];
 
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -23,7 +23,7 @@ export function NicheWorkflow({ niche }: { niche: Niche }) {
           <div>
             <p className="mb-2 text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ THE SYSTEM ]</p>
             <p className="text-2xl font-extrabold font-display tracking-tight leading-tight text-neutral-950 sm:text-3xl">
-              Found first, chosen first, booked first.
+              Answered first. Booked first. Reviewed after.
             </p>
           </div>
           <ul className="grid gap-5 sm:grid-cols-3">
@@ -40,7 +40,7 @@ export function NicheWorkflow({ niche }: { niche: Niche }) {
         <h2 className="max-w-4xl text-4xl font-extrabold font-display tracking-tight leading-[1.05] text-balance text-neutral-950 sm:text-5xl">
           {niche.workflowHeadline}
         </h2>
-        <p className="mt-4 max-w-2xl text-lg text-neutral-600">On AxeonCORE, these run automatically.</p>
+        <p className="mt-4 max-w-2xl text-lg text-neutral-600">Included in AxeonCORE. These run automatically, every day.</p>
 
         {/* Every niche has 5 steps; the grid wraps gracefully if that changes. */}
         <ol className="mt-12 grid grid-cols-1 lg:grid-cols-5 lg:gap-6">
@@ -74,6 +74,11 @@ export function NicheWorkflow({ niche }: { niche: Niche }) {
             );
           })}
         </ol>
+
+        <p className="mt-12 max-w-3xl rounded-2xl border border-neutral-300 bg-white px-5 py-4 text-sm leading-relaxed text-neutral-700 sm:text-base">
+          <span className="mr-2 font-mono text-xs font-bold tracking-widest text-blue-600">[ GOOD TO KNOW ]</span>
+          {niche.complianceNote}
+        </p>
       </div>
     </section>
   );

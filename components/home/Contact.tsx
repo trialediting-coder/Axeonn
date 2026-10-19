@@ -1,10 +1,17 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
-import { ArrowRight } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowRight, ArrowUpRight, PhoneCall, Timer, Star } from 'lucide-react';
 import { motion, useInView } from 'motion/react';
 import { loopWhile, AT_REST } from '@/lib/loopWhile';
-import { GetStartedFlow } from '@/components/get-started/GetStartedFlow';
+
+// What the free after-hours audit checks, in the order we do it.
+const AUDIT_STEPS = [
+  { icon: PhoneCall, title: 'We call your practice after hours', body: 'The way a new patient or client would.' },
+  { icon: Timer, title: 'We time your website’s reply', body: 'An inquiry through your site, clocked to the first answer.' },
+  { icon: Star, title: 'We compare your reviews', body: 'Your Google reviews next to the top 3 nearby practices.' },
+];
 
 export interface ContactProps {
   onBookAudit?: () => void;
@@ -290,7 +297,7 @@ export function Contact({ onBookAudit }: ContactProps) {
       {/* Content Container (Spans full screen without outer card radius) */}
       <div className="relative z-10 w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto px-4 sm:px-8 lg:px-14 xl:px-20 py-8 lg:py-12 select-text">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 xl:gap-16 items-start lg:items-center">
-          {/* Left Column: Clean White Card with the Get Started intake form */}
+          {/* Left Column: Clean White Card with the free audit offer */}
           <motion.div
             id="contact-card-container"
             initial={{ opacity: 0, y: 25, scale: 0.98 }}
@@ -302,14 +309,39 @@ export function Contact({ onBookAudit }: ContactProps) {
             <div className="space-y-6">
               <div className="pb-1">
                 <h3 className="text-2xl sm:text-3xl font-bold font-display tracking-tight text-neutral-950 leading-tight">
-                  Let&apos;s Get You More Customers
+                  Get your free after-hours audit
                 </h3>
                 <p className="text-sm sm:text-base text-neutral-600 mt-1.5">
-                  Answer a few quick questions and get a recommended plan. Takes about a minute.
+                  You get a short video walkthrough of what we found. No charge, and it is yours to keep.
                 </p>
               </div>
 
-              <GetStartedFlow embedded />
+              <ol className="divide-y divide-neutral-200 border-y border-neutral-200">
+                {AUDIT_STEPS.map(({ icon: Icon, title, body }, i) => (
+                  <li key={title} className="flex items-start gap-4 py-4">
+                    <span className="font-mono text-xs font-bold text-neutral-400 pt-1">0{i + 1}</span>
+                    <Icon size={20} className="mt-0.5 shrink-0 text-blue-600" aria-hidden="true" />
+                    <div>
+                      <p className="font-bold text-neutral-950">{title}</p>
+                      <p className="mt-0.5 text-sm text-neutral-600">{body}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5">
+                <Link
+                  href="/audit"
+                  data-track="cta_click"
+                  data-track-cta="audit_contact"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors shadow-lg shadow-blue-600/25"
+                >
+                  Get your free audit <ArrowUpRight size={16} />
+                </Link>
+                <Link href="/book" className="py-2 inline-flex items-center gap-1.5 font-semibold text-neutral-700 hover:text-blue-600">
+                  or book a call <ArrowRight size={15} />
+                </Link>
+              </div>
             </div>
           </motion.div>
 
@@ -322,12 +354,12 @@ export function Contact({ onBookAudit }: ContactProps) {
             className="lg:col-span-5 xl:col-span-5 flex flex-col justify-center text-white"
           >
             <h2 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold font-display tracking-tight text-white leading-[1.08]">
-              Ready for more <br className="hidden sm:inline" />
-              customers?
+              Who answers <br className="hidden sm:inline" />
+              after hours?
             </h2>
 
             <p className="mt-6 sm:mt-8 text-base sm:text-lg lg:text-xl text-neutral-300 max-w-xl leading-relaxed font-normal">
-              Not showing up on Google, losing people to a weak website, or missing calls you never call back? Tell us where customers are slipping away and we&apos;ll map out the fix.
+              Calls after hours and during busy mornings go to voicemail, and forms wait until tomorrow. Let us test your practice and show you exactly what a new patient or client experiences today.
             </p>
 
             {/* Direct Contact Details */}
@@ -360,7 +392,7 @@ export function Contact({ onBookAudit }: ContactProps) {
               </div>
             </div>
 
-            {/* Book My Free Call pill button */}
+            {/* Call pill button */}
             <div className="mt-10">
               <a
                 href="tel:+15154938017"

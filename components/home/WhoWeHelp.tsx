@@ -3,12 +3,10 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import {
-  Home,
   Scale,
-  TrendingUp,
-  Building2,
+  Calculator,
+  Sparkles,
   Smile,
-  Store,
   ArrowRight,
   ChevronDown,
   type LucideIcon,
@@ -47,27 +45,30 @@ function IndustryVideoLayer({
         opacity: isActive ? 1 : 0,
       }}
     >
-      <video
-        ref={videoRef}
-        loop
-        muted
-        playsInline
-        preload={isActive ? 'auto' : 'none'}
-        poster={entry.image}
-        src={entry.video}
-        className="w-full h-full object-cover object-center"
-      />
+      {entry.video ? (
+        <video
+          ref={videoRef}
+          loop
+          muted
+          playsInline
+          preload={isActive ? 'auto' : 'none'}
+          poster={entry.image}
+          src={entry.video}
+          className="w-full h-full object-cover object-center"
+        />
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={entry.image} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover object-center" />
+      )}
     </div>
   );
 }
 
 const INDUSTRY_ICONS: Record<string, LucideIcon> = {
-  'Home Services': Home,
-  'Legal': Scale,
-  'Financial': TrendingUp,
-  'Real Estate': Building2,
-  'Dental': Smile,
-  'Small Business': Store,
+  Dental: Smile,
+  'Med Spa': Sparkles,
+  'Law Firms': Scale,
+  Accounting: Calculator,
 };
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as const;
@@ -100,7 +101,7 @@ function NicheLinks({ entry, compact }: { entry: WhoWeHelpEntry; compact?: boole
 export function WhoWeHelp() {
   // `null` until hydration so we never mount autoplay video on a phone.
   const isMobile = useIsMobile();
-  const [activeIndustryId, setActiveIndustryId] = useState<string | null>('home-services');
+  const [activeIndustryId, setActiveIndustryId] = useState<string | null>('dental');
 
   const activeEntry = whoWeHelpEntries.find((e) => e.id === activeIndustryId) ?? null;
   const showVideo = isMobile === false;
@@ -114,11 +115,11 @@ export function WhoWeHelp() {
         {/* Top Eyebrow & Headlines */}
         <div className="mb-8 sm:mb-16">
           <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-4 sm:mb-5">
-            [ PICK YOUR INDUSTRY ]
+            [ PICK YOUR PRACTICE ]
           </p>
 
           <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-[68px] font-black font-display tracking-tight text-neutral-950 leading-[1.08] max-w-5xl">
-            Every trade loses customers differently.{' '}
+            Every practice loses new patients and clients in its own way.{' '}
             <span className="text-blue-600">See yours.</span>
           </h2>
         </div>
@@ -192,7 +193,7 @@ export function WhoWeHelp() {
               {/* Left Column: Stack of Industry Pills */}
               <div className="w-full sm:w-[480px] md:w-[540px] shrink-0 flex flex-col gap-2.5 sm:gap-4">
                 {whoWeHelpEntries.map((entry) => {
-                  const Icon = INDUSTRY_ICONS[entry.label] || Home;
+                  const Icon = INDUSTRY_ICONS[entry.label] || Smile;
                   const isActive = activeIndustryId === entry.id;
                   const hasNiches = !!entry.niches && entry.niches.length > 0;
                   // On phones the sub-niche list expands inline under its pill,

@@ -14,9 +14,9 @@ interface RecentWorkProps {
 
 /** A portfolio teaser that links through to /work. */
 export function RecentWork({
-  eyebrow = 'Recent Work',
-  heading = 'Built Around How Each Business Sells',
-  intro = 'Every site starts from how that business actually wins work, not from a theme with the colors changed.',
+  eyebrow = 'Recent Builds',
+  heading = 'Sites We Have Built',
+  intro = 'Every site starts from how that business actually works, not from a theme with the colors changed.',
   limit = 3,
   tone = 'light',
 }: RecentWorkProps) {
@@ -43,7 +43,7 @@ export function RecentWork({
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12 lg:gap-x-8">
           {projects.map((project) => (
-            <WorkCard key={project.name} project={project} />
+            <WorkCard key={project.name} project={project} showConcept />
           ))}
         </div>
       </div>
