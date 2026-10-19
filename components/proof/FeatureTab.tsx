@@ -79,9 +79,9 @@ export function FeatureTab({ tab, reports, traffic, reels = [] }: { tab: ProofTa
     return (
       <>
         {head}
-        <p className="mt-2 max-w-2xl text-sm text-neutral-600">Online scheduling and chat booking are live on your site and your Google listing. Booked jobs come from your monthly report.</p>
+        <p className="mt-2 max-w-2xl text-sm text-neutral-600">Online scheduling and chat booking are live on your site and your Google listing. Bookings come from your monthly report.</p>
         <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Stat label="Booked jobs" value={show(latest?.booked)} sub={delta(latest?.booked, prev?.booked) ?? month} />
+          <Stat label="Bookings" value={show(latest?.booked)} sub={delta(latest?.booked, prev?.booked) ?? month} />
           <Stat label="Booked from your site" value={traffic ? String(traffic.buttons.find((b) => b.name === 'book')?.count ?? 0) : '—'} sub="People who pressed Book on your website" />
         </div>
       </>
@@ -91,7 +91,7 @@ export function FeatureTab({ tab, reports, traffic, reels = [] }: { tab: ProofTa
     return (
       <>
         {head}
-        <p className="mt-2 max-w-2xl text-sm text-neutral-600">Every finished job gets a review request by text. New reviews and your rating come from your monthly report.</p>
+        <p className="mt-2 max-w-2xl text-sm text-neutral-600">Every completed appointment gets a review request by text. New reviews and your rating come from your monthly report.</p>
         <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Stat label="New reviews" value={show(latest?.reviews)} sub={delta(latest?.reviews, prev?.reviews) ?? month} />
           <Stat label="Rating" value={latest?.rating != null ? latest.rating.toFixed(1) : '—'} sub={month} />
@@ -133,7 +133,7 @@ export function FeatureTab({ tab, reports, traffic, reels = [] }: { tab: ProofTa
       </p>
       <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Stat label="Calls" value={show(latest?.calls)} sub={month} />
-        <Stat label="Booked jobs" value={show(latest?.booked)} sub={month} />
+        <Stat label="Bookings" value={show(latest?.booked)} sub={month} />
       </div>
       <p className="mt-4 text-xs text-neutral-500">Part of {plan}. To change what it says or quotes, reply to any report email.</p>
     </>

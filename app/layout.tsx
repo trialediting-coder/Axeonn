@@ -33,9 +33,9 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://axeonstudio.co'),
   ...buildMetadata({
     path: '/',
-    title: 'Des Moines Digital Marketing for Iowa Local Businesses | Axeon',
+    title: 'Patient & Client Intake for Private Practices | Axeon Studio',
     description:
-      "Des Moines web design and digital marketing for Iowa's local businesses. Get found on Google, chosen over competitors, and booked fast. 90-day guarantee.",
+      'Every missed call and web inquiry answered within 60 seconds, 24/7. Consultations booked, reviews requested. Intake for dental, med spa, law and CPA practices.',
   }),
   other: {
     'geo.region': 'US-IA',

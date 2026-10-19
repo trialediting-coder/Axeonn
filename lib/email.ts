@@ -1055,7 +1055,7 @@ export function renderMonthlyReportEmail(input: MonthlyReportEmailInput): { subj
   const headline = ramp
     ? number === 1
       ? 'Google takes two to three months to trust a new site, so this first report is the starting line, not the verdict. Here is what we built and what the site did.'
-      : `Month ${number} of the ramp. Google is still learning the site; the numbers below are the trend taking shape, not the ceiling.`
+      : `Month ${number} of your first 90 days. Google is still learning the site; the numbers below are the trend taking shape, not the ceiling.`
     : t
     ? headlineSentence({
         business,
@@ -1065,18 +1065,18 @@ export function renderMonthlyReportEmail(input: MonthlyReportEmailInput): { subj
         prev: input.prevTraffic,
         avgJobValue: input.avgJobValue,
       })
-    : `Calls, leads and booked jobs for ${input.monthLabel}, and what we are doing next.`;
+    : `Calls, leads and bookings for ${input.monthLabel}, and what we are doing next.`;
   const wins = t ? reportHighlights({ traffic: t, prev: input.prevTraffic, report: typed, prevReport: input.prevRank != null ? { rank: input.prevRank } : null }) : [];
   const subject = ramp
     ? number === 1
       ? `${business}: month one with Axeon, the starting line`
-      : `${business}: month ${number} of the ramp, ${input.monthLabel}`
+      : `${business}: month ${number} of your first 90 days, ${input.monthLabel}`
     : t && t.conversions > 0
       ? `${t.conversions} ${t.conversions === 1 ? 'person' : 'people'} reached out to ${business} in ${input.monthLabel}. Here is how.`
       : `What Axeon did for ${business} in ${input.monthLabel}`;
   const didSomething = input.done.length > 0;
   const kicker = ramp
-    ? `<p style="margin:22px 0 0;font-family:${FONT};font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#cfe0ff">Month ${number} of your 90-day ramp · ${escapeHtml(input.monthLabel)}</p>`
+    ? `<p style="margin:22px 0 0;font-family:${FONT};font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:#cfe0ff">Month ${number} of your first 90 days · ${escapeHtml(input.monthLabel)}</p>`
     : '';
   const headerHtml = `
     <img src="${LOCKUP_WHITE_PROOF}" width="203" height="30" alt="AxeonPROOF" style="display:block;border:0;font-family:${FONT};font-size:22px;font-weight:800;color:#ffffff">

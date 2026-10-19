@@ -8,28 +8,43 @@ Payments, Invoicing, Billing (recurring), and Tax monitoring. No Connect.
 | Piece | Where | Notes |
 | --- | --- | --- |
 | Stripe client | `lib/stripe.ts` | One `Stripe` instance, SDK-pinned API version |
-| Money helpers | `lib/billing.ts`, `lib/billingMath.ts` | Checkout, invoices, care plans, portal |
+| Money helpers | `lib/billing.ts`, `lib/billingMath.ts` | Checkout, agreement checkout, invoices, care plans, portal |
 | Webhook | `app/api/stripe/webhook/route.ts` | Signature-verified, idempotent, emails the owner |
 | Admin API | `app/api/admin/billing/*` | Session or `CMS_API_TOKEN` bearer auth |
 | Admin UI | `/admin/billing` | Payment links, invoices, plans, portal, activity |
 | Success page | `/billing/success` | Display only, noindex |
-| Public pay page | `/pay` | Self-serve deposit / balance / full via hosted Checkout, noindex, footer link |
 | Public API | `app/api/billing/checkout/route.ts` | No auth; honeypot + per-IP rate limit; generic errors |
 | Public catalog | `lib/publicCatalog.ts` | Stripe amounts by lookup_key, cached 10 min, seeded fallback |
 | Personalized links | `/pay/<token>`, `lib/payLinks.ts`, `app/api/admin/billing/pay-links` | Admin-minted, scope locked, `pay_links` table, closes on webhook |
 | Catalog seed | `scripts/stripe-seed.mjs` | `npm run stripe:seed`, idempotent |
 | DB tables | `stripe_events`, `billing_records` | Created by `ensureSchema()` and `db:init` |
 
-Prices are matched by `lookup_key`, so no price IDs live in env vars:
-`core-web-build`, `axeoncore`, `addon-videography`, `addon-extra-page`,
-`addon-directory-integration`, `addon-landing-page-variant`. Monthly plans are
-recurring prices matched the same way: `core-web-build-monthly` ($284/month) and
-`axeoncore-monthly` ($574/month) are the public per-tier plans shown on `/pay`
-as "then $X/mo after launch" (never charged on the setup payment); the
-hosting/care product (`metadata.axeon_key = hosting-care`) carries the private
-$49/month basics price `hosting-care-monthly` for existing clients, and any other
-amount entered in the console is priced ad hoc on that product. `PLANS` in
-`lib/billing.ts` is the list.
+Prices are matched by `lookup_key`, so no price IDs live in env vars.
+`CATALOG` and `PLANS` in `lib/billing.ts` are the list; `scripts/stripe-seed.mjs`
+creates them. Amounts as of 2026-10-19 (Phase 1 pricing):
+
+| lookup_key | Type | Amount | What it is |
+| --- | --- | --- | --- |
+| `axeoncore` | one-time | $3,000 | AxeonCORE implementation fee. Paid upfront on month-to-month; credited in full on the 12-month agreement |
+| `axeongrowth` | one-time | $5,000 | AxeonGROWTH implementation fee. Paid upfront on month-to-month; credited on the 12-month agreement. Includes the first photo/video shoot |
+| `axeoncore-monthly` | recurring | $799/month | AxeonCORE monthly plan (public) |
+| `axeongrowth-monthly` | recurring | $1,999/month | AxeonGROWTH monthly plan (public). Ad spend is paid to Google directly, $500/month minimum |
+| `addon-ads-monthly` | recurring | $750/month | Local Services Ads & search ads management on AxeonCORE (private preset) |
+| `addon-ai-receptionist-monthly` | recurring | $199/month | AI phone receptionist add-on (private preset) |
+| `addon-videography` | one-time | $1,500 | On-site videography add-on |
+| `addon-extra-page` | one-time | $450 | Extra page |
+| `core-web-build` | one-time | $99 | Essentials start fee. Legacy: existing clients only, never sold publicly |
+| `core-web-build-monthly` | recurring | $149/month | Essentials monthly plan. Legacy: existing clients only |
+| `hosting-care-monthly` | recurring | $49/month | Private hosting & care basics for existing clients (product `metadata.axeon_key = hosting-care`); any other amount entered in the console is priced ad hoc on that product |
+
+Annual prepay (12 months for the price of 10, e.g. $7,990 on AxeonCORE) is not a
+separate Price: the agreement checkout in `lib/billing.ts` charges the Initial
+Term once (`prepaidCents`) and starts the monthly subscription after it.
+Retired and archived (never deleted): `addon-directory-integration`,
+`addon-landing-page-variant`; earlier amounts ($284/$574 monthly, $2,800/$5,800
+builds, $299/$999 monthly, $1,500 GROWTH start fee, +$399 ads) were replaced by
+the seed moving each lookup_key to a new Price. Existing subscriptions keep the
+Price they were created with.
 
 ## Environment variables
 
@@ -188,11 +203,10 @@ production code. Confirm with a tax advisor before collecting.
 - Connect (platform for clients). Revisit if clients should take payments
   through sites Axeon builds; the planner path is SaaS platform with direct
   charges and Stripe-owned pricing.
-- A "Pay" button on `/pricing` itself. Sales stay call-first; self-serve
-  payment lives on `/pay` (noindex, footer link) for clients who have already
-  been scoped. Link to `/pay?tier=axeoncore` or `/pay?tier=core-web-build` to
-  preselect a build. Sessions started there carry `metadata.source =
-  axeon-site-pay` so they can be told apart from admin-minted links.
+- A "Pay" button or self-serve checkout anywhere on the public site. Sales are
+  call-first: the free after-hours audit or a call, then a signed agreement and
+  an admin-minted personalized link (`/pay/<token>`). The public `/pay` page was
+  removed on 2026-10-03.
 - Content-Security-Policy headers. Nothing loads Stripe.js on the site; all
   payment UI is Stripe-hosted. Add CSP if Elements or embedded Checkout is ever
   introduced.

@@ -644,7 +644,7 @@ test('feedback tokens round-trip, reject tampering, and the report carries the t
 
 // ---- AxeonPROOF tabs and the upgrade page ---------------------------------------
 
-test('every tab is visible, tabs outside the plan are locked, and the price reads as extra jobs', async () => {
+test('every tab is visible, tabs outside the plan are locked, and the price reads as extra customers', async () => {
   const { PROOF_TABS, isProofTab, proofTab, tabLocked, upgradeMath, lockedHeadline } = await import('./proofTabs');
   assert.deepEqual(PROOF_TABS.map((t) => t.key), ['overview', 'leads', 'calls', 'bookings', 'reviews', 'ads', 'receptionist', 'email', 'billing']);
   assert.ok(isProofTab('calls') && isProofTab('billing') && !isProofTab('settings'));
@@ -655,9 +655,9 @@ test('every tab is visible, tabs outside the plan are locked, and the price read
   assert.deepEqual(locked('axeongrowth'), []);
   assert.deepEqual(PROOF_TABS.filter((t) => tabLocked(t, 'website')).map((t) => t.key), PROOF_TABS.filter((t) => t.key !== 'billing').map((t) => t.key), 'website plan: billing only');
   assert.equal(upgradeMath('essentials', 'axeoncore', 300).delta, 650);
-  assert.match(upgradeMath('essentials', 'axeoncore', 300).line, /^At your average job of \$300, that is 3 extra jobs a month/);
-  assert.match(upgradeMath('essentials', 'axeoncore', 3500).line, /one extra job/);
-  assert.match(upgradeMath('essentials', 'axeoncore', null).line, /Tell us your average job/);
+  assert.match(upgradeMath('essentials', 'axeoncore', 300).line, /^At an average customer worth \$300, that is 3 extra customers a month/);
+  assert.match(upgradeMath('essentials', 'axeoncore', 3500).line, /one extra customer/);
+  assert.match(upgradeMath('essentials', 'axeoncore', null).line, /Tell us what an average customer is worth/);
   assert.equal(upgradeMath('axeoncore', 'axeongrowth', 300).delta, 1200);
   assert.match(upgradeMath('axeoncore', 'axeongrowth', 300).line, /Plus the ad budget you set/);
   const t = summarize({ views: 300, visitors: 120, clicks: 20, buttons: [{ name: 'call', count: 12 }, { name: 'form', count: 3 }], pages: [], sources: [], closeRate: null });
@@ -668,6 +668,7 @@ test('every tab is visible, tabs outside the plan are locked, and the price read
     assert.ok(tab.includes.length >= 3, `${tab.key} has bullets`);
     assert.ok(tab.ghost && tab.ghost.tiles.length === 4 && tab.ghost.rows.length >= 6 && tab.ghost.bars.length >= 8, `${tab.key} has a ghost dashboard`);
     assert.doesNotMatch(lockedHeadline(tab, t) + tab.includes.join(' '), /conversion/i);
+    assert.doesNotMatch(lockedHeadline(tab, t) + tab.includes.join(' ') + tab.promise, /\b(jobs?|shop|crew)\b/i, `${tab.key} copy works for practices and trades`);
   }
 });
 

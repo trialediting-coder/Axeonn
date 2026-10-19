@@ -22,7 +22,7 @@ function SampleDashboard() {
   const tiles = [
     { label: 'Calls', value: '128', delta: '+18%' },
     { label: 'Leads', value: '64', delta: '+24%' },
-    { label: 'Booked jobs', value: '41', delta: '+12%' },
+    { label: 'Bookings', value: '41', delta: '+12%' },
   ];
   return (
     <div className="relative mx-auto w-full max-w-md rounded-xl border border-white/10 bg-white p-4 shadow-2xl shadow-blue-950/50">
@@ -73,7 +73,7 @@ export function ProofAuthShell({ title, subtitle, children }: { title: string; s
             </p>
             <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-blue-300/70">by Axeon Studio</p>
             <p className="mx-auto mt-6 max-w-xs text-sm leading-relaxed text-neutral-300">
-              Every call, lead and booked job, and exactly where each one came from.
+              Every call, lead and booking, and exactly where each one came from.
             </p>
             <p className="mt-5 text-lg font-bold text-white">
               No guesswork. <span className="text-blue-400">Just proof.</span>

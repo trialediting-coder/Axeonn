@@ -13,7 +13,7 @@ export const WEBSITE_ID = `${SITE_URL}/#website`;
 // Bump when static page content materially changes. Used as the sitemap
 // <lastmod> for static routes so we don't tell Google "everything changed"
 // on every request.
-export const CONTENT_LAST_UPDATED = new Date('2026-10-14T00:00:00Z');
+export const CONTENT_LAST_UPDATED = new Date('2026-10-19T00:00:00Z');
 
 export const BUSINESS = {
   name: 'Axeon Studio',
@@ -34,8 +34,9 @@ export const BUSINESS = {
     latitude: 41.5772,
     longitude: -93.7538,
   },
-  // Real published pricing floor/ceiling — never widen to an unsourced range.
-  priceRange: '$149-$999',
+  // Real published monthly floor/ceiling (AxeonCORE $799, AxeonGROWTH $1,999).
+  // Never widen to an unsourced range.
+  priceRange: '$799-$1,999',
   // Company profiles only; no personal accounts.
   // Add the Google Business Profile, Yelp and Clutch URLs here once claimed.
   sameAs: [
@@ -84,37 +85,48 @@ export const SERVICE_AREA = [
 export const providerRef = { '@id': ORG_ID };
 
 const KNOWS_ABOUT = [
-  'Web design',
-  'Website development',
-  'Local SEO',
-  'Search engine optimization',
-  'Answer engine optimization',
-  'Generative engine optimization',
-  'Google Business Profile management',
-  'Google Ads management',
-  'Meta Ads management',
-  'Google Local Services Ads management',
-  'Lead generation',
-  'Lead follow-up automation',
+  'Patient intake for private practices',
+  'Client intake for professional services firms',
   'Missed-call text-back',
-  'AI chat and online scheduling',
+  'Speed-to-lead response',
+  'Online consultation booking',
+  'Review generation',
+  'Google Local Services Ads for professional services',
+  'Dental practice marketing',
+  'Med spa marketing',
+  'Law firm marketing',
+  'Accounting and CPA firm marketing',
+  'Practice website design',
+  'Local SEO',
+  'Google Business Profile management',
+  'Call tracking',
   'AI phone receptionist',
-  'Video and photography production',
+  'Database reactivation campaigns',
 ];
 
-// The three published plans, generated from data/pricingData.ts so the
-// structured data can never drift from the pricing cards.
+// The published plans, generated from data/pricingData.ts so the structured
+// data can never drift from the pricing cards. Reads only fields every tier
+// shape carries (name, price string, optional focus) and skips retired or
+// non-public tiers, so a pricingData rewrite cannot leak an old price here.
+// Never put a start/setup fee in the offer text.
+type CatalogTier = { name: string; price: string | number; focus?: string };
+const RETIRED_TIER = /essentials/i;
+
 function planOfferCatalog() {
+  const tiers = (pricingTiers as unknown as readonly CatalogTier[]).filter(
+    (tier) => !RETIRED_TIER.test(tier.name) && /\d/.test(String(tier.price)),
+  );
   return {
     '@type': 'OfferCatalog',
     name: 'Axeon Studio plans',
     url: `${SITE_URL}/pricing`,
-    itemListElement: pricingTiers.map((tier) => {
-      const price = tier.price.replace(/[^0-9.]/g, '');
+    itemListElement: tiers.map((tier) => {
+      const price = String(tier.price).replace(/[^0-9.]/g, '');
+      const display = `$${Number(price).toLocaleString('en-US')}/month`;
       return {
         '@type': 'Offer',
         name: tier.name,
-        description: `${tier.focus}. ${tier.price}${tier.billingNote}, ${tier.startFee}.`,
+        description: `${tier.focus ? `${tier.focus}. ` : ''}From ${display} on a 12-month agreement, implementation fee credited.`,
         url: `${SITE_URL}/pricing`,
         price,
         priceCurrency: 'USD',
@@ -157,9 +169,8 @@ export function localBusinessJsonLd() {
     priceRange: BUSINESS.priceRange,
     currenciesAccepted: 'USD',
     areaServed: SERVICE_AREA,
-    slogan: 'We Get You Customers, Not Clicks.',
     description:
-      'Axeon Studio gets Des Moines-area businesses more customers: local SEO and AI search visibility, Google, Meta and Local Services Ads, websites built to turn visitors into calls, and instant lead follow-up, run by one West Des Moines team and backed by a 90-day customer guarantee.',
+      'Axeon Studio installs patient and client intake systems for established private practices: dental offices, med spas, law firms and accounting firms. Every missed call and web inquiry gets a reply within 60 seconds, 24/7, consultations are booked online, and every patient or client is asked for a review after the visit. Based in West Des Moines, Iowa, with a 90-day performance commitment: live in 30 days, 60-second replies, review requests on every visit, or walk away.',
     knowsAbout: KNOWS_ABOUT,
     hasOfferCatalog: planOfferCatalog(),
     sameAs: BUSINESS.sameAs,

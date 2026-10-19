@@ -84,7 +84,7 @@ type MetricKey = 'calls' | 'leads' | 'booked' | 'rank';
 const METRICS: { key: MetricKey; label: string; icon: Icon; hint: string }[] = [
   { key: 'calls', label: 'Calls', icon: PhoneCall, hint: 'From your site and Google listing' },
   { key: 'leads', label: 'Leads', icon: Activity, hint: 'Quote requests and form leads' },
-  { key: 'booked', label: 'Booked jobs', icon: CalendarCheck, hint: 'Traced back to their source' },
+  { key: 'booked', label: 'Bookings', icon: CalendarCheck, hint: 'Traced back to their source' },
   { key: 'rank', label: 'Map rank', icon: MapPin, hint: 'For the services you sell' },
 ];
 
@@ -329,7 +329,7 @@ export function ProofDashboard({
   agreementUrl: string | null;
   /** Set when an admin is looking at this client's dashboard (app/admin/onboarding/[token]/preview). */
   preview?: { label: string; backHref: string } | null;
-  /** Average job in dollars, when the client has told us; turns estimated customers into a dollar figure. */
+  /** What an average customer is worth in dollars, when the client has told us; turns estimated customers into a dollar figure. */
   avgJobValue?: number | null;
   /** This month's and last month's leads (lib/siteStats.ts leadRows), newest first. */
   leads?: LeadMonth[];
@@ -577,7 +577,7 @@ export function ProofDashboard({
             <div className="mt-6">
               <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Included in your plan</p>
               <h2 className="mt-3 text-2xl font-bold tracking-tight text-neutral-950">Leads</h2>
-              <p className="mt-2 max-w-2xl text-sm text-neutral-600">Every call, text, email, form and booking from your site, the day it happens. Tap Booked on the ones that turned into a job and your numbers get more exact every month.</p>
+              <p className="mt-2 max-w-2xl text-sm text-neutral-600">Every call, text, email, form and booking from your site, the day it happens. Tap Booked on the ones that turned into a customer and your numbers get more exact every month.</p>
               {forms.some((m) => m.rows.length > 0) ? <FormLeads months={forms} stageApi={preview ? null : stageApi} /> : null}
               {leads.some((m) => m.rows.length > 0) ? (
                 <LeadLog months={leads} api={leadApi} />
@@ -764,7 +764,7 @@ export function ProofDashboard({
             </dl>
             {guarantee && guaranteeDay != null ? (
               <div className="mt-5 rounded-lg bg-blue-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">90-day guarantee · Day {guaranteeDay} of 90</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">First 90 days · Day {guaranteeDay} of 90</p>
                 <div className="mt-2 h-1.5 rounded-full bg-blue-100">
                   <div className="proof-width h-1.5 rounded-full bg-blue-600" style={{ width: `${(guaranteeDay / 90) * 100}%` }} />
                 </div>
@@ -834,7 +834,7 @@ export function ProofDashboard({
                       <p className="mt-1.5 text-sm font-semibold text-neutral-950">
                         {f.r.traffic && (f.r.traffic.views > 0 || f.r.traffic.clicks > 0)
                           ? `${f.r.traffic.views} visits · ${f.r.traffic.clicks} button clicks · ~${f.r.traffic.estimatedCustomers} new customers (est.)`
-                          : `${f.r.calls ?? '—'} calls · ${f.r.leads ?? '—'} leads · ${f.r.booked ?? '—'} booked jobs`}
+                          : `${f.r.calls ?? '—'} calls · ${f.r.leads ?? '—'} leads · ${f.r.booked ?? '—'} bookings`}
                         {f.r.rank != null ? ` · #${f.r.rank} on Google` : ''}
                       </p>
                       {f.r.note ? <p className="mt-1 text-sm text-neutral-600">{f.r.note}</p> : null}

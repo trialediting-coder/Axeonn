@@ -68,4 +68,45 @@ describe('validatePost', () => {
     assert.strictEqual(result.passed, true);
     assert.deepStrictEqual(result.reasons, []);
   });
+
+  const compliant = (extra: string) => {
+    const longBody = 'Axeon Studio installs patient intake for private practices. '.repeat(160);
+    return validatePost({
+      title: 'Pricing Post',
+      content: `# Title\n\n## One\n\n${longBody}\n\n## Two\n\n${extra}`,
+      sources: [],
+    });
+  };
+
+  it('accepts the published prices and the 12-month agreement wording', () => {
+    const result = compliant(
+      'AxeonCORE is from $799/mo and AxeonGROWTH is from $1,999/month plus ad spend ($500/month minimum). ' +
+        'Local Services Ads on AxeonCORE is +$750/month and the AI receptionist is +$199/mo. ' +
+        'Plans run on a 12-month agreement; month-to-month is available with the $3,000 implementation fee paid upfront. ' +
+        'The 90-day performance commitment: live in 30 days, 60-second replies, review requests on every visit, or walk away. Videography is $1,500.',
+    );
+    assert.deepStrictEqual(result.reasons, []);
+    assert.strictEqual(result.passed, true);
+  });
+
+  for (const [label, text] of [
+    ['retired $149 plan', 'Essentials is $149/month.'],
+    ['retired $299 plan', 'AxeonCORE costs $299 a month.'],
+    ['retired $999 plan', 'The top plan is $999 plus ad spend.'],
+    ['retired $99 to start', 'Every plan is $99 to start.'],
+    ['retired $1,500 to start', 'AxeonGROWTH is $1,500 to start.'],
+    ['first month free', 'Your first month free when you sign today.'],
+    ['an unpublished monthly price', 'It costs $1,200/mo.'],
+    ['an invented 24-month term', 'Plans run on a 24-month agreement.'],
+    ['an invented 3-month minimum', 'There is a 3-month minimum.'],
+    ['a no-contract claim', 'There are no contracts and you can cancel anytime.'],
+    ['the retired guarantee', 'Backed by our 90-day guarantee.'],
+    ['a commitment turned into a number', 'Our commitment is 20 new patients in your first 90 days.'],
+  ] as const) {
+    it(`rejects ${label}`, () => {
+      const result = compliant(text);
+      assert.strictEqual(result.passed, false, `${label} should fail`);
+    });
+  }
 });
+
