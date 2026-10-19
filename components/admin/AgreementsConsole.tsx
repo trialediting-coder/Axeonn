@@ -15,6 +15,7 @@ export interface AgreementRow {
   monthlyCents: number;
   noMinimum?: boolean;
   minimumMonths?: number;
+  billing?: 'monthly' | 'annual';
   signedName: string | null;
   signedAt: string | null;
   paidAt: string | null;
@@ -23,7 +24,7 @@ export interface AgreementRow {
 }
 
 interface Options {
-  tiers: Array<{ value: AgreementRow['tier']; label: string; setup: number; monthly: number }>;
+  tiers: Array<{ value: AgreementRow['tier']; label: string; setup: number; monthly: number; minimumMonths: number; setupCredit: number }>;
   entityTypes: readonly string[];
   axeonEntities: readonly string[];
   addOns: readonly string[];
@@ -38,6 +39,17 @@ const STATUS: Record<AgreementRow['status'], { label: string; cls: string }> = {
 
 const dollars = (c: number) => `$${(c / 100).toLocaleString('en-US')}`;
 const today = () => new Date().toISOString().slice(0, 10);
+
+/**
+ * The three ways the practice offer is sold (the sales playbook's Options A-C).
+ * Picking one fills the term and fees; any field can still be changed by hand.
+ */
+type Deal = 'term' | 'monthToMonth' | 'annual';
+const DEALS: Array<{ value: Deal; label: string }> = [
+  { value: 'term', label: 'A · 12 months, implementation credited (recommended)' },
+  { value: 'monthToMonth', label: 'B · Month-to-month, implementation paid upfront' },
+  { value: 'annual', label: 'C · 12 months prepaid (pay 10)' },
+];
 
 export function AgreementsConsole({ initialRows, options, dbError }: { initialRows: AgreementRow[]; options: Options; dbError: string | null }) {
   const [rows, setRows] = useState(initialRows);
@@ -55,11 +67,27 @@ export function AgreementsConsole({ initialRows, options, dbError }: { initialRo
     setup: '',
     monthly: '',
     addOns: '',
+    specialty: '',
     hourlyRate: '',
     axeonEntity: options.axeonEntities[0],
     effectiveDate: today(),
   });
-  const [minimumMonths, setMinimumMonths] = useState('3');
+  const [minimumMonths, setMinimumMonths] = useState(String(plan.minimumMonths));
+  const [deal, setDeal] = useState<Deal>('term');
+  const practice = tier === 'axeoncore' || tier === 'axeongrowth';
+
+  /** Fill the term and implementation fee for a plan + deal. */
+  function applyDeal(nextTier: AgreementRow['tier'], nextDeal: Deal) {
+    const p = options.tiers.find((t) => t.value === nextTier)!;
+    const isPractice = nextTier === 'axeoncore' || nextTier === 'axeongrowth';
+    if (!isPractice) {
+      setMinimumMonths(String(p.minimumMonths));
+      setForm((f) => ({ ...f, setup: '' }));
+      return;
+    }
+    setMinimumMonths(nextDeal === 'monthToMonth' ? '0' : '12');
+    setForm((f) => ({ ...f, setup: nextDeal === 'monthToMonth' ? String(p.setupCredit / 100) : '' }));
+  }
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(dbError ? { ok: false, text: dbError } : null);
 
@@ -78,7 +106,7 @@ export function AgreementsConsole({ initialRows, options, dbError }: { initialRo
     const res = await fetch('/api/admin/agreements', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ ...form, tier, minimumMonths }),
+      body: JSON.stringify({ ...form, tier, minimumMonths, billing: practice && deal === 'annual' ? 'annual' : 'monthly' }),
     });
     const data = (await res.json().catch(() => ({}))) as { error?: string; emailed?: boolean; emailError?: string; agreement?: AgreementRow };
     setBusy(false);
@@ -92,7 +120,7 @@ export function AgreementsConsole({ initialRows, options, dbError }: { initialRo
         ? `Agreement ${data.agreement.number} created and emailed to ${data.agreement.clientEmail}.`
         : `Agreement ${data.agreement.number} created, but the email failed (${data.emailError}). Copy the link below and send it yourself.`,
     });
-    setForm((f) => ({ ...f, clientEmail: '', contactName: '', legalName: '', signerName: '', address: '', setup: '', monthly: '', addOns: '' }));
+    setForm((f) => ({ ...f, clientEmail: '', contactName: '', legalName: '', signerName: '', address: '', monthly: '', addOns: '', specialty: '' }));
     await refresh();
   }
 
@@ -123,19 +151,55 @@ export function AgreementsConsole({ initialRows, options, dbError }: { initialRo
         </div>
         <label className="block">
           <span className={adminLabel}>Plan</span>
-          <select className={adminInput} value={tier} onChange={(e) => setTier(e.target.value as AgreementRow['tier'])}>
+          <select
+            className={adminInput}
+            value={tier}
+            onChange={(e) => {
+              const next = e.target.value as AgreementRow['tier'];
+              setTier(next);
+              applyDeal(next, deal);
+            }}
+          >
             {options.tiers.map((t) => (
               <option key={t.value} value={t.value}>
-                {t.label} · {dollars(t.setup)} + {dollars(t.monthly)}/mo
+                {t.label} · {t.setup ? `${dollars(t.setup)} + ` : ''}
+                {dollars(t.monthly)}/mo
               </option>
             ))}
           </select>
         </label>
+        {practice && (
+          <label className="block">
+            <span className={adminLabel}>Deal</span>
+            <select
+              className={adminInput}
+              value={deal}
+              onChange={(e) => {
+                const next = e.target.value as Deal;
+                setDeal(next);
+                applyDeal(tier, next);
+              }}
+            >
+              {DEALS.map((d) => (
+                <option key={d.value} value={d.value}>
+                  {d.label}
+                </option>
+              ))}
+            </select>
+            <span className="mt-1 block text-xs text-neutral-500">
+              {deal === 'term' && `${dollars(plan.monthly)} due today; the ${dollars(plan.setupCredit)} implementation fee is credited for the 12 months (Sec. 2.4).`}
+              {deal === 'monthToMonth' && `${dollars(plan.setupCredit + plan.monthly)} due today; cancel any month with 30 days' notice.`}
+              {deal === 'annual' && `${dollars(plan.monthly * 10)} due today for 12 months, then ${dollars(plan.monthly)}/mo.`}
+            </span>
+          </label>
+        )}
         <div className="grid grid-cols-2 gap-3">
           {field('clientEmail', 'Client email', { type: 'email', required: true })}
           {field('contactName', 'Contact name')}
         </div>
-        {field('legalName', 'Client legal business name', { required: true, placeholder: 'Smith Roofing LLC' })}
+        {field('legalName', 'Client legal business name', { required: true, placeholder: 'Hintz Family Dentistry PC' })}
+        {practice &&
+          field('specialty', 'Specialty for territory exclusivity (Sec. 6.8)', { placeholder: 'general dentistry · med spa · family law · tax & accounting' })}
         <div className="grid grid-cols-2 gap-3">
           <label className="block">
             <span className={adminLabel}>Entity type</span>
@@ -153,7 +217,7 @@ export function AgreementsConsole({ initialRows, options, dbError }: { initialRo
         </div>
         {field('address', 'Business address', { required: true, placeholder: 'Street, City, State ZIP' })}
         <div className="grid grid-cols-2 gap-3">
-          {field('setup', 'Setup fee ($)', { inputMode: 'decimal', placeholder: String(plan.setup / 100) })}
+          {field('setup', 'Implementation fee due ($)', { inputMode: 'decimal', placeholder: String(plan.setup / 100) })}
           {field('monthly', 'Monthly ($)', { inputMode: 'decimal', placeholder: String(plan.monthly / 100) })}
         </div>
         <label className="block">
@@ -224,7 +288,8 @@ export function AgreementsConsole({ initialRows, options, dbError }: { initialRo
                     {r.clientEmail} · {dollars(r.setupCents)} + {dollars(r.monthlyCents)}/mo
                     {(() => {
                       const m = typeof r.minimumMonths === 'number' ? r.minimumMonths : r.noMinimum ? 0 : 3;
-                      return m === 0 ? ' · no minimum' : m === 3 ? '' : ` · ${m}-month minimum`;
+                      if (r.billing === 'annual') return ' · 12 months prepaid';
+                      return m === 0 ? ' · month-to-month' : ` · ${m}-month term`;
                     })()}
                     {r.signedAt ? ` · signed by ${r.signedName} ${new Date(r.signedAt).toLocaleDateString()}` : ''}
                   </p>

@@ -507,6 +507,8 @@ export interface AgreementCheckoutInput {
   planLabel: string;
   setupCents: number;
   monthlyCents: number;
+  /** Annual prepay: the Initial Term charged once now; the monthly plan starts after it. 0 = monthly billing. */
+  prepaidCents?: number;
   cancelUrl: string;
 }
 
@@ -537,8 +539,22 @@ export async function createAgreementCheckout(input: AgreementCheckoutInput): Pr
       quantity: 1,
       price_data: {
         currency: 'usd',
-        product_data: { name: `${input.planLabel} · setup` },
+        product_data: { name: `${input.planLabel} · implementation` },
         unit_amount: input.setupCents,
+        tax_behavior: 'exclusive',
+      },
+    });
+  }
+  // Annual prepay: the 12 months are a one-time charge on the first invoice and
+  // the monthly plan trials until they run out, then bills month-to-month.
+  const prepaid = (input.prepaidCents ?? 0) > 0;
+  if (prepaid) {
+    lineItems.push({
+      quantity: 1,
+      price_data: {
+        currency: 'usd',
+        product_data: { name: `${input.planLabel} · 12 months prepaid` },
+        unit_amount: input.prepaidCents!,
         tax_behavior: 'exclusive',
       },
     });
@@ -562,11 +578,15 @@ export async function createAgreementCheckout(input: AgreementCheckoutInput): Pr
     cancel_url: input.cancelUrl,
     automatic_tax: { enabled: automaticTaxEnabled() },
     integration_identifier: CHECKOUT_TAGS.care,
-    subscription_data: { description: `${input.planLabel} (Agreement ${input.number})`, metadata },
+    subscription_data: {
+      description: `${input.planLabel} (Agreement ${input.number})`,
+      metadata,
+      ...(prepaid ? { trial_end: Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60 } : {}),
+    },
     metadata,
   });
   if (!session.url) throw new Error('Stripe did not return a Checkout URL');
-  return { url: session.url, sessionId: session.id, amountCents: input.setupCents + input.monthlyCents };
+  return { url: session.url, sessionId: session.id, amountCents: input.setupCents + (prepaid ? input.prepaidCents! : input.monthlyCents) };
 }
 
 // ---------------------------------------------------------------------------

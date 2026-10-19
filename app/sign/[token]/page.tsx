@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { CheckCircle2 } from 'lucide-react';
-import { getAgreement, money } from '@/lib/agreements';
+import { dueAtSigning, getAgreement, money } from '@/lib/agreements';
 import { DocPaper } from '@/components/docs/DocPaper';
 import { AgreementDocument } from '@/components/sign/AgreementDocument';
 import { PayPanel, SignPanel } from '@/components/sign/SignPanel';
@@ -34,9 +34,10 @@ export default async function SignPage({ params }: { params: Promise<{ token: st
   if (agreement.status === 'void')
     return <Message title="This agreement was withdrawn" body="Axeon replaced or cancelled it. Call us if you expected to sign something here." />;
 
-  // Stripe's first invoice carries the setup fee and the first month together (lib/billing.ts createAgreementCheckout).
-  const dueToday = money(agreement.setupCents + agreement.monthlyCents);
-  const breakdown = `${money(agreement.setupCents)} to start + your first month, then ${money(agreement.monthlyCents)}/month`;
+  // Stripe's first invoice carries everything due at signing (lib/billing.ts createAgreementCheckout).
+  const due = dueAtSigning(agreement);
+  const dueToday = money(due.cents);
+  const breakdown = due.breakdown;
   const fees = `${dueToday} today (${breakdown})`;
   let panel: React.ReactNode;
   if (agreement.status === 'sent') {

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { adminMain } from '@/components/admin/ui';
 import { AgreementsConsole, type AgreementRow } from '@/components/admin/AgreementsConsole';
-import { AGREEMENT_ADD_ONS, AXEON_ENTITY_OPTIONS, ENTITY_TYPES, PLAN_DEFAULT_FEES } from '@/data/agreementTemplate';
+import { AGREEMENT_ADD_ONS, AXEON_ENTITY_OPTIONS, ENTITY_TYPES, PLAN_DEFAULTS } from '@/data/agreementTemplate';
 import { ONBOARDING_TIERS, TIER_LABELS } from '@/data/onboardingItems';
 import { auth } from '@/lib/auth';
 import { agreementUrl, listAgreements } from '@/lib/agreements';
@@ -39,8 +39,10 @@ export default async function AgreementsAdminPage() {
             tiers: ONBOARDING_TIERS.map((t) => ({
               value: t,
               label: TIER_LABELS[t],
-              setup: PLAN_DEFAULT_FEES[t].setupCents,
-              monthly: PLAN_DEFAULT_FEES[t].monthlyCents,
+              setup: PLAN_DEFAULTS[t].setupCents,
+              monthly: PLAN_DEFAULTS[t].monthlyCents,
+              minimumMonths: PLAN_DEFAULTS[t].minimumMonths,
+              setupCredit: PLAN_DEFAULTS[t].setupCreditCents,
             })),
             entityTypes: ENTITY_TYPES,
             axeonEntities: AXEON_ENTITY_OPTIONS,

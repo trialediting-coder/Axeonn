@@ -14,6 +14,7 @@ import {
   AGREEMENT_VERSION,
   PLAN_DEFAULTS,
   agreementTemplateFor,
+  annualCents,
   money,
   type AgreementTemplate,
   type AgreementTerms,
@@ -84,6 +85,26 @@ export const agreementSchedule = (a: AgreementFields & Versioned) => templateOf(
 
 /** The plan name the agreement and checkout show. */
 export const agreementPlanLabel = (a: Pick<AgreementFields, 'tier' | 'scope'>) => (a.scope === 'website' ? 'Hosted Website' : TIER_LABELS[a.tier]);
+
+/**
+ * What the client pays at signing. Monthly: the implementation fee (if any) plus
+ * the first month, on one invoice. Annual: the prepaid Initial Term, after which
+ * the subscription continues month-to-month (lib/billing.ts createAgreementCheckout).
+ */
+export function dueAtSigning(a: AgreementFields): { cents: number; breakdown: string } {
+  if (a.billing === 'annual') {
+    const cents = annualCents(a.monthlyCents);
+    return { cents, breakdown: `12 months prepaid, then ${money(a.monthlyCents)}/month` };
+  }
+  const credit = a.setupCreditCents ? `, ${money(a.setupCreditCents)} implementation fee credited` : '';
+  return {
+    cents: a.setupCents + a.monthlyCents,
+    breakdown:
+      a.setupCents > 0
+        ? `${money(a.setupCents)} implementation fee + your first month, then ${money(a.monthlyCents)}/month`
+        : `your first month${credit}, then ${money(a.monthlyCents)}/month`,
+  };
+}
 
 /** Everything the signing page renders, from the agreement's own version. */
 export function agreementDocument(a: AgreementFields & Versioned) {
