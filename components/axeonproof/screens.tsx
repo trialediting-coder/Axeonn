@@ -1,7 +1,7 @@
 'use client';
 
 // components/axeonproof/screens.tsx
-// The AxeonPROOF screens rendered live for the example business on
+// The AxeonPROOF screens rendered live for the fictional demo practice on
 // /axeonproof. Each one copies the layout of its counterpart in
 // components/proof/* and animates in with the Tailwind animate-proof-*
 // utilities from globals.css: numbers count up, bars grow, the rank line
@@ -65,7 +65,7 @@ export function LeadLog({ ms = 0 }: { ms?: number }) {
         </p>
       </div>
       <p className="px-4 pb-3 pt-1 text-xs leading-relaxed text-neutral-500 @3xl:px-5">
-        Every call, text, email, form and booking from your site, with the page and campaign behind it. Tap <b className="text-neutral-700">Booked</b> on the ones that turned into a job and your estimate gets more exact every month.
+        Every call, text, email, form and booking from your site, with the page and campaign behind it. Tap <b className="text-neutral-700">Booked</b> on the ones that turned into an appointment and your numbers get more exact every month.
       </p>
       <p className="bg-neutral-50 px-4 py-2 text-[10px] font-semibold uppercase tracking-wide text-neutral-500 @3xl:px-5">{EXAMPLE.month} so far</p>
       <ul className="divide-y divide-neutral-100">
@@ -160,7 +160,8 @@ function MonthChart({ ms }: { ms: number }) {
 }
 
 function ProjectCard({ ms }: { ms: number }) {
-  const g = EXAMPLE.guarantee;
+  const c = EXAMPLE.commitment;
+  const pct = Math.round((c.repliedIn60 / c.inquiries) * 100);
   return (
     <Card className="p-5" ms={ms}>
       <h3 className="text-base font-semibold text-neutral-950">Your project</h3>
@@ -170,22 +171,30 @@ function ProjectCard({ ms }: { ms: number }) {
           <dd className="font-medium text-neutral-900">Aug 28</dd>
         </div>
         <div className="flex justify-between gap-4">
-          <dt className="text-neutral-500">Launched</dt>
-          <dd className="font-medium text-neutral-900">Sep 2</dd>
+          <dt className="text-neutral-500">Live</dt>
+          <dd className="font-medium text-neutral-900">{c.launched}</dd>
         </div>
         <div className="flex justify-between gap-4">
-          <dt className="text-neutral-500">Starting point</dt>
-          <dd className="font-medium text-neutral-900">{g.baseline} calls + leads / mo</dd>
+          <dt className="text-neutral-500">Agreement</dt>
+          <dd className="font-medium text-neutral-900">12-month</dd>
         </div>
       </dl>
       <div className="mt-5 rounded-lg bg-blue-50 p-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">90-day guarantee · Day {g.day} of 90</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">Performance commitment · Day {c.day} of 90</p>
         <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-blue-100">
-          <div className="h-1.5 animate-proof-width rounded-full bg-blue-600" style={{ width: `${(g.day / 90) * 100}%`, ...delay(ms + 300) }} />
+          <div className="h-1.5 animate-proof-width rounded-full bg-blue-600" style={{ width: `${(c.day / 90) * 100}%`, ...delay(ms + 300) }} />
         </div>
-        <p className="mt-2 text-xs text-blue-900">
-          Baseline {g.baseline} · {EXAMPLE.month}: <b>{g.now}</b> calls + leads <span className="font-semibold text-emerald-700">(+{g.now - g.baseline})</span>
-        </p>
+        <ul className="mt-2 space-y-1 text-xs text-blue-900">
+          <li className="flex items-center gap-1.5">
+            <Check size={12} className="shrink-0 text-emerald-700" /> Live within 30 days
+          </li>
+          <li className="flex items-center gap-1.5">
+            <Check size={12} className="shrink-0 text-emerald-700" /> <b>{pct}%</b> of inquiries answered within 60 sec
+          </li>
+          <li className="flex items-center gap-1.5">
+            <Check size={12} className="shrink-0 text-emerald-700" /> Review request on <b>{c.reviewRequests}</b> of {c.visits} visits
+          </li>
+        </ul>
       </div>
       <div className="mt-5 flex flex-col gap-2 text-sm">
         <span className="inline-flex items-center gap-2 font-semibold text-blue-600">
@@ -344,7 +353,7 @@ export function AnalyticsCards({ active, onActive, ms = 0 }: { active?: string |
       {card(
         'bring',
         4,
-        'Pages that bring customers',
+        'Pages that bring patients',
         'First page of the visit, and how many reached out',
         <>
           <Rows rows={a.bring} ms={ms} />
@@ -356,7 +365,7 @@ export function AnalyticsCards({ active, onActive, ms = 0 }: { active?: string |
       {card(
         'when',
         6,
-        'When customers reach out',
+        'When patients reach out',
         'Calls, texts, emails, forms and bookings by time of day and day of week',
         <div className="mt-4 grid grid-cols-[3fr_1.2fr] gap-6">
           <div>
@@ -525,9 +534,9 @@ export function GhostScreen({ tab }: { tab: ProofTab }) {
                 ${delta.toLocaleString('en-US')}
                 <span className="text-sm font-semibold text-neutral-500">/mo more</span>
               </p>
-              <p className="mt-1 text-xs leading-relaxed text-neutral-600">For most shops that is one or two extra jobs a month. Plus the ad budget you set, which stays yours to decide.</p>
+              <p className="mt-1 text-xs leading-relaxed text-neutral-600">Plus the ad budget you set ($500/mo minimum), paid to Google directly and yours to decide.</p>
             </div>
-            <p className="mt-4 text-xs leading-relaxed text-neutral-600">{plan} is set up for your shop, not switched on with a click. Tell us you are interested and we will walk you through what changes.</p>
+            <p className="mt-4 text-xs leading-relaxed text-neutral-600">{plan} is set up for your practice, not switched on with a click. Tell us you are interested and we will walk you through what changes.</p>
             <span className="mt-3 inline-flex h-10 w-full items-center justify-center rounded-lg bg-blue-600 text-sm font-semibold text-white">Ask us about {plan}</span>
           </Card>
         </div>
@@ -539,7 +548,7 @@ export function GhostScreen({ tab }: { tab: ProofTab }) {
 export function LeadsScreen() {
   return (
     <>
-      <Included label="Leads" text="Every call, text, email, form and booking from your site, the day it happens. Tap Booked on the ones that turned into a job and your numbers get more exact every month." />
+      <Included label="Leads" text="Every call, text, email, form and booking from your site, the day it happens. Tap Booked on the ones that turned into an appointment and your numbers get more exact every month." />
       <LeadLog ms={100} />
     </>
   );
@@ -547,9 +556,9 @@ export function LeadsScreen() {
 
 export function EmailScreen() {
   const boxes = [
-    ['dana@northsideautospa.com', 'Owner · signed in'],
-    ['shop@northsideautospa.com', 'Front desk · signed in'],
-    ['info@northsideautospa.com', 'Alias, delivers to Dana · free'],
+    [`dana@${EXAMPLE.emailDomain}`, 'Owner · signed in'],
+    [`frontdesk@${EXAMPLE.emailDomain}`, 'Front desk · signed in'],
+    [`info@${EXAMPLE.emailDomain}`, 'Alias, delivers to Dana · free'],
   ];
   const checks = ['Google trusts mail from your domain', 'Nobody can send as you from elsewhere', 'Your mail lands in inboxes, not spam'];
   return (
@@ -613,9 +622,9 @@ export function EmailScreen() {
 
 export function BillingScreen() {
   const invoices = [
-    ['Oct 1, 2026', 'AxeonCORE · October', '$299.00', 'Paid'],
-    ['Sep 1, 2026', 'AxeonCORE · September', '$299.00', 'Paid'],
-    ['Aug 28, 2026', 'Start fee + AxeonCORE · first month', '$398.00', 'Paid'],
+    ['Oct 1, 2026', 'AxeonCORE · October', '$799.00', 'Paid'],
+    ['Sep 1, 2026', 'AxeonCORE · September', '$799.00', 'Paid'],
+    ['Aug 28, 2026', 'AxeonCORE · first month ($3,000 setup credited)', '$799.00', 'Paid'],
   ];
   return (
     <>
@@ -626,7 +635,7 @@ export function BillingScreen() {
           <p className="mt-1">
             <AxeonLogo product="CORE" size="lg" mark={false} />
           </p>
-          <p className="mt-2 text-sm text-neutral-600">$299 per month, month to month. Next invoice Nov 1.</p>
+          <p className="mt-2 text-sm text-neutral-600">$799 per month, 12-month agreement. Next invoice Nov 1.</p>
           <p className="mt-4 flex items-center gap-2 text-sm text-neutral-700">
             <span className="inline-flex h-7 w-10 items-center justify-center rounded bg-neutral-950 text-[10px] font-bold text-white">VISA</span>
             Visa ending in 4242 · expires 08/29

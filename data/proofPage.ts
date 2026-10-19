@@ -1,11 +1,12 @@
 // data/proofPage.ts
 // Content for /axeonproof, the AxeonPROOF showcase page.
 //
-// The dashboard on that page is rendered live from this file, for an example
-// business ("Northside Auto Spa") with an example month (owner, 2026-10-13:
-// "use an example of a real client, not an actual client"). Nothing here is a
-// client's result, and the page says so on screen (owner rule 2026-10-10:
-// invented figures are never shown as anyone's own numbers). The screens copy
+// The dashboard on that page is rendered live from this file, for a FICTIONAL
+// demo practice ("Lakeside Family Dental") with an example month. Since the
+// 2026-10-19 practice repositioning the demo is a dental practice, labelled
+// "Demo" on screen (EXAMPLE.demoLabel). Nothing here is a client's result, and
+// the page says so (owner rule 2026-10-10: invented figures are never shown as
+// anyone's own numbers). Email addresses use the reserved .example domain. The screens copy
 // the real app's layout (components/proof/*) so what people see here is what a
 // client sees after sign-in. Tabs outside the Overview reuse the app's own
 // example-month data from lib/proofTabs.ts.
@@ -32,26 +33,29 @@ export interface ExampleTile {
 }
 
 export const EXAMPLE = {
-  name: 'Northside Auto Spa',
-  initials: 'NA',
+  name: 'Lakeside Family Dental',
+  /** Shown wherever the demo practice is named outside the dashboard frame. */
+  demoLabel: 'Demo: Lakeside Family Dental (a fictional practice)',
+  initials: 'LD',
   owner: 'Dana',
   city: 'Des Moines',
-  keyword: 'ceramic coating',
+  keyword: 'family dentist',
+  emailDomain: 'lakesidedental.example',
   plan: 'axeoncore' as OnboardingTier,
   month: 'October 2026',
   monthShort: 'Oct',
   tiles: [
-    { key: 'reached', label: 'Reached out', value: 46, sub: '+9 vs last month', hint: 'Calls, texts, forms, bookings', tone: 'up' },
-    { key: 'customers', label: 'Est. new customers', value: 24, prefix: '~', sub: 'about $7,200 in work', hint: 'Estimated from who reached out', tone: 'up' },
+    { key: 'reached', label: 'Inquiries', value: 46, sub: '+9 vs last month', hint: 'Calls, texts, forms, bookings', tone: 'up' },
+    { key: 'customers', label: 'Recovered', value: 17, sub: 'after hours or missed', hint: 'Missed calls and after-hours inquiries answered by the system', tone: 'up' },
     { key: 'visits', label: 'Website visits', value: 1284, sub: '812 visitors', hint: 'Page views on your site', tone: 'neutral' },
     { key: 'clicks', label: 'Button clicks', value: 212, sub: 'Call, text, book, form and more', hint: 'Call, text, book, form and more', tone: 'neutral' },
   ] as ExampleTile[],
   leads: [
     { kind: 'Call button', when: 'Today, 10:30 AM', page: 'Home page', where: 'Des Moines, IA', device: 'Phone', booked: true },
-    { kind: 'Booking', when: 'Today, 8:12 AM', page: '/ceramic-coating', where: 'Ankeny, IA', device: 'Phone', booked: true },
-    { kind: 'Form', when: 'Yesterday, 6:48 PM', page: '/interior-detailing', where: 'West Des Moines, IA', device: 'Desktop', booked: false },
+    { kind: 'Booking', when: 'Today, 6:12 AM', page: '/new-patients', where: 'Ankeny, IA', device: 'Phone', booked: true },
+    { kind: 'Form', when: 'Yesterday, 8:48 PM', page: '/teeth-whitening', where: 'West Des Moines, IA', device: 'Desktop', booked: false },
     { kind: 'Text button', when: 'Yesterday, 12:02 PM', page: 'Home page · Google Ads', where: 'Urbandale, IA', device: 'Phone', booked: false },
-    { kind: 'Call button', when: 'Mon, 9:03 AM', page: 'Home page', where: 'Johnston, IA', device: 'Phone', booked: true },
+    { kind: 'Call button', when: 'Mon, 7:03 AM', page: '/emergency-dentist', where: 'Johnston, IA', device: 'Phone', booked: true },
   ] as ExampleLead[],
   /** Calls and leads by month; the last one is the live month so far. */
   months: [
@@ -75,13 +79,24 @@ export const EXAMPLE = {
       { label: 'Site speed', from: '3.8s', to: '0.7s', better: true },
     ],
   },
-  guarantee: { day: 41, baseline: 18, now: 46 },
+  /** The 90-day performance commitment, as AxeonPROOF records it. */
+  commitment: {
+    day: 41,
+    launched: 'Sep 2',
+    /** Inquiries so far in the 90 days, and how many got a first reply within 60 seconds. */
+    inquiries: 96,
+    repliedIn60: 95,
+    medianReplySeconds: 14,
+    /** Completed appointments so far, and review requests sent for them. */
+    visits: 212,
+    reviewRequests: 212,
+  },
   analytics: {
     buttons: [
       ['Call', 96],
       ['Book online', 54],
       ['Text', 31],
-      ['Get a quote', 19],
+      ['New patient form', 19],
       ['Directions', 12],
     ] as [string, number][],
     sources: [
@@ -93,10 +108,10 @@ export const EXAMPLE = {
     ] as [string, number][],
     pages: [
       ['Home page', 1012],
-      ['/ceramic-coating', 214],
-      ['/interior-detailing', 168],
-      ['/paint-correction', 97],
-      ['/about', 61],
+      ['/new-patients', 214],
+      ['/teeth-whitening', 168],
+      ['/dental-implants', 97],
+      ['/our-dentists', 61],
     ] as [string, number][],
     devices: [
       ['Phone', 68],
@@ -111,9 +126,9 @@ export const EXAMPLE = {
     ] as [string, string][],
     bring: [
       ['Home page', 740, 21],
-      ['/ceramic-coating', 214, 11],
-      ['/interior-detailing', 168, 7],
-      ['/paint-correction', 97, 4],
+      ['/new-patients', 214, 11],
+      ['/teeth-whitening', 168, 7],
+      ['/dental-implants', 97, 4],
     ] as [string, number, number][],
     campaigns: [['Google Ads', 44, 3]] as [string, number, number][],
     cities: [
@@ -124,7 +139,7 @@ export const EXAMPLE = {
       ['Johnston', 66, 3],
     ] as [string, number, number][],
     /** Contacts by hour of day (0-23) and by weekday (Sun-Sat). */
-    hours: [0, 0, 0, 0, 0, 0, 1, 3, 6, 8, 7, 6, 5, 5, 6, 5, 4, 3, 2, 1, 1, 0, 0, 0],
+    hours: [0, 0, 0, 0, 0, 1, 2, 4, 6, 7, 6, 5, 6, 5, 5, 4, 4, 4, 3, 3, 2, 1, 0, 0],
     days: [2, 11, 9, 8, 10, 12, 4],
   },
 };
@@ -137,19 +152,19 @@ export const CARD_NOTES: Record<string, { title: string; body: string }> = {
   },
   device: {
     title: 'How people visit',
-    body: 'Most visits are on a phone, where a tap on your number is a real call. That is why the call button is never buried.',
+    body: 'Most visits are on a phone, where a tap on your number is a real call. That is why the call and book buttons are never buried.',
   },
   bring: {
-    title: 'Pages that bring customers',
-    body: 'The first page each visitor saw, and how many of them reached out. The pages that pay get more work.',
+    title: 'Pages that bring patients',
+    body: 'The first page each visitor saw, and how many of them reached out. The pages that bring inquiries get more attention.',
   },
   cities: {
     title: 'Where visitors are',
-    body: 'City and area only, never who. Enough to see your service area filling in.',
+    body: 'City and area only, never who. Enough to see where your patients come from.',
   },
   when: {
-    title: 'When customers reach out',
-    body: 'By hour and by day of the week, so you know when the phone needs a person on it.',
+    title: 'When patients reach out',
+    body: 'By hour and by day of the week. Inquiries before 8 AM and after 5 PM are the ones the system answers for you.',
   },
 };
 
@@ -157,13 +172,13 @@ export const CARD_ORDER = ['sources', 'device', 'bring', 'cities', 'when'] as co
 
 /** One line under each tab in the tour: what the owner gets from it. */
 export const TAB_NOTES: Record<ProofTabKey, string> = {
-  overview: 'This month at a glance: who reached out, where they came from, and what it is worth.',
-  leads: 'Every call, text, form and booking, the day it happens. Tap Booked on the ones that turned into a job.',
-  calls: 'Every call counted. A missed call gets a text back within a minute, so the job does not go to the next shop.',
-  bookings: 'People book themselves at 9pm instead of calling whoever answers first. Reminders cut the no-shows.',
-  reviews: 'A review link texted after every finished job, and your rating month by month.',
-  ads: 'Every ad dollar next to the leads and booked jobs it brought in.',
-  receptionist: 'Every call answered, day and night, and either booked or taken as a message for you.',
+  overview: 'This month at a glance: who reached out, how many were recovered after hours, and where they came from.',
+  leads: 'Every call, text, form and booking, the day it happens. Tap Booked on the ones that turned into an appointment.',
+  calls: 'Every call counted. A missed call gets a text back within 60 seconds, so the patient does not book with the next practice.',
+  bookings: 'Patients book a consultation at 9 PM instead of calling whoever answers first. Reminders cut the no-shows.',
+  reviews: 'A review request after every completed appointment, and your rating month by month.',
+  ads: 'Every ad dollar next to the inquiries and booked appointments it brought in.',
+  receptionist: 'Every call answered, day and night, and either booked or taken as a message for the front desk.',
   email: 'Your business email at your own domain, with spam checks that run by themselves.',
   billing: 'Your plan, your card and every invoice. Nothing to ask us for.',
 };
@@ -171,7 +186,7 @@ export const TAB_NOTES: Record<ProofTabKey, string> = {
 /** The chip next to a tab: which plan switches it on. */
 export const PLAN_CHIP: Record<OnboardingTier, string> = {
   website: 'Every plan',
-  essentials: 'Essentials',
+  essentials: 'Every plan',
   axeoncore: 'AxeonCORE',
   axeongrowth: 'AxeonGROWTH',
 };
