@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ArrowRight, Phone } from 'lucide-react';
 
 interface ServiceHeroActionsProps {
-  /** Price anchor shown above the buttons, e.g. "Plans from $149/mo, $99 to start". */
+  /** Price anchor shown above the buttons, e.g. "From $799/mo". */
   priceLine: string;
   /** Optional muted qualifier after the price line. */
   note?: string;
@@ -19,7 +19,7 @@ interface ServiceHeroActionsProps {
 export function ServiceHeroActions({
   priceLine,
   note,
-  primaryLabel = 'Book My Free Call',
+  primaryLabel = 'Get your free after-hours audit',
   showPricingLink = true,
 }: ServiceHeroActionsProps) {
   return (
@@ -35,7 +35,7 @@ export function ServiceHeroActions({
       </p>
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4">
         <Link
-          href="/book"
+          href="/audit"
           className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/25"
         >
           {primaryLabel} <ArrowRight size={18} />

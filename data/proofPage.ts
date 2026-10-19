@@ -2,7 +2,7 @@
 // Content for /axeonproof, the AxeonPROOF showcase page.
 //
 // The dashboard on that page is rendered live from this file, for a FICTIONAL
-// demo practice ("Lakeside Family Dental") with an example month. Since the
+// demo practice ("Quillmont Family Dental") with an example month. Since the
 // 2026-10-19 practice repositioning the demo is a dental practice, labelled
 // "Demo" on screen (EXAMPLE.demoLabel). Nothing here is a client's result, and
 // the page says so (owner rule 2026-10-10: invented figures are never shown as
@@ -33,14 +33,14 @@ export interface ExampleTile {
 }
 
 export const EXAMPLE = {
-  name: 'Lakeside Family Dental',
+  name: 'Quillmont Family Dental',
   /** Shown wherever the demo practice is named outside the dashboard frame. */
-  demoLabel: 'Demo: Lakeside Family Dental (a fictional practice)',
+  demoLabel: 'Demo: Quillmont Family Dental (a fictional practice)',
   initials: 'LD',
   owner: 'Dana',
   city: 'Des Moines',
   keyword: 'family dentist',
-  emailDomain: 'lakesidedental.example',
+  emailDomain: 'quillmontdental.example',
   plan: 'axeoncore' as OnboardingTier,
   month: 'October 2026',
   monthShort: 'Oct',

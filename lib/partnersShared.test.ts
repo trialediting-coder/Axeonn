@@ -7,7 +7,7 @@ import { monthlyShareCents, validatePartnerInput, validateReferralInput, type Pa
 const ref = (status: PartnerReferral['status'], monthlyCents: number): PartnerReferral => ({
   id: 1,
   partnerId: 1,
-  practice: 'Lakeside Family Dental',
+  practice: 'Quillmont Family Dental',
   status,
   monthlyCents,
   notes: '',
@@ -33,7 +33,7 @@ test('partner input needs a name or firm and falls back to safe values', () => {
 });
 
 test('referral input reads the monthly fee in dollars', () => {
-  const r = validateReferralInput({ practice: 'Lakeside Family Dental', monthly: '799', status: 'signed' });
+  const r = validateReferralInput({ practice: 'Quillmont Family Dental', monthly: '799', status: 'signed' });
   assert.equal(r.monthlyCents, 79900);
   assert.equal(r.status, 'signed');
   assert.equal(validateReferralInput({ practice: 'X', monthly: '' }).monthlyCents, 0);

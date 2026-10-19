@@ -24,7 +24,7 @@ const base: GetStartedAnswers = {
 };
 
 const contact: ContactInfo = {
-  businessName: ' Lakeside Family Dental ',
+  businessName: ' Quillmont Family Dental ',
   contactName: 'Jane Smith',
   email: '  Jane.Smith+dental@Example.com ',
   phone: '515-555-0100',
@@ -149,7 +149,7 @@ test('payload uses the package services and exact keys', () => {
   assert.deepEqual(Object.keys(payload.answers), ['businessType', 'hasWebsite', 'goal', 'budget', 'timeline']);
   assert.deepEqual(payload.services, pkg.services);
   assert.equal(typeof payload.packagePrice, 'number');
-  assert.equal(payload.businessName, 'Lakeside Family Dental');
+  assert.equal(payload.businessName, 'Quillmont Family Dental');
   assert.equal(payload.company_fax, '');
 });
 

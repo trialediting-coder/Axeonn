@@ -180,10 +180,10 @@ export default async function InsightPostPage({
           </p>
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <Link
-              href="/book"
+              href="/audit"
               className="text-center px-8 py-4 rounded-full font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/30 transition-colors"
             >
-              Book My Free Call
+              Get your free after-hours audit
             </Link>
             <a href="tel:+15154938017" className="inline-block py-2 text-center text-sm font-semibold text-neutral-300 hover:text-white underline underline-offset-2">
               Or call (515) 493-8017

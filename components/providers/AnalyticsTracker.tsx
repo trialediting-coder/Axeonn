@@ -225,9 +225,11 @@ export function AnalyticsTracker() {
         ? 'lead_modal'
         : pathname === '/book'
           ? 'book_page'
-          : pathname?.startsWith('/get-started')
-            ? 'get_started'
-            : 'contact_section';
+          : pathname === '/audit'
+            ? 'audit_page'
+            : pathname?.startsWith('/get-started')
+              ? 'get_started'
+              : 'contact_section';
       trackBookingCompleted(source);
       // A confirmed booking is the "reached out" that AxeonPROOF counts for our own site.
       try {

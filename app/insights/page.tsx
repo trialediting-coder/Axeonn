@@ -79,10 +79,10 @@ export default async function InsightsPage() {
             Want results like A-1&apos;s? Book a free call.
           </h2>
           <Link
-            href="/book"
+            href="/audit"
             className="inline-flex items-center justify-center shrink-0 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-colors"
           >
-            Book My Free Call
+            Get your free after-hours audit
           </Link>
         </div>
       </div>
