@@ -1,5 +1,4 @@
-import { AGREEMENT_INTRO, SCHEDULE_A_DEFINITIONS, agreementSections, termSummary } from '@/data/agreementTemplate';
-import { agreementSchedule, agreementValues, fillTemplate, minimumMonthsOf, prettyDate, type Agreement } from '@/lib/agreements';
+import { agreementDocument, agreementValues, fillTemplate, prettyDate, type Agreement } from '@/lib/agreements';
 import { DocFacts, DocH2 } from '@/components/docs/DocPaper';
 
 const AXEON_SIGNER = { name: 'Hayder Hatem', title: 'Founder' };
@@ -7,12 +6,13 @@ const AXEON_SIGNER = { name: 'Hayder Hatem', title: 'Founder' };
 /** The agreement exactly as lib/agreements.ts#agreementText words it, laid out like the template. */
 export function AgreementDocument({ agreement: a }: { agreement: Agreement }) {
   const v = agreementValues(a);
-  const s = agreementSchedule(a);
+  const d = agreementDocument(a);
+  const s = d.schedule;
   const signed = a.signedAt && a.signedName;
   return (
     <>
       <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-950 font-display mb-5">Client Services Agreement</h1>
-      <p>{fillTemplate(AGREEMENT_INTRO, v)}</p>
+      <p>{fillTemplate(d.intro, v)}</p>
       <DocFacts
         rows={[
           ['Client legal name', a.legalName],
@@ -21,11 +21,11 @@ export function AgreementDocument({ agreement: a }: { agreement: Agreement }) {
           ['Business address', a.address],
           ['Plan', v.plan],
           ['Fees', v.fees],
-          ['Initial Term', termSummary(minimumMonthsOf(a))],
+          ['Initial Term', d.termSummary],
           ['Add-ons', v.addOns],
         ]}
       />
-      {agreementSections(minimumMonthsOf(a)).map((sec) => (
+      {d.sections.map((sec) => (
         <section key={sec.heading}>
           <DocH2>{sec.heading}</DocH2>
           {sec.paragraphs.map((p) => (
@@ -76,9 +76,9 @@ export function AgreementDocument({ agreement: a }: { agreement: Agreement }) {
         <p className="mb-4">
           <b>Add-ons selected:</b> {v.addOns}
         </p>
-        {SCHEDULE_A_DEFINITIONS.map((d) => (
-          <p key={d.slice(0, 30)} className="mb-3 text-sm text-neutral-600">
-            {d}
+        {d.definitions.map((def) => (
+          <p key={def.slice(0, 30)} className="mb-3 text-sm text-neutral-600">
+            {def}
           </p>
         ))}
       </section>

@@ -3,22 +3,20 @@
 // at app.axeonstudio.co/sign/<token>, then paid through Stripe (setup + monthly),
 // which starts onboarding through the existing webhook.
 //
-// What makes a signature hold up: the exact text is fixed by AGREEMENT_VERSION
-// plus the filled-in fields; on signing we store a SHA-256 of that text, the
-// typed name and title, the consent checkbox, time, IP and browser. Axeon's
-// countersignature is applied automatically at the same moment.
+// What makes a signature hold up: the exact text is fixed by the agreement's
+// version (stored at creation) plus the filled-in fields; on signing we store a
+// SHA-256 of that text, the typed name and title, the consent checkbox, time, IP
+// and browser. Axeon's countersignature is applied automatically at the same
+// moment. Agreements are always rendered with the template of their own version.
 import { createHash, randomInt } from 'node:crypto';
 import { sql, ensureSchema, isDatabaseConfigured } from '@/lib/db';
 import {
-  AGREEMENT_INTRO,
   AGREEMENT_VERSION,
-  PLAN_DEFAULT_FEES,
-  SCHEDULE_A,
-  SCHEDULE_A_DEFINITIONS,
-  SCHEDULE_WEBSITE,
-  WEBSITE_PLAN_LABEL,
-  agreementSections,
-  termSummary,
+  PLAN_DEFAULTS,
+  agreementTemplateFor,
+  money,
+  type AgreementTemplate,
+  type AgreementTerms,
 } from '@/data/agreementTemplate';
 import { TIER_LABELS, isOnboardingTier, type OnboardingTier } from '@/data/onboardingItems';
 import { APP_ORIGIN } from '@/lib/hostRouting';
@@ -49,20 +47,50 @@ export interface AgreementFields {
   minimumMonths?: number;
   /** Legacy: 'website' marked a Hosted Website agreement billed as Essentials, before the 'website' tier existed. */
   scope?: 'website';
+  /** 2026-10-19+: the implementation fee credited for the Initial Term (Sec. 2.4). Missing = 0. */
+  setupCreditCents?: number;
+  /** 2026-10-19+: 'annual' = Initial Term prepaid at signing. Missing = monthly. */
+  billing?: 'monthly' | 'annual';
+  /** 2026-10-19+: primary specialty for territory exclusivity (Sec. 6.8). Missing = none. */
+  specialty?: string;
 }
 
-/** Schedule A for this agreement: the plan's column, or the Hosted Website list. */
-export const agreementSchedule = (a: Pick<AgreementFields, 'tier' | 'scope'>) => (a.scope === 'website' ? SCHEDULE_WEBSITE : SCHEDULE_A[a.tier]);
+/** Which template an agreement uses: its stored version, or the current one before it is saved. */
+type Versioned = { version?: string };
+const templateOf = (a: Versioned): AgreementTemplate => agreementTemplateFor(a.version ?? AGREEMENT_VERSION);
 
-/** The plan name the agreement and checkout show. */
-export const agreementPlanLabel = (a: Pick<AgreementFields, 'tier' | 'scope'>) => (a.scope === 'website' ? WEBSITE_PLAN_LABEL : TIER_LABELS[a.tier]);
-
-export const DEFAULT_MINIMUM_MONTHS = 3;
+/** Before anything was stored per agreement, every agreement had a 3-month minimum. */
+const LEGACY_MINIMUM_MONTHS = 3;
 export const MAX_MINIMUM_MONTHS = 24;
 
 /** The agreement's minimum term in months, reading older agreements the way they were signed. */
 export const minimumMonthsOf = (a: Pick<AgreementFields, 'minimumMonths' | 'noMinimum'>): number =>
-  typeof a.minimumMonths === 'number' ? a.minimumMonths : a.noMinimum ? 0 : DEFAULT_MINIMUM_MONTHS;
+  typeof a.minimumMonths === 'number' ? a.minimumMonths : a.noMinimum ? 0 : LEGACY_MINIMUM_MONTHS;
+
+/** The deal terms the template words, resolved from the stored fields. */
+export const agreementTerms = (a: AgreementFields): AgreementTerms => ({
+  tier: a.tier,
+  scope: a.scope,
+  setupCents: a.setupCents,
+  monthlyCents: a.monthlyCents,
+  minimumMonths: minimumMonthsOf(a),
+  setupCreditCents: a.setupCreditCents ?? 0,
+  billing: a.billing ?? 'monthly',
+  specialty: a.specialty ?? '',
+});
+
+/** Schedule A for this agreement: the plan's column, or the Hosted Website list. */
+export const agreementSchedule = (a: AgreementFields & Versioned) => templateOf(a).schedule(agreementTerms(a));
+
+/** The plan name the agreement and checkout show. */
+export const agreementPlanLabel = (a: Pick<AgreementFields, 'tier' | 'scope'>) => (a.scope === 'website' ? 'Hosted Website' : TIER_LABELS[a.tier]);
+
+/** Everything the signing page renders, from the agreement's own version. */
+export function agreementDocument(a: AgreementFields & Versioned) {
+  const tpl = templateOf(a);
+  const t = agreementTerms(a);
+  return { intro: tpl.intro, termSummary: tpl.termSummary(t), sections: tpl.sections(t), schedule: tpl.schedule(t), definitions: tpl.definitions };
+}
 
 export interface Agreement extends AgreementFields {
   id: number;
@@ -85,8 +113,7 @@ const TOKEN_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 export const newAgreementToken = () => Array.from({ length: 20 }, () => TOKEN_ALPHABET[randomInt(TOKEN_ALPHABET.length)]).join('');
 export const isAgreementToken = (v: unknown): v is string => typeof v === 'string' && /^[A-HJ-NP-Z2-9]{20}$/.test(v);
 
-export const money = (cents: number) =>
-  `$${(cents / 100).toLocaleString('en-US', { minimumFractionDigits: cents % 100 ? 2 : 0, maximumFractionDigits: 2 })}`;
+export { money };
 
 export function prettyDate(iso: string | null | undefined): string {
   if (!iso) return '';
@@ -96,11 +123,12 @@ export function prettyDate(iso: string | null | undefined): string {
 
 /**
  * The minimum term from the admin form: `minimumMonths` (0-24), or the older
- * `noMinimum` checkbox. noMinimum is kept in step so older readers still agree.
+ * `noMinimum` checkbox, else the plan's default. noMinimum is kept in step so
+ * older readers still agree.
  */
-function minimumFields(raw: Record<string, unknown>): Pick<AgreementFields, 'minimumMonths' | 'noMinimum'> {
+function minimumFields(raw: Record<string, unknown>, planDefault: number): { minimumMonths: number; noMinimum: boolean } {
   const v = raw.minimumMonths;
-  let months = raw.noMinimum === true ? 0 : DEFAULT_MINIMUM_MONTHS;
+  let months = raw.noMinimum === true ? 0 : planDefault;
   if (v !== undefined && v !== '') {
     const n = Number(v);
     if (!Number.isInteger(n) || n < 0 || n > MAX_MINIMUM_MONTHS) throw new Error(`Minimum term must be 0 to ${MAX_MINIMUM_MONTHS} whole months`);
@@ -110,16 +138,13 @@ function minimumFields(raw: Record<string, unknown>): Pick<AgreementFields, 'min
 }
 
 /** Every value that appears in the agreement, as shown. */
-export function agreementValues(a: AgreementFields) {
+export function agreementValues(a: AgreementFields & Versioned) {
   return {
     effectiveDate: prettyDate(a.effectiveDate),
     axeonEntity: a.axeonEntity,
     hourlyRate: a.hourlyRate,
     plan: agreementPlanLabel(a),
-    fees:
-      a.setupCents > 0
-        ? `${money(a.setupCents)} to start + ${money(a.monthlyCents)} / month; the first month is billed with the setup fee, so ${money(a.setupCents + a.monthlyCents)} is due at signing`
-        : `${money(a.monthlyCents)} / month with no setup fee; the first month is due at signing`,
+    fees: templateOf(a).fees(agreementTerms(a)),
     addOns: a.addOns.trim() || 'None',
   };
 }
@@ -127,27 +152,27 @@ export function agreementValues(a: AgreementFields) {
 export const fillTemplate = (text: string, v: Record<string, string>) => text.replace(/\{\{(\w+)\}\}/g, (_, k) => v[k] ?? '');
 
 /** The full agreement as plain text: exactly what the client reads and signs. */
-export function agreementText(a: AgreementFields & { number: string }): string {
+export function agreementText(a: AgreementFields & Versioned & { number: string }): string {
   const v = agreementValues(a);
-  const s = agreementSchedule(a);
+  const d = agreementDocument(a);
   return [
-    `Client Services Agreement · Agreement No. ${a.number} · Version ${AGREEMENT_VERSION}`,
-    fillTemplate(AGREEMENT_INTRO, v),
+    `Client Services Agreement · Agreement No. ${a.number} · Version ${templateOf(a).version}`,
+    fillTemplate(d.intro, v),
     `Client legal name: ${a.legalName}`,
     `Entity type & state: ${a.entityType} · ${a.entityState}`,
     `Authorized signer: ${a.signerName}, ${a.signerTitle}`,
     `Business address: ${a.address}`,
     `Plan: ${v.plan}`,
     `Fees: ${v.fees}`,
-    `Initial Term: ${termSummary(minimumMonthsOf(a))}`,
+    `Initial Term: ${d.termSummary}`,
     `Add-ons: ${v.addOns}`,
-    ...agreementSections(minimumMonthsOf(a)).flatMap((sec) => [sec.heading, ...sec.paragraphs.map((p) => fillTemplate(p, v))]),
+    ...d.sections.flatMap((sec) => [sec.heading, ...sec.paragraphs.map((p) => fillTemplate(p, v))]),
     'Schedule A · Services included in the Plan',
-    s.title,
-    ...(s.lead ? [s.lead] : []),
-    ...s.items,
+    d.schedule.title,
+    ...(d.schedule.lead ? [d.schedule.lead] : []),
+    ...d.schedule.items,
     `Add-ons selected: ${v.addOns}`,
-    ...SCHEDULE_A_DEFINITIONS,
+    ...d.definitions,
   ].join('\n');
 }
 
@@ -159,13 +184,20 @@ export function validateAgreementInput(raw: Record<string, unknown>): AgreementF
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Enter a valid client email');
   if (!isOnboardingTier(raw.tier)) throw new Error('Choose a plan');
   const tier = raw.tier as OnboardingTier;
-  const defaults = PLAN_DEFAULT_FEES[tier];
+  const defaults = PLAN_DEFAULTS[tier];
   const cents = (k: string, fallback: number) => {
     const v = raw[k];
     if (v === undefined || v === '') return fallback;
     const n = Number(v);
     return Number.isFinite(n) && n >= 0 ? Math.round(n * 100) : fallback;
   };
+  const billing: 'monthly' | 'annual' = raw.billing === 'annual' ? 'annual' : 'monthly';
+  const term = minimumFields(raw, defaults.minimumMonths);
+  if (billing === 'annual' && term.minimumMonths !== 12) throw new Error('Annual prepay covers a 12-month Initial Term');
+  const setupCents = cents('setup', defaults.setupCents);
+  // The implementation fee is credited only when nothing is charged upfront for a
+  // committed term; month-to-month pays it instead.
+  const setupCreditCents = term.minimumMonths > 0 && setupCents === 0 ? cents('setupCredit', defaults.setupCreditCents) : 0;
   const fields: AgreementFields = {
     clientEmail: email,
     contactName: s('contactName', 120),
@@ -176,12 +208,15 @@ export function validateAgreementInput(raw: Record<string, unknown>): AgreementF
     signerTitle: s('signerTitle', 80),
     address: s('address', 300),
     tier,
-    setupCents: cents('setup', defaults.setupCents),
+    setupCents,
     monthlyCents: cents('monthly', defaults.monthlyCents),
     addOns: s('addOns', 500),
     hourlyRate: s('hourlyRate', 40),
     axeonEntity: s('axeonEntity', 80),
-    ...minimumFields(raw),
+    ...term,
+    setupCreditCents,
+    billing,
+    specialty: s('specialty', 80),
     effectiveDate: /^\d{4}-\d{2}-\d{2}$/.test(s('effectiveDate')) ? s('effectiveDate') : new Date().toISOString().slice(0, 10),
   };
   for (const [key, label] of [
