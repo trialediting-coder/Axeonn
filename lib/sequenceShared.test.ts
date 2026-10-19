@@ -175,7 +175,7 @@ test('draftInputFrom reads the portal answers and ignores non-text values', () =
     { businessName: 'Hintz Roofing', clientName: 'dana hintz' },
     {
       'sales-process': { data: { responseToday: 'I call back at lunch', pitch: 'We are insured', dealKillers: 42 } },
-      reviews: { data: { jobDoneSignal: 'I will text a number when I finish a job' } },
+      reviews: { data: { jobDoneSignal: 'I will text a number when a visit or job is done' } },
     }
   );
   assert.deepEqual(input, {
@@ -184,7 +184,7 @@ test('draftInputFrom reads the portal answers and ignores non-text values', () =
     responseToday: 'I call back at lunch',
     pitch: 'We are insured',
     dealKillers: '',
-    jobDoneSignal: 'I will text a number when I finish a job',
+    jobDoneSignal: 'I will text a number when a visit or job is done',
     offer: '',
   });
   const prompt = buildDraftPrompt(input);

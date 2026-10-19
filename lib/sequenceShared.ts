@@ -439,7 +439,7 @@ export function buildDraftPrompt(input: DraftInput): string {
     `- What happens today when a lead comes in: ${a(input.responseToday)}`,
     `- What gets people to book: ${a(input.pitch)}`,
     `- What makes a lead a bad fit: ${a(input.dealKillers)}`,
-    `- How they know a job is done: ${a(input.jobDoneSignal)}`,
+    `- How they know an appointment is done: ${a(input.jobDoneSignal)}`,
     `- Their one standing offer: ${a(input.offer)}`,
     '',
     'The sequences and their steps (timing is fixed; you write the words):',

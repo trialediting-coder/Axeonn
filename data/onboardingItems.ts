@@ -97,7 +97,15 @@ export const SETUP_MINUTES = 5;
 /** Saved on a callable item when the client chose to answer it on a call. */
 export const CALL_INSTEAD_KEY = 'callInstead';
 
-const INVOICING_OPTIONS = ['QuickBooks Online', 'Jobber', 'Housecall Pro', 'Square or Clover', 'Paper, cash or check', 'Other'] as const;
+const INVOICING_OPTIONS = [
+  'Practice management software (Dentrix, Open Dental, Clio, Karbon, etc.)',
+  'QuickBooks Online',
+  'Jobber',
+  'Housecall Pro',
+  'Square or Clover',
+  'Paper, cash or check',
+  'Other',
+] as const;
 
 const SERVICES_HINT = 'The ones you want more of, most important first.';
 
@@ -170,15 +178,15 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
         label: 'Services, most important first',
         type: 'textarea',
         required: true,
-        placeholder: 'Full interior detail, ceramic coating, paint correction',
+        placeholder: 'New-patient exams, implants, Invisalign consults',
         hint: SERVICES_HINT,
       },
       {
         key: 'priceRange',
         label: 'Typical price range (optional)',
         type: 'text',
-        placeholder: '$150 to $600 per job',
-        hint: 'Helps us write pages that attract the right customers.',
+        placeholder: '$200 to $5,000 per patient or case',
+        hint: 'Helps us write pages that attract the right patients and clients.',
       },
     ],
   },
@@ -204,11 +212,11 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     key: 'photos',
     kind: 'accept',
     tier: 'website',
-    title: 'Send 5 to 10 photos of real work',
-    description: 'Straight from your phone is perfect. Real photos outperform stock every time.',
+    title: 'Send 5 to 10 photos of your team and office',
+    description: 'Straight from your phone is perfect. Real photos of your providers, front desk and office outperform stock every time.',
     minutes: 3,
     steps: [
-      'Open your camera roll and pick 5 to 10 of your best jobs.',
+      'Open your camera roll and pick 5 to 10: your team, your office, your work.',
       'Text them to (515) 493-8017, or email hello@axeonstudio.co.',
       'Tap the button below so we know to look for them.',
     ],
@@ -342,16 +350,18 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     tier: 'essentials',
     later: true,
     title: 'How you invoice and get paid',
-    description: 'So leads and paid jobs can line up in one place.',
+    description: 'So new inquiries and paying customers can line up in one place.',
     minutes: 1,
     fields: [
       {
         key: 'invoicing',
-        label: 'How do you invoice customers and collect payment today?',
+        label: 'What runs your scheduling and billing today?',
         type: 'select',
         required: true,
         options: INVOICING_OPTIONS,
         optionHints: {
+          'Practice management software (Dentrix, Open Dental, Clio, Karbon, etc.)':
+            'Tell us which one on your kickoff call. Your patient and client records stay in it: we never connect to them or copy them.',
           'QuickBooks Online': 'Connect it in one tap from your AxeonPROOF dashboard. You never share a login.',
           Jobber: 'Connect it in one tap from your AxeonPROOF dashboard. You never share a login.',
           'Housecall Pro': 'In Housecall Pro, add hello@axeonstudio.co as an admin user so we can connect your jobs. No password needed.',
@@ -547,18 +557,18 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     later: true,
     kind: 'confirm',
     tier: 'axeoncore',
-    title: 'Review requests after every job',
-    description: 'We generate your Google review link ourselves. We just need to know when a job is done so the request fires.',
+    title: 'Review requests after every appointment',
+    description: 'We generate your Google review link ourselves. We just need to know when an appointment or job is done so the request fires.',
     minutes: 1,
     fields: [
       {
         key: 'jobDoneSignal',
-        label: 'How should we know a job is finished?',
+        label: 'How should we know an appointment is finished?',
         type: 'select',
         required: true,
         options: [
-          'I will text a number when I finish a job',
-          'Mark it done in my lead list',
+          'I will text a number when a visit or job is done',
+          'Mark it completed in my lead list',
           'When the booking time passes',
           'Not sure, recommend something',
         ],
