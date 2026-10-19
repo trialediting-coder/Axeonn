@@ -11,14 +11,6 @@ interface SourcedStat {
   href: string;
 }
 
-export const UNANSWERED_STAT: SourcedStat = {
-  value: '62%',
-  title: 'of calls go unanswered',
-  body: 'In a study of 85 small businesses, most calls were never picked up. Those callers dial the next company.',
-  source: '411 Locals call study',
-  href: 'https://411locals.us/small-business-owners-dont-answer-62-of-phone-calls/',
-};
-
 export const SPEED_STAT: SourcedStat = {
   value: '21×',
   title: 'more likely to win the lead',
@@ -30,7 +22,7 @@ export const SPEED_STAT: SourcedStat = {
 export const REVIEWS_STAT: SourcedStat = {
   value: '97%',
   title: 'read reviews before choosing',
-  body: 'Nearly everyone checks your reviews before they call, so the business with visible reviews gets the call.',
+  body: 'Nearly everyone checks reviews before they call, so the practice with recent, visible reviews gets the call.',
   source: 'BrightLocal Local Consumer Review Survey 2026',
   href: 'https://www.brightlocal.com/research/local-consumer-review-survey/',
 };
@@ -38,9 +30,9 @@ export const REVIEWS_STAT: SourcedStat = {
 const SUPPORTING = [SPEED_STAT, REVIEWS_STAT];
 
 const FIXES = [
-  'Your phone rings the second a form comes in',
-  'Missed calls get a text back right away',
-  'Automatic follow-up until they book',
+  'Every missed call gets a text back within 60 seconds, 24/7',
+  'Every web inquiry gets a first reply within 60 seconds',
+  'A review request after every completed appointment',
 ];
 
 function SourceLink({ stat, dark = false }: { stat: SourcedStat; dark?: boolean }) {
@@ -59,8 +51,9 @@ function SourceLink({ stat, dark = false }: { stat: SourcedStat; dark?: boolean 
 }
 
 /**
- * One message: most calls go unanswered, and the fastest answer wins. 62% is
- * the hero number; 21x and 97% sit beside it as smaller supporting proof.
+ * One message: the fastest answer wins the patient. The hero figure is our own
+ * commitment (60 seconds), not a statistic; the two sourced studies sit beside
+ * it as supporting context. No practice-specific stats (owner rule 2026-10-19).
  */
 export function Testimonials() {
   return (
@@ -68,21 +61,21 @@ export function Testimonials() {
       <div className="w-full max-w-6xl mx-auto">
         <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ WHY SPEED WINS ]</p>
         <h2 className="mt-4 text-3xl sm:text-5xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.1] max-w-3xl">
-          The fastest answer wins the customer
+          The fastest answer wins the patient
         </h2>
 
         <div className="mt-12 sm:mt-14 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-end">
           <div className="lg:col-span-7 border-t-4 border-blue-600 pt-6">
             <p className="text-[96px] sm:text-[150px] lg:text-[180px] leading-[0.85] font-black font-display tracking-tighter text-neutral-950">
-              {UNANSWERED_STAT.value}
+              60 sec
             </p>
             <p className="mt-4 text-2xl sm:text-3xl font-bold font-display tracking-tight text-neutral-950 leading-snug">
-              {UNANSWERED_STAT.title}
+              to the first reply, day or night
             </p>
-            <p className="mt-3 text-base sm:text-lg text-neutral-600 leading-relaxed max-w-xl">{UNANSWERED_STAT.body}</p>
-            <div className="mt-4">
-              <SourceLink stat={UNANSWERED_STAT} />
-            </div>
+            <p className="mt-3 text-base sm:text-lg text-neutral-600 leading-relaxed max-w-xl">
+              That is our commitment, not a statistic. A new patient who calls after hours or fills out a form at 9 PM hears
+              back from your practice within a minute, with a way to book.
+            </p>
           </div>
 
           <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-8">
@@ -101,7 +94,7 @@ export function Testimonials() {
 
         <div className="mt-16 rounded-3xl bg-neutral-950 text-white p-6 sm:p-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
           <div>
-            <p className="text-sm font-bold tracking-wide uppercase text-blue-300">How AxeonCORE makes sure you answer first</p>
+            <p className="text-sm font-bold tracking-wide uppercase text-blue-300">How AxeonCORE makes sure your practice answers first</p>
             <ul className="mt-4 flex flex-col sm:flex-row sm:flex-wrap gap-x-8 gap-y-2 text-base sm:text-lg text-neutral-100">
               {FIXES.map((f) => (
                 <li key={f} className="flex items-center gap-2.5">
@@ -112,7 +105,7 @@ export function Testimonials() {
             </ul>
           </div>
           <Link
-            href="/marketing-solutions/lead-generation"
+            href="/marketing-solutions#intake"
             className="py-2 shrink-0 inline-flex items-center gap-2 font-semibold text-blue-300 hover:text-white transition-colors"
           >
             See how it works <ArrowRight size={16} />

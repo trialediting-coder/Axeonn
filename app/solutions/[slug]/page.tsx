@@ -16,8 +16,19 @@ import { faqItems } from '@/data/faqData';
 import { nicheFaqData } from '@/data/nicheFaqData';
 import { buildMetadata } from '@/lib/metadata';
 
-// Max 5 FAQs per industry page: its 2 niche questions plus these 3 general ones.
-const GENERAL_FAQS = ['Do you guarantee results?', 'How much does it cost to work with Axeon?', 'Do I own my website?'];
+// Max 6 FAQs per practice page: up to 3 practice questions plus 3 general ones
+// (cost, the performance commitment, ownership). Matched by topic rather than
+// exact wording so a reworded data/faqData.ts still fills the slots.
+const GENERAL_FAQ_TOPICS = [/cost|price|pricing/i, /guarantee|commitment|results/i, /own/i];
+
+function pickGeneralFaqs() {
+  const picked: (typeof faqItems)[number][] = [];
+  for (const topic of GENERAL_FAQ_TOPICS) {
+    const hit = faqItems.find((f) => topic.test(f.question) && !picked.includes(f));
+    if (hit) picked.push(hit);
+  }
+  return picked;
+}
 
 export function generateStaticParams() {
   return niches.map((niche) => ({ slug: niche.slug }));
@@ -49,12 +60,7 @@ export default async function NichePage({
   const niche = niches.find((n) => n.slug === slug);
   if (!niche) notFound();
 
-  const faqs = [
-    ...(nicheFaqData[niche.slug] ?? []).slice(0, 2),
-    ...GENERAL_FAQS.map((q) => faqItems.find((f) => f.question === q)).filter(
-      (f): f is (typeof faqItems)[number] => Boolean(f),
-    ),
-  ];
+  const faqs = [...(nicheFaqData[niche.slug] ?? []).slice(0, 3), ...pickGeneralFaqs()];
 
   const faqJsonLd = {
     '@context': 'https://schema.org',

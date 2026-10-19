@@ -1,7 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { niches } from '@/data/nichesData';
 import { cityPages } from '@/data/cityPages';
-import { marketingSolutions } from '@/data/marketingSolutionsData';
 import { listPosts } from '@/lib/posts';
 import { CONTENT_LAST_UPDATED } from '@/lib/seo';
 
@@ -13,7 +12,7 @@ export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://axeonstudio.co';
-  const staticRoutes = ['', '/get-started', '/des-moines-web-design', '/nonprofits', '/partners', '/work', '/solutions', '/marketing-solutions', '/axeonproof', '/pricing', '/why-axeon', '/process', '/about', '/faq', '/book', '/privacy', '/terms', '/insights'];
+  const staticRoutes = ['', '/audit', '/des-moines-web-design', '/nonprofits', '/partners', '/work', '/solutions', '/marketing-solutions', '/axeonproof', '/pricing', '/why-axeon', '/process', '/about', '/faq', '/book', '/privacy', '/terms', '/insights'];
   // Static routes carry a fixed content date (bumped in lib/seo.ts when copy
   // changes). Stamping `new Date()` on every request told Google that all 29
   // URLs changed every hour, which trains it to ignore <lastmod> entirely.
@@ -51,12 +50,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: staticLastModified,
       changeFrequency: 'monthly' as const,
       priority: 0.9,
-    })),
-    ...marketingSolutions.map((solution) => ({
-      url: `${baseUrl}/marketing-solutions/${solution.id}`,
-      lastModified: staticLastModified,
-      changeFrequency: 'monthly' as const,
-      priority: 0.8,
     })),
     ...posts.map((post) => ({
       url: `${baseUrl}/insights/${post.slug}`,

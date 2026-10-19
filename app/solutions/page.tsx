@@ -6,15 +6,14 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/solutions',
-  title: 'Marketing for Des Moines Service Businesses | Axeon Studio',
+  title: 'Patient & Client Intake for Practices | Axeon Studio',
   description:
-    'Websites, local SEO, and lead follow-up for Des Moines service businesses, from dental and HVAC to plumbing, concrete, and law firms, built to get you more customers.',
+    'Intake infrastructure for dental practices, med spas, law firms and accounting firms: every missed call and web inquiry answered within 60 seconds, 24/7, consultations booked, and a review request after every visit.',
 });
 
 const GROUPS: { category: NicheCategory; label: string }[] = [
-  { category: 'Home & Trade Services', label: '[ HOME & TRADE ]' },
-  { category: 'Professional Services', label: '[ PROFESSIONAL ]' },
   { category: 'Healthcare', label: '[ HEALTHCARE ]' },
+  { category: 'Professional Services', label: '[ PROFESSIONAL SERVICES ]' },
 ];
 
 const EYEBROW = 'text-xs font-mono font-bold tracking-widest text-blue-600 uppercase';
@@ -22,15 +21,16 @@ const EYEBROW = 'text-xs font-mono font-bold tracking-widest text-blue-600 upper
 export default function SolutionsHubPage() {
   return (
     <main className="w-full pt-36 sm:pt-40 pb-24 px-6 sm:px-10 lg:px-16 xl:px-24">
-      <BreadcrumbJsonLd items={[{ name: 'Industries', path: '/solutions' }]} />
+      <BreadcrumbJsonLd items={[{ name: 'Practices', path: '/solutions' }]} />
       <div className="max-w-6xl mx-auto">
         <p className={`${EYEBROW} mb-3`}>[ WHO WE HELP ]</p>
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-[1.05] text-balance text-neutral-950 mb-5 max-w-4xl">
-          Every trade leaks customers somewhere different.
+          Built for established private practices.
         </h1>
         <p className="text-lg text-neutral-600 max-w-2xl mb-14">
-          Find yours below. Each page shows where your customers slip away and the system that plugs it, backed by our
-          90-Day Customer Guarantee.
+          Dental, med spa, law and accounting practices lose new patients and clients in the same place: the call or form
+          nobody answers until tomorrow. Pick yours to see where it happens and how we answer it within 60 seconds. AxeonCORE
+          starts at $799/mo with a 90-day performance commitment.
         </p>
 
         <div className="flex flex-col gap-14">
@@ -40,7 +40,7 @@ export default function SolutionsHubPage() {
             return (
               <section key={category} aria-label={category}>
                 <p className={`${EYEBROW} mb-5`}>{label}</p>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid sm:grid-cols-2 gap-6">
                   {group.map((niche) => (
                     <NicheCard key={niche.slug} niche={niche} />
                   ))}
@@ -50,9 +50,9 @@ export default function SolutionsHubPage() {
           })}
         </div>
 
-        {/* Small Business Section */}
+        {/* Not one of the four? Point to the audit instead of promising "any business". */}
         <div
-          id="small-business"
+          id="other-practices"
           className="mt-16 rounded-3xl bg-neutral-950 text-white p-8 sm:p-12 relative overflow-hidden"
         >
           <div
@@ -61,21 +61,24 @@ export default function SolutionsHubPage() {
           />
           <div className="relative z-10 max-w-3xl">
             <h2 className="text-3xl sm:text-4xl font-extrabold font-display tracking-tight mb-4">
-              Don&apos;t See Your Industry? We Get Any Local Business More Customers.
+              A different kind of private practice?
             </h2>
             <p className="text-base sm:text-lg text-neutral-300 leading-relaxed mb-8">
-              The same system works for any local business: get found on Google, get chosen over the competition, and
-              get booked. We set it up around how your customers actually buy.
+              If your practice books consultations or appointments, it runs on the same thing: a call or an inquiry that
+              needs an answer before the person calls someone else. Start with the free after-hours audit and we will tell
+              you honestly whether the system fits.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link
-                href="/book"
+                href="/audit"
+                data-track="cta_click"
+                data-track-cta="solutions_hub_audit"
                 className="inline-flex items-center justify-center px-6 py-3.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg shadow-blue-600/25 transition-all"
               >
-                Book My Free Call
+                Get your free after-hours audit
               </Link>
               <Link
-                href="/#axeoncore"
+                href="/marketing-solutions"
                 className="inline-flex items-center justify-center px-6 py-3.5 rounded-full border border-white/25 bg-white/[0.06] hover:bg-white/[0.12] text-white font-semibold text-sm transition-all"
               >
                 See how it works &rarr;

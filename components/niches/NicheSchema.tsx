@@ -5,7 +5,7 @@ import { serviceJsonLd } from '@/lib/seo';
 export function NicheSchema({ niche }: { niche: Niche }) {
   const jsonLd = serviceJsonLd({
     path: `/solutions/${niche.slug}`,
-    serviceType: `Web Design, SEO & Lead Follow-Up for ${niche.name}`,
+    serviceType: `Patient & Client Intake for ${niche.name}`,
     name: `Axeon Studio — ${niche.name}`,
     description: niche.subheadline,
     category: niche.schemaType,

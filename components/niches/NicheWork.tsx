@@ -4,7 +4,8 @@ import type { Niche } from '@/data/nichesData';
 import { projectsForNiche } from '@/data/workProjects';
 import { WorkCard } from '@/components/work/WorkCard';
 
-// Shows any /work projects tagged with this niche; renders nothing for niches without one.
+// Shows any /work projects tagged with this practice type; renders nothing
+// when there are none. Concept builds are labeled as such (never as clients).
 export function NicheWork({ niche }: { niche: Niche }) {
   const projects = projectsForNiche(niche.slug);
   if (projects.length === 0) return null;
@@ -13,22 +14,22 @@ export function NicheWork({ niche }: { niche: Niche }) {
     <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24">
       <div className="max-w-6xl mx-auto">
         <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">
-          [ RECENT WORK ]
+          [ RECENT BUILDS ]
         </p>
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-950">
-            Homepages we&rsquo;ve designed for {niche.name}
+            Practice sites we&rsquo;ve designed
           </h2>
           <Link
             href="/work"
             className="py-2 shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-950 hover:text-blue-600 transition-colors"
           >
-            See all our work <ArrowRight size={16} />
+            See all recent builds <ArrowRight size={16} />
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-12">
           {projects.map((project) => (
-            <WorkCard key={project.name} project={project} />
+            <WorkCard key={project.name} project={project} showConcept />
           ))}
         </div>
       </div>

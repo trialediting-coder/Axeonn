@@ -5,15 +5,16 @@ import {
   Send,
   Puzzle,
   Calculator,
-  Camera,
-  Printer,
+  Briefcase,
+  Receipt,
   Landmark,
   Server,
   ShieldCheck,
   UserRound,
-  Hammer,
+  Search,
   Rocket,
   Gift,
+  FileText,
 } from 'lucide-react';
 import { buildMetadata } from '@/lib/metadata';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
@@ -24,7 +25,7 @@ export const metadata = buildMetadata({
   path: '/partners',
   title: 'Partner Program | Axeon Studio',
   description:
-    'Partner with Axeon Studio. Refer Iowa owners who want more calls and customers and earn a reward when they pay their first invoice, or collaborate with us as a software vendor or service business that serves the same owners.',
+    'CPAs, practice consultants and billing firms: refer dental, med spa, law and accounting practices to Axeon and earn a 15% recurring Technology Advisory Share, disclosed to the client in writing, or pass it to your client as a fee credit.',
 });
 
 const APPLY_SUBJECT = 'Axeon partner application';
@@ -33,114 +34,122 @@ const APPLY_BODY = [
   'Business or product name:',
   'Website:',
   'City / area you serve:',
-  'Track (Referral, Collaboration, or not sure):',
-  'Who your customers are:',
+  'Track (Practice Advisor, Referral, Collaboration, or not sure):',
+  'Which practices you work with:',
   'How you picture us working together:',
   'Best phone number:',
 ].join('\n\n');
 const APPLY_HREF = `mailto:${BUSINESS.email}?subject=${encodeURIComponent(APPLY_SUBJECT)}&body=${encodeURIComponent(APPLY_BODY)}`;
+// The partner brief (PDF) is hand-delivered, so the CTA is an email request.
+const BRIEF_HREF = 'mailto:hello@axeonstudio.co?subject=Partner%20brief';
 
 const BUTTON =
   'inline-flex items-center gap-2 px-7 py-4 rounded-full font-bold text-base transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4';
 
 // The referral loop shown in the hero: who does what, in order.
 const LOOP = [
-  { icon: UserRound, who: 'You', what: 'Introduce an owner who wants more customers' },
-  { icon: Hammer, who: 'Axeon', what: 'Runs the call, scopes it, and builds the site' },
-  { icon: Rocket, who: 'Your client', what: 'Gets more calls and customers' },
-  { icon: Gift, who: 'Back to you', what: 'A referral reward when they pay their first invoice' },
+  { icon: UserRound, who: 'You', what: 'Introduce a practice that loses calls after hours' },
+  { icon: Search, who: 'Axeon', what: 'Runs a free after-hours audit and walks them through it' },
+  { icon: Rocket, who: 'Your client', what: 'Every missed call and inquiry answered within 60 seconds' },
+  { icon: Gift, who: 'Back to you', what: 'A 15% recurring Technology Advisory Share, or a fee credit for your client' },
+];
+
+const ADVISOR_POINTS = [
+  'A 15% recurring Technology Advisory Share for as long as the practice stays a client',
+  'Disclosed to your client in writing, every time',
+  'Or pass the value to your client as a fee credit instead',
+  'Free after-hours audits for any practice you work with',
+  'Your clients get the 90-day performance commitment',
 ];
 
 const REFERRAL_POINTS = [
-  'Your own referral link and a simple way to make intros',
-  'A referral reward when they pay their first invoice',
-  'Updates from first call to launch',
-  'Your clients get a 90-Day Customer Guarantee.',
+  'A simple way to make intros',
+  'A referral reward when the practice pays its first invoice',
+  'Updates from the audit to launch',
 ];
 
 const COLLAB_POINTS = [
-  'Handoffs both ways when a client needs what the other does',
-  'Your tool set up properly on the sites we build',
-  'Joint offers, guides, or workshops for shared customers',
-  'A listing on this page once we are working together',
+  'Handoffs both ways when a practice needs what the other does',
+  'Your tool set up properly alongside the intake we install',
+  'Joint guides or workshops for the practices we both serve',
 ];
 
 const FITS = [
   {
-    icon: Server,
-    title: 'Software and tools',
-    description: 'Booking, POS, CRM, payments, reviews, and other tools small businesses run on.',
+    icon: Calculator,
+    title: 'CPAs and accounting firms',
+    description: 'You already advise practice owners on their numbers. Missed new patients are part of those numbers.',
   },
   {
-    icon: Calculator,
-    title: 'Accountants and bookkeepers',
-    description: 'You see new businesses first, often before they have a website.',
+    icon: Briefcase,
+    title: 'Practice management consultants',
+    description: 'You fix operations for dental, med spa and professional practices. We handle the front door.',
+  },
+  {
+    icon: Receipt,
+    title: 'Medical and dental billing firms',
+    description: 'You see the schedule gaps first. We help fill them with the inquiries that were going to voicemail.',
+  },
+  {
+    icon: Server,
+    title: 'Practice software vendors',
+    description: 'Practice management, scheduling and phone systems that practices already run on.',
   },
   {
     icon: Landmark,
-    title: 'Lenders and insurance agents',
-    description: 'Your clients are investing in their business and want it to look the part.',
-  },
-  {
-    icon: Camera,
-    title: 'Photographers and creatives',
-    description: 'Your work deserves a website that shows it off, and we need great visuals.',
-  },
-  {
-    icon: Printer,
-    title: 'Sign, print, and branding shops',
-    description: 'You handle how a business looks in person. We handle how it looks online.',
+    title: 'Practice lenders and brokers',
+    description: 'Your clients are buying, expanding or transitioning a practice and need new patients to find it.',
   },
   {
     icon: ShieldCheck,
-    title: 'IT and managed services',
-    description: 'You keep the tech running. We build the site and the lead system on top of it.',
+    title: 'IT and managed services for practices',
+    description: 'You keep the office tech running. We install the intake on top of it.',
   },
 ];
 
 const STEPS = [
-  { title: 'Apply', description: 'Tell us who you are, who you serve, and how you picture working together.' },
+  { title: 'Request the brief', description: 'We hand-deliver the partner brief with the full terms.' },
   { title: 'Intro call', description: 'A short call to see if we are a good fit and pick the right track.' },
-  { title: 'Sign the agreement', description: 'A short, plain-English agreement with the terms in writing.' },
-  { title: 'Start sending', description: 'You get your referral link and a partner kit, and we get to work.' },
+  { title: 'Sign the agreement', description: 'A short, plain-English agreement, including the client disclosure.' },
+  { title: 'Introduce a practice', description: 'We start with a free after-hours audit for them.' },
 ];
 
 const PROMISES = [
   'We only take partners whose clients we are confident we can help.',
-  'Every referral gets a fast, personal reply from our team.',
-  'Referral rewards are paid when they pay their first invoice.',
+  'Every introduction gets a fast, personal reply from our team.',
+  'The advisory share is always disclosed to your client in writing.',
 ];
 
 const PARTNER_FAQ = [
   {
-    question: 'How much do referral partners earn?',
+    question: 'What is the Technology Advisory Share?',
     answer:
-      'Every client you refer earns you a referral reward when they pay their first invoice. The exact terms depend on the track and are spelled out in your partner agreement, so we share them on the intro call after you apply.',
+      'CPAs, practice consultants and billing firms who introduce a practice earn a 15% recurring share for as long as that practice stays a client. It is disclosed to the client in writing. The partner brief spells out exactly how it is calculated and paid.',
   },
   {
-    question: 'Who can apply?',
+    question: 'My professional rules limit referral fees. Can I still partner?',
     answer:
-      'Businesses and software vendors that work with small business owners, especially in Iowa. If your customers ever ask how to get more calls and customers, you are a good fit.',
+      'Yes. You can pass the full value to your client as a fee credit on their Axeon account instead of taking the share. Either way, the arrangement is disclosed in writing. Check your own professional rules; we will follow whichever option you choose.',
   },
   {
-    question: 'Why do you review applications?',
+    question: 'What do my clients get?',
     answer:
-      'Your name is on every introduction you make, and ours is on every site we build. We keep the program small so each referral gets real attention and both of us look good.',
+      'A free after-hours audit: we call the practice after hours, check how fast its website answers an inquiry, and compare its reviews to the top 3 nearby practices, then send a short video walkthrough. No charge and no obligation.',
   },
   {
     question: 'Do I have to sell anything?',
     answer:
-      'No. Just make the introduction. We run the discovery call, write the scope, and handle every question after that.',
+      'No. Just make the introduction. We run the audit, the call and the setup, and answer every question after that.',
   },
   {
-    question: 'Do you white-label your work for other agencies?',
+    question: 'Why do you review applications?',
     answer:
-      'Not right now. We build under the Axeon name. If you run an agency and we cover something you do not, the Collaboration track is the way to work together.',
+      'Your name is on every introduction you make, and we take one practice per specialty within 5 miles. We keep the program small so each introduction gets real attention.',
   },
   {
-    question: 'I build software for small businesses. How does that work?',
+    question: 'I build software for practices. How does that work?',
     answer:
-      'Apply on the Collaboration track. If our clients would benefit from your product, we can recommend it, set it up properly on the sites we build, and send business your way, and you can do the same for us.',
+      'Apply on the Collaboration track. If the practices we serve would benefit from your product, we can recommend it and set it up properly alongside the intake we install, and you can do the same for us.',
   },
 ];
 
@@ -228,27 +237,30 @@ export default function PartnersPage() {
           <div className="lg:col-span-7">
             <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-5">[ The Axeon Partner Program ]</p>
             <h1 className="text-5xl sm:text-6xl xl:text-7xl font-black tracking-[-0.04em] leading-[0.98] font-display mb-7">
-              Send us a business.
+              Send us a practice.
               <br />
-              <span className="text-neutral-400">We&apos;ll take it from there.</span>
+              <span className="text-neutral-400">We&apos;ll start with a free audit.</span>
             </h1>
             <p className="text-lg text-neutral-200 leading-relaxed max-w-xl mb-10">
-              You already work with owners who want more calls and customers. Introduce them to us and earn a
-              reward, or team up with us to serve the customers we share.
+              CPAs, practice consultants and billing firms already advise the practices that lose new patients after hours.
+              Introduce them to us and earn a 15% recurring Technology Advisory Share, disclosed to the client in writing,
+              or pass it to your client as a fee credit.
             </p>
             <div className="flex flex-wrap items-center gap-4">
               <a
-                href={APPLY_HREF}
+                href={BRIEF_HREF}
+                data-track="cta_click"
+                data-track-cta="partner_brief_hero"
                 className={`${BUTTON} bg-blue-600 hover:bg-blue-500 text-white focus-visible:outline-blue-400`}
               >
-                Apply to partner <ArrowRight size={18} />
+                Request the partner brief <ArrowRight size={18} />
               </a>
-              <Link
-                href="/book"
+              <a
+                href={APPLY_HREF}
                 className={`${BUTTON} border border-white/30 hover:border-white/60 bg-neutral-950/30 text-white focus-visible:outline-blue-400`}
               >
-                Book an intro call
-              </Link>
+                Apply to partner
+              </a>
             </div>
           </div>
         </div>
@@ -256,37 +268,62 @@ export default function PartnersPage() {
 
       <ReferralLoop />
 
-      {/* Tracks: two deliberately different panels */}
+      {/* Tracks: the Practice Advisor track leads; referral and collaboration sit beside it */}
       <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-6xl mx-auto">
           <div className="max-w-2xl mb-12">
-            <h2 className="text-4xl sm:text-5xl font-black tracking-[-0.03em] font-display mb-4">Two ways to partner</h2>
+            <h2 className="text-4xl sm:text-5xl font-black tracking-[-0.03em] font-display mb-4">Three ways to partner</h2>
             <p className="text-lg text-neutral-600 leading-relaxed">
-              Pick the one that fits how you work. Not sure? Apply anyway and we will figure it out together.
+              Pick the one that fits how you work. Not sure? Request the brief and we will figure it out together.
             </p>
           </div>
-          <div className="grid lg:grid-cols-2 gap-6">
-            <div className="rounded-[32px] bg-blue-600 text-white p-8 sm:p-12 flex flex-col">
-              <Send size={28} className="mb-8 text-blue-200" />
-              <h3 className="text-3xl font-black tracking-tight font-display mb-2">Referral Partner</h3>
-              <p className="text-blue-100 text-lg mb-8 leading-relaxed">
-                You know an owner who wants more customers. Make the intro, we handle everything else, and you
-                earn a reward when they pay their first invoice.
+          <div className="rounded-[32px] bg-blue-600 text-white p-8 sm:p-12 grid lg:grid-cols-2 gap-10">
+            <div className="flex flex-col">
+              <FileText size={28} className="mb-8 text-blue-200" />
+              <p className="text-xs font-mono font-bold tracking-widest text-blue-100 uppercase mb-2">[ For CPAs, consultants &amp; billing firms ]</p>
+              <h3 className="text-3xl sm:text-4xl font-black tracking-tight font-display mb-3">Practice Advisor</h3>
+              <p className="text-blue-100 text-lg leading-relaxed">
+                You advise practice owners on their numbers and operations. When a client is losing new patients or clients
+                to voicemail, introduce them. We run the audit, they decide, and you earn a recurring share or pass it to them.
               </p>
-              <ul className="mt-auto divide-y divide-white/15 border-t border-white/15">
+              <a
+                href={BRIEF_HREF}
+                data-track="cta_click"
+                data-track-cta="partner_brief_advisor"
+                className={`${BUTTON} mt-8 self-start bg-white text-blue-700 hover:bg-blue-50 focus-visible:outline-white`}
+              >
+                Request the partner brief <ArrowRight size={18} />
+              </a>
+            </div>
+            <ul className="divide-y divide-white/15 border-y border-white/15 self-end">
+              {ADVISOR_POINTS.map((point) => (
+                <li key={point} className="py-3.5 text-white/95">
+                  {point}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="mt-6 grid lg:grid-cols-2 gap-6">
+            <div className="rounded-[32px] border-2 border-neutral-200 p-8 sm:p-10 flex flex-col">
+              <Send size={26} className="mb-6 text-blue-600" />
+              <h3 className="text-2xl font-black tracking-tight font-display mb-2">Referral Partner</h3>
+              <p className="text-neutral-600 text-lg mb-6 leading-relaxed">
+                You know a practice owner who keeps missing calls. Make the intro, we handle everything else.
+              </p>
+              <ul className="mt-auto divide-y divide-neutral-200 border-t border-neutral-200">
                 {REFERRAL_POINTS.map((point) => (
-                  <li key={point} className="py-3.5 text-white/95">
+                  <li key={point} className="py-3.5 text-neutral-800">
                     {point}
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="rounded-[32px] border-2 border-neutral-200 p-8 sm:p-12 flex flex-col">
-              <Puzzle size={28} className="mb-8 text-blue-600" />
-              <h3 className="text-3xl font-black tracking-tight font-display mb-2">Collaboration Partner</h3>
-              <p className="text-neutral-600 text-lg mb-8 leading-relaxed">
-                You serve the same owners we do, with software or a service that fits next to ours. We recommend
-                each other and build things together when it makes sense.
+            <div className="rounded-[32px] border-2 border-neutral-200 p-8 sm:p-10 flex flex-col">
+              <Puzzle size={26} className="mb-6 text-blue-600" />
+              <h3 className="text-2xl font-black tracking-tight font-display mb-2">Collaboration Partner</h3>
+              <p className="text-neutral-600 text-lg mb-6 leading-relaxed">
+                You serve the same practices with software or a service that fits next to ours. We recommend each other when
+                it makes sense.
               </p>
               <ul className="mt-auto divide-y divide-neutral-200 border-t border-neutral-200">
                 {COLLAB_POINTS.map((point) => (
@@ -306,8 +343,8 @@ export default function PartnersPage() {
           <div className="lg:col-span-4">
             <h2 className="text-4xl sm:text-5xl font-black tracking-[-0.03em] font-display mb-4">Who we partner with</h2>
             <p className="text-lg text-neutral-600 leading-relaxed">
-              The people business owners already trust. If your customers ever ask how to get more calls and
-              customers, this is for you.
+              The people practice owners already trust. If your clients run a dental office, med spa, law firm or
+              accounting firm, this is for you.
             </p>
           </div>
           <ul className="lg:col-span-8 grid sm:grid-cols-2 gap-x-10 border-t border-neutral-300">
@@ -375,16 +412,20 @@ export default function PartnersPage() {
         <div className="max-w-6xl mx-auto rounded-[32px] bg-neutral-950 text-white px-8 py-14 sm:px-14 sm:py-16 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
           <div className="max-w-xl">
             <h2 className="text-3xl sm:text-4xl font-black tracking-[-0.03em] font-display mb-3">
-              Know an owner who wants more customers?
+              Know a practice that loses calls after hours?
             </h2>
-            <p className="text-lg text-neutral-300 leading-relaxed">Apply in a few minutes. We reply to every application.</p>
+            <p className="text-lg text-neutral-300 leading-relaxed">
+              Request the partner brief. We hand-deliver it with the full terms and reply to every request.
+            </p>
           </div>
           <div className="flex flex-wrap gap-3 shrink-0">
             <a
-              href={APPLY_HREF}
+              href={BRIEF_HREF}
+              data-track="cta_click"
+              data-track-cta="partner_brief_closer"
               className={`${BUTTON} bg-blue-600 hover:bg-blue-500 text-white focus-visible:outline-blue-400`}
             >
-              Apply to partner
+              Request the partner brief
             </a>
             <Link
               href="/book"

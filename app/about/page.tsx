@@ -5,9 +5,9 @@ import { ORG_ID, SITE_URL } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   path: '/about',
-  title: 'About Axeon Studio | West Des Moines Marketing Company',
+  title: 'About Axeon Studio | Patient & Client Intake, West Des Moines',
   description:
-    'Based in West Des Moines, Axeon Studio gets Iowa businesses more calls and customers, backed by a 90-day customer guarantee. Work directly with the team building your system.',
+    'Axeon Studio installs patient and client intake for dental, med spa, law and accounting practices. Based in West Des Moines. Work directly with the team building your system.',
 });
 
 // The Organization node is defined once in the root layout graph;
@@ -17,7 +17,7 @@ const aboutPageJsonLd = {
   '@type': 'AboutPage',
   '@id': `${SITE_URL}/about#webpage`,
   url: `${SITE_URL}/about`,
-  name: 'About Axeon Studio | More Customers for Iowa Businesses',
+  name: 'About Axeon Studio | Patient & Client Intake for Practices',
   about: { '@id': ORG_ID },
   mainEntity: { '@id': ORG_ID },
 };

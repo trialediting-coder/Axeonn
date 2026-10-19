@@ -35,7 +35,7 @@ export function WorkCard({ project, showConcept = false }: { project: WorkProjec
         </div>
         {project.concept && showConcept && (
           <span className="shrink-0 text-[11px] font-mono font-medium text-neutral-400 bg-neutral-100 px-2.5 py-1 rounded-full border border-neutral-200/60">
-            Concept
+            Concept build
           </span>
         )}
       </div>
@@ -47,7 +47,7 @@ export function WorkCard({ project, showConcept = false }: { project: WorkProjec
 export function ConceptDisclaimer({ className = '' }: { className?: string }) {
   return (
     <p className={`text-[11px] text-neutral-400 leading-relaxed ${className}`}>
-      Projects marked &ldquo;Concept&rdquo; are self-initiated designs by Axeon Studio and are not affiliated with or endorsed by the businesses shown.
+      Projects marked &ldquo;Concept build&rdquo; are self-initiated designs by Axeon Studio. Those businesses are not clients and are not affiliated with or endorsing Axeon.
     </p>
   );
 }

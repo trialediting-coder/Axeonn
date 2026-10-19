@@ -1,9 +1,15 @@
+// The layers of the Axeon system, as shown on /marketing-solutions ("How it
+// works") and linked from the footer. The six old service pages
+// (/marketing-solutions/website, /seo, ...) were consolidated into the hub on
+// 2026-10-19 and 301 to it (next.config.mjs). Full layer copy lives in
+// data/solutionDetails.ts.
+
 export interface MarketingSolution {
+  /** Anchor id on /marketing-solutions. */
   id: string;
   title: string;
   description: string;
-  badge?: string;
-  /** What gets you this service, shown on the hub card. */
+  /** Which plan includes this layer. */
   included: string;
   href: string;
 }
@@ -11,50 +17,33 @@ export interface MarketingSolution {
 export const marketingSolutions: MarketingSolution[] = [
   {
     id: 'website',
-    title: 'Website',
+    title: 'Practice website',
     description:
-      'Websites that build trust, drive revenue, and make you the clear choice—built to turn visitors into calls',
-    href: '/marketing-solutions/website',
-    included: 'In every build',
+      'A custom, mobile-first site with providers and credentials, services, reviews and online booking.',
+    included: 'AxeonCORE',
+    href: '/marketing-solutions#website',
   },
   {
-    id: 'seo',
-    title: 'SEO',
+    id: 'intake',
+    title: '60-second intake & booking',
     description:
-      'Rank higher on search engines, reach the customers you want most, and turn online searches into new revenue',
-    href: '/marketing-solutions/seo',
-    included: 'In every build',
+      'Every missed call and web inquiry gets a reply within 60 seconds, 24/7, and a way to book the consultation.',
+    included: 'AxeonCORE',
+    href: '/marketing-solutions#intake',
   },
   {
-    id: 'ai-chat-scheduling',
-    title: 'AI Chat & Online Scheduling',
-    description:
-      'Never miss a lead—24/7 AI chat that books, answers, and converts clicks to customers.',
-    href: '/marketing-solutions/ai-chat-scheduling',
-    included: 'In AxeonCORE',
+    id: 'reviews',
+    title: 'Review engine',
+    description: 'An automatic review request after every completed appointment.',
+    included: 'AxeonCORE',
+    href: '/marketing-solutions#reviews',
   },
   {
-    id: 'lead-generation',
-    title: 'Lead Capture & Follow-Up',
+    id: 'growth',
+    title: 'Acquisition layer',
     description:
-      'Every call, form, and chat captured and followed up automatically, so no lead goes cold.',
-    href: '/marketing-solutions/lead-generation',
-    included: 'In AxeonCORE',
-  },
-  {
-    id: 'advertising',
-    title: 'Advertising',
-    description:
-      'Google Ads and Meta Ads that send ready-to-buy customers to pages built to get the call, with every call and booking tracked.',
-    href: '/marketing-solutions/advertising',
-    included: 'Growth engine add-on',
-  },
-  {
-    id: 'video-photography',
-    title: 'Video & Photography',
-    description:
-      'Real footage of your team and your work, so customers pick you over the stock-photo site next to you.',
-    href: '/marketing-solutions/video-photography',
-    included: 'In AxeonCORE',
+      'Google Local Services Ads and search ads, past-patient reactivation, an AI phone receptionist and quarterly photo and video.',
+    included: 'AxeonGROWTH',
+    href: '/marketing-solutions#growth',
   },
 ];

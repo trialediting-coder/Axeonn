@@ -8,7 +8,7 @@ const SECTIONS = [
   { id: 'get-found', label: 'Get Found' },
   { id: 'get-chosen', label: 'Get Chosen' },
   { id: 'get-booked', label: 'Get Booked' },
-  { id: 'guarantee', label: 'The Guarantee' },
+  { id: 'guarantee', label: 'The Commitment' },
 ];
 
 export function WhyAxeonSectionNav() {

@@ -1,10 +1,7 @@
 import Link from 'next/link';
-import { ArrowRight, Phone } from 'lucide-react';
+import { ArrowRight, CalendarDays } from 'lucide-react';
 import type { Niche } from '@/data/nichesData';
 import { nicheHeroTempImages, defaultNicheHeroTempImage } from '@/data/nicheHeroTempImages';
-import { pricingTiers } from '@/data/pricingData';
-
-const corePrice = pricingTiers.find((t) => t.id === 'core-web-build')?.price ?? '$149';
 
 export function NicheHero({ niche }: { niche: Niche }) {
   const heroImage = nicheHeroTempImages[niche.slug] ?? defaultNicheHeroTempImage;
@@ -31,7 +28,7 @@ export function NicheHero({ niche }: { niche: Niche }) {
       <div className="relative z-10 w-full max-w-5xl mx-auto text-center">
         {/* Geo + service line: the message-match a paid click needs to see first */}
         <p className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-4">
-          More {niche.customerNoun} for {niche.name} &middot; Des Moines metro &amp; Iowa
+          Patient &amp; client intake for {niche.name} &middot; Des Moines metro &amp; Iowa
         </p>
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-tight mb-6">
           {niche.headline}
@@ -42,32 +39,34 @@ export function NicheHero({ niche }: { niche: Niche }) {
 
         {/* Price anchor: the #1 objection, answered before the first scroll */}
         <p className="inline-flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 rounded-2xl sm:rounded-full bg-white/[0.07] border border-white/15 px-4 py-2 text-sm sm:text-base text-neutral-200 mb-8">
-          <span className="font-bold text-white">Plans from {corePrice}/mo</span>
+          <span className="font-bold text-white">From $799/mo</span>
           <span className="text-neutral-400">
-            <span className="hidden sm:inline">&middot; </span>backed by our 90-Day Customer Guarantee
+            <span className="hidden sm:inline">&middot; </span>90-day performance commitment: live in 30 days, 60-second replies, or walk away
           </span>
         </p>
 
         {/* One primary action, one fast path, one text link */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 mb-5">
           <Link
-            href="/book"
+            href="/audit"
+            data-track="cta_click"
+            data-track-cta={`niche_hero_audit_${niche.slug}`}
             className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/25"
           >
             {niche.primaryCTA} <ArrowRight size={18} />
           </Link>
-          <a
-            href="tel:+15154938017"
+          <Link
+            href="/book"
             className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full border border-white/25 bg-white/[0.06] hover:bg-white/[0.12] text-white font-semibold text-base transition-colors"
           >
-            <Phone size={17} /> Call (515) 493-8017
-          </a>
+            <CalendarDays size={17} /> Book a call
+          </Link>
         </div>
         <Link
           href="/pricing"
           className="py-2 inline-block text-sm sm:text-base text-neutral-300 hover:text-white underline underline-offset-4"
         >
-          See all three plans and what each includes
+          See AxeonCORE and AxeonGROWTH, and what each includes
         </Link>
       </div>
     </section>

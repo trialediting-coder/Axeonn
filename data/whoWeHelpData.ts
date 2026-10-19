@@ -10,79 +10,53 @@ export interface WhoWeHelpEntry {
   description?: string;
   metric?: string;
   image: string;
-  video: string;
+  /** Optional: entries without a clip of their own show their still image. */
+  video?: string;
   href?: string;
   niches?: WhoWeHelpNicheItem[];
 }
 
+// The four practice types (owner decision 2026-10-19). Each links to its
+// /solutions page. Images and clips are real, licensed industry footage.
 export const whoWeHelpEntries: WhoWeHelpEntry[] = [
   {
-    id: 'home-services',
-    label: 'Home Services',
-    tag: 'Instant Dispatch & Estimating',
-    description: 'HVAC, roofing, remodeling, landscaping, and auto detailing businesses that need every call and quote request answered fast.',
-    metric: 'Sub-Minute Response',
-    image: '/who-we-help/home-services.jpg',
-    video: '/videos/industries/home-services.mp4',
-    niches: [
-      { label: 'HVAC', href: '/solutions/hvac' },
-      { label: 'Roofing', href: '/solutions/roofing' },
-      { label: 'Home Remodeling', href: '/solutions/home-remodeling' },
-      { label: 'Landscaping', href: '/solutions/landscaping' },
-      { label: 'Auto Detailing', href: '/solutions/auto-detailing' },
-    ],
+    id: 'dental',
+    label: 'Dental',
+    tag: 'New-Patient Intake & Consult Booking',
+    description: 'New-patient exams and implant or Invisalign consults answered within 60 seconds, day or night.',
+    metric: '60-Second Replies',
+    image: '/who-we-help/dental.jpg',
+    video: '/videos/industries/dental.mp4',
+    href: '/solutions/dental',
+  },
+  {
+    id: 'med-spa',
+    label: 'Med Spa',
+    tag: 'Consults, Treatment Plans & Memberships',
+    description: 'Consult requests answered at 10 PM and booked before they shop around.',
+    metric: 'Consults Booked',
+    image: '/who-we-help/med-spa.webp',
+    href: '/solutions/med-spa',
   },
   {
     id: 'legal',
-    label: 'Legal',
-    tag: 'Case Intake & Practice Routing',
-    description: 'Litigation, injury, defense, and estate planning law firms needing instant client qualification, conflict triage, and automated consultation scheduling.',
-    metric: 'Zero Missed Retainers',
+    label: 'Law Firms',
+    tag: 'Intake Calls & Consultations',
+    description: 'After-hours intake calls answered with a conflict-safe first contact, and attorney advertising rules respected.',
+    metric: 'Every Intake Call Answered',
     image: '/who-we-help/legal.jpg',
     video: '/videos/industries/legal.mp4',
     href: '/solutions/law-firms',
   },
   {
     id: 'financial',
-    label: 'Financial',
-    tag: 'Advisory Triage & Client Onboarding',
-    description: 'Accounting firms and CPAs needing lead triage to separate routine tax inquiries from high-ticket advisory retainers.',
-    metric: 'High-Value Pipeline',
+    label: 'Accounting',
+    tag: 'Tax-Season Overflow & Advisory Consults',
+    description: 'Tax-season calls answered when your staff cannot pick up, and advisory consults booked online.',
+    metric: 'Advisory Consults Booked',
     image: '/who-we-help/financial.jpg',
     video: '/videos/industries/financial.mp4',
     href: '/solutions/accounting',
-  },
-  {
-    id: 'real-estate',
-    label: 'Real Estate',
-    tag: 'Buyer & Seller Pipeline Separation',
-    description: 'Agents, teams, and brokerages who need home-value requests, showing bookings, and follow-up that keeps buyers and sellers warm.',
-    metric: 'Instant Speed-to-Lead',
-    image: '/who-we-help/real-estate.jpg',
-    video: '/videos/industries/real-estate.mp4',
-    href: '/solutions/real-estate',
-  },
-  {
-    id: 'dental',
-    label: 'Dental',
-    tag: 'Patient Intake & Booking Flows',
-    description: 'Dental practices that need more consults booked, cleaning reminders sent automatically, and emergency calls answered fast.',
-    metric: 'Full Chairtime Slots',
-    image: '/who-we-help/dental.jpg',
-    video: '/videos/industries/dental.mp4',
-    href: '/solutions/dental',
-  },
-  {
-    id: 'small-business',
-    label: 'Small Business',
-    tag: 'All-in-One Revenue Engine',
-    description: 'Custom websites, automatic lead follow-up, and AI receptionists built for growing local small businesses.',
-    metric: 'Built For Growth',
-    image: '/who-we-help/small-business.jpg',
-    video: '/videos/industries/small-business.mp4',
-    // Matches the destination already used for "Small Business" in the
-    // Header's Who We Help mega-menu, for consistency.
-    href: '/solutions#small-business',
   },
 ];
 

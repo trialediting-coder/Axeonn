@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { marketingSolutions } from '@/data/marketingSolutionsData';
 import { cityPages } from '@/data/cityPages';
+import { niches } from '@/data/nichesData';
 
 export interface FooterProps {
   year: number;
@@ -16,7 +17,8 @@ interface FooterLink {
 
 const COMPANY_LINKS: FooterLink[] = [
   { label: 'Our Story', href: '/about' },
-  { label: 'Our Work', href: '/work' },
+  { label: 'Why Axeon', href: '/why-axeon' },
+  { label: 'Recent builds', href: '/work' },
   { label: 'Process', href: '/process' },
   { label: 'Pricing', href: '/pricing' },
   { label: 'Insights', href: '/insights' },
@@ -25,20 +27,18 @@ const COMPANY_LINKS: FooterLink[] = [
 ];
 
 const WHO_WE_HELP_LINKS: FooterLink[] = [
-  { label: 'All Industries', href: '/solutions' },
-  { label: 'Small Business', href: '/solutions#small-business' },
-  { label: 'Des Moines Businesses', href: '/des-moines-web-design' },
+  ...niches.map((niche) => ({ label: niche.name, href: `/solutions/${niche.slug}` })),
+  { label: 'All Practice Types', href: '/solutions' },
+  { label: 'Des Moines Practices', href: '/des-moines-web-design' },
   ...cityPages.map((city) => ({ label: city.linkLabel, href: `/${city.slug}` })),
   { label: 'Iowa Nonprofits', href: '/nonprofits' },
 ];
 
 const SOLUTION_LINKS: FooterLink[] = [
-  { label: 'AxeonCORE Customer Engine', href: '/marketing-solutions' },
-  { label: 'AxeonPROOF Dashboard', href: '/axeonproof' },
-  ...marketingSolutions.map((solution) => ({
-    label: solution.title,
-    href: `/marketing-solutions/${solution.id}`,
-  })),
+  { label: 'How It Works', href: '/marketing-solutions' },
+  ...marketingSolutions.map((layer) => ({ label: layer.title, href: layer.href })),
+  { label: 'AxeonPROOF Client Portal', href: '/axeonproof' },
+  { label: 'Free After-Hours Audit', href: '/audit' },
 ];
 
 const SOCIAL_LINKS: FooterLink[] = [
@@ -72,7 +72,6 @@ export function Footer({ year }: FooterProps) {
   const pageHasCloser =
     ['/', '/pricing', '/process', '/why-axeon', '/des-moines-web-design', '/about', '/marketing-solutions', '/axeonproof', '/partners', '/nonprofits', '/book', '/faq', '/insights'].includes(pathname) ||
     cityPages.some((city) => pathname === `/${city.slug}`) ||
-    pathname.startsWith('/marketing-solutions/') ||
     pathname.startsWith('/solutions/');
 
   const handleHomeClick = () => {
@@ -94,24 +93,26 @@ export function Footer({ year }: FooterProps) {
         {/* CTA (hidden where the page has its own closer) */}
         <div className={`rounded-[28px] bg-neutral-950 text-white p-7 sm:p-10 ${pageHasCloser ? 'hidden' : 'flex'} flex-col lg:flex-row lg:items-center justify-between gap-6`}>
           <div>
-            <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Ready for more customers?</h3>
+            <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">What happens when someone calls after hours?</h3>
             <p className="mt-2 text-neutral-300 text-base sm:text-lg max-w-2xl">
-              A free 30-minute call. You leave knowing where customers are slipping away and exactly what it costs to fix, whether or not you hire us.
+              We call your practice after hours, check how fast your website answers an inquiry, and compare your reviews to the top 3 nearby practices. You get a short video walkthrough. No charge.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 shrink-0">
             <Link
-              href="/book"
+              href="/audit"
+              data-track="cta_click"
+              data-track-cta="audit_footer"
               className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-colors"
             >
-              Book My Free Call
+              Get your free after-hours audit
             </Link>
-            <a
-              href="tel:+15154938017"
+            <Link
+              href="/book"
               className="inline-flex items-center justify-center px-8 py-4 rounded-full border border-white/25 hover:bg-white/10 text-white font-semibold text-base transition-colors"
             >
-              Call (515) 493-8017
-            </a>
+              Book a call
+            </Link>
           </div>
         </div>
 
@@ -141,7 +142,7 @@ export function Footer({ year }: FooterProps) {
           <div className="lg:col-span-8 grid grid-cols-2 sm:grid-cols-3 gap-8 sm:gap-10">
             <FooterColumn title="Company" links={COMPANY_LINKS} />
             <FooterColumn title="Who We Help" links={WHO_WE_HELP_LINKS} />
-            <FooterColumn title="Solutions" links={SOLUTION_LINKS} />
+            <FooterColumn title="How It Works" links={SOLUTION_LINKS} />
           </div>
         </div>
 
