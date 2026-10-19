@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { PLAN_DEFAULT_FEES } from '@/data/agreementTemplate';
+import { guaranteeSentence } from '@/data/pricingData';
 import { TIER_LABELS } from '@/data/onboardingItems';
 import { latestSignedAgreementFor, money, prettyDate } from '@/lib/agreements';
 import { getProjectDetails, tierHasGuarantee } from '@/lib/projects';
@@ -45,6 +46,10 @@ export default async function WelcomePacketPage({ params }: { params: Promise<{ 
   const name = onboarding.businessName || onboarding.clientName || 'there';
   const first = onboarding.clientName?.trim().split(/\s+/)[0] || 'there';
   const guarantee = tierHasGuarantee(onboarding.tier);
+  // Clients who signed the 2026-10-06 agreement (or have no agreement on file)
+  // were sold the old 90-day customer guarantee and keep seeing it. Agreements on
+  // a newer version carry the 90-day performance commitment (agreement Section 5).
+  const performanceCommitment = Boolean(agreement && agreement.version !== '2026-10-06');
 
   return (
     <DocPaper kind="Welcome Packet" meta={prettyDate(onboarding.createdAt)}>
@@ -85,7 +90,18 @@ export default async function WelcomePacketPage({ params }: { params: Promise<{ 
         ]}
       />
 
-      {guarantee && (
+      {guarantee && performanceCommitment && (
+        <div className="my-6 rounded-xl bg-blue-50 border border-blue-100 p-5 break-inside-avoid">
+          <p className="text-xs font-mono uppercase tracking-wider text-blue-700">90-Day Performance Commitment</p>
+          <p className="mt-2 font-bold text-neutral-950">{guaranteeSentence}</p>
+          <p className="mt-2 text-sm text-neutral-700">
+            The full terms are in Section 5 of your Client Services Agreement. Response times and review requests are recorded in
+            AxeonPROOF, so you can check them any time.
+          </p>
+        </div>
+      )}
+
+      {guarantee && !performanceCommitment && (
         <div className="my-6 rounded-xl bg-blue-50 border border-blue-100 p-5 break-inside-avoid">
           <p className="text-xs font-mono uppercase tracking-wider text-blue-700">90-Day Customer Guarantee</p>
           <p className="mt-2 font-bold text-neutral-950">
