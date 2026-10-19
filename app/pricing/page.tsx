@@ -7,18 +7,18 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/pricing',
-  title: 'Pricing: Plans to Get More Customers | Axeon Studio',
+  title: 'Pricing for Practices: AxeonCORE & AxeonGROWTH | Axeon Studio',
   description:
-    'Simple monthly pricing: Essentials $149/mo, AxeonCORE $299/mo, AxeonGROWTH $999/mo. $99 to start, backed by a 90-day guarantee.',
+    'Patient and client intake for dental, med spa, law and CPA practices. AxeonCORE from $799/mo, AxeonGROWTH from $1,999/mo. 12-month agreement, $3,000 setup included, month-to-month available. Start with a free after-hours audit.',
 });
 
-// Order: guarantee + plans -> 21x band (why AxeonCORE) -> add-ons + engine -> FAQ -> CTA.
-// The guarantee is stated once, in the blue band above the plans.
+// Order: commitment + plans -> 21x band (why AxeonCORE) -> add-ons + engine -> FAQ -> CTA.
+// The performance commitment is stated once, in the blue band above the plans.
 export default function PricingPage() {
   return (
     <main className="pt-24">
       <BreadcrumbJsonLd items={[{ name: 'Pricing', path: '/pricing' }]} />
-      <h1 className="sr-only">Website Design &amp; Digital Marketing Pricing — Des Moines, Iowa</h1>
+      <h1 className="sr-only">Pricing for Dental, Med Spa, Law and Accounting Practices — Axeon Studio, Iowa</h1>
       <PricingSection
         includeFaqSchema
         tightTop
@@ -33,27 +33,29 @@ export default function PricingPage() {
         <div className="max-w-4xl mx-auto text-center">
           <span className="block mb-4 text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">[ GET STARTED ]</span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-tight mb-6">
-            Ready for more customers?
+            Find out what happens to your after-hours calls.
           </h2>
           <p className="text-lg sm:text-xl text-neutral-300 max-w-2xl mx-auto leading-relaxed">
-            Book a free 30-minute call. We&apos;ll tell you straight which plan fits, and you&apos;ll see your new
-            homepage before you pay anything.
+            We call your practice after hours, time how fast your website answers an inquiry, and compare your
+            reviews to the top 3 nearby practices. You get a short video walkthrough of what we found. No charge.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4">
             <Link
-              href="/book"
+              href="/audit"
               data-track="cta_click"
               data-track-cta="pricing_closer"
               className="px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
             >
-              Book My Free Call
+              Get your free after-hours audit
             </Link>
-            <a
-              href="tel:+15154938017"
+            <Link
+              href="/book"
+              data-track="cta_click"
+              data-track-cta="pricing_closer_call"
               className="px-8 py-4 rounded-full border border-neutral-700 hover:border-neutral-500 text-white font-semibold text-base transition-colors"
             >
-              Call (515) 493-8017
-            </a>
+              Book a call
+            </Link>
           </div>
         </div>
       </section>

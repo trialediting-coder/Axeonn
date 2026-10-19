@@ -1,7 +1,7 @@
 // app/axeonproof/page.tsx
-// AxeonPROOF, shown off on black: the dashboard rendered live for an example
-// business in a window the visitor can scroll, every tab to click through,
-// the analytics cards with notes, the 90-day guarantee you can drag through,
+// AxeonPROOF, shown off on black: the dashboard rendered live for a fictional
+// demo dental practice in a window the visitor can scroll, every tab to click through,
+// the analytics cards with notes, the 90-day performance commitment you can drag through,
 // and what each plan switches on (each plan links to pricing). Example data
 // lives in data/proofPage.ts. Owner 2026-10-13: whole page black, cleaner and
 // wider, one Live pill, "Book My Free Demo". 2026-10-14: one silk flow behind
@@ -26,7 +26,7 @@ import { Accent, CTA, CTA_GLASS, GLASS, H2, Pill } from '@/components/axeonproof
 import { EXAMPLE } from '@/data/proofPage';
 
 const DESCRIPTION =
-  'AxeonPROOF is the client dashboard every Axeon client signs into: every call, lead and booked job, where each one came from, and how the 90-day guarantee is tracking. Click through a live example.';
+  'AxeonPROOF is the client portal every AxeonCORE and AxeonGROWTH practice signs into: a live counter of recovered calls and inquiries, booked consultations, review requests, change requests and monthly reports. Click through a demo practice.';
 
 export const metadata = buildMetadata({
   path: '/axeonproof',
@@ -46,15 +46,14 @@ const WRAP = 'mx-auto w-full max-w-7xl';
 const SECTION = 'w-full px-4 py-20 sm:px-8 sm:py-28 lg:px-14';
 
 const GUARANTEE_STEPS = [
-  { n: '1', title: 'Kickoff: your starting point, set together', body: 'On the kickoff call we agree how many calls and leads you were getting before. That number is written into your dashboard.' },
-  { n: '2', title: 'Day one: every call and form counted', body: 'From the day your site goes live, every call, text, form and booking lands in PROOF with the page and campaign behind it.' },
-  { n: '3', title: 'Day 90: the comparison is on your screen', body: 'Your baseline sits next to this month, in the open, in your own dashboard. Not in our slide deck.' },
+  { n: '1', title: 'Live within 30 days', body: 'Once we have your materials and access, your website, phone and text numbers, booking and review requests go live within 30 days. The date is on your dashboard.' },
+  { n: '2', title: 'Every reply timed', body: 'Every missed call and web inquiry is logged with how long the first reply took. You see the 60-second line, and every event against it.' },
+  { n: '3', title: 'Every review request counted', body: 'Each completed appointment shows whether a review request went out. If something slips, it is on your screen, not buried in our report.' },
 ];
 
 const PLANS = [
-  { name: 'Essentials', price: '$149/mo', note: 'The basics, live from your site.', items: ['Overview: visits, who reached out, estimated customers', 'Leads: every call, text, form and booking', 'Business email and spam checks', 'Billing and invoices'], featured: false },
-  { name: 'AxeonCORE', price: '$299/mo', note: 'Where PROOF comes alive. Recommended.', items: ['Everything in Essentials', 'Calls: tracked numbers, missed-call text-back', 'Bookings: online scheduling and AI chat', 'Reviews: requests after every job', '90-Day Customer Guarantee tracking'], featured: true },
-  { name: 'AxeonGROWTH', price: '$999/mo + ad spend', note: 'Ads and the phone, handled.', items: ['Everything in AxeonCORE', 'Ads: every dollar next to the jobs it brought in', 'AI receptionist: every call answered, 24/7', 'Monthly strategy call'], featured: false },
+  { name: 'AxeonCORE', price: 'From $799/mo', note: 'Where most practices start.', items: ['Overview with the live recovered-inquiry counter', 'Leads: every call, text, form and booking', 'Calls: tracked numbers, missed-call text-back', 'Bookings: online consultation booking', 'Reviews: a request after every appointment', '90-day performance commitment tracking', 'Change requests and monthly reports'], featured: true },
+  { name: 'AxeonGROWTH', price: 'From $1,999/mo + ad spend', note: 'Intake plus active acquisition.', items: ['Everything in AxeonCORE', 'Ads: every dollar next to the inquiries it brought in', 'AI receptionist: every call answered, 24/7', 'Monthly strategy call and quarterly review'], featured: false },
 ];
 
 /** Section header in the hero's language: pill, headline with an accent word, intro to the right. */
@@ -96,15 +95,15 @@ export default function AxeonProofPage() {
               </Pill>
             </div>
             <h1 style={{ animationDelay: '3100ms' }} className="proof-hero-stagger animate-proof-rise mt-8 text-balance font-display text-5xl font-extrabold leading-[1.04] tracking-tight sm:text-6xl lg:text-wrap lg:text-7xl xl:text-[5.25rem]">
-              Every call, lead <Accent>and</Accent> booked job,
+              Every call, inquiry <Accent>and</Accent> booked consultation,
               <br className="hidden lg:block" /> on one screen.
             </h1>
             <p style={{ animationDelay: '3250ms' }} className="proof-hero-stagger animate-proof-rise mt-8 max-w-3xl text-lg leading-relaxed text-neutral-300 sm:text-xl">
-              The dashboard every Axeon client signs into. What your marketing brought in this month, where each customer came from, and what we are building next.
+              The portal every AxeonCORE and AxeonGROWTH practice signs into. How many missed calls and after-hours inquiries were recovered, how fast each got a reply, and which turned into booked consultations.
             </p>
             <div style={{ animationDelay: '3400ms' }} className="proof-hero-stagger animate-proof-rise mt-10 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row sm:gap-4">
-              <Link href="/book" data-track="cta_click" data-track-cta="axeonproof_hero" className={`${CTA} w-full max-w-xs sm:w-auto`}>
-                Book My Free Demo <ArrowRight size={18} />
+              <Link href="/audit" data-track="cta_click" data-track-cta="axeonproof_hero" className={`${CTA} w-full max-w-xs sm:w-auto`}>
+                Get your free after-hours audit <ArrowRight size={18} />
               </Link>
               <a href="#proof-live" className={`${CTA_GLASS} w-full max-w-xs sm:w-auto`}>
                 See It Live
@@ -116,7 +115,7 @@ export default function AxeonProofPage() {
           </div>
 
           <div id="proof-live" className="relative mt-16 scroll-mt-24 sm:mt-20">
-            <ProofWindow caption={`${EXAMPLE.name} is an example business and this is an example month, not a client's results. The screens are the real app.`}>
+            <ProofWindow caption={`${EXAMPLE.demoLabel}. Example month, not a client's results. The screens are the real app.`}>
               <DashboardShell tab="overview">
                 <OverviewScreen />
               </DashboardShell>
@@ -135,7 +134,7 @@ export default function AxeonProofPage() {
                 Click around. It is the <Accent>real</Accent> thing.
               </>
             }
-            intro="Every screen a client sees, from the first lead to the invoice. A tab outside your plan stays visible and shows an example month, so you always know what the next plan adds."
+            intro="Every screen a practice sees, from the first inquiry to the invoice. A tab outside your plan stays visible and shows an example month, so you always know what the next plan adds."
           />
           <ProofTour />
         </div>
@@ -148,7 +147,7 @@ export default function AxeonProofPage() {
             pill="Numbers you can act on"
             title={
               <>
-                Each card answers a question an owner <Accent>actually</Accent> asks.
+                Each card answers a question a practice owner <Accent>actually</Accent> asks.
               </>
             }
             intro="Hover or tap a card to see what it tells you. Every number comes straight from the site and the tracked phone number, not from a report someone typed up."
@@ -157,14 +156,14 @@ export default function AxeonProofPage() {
         </div>
       </section>
 
-      {/* How the guarantee is kept honest, and a scrubber to feel it. */}
+      {/* How the performance commitment is kept honest, and a scrubber to feel it. */}
       <section className={SECTION}>
         <div className={WRAP}>
           <div className="grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:gap-16">
             <div>
-              <Pill className="mb-6">90-Day Customer Guarantee</Pill>
+              <Pill className="mb-6">90-Day Performance Commitment</Pill>
               <h2 className={H2}>
-                The guarantee lives in your dashboard, <Accent>not</Accent> in our promises.
+                The commitment lives in your dashboard, <Accent>not</Accent> in our promises.
               </h2>
               <p className="mt-6 text-lg leading-relaxed text-neutral-200">{GUARANTEE_LINE}</p>
               <p className="mt-4 text-sm leading-relaxed text-neutral-400">{GUARANTEE_TERMS}</p>
@@ -194,11 +193,11 @@ export default function AxeonProofPage() {
             pill="Included with your plan"
             title={
               <>
-                Every plan gets a sign-in. Bigger plans switch on <Accent>more</Accent> tabs.
+                Both plans get a sign-in. AxeonGROWTH switches on <Accent>more</Accent> tabs.
               </>
             }
           />
-          <div className="grid gap-4 lg:grid-cols-3">
+          <div className="grid gap-4 lg:grid-cols-2">
             {PLANS.map((p) => (
               <Link
                 key={p.name}
@@ -212,7 +211,7 @@ export default function AxeonProofPage() {
                     <h3 className="text-xl font-extrabold tracking-tight">{p.name}</h3>
                     <p className={`mt-1 text-sm ${p.featured ? 'text-blue-100' : 'text-neutral-400'}`}>{p.note}</p>
                   </div>
-                  {p.featured ? <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-blue-700">Recommended</span> : null}
+                  {p.featured ? <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-blue-700">Most practices</span> : null}
                 </div>
                 <p className="mt-5 text-2xl font-black tracking-tight">{p.price}</p>
                 <ul className={`mt-6 space-y-2.5 text-sm ${p.featured ? 'text-blue-50' : 'text-neutral-300'}`}>
@@ -229,7 +228,7 @@ export default function AxeonProofPage() {
               </Link>
             ))}
           </div>
-          <p className="mt-6 text-sm text-neutral-400">$99 to start on Essentials and AxeonCORE.</p>
+          <p className="mt-6 text-sm text-neutral-400">12-month agreement · $3,000 setup included · month-to-month available.</p>
         </div>
       </section>
 
@@ -241,14 +240,14 @@ export default function AxeonProofPage() {
             Ready to see <Accent>your</Accent> own dashboard?
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-neutral-300">
-            A free 30-minute call. We walk through what PROOF would show for your business, and where customers are slipping away today.
+            Start with the free after-hours audit. We call your practice after hours, time how fast your website answers an inquiry, and show you what PROOF would have caught.
           </p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-            <Link href="/book" data-track="cta_click" data-track-cta="axeonproof_closing" className={`${CTA} w-full max-w-xs sm:w-auto`}>
-              Book My Free Demo <ArrowRight size={18} />
+            <Link href="/audit" data-track="cta_click" data-track-cta="axeonproof_closing" className={`${CTA} w-full max-w-xs sm:w-auto`}>
+              Get your free after-hours audit <ArrowRight size={18} />
             </Link>
-            <Link href="/pricing" className={`${CTA_GLASS} w-full max-w-xs sm:w-auto`}>
-              Compare Plans
+            <Link href="/book" data-track="cta_click" data-track-cta="axeonproof_closing_call" className={`${CTA_GLASS} w-full max-w-xs sm:w-auto`}>
+              Book a call
             </Link>
           </div>
         </div>

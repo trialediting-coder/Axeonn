@@ -3,7 +3,7 @@
 // components/axeonproof/LiveFeed.tsx
 // Leads arriving in the hero window: every few seconds a small card slides in
 // at the corner of the dashboard ("Call from Ankeny, just now"), the way the
-// app's own lead alerts land. Example events for the example business; it
+// app's own lead alerts land. Example events for the fictional demo practice; it
 // runs only while the window is on screen and never under reduced motion.
 import { useEffect, useState } from 'react';
 import { CalendarCheck, FileText, MessageSquare, PhoneCall } from 'lucide-react';
@@ -12,9 +12,9 @@ import { useInView } from '@/components/axeonproof/motion';
 
 const EVENTS: { icon: LucideIcon; title: string; detail: string }[] = [
   { icon: PhoneCall, title: 'New call', detail: 'Ankeny, IA · from your Google listing' },
-  { icon: CalendarCheck, title: 'Booked online', detail: 'Full detail, Thu 9:00 AM · from /ceramic-coating' },
-  { icon: MessageSquare, title: 'Missed call, texted back', detail: 'Urbandale, IA · reply sent in 41s' },
-  { icon: FileText, title: 'Quote request', detail: 'West Des Moines, IA · interior detailing' },
+  { icon: CalendarCheck, title: 'Consultation booked', detail: 'New patient, Thu 9:00 AM · from /new-patients' },
+  { icon: MessageSquare, title: 'Missed call, texted back', detail: 'Urbandale, IA · reply sent in 12s' },
+  { icon: FileText, title: 'Web inquiry, answered', detail: 'West Des Moines, IA · 9:40 PM · reply in 14s' },
   { icon: PhoneCall, title: 'New call', detail: 'Des Moines, IA · from Google Ads' },
 ];
 

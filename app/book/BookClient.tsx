@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type MouseEvent } from 'react';
+import Link from 'next/link';
 import {
   Mail,
   MapPin,
@@ -10,10 +11,10 @@ import {
   ShieldCheck,
   Copy,
   Check,
+  ArrowRight,
 } from 'lucide-react';
 import { BookingCalendar } from '@/components/booking/BookingCalendar';
 import { InteractiveFluidAura } from '@/components/ui/InteractiveFluidAura';
-import { LEVI_QUOTE } from '@/components/common/ClientQuote';
 
 export default function BookClient() {
   const [copiedPhone, setCopiedPhone] = useState(false);
@@ -42,20 +43,20 @@ export default function BookClient() {
             {/* LEFT, ROW 1 — headline, what you get, one line of proof */}
             <div className="lg:col-start-1 lg:row-start-1 lg:self-end max-w-xl lg:max-w-md xl:max-w-lg lg:pr-6 xl:pr-10">
               <div className="space-y-4 sm:space-y-5">
-                <span className="block text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ FREE STRATEGY CALL ]</span>
+                <span className="block text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ BOOK A CALL ]</span>
                 <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-zinc-950 tracking-tight leading-[1.12] font-display">
-                  See your new homepage before you pay anything.
+                  Talk through your practice&apos;s intake in 30 minutes.
                 </h1>
 
                 <p className="text-base sm:text-lg text-zinc-600 leading-relaxed font-normal">
-                  A focused 30-minute call: we look at how customers find you today, where they slip away, and what it would take to get you more of them.
+                  We look at what happens today when a patient or client calls after hours or fills out your web form, where they slip away, and what AxeonCORE would change.
                 </p>
 
                 <ul className="space-y-2.5 pt-1">
                   {[
-                    'A custom homepage mockup for your business',
-                    'An AI visibility report: how you show up on Google, ChatGPT, and Perplexity',
-                    'A clear plan and price, backed by our 90-day customer guarantee',
+                    'How your calls and web inquiries are answered today, after hours and during busy hours',
+                    'Your reviews next to the top 3 practices near you',
+                    'A clear plan and price: AxeonCORE from $799/mo, with our 90-day performance commitment',
                   ].map((item) => (
                     <li key={item} className="flex items-start gap-2.5 text-sm sm:text-base text-zinc-700 leading-relaxed">
                       <span className="mt-2 w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
@@ -63,19 +64,25 @@ export default function BookClient() {
                     </li>
                   ))}
                 </ul>
-                <p className="text-sm text-zinc-500">Yours to keep, whether or not you hire us.</p>
+                <p className="text-sm text-zinc-500">No obligation, and no pitch deck.</p>
 
-                <figure className="mt-2 rounded-2xl border border-zinc-200 bg-white/80 px-5 py-4">
-                  <blockquote className="text-base sm:text-lg font-bold font-display text-zinc-950 leading-snug">
-                    &ldquo;{LEVI_QUOTE.text}&rdquo;
-                  </blockquote>
-                  <figcaption className="mt-2 text-sm text-zinc-500">
-                    <span className="font-semibold text-zinc-700">{LEVI_QUOTE.name}</span>, {LEVI_QUOTE.role} &middot;{' '}
-                    <a href={LEVI_QUOTE.href} className="font-semibold text-blue-600 hover:text-blue-700 underline underline-offset-2">
-                      Case study
-                    </a>
-                  </figcaption>
-                </figure>
+                <div className="mt-2 rounded-2xl border border-zinc-200 bg-white/80 px-5 py-4">
+                  <p className="text-base sm:text-lg font-bold font-display text-zinc-950 leading-snug">
+                    Rather see the problem first?
+                  </p>
+                  <p className="mt-1.5 text-sm text-zinc-600 leading-relaxed">
+                    We call your practice after hours, check how fast your website answers an inquiry, and send you a
+                    short video of what we found. No charge.
+                  </p>
+                  <Link
+                    href="/audit"
+                    data-track="cta_click"
+                    data-track-cta="book_page_audit"
+                    className="mt-2 inline-flex items-center gap-1.5 py-1 text-sm font-semibold text-blue-600 hover:text-blue-700"
+                  >
+                    Get your free after-hours audit <ArrowRight size={14} />
+                  </Link>
+                </div>
               </div>
             </div>
 

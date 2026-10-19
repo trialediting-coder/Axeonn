@@ -4,15 +4,15 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/book',
-  title: 'Book a Strategy Session | Axeon Studio',
+  title: 'Book a Call | Axeon Studio',
   description:
-    'Schedule a free 1-on-1 strategy session with Axeon Studio in West Des Moines, Iowa, and see exactly how we would get your business more customers.',
+    'Book a free 30-minute call with Axeon Studio. We look at how your practice answers calls and web inquiries today, where patients and clients slip away, and what AxeonCORE would change.',
 });
 
 export default function BookPage() {
   return (
     <>
-      <BreadcrumbJsonLd items={[{ name: 'Book a Free Call', path: '/book' }]} />
+      <BreadcrumbJsonLd items={[{ name: 'Book a Call', path: '/book' }]} />
       <BookClient />
     </>
   );

@@ -80,7 +80,7 @@ export default function TermsClient() {
         <div className="border-b border-gray-200 pb-8 sm:pb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-[#2563EB] text-xs font-bold uppercase tracking-wider mb-4">
             <FileCheck2 size={13} />
-            <span>Master Client Agreement</span>
+            <span>Website &amp; Services Terms</span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-950 tracking-tight font-display">
@@ -98,13 +98,13 @@ export default function TermsClient() {
               <span>https://axeonstudio.co</span>
               <ExternalLink size={12} />
             </a>{' '}
-            and the professional digital web design, visual branding, and custom software development services we provide.
+            and the practice website, patient and client intake, and marketing services we provide. Paid services are governed by the Client Services Agreement you sign with us, summarized below.
           </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-y-2 gap-x-6 text-xs sm:text-sm text-gray-500 font-medium">
             <div>
               <span className="text-gray-400">Last Updated:</span>{' '}
-              <strong className="text-gray-900 font-semibold">September 2026</strong>
+              <strong className="text-gray-900 font-semibold">October 2026</strong>
             </div>
             <span className="hidden sm:inline text-gray-300">&bull;</span>
             <div>
@@ -130,10 +130,10 @@ export default function TermsClient() {
             <ShieldCheck size={22} className="text-[#2563EB] shrink-0 mt-0.5" />
             <div>
               <h2 className="text-sm font-bold uppercase tracking-wider text-gray-950">
-                The Axeon Standard: 100% Total Client Ownership
+                What You Own, in Plain Terms
               </h2>
               <p className="mt-2 text-xs sm:text-sm text-gray-700 leading-relaxed">
-                When project delivery is completed and invoiced balances are settled in full, the keys, code, bespoke design assets, and production infrastructure are <strong>entirely yours</strong>. We build with zero hostage software and zero proprietary lock-in dependencies.
+                Your domain, Google Business Profile, and patient and client contact data are <strong>always yours</strong>. The custom website design and code become yours once the 12-month term is paid. The intake system, phone and text numbers, and AxeonPROOF are a service and stop if you leave. Section 04 has the details.
               </p>
             </div>
           </div>
@@ -149,10 +149,13 @@ export default function TermsClient() {
             </h2>
             <div className="mt-3.5 space-y-3 text-gray-700 text-[15px] sm:text-base">
               <p>
-                By visiting our website, submitting an inquiry via our contact forms, requesting a website audit, or executing a proposal or Statement of Work (&ldquo;SOW&rdquo;) with Axeon Studio, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.
+                By visiting our website, submitting an inquiry through our forms, requesting a free after-hours audit, or signing a Client Services Agreement with Axeon Studio, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.
               </p>
               <p>
-                If you are entering into these Terms on behalf of an enterprise, company, or legal entity, you represent and warrant that you possess the full legal authority to bind that entity to this agreement. If you do not agree to these Terms, you must immediately cease use of our site and services.
+                <strong>Signed agreements control.</strong> Paid services are provided under a written Client Services Agreement (the &ldquo;Agreement&rdquo;) signed by you and Axeon, including its Schedule A. These Terms summarize that Agreement for the public; if anything here conflicts with a signed Agreement, the signed Agreement controls.
+              </p>
+              <p>
+                If you are entering into these Terms on behalf of a practice, company, or other legal entity, you represent and warrant that you have the authority to bind that entity. If you do not agree to these Terms, you must stop using our site and services.
               </p>
             </div>
           </section>
@@ -165,16 +168,17 @@ export default function TermsClient() {
             </h2>
             <div className="mt-3.5 space-y-3.5 text-gray-700 text-[15px] sm:text-base">
               <p>
-                Axeon Studio provides bespoke digital agency, design, and engineering services to businesses, including but not limited to:
+                Axeon Studio provides website, patient and client intake, and marketing services to established private practices and other businesses, including:
               </p>
               <ul className="space-y-1.5 list-disc list-inside text-gray-700">
-                <li>Visual brand identity, typography, design systems, and art direction</li>
-                <li>Custom responsive UI/UX web design and conversion funnel architecture</li>
-                <li>High-performance web development (React, Next.js, Vite, TypeScript, Tailwind CSS)</li>
-                <li>Digital conversion optimization, technical audits, and performance consulting</li>
+                <li>Custom, mobile-first practice websites, hosting, security, and monitoring</li>
+                <li>Intake and messaging systems: missed-call text-back, first replies to web inquiries, online booking, a two-way text inbox, call tracking, and automated review requests</li>
+                <li>AxeonPROOF, our client portal for recovered inquiries, change requests, and monthly reports</li>
+                <li>On the AxeonGROWTH plan: Google Local Services Ads and search ads management, an AI phone receptionist, database reactivation campaigns, and photo and video</li>
+                <li>The free after-hours audit, which carries no charge and no obligation</li>
               </ul>
               <p>
-                Specific deliverables, project milestones, production timelines, and pricing for bespoke client engagements are formalized in individualized Statements of Work, written project quotes, or contractual addenda executed between the Client and Axeon Studio.
+                The exact services, deliverables, content-update allowance, and fees for each client are set out in the signed Agreement and its Schedule A. Anything not listed there is outside the scope of the services.
               </p>
             </div>
           </section>
@@ -183,17 +187,32 @@ export default function TermsClient() {
           <section id="terms-section-3" className="scroll-mt-24">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-950 tracking-tight flex items-center gap-2">
               <span className="text-[#2563EB] font-mono text-lg font-extrabold">03.</span>
-              <span>Client Engagements &amp; Payment Terms</span>
+              <span>Plans, Term &amp; Payment</span>
             </h2>
             <div className="mt-3.5 space-y-3 text-gray-700 text-[15px] sm:text-base">
               <p>
-                <strong>Invoicing &amp; Retainers:</strong> Unless expressly specified otherwise in an executed Statement of Work, custom development engagements require an upfront commitment deposit prior to kickoff, with remaining milestone balances invoiced upon sprint deliverables or final sign-off.
+                <strong>Initial term:</strong> AxeonCORE and AxeonGROWTH are provided on a twelve (12) month initial term that begins when the services go live or thirty (30) days after the Agreement&apos;s effective date, whichever comes first. You are responsible for the fees for the full initial term, except as described under the 90-Day Performance Commitment below. A month-to-month option is available where stated in your Agreement.
               </p>
               <p>
-                <strong>Late Invoices:</strong> Invoices are payable upon receipt or within net-15 days as detailed on the invoice. Unpaid balances past thirty (30) days may result in temporary suspension of active engineering sprints or deployment handoffs until resolved.
+                <strong>Renewal:</strong> After the initial term, the Agreement renews month-to-month until either party gives written notice of non-renewal at least thirty (30) days before the end of the then-current term.
               </p>
               <p>
-                <strong>Scope Adjustments:</strong> Requests for features, revisions, or technical architectures outside the mutually agreed project brief will be billed according to our agreed hourly rate or an amended change-order SOW.
+                <strong>Implementation fee:</strong> When you commit to the full 12-month initial term, the plan&apos;s standard implementation fee (for example, $3,000 on AxeonCORE) is credited in full and is not due at signing. On the month-to-month option, the implementation fee is paid upfront. If you prepay a year, the initial term is billed at the annual price stated in your Agreement.
+              </p>
+              <p>
+                <strong>Billing:</strong> Fees are charged automatically to the payment method on file, with the first month due at signing. Late payments, suspension of services for past-due accounts, and taxes are handled as stated in your Agreement.
+              </p>
+              <p>
+                <strong>Ad spend:</strong> Advertising costs are separate from our fees, are paid by you directly to the advertising platform (for example, Google), and are not refundable by Axeon. Ads management requires a minimum ad spend of $500 per month.
+              </p>
+              <p>
+                <strong>90-Day Performance Commitment:</strong> On AxeonCORE and AxeonGROWTH, we commit that the website and intake systems will go live within thirty (30) days after you deliver the materials and access we need; that, once live, every missed call and web inquiry gets a first reply within sixty (60) seconds (in at least 95% of events, as recorded in AxeonPROOF); and that every completed appointment gets a review request. If we miss any of those in the first ninety (90) days and do not fix it within fifteen (15) days of your written notice, you can end the Agreement and owe nothing for the rest of the term. Conditions, timing, and exclusions are stated in Section 5 of the Agreement. This is a commitment about how the system performs, not a promise of any number of calls, patients, clients, revenue, or rankings.
+              </p>
+              <p>
+                <strong>Territory exclusivity:</strong> While your account is in good standing on AxeonCORE or AxeonGROWTH, we will not provide the intake systems to another practice with the same primary specialty within five (5) miles of your business address, as described in your Agreement.
+              </p>
+              <p>
+                <strong>Scope changes:</strong> Requests outside your Agreement&apos;s Schedule A, or content updates beyond your monthly allowance, are quoted or billed as described in your Agreement and performed only after your approval.
               </p>
             </div>
           </section>
@@ -202,36 +221,46 @@ export default function TermsClient() {
           <section id="terms-section-4" className="scroll-mt-24">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-950 tracking-tight flex items-center gap-2">
               <span className="text-[#2563EB] font-mono text-lg font-extrabold">04.</span>
-              <span>Intellectual Property &amp; Deliverable Ownership</span>
+              <span>Intellectual Property &amp; Ownership</span>
             </h2>
             <div className="mt-3.5 space-y-3.5 text-gray-700 text-[15px] sm:text-base">
               <div className="p-4 rounded-lg bg-white border border-gray-200">
                 <div className="font-bold text-gray-950 text-sm mb-1.5 flex items-center gap-2">
                   <CheckCircle2 size={16} className="text-[#2563EB]" />
-                  <span>A. Final Client Deliverables</span>
+                  <span>A. Always Yours</span>
                 </div>
                 <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                  Upon full and final payment of all agreed project fees, Axeon Studio assigns to the Client all right, title, and interest (including worldwide copyright) in the bespoke final deliverables created specifically for the Client (including custom illustrations, bespoke Figma layouts, client-specific frontend source code, and logo vector files).
+                  Your domain name, Google Business Profile, your own business phone numbers, the materials you provide to us, and the lead, patient, and client contact data collected through the services remain your property at all times. On request at termination, and once the account is paid in full, we export your contact data to you in a standard format.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-lg bg-white border border-gray-200">
+                <div className="font-bold text-gray-950 text-sm mb-1.5 flex items-center gap-2">
+                  <CheckCircle2 size={16} className="text-[#2563EB]" />
+                  <span>B. Your Website, Once the Term Is Paid</span>
+                </div>
+                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                  Once all fees through the end of the initial term are paid in full, Axeon assigns to you the custom website design, page copy, and site code written specifically for you, together with the design files. Until then, Axeon owns them and you have a license to use them for your business.
                 </p>
               </div>
 
               <div className="p-4 rounded-lg bg-white border border-gray-200">
                 <div className="font-bold text-gray-950 text-sm mb-1.5 flex items-center gap-2">
                   <Scale size={16} className="text-[#2563EB]" />
-                  <span>B. Axeon Studio Pre-Existing IP &amp; Tooling</span>
+                  <span>C. Services, Not Deliverables</span>
                 </div>
                 <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                  Axeon Studio retains exclusive ownership of all pre-existing software, generic utility functions, scaffolding scripts, starter boilerplates, and developer tooling developed independently prior to or outside of the specific Client engagement. We grant the Client a perpetual, irrevocable, royalty-free, worldwide license to utilize such components as embedded within their delivered application.
+                  The intake and messaging system, call tracking and texting numbers, booking, review automation, AI receptionist, reactivation campaigns, and AxeonPROOF are provided as a service for the term of your Agreement and stop when it ends. Axeon also keeps all rights in its pre-existing tools, templates, automations, and reusable code; where those are embedded in your website, you receive a license to use them as part of it.
                 </p>
               </div>
 
               <div className="p-4 rounded-lg bg-white border border-gray-200">
                 <div className="font-bold text-gray-950 text-sm mb-1.5 flex items-center gap-2">
                   <Eye size={16} className="text-[#2563EB]" />
-                  <span>C. Portfolio &amp; Case Study Showcase Rights</span>
+                  <span>D. Portfolio &amp; Credit</span>
                 </div>
                 <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                  Unless the Client and Axeon Studio have executed an explicit non-disclosure agreement (NDA) specifying otherwise, Axeon Studio reserves the right to display visual previews, screenshots, design mockups, and descriptions of the completed deliverables in our design portfolio, case studies, social channels, and promotional materials as authentic proof of work.
+                  Unless your Agreement says otherwise, Axeon may show the website we built, your practice name and logo, and non-confidential results (such as response times and inquiry counts, never patient or client information) in our portfolio and marketing, and may include a small &ldquo;Powered by Axeon&rdquo; credit in your website footer. You may withdraw consent to future use in writing.
                 </p>
               </div>
             </div>
@@ -261,11 +290,17 @@ export default function TermsClient() {
           <section id="terms-section-6" className="scroll-mt-24">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-950 tracking-tight flex items-center gap-2">
               <span className="text-[#2563EB] font-mono text-lg font-extrabold">06.</span>
-              <span>Client Materials &amp; Third-Party Rights</span>
+              <span>Client Materials, Messaging &amp; Health Information</span>
             </h2>
             <div className="mt-3.5 space-y-3 text-gray-700 text-[15px] sm:text-base">
               <p>
-                The Client represents and warrants that all text, photography, graphic trademarks, logos, audio, video, and copy provided to Axeon Studio for incorporation into websites or branding materials are either owned by the Client or properly licensed. The Client assumes full responsibility for securing necessary permissions and licensing for commercial publication.
+                You represent and warrant that all text, photography, logos, provider information, audio, video, and other materials you provide to Axeon are owned by you or properly licensed, and that your advertising and website claims comply with the laws and professional rules that apply to your practice.
+              </p>
+              <p>
+                <strong>Messaging consent:</strong> Our intake systems send texts, emails, and calls to your leads, patients, and clients on your behalf and in your name. You are responsible for the consents the law requires for those messages, and for approving the scripts and messages we set up.
+              </p>
+              <p>
+                <strong>No health information:</strong> The services are not designed to receive protected health information. Intake collects name, contact, service and preferred time only &mdash; never symptoms, insurance or health details. You agree not to configure or request forms, scripts, or messages that ask for health information, and not to send such information to Axeon. Axeon is not your business associate unless we sign a separate business associate agreement.
               </p>
             </div>
           </section>
@@ -281,10 +316,13 @@ export default function TermsClient() {
                 Important Legal Disclaimer
               </p>
               <p>
-                EXCEPT AS EXPRESSLY SET FORTH IN A WRITTEN STATEMENT OF WORK SIGNED BY BOTH PARTIES, THE WEBSITE AND ALL SERVICES PROVIDED BY AXEONSTUDIO ARE FURNISHED ON AN &ldquo;AS-IS&rdquo; AND &ldquo;AS-AVAILABLE&rdquo; BASIS WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+                EXCEPT AS EXPRESSLY SET FORTH IN A CLIENT SERVICES AGREEMENT SIGNED BY BOTH PARTIES, THE WEBSITE AND ALL SERVICES PROVIDED BY AXEONSTUDIO ARE FURNISHED ON AN &ldquo;AS-IS&rdquo; AND &ldquo;AS-AVAILABLE&rdquo; BASIS WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED.
               </p>
               <p>
                 AXEONSTUDIO SPECIFICALLY DISCLAIMS ALL IMPLIED WARRANTIES, INCLUDING WITHOUT LIMITATION WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT. WE DO NOT GUARANTEE THAT THE SITE OR THIRD-PARTY HOSTING INTEGRATIONS WILL BE UNINTERRUPTED, BUG-FREE, OR FREE OF TEMPORARY DOWNTIME CAUSED BY THIRD-PARTY CLOUD PROVIDERS.
+              </p>
+              <p>
+                OTHER THAN THE 90-DAY PERFORMANCE COMMITMENT IN A SIGNED AGREEMENT, AXEON DOES NOT GUARANTEE ANY SEARCH RANKING, TRAFFIC LEVEL, NUMBER OF CALLS, LEADS, PATIENTS, OR CLIENTS, CONVERSION RATE, REVENUE, OR RETURN ON INVESTMENT. RESULTS DEPEND ON FACTORS OUTSIDE OUR CONTROL, INCLUDING YOUR PRICING, REPUTATION, RESPONSIVENESS, COMPETITION, AND SEASONALITY.
               </p>
             </div>
           </section>
@@ -300,7 +338,7 @@ export default function TermsClient() {
                 TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL AXEONSTUDIO, ITS OWNERS, EMPLOYEES, CONTRACTORS, OR AGENTS BE LIABLE TO YOU OR ANY THIRD PARTY FOR ANY INDIRECT, INCIDENTAL, CONSEQUENTIAL, SPECIAL, PUNITIVE, OR EXEMPLARY DAMAGES (INCLUDING LOST REVENUE, LOST PROFITS, BUSINESS INTERRUPTION, LOSS OF DATA, OR GOODWILL) ARISING OUT OF OR IN CONNECTION WITH YOUR USE OF OUR WEBSITE OR CONTRACTED DIGITAL SERVICES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
               </p>
               <p>
-                IN ALL CIRCUMSTANCES, AXEONSTUDIO&apos;S AGGREGATE CUMULATIVE MONETARY LIABILITY UNDER THESE TERMS OR ANY ASSOCIATED SOW SHALL BE STRICTLY LIMITED TO THE ACTUAL FEES PAID BY YOU TO AXEONSTUDIO FOR THE SPECIFIC SERVICE AT ISSUE DURING THE THREE (3) MONTHS IMMEDIATELY PRECEDING THE CLAIM.
+                IN ALL CIRCUMSTANCES, AXEONSTUDIO&apos;S AGGREGATE CUMULATIVE MONETARY LIABILITY UNDER THESE TERMS OR ANY ASSOCIATED AGREEMENT SHALL BE STRICTLY LIMITED TO THE ACTUAL FEES PAID BY YOU TO AXEONSTUDIO FOR THE SPECIFIC SERVICE AT ISSUE DURING THE THREE (3) MONTHS IMMEDIATELY PRECEDING THE CLAIM.
               </p>
             </div>
           </section>
@@ -326,10 +364,13 @@ export default function TermsClient() {
             </h2>
             <div className="mt-3.5 space-y-3 text-gray-700 text-[15px] sm:text-base">
               <p>
-                Either party may terminate an active project engagement in the event of a material breach by the other party that remains uncured after fourteen (14) days written notice.
+                You may end your Agreement at the end of the initial term or any renewal month by giving thirty (30) days&apos; written notice. During the initial term, you may end it early only under the 90-Day Performance Commitment or for Axeon&apos;s uncured material breach; otherwise the remaining fees for the initial term become due, as stated in your Agreement.
               </p>
               <p>
-                Upon early termination by the Client without cause, the Client remains responsible for pro-rata payment of all hours worked and milestones achieved through the effective date of termination. Axeon Studio will promptly release all work-in-progress files corresponding to paid milestones.
+                Either party may terminate for the other&apos;s material breach that remains uncured fifteen (15) days after written notice (five (5) days for non-payment). Axeon may also end the Agreement on thirty (30) days&apos; notice, in which case prepaid fees for later periods are refunded and no remaining initial-term fees are due.
+              </p>
+              <p>
+                On termination, the intake systems, hosting, and AxeonPROOF end. If your account is paid in full, we provide your website files, design files, and contact data export, and can keep the site live for a transition period of up to thirty (30) days at your request.
               </p>
             </div>
           </section>

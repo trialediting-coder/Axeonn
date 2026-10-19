@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 
-// Core philosophy section: Brand, Marketing, Technology.
+// Core philosophy section: Answered, Booked, Reviewed.
 // Three full-height panels. Each sits desaturated and dim until hovered
 // (or focused, or on a touch screen where it's always "on"), then floods
 // with its pillar color and reveals the longer explanation. The name and
@@ -24,41 +24,41 @@ type Pillar = {
   color: string;
 };
 
-// The customer journey, in order: every step is one part of the system that
-// turns a stranger searching on Google into a paying customer.
+// The intake path, in order: every step is one part of the system that turns
+// a missed call or a web inquiry into a booked consultation and a review.
 const PILLARS: Pillar[] = [
   {
     name: 'Step 1',
-    promise: 'Get found.',
+    promise: 'Answered.',
     detail:
-      'Local SEO, your Google Business Profile, AI search, and Google & Meta ads put you in front of people already searching for what you do, right when they are ready to buy.',
-    href: '/marketing-solutions/seo',
-    cta: 'How we get you found',
+      'Every missed call gets a text back and every web inquiry gets a first reply within 60 seconds, 24/7, so the patient or client hears from you before they call the next practice.',
+    href: '/marketing-solutions/lead-generation',
+    cta: 'How every inquiry gets answered',
     image: '/philosophy/marketing.webp',
     alt: 'Person looking up a local business on a map on their phone',
     color: '#10B981',
   },
   {
     name: 'Step 2',
-    promise: 'Get chosen.',
+    promise: 'Booked.',
     detail:
-      'A website, reviews, and real footage that make you the obvious pick the second someone compares you with the next company on the list.',
+      'Online consultation booking and a two-way text inbox for your front desk, so the conversation ends with a time on the calendar instead of a callback list.',
     href: '/marketing-solutions/website',
-    cta: 'How we get you chosen',
-    image: '/philosophy/brand.webp',
-    alt: 'Backlit circular logo sign glowing on a dark wall',
-    color: '#F5A623',
-  },
-  {
-    name: 'Step 3',
-    promise: 'Get booked.',
-    detail:
-      'Instant lead alerts, missed-call text-back, AI chat that books around the clock, and automatic follow-up, so more of those leads turn into paying customers.',
-    href: '/marketing-solutions/lead-generation',
-    cta: 'How we get you booked',
+    cta: 'How consultations get booked',
     image: '/philosophy/technology.webp',
     alt: 'Laptop showing a revenue and analytics dashboard',
     color: '#0080FF',
+  },
+  {
+    name: 'Step 3',
+    promise: 'Reviewed.',
+    detail:
+      'An automatic review request after every completed appointment, so your Google rating reflects the patients and clients you actually see.',
+    href: '/axeonproof',
+    cta: 'How AxeonPROOF tracks it',
+    image: '/philosophy/brand.webp',
+    alt: 'Backlit circular logo sign glowing on a dark wall',
+    color: '#F5A623',
   },
 ];
 
@@ -135,14 +135,14 @@ export function ThreePillars() {
       <div className="max-w-[1720px] 2xl:max-w-[1880px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 mb-12 sm:mb-16 lg:mb-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-end">
           <h2 className="lg:col-span-7 text-5xl sm:text-6xl lg:text-7xl xl:text-[84px] font-black tracking-tight leading-[1.02]">
-            How we get you customers.
+            How intake should work.
           </h2>
           <div className="lg:col-span-5">
             <p className="text-xl sm:text-2xl font-semibold text-white leading-snug">
-              Found. Chosen. Booked.
+              Answered. Booked. Reviewed.
             </p>
             <p className="mt-3 text-lg sm:text-xl text-neutral-400 leading-relaxed max-w-xl">
-              Most agencies sell you one piece and leave the rest to you. We run all three steps as one system, so the people searching for what you do end up on your calendar.
+              Most practices lose new patients and clients between the first call and the first appointment. We run all three steps as one system, so an inquiry at 9 PM ends up on your calendar.
             </p>
           </div>
         </div>
@@ -157,14 +157,14 @@ export function ThreePillars() {
 
       <div className="max-w-[1720px] 2xl:max-w-[1880px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 py-12 sm:py-16 flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8">
         <Link
-          href="/get-started"
+          href="/audit"
           className="px-8 py-3.5 sm:px-10 sm:py-4 rounded-full bg-[#0080FF] hover:bg-[#0070EE] active:scale-95 text-white text-sm sm:text-base font-bold shadow-xl shadow-blue-500/25 transition-all inline-flex items-center justify-center gap-2.5 self-start"
         >
-          Get More Customers
+          Get your free after-hours audit
           <ArrowUpRight size={18} />
         </Link>
         <p className="text-base sm:text-lg text-neutral-400">
-          One team for all three steps, backed by our 90-day customer guarantee.
+          One team for all three steps, backed by our 90-day performance commitment.
         </p>
       </div>
     </section>

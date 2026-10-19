@@ -6,8 +6,8 @@ import { ShieldCheck, MapPin, Tag } from 'lucide-react';
 // `short` is the phone label for the 'lg' hero layout: two fixed lines per
 // column so all three wrap the same way (3 columns, ~100px each at 360px).
 const BADGES = [
-  { icon: ShieldCheck, label: '90-Day Customer Guarantee', short: ['90-Day', 'Guarantee'] },
-  { icon: Tag, label: 'Published, Flat Monthly Pricing', short: ['Flat Monthly', 'Pricing'] },
+  { icon: ShieldCheck, label: '90-Day Performance Commitment', short: ['90-Day', 'Commitment'] },
+  { icon: Tag, label: 'Published Pricing', short: ['Published', 'Pricing'] },
   { icon: MapPin, label: 'Based in West Des Moines', short: ['Based in', 'West Des Moines'] },
 ];
 

@@ -1,8 +1,8 @@
 'use client';
 
 // components/get-started/GetStartedFlow.tsx
-// Self-serve intake used on /get-started and embedded in the homepage contact
-// section: a short multi-step form, a deterministic package recommendation
+// Plan finder embedded in the homepage contact section (/get-started itself now
+// redirects to /audit): a short multi-step form, a deterministic package recommendation
 // (lib/getStarted.ts), then a "book a call" hand-off. There is deliberately no
 // direct payment step: the lead has to land in Airtable (via /api/get-started/lead)
 // and go through a call first.
@@ -69,9 +69,9 @@ const CHOICE_STEPS: ChoiceStep[] = [
     options: SERVICES,
     error: 'Pick at least one service.',
   },
-  { kind: 'single', key: 'businessType', title: 'What kind of business is it?', options: BUSINESS_TYPES, error: 'Choose a business type.' },
+  { kind: 'single', key: 'businessType', title: 'What kind of practice is it?', options: BUSINESS_TYPES, error: 'Choose a practice type.' },
   { kind: 'single', key: 'hasWebsite', title: 'Do you have a website today?', options: HAS_WEBSITE, error: 'Choose an answer.' },
-  { kind: 'single', key: 'goal', title: 'What’s the main goal for the next 90 days?', options: GOALS, error: 'Choose a goal.' },
+  { kind: 'single', key: 'goal', title: 'What matters most for the next 90 days?', options: GOALS, error: 'Choose a goal.' },
   {
     kind: 'single',
     key: 'budget',
@@ -152,10 +152,10 @@ function clearSaved() {
 
 function validateContact(c: ContactInfo): ContactErrors {
   const errors: ContactErrors = {};
-  if (!c.businessName.trim()) errors.businessName = 'Enter your business name.';
+  if (!c.businessName.trim()) errors.businessName = 'Enter your practice name.';
   if (!c.contactName.trim()) errors.contactName = 'Enter your name.';
   if (!c.email.trim()) errors.email = 'Enter your email.';
-  else if (!isValidEmail(c.email)) errors.email = 'Enter a valid email, like you@business.com.';
+  else if (!isValidEmail(c.email)) errors.email = 'Enter a valid email, like you@practice.com.';
   return errors;
 }
 
@@ -479,7 +479,7 @@ export function GetStartedFlow({
             <p className="mt-1.5 text-base text-neutral-500">Fields marked * are required.</p>
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <Field id="businessName" label="Business name" required error={contactErrors.businessName}>
+              <Field id="businessName" label="Practice name" required error={contactErrors.businessName}>
                 {(props) => (
                   <input
                     {...props}
@@ -536,7 +536,7 @@ export function GetStartedFlow({
                     type="text"
                     inputMode="url"
                     autoComplete="url"
-                    placeholder="yourbusiness.com"
+                    placeholder="yourpractice.com"
                     value={contact.website}
                     onChange={(e) => updateContact('website', e.target.value)}
                   />
@@ -687,7 +687,7 @@ function ResultCard({
           <CalendarCheck size={22} className="text-blue-600" /> Pick a time for your free call
         </h3>
         <p className="mt-1.5 text-base text-neutral-600">
-          30 minutes, any day, any time. Your details are already filled in, and we start the call with your plan, not a questionnaire.
+          30 minutes. Your details are already filled in, and we start the call with your plan, not a questionnaire. Exact pricing is confirmed after a free after-hours audit of your practice.
         </p>
         <div className="mt-5">
           <BookingCalendar minHeight="640px" prefill={prefill} />

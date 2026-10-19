@@ -103,7 +103,12 @@ export function DashboardShell({ tab, children, onTab }: { tab: ProofTabKey; chi
                   AxeonPROOF <span className="mx-1">/</span> <span className="font-medium text-neutral-700">{current.label}</span>
                 </p>
                 <p className="text-xs text-neutral-500 @3xl:mt-1.5">Welcome back, {EXAMPLE.owner}</p>
-                <h2 className="mt-0.5 text-lg font-bold leading-tight tracking-tight text-neutral-950 @3xl:text-xl">{EXAMPLE.name}</h2>
+                <h2 className="mt-0.5 flex flex-wrap items-center gap-2 text-lg font-bold leading-tight tracking-tight text-neutral-950 @3xl:text-xl">
+                  {EXAMPLE.name}
+                  <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-800 ring-1 ring-amber-200">
+                    Demo
+                  </span>
+                </h2>
               </div>
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center rounded-md bg-white px-2 py-1 text-[11px] font-semibold text-neutral-700 ring-1 ring-neutral-200">
