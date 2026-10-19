@@ -343,6 +343,35 @@ export function ensureSchema(): Promise<void> {
       await sql`CREATE UNIQUE INDEX IF NOT EXISTS call_leads_key_idx ON call_leads (lower(business), phone);`;
       await sql`ALTER TABLE call_leads ADD COLUMN IF NOT EXISTS niche TEXT NOT NULL DEFAULT '';`;
       await sql`ALTER TABLE call_leads ADD COLUMN IF NOT EXISTS contact TEXT NOT NULL DEFAULT '';`;
+      // Referral partners (/admin/partners, lib/partners.ts): CPAs, practice
+      // consultants and billing firms, and the practices each one sends us.
+      await sql`
+        CREATE TABLE IF NOT EXISTS partners (
+          id SERIAL PRIMARY KEY,
+          name TEXT NOT NULL DEFAULT '',
+          firm TEXT NOT NULL DEFAULT '',
+          kind TEXT NOT NULL DEFAULT 'cpa',
+          email TEXT NOT NULL DEFAULT '',
+          phone TEXT NOT NULL DEFAULT '',
+          status TEXT NOT NULL DEFAULT 'prospect',
+          deal TEXT NOT NULL DEFAULT 'share',
+          notes TEXT NOT NULL DEFAULT '',
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        );
+      `;
+      await sql`
+        CREATE TABLE IF NOT EXISTS partner_referrals (
+          id SERIAL PRIMARY KEY,
+          partner_id INTEGER NOT NULL REFERENCES partners(id) ON DELETE CASCADE,
+          practice TEXT NOT NULL,
+          status TEXT NOT NULL DEFAULT 'referred',
+          monthly_cents INTEGER NOT NULL DEFAULT 0,
+          notes TEXT NOT NULL DEFAULT '',
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+        );
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS partner_referrals_partner_idx ON partner_referrals (partner_id);`;
       // Every email handed to Resend, sent or rejected (lib/emailLog.ts, /admin/emails).
       await sql`
         CREATE TABLE IF NOT EXISTS email_log (
