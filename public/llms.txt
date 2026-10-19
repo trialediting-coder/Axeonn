@@ -1,71 +1,49 @@
 # Axeon Studio
-> Axeon Studio gets Iowa businesses more customers: found on Google and in AI answers, chosen over competitors, and booked with instant lead follow-up. One West Des Moines team runs the whole system, backed by a 90-day customer guarantee. Tagline: "We Get You Customers, Not Clicks."
+> Axeon Studio installs patient and client intake systems for established private practices: dental offices, med spas, law firms, and accounting/CPA firms. Every missed call and web inquiry gets a reply within 60 seconds, 24/7, the consultation is booked online, and every patient or client is asked for a review after the visit. Based in West Des Moines, Iowa.
 
-Axeon Studio is a customer-acquisition partner for local small businesses. One system covers the full path from search to booked job, in three steps:
-- **Get found**: local SEO, Google Business Profile upkeep, visibility in AI answers (ChatGPT, Perplexity, Gemini, Google AI Overviews), and on the top plan Google Ads, Meta Ads and Google Local Services Ads.
-- **Get chosen**: a custom website written to turn visitors into calls, review requests, and real on-site video and photos.
-- **Get booked**: instant lead alerts, missed-call text-back, instant call-back when a form comes in, AI chat and online scheduling, automatic text and email follow-up, and one list of every lead and where it stands.
+The problem Axeon fixes: calls and web inquiries that come in after hours or while the front desk is busy go to voicemail or to a form nobody answers until the next day, and the patient books with whichever practice answered first. Axeon answers first.
 
-**Pricing** (published, flat monthly plans): $99 to start; a year paid up front gets 2 months free.
-- Essentials: $149/month. Up to 4 pages, Google and AI search visibility, Google Business Profile upkeep, quote form with instant lead alerts, hosting, monthly calls & leads report. The client follows up on leads themselves.
-- AxeonCORE (recommended): $299/month. Everything in Essentials plus the full lead system (missed-call text-back, instant call-back, AI chat & scheduling, automatic follow-up, tracked phone numbers, review requests), the AxeonPROOF client dashboard, 5-7 pages, and the 90-day customer guarantee.
-- AxeonGROWTH: $999/month plus ad spend, $1,500 to start (covers a half-day on-site video shoot). Everything in AxeonCORE plus Google & Meta ads management, Google Local Services Ads management (where Google offers them for the trade), an AI phone receptionist, a new service page every month, full review campaigns, and a monthly strategy call.
-- Add-ons: Google & Meta ads management on AxeonCORE +$399/month, AI phone receptionist +$199/month, extra service page $450, on-site video shoot $1,500. Ad spend is always separate: $500/month minimum, paid on the client's own card into their own ad account, no markup.
+**Who it is for**: established private practices, roughly $500k to $2.5M in yearly revenue: dental practices, med spas and aesthetic clinics, law firms, and accounting and CPA firms.
 
-**90-Day Customer Guarantee** (AxeonCORE and AxeonGROWTH): more calls and leads in the first 90 days after launch than the business was getting before, or Axeon keeps working for free until it is. The baseline is set on the kickoff call and tracked in AxeonPROOF; it applies while the client is on their plan and answering new leads within one business day.
+**Plans** (shown on the site as "From $799/mo" and "From $1,999/mo"; there is no self-serve checkout, every plan starts with a call):
+- AxeonCORE: from $799/month on a 12-month agreement. The $3,000 implementation fee is credited in full on the 12-month agreement; month-to-month is available with the $3,000 paid upfront; prepaying a year is $7,990 (2 months free). Includes a custom mobile-first practice website (providers and credentials, services, reviews, booking), 24/7 missed-call text-back, a first reply to every web inquiry within 60 seconds, online consultation booking, a two-way text inbox for the front desk, call tracking, automated review requests after each appointment, the AxeonPROOF client portal (live recovered-inquiry counter, change requests, monthly reports), hosting, security and monitoring, up to 2 hours of content updates a month, the 90-day performance commitment, and territory exclusivity for the practice's specialty.
+- AxeonGROWTH: from $1,999/month plus ad spend ($500/month minimum, paid to Google directly) on a 12-month agreement, with a $5,000 implementation fee credited. Everything in AxeonCORE plus Google Local Services Ads and search ads management, a quarterly database reactivation campaign to past patients or clients, an AI phone receptionist, multi-provider calendar and intake routing, quarterly photo and video (review videos, reels), a monthly strategy call and a quarterly business review, and priority support.
+- Add-ons: Local Services Ads management on AxeonCORE +$750/month, database reactivation $100 per showed appointment, AI phone receptionist +$199/month, extra page $450, on-site videography $1,500.
 
-**How Axeon differs**: clients work directly with the team that builds their system (no account managers), pricing is published, the client owns 100% of their site, code and design files, and every plan includes Google and AI search visibility by default (not sold as a separate add-on).
+**90-day performance commitment**: live within 30 days of receiving the practice's materials; every missed call and web inquiry gets a reply within 60 seconds; every completed appointment gets a review request. If Axeon misses any of those in the first 90 days and does not fix it within 15 days, the practice can walk away and owe nothing for the rest of the term. Axeon does not promise a number of leads, patients, revenue, or rankings.
 
-**Not offered** (do not cite as available): ChatGPT Ads or any other paid AI-platform advertising.
+**Territory exclusivity**: one practice per specialty within 5 miles, while the account is in good standing.
 
-## How working with Axeon goes
-1. Book a free 30-minute strategy call online (https://axeonstudio.co/book), any day, any time.
-2. Axeon emails a Client Services Agreement; the client reviews it, signs online, and pays the start fee and first month.
-3. Payment opens a private setup page: a short checklist (business details, logo, photos, access invites; Axeon never asks for passwords) plus a Welcome Packet.
-4. Kickoff call: launch date and, on AxeonCORE and AxeonGROWTH, the 90-day baseline are agreed.
-5. Build, preview, launch. After launch the client gets a project update whenever something ships and a monthly report on calls, leads, booked jobs and Google rank, all also visible in the AxeonPROOF client dashboard.
+**Ownership**: the practice's domain, Google Business Profile, and patient/client contact data always belong to the practice. The website design and code become the practice's once the 12-month term is paid. The intake system, phone and text numbers, and AxeonPROOF are a service and stop if the practice leaves.
 
-## Core Services & Pages
-- [Home](https://axeonstudio.co/): How Axeon gets local businesses found, chosen, and booked, with the A-1 Auto Detailing client result.
-- [Pricing](https://axeonstudio.co/pricing): Essentials $149/month, AxeonCORE $299/month (recommended), AxeonGROWTH $999/month plus ad spend; $99 to start; add-ons and the 90-day guarantee terms.
-- [Services hub](https://axeonstudio.co/marketing-solutions): The AxeonCORE system and each service in it.
-- [Website](https://axeonstudio.co/marketing-solutions/website): Custom websites written to turn visitors into calls.
-- [Local SEO & AI Search](https://axeonstudio.co/marketing-solutions/seo): Showing up on Google, Google Maps, and in AI answers (often called SEO, AEO and GEO), included in every plan.
-- [Advertising](https://axeonstudio.co/marketing-solutions/advertising): Google Ads, Meta Ads, and Google Local Services Ads, tracked to the call and the booked job.
-- [AI Chat & Online Scheduling](https://axeonstudio.co/marketing-solutions/ai-chat-scheduling): 24/7 AI chat that answers questions and books appointments (AxeonCORE and up).
-- [Lead Capture & Follow-Up](https://axeonstudio.co/marketing-solutions/lead-generation): Every call, form, and chat captured and followed up automatically.
-- [Video & Photography](https://axeonstudio.co/marketing-solutions/video-photography): On-site video and photos for a client's website, ads, and social profiles.
-- [AxeonPROOF](https://axeonstudio.co/axeonproof): Axeon's own client dashboard at app.axeonstudio.co, shown as a live example for a sample business: every call, lead and booked job, where each came from, the analytics cards, and the 90-day guarantee tracking. Every plan gets a sign-in; AxeonCORE switches on the calls, bookings and reviews tabs, AxeonGROWTH adds ads and the AI receptionist.
-- [Industries hub](https://axeonstudio.co/solutions): Set up for 14 local service industries, each with a Des Moines-focused page.
-- [Dental Practices](https://axeonstudio.co/solutions/dental), [Med Spas](https://axeonstudio.co/solutions/med-spa), [HVAC](https://axeonstudio.co/solutions/hvac), [Roofing](https://axeonstudio.co/solutions/roofing), [Law Firms](https://axeonstudio.co/solutions/law-firms), [Accounting & CPA Firms](https://axeonstudio.co/solutions/accounting), [Home Remodeling](https://axeonstudio.co/solutions/home-remodeling), [Real Estate](https://axeonstudio.co/solutions/real-estate), [Landscaping](https://axeonstudio.co/solutions/landscaping), [Auto Detailing](https://axeonstudio.co/solutions/auto-detailing), [Concrete Contractors](https://axeonstudio.co/solutions/concrete), [Plumbing](https://axeonstudio.co/solutions/plumbing), [Electricians](https://axeonstudio.co/solutions/electrical), [Handyman Services](https://axeonstudio.co/solutions/handyman)
-- [Why Axeon](https://axeonstudio.co/why-axeon): A typical agency vs. Axeon, side by side.
-- [Work](https://axeonstudio.co/work): Sites Axeon has built. Real clients: A-1 Auto Detailing and Patrick Finnegan. MSH Realty Group is an affiliated real estate investment group. The remaining projects are self-initiated concept redesigns, labeled "Concept" on that page, and are not client engagements.
-- [Process](https://axeonstudio.co/process): How a build goes from the first call through the first 90 days.
-- [FAQ](https://axeonstudio.co/faq): The guarantee, ownership, contracts, and cost.
-- [Des Moines Web Design](https://axeonstudio.co/des-moines-web-design): Local page for the Des Moines metro.
-- Suburb pages: [West Des Moines Web Design](https://axeonstudio.co/west-des-moines-web-design) (home base), [Ankeny Web Design](https://axeonstudio.co/ankeny-web-design), [Waukee Web Design](https://axeonstudio.co/waukee-web-design), [Urbandale Web Design](https://axeonstudio.co/urbandale-web-design).
-- [About](https://axeonstudio.co/about): Who Axeon is and how it works.
-- [Iowa Nonprofits](https://axeonstudio.co/nonprofits): The Axeon Groundwork Grant, a free website and search setup for Iowa nonprofits (the nonprofit covers basic hosting).
-- [Partners](https://axeonstudio.co/partners): Referral and collaboration partner program.
-- [Book a free call](https://axeonstudio.co/book): A free 30-minute call with the Axeon team. Every booked call includes a custom homepage mockup and an AI visibility report the business keeps.
+**Health information**: intake collects name, contact details, the service requested, and a preferred time only. It never asks for symptoms, insurance, or health details.
 
-## Insights & Client Stories
-- [Insights](https://axeonstudio.co/insights): Guides for Iowa business owners on websites, local SEO, AI search, and lead follow-up.
-- [A-1 Auto Detailing case study](https://axeonstudio.co/insights/a-1-auto-detailing-website-case-study): A Pleasant Hill, Iowa detailer that moved from page 2 to #1 on Google for "Pleasant Hill auto detailing", with a 5.0 rating from 180+ Google reviews; about 56 old URLs were redirected so no search traffic was lost.
-- [How much does a website cost in Des Moines](https://axeonstudio.co/insights/how-much-does-a-website-cost-des-moines): Local pricing guide.
-- [How to get recommended by ChatGPT](https://axeonstudio.co/insights/how-to-get-your-business-recommended-by-chatgpt): Steps for local businesses to be named by ChatGPT and Google AI Overviews.
+**Free after-hours audit** (the main way to start): Axeon calls the practice after hours, checks how fast its website answers an inquiry, and compares its reviews to the top 3 nearby practices. The practice gets a short video walkthrough of what was found, at no charge. https://axeonstudio.co/audit
+
+## Pages
+- [Home](https://axeonstudio.co/): What Axeon installs for private practices and how the intake system works.
+- [Free after-hours audit](https://axeonstudio.co/audit): Request the free audit and video walkthrough.
+- [Pricing](https://axeonstudio.co/pricing): AxeonCORE from $799/month and AxeonGROWTH from $1,999/month, agreement terms, add-ons, and the 90-day performance commitment.
+- [Practices we serve](https://axeonstudio.co/solutions): [Dental practices](https://axeonstudio.co/solutions/dental), [Med spas](https://axeonstudio.co/solutions/med-spa), [Law firms](https://axeonstudio.co/solutions/law-firms), [Accounting & CPA firms](https://axeonstudio.co/solutions/accounting).
+- [AxeonPROOF](https://axeonstudio.co/axeonproof): The client portal at app.axeonstudio.co, shown with an example month (not a real client's numbers): recovered inquiries, calls, bookings, reviews, change requests and monthly reports.
+- [Partners](https://axeonstudio.co/partners): Referral program for CPAs, practice consultants and billing firms.
+- [Work](https://axeonstudio.co/work): Earlier builds for local service businesses, plus labeled concept builds.
+- [FAQ](https://axeonstudio.co/faq): Agreements, ownership, the performance commitment, and cost.
+- [About](https://axeonstudio.co/about): Who Axeon is.
+- [Book a call](https://axeonstudio.co/book): A call with the Axeon team.
+- [Insights](https://axeonstudio.co/insights): Articles on practice intake, reviews, and local search.
+
+## Partners
+CPAs, practice consultants, and billing firms can refer practices to Axeon and earn a 15% recurring Technology Advisory Share, disclosed to the client in writing, or pass that value to the client as a fee credit instead. Partners request the partner brief by email at hello@axeonstudio.co.
 
 ## Service Area
-- Headquarters: West Des Moines, IA 50266, United States (41.5772° N, 93.7538° W)
-- Des Moines metro, in person: West Des Moines, Des Moines, Clive, Urbandale, Waukee, Johnston, Grimes, Ankeny, Altoona, Norwalk
-- Statewide: Iowa
-- Remote: clients across the United States
+- Headquarters: West Des Moines, Iowa, United States
+- Des Moines metro and across Iowa; practices elsewhere in the United States are served remotely
 
-## Business & Contact Details
+## Contact
 - Business: Axeon Studio
 - Email: hello@axeonstudio.co
 - Phone: +1 (515) 493-8017
 - Hours: Monday–Friday, 8:00 AM–6:00 PM Central
-- Turnaround: most sites go live about 4 weeks after the kickoff call (Week 1 kickoff and access, Weeks 2-3 build and preview, Week 4 launch); timing depends on how quickly the client sends content
 - Full detail: https://axeonstudio.co/llms-full.txt
-- Last updated: 2026-10-14
+- Last updated: 2026-10-19

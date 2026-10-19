@@ -2,7 +2,7 @@
 // The AxeonPROOF tabs, which plan each one belongs to, and the words on a tab
 // the client's plan does not include. Every tab is visible to every client; a
 // locked one opens an upgrade page that shows the feature with their own
-// numbers, what the plan adds, the price as "one extra job", and one button
+// numbers, what the plan adds, the price as "one extra customer", and one button
 // that asks Axeon to get in touch. No pop-ups, no nagging: the ask lives where the value
 // is. Client-safe (no Node imports); used by the dashboard and its tests.
 import { TIER_LABELS, TIER_RANK, type OnboardingTier } from '@/data/onboardingItems';
@@ -72,12 +72,12 @@ export const PROOF_TABS: readonly ProofTab[] = [
     key: 'bookings',
     label: 'Bookings',
     tier: 'axeoncore',
-    promise: 'Let people book themselves at 9pm instead of calling the next shop.',
+    promise: 'Let people book themselves at 9pm instead of calling the next business.',
     includes: [
       'Online scheduling on your site and your Google listing',
-      'AI chat that answers questions and books the job',
+      'AI chat that answers questions and books the appointment',
       'Reminders, so fewer people no-show',
-      'Booked jobs counted here every month',
+      'Bookings counted here every month',
     ],
     ghost: {
       tiles: [
@@ -88,12 +88,12 @@ export const PROOF_TABS: readonly ProofTab[] = [
       ],
       bars: BARS,
       rows: [
-        { a: 'Thu 9:00 AM', b: 'Full detail · SUV', c: 'Booked online, Tue 9:12 PM' },
-        { a: 'Thu 1:30 PM', b: 'Ceramic coating', c: 'Booked by chat' },
-        { a: 'Fri 8:30 AM', b: 'Interior detail', c: 'Reminder sent' },
-        { a: 'Fri 2:00 PM', b: 'Paint correction', c: 'Booked from Google listing' },
-        { a: 'Sat 10:00 AM', b: 'Full detail · truck', c: 'Deposit paid' },
-        { a: 'Sat 1:00 PM', b: 'Headlight restore', c: 'Booked online, Fri 11:48 PM' },
+        { a: 'Thu 9:00 AM', b: 'New customer · first visit', c: 'Booked online, Tue 9:12 PM' },
+        { a: 'Thu 1:30 PM', b: 'Consultation', c: 'Booked by chat' },
+        { a: 'Fri 8:30 AM', b: 'Follow-up appointment', c: 'Reminder sent' },
+        { a: 'Fri 2:00 PM', b: 'Consultation', c: 'Booked from Google listing' },
+        { a: 'Sat 10:00 AM', b: 'New customer · first visit', c: 'Deposit paid' },
+        { a: 'Sat 1:00 PM', b: 'Estimate', c: 'Booked online, Fri 11:48 PM' },
       ],
     },
   },
@@ -103,7 +103,7 @@ export const PROOF_TABS: readonly ProofTab[] = [
     tier: 'axeoncore',
     promise: 'Reviews are the first thing the next customer reads.',
     includes: [
-      'A review request texted after every finished job',
+      'A review request texted after every completed appointment',
       'New reviews and your rating in the monthly report',
       'Automatic text and email follow-up, with one list of every lead',
     ],
@@ -111,17 +111,17 @@ export const PROOF_TABS: readonly ProofTab[] = [
       tiles: [
         { label: 'Rating', value: '4.9', sub: 'up from 4.6' },
         { label: 'Reviews', value: '38', sub: '+9 this month' },
-        { label: 'Requests sent', value: '31', sub: 'after every job' },
+        { label: 'Requests sent', value: '31', sub: 'after every visit' },
         { label: 'Replied to', value: '38', sub: 'every one' },
       ],
       bars: BARS,
       rows: [
-        { a: '★★★★★', b: '“Looks brand new. Easy to book.”', c: '2 days after the job' },
-        { a: '★★★★★', b: '“Fair price, on time, great work.”', c: 'Review link texted' },
-        { a: '★★★★★', b: '“Came to my office. Flawless.”', c: 'Replied same day' },
-        { a: '★★★★☆', b: '“Great detail, running a bit late.”', c: 'Replied, offered a touch-up' },
+        { a: '★★★★★', b: '“Easy to book and right on time.”', c: '2 days after the visit' },
+        { a: '★★★★★', b: '“Fair price, friendly front desk.”', c: 'Review link texted' },
+        { a: '★★★★★', b: '“They answered my text at 9pm.”', c: 'Replied same day' },
+        { a: '★★★★☆', b: '“Great service, ran a bit late.”', c: 'Replied, thanked them' },
         { a: '★★★★★', b: '“Best in Des Moines, hands down.”', c: 'Shared to Facebook' },
-        { a: '★★★★★', b: '“Ceramic coating still beading.”', c: '6 months later' },
+        { a: '★★★★★', b: '“Still happy six months later.”', c: '6 months later' },
       ],
     },
   },
@@ -141,15 +141,15 @@ export const PROOF_TABS: readonly ProofTab[] = [
         { label: 'Leads from ads', value: '34', sub: '+12 vs last month' },
         { label: 'Cost per lead', value: '$21', sub: 'down from $29' },
         { label: 'Spend', value: '$920', sub: 'of $1,000 budget' },
-        { label: 'Booked from ads', value: '14', sub: 'about $4,200 in work' },
+        { label: 'Booked from ads', value: '14', sub: 'traced to the ad' },
       ],
       bars: BARS,
       rows: [
-        { a: 'Google · ceramic coating', b: '140 visits · 11 leads', c: '$18 per lead' },
-        { a: 'Google · paint correction', b: '96 visits · 7 leads', c: '$24 per lead' },
-        { a: 'Meta · fall interior special', b: '62 visits · 3 leads', c: '$27 per lead' },
-        { a: 'Google · mobile detailing', b: '210 visits · 9 leads', c: '$19 per lead' },
-        { a: 'Meta · before and after reel', b: '340 visits · 4 leads', c: '$22 per lead' },
+        { a: 'Google · main service', b: '140 visits · 11 leads', c: '$18 per lead' },
+        { a: 'Google · second service', b: '96 visits · 7 leads', c: '$24 per lead' },
+        { a: 'Meta · fall special', b: '62 visits · 3 leads', c: '$27 per lead' },
+        { a: 'Google · near me searches', b: '210 visits · 9 leads', c: '$19 per lead' },
+        { a: 'Meta · review video', b: '340 visits · 4 leads', c: '$22 per lead' },
         { a: 'Weekends', b: 'Paused', c: 'Budget moved to weekdays' },
       ],
     },
@@ -162,7 +162,7 @@ export const PROOF_TABS: readonly ProofTab[] = [
     includes: [
       'An AI receptionist that answers when you cannot',
       'Knows your services, prices and hours',
-      'Books the job or takes a message',
+      'Books the appointment or takes a message',
       'Everything in AxeonCORE',
     ],
     ghost: {
@@ -174,11 +174,11 @@ export const PROOF_TABS: readonly ProofTab[] = [
       ],
       bars: BARS,
       rows: [
-        { a: 'Sun 7:48 PM', b: '“Do you do boats?”', c: 'Answered · took a message' },
-        { a: 'Mon 6:05 AM', b: '“How much for a full detail?”', c: 'Quoted from your price list' },
+        { a: 'Sun 7:48 PM', b: '“Are you taking new customers?”', c: 'Answered · took a message' },
+        { a: 'Mon 6:05 AM', b: '“What does a first visit cost?”', c: 'Quoted from your price list' },
         { a: 'Mon 6:06 AM', b: 'Booked Thu 9:00 AM', c: 'Added to your calendar' },
         { a: 'Mon 12:31 PM', b: '“Are you open Saturday?”', c: 'Answered · booked Sat 10:00' },
-        { a: 'Tue 9:15 PM', b: '“Can you come to my office?”', c: 'Answered · message sent to you' },
+        { a: 'Tue 9:15 PM', b: '“Do you have evening hours?”', c: 'Answered · message sent to you' },
         { a: 'Wed 7:02 AM', b: 'Reschedule request', c: 'Moved to Fri 2:00 PM' },
       ],
     },
@@ -196,16 +196,16 @@ export const isProofTab = (v: unknown): v is ProofTabKey => PROOF_TABS.some((t) 
 export const proofTab = (key: ProofTabKey): ProofTab => PROOF_TABS.find((t) => t.key === key)!;
 export const tabLocked = (tab: ProofTab, tier: OnboardingTier): boolean => TIER_RANK[tab.tier] > TIER_RANK[tier];
 
-/** The line under the price: "At your average job of $300, that is one extra job a month to cover it." */
+/** The line under the price: "At an average customer worth $300, that is one extra customer a month to cover it." */
 export function upgradeMath(current: OnboardingTier, target: OnboardingTier, avgJobValue: number | null | undefined): { delta: number; line: string } {
   const delta = Math.max(0, TIER_PRICE[target] - TIER_PRICE[current]);
   const money = (n: number) => `$${n.toLocaleString('en-US')}`;
   const adSpend = target === 'axeongrowth' ? ' Plus the ad budget you set, which stays yours to decide.' : '';
   if (avgJobValue && avgJobValue > 0) {
-    const jobs = Math.max(1, Math.ceil(delta / avgJobValue));
-    return { delta, line: `At your average job of ${money(avgJobValue)}, that is ${jobs === 1 ? 'one extra job' : `${jobs} extra jobs`} a month to cover it.${adSpend}` };
+    const customers = Math.max(1, Math.ceil(delta / avgJobValue));
+    return { delta, line: `At an average customer worth ${money(avgJobValue)}, that is ${customers === 1 ? 'one extra customer' : `${customers} extra customers`} a month to cover it.${adSpend}` };
   }
-  return { delta, line: `Tell us your average job and we will show what it takes to cover it.${adSpend}` };
+  return { delta, line: `Tell us what an average customer is worth and we will show what it takes to cover it.${adSpend}` };
 }
 
 /** Rule-of-thumb rates the loss line uses. Stated on screen, never presented as the client's own measurement. */
@@ -224,8 +224,8 @@ export function lossLine(tab: ProofTab, t: TrafficSummary | null, period = 'last
     if (calls < 5) return null;
     const lost = Math.max(1, Math.round(calls * RINGS_OUT_SHARE));
     return {
-      text: `${calls} people pressed Call ${period}. If one in five of those calls rang out, that is roughly ${lost} ${lost === 1 ? 'person' : 'people'} who may have called the next shop. That is the gap ${plan} closes.`,
-      basis: 'One in five is a rule of thumb for a busy shop line, not your measured pick-up rate. AxeonCORE measures it.',
+      text: `${calls} people pressed Call ${period}. If one in five of those calls rang out, that is roughly ${lost} ${lost === 1 ? 'person' : 'people'} who may have called the next business. That is the gap ${plan} closes.`,
+      basis: 'One in five is a rule of thumb for a busy front desk, not your measured pick-up rate. AxeonCORE measures it.',
     };
   }
   if (tab.key === 'bookings') {
@@ -248,20 +248,20 @@ export function lockedHeadline(tab: ProofTab, t: TrafficSummary | null, period =
   switch (tab.key) {
     case 'calls':
       return n > 0
-        ? `${people}${calls ? `, and ${calls} of them pressed Call` : ''}. When the phone rings out, ${TIER_LABELS[tab.tier]} texts them back within a minute, so the job does not go to the next shop.`
-        : `When a call rings out, ${TIER_LABELS[tab.tier]} texts the caller back within a minute, so the job does not go to the next shop.`;
+        ? `${people}${calls ? `, and ${calls} of them pressed Call` : ''}. When the phone rings out, ${TIER_LABELS[tab.tier]} texts them back within a minute, so they do not book with the next business.`
+        : `When a call rings out, ${TIER_LABELS[tab.tier]} texts the caller back within a minute, so they do not book with the next business.`;
     case 'bookings':
       return n > 0
         ? `${people}. Some of them would rather tap a time than make a call. ${TIER_LABELS[tab.tier]} lets them book themselves, day or night, and reminds them so they show up.`
         : `${TIER_LABELS[tab.tier]} lets people book themselves, day or night, and reminds them so they show up.`;
     case 'reviews':
-      return `The next customer reads your reviews before they call. ${TIER_LABELS[tab.tier]} texts every finished job a review link, so your rating climbs without you asking.`;
+      return `The next customer reads your reviews before they call. ${TIER_LABELS[tab.tier]} texts a review link after every completed appointment, so your rating climbs without you asking.`;
     case 'ads':
       return n > 0
         ? `${people} without a dollar of ads. ${TIER_LABELS[tab.tier]} adds Google and Meta ads managed every day, with every lead traced back to the ad that brought it.`
         : `${TIER_LABELS[tab.tier]} adds Google and Meta ads managed every day, with every lead traced back to the ad that brought it.`;
     case 'receptionist':
-      return `${TIER_LABELS[tab.tier]} answers every call, 24 hours a day, with a receptionist that knows your services, your prices and your hours, and books the job or takes a message.`;
+      return `${TIER_LABELS[tab.tier]} answers every call, 24 hours a day, with a receptionist that knows your services, your prices and your hours, and books the appointment or takes a message.`;
     default:
       return tab.promise;
   }

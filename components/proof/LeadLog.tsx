@@ -78,7 +78,7 @@ export function LeadLog({ months, api }: { months: LeadMonth[]; api: string | nu
         </div>
         <p className="mt-1 text-xs leading-relaxed text-neutral-500">
           Every call, text, email, form and booking from your site, with the page and campaign behind it. Tap{' '}
-          <span className="font-semibold text-neutral-700">Booked</span> on the ones that turned into a job and{' '}
+          <span className="font-semibold text-neutral-700">Booked</span> on the ones that turned into a customer and{' '}
           <span className="font-semibold text-neutral-700">Not yet</span> on the rest.
           {toGo > 0
             ? ` After ${OBSERVED_MIN_MARKED} marks your own rate starts counting toward the estimate; after ${OBSERVED_FULL_MARKED} it sets it.`

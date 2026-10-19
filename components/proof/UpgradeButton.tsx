@@ -2,7 +2,7 @@
 
 // components/proof/UpgradeButton.tsx
 // The one button on a locked tab: "Ask us about <plan>". A bigger plan is set
-// up for the shop, not switched on with a click, so the tap tells the owner the
+// up for the business, not switched on with a click, so the tap tells the owner the
 // client is interested and promises a walkthrough. Posts to /api/proof/upgrade;
 // after that it reads "We'll reach out" and stays that way. Disabled in the
 // admin preview, since the admin is not the client.

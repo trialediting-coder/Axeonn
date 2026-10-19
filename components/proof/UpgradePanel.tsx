@@ -1,8 +1,8 @@
 // components/proof/UpgradePanel.tsx
 // A tab the client's plan does not include. Shows the feature with their own
-// numbers, what the plan adds, the price as "one extra job", and one button
+// numbers, what the plan adds, the price as "one extra customer", and one button
 // that asks Axeon to get in touch.
-// A bigger plan is set up for the shop, not switched on with a click, so there
+// A bigger plan is set up for the business, not switched on with a click, so there
 // is no self-serve upgrade: the client asks, the owner walks them through it.
 // Server component; the button is the only client piece.
 import { Check, Lock } from 'lucide-react';
@@ -134,7 +134,7 @@ export function UpgradePanel({
             <p className="mt-1 text-xs leading-relaxed text-neutral-600">{math.line}</p>
           </div>
           <p className="mt-4 text-xs leading-relaxed text-neutral-600">
-            {plan} is set up for your shop, not switched on with a click. Tell us you are interested and we will walk you through what changes and get it ready.
+            {plan} is set up for your business, not switched on with a click. Tell us you are interested and we will walk you through what changes and get it ready.
           </p>
           <div className="mt-3">
             <UpgradeButton tier={tab.tier} label={`Ask us about ${plan}`} requestedAt={requestedThis} preview={preview} />
@@ -142,7 +142,7 @@ export function UpgradePanel({
           <a href={bookUrl} className="mt-3 inline-flex text-sm font-semibold text-blue-600 hover:text-blue-700">
             Or book a 10-minute call
           </a>
-          <p className="mt-3 text-xs text-neutral-500">Nothing changes until you say yes. Same month-to-month terms as today.</p>
+          <p className="mt-3 text-xs text-neutral-500">Nothing changes until you say yes.{tab.tier === 'axeoncore' || tab.tier === 'axeongrowth' ? ` Moving up to ${plan} starts a new 12-month agreement, and your setup fee is credited.` : ''}</p>
         </div>
       </div>
     </div>

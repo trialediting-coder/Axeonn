@@ -77,7 +77,7 @@ export async function generatePost(avoidTitles: string[]): Promise<GeneratedPost
   const guardrails = loadGuardrails();
   const nicheList = niches.map((n) => `${n.slug}: ${n.name}`).join('\n');
 
-  const systemPrompt = `You write SEO/AEO-optimized blog posts for Axeon Studio, a West Des Moines, Iowa digital agency. Your goal is genuine ranking and AI-citation potential, which research shows comes from real accuracy, depth, and structure — never from volume or filler.
+  const systemPrompt = `You write SEO/AEO-optimized blog posts for Axeon Studio, a West Des Moines, Iowa company that installs patient and client intake systems for private practices (dental, med spa, law, accounting/CPA). Write for the practice owner or manager. Your goal is genuine ranking and AI-citation potential, which research shows comes from real accuracy, depth, and structure — never from volume or filler.
 
 ${guardrails}
 
