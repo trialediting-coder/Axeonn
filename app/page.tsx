@@ -13,7 +13,7 @@ import { Contact } from '@/components/home/Contact';
 export default function HomePage() {
   // The hero video's poster is the homepage LCP element; hint it before the
   // client bundle and the hero video start competing for bandwidth.
-  preload('/hero-poster.webp', { as: 'image', fetchPriority: 'high' });
+  preload('/who-we-help/dental.webp', { as: 'image', fetchPriority: 'high' });
 
   return (
     <main>

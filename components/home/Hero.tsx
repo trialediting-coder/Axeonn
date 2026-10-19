@@ -213,11 +213,11 @@ export function Hero() {
             muted
             playsInline
             preload="auto"
-            poster="/hero-poster.webp"
+            poster="/who-we-help/dental.webp"
             className="hidden sm:block w-full h-full object-cover object-center scale-105"
           >
             {/* No source matches on phones, so they never download the video. */}
-            <source src="/videoplayback.mp4" type="video/mp4" media="(min-width: 640px)" />
+            <source src="/videos/industries/dental.mp4" type="video/mp4" media="(min-width: 640px)" />
           </video>
           {/*
             Phones: portrait center crop of the same 30s clip (540x960, 24fps).
@@ -232,20 +232,19 @@ export function Hero() {
           <picture
             className={`block w-full h-full sm:hidden transition-opacity duration-700 ${mobilePlaying ? 'opacity-0' : 'opacity-100'}`}
           >
-            {avifFallback && !mobilePlaying && heroInView && <source srcSet="/hero-loop.avif" type="image/avif" media="(max-width: 639px)" />}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/hero-poster-mobile.webp"
+              src="/who-we-help/dental.webp"
               alt=""
               fetchPriority="high"
-              style={{ backgroundImage: 'url(/hero-poster-mobile.webp)' }}
+              style={{ backgroundImage: 'url(/who-we-help/dental.webp)' }}
               className="w-full h-full object-cover object-center bg-cover bg-center scale-105"
             />
           </picture>
           {loopReady && (
             <video
               ref={mobileVideoRef}
-              src="/hero-mobile.mp4"
+              src="/videos/industries/dental.mp4"
               loop
               muted
               playsInline
