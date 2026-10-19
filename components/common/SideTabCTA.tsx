@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useLeadModal } from '@/components/common/LeadModalProvider';
+import { trackEvent } from '@/components/providers/AnalyticsTracker';
+import { foundingOffer } from '@/data/foundingOfferData';
 
-/** The "Book My Free Call" edge tab. Hidden on the first screen (the hero has its
- *  own buttons); it slides in once the visitor scrolls past it. */
+/** The "Free audit" edge tab (desktop), linking to /audit. Hidden on the first
+ *  screen (the hero has its own buttons); it slides in once the visitor scrolls past it. */
 export function SideTabCTA() {
-  const { open } = useLeadModal();
   const pathname = usePathname();
   const [pastHero, setPastHero] = useState(false);
 
@@ -22,19 +23,19 @@ export function SideTabCTA() {
     };
   }, [pathname]);
 
-  if (pathname === '/book') return null;
+  if (!foundingOffer.active || pathname === '/book' || pathname === '/audit') return null;
 
   return (
-    <button
-      type="button"
-      onClick={() => open('side_tab')}
+    <Link
+      href={foundingOffer.href}
+      onClick={() => trackEvent('cta_click', { cta: 'side_tab_audit', page_path: pathname })}
       aria-hidden={!pastHero}
       tabIndex={pastHero ? 0 : -1}
       className={`hidden sm:block fixed right-0 top-1/2 -translate-y-1/2 z-40 [writing-mode:vertical-rl] px-2.5 py-4 rounded-l-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-lg transition-all duration-300 cursor-pointer ${
         pastHero ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'
       }`}
     >
-      Book My Free Call
-    </button>
+      {foundingOffer.tabLabel}
+    </Link>
   );
 }

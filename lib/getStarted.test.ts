@@ -16,17 +16,17 @@ import { BUDGETS, CUSTOM_PACKAGE, PACKAGES, SERVICES, type Package } from '../da
 
 const base: GetStartedAnswers = {
   services: [],
-  businessType: 'Home & trade services',
+  businessType: 'Dental',
   hasWebsite: 'Yes',
-  goal: 'More calls and leads',
+  goal: 'Answer every call and inquiry',
   budget: '$1,000 – $2,000',
   timeline: 'Within 30 days',
 };
 
 const contact: ContactInfo = {
-  businessName: ' Smith Roofing ',
+  businessName: ' Lakeside Family Dental ',
   contactName: 'Jane Smith',
-  email: '  Jane.Smith+roof@Example.com ',
+  email: '  Jane.Smith+dental@Example.com ',
   phone: '515-555-0100',
   website: '',
 };
@@ -71,17 +71,24 @@ for (const pkg of PACKAGES) {
 }
 
 test('spot checks against the shipped config', () => {
-  assert.equal(matchPackage({ ...base, services: ['Website'], budget: 'Under $1,000' }).id, 'essentials');
-  assert.equal(matchPackage({ ...base, services: ['SEO', 'Content'] }).id, 'essentials');
-  assert.equal(matchPackage({ ...base, services: ['Website', 'SEO', 'Content'] }).id, 'essentials');
+  assert.deepEqual(PACKAGES.map((p) => p.id), ['axeoncore', 'axeongrowth']);
+  assert.equal(matchPackage({ ...base, services: ['Website'], budget: 'Under $1,000' }).id, 'axeoncore');
+  assert.equal(matchPackage({ ...base, services: ['SEO', 'Content'] }).id, 'axeoncore');
   assert.equal(matchPackage({ ...base, services: ['AI Automation'] }).id, 'axeoncore');
-  assert.equal(matchPackage({ ...base, services: ['Website', 'AI Automation'] }).id, 'axeoncore');
+  assert.equal(matchPackage({ ...base, services: ['Website', 'AI Automation'], budget: '$2,000 – $3,000' }).id, 'axeoncore');
+});
+
+test('no retired prices in the plan copy', () => {
+  for (const pkg of [...PACKAGES, CUSTOM_PACKAGE]) {
+    const text = [pkg.priceLabel, pkg.tagline, ...pkg.includes].join(' ');
+    assert.doesNotMatch(text, /\$99\b|\$149|\$299|\$999\b|\$1,500|Essentials|first month free/i, pkg.id);
+  }
 });
 
 // ---- custom fallback -------------------------------------------------------
 
 test('growth: every service at once', () => {
-  assert.equal(matchPackage({ ...base, services: [...SERVICES] }).id, 'axeongrowth');
+  assert.equal(matchPackage({ ...base, services: [...SERVICES], budget: '$2,000 – $3,000' }).id, 'axeongrowth');
 });
 
 test('custom: $3k+ budget, even for a single service', () => {
@@ -91,14 +98,16 @@ test('custom: $3k+ budget, even for a single service', () => {
 });
 
 test('growth: any ads pick routes to AxeonGROWTH', () => {
-  assert.equal(matchPackage({ ...base, services: ['Meta Ads'] }).id, 'axeongrowth');
-  assert.equal(matchPackage({ ...base, services: ['Google Ads', 'Meta Ads'] }).id, 'axeongrowth');
-  assert.equal(matchPackage({ ...base, services: ['Website', 'Meta Ads'] }).id, 'axeongrowth');
+  const budget = '$2,000 – $3,000';
+  assert.equal(matchPackage({ ...base, services: ['Meta Ads'], budget }).id, 'axeongrowth');
+  assert.equal(matchPackage({ ...base, services: ['Google Ads', 'Meta Ads'], budget }).id, 'axeongrowth');
+  assert.equal(matchPackage({ ...base, services: ['Website', 'Meta Ads'], budget }).id, 'axeongrowth');
 });
 
-test('custom: ads on an under-$1k budget', () => {
-  // Ad spend sits on top of the $999/mo, so this needs a call.
+test('custom: ads on an under-$2k budget', () => {
+  // The $500/mo ad-spend minimum sits on top of the $1,999/mo, so this needs a call.
   assert.equal(matchPackage({ ...base, services: ['Google Ads'], budget: 'Under $1,000' }).id, 'custom');
+  assert.equal(matchPackage({ ...base, services: ['Google Ads'], budget: '$1,000 – $2,000' }).id, 'custom');
 });
 
 test('custom: empty services or missing budget', () => {
@@ -114,7 +123,7 @@ test('custom has no payment link', () => {
 test('deterministic: duplicate services and repeat calls give the same answer', () => {
   const a = { ...base, services: ['SEO', 'SEO'] as GetStartedAnswers['services'] };
   assert.equal(matchPackage(a).id, matchPackage(a).id);
-  assert.equal(matchPackage(a).id, 'essentials');
+  assert.equal(matchPackage(a).id, 'axeoncore');
 });
 
 // ---- placeholder guard -----------------------------------------------------
@@ -140,7 +149,7 @@ test('payload uses the package services and exact keys', () => {
   assert.deepEqual(Object.keys(payload.answers), ['businessType', 'hasWebsite', 'goal', 'budget', 'timeline']);
   assert.deepEqual(payload.services, pkg.services);
   assert.equal(typeof payload.packagePrice, 'number');
-  assert.equal(payload.businessName, 'Smith Roofing');
+  assert.equal(payload.businessName, 'Lakeside Family Dental');
   assert.equal(payload.company_fax, '');
 });
 
@@ -154,7 +163,7 @@ test('payload for custom passes through the visitor’s own services', () => {
 test('payment URL carries the exact payload email', () => {
   const payload = buildLeadPayload({ ...base, services: ['Website'] }, contact, PACKAGES[0], '');
   const url = buildPaymentUrl('https://buy.stripe.com/test_abc', payload.email);
-  assert.equal(url, 'https://buy.stripe.com/test_abc?prefilled_email=Jane.Smith%2Broof%40Example.com');
+  assert.equal(url, 'https://buy.stripe.com/test_abc?prefilled_email=Jane.Smith%2Bdental%40Example.com');
   assert.equal(new URL(url).searchParams.get('prefilled_email'), payload.email);
   assert.equal(buildPaymentUrl('https://buy.stripe.com/x?locale=en', 'a@b.co'), 'https://buy.stripe.com/x?locale=en&prefilled_email=a%40b.co');
 });

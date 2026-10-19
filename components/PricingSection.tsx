@@ -8,8 +8,10 @@ import {
   ChevronDown,
   ChevronUp,
   Clapperboard,
-  LayoutTemplate,
-  Sparkles,
+  PhoneOff,
+  Timer,
+  Star,
+  Video,
   ArrowRight,
   Gauge,
   Megaphone,
@@ -22,7 +24,8 @@ import {
   pricingFaqs,
   guaranteeSentence,
   FEATURED_BULLETS,
-  ANNUAL_DEAL,
+  TERM_LINE,
+  TERRITORY_LINE,
   type HighlightIcon,
   type PricingTier,
 } from '@/data/pricingData';
@@ -83,43 +86,45 @@ export function PricingSection({
             [ PRICING ]
           </span>
           <h2 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold font-display tracking-tight text-neutral-950 mb-6 leading-[1.08]">
-            Simple monthly pricing. $99 to start.
+            Two plans. Every inquiry answered.
           </h2>
           <p className="text-lg sm:text-2xl text-neutral-600 leading-relaxed max-w-3xl mx-auto">
-            No big build fee. {ANNUAL_DEAL}
+            AxeonCORE from $799/mo. AxeonGROWTH from $1,999/mo.
           </p>
+          <p className="mt-4 text-sm sm:text-base font-semibold text-neutral-700">{TERM_LINE}</p>
         </div>
 
         {/* The guarantee: its own full-width blue band, at display size. */}
-        <div className="max-w-[1560px] mx-auto rounded-[28px] sm:rounded-[36px] bg-blue-600 text-white px-6 py-10 sm:px-12 sm:py-14 lg:px-16 shadow-xl shadow-blue-600/20">
+        <div className="max-w-[1240px] mx-auto rounded-[28px] sm:rounded-[36px] bg-blue-600 text-white px-6 py-10 sm:px-12 sm:py-14 lg:px-16 shadow-xl shadow-blue-600/20">
           <div className="flex items-center gap-2.5 text-xs sm:text-sm font-mono font-bold tracking-widest uppercase text-blue-100">
             <ShieldCheck size={18} className="shrink-0" />
-            <span>[ 90-DAY CUSTOMER GUARANTEE ]</span>
+            <span>[ 90-DAY PERFORMANCE COMMITMENT ]</span>
           </div>
-          <p className="mt-5 text-2xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-[1.15]">
+          <p className="mt-5 text-xl sm:text-3xl lg:text-4xl font-extrabold font-display tracking-tight leading-[1.2]">
             {guaranteeSentence}
           </p>
           <p className="mt-5 text-sm sm:text-base text-blue-100 leading-relaxed max-w-3xl">
-            Included with AxeonCORE and AxeonGROWTH. Baseline set together on your kickoff call and tracked in
-            AxeonPROOF. Applies while you&apos;re on your plan and answering new leads within one business day.
+            Included with AxeonCORE and AxeonGROWTH, written into your agreement and measured in AxeonPROOF. We
+            don&apos;t promise a number of new patients, revenue, or rankings. We promise the system does its job.
+            Plus territory exclusivity: {TERRITORY_LINE.toLowerCase()}
           </p>
         </div>
 
-        <div className="mt-12 sm:mt-16 grid lg:grid-cols-3 gap-8 lg:gap-7 xl:gap-10 items-stretch max-w-[1560px] mx-auto">
+        <div className="mt-12 sm:mt-16 grid lg:grid-cols-2 gap-8 lg:gap-8 xl:gap-12 items-stretch max-w-[1240px] mx-auto">
           {pricingTiers.map((tier) => (
             <PlanCard key={tier.id} tier={tier} />
           ))}
         </div>
 
-        <FreeConsultationStrip />
+        <FreeAuditStrip />
 
         {afterPlans}
 
         <div className="mt-20 sm:mt-24">
           <h3 className="text-2xl sm:text-3xl font-bold font-display text-neutral-950 mb-8 text-center">
-            Add More Ways to Win Customers
+            Add-ons
           </h3>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 max-w-[1560px] mx-auto">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-[1240px] mx-auto">
             {addOns.map((addOn) => (
               <div
                 key={addOn.name}
@@ -231,9 +236,8 @@ const CTA_STYLES: Record<CardVariant, string> = {
 };
 
 /**
- * Three cards, one job each: the entry tier is the plain card, the tier we
- * sell is the loud one (so the eye lands there), and the top tier is dark so
- * it reads as the premium option. Each card shows its strongest bullets up
+ * Two cards: AxeonCORE is the loud one (where most practices start), and
+ * AxeonGROWTH is dark so it reads as the premium option. Each card shows its strongest bullets up
  * front; the rest stay one tap away in a native <details>, so they remain in
  * the HTML for crawlers.
  */
@@ -276,6 +280,7 @@ function PlanCard({ tier }: { tier: PricingTier }) {
         </p>
       )}
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+        {tier.pricePrefix && <span className={`text-base sm:text-lg font-semibold ${muted}`}>{tier.pricePrefix}</span>}
         <span className="text-5xl sm:text-6xl font-black tracking-tight whitespace-nowrap">{tier.price}</span>
         <span className={`text-base sm:text-lg font-semibold ${muted}`}>{tier.billingNote}</span>
       </div>
@@ -324,13 +329,25 @@ function PlanCard({ tier }: { tier: PricingTier }) {
       <div className="flex-1 min-h-8" />
 
       <Link
-        href={`/book?tier=${tier.id}`}
+        href={`/audit?plan=${tier.id}`}
+        data-track="cta_click"
+        data-track-cta={`pricing_audit_${tier.id}`}
         className={`text-center py-4 rounded-full font-bold text-base sm:text-lg transition-colors shadow-sm ${CTA_STYLES[variant]}`}
       >
         {tier.cta}
       </Link>
+      <Link
+        href={`/book?tier=${tier.id}`}
+        data-track="cta_click"
+        data-track-cta={`pricing_call_${tier.id}`}
+        className={`mt-3 text-center py-3 rounded-full font-semibold text-base transition-colors border ${
+          isPremium ? 'border-white/20 hover:border-white/40 text-white' : 'border-neutral-300 hover:border-neutral-400 text-neutral-900'
+        }`}
+      >
+        Book a call
+      </Link>
       <p className={`mt-3 text-center text-xs sm:text-sm ${muted}`}>
-        Free 30-minute call, no obligation.{' '}
+        No checkout here. We start with the audit or a call.{' '}
         <a href="tel:+15154938017" className="inline-block py-2 font-semibold underline underline-offset-2">
           Or call (515) 493-8017
         </a>
@@ -340,42 +357,46 @@ function PlanCard({ tier }: { tier: PricingTier }) {
 }
 
 /**
- * Not a fourth plan: a slim strip under the plans. Booking the free call
- * comes with a custom homepage mockup and an AI visibility report, and covers
- * custom scopes no plan fits.
+ * Not a third plan: a slim strip under the plans explaining the free
+ * after-hours audit, which is where every engagement starts.
  */
-function FreeConsultationStrip() {
+function FreeAuditStrip() {
   return (
-    <div className="mt-8 max-w-[1560px] mx-auto rounded-3xl border border-neutral-200 bg-[#F7F6F3] px-6 py-6 sm:px-8 sm:py-7 flex flex-col lg:flex-row lg:items-center gap-5 lg:gap-10">
+    <div className="mt-8 max-w-[1240px] mx-auto rounded-3xl border border-neutral-200 bg-[#F7F6F3] px-6 py-6 sm:px-8 sm:py-7 flex flex-col lg:flex-row lg:items-center gap-5 lg:gap-10">
       <div className="flex-1 min-w-0">
         <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">
-          [ NOT SURE YET? $0 CONSULTATION ]
+          [ START HERE: FREE AFTER-HOURS AUDIT ]
         </p>
         <p className="mt-2 text-lg sm:text-xl font-bold font-display text-neutral-950 leading-snug">
-          Book a free call and see your new homepage before you spend a dollar.
+          We call your practice after hours, check how fast your website answers an inquiry, and compare your
+          reviews to the top 3 nearby practices.
         </p>
         <ul className="mt-3 flex flex-col sm:flex-row sm:flex-wrap gap-x-6 gap-y-2 text-sm sm:text-base text-neutral-600">
           <li className="flex items-center gap-2">
-            <LayoutTemplate size={16} className="shrink-0 text-blue-600" />
-            A custom homepage mockup
+            <PhoneOff size={16} className="shrink-0 text-blue-600" />
+            After-hours call test
           </li>
           <li className="flex items-center gap-2">
-            <Sparkles size={16} className="shrink-0 text-blue-600" />
-            Your AI visibility report
+            <Timer size={16} className="shrink-0 text-blue-600" />
+            Inquiry response time
           </li>
           <li className="flex items-center gap-2">
-            <Check size={16} className="shrink-0 text-blue-600" />
-            Yours to keep, or a custom scope if no plan fits
+            <Star size={16} className="shrink-0 text-blue-600" />
+            Reviews vs. the top 3 nearby
+          </li>
+          <li className="flex items-center gap-2">
+            <Video size={16} className="shrink-0 text-blue-600" />
+            A short video walkthrough. No charge.
           </li>
         </ul>
       </div>
       <Link
-        href="/book"
+        href="/audit"
         data-track="cta_click"
-        data-track-cta="free_consultation_card"
+        data-track-cta="free_audit_strip"
         className="shrink-0 inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-base transition-colors"
       >
-        Book My Free Call <ArrowRight size={16} />
+        Get your free after-hours audit <ArrowRight size={16} />
       </Link>
     </div>
   );

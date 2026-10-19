@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { X } from 'lucide-react';
 import { foundingOffer } from '@/data/foundingOfferData';
 
-const STORAGE_KEY = 'axeon-promo-founding-5-dismissed';
+const STORAGE_KEY = 'axeon-promo-audit-dismissed';
 const BANNER_HEIGHT = '44px';
 
 export function PromoBanner() {
@@ -36,17 +36,16 @@ export function PromoBanner() {
     >
       <div className="flex items-center gap-1.5 sm:gap-3 text-[11px] sm:text-sm font-medium text-center min-w-0 pr-8 sm:pr-0">
         <span className="truncate sm:whitespace-normal">
-          <strong className="font-bold hidden sm:inline">Founding Client Offer: </strong>
-          <span className="hidden sm:inline">$0 to start + your first month of AxeonCORE free</span>
-          <span className="sm:hidden">{foundingOffer.tabLabel}</span> — only {foundingOffer.spotsRemaining}{' '}
-          {foundingOffer.spotsRemaining === 1 ? 'spot' : 'spots'} left.
+          <strong className="font-bold hidden sm:inline">{foundingOffer.eyebrow}: </strong>
+          <span className="hidden sm:inline">see what happens when a patient calls after hours. No charge.</span>
+          <span className="sm:hidden">{foundingOffer.eyebrow}</span>
         </span>
         <Link
-          href="/book"
+          href={foundingOffer.href}
           className="shrink-0 px-2.5 sm:px-3 py-1 rounded-full bg-white text-blue-700 font-semibold text-[10px] sm:text-xs hover:bg-blue-50 transition-colors"
         >
-          <span className="sm:hidden">Claim</span>
-          <span className="hidden sm:inline">Claim Yours</span>
+          <span className="sm:hidden">Get it</span>
+          <span className="hidden sm:inline">Get your audit</span>
         </Link>
       </div>
       <button

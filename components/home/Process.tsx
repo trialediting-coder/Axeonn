@@ -14,34 +14,34 @@ interface ProcessStep {
 const steps: ProcessStep[] = [
   {
     num: '01',
-    title: 'Discovery',
-    desc: 'We look at how customers find you today, where they slip away, and set your baseline: the calls and leads you get now.',
-    duration: 'Kicks off right away',
-    deliverables: ['Goals & baseline set together', 'Search & competitor review', 'Walkthrough of your site & lead flow'],
-    outcome: 'You know exactly where customers are slipping away.',
+    title: 'Free After-Hours Audit',
+    desc: 'We call your practice after hours, time how fast your website answers an inquiry, and compare your reviews to the top 3 practices near you.',
+    duration: 'Before you sign anything',
+    deliverables: ['After-hours call test', 'Inquiry response time', 'Reviews vs. the top 3 nearby', 'Mobile speed'],
+    outcome: 'A short video walkthrough of where patients and clients slip away today.',
   },
   {
     num: '02',
-    title: 'Strategy',
-    desc: 'We plan how you get found on Google, chosen over the competition, and booked without chasing.',
-    duration: 'Fast-tracked',
-    deliverables: ['Pages & message plan', 'Lead flow from first click to booked job', 'Follow-up plan so no lead goes cold'],
-    outcome: 'A plan built around more customers, not more pages.',
+    title: 'Plan & Agreement',
+    desc: 'We map how every call and web inquiry should be answered, booked and followed up for your practice, then put the scope and price in writing.',
+    duration: 'One call',
+    deliverables: ['Intake flow for your front desk', 'Booking rules by provider and service', 'Signed Client Services Agreement'],
+    outcome: 'A plan and a price, with the performance commitment written in.',
   },
   {
     num: '03',
-    title: 'Design & Build',
-    desc: 'We design and build a site that makes customers pick you, on every phone.',
-    duration: 'Rapid turnaround',
-    deliverables: ['Clickable mockups you review', 'Pages written to turn visitors into calls', 'Instant lead alerts set up'],
-    outcome: 'A site you are proud of, approved with your feedback.',
+    title: 'Build & Go Live',
+    desc: 'We build your practice website and set up missed-call text-back, the 60-second inquiry reply, online booking, the front-desk text inbox and review requests.',
+    duration: 'Live within 30 days of your materials',
+    deliverables: ['Mockups you review', 'Phone, text and booking set up', 'Intake that never asks for health details'],
+    outcome: 'Every call and inquiry answered, starting on launch day.',
   },
   {
     num: '04',
-    title: 'Launch & 90 Days',
-    desc: "We launch, track every call and lead from day one, and keep improving until you're getting more than before.",
-    duration: 'Your first 90 days',
-    deliverables: ['Launch & search setup', 'Every call and lead tracked', 'Monthly calls & leads report'],
+    title: 'Run & Prove It',
+    desc: 'AxeonPROOF shows every recovered call and inquiry as it happens. We keep tuning the replies, booking and review requests from there.',
+    duration: 'Your first 90 days, and every month after',
+    deliverables: ['Live recovered-inquiry counter', 'Change requests in AxeonPROOF', 'Monthly report'],
     outcome: guaranteeSentence,
   },
 ];
@@ -49,7 +49,7 @@ const steps: ProcessStep[] = [
 /**
  * /process: a vertical big-number timeline, every step open (the payoff is the
  * point, so nothing hides behind a tap). Step 04 is the dark slab that carries
- * the guarantee. Server-rendered and visible by default -- no scroll-triggered
+ * the performance commitment. Server-rendered and visible by default -- no scroll-triggered
  * opacity, which left the heading faded in captures.
  */
 export function Process() {
@@ -59,13 +59,13 @@ export function Process() {
       <div className="w-full max-w-6xl mx-auto">
         <div className="max-w-4xl mb-12 sm:mb-16">
           <div className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-4">
-            [ FROM FIRST CALL TO MORE CUSTOMERS ]
+            [ FROM FREE AUDIT TO EVERY INQUIRY ANSWERED ]
           </div>
           <h2 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-neutral-950 font-display tracking-tight leading-[1.05]">
-            Four steps. The last one lasts 90 days.
+            Four steps. The first one is free.
           </h2>
           <p className="mt-5 text-base sm:text-xl text-neutral-600 leading-relaxed max-w-2xl">
-            One goal: more calls, more booked jobs, more customers. You always know what we&apos;re doing and why.
+            One goal: no patient or client waits until tomorrow for an answer. You always know what we&apos;re doing and why.
           </p>
         </div>
 
@@ -97,9 +97,9 @@ export function Process() {
                       </ul>
                       <div className="mt-8 rounded-2xl bg-blue-600 p-5 sm:p-7">
                         <p className="text-xs font-mono font-bold tracking-widest uppercase text-blue-100">
-                          [ THE 90-DAY CUSTOMER GUARANTEE ]
+                          [ THE 90-DAY PERFORMANCE COMMITMENT ]
                         </p>
-                        <p className="mt-2 text-xl sm:text-3xl font-extrabold font-display tracking-tight leading-snug">
+                        <p className="mt-2 text-lg sm:text-2xl font-extrabold font-display tracking-tight leading-snug">
                           {step.outcome}
                         </p>
                       </div>
@@ -141,12 +141,20 @@ export function Process() {
           })}
         </ol>
 
-        <Link
-          href="/book"
-          className="py-2 mt-10 inline-flex items-center gap-2 text-base font-semibold text-blue-600 hover:text-blue-700"
-        >
-          Book My Free Call <ArrowRight size={16} />
-        </Link>
+        <div className="mt-10 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-8">
+          <Link
+            href="/audit"
+            className="py-2 inline-flex items-center gap-2 text-base font-semibold text-blue-600 hover:text-blue-700"
+          >
+            Get your free after-hours audit <ArrowRight size={16} />
+          </Link>
+          <Link
+            href="/book"
+            className="py-2 inline-flex items-center gap-2 text-base font-semibold text-neutral-700 hover:text-neutral-950"
+          >
+            Book a call <ArrowRight size={16} />
+          </Link>
+        </div>
       </div>
     </section>
   );

@@ -7,47 +7,52 @@ export const faqItems: FaqItem[] = [
   {
     question: 'Do you guarantee results?',
     answer:
-      'Yes. Our 90-Day Customer Guarantee: More calls and leads in your first 90 days than you were getting before, or we keep working for free until you do. We set your baseline together on the kickoff call and track every call and form from day one. It comes with AxeonCORE and AxeonGROWTH, and applies while you\'re on your plan and answering new leads within one business day.',
+      "We guarantee the system works, not a number of patients. Our 90-day performance commitment: live within 30 days of getting your materials. Every missed call and web inquiry gets a reply within 60 seconds. Every completed appointment gets a review request. If we miss any of those in the first 90 days and don't fix it within 15 days, you can walk away and owe nothing for the rest of the term. It comes with AxeonCORE and AxeonGROWTH and is written into your agreement.",
   },
   {
-    question: "What if I'm too busy to answer every lead?",
+    question: "What if my front desk can't answer every call?",
     answer:
-      'That\'s what AxeonCORE is built for. Instant call-back rings your phone the moment a form comes in, missed-call text-back replies to anyone you can\'t pick up for, and automated follow-up keeps every lead warm until you can get to them. The guarantee does ask that new leads get a reply within one business day, and the system makes that easy.',
+      "That's what AxeonCORE is built for. Anyone who calls and can't get through gets a text back within 60 seconds, any hour, with a link to book. Every web inquiry gets a first reply within 60 seconds too. Your front desk picks up the conversation from one two-way text inbox when they're free.",
+  },
+  {
+    question: 'Do you collect patient health information?',
+    answer:
+      'No. Intake collects name, contact, service and preferred time only, never symptoms, insurance or health details.',
   },
   {
     question: 'How long does it take to launch?',
     answer:
-      'Most sites go live about 4 weeks after the kickoff call. Timing mostly depends on how quickly we get your content.',
+      "Live within 30 days of getting your materials. That's part of the 90-day performance commitment, so it's in writing.",
   },
   {
     question: 'Do I own my website?',
     answer:
-      'Yes. You own 100% of your site, code, and design files, plus your domain and content. If you ever decide to part ways, we hand over your site\'s files and assets so you can move to another provider without starting over.',
+      'Your domain, Google Business Profile, and patient and client contact data are always yours. The website design and code become yours once the 12-month term is paid. The intake system, phone and text numbers, and AxeonPROOF are a service and stop if you leave.',
   },
   {
     question: 'Is there a contract, and how long is it?',
     answer:
-      'Every plan is $99 to start, then a flat monthly price, with no multi-year lock-in. We go over the term with you on your call, and every term is laid out clearly in your agreement before you sign anything.',
+      "Yes. AxeonCORE and AxeonGROWTH run on a 12-month agreement, and the setup fee is credited in full when you take it. After 12 months it continues month-to-month, and either side can stop with 30 days' notice. Prefer month-to-month from day one? Pay the $3,000 setup upfront instead.",
   },
   {
     question: 'Do I get access to my own analytics?',
     answer:
-      'Yes. You keep full access to your Google Analytics (GA4) — nothing is siloed behind our login only.',
+      'Yes. You keep full access to your Google Analytics (GA4), and AxeonPROOF shows every recovered call and inquiry live.',
   },
   {
     question: 'What if I already have a website?',
     answer:
-      'We\'ll tell you on the call whether to rebuild or improve what you have; either way the goal is more calls.',
+      "The free after-hours audit looks at it first. We'll tell you straight whether to rebuild it or keep it and add the intake system around it.",
   },
   {
     question: 'How much does it cost to work with Axeon?',
     answer:
-      '$99 to start, then a flat monthly plan: $149/mo (Essentials), $299/mo (AxeonCORE), or $999/mo plus ad spend (AxeonGROWTH). We\'d rather be upfront about cost than make you book a call just to find out.',
+      'AxeonCORE is from $799/mo and AxeonGROWTH from $1,999/mo plus ad spend, on a 12-month agreement with the setup included. Month-to-month is available with the $3,000 setup paid upfront, and prepaying a year gets you 2 months free.',
   },
   {
     question: 'Which plan should I pick?',
     answer:
-      'Essentials ($149/mo) gets you found: a site built to turn visitors into calls, plus Google and AI search visibility. AxeonCORE ($299/mo) adds the full lead system that gets you booked, AxeonPROOF to track every lead, and the 90-day guarantee. AxeonGROWTH ($999/mo plus ad spend) adds Google, Meta and Local Services Ads, an AI phone receptionist, and on-site video. Not sure? We\'ll recommend one on the call.',
+      'AxeonCORE (from $799/mo) if calls and web inquiries are slipping through: it answers every one within 60 seconds, books the consultation, and asks for a review after the visit. AxeonGROWTH (from $1,999/mo plus ad spend) adds Google Local Services and search ads, an AI phone receptionist, past-patient reactivation, and quarterly photo and video. Start with the free audit and we’ll recommend one.',
   },
 ];
 

@@ -1,14 +1,14 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
+import { guaranteeSentence } from '@/data/pricingData';
 
 // Shared closing CTA for /marketing-solutions and its six service pages.
-// The guarantee copy is the approved wording from content/brand-guardrails.md:
-// never paraphrase it or attach a number to it.
+// The performance commitment is the exact wording from data/pricingData.ts:
+// never paraphrase it or attach a number of patients, revenue or rankings to it.
 
-export const GUARANTEE_LINE =
-  'More calls and leads in your first 90 days than you were getting before, or we keep working for free until you do.';
+export const GUARANTEE_LINE = guaranteeSentence;
 export const GUARANTEE_TERMS =
-  'Included with AxeonCORE and AxeonGROWTH. Baseline set together on your kickoff call. Applies while you’re on your plan and answering new leads within one business day.';
+  'Included with AxeonCORE and AxeonGROWTH and written into your agreement. We don’t promise a number of new patients, revenue, or rankings. We promise the system does its job.';
 
 export function ServiceClosingCta({ trackId }: { trackId?: string }) {
   return (
@@ -20,22 +20,22 @@ export function ServiceClosingCta({ trackId }: { trackId?: string }) {
           style={{ backgroundImage: 'radial-gradient(ellipse 60% 70% at 50% 0%, rgba(37,99,235,0.32), transparent 70%)' }}
         />
         <div className="relative">
-          <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-5">[ 90-Day Customer Guarantee ]</p>
+          <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-5">[ 90-Day Performance Commitment ]</p>
           <h2 className="text-3xl sm:text-5xl font-black font-display tracking-tight leading-[1.1] text-balance">
-            Ready for more customers?
+            Find out what happens to your after-hours calls.
           </h2>
           <p className="mt-5 text-lg sm:text-xl text-neutral-300 leading-relaxed max-w-2xl mx-auto">{GUARANTEE_LINE}</p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
             <Link
-              href="/book"
+              href="/audit"
               data-track="cta_click"
               data-track-cta={trackId ? `${trackId}_closing` : undefined}
               className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors shadow-lg shadow-blue-600/30"
             >
-              Book My Free Call <ArrowRight size={18} />
+              Get your free after-hours audit <ArrowRight size={18} />
             </Link>
-            <Link href="/pricing" className="py-2 inline-flex items-center gap-2 font-semibold text-white/80 hover:text-white transition-colors">
-              Compare plans <ArrowRight size={16} />
+            <Link href="/book" className="py-2 inline-flex items-center gap-2 font-semibold text-white/80 hover:text-white transition-colors">
+              Book a call <ArrowRight size={16} />
             </Link>
           </div>
           <p className="mt-8 text-xs sm:text-sm text-neutral-500 max-w-xl mx-auto leading-relaxed">{GUARANTEE_TERMS}</p>

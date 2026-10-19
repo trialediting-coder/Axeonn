@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { X, ArrowRight, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLeadModal } from '@/components/common/LeadModalProvider';
@@ -9,12 +9,12 @@ import { trackEvent, EVENTS } from '@/components/providers/AnalyticsTracker';
 import { foundingOffer } from '@/data/foundingOfferData';
 import { useIsMobile } from '@/lib/useMediaQuery';
 
-const POPUP_ID = 'founding_client_offer';
-const VARIANT = 'v2_value_stack';
+const POPUP_ID = 'after_hours_audit_offer';
+const VARIANT = 'v3_audit';
 
-const DISMISS_KEY = 'axeon-founding-offer-dismissed-at';
-const CLAIMED_KEY = 'axeon-founding-offer-claimed';
-const MINIMIZED_KEY = 'axeon-founding-offer-minimized';
+const DISMISS_KEY = 'axeon-audit-offer-dismissed-at';
+const CLAIMED_KEY = 'axeon-audit-offer-claimed';
+const MINIMIZED_KEY = 'axeon-audit-offer-minimized';
 const SITE_ENTERED_KEY = 'axeon-site-entered-at'; // sessionStorage
 const COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000; // 7 days after closing the side tab
 
@@ -23,9 +23,9 @@ const COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000; // 7 days after closing the side ta
 // the site this session, counted across page loads. No scroll or exit-intent
 // triggers.
 const OPEN_AFTER_MS = 5_000;
-// Pages where the visitor is already converting or deciding on price.
+// Pages where the visitor is already converting.
 // /nonprofits has its own free program (Groundwork Grant); a second free offer there confuses it.
-const EXCLUDED_PATHS = ['/pricing', '/book', '/get-started', '/get-started/success', '/nonprofits'];
+const EXCLUDED_PATHS = ['/audit', '/book', '/get-started', '/get-started/success', '/nonprofits'];
 // Pages for people who already pay us, or who came for something else: a personal
 // payment link, the after-payment page, report feedback, Meta data deletion. The
 // dashboard, portal, admin and contracts never mount this at all (HideOnAdFunnel).
@@ -103,7 +103,8 @@ function removeStorage(key: string): void {
 }
 
 export function FreeWebsiteOfferPopup() {
-  const { isOpen: isLeadModalOpen, open: openLeadModal } = useLeadModal();
+  const { isOpen: isLeadModalOpen } = useLeadModal();
+  const router = useRouter();
   const isMobile = useIsMobile();
   const [state, setState] = useState<OfferState>('hidden');
   const visible = state === 'open';
@@ -122,12 +123,10 @@ export function FreeWebsiteOfferPopup() {
   // Re-evaluated on every page change: restores the side tab, or schedules the
   // first (and only) open for when the visitor reaches OPEN_AFTER_MS of time on site.
   useEffect(() => {
-    if (!foundingOffer.active || foundingOffer.spotsRemaining <= 0) return;
-    // Never on the pricing page: the $0 offer would undercut the published
-    // prices at the exact decision moment. /book and /get-started are
-    // already conversion flows; the popup would only interrupt them.
+    if (!foundingOffer.active) return;
+    // /audit and /book are already conversion flows; the popup would only interrupt them.
     if (isExcluded(pathname)) return;
-    if (readStorage(CLAIMED_KEY) === '1') return; // already on the calendar once
+    if (readStorage(CLAIMED_KEY) === '1') return; // already went to the audit page once
     const dismissedAt = Number(readStorage(DISMISS_KEY));
     if (dismissedAt && Date.now() - dismissedAt < COOLDOWN_MS) return;
 
@@ -206,7 +205,7 @@ export function FreeWebsiteOfferPopup() {
     removeStorage(MINIMIZED_KEY);
     writeStorage(CLAIMED_KEY, '1');
     trackEvent(EVENTS.popupClaimed, { popup: POPUP_ID, variant: VARIANT });
-    openLeadModal('founding_offer_popup');
+    router.push(foundingOffer.href);
   };
 
   // Trap Tab/Shift+Tab focus cycling within the dialog while it's open.
@@ -271,10 +270,10 @@ export function FreeWebsiteOfferPopup() {
           // Phone: a compact pill in the bottom-right corner, clear of the page
           // copy; while the case-study card is up (it spans the bottom on
           // phones) the pill rides just above it, and it always clears the
-          // "Text us" bubble below it. Desktop: a slim tab on
-          // the right edge, stacked above the "Book My Free Call" tab (owner request). Blue
+          // "Text us" bubble below it. Phone only: on desktop the always-on
+          // "Free audit" edge tab (SideTabCTA) already points to /audit. Blue
           // with a light ring so it reads on both the dark hero and white sections.
-          className="fixed z-40 right-4 bottom-[calc(max(1rem,env(safe-area-inset-bottom))_+_var(--case-study-card-h,0px)_+_var(--text-us-h,0px))] transition-[bottom] duration-300 sm:right-0 sm:bottom-auto sm:top-[calc(50%-5rem)] sm:-translate-y-full flex items-center sm:flex-col rounded-full sm:rounded-none sm:rounded-l-xl bg-blue-600 text-white ring-1 ring-white/25 shadow-lg shadow-blue-950/30 overflow-hidden"
+          className="sm:hidden fixed z-40 right-4 bottom-[calc(max(1rem,env(safe-area-inset-bottom))_+_var(--case-study-card-h,0px)_+_var(--text-us-h,0px))] transition-[bottom] duration-300 sm:right-0 sm:bottom-auto sm:top-[calc(50%-5rem)] sm:-translate-y-full flex items-center sm:flex-col rounded-full sm:rounded-none sm:rounded-l-xl bg-blue-600 text-white ring-1 ring-white/25 shadow-lg shadow-blue-950/30 overflow-hidden"
         >
           <button
             ref={tabRef}
@@ -291,7 +290,7 @@ export function FreeWebsiteOfferPopup() {
           <button
             type="button"
             onClick={closeTab}
-            aria-label="Hide the founding client offer"
+            aria-label="Hide the free audit offer"
             className="sm:order-1 self-stretch sm:self-auto flex items-center justify-center pl-1.5 pr-3 sm:px-0 sm:w-full sm:h-8 border-l sm:border-l-0 sm:border-b border-white/20 text-blue-100 hover:text-white hover:bg-blue-700 transition-colors cursor-pointer"
           >
             <X size={14} />
@@ -333,7 +332,7 @@ export function FreeWebsiteOfferPopup() {
             aria-modal="true"
             aria-labelledby="founding-offer-title"
             aria-describedby="founding-offer-terms"
-            data-track-location="founding_offer_popup"
+            data-track-location="audit_offer_popup"
           >
             {/* Grab handle on the phone sheet */}
             {sheet && (
@@ -352,15 +351,16 @@ export function FreeWebsiteOfferPopup() {
               <X size={18} />
             </button>
 
-            {/* Deliberately minimal: one line, one button, and the terms the law
-                requires next to any "free" offer. */}
+            {/* Deliberately minimal: the question, what we check, one button, and the terms. */}
             <div className="px-7 sm:px-9 pt-10 pb-7 text-center">
               <h2
                 id="founding-offer-title"
-                className="text-3xl sm:text-4xl font-black tracking-tight leading-[1.1] text-neutral-950"
+                className="text-2xl sm:text-3xl font-black tracking-tight leading-[1.15] text-neutral-950"
               >
                 {foundingOffer.headline}
               </h2>
+              <p className="mt-4 text-base leading-relaxed text-neutral-600">{foundingOffer.subhead}</p>
+              <p className="mt-2 text-sm text-neutral-500">{foundingOffer.ctaHint}</p>
               <button
                 type="button"
                 onClick={claim}

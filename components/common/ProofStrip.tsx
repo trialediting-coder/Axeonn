@@ -1,12 +1,14 @@
 import Link from 'next/link';
 
-// Real, client-confirmed proof only (see content/brand-guardrails.md). One row,
-// four facts, so a page can show proof without a whole section.
+// What the system commits to in writing (data/pricingData.ts, the agreement's
+// Section 5), not client results: there are no practice clients to quote yet,
+// and trade/detailer results are not proof for a practice (2026-10-19 brief).
+// One row, four facts, so a page can show them without a whole section.
 const PROOF = [
-  { value: '#1', label: 'on Google for "Pleasant Hill auto detailing," up from page 2' },
-  { value: '5.0', label: 'Google rating from 180+ reviews' },
-  { value: '100/100', label: 'SEO audit score' },
-  { value: '90-day', label: 'customer guarantee' },
+  { value: '60 sec', label: 'first reply to every missed call and web inquiry' },
+  { value: '24/7', label: 'including nights, weekends and lunch hours' },
+  { value: '30 days', label: 'to go live once we have your materials' },
+  { value: '5 miles', label: 'one practice per specialty, territory exclusivity' },
 ];
 
 export function ProofStrip({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
@@ -23,8 +25,8 @@ export function ProofStrip({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
           ))}
         </div>
         <p className={`mt-4 text-center text-sm ${dark ? 'text-neutral-400' : 'text-neutral-500'}`}>
-          <Link href="/insights/a-1-auto-detailing-website-case-study" className="inline-block py-2 underline underline-offset-4 hover:text-blue-600">
-            See how we did it for A-1 Auto Detailing
+          <Link href="/axeonproof" className="inline-block py-2 underline underline-offset-4 hover:text-blue-600">
+            See how AxeonPROOF tracks every one
           </Link>
         </p>
       </div>

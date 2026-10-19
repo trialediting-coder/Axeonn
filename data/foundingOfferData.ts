@@ -1,47 +1,37 @@
 /**
- * Founding Client Offer — single source of truth for every surface that
- * promotes it (exit popup, promo banner, any future landing section).
+ * The free after-hours audit offer — single source of truth for every surface
+ * that promotes it (offer popup, its side tab, the promo banner). The file name
+ * is historical (it used to hold the founding client offer, retired 2026-10-19
+ * with the practice repositioning; "$0 to start" and "first month free" are gone).
  *
- * Compliance notes (keep these true when editing):
- * - This is a real offer. Copy must never say a visitor *has* qualified;
- *   only that Iowa businesses *may* qualify. Qualification happens on the call.
- * - FTC guidance on "free" requires the conditions to be stated clearly and
- *   conspicuously alongside the offer, so `terms` must always be rendered
- *   wherever `headline` is.
- * - Never call it "free" (2026-10-05): the offer is "$0 to start + first month
- *   of AxeonCORE free", with the monthly price stated in `terms`. The anchor
- *   is real: the $99 start fee plus one $299 month = $398.
- * - `totalSpots` is the real cap. If spots are claimed, lower `spotsRemaining`
- *   here rather than inventing urgency elsewhere; a fake counter is a
- *   deceptive-practice risk.
+ * Keep these true when editing:
+ * - The audit is genuinely free, with no obligation. Say what it is: an
+ *   after-hours call test, how fast the website answers an inquiry, and reviews
+ *   vs. the top 3 nearby practices, delivered as a short video walkthrough.
+ * - No fake urgency: no spot counters, no deadlines.
+ * - Never promise a number of patients, revenue or rankings.
  */
 export const foundingOffer = {
   /** Set to false to take the offer down everywhere at once. */
   active: true,
-  eyebrow: 'Founding Client Offer',
-  headline: '$0 to start. Your first month free.',
-  /** One short sentence: the popup shows only the headline, this, the button and the terms. */
-  subhead: 'For a few Iowa businesses, in exchange for honest feedback and a review.',
-  /** Real anchor: the $99 start fee + the first $299 AxeonCORE month. */
-  anchorPrice: '$398',
-  anchorLabel: 'Your first month',
-  offerPrice: '$0',
-  /** Side-tab and banner label. Never the word "free" on its own. */
-  tabLabel: '$0 to start',
-  totalSpots: 5,
-  /** Update as founding clients sign. Never display a number higher than reality. */
-  spotsRemaining: 1,
+  eyebrow: 'Free after-hours audit',
+  headline: 'What happens when a patient calls after hours?',
+  /** One short sentence: the popup shows the headline, this, the button and the terms. */
+  subhead:
+    'We call your practice after hours, check how fast your website answers an inquiry, and compare your reviews to the top 3 nearby practices.',
+  /** Side-tab and banner label. */
+  tabLabel: 'Free audit',
   includes: [
-    'Found by more customers on Google and inside AI answers',
-    'A custom, mobile-first site built to turn visitors into calls',
-    'Missed-call text-back, automated follow-up, and AxeonPROOF to track every lead',
-    'Backed by our 90-day customer guarantee',
+    'An after-hours call test',
+    'How fast your website answers an inquiry',
+    'Your reviews vs. the top 3 nearby practices',
+    'Mobile speed',
   ],
-  cta: 'See If I Qualify',
-  ctaHint: 'A free 30-minute call. No pressure.',
+  href: '/audit',
+  cta: 'Get your free after-hours audit',
+  ctaHint: 'You get a short video walkthrough of what we found.',
   decline: 'Not right now',
-  terms:
-    'Iowa businesses, limited spots, subject to fit. After the free first month, AxeonCORE is $299/mo. Full terms on your call.',
+  terms: 'No charge, no obligation. For dental, med spa, law and accounting practices.',
 } as const;
 
 export type FoundingOffer = typeof foundingOffer;

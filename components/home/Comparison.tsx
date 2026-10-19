@@ -10,26 +10,27 @@ interface ComparisonRow {
 // The lead row, shown as a giant before/after.
 const LEAD = {
   typical: 'A website, a report, hours billed',
-  axeon: 'Customers',
-  axeonDetail: 'Calls and leads tracked from day one, backed by our 90-day customer guarantee.',
+  axeon: 'Answered',
+  axeonDetail:
+    'Every missed call and web inquiry gets a reply within 60 seconds, 24/7, backed by our 90-day performance commitment.',
 };
 
 // Supporting rows, deliberately smaller so the lead row carries the message.
 const ROWS: ComparisonRow[] = [
   {
     dimension: 'Pricing',
-    typical: 'A large up-front build fee, plus separate software and marketing bills every month.',
-    axeon: '$99 to start, then a flat $149, $299, or $999 a month, with lead follow-up and AxeonPROOF included from AxeonCORE up',
+    typical: 'A large build fee up front, plus separate software, phone and marketing bills every month.',
+    axeon: 'AxeonCORE from $799/mo on a 12-month agreement, with the $3,000 setup included. Month-to-month available.',
   },
   {
-    dimension: 'Timeline',
-    typical: 'Weeks to months, scope often expands along the way',
-    axeon: 'Fixed scope and a fast turnaround — live in a fraction of the usual time, no surprise invoices',
+    dimension: 'After hours',
+    typical: 'Calls go to voicemail and web forms wait until the front desk opens',
+    axeon: 'A text reply within 60 seconds and a link to book, any hour of the day',
   },
   {
-    dimension: 'Lead Follow-Up',
-    typical: 'One generic chatbot, set up the same way for every client',
-    axeon: 'Follow-up built around how you actually win jobs, from first call to booked',
+    dimension: 'Reviews',
+    typical: 'Someone remembers to ask, sometimes',
+    axeon: 'An automatic review request after every completed appointment',
   },
   {
     dimension: 'Communication',
@@ -39,7 +40,7 @@ const ROWS: ComparisonRow[] = [
   {
     dimension: 'Reporting',
     typical: 'Clicks, impressions, and rankings',
-    axeon: 'A monthly report on calls, leads, and exactly where each one came from',
+    axeon: 'AxeonPROOF: every recovered call and inquiry, live, plus a monthly report',
   },
 ];
 
@@ -51,10 +52,10 @@ export function Comparison() {
       <div className="max-w-6xl mx-auto">
         <div className="max-w-4xl">
           <span className="block text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-4">
-            [ WHY OWNERS SWITCH ]
+            [ WHY PRACTICES SWITCH ]
           </span>
           <h2 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.08]">
-            You Pay for Customers, Not Deliverables
+            You Pay for Every Inquiry Answered, Not Deliverables
           </h2>
         </div>
 
@@ -99,10 +100,10 @@ export function Comparison() {
 
         <div className="mt-10 flex flex-col sm:flex-row items-center gap-4">
           <Link
-            href="/book"
+            href="/audit"
             className="w-full sm:w-auto text-center px-8 py-3.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors"
           >
-            Book My Free Call
+            Get your free after-hours audit
           </Link>
           <Link
             href="/why-axeon"

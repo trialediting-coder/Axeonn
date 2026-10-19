@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import { ArrowRight, ArrowUpRight, Megaphone, PhoneCall, Search, Star } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Clapperboard, Megaphone, PhoneCall, RefreshCw } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
-// The channels you add once a plan is working. All four come with AxeonGROWTH;
-// on AxeonCORE they are add-ons (prices live on /pricing, data/pricingData.ts).
+// What AxeonGROWTH adds on top of AxeonCORE's intake. All four come with
+// AxeonGROWTH; on AxeonCORE some are add-ons (prices live on /pricing, data/pricingData.ts).
 interface EngineModule {
   icon: LucideIcon;
   title: string;
@@ -13,43 +13,42 @@ interface EngineModule {
 
 const engineModules: EngineModule[] = [
   {
-    icon: PhoneCall,
-    title: 'AI Receptionist',
-    body: 'Picks up every call, books the job, texts back anyone who hangs up.',
-    href: '/book',
-  },
-  {
     icon: Megaphone,
-    title: 'Google & Meta Ads',
-    body: 'Campaigns on the services you want more of, tracked to the booked job.',
+    title: 'Google Ads & LSA',
+    body: 'Local Services Ads and search ads on the services you want more of, reported in AxeonPROOF.',
     href: '/marketing-solutions/advertising',
   },
   {
-    icon: Search,
-    title: 'Ongoing SEO & Content',
-    body: 'New pages and updates that keep you climbing on Google and in AI answers.',
-    href: '/marketing-solutions/seo',
+    icon: PhoneCall,
+    title: 'AI Receptionist',
+    body: 'Answers the calls your front desk can’t get to, takes the details, and books the consultation.',
+    href: '/pricing',
   },
   {
-    icon: Star,
-    title: 'Reviews & Social',
-    body: 'A steady flow of new reviews, plus posts made from your own footage.',
-    href: '/book',
+    icon: RefreshCw,
+    title: 'Past-Patient Reactivation',
+    body: 'A campaign each quarter to past patients and clients who are due to come back.',
+    href: '/pricing',
+  },
+  {
+    icon: Clapperboard,
+    title: 'Photo & Video',
+    body: 'Quarterly shoots for review videos and reels, so people see your practice before they book.',
+    href: '/pricing',
   },
 ];
 
 const builds = [
-  { name: 'Essentials', price: '$149/mo', line: 'Get found: Google, AI search, a site that converts, and instant lead alerts.' },
   {
     name: 'AxeonCORE',
-    price: '$299/mo',
-    line: 'Get found, chosen, and booked: adds AxeonPROOF, one list of every lead, AI chat, automatic follow-up, and the 90-day guarantee.',
+    price: 'From $799/mo',
+    line: 'Every missed call and web inquiry answered within 60 seconds, 24/7, online booking, review requests after every visit, and AxeonPROOF.',
     recommended: true,
   },
   {
     name: 'AxeonGROWTH',
-    price: '$999/mo',
-    line: 'We run your growth: adds Google & Meta ads, an AI phone receptionist, on-site video, and a new page every month.',
+    price: 'From $1,999/mo',
+    line: 'Everything in CORE, plus Google ads and LSA, an AI receptionist, past-patient reactivation, and quarterly photo & video.',
   },
 ];
 
@@ -61,7 +60,7 @@ interface GrowthEngineProps {
 }
 
 /**
- * One message: once your plan is bringing customers in, add more channels.
+ * One message: once intake is answering every inquiry, add channels that bring more in.
  * Headline on the left, the four channels as a compact list on the right --
  * a single slab, not four competing cards.
  */
@@ -81,17 +80,17 @@ export function GrowthEngine({ showBuilds = true, variant = 'section' }: GrowthE
         <div className="lg:col-span-5">
           <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">[ AFTER LAUNCH ]</p>
           <h2 className="mt-3 text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.08]">
-            Add more once it&apos;s working.
+            Add more once intake is solid.
           </h2>
           <p className="mt-4 text-base sm:text-lg text-neutral-400 leading-relaxed">
-            Your plan gets new customers coming in. When you want more, we plug in extra channels. AxeonGROWTH
-            includes all of them.
+            AxeonCORE makes sure every call and inquiry gets answered. When you want more new patients or clients
+            coming in, AxeonGROWTH adds these.
           </p>
           <Link
-            href="/book"
+            href="/audit"
             className="py-2 mt-6 inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-blue-400 hover:text-blue-300 transition-colors"
           >
-            Ask about it on your free call <ArrowRight size={16} />
+            Start with a free after-hours audit <ArrowRight size={16} />
           </Link>
         </div>
 
@@ -119,7 +118,7 @@ export function GrowthEngine({ showBuilds = true, variant = 'section' }: GrowthE
           <p className="text-xs font-mono font-semibold tracking-widest text-neutral-400 uppercase mb-4">
             Start with a plan
           </p>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2">
             {builds.map((b) => (
               <div
                 key={b.name}
@@ -139,7 +138,7 @@ export function GrowthEngine({ showBuilds = true, variant = 'section' }: GrowthE
             href="/pricing"
             className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors"
           >
-            Compare all three plans <ArrowRight size={15} />
+            Compare both plans <ArrowRight size={15} />
           </Link>
         </div>
       )}

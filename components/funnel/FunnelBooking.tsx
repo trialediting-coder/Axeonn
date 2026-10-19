@@ -27,9 +27,9 @@ export function FunnelBooking({ slug, industryName }: FunnelBookingProps) {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.contactName.trim() || !form.businessName.trim()) return setError('Add your name and business name.');
+    if (!form.contactName.trim() || !form.businessName.trim()) return setError('Add your name and practice name.');
     if (form.phone.replace(/\D/g, '').length < 10) return setError('Add a phone number we can reach you at.');
-    if (!EMAIL_RE.test(form.email.trim())) return setError('Add a valid email so we can send your mockup.');
+    if (!EMAIL_RE.test(form.email.trim())) return setError('Add a valid email so we can confirm your call.');
     setError('');
 
     // Fire and forget: a slow webhook must never stop someone from booking.
@@ -44,9 +44,9 @@ export function FunnelBooking({ slug, industryName }: FunnelBookingProps) {
         website: '',
         services: [],
         packageId: `ad-funnel-${slug}`,
-        packageName: `Ad funnel ($99 start): ${industryName}`,
+        packageName: `Ad funnel: ${industryName}`,
         packagePrice: 0,
-        answers: { businessType: industryName, hasWebsite: '', goal: 'More calls and leads', budget: '', timeline: '' },
+        answers: { businessType: industryName, hasWebsite: '', goal: 'Answer every call and inquiry', budget: '', timeline: '' },
         company_fax: form.company_fax,
       }),
       keepalive: true,
@@ -68,12 +68,12 @@ export function FunnelBooking({ slug, industryName }: FunnelBookingProps) {
           <h2 className="mt-2 text-2xl sm:text-3xl font-extrabold font-display tracking-tight leading-tight">
             Book your free call
           </h2>
-          <p className="mt-2 text-neutral-600">$99 to start, plans from $149/mo. Takes 20 seconds, then pick a time for your call.</p>
+          <p className="mt-2 text-neutral-600">Plans from $799/mo. Takes 20 seconds, then pick a time for your call.</p>
           <div className="mt-6 flex flex-col gap-3">
             <label className="sr-only" htmlFor="fb-name">Your name</label>
             <input id="fb-name" className={input} placeholder="Your name" autoComplete="name" value={form.contactName} onChange={set('contactName')} />
-            <label className="sr-only" htmlFor="fb-business">Business name</label>
-            <input id="fb-business" className={input} placeholder="Business name" autoComplete="organization" value={form.businessName} onChange={set('businessName')} />
+            <label className="sr-only" htmlFor="fb-business">Practice name</label>
+            <input id="fb-business" className={input} placeholder="Practice name" autoComplete="organization" value={form.businessName} onChange={set('businessName')} />
             <label className="sr-only" htmlFor="fb-phone">Phone</label>
             <input id="fb-phone" className={input} placeholder="Phone" type="tel" autoComplete="tel" value={form.phone} onChange={set('phone')} />
             <label className="sr-only" htmlFor="fb-email">Email</label>
@@ -96,7 +96,7 @@ export function FunnelBooking({ slug, industryName }: FunnelBookingProps) {
             data-track-cta="ad_funnel_form"
             className="mt-5 w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-bold transition-colors shadow-lg shadow-blue-600/25 cursor-pointer"
           >
-            Book My Free Call <ArrowRight size={18} />
+            Book a call <ArrowRight size={18} />
           </button>
           <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-neutral-500">
             <Lock size={12} /> No spam. We only use this to set up your call.
@@ -109,7 +109,7 @@ export function FunnelBooking({ slug, industryName }: FunnelBookingProps) {
             Pick a time for your free call
           </h2>
           <p className="mt-2 text-neutral-600">
-            Thanks, {form.contactName.split(' ')[0] || 'friend'}. Choose any open time below. We&apos;ll bring your homepage mockup.
+            Thanks, {form.contactName.split(' ')[0] || 'there'}. Choose any open time below. We&apos;ll look at how your practice answers calls and inquiries before we talk.
           </p>
           <div className="mt-5 -mx-2 sm:mx-0">
             <BookingCalendar minHeight="640px" />

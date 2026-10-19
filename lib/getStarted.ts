@@ -1,5 +1,5 @@
 // lib/getStarted.ts
-// Pure logic for the /get-started flow: package recommendation, the lead
+// Pure logic for the plan-finder form (GetStartedFlow): package recommendation, the lead
 // payload the lead route saves to Airtable, and the Stripe Payment Link URL. No I/O and
 // no randomness, so the same answers always give the same result (see
 // lib/getStarted.test.ts).

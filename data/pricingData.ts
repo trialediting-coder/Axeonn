@@ -4,17 +4,18 @@ export interface PricingTier {
   id: string;
   name: string;
   focus: string;
-  /** The headline monthly price, e.g. "$299". */
+  /** Shown before the price, e.g. "From". */
+  pricePrefix?: string;
+  /** The headline monthly price, e.g. "$799". */
   price: string;
   /** Shown next to the price, e.g. "/mo". */
   billingNote: string;
-  /** What it costs to get started, e.g. "$99 to start". */
+  /** The term line under the price, e.g. "12-month agreement · $3,000 setup included". */
   startFee: string;
-  /** One line under the start fee: what the start fee covers, or the term. */
-  /** Small line under the start fee; empty for none. Never a minimum term (owner, 2026-10-18). */
+  /** Small line under the term; empty for none. */
   startNote: string;
   turnaround: string;
-  /** Short badge rendered above the card (e.g. "Recommended"). */
+  /** Short badge rendered above the card (e.g. "Most practices start here"). */
   badge?: string;
   /** Rendered as a lead-in above the feature list ("Everything in X, plus:"). */
   inherits?: string;
@@ -24,10 +25,7 @@ export interface PricingTier {
   /** Feature strings that get the highlighted "headline" treatment in the card, with their icon. */
   highlightFeatures?: { feature: string; icon: HighlightIcon }[];
   cta: string;
-  /**
-   * plain = the entry card, featured = the tier we sell (loudest),
-   * premium = the top tier (dark, clearly the most expensive).
-   */
+  /** featured = the plan most practices start on, premium = the top plan (dark). */
   variant: 'plain' | 'featured' | 'premium';
 }
 
@@ -36,136 +34,113 @@ export interface AddOn {
   price: string;
 }
 
-// Three plans (owner, 2026-10-05): local, cheap, easy entry. Essentials is the
-// entry tier that still has value, AxeonCORE is the middle and the one we sell,
-// AxeonGROWTH is the obviously-more-expensive top tier. CORE and GROWTH include
-// AxeonPROOF. Flat monthly prices (no "from"), $99 to start ($1,500 on GROWTH,
-// which covers the video shoot); a year paid up front gets 2 months free. Never
-// state a minimum term in customer copy (owner, 2026-10-18): it is discussed on the
-// call and set in the signed agreement. The ad-spend minimum is fine to state.
-// Business email: 1 / 3 / 5 mailboxes, extras $10/mo (MAILBOXES_INCLUDED in lib/businessEmailShared.ts).
-// Keep in sync with content/brand-guardrails.md, lib/postValidation.ts,
-// data/getStartedPackages.ts and priceRange in lib/seo.ts.
-export const ANNUAL_DEAL = 'Pay a year up front and get 2 months free.';
+// Two public plans (2026-10-19 repositioning): patient & client intake
+// infrastructure for established private practices (dental, med spa, law, CPA).
+// Public copy shows "From $799/mo" and "From $1,999/mo" only. No self-serve
+// checkout; every plan starts with the free after-hours audit or a call.
+// AxeonCORE: 12-month agreement, $3,000 implementation credited in full;
+// month-to-month available with the $3,000 paid upfront; prepay a year = 2
+// months free. AxeonGROWTH: 12-month agreement, $5,000 implementation credited,
+// ad spend separate ($500/mo minimum, paid to Google directly).
+// Never promise a number of leads, patients, revenue or rankings.
+// Keep in sync with data/agreementTemplate.ts (Schedule A), content/brand-guardrails.md,
+// lib/postValidation.ts and priceRange in lib/seo.ts.
+// Business email (3 / 5 mailboxes) still ships with each plan:
+// MAILBOXES_INCLUDED in lib/businessEmailShared.ts (lib/businessEmail.test.ts checks the cards).
+
+/** The one line other pages print for the entry price (niche heroes, banners). */
+export const STARTING_PRICE = '$799';
+export const STARTING_PRICE_LINE = 'From $799/mo';
+
+export const TERM_LINE = '12-month agreement · $3,000 setup included · month-to-month available';
+export const ANNUAL_DEAL = 'Prepay a year and get 2 months free.';
 export const AD_SPEND_RULE =
-  'Ad spend is separate: $500/mo minimum, paid on your own card into your own ad account, with no markup.';
+  'Ad spend is separate: $500/mo minimum, paid to Google directly on your own card, with no markup.';
+export const TERRITORY_LINE = 'One practice per specialty within 5 miles.';
+export const OWNERSHIP_LINE =
+  'Your domain, Google Business Profile, and patient and client contact data are always yours. The website design and code become yours once the 12-month term is paid. The intake system, phone and text numbers, and AxeonPROOF are a service and stop if you leave.';
+export const COMPLIANCE_LINE =
+  'Intake collects name, contact, service and preferred time only — never symptoms, insurance or health details.';
 
 export const pricingTiers: PricingTier[] = [
   {
-    id: 'core-web-build',
-    name: 'Essentials',
-    focus: 'Get found by more customers',
-    price: '$149',
-    billingNote: '/mo',
-    startFee: '$99 to start',
-    startNote: '',
-    turnaround: 'Our Fastest Launch',
-    bestFor: 'Right for you if you mainly need more people to find you. It brings in calls and leads; you handle the follow-up yourself.',
-    features: [
-      'Up to 4 custom-designed, mobile-first pages built around how your business actually sells',
-      'Show up on Google, in the map results, and in AI answers like ChatGPT',
-      'Google Business Profile upkeep so you show up in the map results',
-      'Quote request form with instant lead alerts — every request lands in your inbox and on your phone',
-      'Hosting, security, and 2 small edits a month',
-      'A monthly calls & leads report by email',
-      '1 business email at your own domain (you@yourbusiness.com)',
-      'Uptime monitoring — if your site ever goes down, we know before your customers do',
-      'You own 100% of the site, code, and design files',
-    ],
-    cta: 'Get Essentials',
-    variant: 'plain',
-  },
-  {
     id: 'axeoncore',
     name: 'AxeonCORE',
-    focus: 'Get found, chosen, and booked',
-    price: '$299',
+    focus: 'Patient & client intake infrastructure',
+    pricePrefix: 'From',
+    price: '$799',
     billingNote: '/mo',
-    startFee: '$99 to start',
-    startNote: '',
-    turnaround: 'Fast Launch',
-    badge: 'Recommended',
-    bestFor: 'The plan we recommend: it doesn\'t just bring in leads, it captures, follows up on, and tracks every one, so more of them turn into paying customers. Backed by our 90-day guarantee.',
-    inherits: 'Everything in Essentials, plus:',
+    startFee: '12-month agreement · $3,000 setup included',
+    startNote: 'Month-to-month available with the $3,000 setup paid upfront. Prepay a year and get 2 months free.',
+    turnaround: 'Live within 30 days of getting your materials',
+    badge: 'Most practices start here',
+    bestFor:
+      'Right for you if calls and web inquiries go to voicemail or sit until morning. Every one gets a reply within 60 seconds, 24/7, and a way to book.',
     features: [
-      'AxeonPROOF — your live dashboard of every call, lead, and booked job, and where each one came from',
-      'The 90-day customer guarantee',
-      'Missed-call text-back — anyone who calls and can\'t reach you gets an instant text, so they don\'t move on to the next company',
-      'Instant call-back — when someone fills out your form, your phone rings and connects you to them while they\'re still on your site',
-      'AI chat & online scheduling so leads book themselves 24/7',
-      'Automatic texts and emails the second a lead comes in, plus one simple list of every lead and where it stands',
-      'Tracked phone numbers that show which pages and listings actually make your phone ring',
-      'One inbox for every text, email and website chat, on your phone (Facebook and Instagram messages coming soon)',
-      'Call recording on your tracked numbers, so you can hear what every caller asked for',
-      'Quote follow-up — estimates that haven\'t closed get 3 automatic follow-ups, so fewer jobs slip away',
-      'Appointment reminders by text, so fewer people no-show',
-      'A text to your past customers every quarter that brings repeat work back in',
-      'Review requests after every job, so your Google rating keeps climbing',
-      '5–7 pages written to turn visitors into calls',
-      'A last-chance offer — visitors about to leave your site see a deal on the service they were looking at',
-      '3 business emails at your own domain',
-      '5 edits a month',
+      'Custom mobile-first practice website: providers & credentials, services, reviews, booking',
+      '24/7 missed-call text-back',
+      'First reply to every web inquiry within 60 seconds',
+      'Online consultation booking',
+      'Two-way text inbox for the front desk',
+      'Call tracking',
+      'Automated review requests after each appointment',
+      'AxeonPROOF client portal: live recovered-inquiry counter, change requests, monthly reports',
+      'Hosting, security and monitoring',
+      'Up to 2 hours of content updates a month',
+      '90-day performance commitment',
+      '5-mile territory exclusivity for your specialty',
+      '3 business email addresses at your own domain',
     ],
     highlightFeatures: [
+      { feature: '24/7 missed-call text-back', icon: 'phone' },
       {
-        feature: 'AxeonPROOF — your live dashboard of every call, lead, and booked job, and where each one came from',
+        feature: 'AxeonPROOF client portal: live recovered-inquiry counter, change requests, monthly reports',
         icon: 'proof',
       },
     ],
-    cta: 'Get AxeonCORE',
+    cta: 'Get your free after-hours audit',
     variant: 'featured',
   },
   {
     id: 'axeongrowth',
     name: 'AxeonGROWTH',
-    focus: 'We run your growth for you',
-    price: '$999',
+    focus: 'Intake infrastructure + active acquisition',
+    pricePrefix: 'From',
+    price: '$1,999',
     billingNote: '/mo + ad spend',
-    startFee: '$1,500 to start',
-    startNote: 'Covers your on-site video shoot.',
-    turnaround: 'Fast Launch',
-    bestFor: 'Right for you if you want customers coming in this week, not just this year: we run your ads, answer your phones, and film your business.',
+    startFee: '12-month agreement · $5,000 setup included',
+    startNote: 'Ad spend is separate: $500/mo minimum, paid to Google directly.',
+    turnaround: 'Live within 30 days of getting your materials',
+    bestFor:
+      'Right for you if your intake is solid and you want more new patients or clients coming in: we run your Google ads, answer your phones with AI, and work your past-patient list.',
     inherits: 'Everything in AxeonCORE, plus:',
     features: [
-      'Google & Meta ads run for you on the services you want more of, tracked to the booked job',
-      'Google Local Services Ads — the "Google Guaranteed" spots at the very top of the search, where you pay per lead, not per click (for trades Google offers them to)',
-      'AI phone receptionist — picks up every call 24/7, answers questions, and books the job',
-      'Custom on-site videography — a half-day shoot at your location: a hero film for your site, 3 vertical cuts for social & ads, and a photo set',
-      'Social reels from your shoot — we keep cutting your footage into short videos and post them to Facebook & Instagram for you',
-      'AxeonPROOF ad reporting — every ad dollar shown next to the calls and jobs it brought in',
-      'A new service page every month, so you keep climbing on Google and in AI answers',
-      'Full review campaigns to grow your Google rating faster',
-      'A monthly strategy call',
-      '5 business emails at your own domain',
-      'Same-day priority support',
+      'Google Local Services Ads & search ads management',
+      'Quarterly database reactivation campaign to past patients and clients',
+      'AI phone receptionist',
+      'Multi-provider calendar & intake routing',
+      'Quarterly photo & video: review videos and reels',
+      'Monthly strategy call + quarterly business review',
+      'Priority support',
+      '5 business email addresses at your own domain',
     ],
     highlightFeatures: [
-      {
-        feature: 'Google & Meta ads run for you on the services you want more of, tracked to the booked job',
-        icon: 'ads',
-      },
-      {
-        feature: 'AI phone receptionist — picks up every call 24/7, answers questions, and books the job',
-        icon: 'phone',
-      },
-      {
-        feature: 'Custom on-site videography — a half-day shoot at your location: a hero film for your site, 3 vertical cuts for social & ads, and a photo set',
-        icon: 'video',
-      },
+      { feature: 'Google Local Services Ads & search ads management', icon: 'ads' },
+      { feature: 'AI phone receptionist', icon: 'phone' },
+      { feature: 'Quarterly photo & video: review videos and reels', icon: 'video' },
     ],
-    cta: 'Get AxeonGROWTH',
+    cta: 'Get your free after-hours audit',
     variant: 'premium',
   },
 ];
 
-// Priced so AxeonCORE plus these always costs more than AxeonGROWTH:
-// $299 + $399 + $199 + a $450 page every month = $1,347/mo vs $999/mo.
 export const addOns: AddOn[] = [
-  { name: 'Google & Meta Ads Management (AxeonCORE)', price: '+$399 / mo' },
-  { name: 'AI Phone Receptionist', price: '+$199 / mo' },
-  { name: 'Extra Service Page (rank for another service)', price: '+$450 / page' },
-  { name: 'Custom On-Site Videography', price: '+$1,500' },
-  { name: 'Extra Business Email Mailbox', price: '+$10 / mo' },
+  { name: 'Google Local Services Ads management on AxeonCORE', price: '+$750 / mo' },
+  { name: 'Database reactivation campaign', price: '$100 / showed appointment' },
+  { name: 'AI phone receptionist', price: '+$199 / mo' },
+  { name: 'Extra page', price: '+$450 / page' },
+  { name: 'On-site videography', price: '+$1,500' },
+  { name: 'Extra business email mailbox', price: '+$10 / mo' },
 ];
 
 export interface PricingFaq {
@@ -176,55 +151,63 @@ export interface PricingFaq {
 export const pricingFaqs: PricingFaq[] = [
   {
     q: 'How does the pricing work?',
-    a: 'You pay $99 to start (AxeonGROWTH is $1,500, which covers your on-site video shoot), then a flat monthly price: $149 for Essentials, $299 for AxeonCORE, or $999 for AxeonGROWTH. Pay a year up front and you get 2 months free.',
+    a: 'AxeonCORE starts at $799/mo and AxeonGROWTH at $1,999/mo, on a 12-month agreement. The setup ($3,000 on CORE, $5,000 on GROWTH) is credited in full when you take the 12-month term, so nothing is due for it at signing. Prepay a year and you get 2 months free. Your exact price is confirmed after the free audit, based on your locations and providers.',
   },
   {
-    q: 'What is the 90-day customer guarantee?',
-    a: 'More calls and leads in your first 90 days than you were getting before, or we keep working for free until you do. It comes with AxeonCORE and AxeonGROWTH. We set your starting baseline together on the kickoff call and track every call and form from day one in AxeonPROOF, so the comparison is real. The guarantee applies while you\'re on your plan and answering new leads within one business day, because we can bring the customers to you but you have to pick up the phone.',
+    q: 'Why a 12-month agreement?',
+    a: "Setting up your website, phone and text numbers, booking, and review requests is a few weeks of work up front. The 12-month term is how we credit that $3,000 setup instead of billing it. After 12 months it continues month-to-month, and either side can stop with 30 days' notice.",
+  },
+  {
+    q: 'Can I go month-to-month instead?',
+    a: 'Yes. Pay the $3,000 setup upfront and AxeonCORE runs month-to-month from the start. Most practices take the 12-month agreement because the setup is then credited in full.',
+  },
+  {
+    q: 'What is the $3,000?',
+    a: "It's the implementation fee for AxeonCORE: the website build, number setup and carrier registration, booking, the inquiry reply system, review requests, and AxeonPROOF. On the 12-month agreement it is credited in full and never charged. On month-to-month it is paid upfront. AxeonGROWTH's implementation is $5,000, credited the same way.",
+  },
+  {
+    q: 'What is the 90-day performance commitment?',
+    a: "Live within 30 days of getting your materials. Every missed call and web inquiry gets a reply within 60 seconds. Every completed appointment gets a review request. If we miss any of those in the first 90 days and don't fix it within 15 days, you can walk away and owe nothing for the rest of the term. We don't promise a number of new patients, revenue, or rankings. We promise the system does its job.",
+  },
+  {
+    q: 'Is ad spend included in AxeonGROWTH?',
+    a: "No. Your ad budget goes straight to Google, on your own card and in your own account, with no markup from us. The minimum is $500/mo, because below that there isn't enough data to keep improving the campaigns. Local Services Ads bill you per lead. The $1,999/mo is for running them.",
+  },
+  {
+    q: 'What does territory exclusivity mean?',
+    a: "One practice per specialty within 5 miles. While your account is in good standing, we won't take on another practice in your specialty within 5 miles of you.",
+  },
+  {
+    q: 'Do you collect patient health information?',
+    a: 'No. Intake collects name, contact, service and preferred time only, never symptoms, insurance or health details. The forms and text replies are set up that way on purpose.',
+  },
+  {
+    q: 'What do I own?',
+    a: 'Your domain, Google Business Profile, and patient and client contact data are always yours. The website design and code become yours once the 12-month term is paid. The intake system, phone and text numbers, and AxeonPROOF are a service, so they stop if you leave.',
+  },
+  {
+    q: 'What happens after 12 months?',
+    a: "The agreement continues month-to-month at the same price, and you can stop with 30 days' notice. Once the term is paid, the website design and code are yours, and if you leave we hand over the files and your contact data.",
   },
   {
     q: 'Which plan should I pick?',
-    a: 'Essentials if you mainly need more people to find you and you\'re happy to chase every lead yourself. AxeonCORE if you want every lead captured, followed up on, and tracked, with the guarantee behind it. It\'s the plan we recommend. AxeonGROWTH if you want us to run the whole thing: Google, Meta and Local Services Ads, an AI receptionist on your phones, video of your business, and a new page every month.',
-  },
-  {
-    q: 'What is AxeonPROOF?',
-    a: 'AxeonPROOF is our own client dashboard, included with AxeonCORE and AxeonGROWTH. It shows every call, form, and booked job as it happens, where each one came from, and how you\'re tracking against your 90-day baseline. On AxeonGROWTH it also shows every ad dollar next to the calls it brought in. No guessing whether your marketing is working.',
-  },
-  {
-    q: 'Do I pay for ads separately on AxeonGROWTH?',
-    a: 'Yes. Your ad budget goes straight to Google and Meta, on your own card and in your own ad account, with no markup from us. Local Services Ads work the same way: Google bills you per lead. We ask for at least $500/mo in ad spend, because below that there isn\'t enough data to keep improving your campaigns. The $999/mo is for running them.',
-  },
-  {
-    q: 'Can I add pieces of AxeonGROWTH to AxeonCORE instead?',
-    a: 'Yes. Ads management is +$399/mo, the AI phone receptionist is +$199/mo, and extra service pages are $450 each. Worth knowing before you do: AxeonCORE plus ads, the receptionist, and a new page every month comes to $1,347/mo, while AxeonGROWTH includes all of it, plus the video shoot and Google Local Services Ads, for $999/mo.',
-  },
-  {
-    q: 'What does the AxeonCORE lead system actually do?',
-    a: 'It makes sure a lead never sits waiting. When someone fills out a form, your phone rings and connects you to them while they\'re still on your site. If someone calls and you can\'t pick up, they get a text back right away instead of calling your competitor. Visitors about to leave see an offer tied to the service they were looking at. Every lead lands in one simple list with automatic texts and emails, and tracked phone numbers show which pages and listings are making your phone ring.',
-  },
-  {
-    q: 'What does the on-site videography include?',
-    a: 'We come to your location for a half-day shoot — your team, your space, your work. You get a hero film cut for your website, three vertical cuts sized for social and ads, and a photo set for your site and profiles. It\'s included in AxeonGROWTH and is a $1,500 add-on for the other plans.',
-  },
-  {
-    q: 'What happens after the first 90 days?',
-    a: 'By then you\'ll have 90 days of calls and leads in your monthly reports to judge it by, and we go over them with you. You own 100% of the site, code, and design files on every plan.',
-  },
-  {
-    q: 'What if I don\'t like the initial design?',
-    a: 'Every plan includes 2 rounds of revisions on your new site before launch, at no extra cost. We don\'t consider a project finished until the design is one you\'re proud to put your name on.',
+    a: 'AxeonCORE if the problem is answering: calls going to voicemail, web inquiries waiting until morning, reviews that never get asked for. AxeonGROWTH if your intake is already solid and you want more new patients or clients coming in through Google ads, an AI receptionist, and past-patient campaigns. The free audit usually makes the answer obvious.',
   },
 ];
 
-/** The guarantee sentence on its own, word for word. Never paraphrase it. */
+/** The performance commitment, word for word. Never paraphrase it. */
 export const guaranteeSentence =
-  'More calls and leads in your first 90 days than you were getting before, or we keep working for free until you do.';
+  "Live within 30 days of getting your materials. Every missed call and web inquiry gets a reply within 60 seconds. Every completed appointment gets a review request. If we miss any of those in the first 90 days and don't fix it within 15 days, you can walk away and owe nothing for the rest of the term.";
+
+/** The short form, for badges and strips. */
+export const guaranteeShort =
+  '90-day performance commitment: live in 30 days, 60-second replies, review requests on every visit — or walk away.';
 
 /**
  * How many feature bullets a plan card shows up front; the rest sit behind
  * "See everything included". Order each tier's features strongest-first.
  */
-export const FEATURED_BULLETS = 4;
+export const FEATURED_BULLETS = 5;
 
-export const customerGuarantee = '90-Day Customer Guarantee: More calls and leads in your first 90 days than you were getting before, or we keep working for free until you do.';
-export const revisionGuarantee = '2-Round Revision Guarantee — included with every build';
+export const customerGuarantee = `90-Day Performance Commitment: ${guaranteeSentence}`;
+export const revisionGuarantee = '2 rounds of design revisions before launch, included';
