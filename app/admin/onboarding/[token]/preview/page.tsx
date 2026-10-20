@@ -21,7 +21,7 @@ export default async function ClientPreviewPage({ params, searchParams }: { para
   const onboarding = await getOnboardingByToken(token).catch(() => null);
   if (!onboarding) notFound();
   const key = isProofTab(tab) ? tab : 'overview';
-  const data = await loadDashboardData(onboarding, key, { contactId: parseContactId(contact) });
+  const data = await loadDashboardData(onboarding, key, { contactId: parseContactId(contact), program: tab === 'program' });
   const name = onboarding.businessName || onboarding.clientName || onboarding.clientEmail;
   return <ProofDashboard email={onboarding.clientEmail} {...data} preview={{ label: `Admin preview of ${name}`, backHref: `/admin/onboarding/${token}` }} leadApi={`/api/admin/onboarding/${token}/project`} tab={key} />;
 }

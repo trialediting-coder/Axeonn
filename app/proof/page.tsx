@@ -28,7 +28,8 @@ export default async function ProofPage({ searchParams }: { searchParams: Promis
   }
 
   const key = isProofTab(tab) ? tab : 'overview';
-  const data = await loadDashboardData(onboarding, key, { contactId: parseContactId(contact) });
+  // ?tab=program is the AxeonPROOF v2 Program tab; a v1 client asking for it gets the Overview.
+  const data = await loadDashboardData(onboarding, key, { contactId: parseContactId(contact), program: tab === 'program' });
   return (
     <>
       <ProofAnalyticsIdentify accountId={account.id} businessName={onboarding.businessName ?? onboarding.clientName ?? `client ${onboarding.id}`} plan={onboarding.tier} />
@@ -39,6 +40,7 @@ export default async function ProofPage({ searchParams }: { searchParams: Promis
         stageApi="/api/proof/leads/stage"
         inboxApi="/api/proof/inbox"
         scanApi="/api/proof/scan"
+        v2Api="/api/proof/v2"
         tab={key}
       />
     </>

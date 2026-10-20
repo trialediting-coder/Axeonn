@@ -1501,3 +1501,107 @@ export async function sendOwnerNoticeEmail(input: { to: string; subject: string;
     text: `${input.text}\n\nEvery booking is in AxeonPROOF: ${APP_ORIGIN}/?tab=bookings`,
   });
 }
+
+// ───────────────────────────── AxeonPROOF v2 (lib/proofV2.ts) ─────────────────────────────
+// Sent only when lib/proofV2.ts v2SendsEnabled() (production, PROOF_V2_SENDS not 'off'); callers check.
+
+const v2Tile = (label: string, value: string, sub = '') =>
+  `<td style="padding:12px;border:1px solid #e5e5e5;border-radius:12px;vertical-align:top;width:50%"><div style="font-size:12px;color:#737373">${escapeHtml(label)}</div><div style="font-size:24px;font-weight:800;margin-top:2px">${escapeHtml(value)}</div>${sub ? `<div style="font-size:12px;color:#737373;margin-top:2px">${escapeHtml(sub)}</div>` : ''}</td>`;
+
+export function renderLaunchCertificateEmail(input: { businessName: string | null; goLiveAt: string; liveItems: readonly string[]; url: string }): { subject: string; html: string } {
+  const biz = input.businessName ? escapeHtml(input.businessName) : 'Your business';
+  const when = new Date(`${input.goLiveAt.slice(0, 10)}T12:00:00Z`).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+  return {
+    subject: `${input.businessName ?? 'You'} went live: your Launch Certificate`,
+    html: clientLayout(
+      'Launch Certificate',
+      `
+        <div style="border:2px solid #2563eb;border-radius:16px;padding:20px 22px;margin:0 0 16px">
+          <p style="margin:0;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#2563eb;font-weight:700">Certified live</p>
+          <p style="margin:6px 0 0;font-size:22px;font-weight:800">${biz}</p>
+          <p style="margin:4px 0 14px;color:#525252">Live since ${escapeHtml(when)}</p>
+          <ul style="margin:0;padding-left:18px">${input.liveItems.map((i) => `<li style="margin:2px 0">${escapeHtml(i)}</li>`).join('')}</ul>
+        </div>
+        <p style="margin:0 0 12px">From today every call, text, form and booking is counted in AxeonPROOF. Next on your delivery schedule: the reactivation sprint to your past customers.</p>
+        ${button(input.url, 'Open AxeonPROOF')}
+      `
+    ),
+  };
+}
+
+export async function sendLaunchCertificateEmail(input: Parameters<typeof renderLaunchCertificateEmail>[0] & { to: string | string[] }): Promise<boolean> {
+  const resend = getClient('launch_certificate');
+  if (!resend) return false;
+  const { subject, html } = renderLaunchCertificateEmail(input);
+  await sendChecked(resend, { from: CLIENT_FROM_ADDRESS, replyTo: CLIENT_REPLY_TO, to: input.to, subject, html });
+  return true;
+}
+
+export interface ExecSummaryEmailInput {
+  businessName: string | null;
+  monthLabel: string;
+  rescued: number;
+  missed: number;
+  newReviews: number | null;
+  reviewRequests: number;
+  dbrBooked: number;
+  webBooked: number;
+  pipelineDollars: number | null;
+  impressions: number | null;
+  url: string;
+}
+
+export function renderExecSummaryEmail(input: ExecSummaryEmailInput): { subject: string; html: string } {
+  const money = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
+  const booked = input.dbrBooked + input.webBooked;
+  return {
+    subject: `${input.monthLabel} at ${input.businessName ?? 'your business'}: your executive summary`,
+    html: clientLayout(
+      `${escapeHtml(input.monthLabel)}, in one minute`,
+      `
+        <table role="presentation" cellspacing="8" cellpadding="0" style="width:100%;margin:0 0 8px;border-collapse:separate">
+          <tr>${v2Tile('Missed calls rescued', String(input.rescued), `of ${input.missed} missed`)}${v2Tile('Booked from reactivation + web', String(booked), input.pipelineDollars != null ? `${money(input.pipelineDollars)} pipeline (est.)` : '')}</tr>
+          <tr>${v2Tile('New reviews', input.newReviews != null ? `${input.newReviews >= 0 ? '+' : ''}${input.newReviews}` : '—', `${input.reviewRequests} requests sent`)}${v2Tile('Search impressions', input.impressions != null ? input.impressions.toLocaleString('en-US') : '—', input.impressions != null ? 'Google Search' : 'tracked from Phase 5')}</tr>
+        </table>
+        <p style="margin:0 0 12px">The full summary opens without a password. The link works for 45 days and only shows this summary.</p>
+        ${button(input.url, 'Open my summary')}
+      `,
+      'Sent on the 1st of each month. Questions? Reply to this email or call (515) 493-8017.'
+    ),
+  };
+}
+
+export async function sendExecSummaryEmail(input: ExecSummaryEmailInput & { to: string }): Promise<boolean> {
+  const resend = getClient('exec_summary');
+  if (!resend) return false;
+  const { subject, html } = renderExecSummaryEmail(input);
+  await sendChecked(resend, { from: CLIENT_FROM_ADDRESS, replyTo: CLIENT_REPLY_TO, to: input.to, subject, html });
+  return true;
+}
+
+export function renderWeeklySummaryEmail(input: { businessName: string | null; managerName: string | null; waiting: number; missed: number; autoTexted: number; staffReplied: number; booked: number; archived: number; url: string }): { subject: string; html: string } {
+  const first = input.managerName?.split(' ')[0];
+  return {
+    subject: input.waiting ? `${input.waiting} missed-call ${input.waiting === 1 ? 'thread is' : 'threads are'} still waiting` : 'Your weekly front-desk summary: inbox zero',
+    html: clientLayout(
+      'Your week at the front desk',
+      `
+        <p style="margin:0 0 12px">${first ? `Hi ${escapeHtml(first)},` : 'Hi,'} here is the last 7 days for ${input.businessName ? escapeHtml(input.businessName) : 'the practice'}.</p>
+        <table role="presentation" cellspacing="8" cellpadding="0" style="width:100%;margin:0 0 8px;border-collapse:separate">
+          <tr>${v2Tile('Still waiting on a reply', String(input.waiting), 'goal: 0')}${v2Tile('Missed calls', String(input.missed), `${input.autoTexted} auto-texted · ${input.staffReplied} answered by the team`)}</tr>
+          <tr>${v2Tile('Marked booked', String(input.booked))}${v2Tile('Marked not a fit', String(input.archived))}</tr>
+        </table>
+        ${button(input.url, 'Open the Leads inbox')}
+      `,
+      'Sent every Monday morning. Reply to this email with any question.'
+    ),
+  };
+}
+
+export async function sendWeeklySummaryEmail(input: Parameters<typeof renderWeeklySummaryEmail>[0] & { to: string }): Promise<boolean> {
+  const resend = getClient('weekly_summary');
+  if (!resend) return false;
+  const { subject, html } = renderWeeklySummaryEmail(input);
+  await sendChecked(resend, { from: CLIENT_FROM_ADDRESS, replyTo: CLIENT_REPLY_TO, to: input.to, subject, html });
+  return true;
+}

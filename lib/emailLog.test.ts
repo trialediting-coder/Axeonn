@@ -10,7 +10,7 @@ test('every kind belongs to a real category, and every category has kinds', () =
 });
 
 test('onboarding and contracts group the right emails', () => {
-  assert.deepEqual(kindsInCategory('onboarding'), ['welcome', 'dashboard_invite', 'onboarding_nudge']);
+  assert.deepEqual(kindsInCategory('onboarding'), ['welcome', 'dashboard_invite', 'onboarding_nudge', 'launch_certificate']);
   assert.deepEqual(kindsInCategory('contracts'), ['agreement_sent', 'agreement_signed', 'agreement_signed_alert']);
 });
 

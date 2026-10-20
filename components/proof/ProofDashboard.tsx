@@ -3,7 +3,7 @@
 // workspace, like Stripe or Linear. The numbers come only from the Monthly
 // Reports Axeon enters (lib/projects.ts); before the first one, every metric
 // shows an honest empty state ("Live after launch"). Nothing is invented.
-import type { ComponentType, ReactNode } from 'react';
+import { Fragment, type ComponentType, type ReactNode } from 'react';
 import {
   Activity,
   Bot,
@@ -29,6 +29,9 @@ import {
 import { AxeonLogo } from '@/components/brand/AxeonLogo';
 import { VersionTag } from '@/components/common/VersionTag';
 import { proofVersionInfo } from '@/data/dashboardVersions';
+import type { ProofV2View } from '@/lib/proofV2';
+import { ProgramTab, V2Overview } from '@/components/proof/v2/V2Sections';
+import { Route } from 'lucide-react';
 import { ActiveTabIntoView } from '@/components/proof/ActiveTabIntoView';
 import { LeadLog, type LeadMonth } from '@/components/proof/LeadLog';
 import { FormLeads, type FormMonth } from '@/components/proof/FormLeads';
@@ -315,6 +318,9 @@ export function ProofDashboard({
   ranking = null,
   scanApi = null,
   reels = [],
+  v2 = null,
+  programTab = false,
+  v2Api = null,
 }: {
   email: string;
   onboarding: Onboarding;
@@ -371,6 +377,12 @@ export function ProofDashboard({
   scanApi?: string | null;
   /** AxeonGROWTH: published reels with reach, loaded only for the Ads tab (lib/social.ts). */
   reels?: DashboardReel[];
+  /** AxeonPROOF v2 (proof_version = 2): the delivery schedule and program; null for v1 clients, who see exactly the v1 dashboard. */
+  v2?: ProofV2View | null;
+  /** The v2 Program tab is open (?tab=program). */
+  programTab?: boolean;
+  /** Where v2 taps post ('/api/proof/v2'); null in the admin preview (read-only). */
+  v2Api?: string | null;
 }) {
   const latest = reports[0] ?? null;
   const prev = reports[1] ?? null;
@@ -440,8 +452,9 @@ export function ProofDashboard({
           {PROOF_TABS.map((t) => {
             const Icon = TAB_ICONS[t.key];
             const locked = tabLocked(t, onboarding.tier);
-            const active = t.key === tab;
+            const active = t.key === tab && !programTab;
             return (
+              <Fragment key={t.key}>
               <a
                 key={t.key}
                 href={`?tab=${t.key}`}
@@ -456,6 +469,19 @@ export function ProofDashboard({
                   <span className={`ml-auto text-[11px] font-bold uppercase tracking-wide ${active ? 'text-white/80' : 'text-blue-600'}`}>{TIER_SHORT[t.tier]}</span>
                 ) : null}
               </a>
+              {t.key === 'overview' && onboarding.proofVersion === 2 ? (
+                <a
+                  href="?tab=program"
+                  aria-current={programTab ? 'page' : undefined}
+                  className={`flex items-center gap-3 rounded-lg px-4 py-3 text-[15px] font-medium transition-colors ${
+                    programTab ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-neutral-600 hover:bg-blue-50 hover:text-neutral-950'
+                  }`}
+                >
+                  <Route size={18} className={programTab ? 'text-white' : 'text-neutral-500'} />
+                  Program
+                </a>
+              ) : null}
+              </Fragment>
             );
           })}
           <a
@@ -493,8 +519,9 @@ export function ProofDashboard({
       <nav aria-label="AxeonPROOF sections" className={`sticky z-20 flex gap-1.5 overflow-x-auto border-b border-neutral-200 bg-white px-3 py-2 lg:hidden ${preview ? 'top-24' : 'top-14'}`}>
         {PROOF_TABS.map((t) => {
           const locked = tabLocked(t, onboarding.tier);
-          const active = t.key === tab;
+          const active = t.key === tab && !programTab;
           return (
+            <Fragment key={t.key}>
             <a
               key={t.key}
               href={`?tab=${t.key}`}
@@ -506,6 +533,16 @@ export function ProofDashboard({
               {t.label}
               {locked ? <span className={`text-[10px] font-bold uppercase tracking-wide ${active ? 'text-white/80' : 'text-blue-600'}`}>{TIER_SHORT[t.tier]}</span> : null}
             </a>
+            {t.key === 'overview' && onboarding.proofVersion === 2 ? (
+              <a
+                href="?tab=program"
+                aria-current={programTab ? 'page' : undefined}
+                className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${programTab ? 'bg-blue-600 text-white' : 'bg-neutral-100 text-neutral-700'}`}
+              >
+                Program
+              </a>
+            ) : null}
+            </Fragment>
           );
         })}
         <ActiveTabIntoView />
@@ -516,7 +553,7 @@ export function ProofDashboard({
           <div className="min-w-0">
             {/* On a phone the tab chips above already say where you are. */}
             <p className="hidden text-xs text-neutral-400 sm:block">
-              AxeonPROOF <span className="mx-1">/</span> <span className="font-medium text-neutral-700">{proofTab(tab).label}</span>
+              AxeonPROOF <span className="mx-1">/</span> <span className="font-medium text-neutral-700">{programTab ? 'Program' : proofTab(tab).label}</span>
             </p>
             <p className="text-sm text-neutral-500 sm:mt-2">{firstName ? `Welcome back, ${firstName}` : 'Welcome back'}</p>
             <h1 className="mt-0.5 text-xl font-bold leading-tight tracking-tight text-neutral-950 sm:text-2xl">{name}</h1>
@@ -555,7 +592,11 @@ export function ProofDashboard({
           </div>
         ) : null}
 
-        {tab !== 'overview' ? (
+        {programTab && v2 ? (
+          <ProgramTab v={v2} api={preview ? null : v2Api} tier={onboarding.tier} businessName={name} ranking={ranking} upgradeRequestedAt={upgradeRequest?.tier === 'axeongrowth' ? upgradeRequest.at : null} preview={!!preview} />
+        ) : null}
+
+        {programTab ? null : tab !== 'overview' ? (
           tab === 'leads' ? (
             inbox ? (
               <div className="mt-6">
@@ -606,7 +647,8 @@ export function ProofDashboard({
           )
         ) : null}
 
-        {tab === 'overview' ? (<>
+        {tab === 'overview' && !programTab ? (<>
+        {v2 ? <V2Overview v={v2} businessName={name} /> : null}
         {traffic ? <p className="mt-6 text-[11px] font-semibold uppercase tracking-wide text-neutral-400 sm:hidden">{trafficLabel}</p> : null}
         {traffic ? (
           <div className="mt-2 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-x-4 sm:gap-y-8 lg:gap-x-5 xl:grid-cols-4">

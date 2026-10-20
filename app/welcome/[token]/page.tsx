@@ -17,6 +17,9 @@ import { ProofPasswordCard } from '@/components/welcome/ProofPasswordCard';
 import { hasAccountForOnboarding } from '@/lib/proofAuth';
 import { connectNotice } from '@/lib/metaShared';
 import { VersionTag } from '@/components/common/VersionTag';
+import { FrontDeskSignoff } from '@/components/proof/v2/V2Interactive';
+import { FRONT_DESK_ROUTINE } from '@/lib/proofV2Shared';
+import { getV2Settings } from '@/lib/proofV2';
 import { DASHBOARD_VERSIONS } from '@/data/dashboardVersions';
 
 // The client onboarding portal: /welcome/<20-char token>. The token is the first
@@ -84,6 +87,29 @@ function MetaNotice({ flag }: { flag: string | undefined }) {
   );
 }
 
+/** AxeonPROOF v2 setup item: the front-desk routine, signed off by the client (lib/proofV2Shared.ts FRONT_DESK_ROUTINE). */
+async function FrontDeskCard({ token, onboardingId }: { token: string; onboardingId: number }) {
+  const s = await getV2Settings(onboardingId).catch(() => ({}) as Awaited<ReturnType<typeof getV2Settings>>);
+  return (
+    <section className="mt-6 rounded-[28px] border border-neutral-200 bg-white p-6 shadow-xs sm:p-8">
+      <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">Sign-off · front desk</p>
+      <h2 className="mt-2 text-xl font-extrabold tracking-tight text-neutral-950">Your team&apos;s routine with AxeonPROOF</h2>
+      <p className="mt-1 text-sm text-neutral-600">Four habits that keep every missed call and lead answered. Sign off once your front desk has read them.</p>
+      <ol className="mt-4 space-y-2">
+        {FRONT_DESK_ROUTINE.map((r) => (
+          <li key={r.key} className="flex gap-3 text-sm">
+            <span className="w-32 shrink-0 text-xs font-semibold text-neutral-500">{r.when}</span>
+            <span className="text-neutral-800">{r.what}</span>
+          </li>
+        ))}
+      </ol>
+      <div className="mt-5">
+        <FrontDeskSignoff api={`/api/welcome/${token}/front-desk`} signedOffAt={s.frontDesk?.signedOffAt ?? null} signedOffBy={s.frontDesk?.signedOffBy ?? null} />
+      </div>
+    </section>
+  );
+}
+
 async function Portal({ onboarding, meta }: { onboarding: Onboarding; meta?: string }) {
   const states = await getItemStates(onboarding.id);
   const items = orderedItems(onboarding.tier);
@@ -107,6 +133,7 @@ async function Portal({ onboarding, meta }: { onboarding: Onboarding; meta?: str
         phoneHref={PHONE_HREF}
       />
       <div className="max-w-2xl mx-auto">
+        {onboarding.proofVersion === 2 ? <FrontDeskCard token={onboarding.token} onboardingId={onboarding.id} /> : null}
         <ProofPasswordCard
           token={onboarding.token}
           email={onboarding.clientEmail}

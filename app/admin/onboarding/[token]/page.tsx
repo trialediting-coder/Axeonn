@@ -29,6 +29,8 @@ import { pagesFor } from '@/lib/metaPages';
 import { connectNotice } from '@/lib/metaShared';
 import { SocialPanel } from '@/components/insights/SocialPanel';
 import { listSocialPosts } from '@/lib/social';
+import { ProofV2Panel } from '@/components/insights/ProofV2Panel';
+import { loadV2View } from '@/lib/proofV2';
 
 export const dynamic = 'force-dynamic';
 
@@ -64,6 +66,8 @@ export default async function OnboardingDetailPage({ params, searchParams }: { p
     pagesFor(onboarding.id).catch(() => []),
     onboarding.tier === 'axeongrowth' ? listSocialPosts(onboarding.id).catch(() => []) : Promise.resolve([]),
   ]);
+  // AxeonPROOF v2 clients only: the delivery-schedule panel's data (lib/proofV2.ts).
+  const v2View = onboarding.proofVersion === 2 ? await loadV2View(onboarding).catch((err) => (console.error('[admin] v2 view', err), null)) : null;
   const phoneCard = states['phone-setup']?.data ?? {};
   const askedPhone = (key: string) => (typeof phoneCard[key] === 'string' ? (phoneCard[key] as string) : '');
   const domainCard = states.domain?.data ?? {};
@@ -92,6 +96,7 @@ export default async function OnboardingDetailPage({ params, searchParams }: { p
           }}
           items={orderedItems(onboarding.tier)}
         />
+        <ProofV2Panel token={onboarding.token} initialVersion={onboarding.proofVersion} initial={v2View} />
         <BusinessEmailPanel
           token={onboarding.token}
           tier={onboarding.tier}

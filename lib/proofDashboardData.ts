@@ -30,6 +30,7 @@ import { listPlan } from '@/lib/plans';
 import type { RankingData } from '@/components/proof/RankingCard';
 import type { ProofDashboard } from '@/components/proof/ProofDashboard';
 import type { ComponentProps } from 'react';
+import { loadV2View } from '@/lib/proofV2';
 
 export interface DashboardPhone {
   number: string;
@@ -40,10 +41,10 @@ export interface DashboardPhone {
   recent: DashboardCall[];
 }
 
-export type DashboardData = Omit<ComponentProps<typeof ProofDashboard>, 'email' | 'preview' | 'leadApi' | 'inboxApi' | 'tab'>;
+export type DashboardData = Omit<ComponentProps<typeof ProofDashboard>, 'email' | 'preview' | 'leadApi' | 'inboxApi' | 'tab' | 'v2Api'>;
 
 /** `tab` decides what is worth fetching: Stripe is only read for the Billing tab, DNS only for the Email tab. */
-export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey = 'overview', opts: { contactId?: number | null } = {}): Promise<DashboardData> {
+export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey = 'overview', opts: { contactId?: number | null; program?: boolean } = {}): Promise<DashboardData> {
   const month = monthOf();
   const previous = previousMonth(month);
   const [states, details, updates, reports, agreement, tracking, thisLeads, lastLeads, upgradeRequest, billing, businessEmail, auditSettings, audits, scansUsed, plan, line] = await Promise.all([
@@ -129,6 +130,9 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
     tab === 'bookings' && !tabLocked(proofTab('bookings'), onboarding.tier) ? await loadDashboardBookings(onboarding.id, month, previous) : null;
   // AxeonGROWTH reels with reach: only the Ads tab, only this client's published posts (lib/social.ts publishedReels).
   const reels: DashboardReel[] = tab === 'ads' && onboarding.tier === 'axeongrowth' ? await publishedReels(onboarding.id).catch(() => []) : [];
+  // AxeonPROOF v2 only (lib/proofVersion.ts): the delivery schedule on the Overview and the Program tab. v1 clients never load it.
+  const programTab = onboarding.proofVersion === 2 && opts.program === true;
+  const v2 = onboarding.proofVersion === 2 && (tab === 'overview' || programTab) ? await loadV2View(onboarding) : null;
   return {
     onboarding,
     progress: computeProgress(onboarding.tier, states),
@@ -164,6 +168,8 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
     bookings,
     ranking,
     reels,
+    v2,
+    programTab,
     live: hasTraffic(thisMonth) ? { month, traffic: thisMonth, prev: hasTraffic(lastMonth) ? lastMonth : null } : null,
   };
 }

@@ -50,6 +50,9 @@ export const EMAIL_KINDS = {
   owner_notice: { label: 'Booking or chat alert (to the client)', category: 'bookings' },
   sequence_start_failed: { label: 'Follow-up did not start', category: 'alerts' },
   sequence_email: { label: 'Follow-up email to a lead', category: 'followups' },
+  launch_certificate: { label: 'Launch Certificate (PROOF v2)', category: 'onboarding' },
+  exec_summary: { label: 'Monthly executive summary (PROOF v2)', category: 'reports' },
+  weekly_summary: { label: 'Weekly front-desk summary (PROOF v2)', category: 'reports' },
 } as const satisfies Record<string, { label: string; category: EmailCategory }>;
 export type EmailKind = keyof typeof EMAIL_KINDS;
 
