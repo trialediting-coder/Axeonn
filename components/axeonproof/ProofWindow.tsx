@@ -133,7 +133,7 @@ export function ProofWindow({ children, caption }: { children: ReactNode; captio
             ref={scrollerRef}
             tabIndex={0}
             aria-label="Scroll the dashboard"
-            className="proof-window-scroller relative h-[520px] w-full overflow-y-auto overscroll-contain focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500 sm:h-[600px] lg:h-[660px]"
+            className="proof-window-scroller relative h-[440px] w-full overflow-y-auto overscroll-contain focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500 sm:h-[600px] lg:h-[660px]"
           >
             {children}
           </div>
@@ -145,7 +145,7 @@ export function ProofWindow({ children, caption }: { children: ReactNode; captio
         </div>
       </div>
       </div>
-      <figcaption className="mt-5 text-center text-xs leading-relaxed text-neutral-500 sm:text-sm">{caption}</figcaption>
+      <figcaption className="mt-3 text-center sm:mt-5 text-xs leading-relaxed text-neutral-500 sm:text-sm">{caption}</figcaption>
     </figure>
   );
 }

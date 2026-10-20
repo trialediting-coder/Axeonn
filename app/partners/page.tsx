@@ -2,8 +2,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {
   ArrowRight,
-  Send,
-  Puzzle,
   Calculator,
   Briefcase,
   Receipt,
@@ -14,10 +12,10 @@ import {
   Search,
   Rocket,
   Gift,
-  FileText,
 } from 'lucide-react';
 import { buildMetadata } from '@/lib/metadata';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
+import { PartnerTracks } from './PartnerTracks';
 import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { BUSINESS } from '@/lib/seo';
 
@@ -157,43 +155,49 @@ const PARTNER_FAQ = [
  * The hero's message as a full-width visual: You -> Axeon -> your client ->
  * back to you. Big numbered stops with arrows between them (stacked on phones).
  */
+// Purpose: the referral loop in four steps: you introduce, we check, your client gets answered, the share comes back to you.
 function ReferralLoop() {
   const last = LOOP.length - 1;
   return (
-    <section aria-labelledby="referral-loop-heading" className="w-full py-16 sm:py-20 px-4 sm:px-10 lg:px-16 xl:px-24 bg-[#F7F6F3] border-b border-neutral-200">
+    <section aria-labelledby="referral-loop-heading" className="w-full py-10 sm:py-20 px-4 sm:px-10 lg:px-16 xl:px-24 bg-[#F7F6F3] border-b border-neutral-200">
       <div className="max-w-6xl mx-auto">
-        <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ HOW A REFERRAL WORKS ]</p>
-        <h2 id="referral-loop-heading" className="text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.08] max-w-3xl">
+        <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-2 sm:mb-3">[ HOW A REFERRAL WORKS ]</p>
+        <h2 id="referral-loop-heading" className="text-[28px] sm:text-5xl font-extrabold font-display tracking-tight leading-[1.08] max-w-3xl">
           One introduction. It comes back to you.
         </h2>
-        <ol className="mt-10 sm:mt-12 grid grid-cols-1 lg:grid-cols-4 gap-3 lg:gap-0">
+        <ol className="mt-5 sm:mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-0">
           {LOOP.map(({ icon: Icon, who, what }, i) => {
             const isLast = i === last;
             return (
               <li key={who} className="relative flex lg:block items-start gap-4 lg:pr-10">
                 <div
-                  className={`flex-1 lg:flex-none rounded-3xl p-6 sm:p-7 h-full ${
+                  className={`flex-1 lg:flex-none flex items-center gap-4 sm:block rounded-2xl sm:rounded-3xl p-4 sm:p-7 h-full ${
                     isLast ? 'bg-blue-600 text-white shadow-xl shadow-blue-600/25' : 'bg-white border border-neutral-200'
                   }`}
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between shrink-0">
                     <span
-                      className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
+                      className={`w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center ${
                         isLast ? 'bg-white/15 text-white' : 'bg-blue-50 text-blue-600'
                       }`}
                     >
-                      <Icon size={26} />
+                      <Icon size={22} className="sm:w-[26px] sm:h-[26px]" />
                     </span>
                     <span
-                      className={`text-4xl font-black font-display tracking-tight ${
+                      className={`hidden sm:inline text-4xl font-black font-display tracking-tight ${
                         isLast ? 'text-white/40' : 'text-neutral-200'
                       }`}
                     >
                       0{i + 1}
                     </span>
                   </div>
-                  <p className="mt-5 text-2xl sm:text-3xl font-extrabold font-display tracking-tight">{who}</p>
-                  <p className={`mt-2 leading-snug ${isLast ? 'text-blue-50' : 'text-neutral-600'}`}>{what}</p>
+                  <div className="min-w-0">
+                    <p className="sm:mt-5 text-lg sm:text-3xl font-extrabold font-display tracking-tight leading-tight">
+                      <span className={`sm:hidden mr-1.5 font-mono text-xs ${isLast ? 'text-white/60' : 'text-neutral-400'}`}>0{i + 1}</span>
+                      {who}
+                    </p>
+                    <p className={`mt-0.5 sm:mt-2 text-sm sm:text-base leading-snug ${isLast ? 'text-blue-50' : 'text-neutral-600'}`}>{what}</p>
+                  </div>
                 </div>
                 {!isLast && (
                   <ArrowRight
@@ -217,7 +221,8 @@ export default function PartnersPage() {
       <BreadcrumbJsonLd items={[{ name: 'Partners', path: '/partners' }]} />
 
       {/* Hero: Iowa Capitol behind the pitch; the referral loop gets its own band below */}
-      <section className="relative isolate w-full overflow-hidden px-6 sm:px-10 lg:px-16 xl:px-24 pt-36 pb-20 sm:pt-44 sm:pb-28 bg-neutral-950 text-white">
+      {/* Purpose: who the program is for, what partners earn (15% share or fee credit), and the two ways in. */}
+      <section className="relative isolate w-full overflow-hidden px-6 sm:px-10 lg:px-16 xl:px-24 pt-28 pb-12 sm:pt-44 sm:pb-28 bg-neutral-950 text-white">
         <Image
           src="/iowa_state_capitol_wide.jpg"
           alt=""
@@ -235,18 +240,18 @@ export default function PartnersPage() {
 
         <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           <div className="lg:col-span-7">
-            <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-5">[ The Axeon Partner Program ]</p>
-            <h1 className="text-5xl sm:text-6xl xl:text-7xl font-black tracking-[-0.04em] leading-[0.98] font-display mb-7">
+            <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-3 sm:mb-5">[ The Axeon Partner Program ]</p>
+            <h1 className="text-[38px] sm:text-6xl xl:text-7xl font-black tracking-[-0.04em] leading-[1.02] sm:leading-[0.98] font-display mb-4 sm:mb-7">
               Send us a practice or firm.
               <br />
               <span className="text-neutral-400">We&apos;ll start by checking their area.</span>
             </h1>
-            <p className="text-lg text-neutral-200 leading-relaxed max-w-xl mb-10">
+            <p className="text-base sm:text-lg text-neutral-200 leading-relaxed max-w-xl mb-6 sm:mb-10">
               CPAs, practice consultants and billing firms already advise the practices and firms that lose new patients and clients after hours.
               Introduce them to us and earn a 15% recurring Technology Advisory Share, disclosed to the client in writing,
               or pass it to your client as a fee credit.
             </p>
-            <div className="flex flex-wrap items-center gap-4">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
               <a
                 href={BRIEF_HREF}
                 data-track="cta_click"
@@ -269,91 +274,35 @@ export default function PartnersPage() {
       <ReferralLoop />
 
       {/* Tracks: the Practice Advisor track leads; referral and collaboration sit beside it */}
-      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
-        <div className="max-w-6xl mx-auto">
-          <div className="max-w-2xl mb-12">
-            <h2 className="text-4xl sm:text-5xl font-black tracking-[-0.03em] font-display mb-4">Three ways to partner</h2>
-            <p className="text-lg text-neutral-600 leading-relaxed">
-              Pick the one that fits how you work. Not sure? Request the brief and we will figure it out together.
-            </p>
-          </div>
-          <div className="rounded-[32px] bg-blue-600 text-white p-8 sm:p-12 grid lg:grid-cols-2 gap-10">
-            <div className="flex flex-col">
-              <FileText size={28} className="mb-8 text-blue-200" />
-              <p className="text-xs font-mono font-bold tracking-widest text-blue-100 uppercase mb-2">[ For CPAs, consultants &amp; billing firms ]</p>
-              <h3 className="text-3xl sm:text-4xl font-black tracking-tight font-display mb-3">Practice Advisor</h3>
-              <p className="text-blue-100 text-lg leading-relaxed">
-                You advise practice and firm owners on their numbers and operations. When a client is losing new patients or clients
-                to voicemail, introduce them. We check their area, they decide, and you earn a recurring share or pass it to them.
-              </p>
-              <a
-                href={BRIEF_HREF}
-                data-track="cta_click"
-                data-track-cta="partner_brief_advisor"
-                className={`${BUTTON} mt-8 self-start bg-white text-blue-700 hover:bg-blue-50 focus-visible:outline-white`}
-              >
-                Request the partner brief <ArrowRight size={18} />
-              </a>
-            </div>
-            <ul className="divide-y divide-white/15 border-y border-white/15 self-end">
-              {ADVISOR_POINTS.map((point) => (
-                <li key={point} className="py-3.5 text-white/95">
-                  {point}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="mt-6 grid lg:grid-cols-2 gap-6">
-            <div className="rounded-[32px] border-2 border-neutral-200 p-8 sm:p-10 flex flex-col">
-              <Send size={26} className="mb-6 text-blue-600" />
-              <h3 className="text-2xl font-black tracking-tight font-display mb-2">Referral Partner</h3>
-              <p className="text-neutral-600 text-lg mb-6 leading-relaxed">
-                You know a practice or firm owner who keeps missing calls. Make the intro, we handle everything else.
-              </p>
-              <ul className="mt-auto divide-y divide-neutral-200 border-t border-neutral-200">
-                {REFERRAL_POINTS.map((point) => (
-                  <li key={point} className="py-3.5 text-neutral-800">
-                    {point}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="rounded-[32px] border-2 border-neutral-200 p-8 sm:p-10 flex flex-col">
-              <Puzzle size={26} className="mb-6 text-blue-600" />
-              <h3 className="text-2xl font-black tracking-tight font-display mb-2">Collaboration Partner</h3>
-              <p className="text-neutral-600 text-lg mb-6 leading-relaxed">
-                You serve the same practices and firms with software or a service that fits next to ours. We recommend each other when
-                it makes sense.
-              </p>
-              <ul className="mt-auto divide-y divide-neutral-200 border-t border-neutral-200">
-                {COLLAB_POINTS.map((point) => (
-                  <li key={point} className="py-3.5 text-neutral-800">
-                    {point}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
+      {/* Purpose: the three partner tracks and the terms of each (phones: one track at a time). */}
+      <section className="w-full py-10 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24">
+        <PartnerTracks
+          advisorPoints={ADVISOR_POINTS}
+          referralPoints={REFERRAL_POINTS}
+          collabPoints={COLLAB_POINTS}
+          briefHref={BRIEF_HREF}
+          button={BUTTON}
+        />
       </section>
 
       {/* Who fits: a quiet divided list */}
-      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50 border-y border-neutral-200">
-        <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-12">
+      {/* Purpose: the six kinds of partner we work with (phones: compact two-column chips). */}
+      <section className="w-full py-10 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50 border-y border-neutral-200">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-5 sm:gap-12">
           <div className="lg:col-span-4">
-            <h2 className="text-4xl sm:text-5xl font-black tracking-[-0.03em] font-display mb-4">Who we partner with</h2>
-            <p className="text-lg text-neutral-600 leading-relaxed">
+            <h2 className="text-[28px] sm:text-5xl font-black tracking-[-0.03em] font-display mb-2 sm:mb-4">Who we partner with</h2>
+            <p className="text-[15px] sm:text-lg text-neutral-600 leading-relaxed">
               The people practice and firm owners already trust. If your clients run a dental office, med spa, law firm or
               accounting firm, this is for you.
             </p>
           </div>
-          <ul className="lg:col-span-8 grid sm:grid-cols-2 gap-x-10 border-t border-neutral-300">
+          <ul className="lg:col-span-8 grid grid-cols-2 gap-2 sm:gap-x-10 sm:gap-y-0 sm:border-t border-neutral-300">
             {FITS.map(({ icon: Icon, title, description }) => (
-              <li key={title} className="flex gap-4 py-6 border-b border-neutral-300">
-                <Icon size={22} className="flex-none mt-0.5 text-blue-600" />
+              <li key={title} className="flex flex-col sm:flex-row gap-2 sm:gap-4 p-3 sm:px-0 sm:py-6 rounded-xl sm:rounded-none bg-white sm:bg-transparent border border-neutral-200 sm:border-0 sm:border-b sm:border-neutral-300">
+                <Icon size={22} className="flex-none sm:mt-0.5 text-blue-600" />
                 <div>
-                  <h3 className="font-bold text-lg mb-1">{title}</h3>
-                  <p className="text-neutral-600 leading-relaxed">{description}</p>
+                  <h3 className="font-bold text-[15px] leading-snug sm:text-lg sm:leading-normal sm:mb-1">{title}</h3>
+                  <p className="hidden sm:block text-neutral-600 leading-relaxed">{description}</p>
                 </div>
               </li>
             ))}
@@ -362,18 +311,21 @@ export default function PartnersPage() {
       </section>
 
       {/* How it works: a real sequence, so it gets numbers */}
-      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
+      {/* Purpose: the four steps from requesting the brief to your first introduction. */}
+      <section className="w-full py-10 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl sm:text-5xl font-black tracking-[-0.03em] font-display mb-14">How it works</h2>
-          <ol className="relative grid sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
+          <h2 className="text-[28px] sm:text-5xl font-black tracking-[-0.03em] font-display mb-5 sm:mb-14">How it works</h2>
+          <ol className="relative grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-10 lg:gap-8">
             <span aria-hidden className="hidden lg:block absolute top-6 left-6 right-[calc(25%-3rem)] h-px bg-neutral-200" />
             {STEPS.map((step, i) => (
-              <li key={step.title} className="relative">
-                <span className="relative z-10 flex w-12 h-12 rounded-full bg-neutral-950 text-white font-black text-lg items-center justify-center ring-8 ring-white mb-6">
+              <li key={step.title} className="relative flex gap-3.5 sm:block">
+                <span className="relative z-10 flex shrink-0 w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-neutral-950 text-white font-black text-base sm:text-lg items-center justify-center ring-4 sm:ring-8 ring-white sm:mb-6">
                   {i + 1}
                 </span>
-                <h3 className="text-xl font-bold mb-2">{step.title}</h3>
-                <p className="text-neutral-600 leading-relaxed">{step.description}</p>
+                <div>
+                  <h3 className="text-base sm:text-xl font-bold sm:mb-2">{step.title}</h3>
+                  <p className="text-[15px] sm:text-base text-neutral-600 leading-snug sm:leading-relaxed">{step.description}</p>
+                </div>
               </li>
             ))}
           </ol>
@@ -381,17 +333,18 @@ export default function PartnersPage() {
       </section>
 
       {/* Promise: one statement carries the section */}
-      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
-        <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-12 items-end">
+      {/* Purpose: the trust promise to partners (we never go around you), with three specifics. */}
+      <section className="w-full py-10 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-6 sm:gap-12 items-end">
           <div className="lg:col-span-7">
-            <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-5">[ Our promise to partners ]</p>
-            <p className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-[-0.04em] leading-[1.02] font-display">
+            <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-3 sm:mb-5">[ Our promise to partners ]</p>
+            <p className="text-[30px] sm:text-5xl lg:text-6xl font-black tracking-[-0.04em] leading-[1.05] sm:leading-[1.02] font-display">
               We never go around you to sell to your clients.
             </p>
           </div>
-          <ul className="lg:col-span-5 space-y-5 border-l border-neutral-800 pl-8">
+          <ul className="lg:col-span-5 space-y-3 sm:space-y-5 border-l border-neutral-800 pl-5 sm:pl-8">
             {PROMISES.map((item) => (
-              <li key={item} className="text-neutral-300 leading-relaxed">
+              <li key={item} className="text-[15px] sm:text-base text-neutral-300 leading-relaxed">
                 {item}
               </li>
             ))}
@@ -400,18 +353,20 @@ export default function PartnersPage() {
       </section>
 
       {/* FAQ */}
-      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
+      {/* Purpose: answer the partner objections (rules on referral fees, selling, review). Collapsed so every question shows at once. */}
+      <section className="w-full py-10 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-4xl sm:text-5xl font-black tracking-[-0.03em] font-display mb-10">Questions partners ask</h2>
-          <FAQAccordion items={PARTNER_FAQ} defaultOpenCount={1} />
+          <h2 className="text-[28px] sm:text-5xl font-black tracking-[-0.03em] font-display mb-4 sm:mb-10">Questions partners ask</h2>
+          <FAQAccordion items={PARTNER_FAQ} />
         </div>
       </section>
 
       {/* CTA */}
-      <section className="w-full pb-20 sm:pb-28 px-6 sm:px-10 lg:px-16 xl:px-24">
-        <div className="max-w-6xl mx-auto rounded-[32px] bg-neutral-950 text-white px-8 py-14 sm:px-14 sm:py-16 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+      {/* Purpose: the closing ask: request the brief or book an intro call. */}
+      <section className="w-full pb-12 sm:pb-28 px-4 sm:px-10 lg:px-16 xl:px-24">
+        <div className="max-w-6xl mx-auto rounded-3xl sm:rounded-[32px] bg-neutral-950 text-white px-6 py-10 sm:px-14 sm:py-16 flex flex-col lg:flex-row lg:items-center justify-between gap-6 sm:gap-8">
           <div className="max-w-xl">
-            <h2 className="text-3xl sm:text-4xl font-black tracking-[-0.03em] font-display mb-3">
+            <h2 className="text-[28px] sm:text-4xl font-black tracking-[-0.03em] font-display mb-3">
               Know a practice or firm that loses calls after hours?
             </h2>
             <p className="text-lg text-neutral-300 leading-relaxed">

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { ChevronDown } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { marketingSolutions, services } from '@/data/marketingSolutionsData';
 import { cityPages } from '@/data/cityPages';
@@ -65,6 +66,34 @@ function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) 
   );
 }
 
+/** Phones: the same columns as tap-to-open rows, so the footer stays about one screen tall. */
+function FooterAccordion({ title, links }: { title: string; links: FooterLink[] }) {
+  return (
+    <details className="group">
+      <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between font-mono text-xs uppercase tracking-wider text-neutral-500 font-semibold [&::-webkit-details-marker]:hidden">
+        {title}
+        <ChevronDown size={16} className="text-neutral-400 transition-transform group-open:rotate-180" aria-hidden />
+      </summary>
+      <ul className="grid grid-cols-2 gap-x-4 pb-3 text-sm text-neutral-600">
+        {links.map((link) => (
+          <li key={link.href}>
+            <Link href={link.href} className="block py-2.5 leading-snug hover:text-neutral-950 transition-colors">
+              {link.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </details>
+  );
+}
+
+const COLUMNS: { title: string; links: FooterLink[] }[] = [
+  { title: 'Company', links: COMPANY_LINKS },
+  { title: 'Who We Help', links: WHO_WE_HELP_LINKS },
+  { title: 'Services', links: SERVICE_LINKS },
+  { title: 'How It Works', links: SOLUTION_LINKS },
+];
+
 export function Footer({ year }: FooterProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -91,8 +120,8 @@ export function Footer({ year }: FooterProps) {
   };
 
   return (
-    <footer className="w-full bg-white text-neutral-950 py-12 lg:py-16 px-4 sm:px-8 lg:px-14 xl:px-20 border-t border-neutral-200 overflow-hidden">
-      <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto py-6 lg:py-10">
+    <footer className="w-full bg-white text-neutral-950 py-8 sm:py-12 lg:py-16 px-4 sm:px-8 lg:px-14 xl:px-20 border-t border-neutral-200 overflow-hidden">
+      <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto py-2 sm:py-6 lg:py-10">
         {/* CTA (hidden where the page has its own closer) */}
         <div className={`rounded-[28px] bg-neutral-950 text-white p-7 sm:p-10 ${pageHasCloser ? 'hidden' : 'flex'} flex-col lg:flex-row lg:items-center justify-between gap-6`}>
           <div>
@@ -120,13 +149,13 @@ export function Footer({ year }: FooterProps) {
         </div>
 
         {/* Contact + link columns */}
-        <div className="mt-14 lg:mt-20 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+        <div className={`${pageHasCloser ? 'mt-0' : 'mt-8'} sm:mt-14 lg:mt-20 grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-12 lg:gap-16`}>
           <div className="lg:col-span-4">
             <div>
               <div className="text-base font-extrabold text-neutral-950 font-display">Axeon Studio</div>
               <div className="text-sm text-neutral-500">Your growth partner · West Des Moines, Iowa</div>
             </div>
-            <div className="mt-4">
+            <div className="mt-2 sm:mt-4 flex flex-wrap items-center gap-x-5 sm:block">
               <a
                 href="mailto:hello@axeonstudio.co"
                 className="block py-2 text-base sm:text-lg font-bold text-neutral-950 hover:text-blue-600 transition-colors break-all sm:break-normal"
@@ -142,16 +171,20 @@ export function Footer({ year }: FooterProps) {
             </div>
           </div>
 
-          <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10">
-            <FooterColumn title="Company" links={COMPANY_LINKS} />
-            <FooterColumn title="Who We Help" links={WHO_WE_HELP_LINKS} />
-            <FooterColumn title="Services" links={SERVICE_LINKS} />
-            <FooterColumn title="How It Works" links={SOLUTION_LINKS} />
+          <div className="md:hidden divide-y divide-neutral-200 border-y border-neutral-200">
+            {COLUMNS.map((col) => (
+              <FooterAccordion key={col.title} title={col.title} links={col.links} />
+            ))}
+          </div>
+          <div className="hidden md:grid lg:col-span-8 grid-cols-4 gap-10">
+            {COLUMNS.map((col) => (
+              <FooterColumn key={col.title} title={col.title} links={col.links} />
+            ))}
           </div>
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-14 pt-6 border-t border-neutral-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-sm text-neutral-500">
+        <div className="mt-4 sm:mt-14 sm:pt-6 sm:border-t border-neutral-200 flex flex-wrap items-center justify-between gap-x-4 gap-y-0 sm:gap-4 text-sm text-neutral-500">
           <div className="flex flex-wrap items-center gap-x-5 gap-y-0">
             <span>© {year} Axeon Studio</span>
             <Link href="/privacy" className="inline-block py-2.5 hover:text-neutral-950 transition-colors">
@@ -177,7 +210,7 @@ export function Footer({ year }: FooterProps) {
         </div>
 
         {/* Brand wordmark */}
-        <div className="mt-10 sm:mt-14 relative flex items-center overflow-hidden">
+        <div className="mt-4 sm:mt-14 relative flex items-center overflow-hidden">
           <div
             id="footer-axeon-brand"
             onClick={handleHomeClick}

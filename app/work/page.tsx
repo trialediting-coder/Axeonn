@@ -32,6 +32,7 @@ export default function WorkPage() {
       <BreadcrumbJsonLd items={[{ name: 'Recent builds', path: '/work' }]} />
       <main className="pt-28 sm:pt-32 pb-20 lg:pb-28 px-4 sm:px-8 lg:px-14">
         <div className="w-full max-w-[1720px] mx-auto">
+          {/* Purpose: what this page is (real builds plus labeled concepts); each card below links to a live build. */}
           <div className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3 sm:mb-4">
             [ RECENT BUILDS ]
           </div>
@@ -56,8 +57,9 @@ export default function WorkPage() {
 
 
           {/* The one published client result, featured full-width below the grid (MSH stays first, owner rule). */}
+          {/* Purpose: the one published client result (A-1: page 2 to #1), with proof numbers and the case study. */}
           {featured && (
-            <article className="mt-16 sm:mt-20 rounded-[28px] sm:rounded-[40px] bg-neutral-950 text-white overflow-hidden grid grid-cols-1 lg:grid-cols-12">
+            <article className="mt-12 sm:mt-20 rounded-[28px] sm:rounded-[40px] bg-neutral-950 text-white overflow-hidden grid grid-cols-1 lg:grid-cols-12">
               <a
                 href={featured.url}
                 target="_blank"
@@ -74,20 +76,20 @@ export default function WorkPage() {
                   className="w-full h-full object-cover object-top aspect-[1440/1000] lg:aspect-auto group-hover:scale-[1.02] transition-transform duration-700"
                 />
               </a>
-              <div className="lg:col-span-5 p-6 sm:p-10 lg:p-12 flex flex-col">
+              <div className="lg:col-span-5 p-5 sm:p-10 lg:p-12 flex flex-col">
                 <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">
                   [ CLIENT BUILD · {featured.location} ]
                 </p>
-                <p className="mt-5 text-[96px] sm:text-[130px] leading-[0.85] font-black font-display tracking-tighter text-white">
+                <p className="mt-3 sm:mt-5 text-[72px] sm:text-[130px] leading-[0.85] font-black font-display tracking-tighter text-white">
                   #1
                 </p>
-                <h2 className="mt-4 text-2xl sm:text-3xl font-extrabold font-display tracking-tight leading-snug">
+                <h2 className="mt-2 sm:mt-4 text-xl sm:text-3xl font-extrabold font-display tracking-tight leading-snug">
                   on Google for &ldquo;Pleasant Hill auto detailing,&rdquo; up from page 2.
                 </h2>
-                <p className="mt-3 text-sm sm:text-base text-neutral-400 leading-relaxed">
+                <p className="mt-1.5 sm:mt-3 text-sm sm:text-base text-neutral-400 leading-relaxed">
                   {featured.name} &middot; {featured.industry} &middot; {featured.date}
                 </p>
-                <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-white/10 pt-6">
+                <dl className="mt-4 sm:mt-6 grid grid-cols-2 gap-4 border-t border-white/10 pt-4 sm:pt-6">
                   {A1_PROOF.map((p) => (
                     <div key={p.label}>
                       <dt className="text-2xl sm:text-3xl font-black font-display tracking-tight">{p.value}</dt>
@@ -95,7 +97,7 @@ export default function WorkPage() {
                     </div>
                   ))}
                 </dl>
-                <div className="mt-8 lg:mt-auto lg:pt-8 flex flex-col sm:flex-row gap-3">
+                <div className="mt-5 sm:mt-8 lg:mt-auto lg:pt-8 flex flex-col sm:flex-row gap-2 sm:gap-3">
                   <Link
                     href={CASE_STUDY}
                     className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm transition-colors"
@@ -115,7 +117,8 @@ export default function WorkPage() {
             </article>
           )}
 
-          <div className="mt-16 sm:mt-20 pt-8 sm:pt-10 border-t border-neutral-200/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          {/* Purpose: the next step for a practice owner: check if your specialty is open. */}
+          <div className="mt-12 sm:mt-20 pt-8 sm:pt-10 border-t border-neutral-200/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="max-w-2xl">
               <div className="text-xs font-mono font-semibold tracking-wider text-neutral-500 uppercase mb-1.5">
                 [ RUN A PRACTICE? ]

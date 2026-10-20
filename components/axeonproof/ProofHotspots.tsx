@@ -14,19 +14,19 @@ export function ProofHotspots() {
   const [active, setActive] = useState<string>(CARD_ORDER[0]);
   const note = CARD_NOTES[active];
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:gap-10">
+    <div className="grid gap-3 sm:gap-6 lg:grid-cols-[1fr_320px] lg:gap-10">
       {/* Phones: the note comes first and the cards scroll inside a capped frame, so tapping a card shows its note on screen. */}
       <Reveal className={`order-2 lg:order-none ${BEZEL}`}>
-        <div className="@container max-h-[560px] overflow-y-auto overscroll-contain rounded-2xl bg-[#f3f4f7] p-3 ring-1 ring-black/20 sm:rounded-[20px] sm:p-4 lg:max-h-none lg:overflow-visible">
+        <div className="@container max-h-[290px] overflow-y-auto sm:max-h-[560px] overscroll-contain rounded-2xl bg-[#f3f4f7] p-3 ring-1 ring-black/20 sm:rounded-[20px] sm:p-4 lg:max-h-none lg:overflow-visible">
           <div className="-mt-4">
             <AnalyticsCards active={active} onActive={setActive} />
           </div>
         </div>
       </Reveal>
       <div className="order-1 lg:order-none lg:pt-2">
-        <div key={active} className="animate-proof-rise rounded-3xl bg-blue-600/90 p-6 text-white shadow-2xl shadow-blue-600/30 ring-1 ring-white/25 backdrop-blur-xl">
+        <div key={active} className="animate-proof-rise rounded-2xl bg-blue-600/90 px-4 py-3.5 text-white sm:rounded-3xl sm:p-6 shadow-2xl shadow-blue-600/30 ring-1 ring-white/25 backdrop-blur-xl">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-blue-100">{note.title}</p>
-          <p className="mt-3 text-lg font-semibold leading-snug">{note.body}</p>
+          <p className="mt-1.5 text-[15px] font-semibold leading-snug sm:mt-3 sm:text-lg">{note.body}</p>
         </div>
         <ul className={`mt-4 hidden divide-y divide-white/10 overflow-hidden rounded-3xl lg:block ${GLASS}`}>
           {CARD_ORDER.map((key) => (

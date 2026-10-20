@@ -1,8 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'motion/react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Check, X } from 'lucide-react';
 import { VersusRows } from './VersusSection';
 
 // Section 01 of /why-axeon, told through one example site that holds for all
@@ -39,55 +40,119 @@ function ExampleCard({ title, rows, dark = false }: { title: string; rows: typeo
   );
 }
 
+const TYPICAL_POINTS = [
+  'One layout for every industry. Swap the logo, ship it.',
+  'Search setup treated as a separate project, if it happens at all.',
+];
+const AXEON_POINTS = [
+  'Designed around how your practice or firm books new patients, clients and cases.',
+  'Set up to show up on Google, Maps and AI answers.',
+];
+
+// Phones: one example at a time behind a two-way switch, rows stacked label-over-value.
+const MOBILE_ROWS: Record<'typical' | 'axeon', { rows: { label: string; value: string }[]; points: string[] }> = {
+  typical: { rows: EXAMPLE_TYPICAL, points: TYPICAL_POINTS },
+  axeon: {
+    rows: [
+      { label: 'Hero', value: 'Your people, your reviews and one clear ask, like “Book a consult”, in the first screen' },
+      { label: 'Your team', value: 'Real photos and credentials for each provider, and what each one handles' },
+      EXAMPLE_AXEON[2],
+    ],
+    points: AXEON_POINTS,
+  },
+};
+
+function MobileExample() {
+  const [side, setSide] = useState<'typical' | 'axeon'>('axeon');
+  const dark = side === 'axeon';
+  const { rows, points } = MOBILE_ROWS[side];
+  const Mark = dark ? Check : X;
+  return (
+    <div className="md:hidden">
+      <div role="tablist" aria-label="Example site" className="grid grid-cols-2 gap-1 rounded-full bg-neutral-100 p-1 mb-3">
+        {(['typical', 'axeon'] as const).map((k) => (
+          <button
+            key={k}
+            type="button"
+            role="tab"
+            aria-selected={side === k}
+            onClick={() => setSide(k)}
+            className={`min-h-11 rounded-full text-sm font-semibold transition-colors ${
+              side === k ? (k === 'axeon' ? 'bg-neutral-950 text-white' : 'bg-white text-neutral-950 shadow-sm') : 'text-neutral-500'
+            }`}
+          >
+            {k === 'axeon' ? 'Example: Axeon site' : 'Example: typical site'}
+          </button>
+        ))}
+      </div>
+      <div role="tabpanel" className={`rounded-2xl px-4 py-3 ${dark ? 'bg-neutral-950 text-white' : 'border border-neutral-200 bg-white'}`}>
+        <dl className={`divide-y ${dark ? 'divide-white/10' : 'divide-neutral-200'}`}>
+          {rows.map((r) => (
+            <div key={r.label} className="py-2">
+              <dt className={`text-xs font-mono font-bold uppercase tracking-widest ${dark ? 'text-blue-400' : 'text-neutral-400'}`}>{r.label}</dt>
+              <dd className={`mt-0.5 text-[15px] leading-snug ${dark ? 'text-neutral-100' : 'text-neutral-700'}`}>{r.value}</dd>
+            </div>
+          ))}
+        </dl>
+        <ul className={`mt-1 space-y-1.5 border-t pt-3 pb-1 ${dark ? 'border-white/10' : 'border-neutral-200'}`}>
+          {points.map((item) => (
+            <li key={item} className={`flex gap-2.5 text-[15px] leading-snug ${dark ? 'text-neutral-200' : 'text-neutral-600'}`}>
+              <Mark size={18} className={`mt-0.5 shrink-0 ${dark ? 'text-blue-400' : 'text-neutral-400'}`} aria-hidden="true" />
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+// Purpose: show, on one example practice, what a template site does vs. a site built to book; then the area-check CTA.
 export default function GetFoundComparison() {
   return (
-    <section id="get-found" className="w-full py-20 sm:py-24 px-6 sm:px-10 lg:px-16 xl:px-24">
+    <section id="get-found" className="w-full py-8 sm:py-24 px-4 sm:px-10 lg:px-16 xl:px-24">
       <div className="max-w-5xl mx-auto">
         <motion.div
           initial={false}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.6 }}
-          className="max-w-3xl mb-10"
+          className="max-w-3xl mb-4 sm:mb-10"
         >
-          <div className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-4">
+          <div className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3 sm:mb-4">
             [ 01 · GET FOUND ]
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-neutral-950 font-display leading-[1.08]">
+          <h2 className="text-[26px] sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-neutral-950 font-display leading-[1.1] sm:leading-[1.08]">
             A template gets you a website. A site built for your practice or firm gets you booked.
           </h2>
-          <p className="mt-4 text-lg text-neutral-600 leading-relaxed">Example: the same practice or firm, two ways.</p>
+          <p className="hidden sm:block mt-4 text-lg text-neutral-600 leading-relaxed">Example: the same practice or firm, two ways.</p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-4 sm:gap-6 mb-6">
-          <ExampleCard title="Example · Typical site" rows={EXAMPLE_TYPICAL} />
-          <ExampleCard title="Example · Axeon site" rows={EXAMPLE_AXEON} dark />
-        </div>
+        <MobileExample />
 
-        <VersusRows
-          typical={[
-            'One layout for every industry. Swap the logo, ship it.',
-            'Search setup treated as a separate project, if it happens at all.',
-          ]}
-          axeon={[
-            'Designed around how your practice or firm books new patients, clients and cases.',
-            'Set up to show up on Google, Maps and AI answers.',
-          ]}
-        />
+        <div className="hidden md:block">
+          <div className="grid md:grid-cols-2 gap-4 sm:gap-6 mb-6">
+            <ExampleCard title="Example · Typical site" rows={EXAMPLE_TYPICAL} />
+            <ExampleCard title="Example · Axeon site" rows={EXAMPLE_AXEON} dark />
+          </div>
+
+          <VersusRows typical={TYPICAL_POINTS} axeon={AXEON_POINTS} />
+        </div>
 
         <Link
           href="/check-your-area"
           data-track="cta_click"
           data-track-cta="area_check_why_get_found"
-          className="group mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-3xl border border-blue-100 bg-blue-50 p-6 sm:p-8 hover:border-blue-300 transition-colors"
+          className="group mt-3 sm:mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 rounded-2xl sm:rounded-3xl border border-blue-100 bg-blue-50 px-4 py-3.5 sm:p-8 hover:border-blue-300 transition-colors"
         >
           <div>
-            <div className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-2">[ SEE YOUR OWN ]</div>
-            <p className="text-xl sm:text-2xl font-extrabold tracking-tight text-neutral-950 font-display">
+            <div className="hidden sm:block text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-2">[ SEE YOUR OWN ]</div>
+            <p className="text-base sm:text-2xl font-extrabold tracking-tight text-neutral-950 font-display leading-snug">
               How does your site answer an inquiry at 9 PM? Check your area and we&apos;ll time it.
+              <ArrowRight size={16} className="sm:hidden inline ml-1.5 -mt-0.5 text-blue-600" aria-hidden="true" />
             </p>
           </div>
-          <span className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 shrink-0">
+          <span className="hidden sm:inline-flex items-center gap-2 text-sm font-semibold text-blue-600 shrink-0">
             Check your area
             <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
           </span>

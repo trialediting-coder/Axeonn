@@ -11,7 +11,7 @@ const serif = Instrument_Serif({ subsets: ['latin'], weight: '400', style: 'ital
 export const GLASS = 'bg-neutral-950/55 ring-1 ring-white/15 backdrop-blur-md';
 /** Glass frame around a light dashboard window. */
 export const BEZEL = 'rounded-[22px] bg-white/[0.06] p-1.5 shadow-[0_50px_140px_-30px_rgba(37,99,235,0.45)] ring-1 ring-white/15 backdrop-blur-md sm:rounded-[28px] sm:p-2.5';
-export const H2 = 'text-balance font-display text-3xl font-extrabold leading-[1.06] tracking-tight text-white sm:text-4xl lg:text-5xl';
+export const H2 = 'text-balance font-display text-[28px] font-extrabold leading-[1.08] sm:leading-[1.06] tracking-tight text-white sm:text-4xl lg:text-5xl';
 export const CTA = 'inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-8 py-4 font-bold text-white shadow-lg shadow-blue-600/30 transition-colors hover:bg-blue-500';
 export const CTA_GLASS = 'inline-flex items-center justify-center gap-2 rounded-full bg-white/[0.06] px-8 py-4 font-bold text-white ring-1 ring-white/15 backdrop-blur-md transition-colors hover:bg-white/10';
 /** Small label inside a card (replaces the bracket eyebrow on this page). */
