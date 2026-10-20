@@ -76,19 +76,19 @@ export default function GetFoundComparison() {
         />
 
         <Link
-          href="/audit"
+          href="/check-your-area"
           data-track="cta_click"
-          data-track-cta="audit_why_get_found"
+          data-track-cta="area_check_why_get_found"
           className="group mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-3xl border border-blue-100 bg-blue-50 p-6 sm:p-8 hover:border-blue-300 transition-colors"
         >
           <div>
             <div className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-2">[ SEE YOUR OWN ]</div>
             <p className="text-xl sm:text-2xl font-extrabold tracking-tight text-neutral-950 font-display">
-              How does your site answer an inquiry at 9 PM? The free audit times it.
+              How does your site answer an inquiry at 9 PM? Check your area and we&apos;ll time it.
             </p>
           </div>
           <span className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 shrink-0">
-            Get your free audit
+            Check your area
             <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
           </span>
         </Link>

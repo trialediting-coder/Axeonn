@@ -3,8 +3,8 @@ import type { Niche } from '@/data/nichesData';
 
 // Honest proof for a practice page (owner rule 2026-10-19): Axeon has no
 // practice clients yet, so this section never shows a client result. It shows
-// what a practice owner can check for themselves: the free after-hours audit
-// on their own practice, and AxeonPROOF, the portal every client gets.
+// what a practice owner can check for themselves: what we find on their own
+// practice (shown on the call after an area check), and AxeonPROOF, the portal every client gets.
 export function NicheProof({ niche }: { niche: Niche }) {
   return (
     <section className="w-full bg-blue-600 px-4 py-20 text-white sm:px-10 sm:py-28 lg:px-16 xl:px-24">
@@ -21,16 +21,16 @@ export function NicheProof({ niche }: { niche: Niche }) {
             Find out what happens when {niche.customerNoun} reach you after hours.
           </h2>
           <p className="mt-4 max-w-xl text-base leading-relaxed text-blue-100">
-            We call your practice or firm after hours, check how fast your website answers an inquiry, and compare your reviews to
-            the top 3 nearby competitors. You get a short video walkthrough of what we found. No charge.
+            Check your area and we&apos;ll show you what we found: an after-hours test call, how fast your website answers
+            an inquiry, and your reviews next to the top 3 nearby competitors.
           </p>
           <Link
-            href="/audit"
+            href="/check-your-area"
             data-track="cta_click"
-            data-track-cta={`niche_proof_audit_${niche.slug}`}
+            data-track-cta={`niche_proof_area_check_${niche.slug}`}
             className="mt-8 inline-flex items-center gap-1 rounded-full bg-white px-6 py-3 text-sm font-bold text-blue-700 transition-colors hover:bg-blue-50"
           >
-            Get your free after-hours audit &rarr;
+            Check if your area is open &rarr;
           </Link>
         </div>
         <div className="border-t border-white/25 pt-8 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">

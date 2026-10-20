@@ -9,12 +9,12 @@ import { trackEvent, EVENTS } from '@/components/providers/AnalyticsTracker';
 import { foundingOffer } from '@/data/foundingOfferData';
 import { useIsMobile } from '@/lib/useMediaQuery';
 
-const POPUP_ID = 'after_hours_audit_offer';
-const VARIANT = 'v3_audit';
+const POPUP_ID = 'area_check_offer';
+const VARIANT = 'v4_area_check';
 
-const DISMISS_KEY = 'axeon-audit-offer-dismissed-at';
-const CLAIMED_KEY = 'axeon-audit-offer-claimed';
-const MINIMIZED_KEY = 'axeon-audit-offer-minimized';
+const DISMISS_KEY = 'axeon-area-offer-dismissed-at';
+const CLAIMED_KEY = 'axeon-area-offer-claimed';
+const MINIMIZED_KEY = 'axeon-area-offer-minimized';
 const SITE_ENTERED_KEY = 'axeon-site-entered-at'; // sessionStorage
 const COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000; // 7 days after closing the side tab
 
@@ -25,7 +25,7 @@ const COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000; // 7 days after closing the side ta
 const OPEN_AFTER_MS = 5_000;
 // Pages where the visitor is already converting.
 // /nonprofits has its own free program (Groundwork Grant); a second free offer there confuses it.
-const EXCLUDED_PATHS = ['/audit', '/book', '/get-started', '/get-started/success', '/nonprofits'];
+const EXCLUDED_PATHS = ['/check-your-area', '/audit', '/book', '/get-started', '/get-started/success', '/nonprofits'];
 // Pages for people who already pay us, or who came for something else: a personal
 // payment link, the after-payment page, report feedback, Meta data deletion. The
 // dashboard, portal, admin and contracts never mount this at all (HideOnAdFunnel).
@@ -124,9 +124,9 @@ export function FreeWebsiteOfferPopup() {
   // first (and only) open for when the visitor reaches OPEN_AFTER_MS of time on site.
   useEffect(() => {
     if (!foundingOffer.active) return;
-    // /audit and /book are already conversion flows; the popup would only interrupt them.
+    // /check-your-area and /book are already conversion flows; the popup would only interrupt them.
     if (isExcluded(pathname)) return;
-    if (readStorage(CLAIMED_KEY) === '1') return; // already went to the audit page once
+    if (readStorage(CLAIMED_KEY) === '1') return; // already went to the area check once
     const dismissedAt = Number(readStorage(DISMISS_KEY));
     if (dismissedAt && Date.now() - dismissedAt < COOLDOWN_MS) return;
 
@@ -271,7 +271,7 @@ export function FreeWebsiteOfferPopup() {
           // copy; while the case-study card is up (it spans the bottom on
           // phones) the pill rides just above it, and it always clears the
           // "Text us" bubble below it. Phone only: on desktop the always-on
-          // "Free audit" edge tab (SideTabCTA) already points to /audit. Blue
+          // "Check your area" edge tab (SideTabCTA) already points to /check-your-area. Blue
           // with a light ring so it reads on both the dark hero and white sections.
           className="sm:hidden fixed z-40 right-4 bottom-[calc(max(1rem,env(safe-area-inset-bottom))_+_var(--case-study-card-h,0px)_+_var(--text-us-h,0px))] transition-[bottom] duration-300 sm:right-0 sm:bottom-auto sm:top-[calc(50%-5rem)] sm:-translate-y-full flex items-center sm:flex-col rounded-full sm:rounded-none sm:rounded-l-xl bg-blue-600 text-white ring-1 ring-white/25 shadow-lg shadow-blue-950/30 overflow-hidden"
         >
@@ -279,7 +279,7 @@ export function FreeWebsiteOfferPopup() {
             ref={tabRef}
             type="button"
             onClick={reopen}
-            aria-label={`${foundingOffer.eyebrow}: open the offer.`}
+            aria-label={`${foundingOffer.tabLabel}: open the offer.`}
             className="sm:order-2 flex items-center sm:flex-col gap-2 pl-3.5 pr-2 py-2.5 sm:px-2.5 sm:pt-3 sm:pb-3.5 hover:bg-blue-700 transition-colors cursor-pointer"
           >
             <Sparkles size={14} className="text-blue-100 shrink-0" />
@@ -290,7 +290,7 @@ export function FreeWebsiteOfferPopup() {
           <button
             type="button"
             onClick={closeTab}
-            aria-label="Hide the free audit offer"
+            aria-label="Hide the area check offer"
             className="sm:order-1 self-stretch sm:self-auto flex items-center justify-center pl-1.5 pr-3 sm:px-0 sm:w-full sm:h-8 border-l sm:border-l-0 sm:border-b border-white/20 text-blue-100 hover:text-white hover:bg-blue-700 transition-colors cursor-pointer"
           >
             <X size={14} />
@@ -332,7 +332,7 @@ export function FreeWebsiteOfferPopup() {
             aria-modal="true"
             aria-labelledby="founding-offer-title"
             aria-describedby="founding-offer-terms"
-            data-track-location="audit_offer_popup"
+            data-track-location="area_check_offer_popup"
           >
             {/* Grab handle on the phone sheet */}
             {sheet && (
@@ -360,7 +360,7 @@ export function FreeWebsiteOfferPopup() {
                 {foundingOffer.headline}
               </h2>
               <p className="mt-4 text-base leading-relaxed text-neutral-600">{foundingOffer.subhead}</p>
-              <p className="mt-2 text-sm text-neutral-500">{foundingOffer.ctaHint}</p>
+              <p className="mt-2 text-sm font-semibold text-blue-700">{foundingOffer.ctaHint}</p>
               <button
                 type="button"
                 onClick={claim}

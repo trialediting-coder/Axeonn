@@ -41,16 +41,16 @@ export function NicheHero({ niche }: { niche: Niche }) {
         <p className="inline-flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 rounded-2xl sm:rounded-full bg-white/[0.07] border border-white/15 px-4 py-2 text-sm sm:text-base text-neutral-200 mb-8">
           <span className="font-bold text-white">From $799/mo</span>
           <span className="text-neutral-400">
-            <span className="hidden sm:inline">&middot; </span>90-day performance commitment: live in 30 days, 60-second replies, or walk away
+            <span className="hidden sm:inline">&middot; </span>$0 to start. Nothing due until it&apos;s working.
           </span>
         </p>
 
         {/* One primary action, one fast path, one text link */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 mb-5">
           <Link
-            href="/audit"
+            href="/check-your-area"
             data-track="cta_click"
-            data-track-cta={`niche_hero_audit_${niche.slug}`}
+            data-track-cta={`niche_hero_area_check_${niche.slug}`}
             className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/25"
           >
             {niche.primaryCTA} <ArrowRight size={18} />

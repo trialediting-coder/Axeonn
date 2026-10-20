@@ -18,12 +18,12 @@ export function NicheClosingCTA({ niche }: { niche: Niche }) {
         </p>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4">
           <Link
-            href="/audit"
+            href="/check-your-area"
             data-track="cta_click"
-            data-track-cta={`niche_${niche.slug}_closing_audit`}
+            data-track-cta={`niche_${niche.slug}_closing_area_check`}
             className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/25"
           >
-            Get your free after-hours audit <ArrowRight size={18} />
+            Check if your area is open <ArrowRight size={18} />
           </Link>
           <Link
             href="/book"

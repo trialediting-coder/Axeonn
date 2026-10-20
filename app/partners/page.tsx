@@ -49,7 +49,7 @@ const BUTTON =
 // The referral loop shown in the hero: who does what, in order.
 const LOOP = [
   { icon: UserRound, who: 'You', what: 'Introduce a practice or firm that loses calls after hours' },
-  { icon: Search, who: 'Axeon', what: 'Runs a free after-hours audit and walks them through it' },
+  { icon: Search, who: 'Axeon', what: 'Checks their area and walks them through what we find' },
   { icon: Rocket, who: 'Your client', what: 'Every missed call and inquiry answered within 60 seconds' },
   { icon: Gift, who: 'Back to you', what: 'A 15% recurring Technology Advisory Share, or a fee credit for your client' },
 ];
@@ -58,14 +58,14 @@ const ADVISOR_POINTS = [
   'A 15% recurring Technology Advisory Share for as long as the practice or firm stays a client',
   'Disclosed to your client in writing, every time',
   'Or pass the value to your client as a fee credit instead',
-  'Free after-hours audits for any practice or firm you work with',
+  '$0 to start for your clients: nothing due until it is working',
   'Your clients get the 90-day performance commitment',
 ];
 
 const REFERRAL_POINTS = [
   'A simple way to make intros',
   'A referral reward when the practice or firm pays its first invoice',
-  'Updates from the audit to launch',
+  'Updates from the first call to launch',
 ];
 
 const COLLAB_POINTS = [
@@ -111,7 +111,7 @@ const STEPS = [
   { title: 'Request the brief', description: 'We hand-deliver the partner brief with the full terms.' },
   { title: 'Intro call', description: 'A short call to see if we are a good fit and pick the right track.' },
   { title: 'Sign the agreement', description: 'A short, plain-English agreement, including the client disclosure.' },
-  { title: 'Introduce a practice or firm', description: 'We start with a free after-hours audit for them.' },
+  { title: 'Introduce a practice or firm', description: 'We check their area and show them what we find.' },
 ];
 
 const PROMISES = [
@@ -134,12 +134,12 @@ const PARTNER_FAQ = [
   {
     question: 'What do my clients get?',
     answer:
-      'A free after-hours audit: we call the practice or firm after hours, check how fast its website answers an inquiry, and compare its reviews to the top 3 nearby competitors, then send a short video walkthrough. No charge and no obligation.',
+      "We check whether their specialty's 5-mile area is open, then show them what we found on a short call: an after-hours test call, how fast their website answers an inquiry, and their reviews next to the top 3 nearby competitors. If they partner with us, it is $0 to start and nothing is due until it's working.",
   },
   {
     question: 'Do I have to sell anything?',
     answer:
-      'No. Just make the introduction. We run the audit, the call and the setup, and answer every question after that.',
+      'No. Just make the introduction. We run the area check, the call and the setup, and answer every question after that.',
   },
   {
     question: 'Why do you review applications?',
@@ -239,7 +239,7 @@ export default function PartnersPage() {
             <h1 className="text-5xl sm:text-6xl xl:text-7xl font-black tracking-[-0.04em] leading-[0.98] font-display mb-7">
               Send us a practice or firm.
               <br />
-              <span className="text-neutral-400">We&apos;ll start with a free audit.</span>
+              <span className="text-neutral-400">We&apos;ll start by checking their area.</span>
             </h1>
             <p className="text-lg text-neutral-200 leading-relaxed max-w-xl mb-10">
               CPAs, practice consultants and billing firms already advise the practices and firms that lose new patients and clients after hours.
@@ -284,7 +284,7 @@ export default function PartnersPage() {
               <h3 className="text-3xl sm:text-4xl font-black tracking-tight font-display mb-3">Practice Advisor</h3>
               <p className="text-blue-100 text-lg leading-relaxed">
                 You advise practice and firm owners on their numbers and operations. When a client is losing new patients or clients
-                to voicemail, introduce them. We run the audit, they decide, and you earn a recurring share or pass it to them.
+                to voicemail, introduce them. We check their area, they decide, and you earn a recurring share or pass it to them.
               </p>
               <a
                 href={BRIEF_HREF}

@@ -3,8 +3,8 @@ import { ArrowRight, ArrowUpRight, PhoneCall, Timer, Star, Gauge, MessageSquareT
 
 // Homepage proof section (repositioning 2026-10-19). Axeon has no practice
 // clients yet, so this never shows a client result, testimonial or stat. It
-// shows two things a practice owner can check for themselves: the free
-// after-hours audit run on their own practice, and AxeonPROOF, the portal
+// shows two things a practice owner can check for themselves: what we find
+// about their own practice (shown on the call after an area check), and AxeonPROOF, the portal
 // every client gets. Real past builds live on /work as "Recent builds".
 const AUDIT_STEPS = [
   { icon: PhoneCall, title: 'We call after hours', body: 'The way a new patient or client would, and note what they hear.' },
@@ -36,17 +36,17 @@ export function HomeProof() {
             Don&apos;t take our word for it. Test your own practice or firm.
           </h2>
           <p className="mt-5 text-base sm:text-lg text-neutral-600 leading-relaxed">
-            Start with a free audit of what happens today. If you become a client, you see every reply and booking in your own
-            portal.
+            Check your area and we&apos;ll show you what happens today when someone calls or writes in. Once we&apos;re
+            partners, you see every reply and booking in your own portal.
           </p>
         </div>
 
         <div className="mt-14 sm:mt-16 grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
-          {/* The audit */}
+          {/* What we find about their practice */}
           <div className="rounded-[28px] bg-neutral-950 text-white p-7 sm:p-10 flex flex-col">
-            <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">[ The free after-hours audit ]</p>
+            <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">[ What we show you on the call ]</p>
             <h3 className="mt-4 text-2xl sm:text-3xl font-extrabold font-display tracking-tight leading-snug">
-              A short video walkthrough of what your next new patient or client will experience.
+              What your next new patient or client experiences today, tested on your own practice or firm.
             </h3>
             <ul className="mt-8 divide-y divide-white/10 border-y border-white/10">
               {AUDIT_STEPS.map(({ icon: Icon, title, body }) => (
@@ -61,14 +61,14 @@ export function HomeProof() {
             </ul>
             <div className="mt-8 lg:mt-auto lg:pt-8">
               <Link
-                href="/audit"
+                href="/check-your-area"
                 data-track="cta_click"
-                data-track-cta="home_proof_audit"
+                data-track-cta="home_proof_area_check"
                 className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold transition-colors shadow-lg shadow-blue-600/25"
               >
-                Get your free after-hours audit <ArrowUpRight size={16} />
+                Check if your area is open <ArrowUpRight size={16} />
               </Link>
-              <p className="mt-3 text-xs text-neutral-500">No charge. Yours to keep either way.</p>
+              <p className="mt-3 text-xs text-neutral-500">$0 to start. Nothing due until it&apos;s working.</p>
             </div>
           </div>
 

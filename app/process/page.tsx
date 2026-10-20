@@ -8,7 +8,7 @@ export const metadata = buildMetadata({
   path: '/process',
   title: 'Our Process: Practice & Firm Intake in 30 Days | Axeon Studio',
   description:
-    'How we install a website, 60-second intake and booking, and review requests: from the free after-hours audit to live within 30 days of getting your materials, then your first 90 days. For dental practices, med spas, law firms and CPA firms.',
+    'How we install a website, 60-second intake and booking, and review requests: from checking your area to live within 30 days of getting your materials, then your first 90 days. $0 to start, nothing due until it is working. For dental practices, med spas, law firms and CPA firms.',
 });
 
 
@@ -45,20 +45,20 @@ export default function ProcessPage() {
         <div className="max-w-4xl mx-auto text-center">
           <span className="block mb-4 text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">[ STEP ONE ]</span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-tight mb-6">
-            Start with the free after-hours audit
+            Start by checking your area
           </h2>
           <p className="text-lg sm:text-xl text-neutral-300 max-w-2xl mx-auto leading-relaxed">
-            We call your practice or firm after hours, check how fast your website answers an inquiry, and compare your reviews to
-            the top 3 nearby competitors. You get a short video walkthrough. No charge.
+            One practice or firm per specialty within 5 miles. We&apos;ll confirm yours within one business day, then show
+            you what we found about your practice or firm on a short call. $0 to start. Nothing due until it&apos;s working.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4">
             <Link
-              href="/audit"
+              href="/check-your-area"
               data-track="cta_click"
               data-track-cta="process_closer"
               className="px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
             >
-              Get your free after-hours audit
+              Check if your area is open
             </Link>
             <Link
               href="/pricing"

@@ -7,7 +7,8 @@ import { ShieldCheck, MapPin, Tag } from 'lucide-react';
 // column so all three wrap the same way (3 columns, ~100px each at 360px).
 const BADGES = [
   { icon: ShieldCheck, label: '90-Day Performance Commitment', short: ['90-Day', 'Commitment'] },
-  { icon: Tag, label: 'Published Pricing', short: ['Published', 'Pricing'] },
+  // The front-door offer (2026-10-19): build waived, nothing due until it's working.
+  { icon: Tag, label: '$0 to Start', short: ['$0 to', 'Start'] },
   { icon: MapPin, label: 'Based in West Des Moines', short: ['Based in', 'West Des Moines'] },
 ];
 

@@ -68,19 +68,19 @@ export default function BookClient() {
 
                 <div className="mt-2 rounded-2xl border border-zinc-200 bg-white/80 px-5 py-4">
                   <p className="text-base sm:text-lg font-bold font-display text-zinc-950 leading-snug">
-                    Rather see the problem first?
+                    Not sure your area is open?
                   </p>
                   <p className="mt-1.5 text-sm text-zinc-600 leading-relaxed">
-                    We call your practice or firm after hours, check how fast your website answers an inquiry, and send you a
-                    short video of what we found. No charge.
+                    One practice or firm per specialty within 5 miles. Tell us where you are and we&apos;ll confirm within one
+                    business day. $0 to start.
                   </p>
                   <Link
-                    href="/audit"
+                    href="/check-your-area"
                     data-track="cta_click"
-                    data-track-cta="book_page_audit"
+                    data-track-cta="book_page_area_check"
                     className="mt-2 inline-flex items-center gap-1.5 py-1 text-sm font-semibold text-blue-600 hover:text-blue-700"
                   >
-                    Get your free after-hours audit <ArrowRight size={14} />
+                    Check if your area is open <ArrowRight size={14} />
                   </Link>
                 </div>
               </div>

@@ -19,7 +19,7 @@ interface ServiceHeroActionsProps {
 export function ServiceHeroActions({
   priceLine,
   note,
-  primaryLabel = 'Get your free after-hours audit',
+  primaryLabel = 'Check if your area is open',
   showPricingLink = true,
 }: ServiceHeroActionsProps) {
   return (
@@ -35,7 +35,7 @@ export function ServiceHeroActions({
       </p>
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4">
         <Link
-          href="/audit"
+          href="/check-your-area"
           className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/25"
         >
           {primaryLabel} <ArrowRight size={18} />
@@ -52,7 +52,7 @@ export function ServiceHeroActions({
           href="/pricing"
           className="py-2 inline-block mt-5 text-sm sm:text-base text-neutral-300 hover:text-white underline underline-offset-4"
         >
-          See all three plans and what each includes
+          See both plans and what each includes
         </Link>
       )}
     </div>

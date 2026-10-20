@@ -87,10 +87,10 @@ export function GrowthEngine({ showBuilds = true, variant = 'section' }: GrowthE
             coming in, AxeonGROWTH adds these.
           </p>
           <Link
-            href="/audit"
+            href="/check-your-area"
             className="py-2 mt-6 inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-blue-400 hover:text-blue-300 transition-colors"
           >
-            Start with a free after-hours audit <ArrowRight size={16} />
+            Check if your area is open <ArrowRight size={16} />
           </Link>
         </div>
 

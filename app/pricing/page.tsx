@@ -9,7 +9,7 @@ export const metadata = buildMetadata({
   path: '/pricing',
   title: 'Pricing for Practices & Firms: AxeonCORE & AxeonGROWTH | Axeon Studio',
   description:
-    'Your growth partner for patient and client intake at dental practices, med spas, law firms and CPA firms. AxeonCORE from $799/mo, AxeonGROWTH from $1,999/mo. 12-month agreement, $3,000 setup included, month-to-month available. Start with a free after-hours audit.',
+    'Your growth partner for patient and client intake at dental practices, med spas, law firms and CPA firms. AxeonCORE from $799/mo, AxeonGROWTH from $1,999/mo. $0 to start: the build is waived on the 12-month agreement and nothing is due until it is working. Month-to-month available. One practice or firm per specialty within 5 miles.',
 });
 
 // Order: commitment + plans -> 21x band (why AxeonCORE) -> add-ons + engine -> FAQ -> CTA.
@@ -33,20 +33,20 @@ export default function PricingPage() {
         <div className="max-w-4xl mx-auto text-center">
           <span className="block mb-4 text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">[ GET STARTED ]</span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-tight mb-6">
-            Find out what happens to your after-hours calls.
+            Is your specialty still open in your area?
           </h2>
           <p className="text-lg sm:text-xl text-neutral-300 max-w-2xl mx-auto leading-relaxed">
-            We call your practice or firm after hours, time how fast your website answers an inquiry, and compare your
-            reviews to the top 3 nearby competitors. You get a short video walkthrough of what we found. No charge.
+            We partner with one practice or firm per specialty within 5 miles. Tell us where you are and we&apos;ll
+            confirm within one business day. $0 to start. Nothing due until it&apos;s working.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4">
             <Link
-              href="/audit"
+              href="/check-your-area"
               data-track="cta_click"
               data-track-cta="pricing_closer"
               className="px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
             >
-              Get your free after-hours audit
+              Check if your area is open
             </Link>
             <Link
               href="/book"

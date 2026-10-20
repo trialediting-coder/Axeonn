@@ -50,7 +50,7 @@ export default function SolutionsHubPage() {
           })}
         </div>
 
-        {/* Not one of the four? Point to the audit instead of promising "any business". */}
+        {/* Not one of the four? Point to the area check instead of promising "any business". */}
         <div
           id="other-practices"
           className="mt-16 rounded-3xl bg-neutral-950 text-white p-8 sm:p-12 relative overflow-hidden"
@@ -65,17 +65,17 @@ export default function SolutionsHubPage() {
             </h2>
             <p className="text-base sm:text-lg text-neutral-300 leading-relaxed mb-8">
               If your practice or firm books consultations or appointments, it runs on the same thing: a call or an inquiry that
-              needs an answer before the person calls someone else. Start with the free after-hours audit and we will tell
+              needs an answer before the person calls someone else. Check if your area is open and we will tell
               you honestly whether the system fits.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link
-                href="/audit"
+                href="/check-your-area"
                 data-track="cta_click"
-                data-track-cta="solutions_hub_audit"
+                data-track-cta="solutions_hub_area_check"
                 className="inline-flex items-center justify-center px-6 py-3.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg shadow-blue-600/25 transition-all"
               >
-                Get your free after-hours audit
+                Check if your area is open
               </Link>
               <Link
                 href="/marketing-solutions"

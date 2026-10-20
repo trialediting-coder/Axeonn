@@ -225,8 +225,8 @@ export function AnalyticsTracker() {
         ? 'lead_modal'
         : pathname === '/book'
           ? 'book_page'
-          : pathname === '/audit'
-            ? 'audit_page'
+          : pathname === '/check-your-area'
+            ? 'area_check_page'
             : pathname?.startsWith('/get-started')
               ? 'get_started'
               : 'contact_section';

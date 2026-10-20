@@ -1,37 +1,38 @@
 /**
- * The free after-hours audit offer — single source of truth for every surface
- * that promotes it (offer popup, its side tab, the promo banner). The file name
- * is historical (it used to hold the founding client offer, retired 2026-10-19
- * with the practice repositioning; "$0 to start" and "first month free" are gone).
+ * The front-door offer — single source of truth for every surface that
+ * promotes it (offer popup, its side tab, the promo banner). The file name is
+ * historical (it used to hold the founding client offer, then the free
+ * after-hours audit; both retired 2026-10-19).
  *
  * Keep these true when editing:
- * - The audit is genuinely free, with no obligation. Say what it is: an
- *   after-hours call test, how fast the website answers an inquiry, and reviews
- *   vs. the top 3 nearby competitors, delivered as a short video walkthrough.
- * - No fake urgency: no spot counters, no deadlines.
+ * - The hook is the area check (/check-your-area): one practice or firm per
+ *   specialty within 5 miles, stated as a policy that protects the client.
+ * - The offer is "$0 to start. Nothing due until it's working." (build waived
+ *   on the 12-month agreement, first payment at go-live, 90-day commitment).
+ * - No fake urgency: no spot counters, no countdowns, no deadlines.
  * - Never promise a number of patients, revenue or rankings.
  */
 export const foundingOffer = {
   /** Set to false to take the offer down everywhere at once. */
   active: true,
-  eyebrow: 'Free after-hours audit',
-  headline: 'What happens when a new patient or client calls after hours?',
+  eyebrow: 'West Des Moines · Central Iowa',
+  headline: 'Is your specialty still open in your area?',
   /** One short sentence: the popup shows the headline, this, the button and the terms. */
   subhead:
-    'We call your practice or firm after hours, check how fast your website answers an inquiry, and compare your reviews to the top 3 nearby competitors.',
+    "One practice or firm per specialty within 5 miles. When we're working with you, we don't work for the competitor down the street.",
   /** Side-tab and banner label. */
-  tabLabel: 'Free audit',
+  tabLabel: 'Check your area',
   includes: [
-    'An after-hours call test',
-    'How fast your website answers an inquiry',
-    'Your reviews vs. the top 3 nearby competitors',
-    'Mobile speed',
+    '$0 to start: the $3,000 build is waived',
+    "First payment only once it's working",
+    '90-day performance commitment',
+    'One practice or firm per specialty within 5 miles',
   ],
-  href: '/audit',
-  cta: 'Get your free after-hours audit',
-  ctaHint: 'You get a short video walkthrough of what we found.',
+  href: '/check-your-area',
+  cta: 'Check if your area is open',
+  ctaHint: "$0 to start. Nothing due until it's working.",
   decline: 'Not right now',
-  terms: 'No charge, no obligation. For dental practices, med spas, law firms and CPA firms.',
+  terms: "We'll confirm your area within one business day. For dental practices, med spas, law firms and CPA firms.",
 } as const;
 
 export type FoundingOffer = typeof foundingOffer;

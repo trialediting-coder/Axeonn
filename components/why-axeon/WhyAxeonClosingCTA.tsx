@@ -7,20 +7,20 @@ export default function WhyAxeonClosingCTA() {
       <div className="max-w-4xl mx-auto text-center">
         <div className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-4">[ NEXT STEP ]</div>
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight font-display leading-tight text-neutral-950 mb-5">
-          Find out what happens after hours
+          Is your specialty still open in your area?
         </h2>
         <p className="text-lg text-neutral-600 max-w-2xl mx-auto leading-relaxed mb-10">
-          We call your practice or firm after hours, check how fast your website answers an inquiry, and compare your reviews to
-          the top 3 nearby competitors. You get a short video walkthrough, free. Every partnership with us starts here.
+          One practice or firm per specialty within 5 miles. When we&apos;re working with you, we don&apos;t work for the
+          competitor down the street. $0 to start. Nothing due until it&apos;s working. Every partnership with us starts here.
         </p>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4">
           <Link
-            href="/audit"
+            href="/check-your-area"
             data-track="cta_click"
-            data-track-cta="audit_why_axeon"
+            data-track-cta="area_check_why_axeon"
             className="px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-colors"
           >
-            Get your free after-hours audit
+            Check if your area is open
           </Link>
           <Link
             href="/pricing"

@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ industry:
   if (!funnel) return {};
   return {
     title: `Get More ${funnel.customers.replace(/\b\w/g, (c) => c.toUpperCase())} | ${funnel.titleLabel}`,
-    description: `Intake for your ${funnel.business}: every missed call and web inquiry answered within 60 seconds, 24/7, consultations booked, reviews requested. From $799/mo. Start with a free after-hours audit.`,
+    description: `Intake for your ${funnel.business}: every missed call and web inquiry answered within 60 seconds, 24/7, consultations booked, reviews requested. From $799/mo. $0 to start, nothing due until it's working. Check if your area is open.`,
     robots: { index: false, follow: false },
   };
 }
@@ -39,13 +39,14 @@ const SHOW_PLACEHOLDERS = process.env.VERCEL_ENV === 'preview' || process.env.NO
 const COMMITMENT =
   'Live within 30 days of getting your materials. Every missed call and web inquiry gets a reply within 60 seconds. Every completed appointment gets a review request. If we miss any of those in the first 90 days and don’t fix it within 15 days, you can walk away and owe nothing for the rest of the term.';
 
-const AUDIT_STEPS = [
+// What we show on the call after an area check: the proof, not the hook.
+const CALL_FINDINGS = [
   { icon: PhoneCall, t: 'We call your practice or firm after hours', d: 'The way a new patient or client would, and note what they hear.' },
   { icon: Timer, t: 'We time your website’s reply', d: 'We send an inquiry through your site and clock how long the first answer takes.' },
   { icon: Star, t: 'We compare your reviews', d: 'Your Google reviews next to the top 3 nearby competitors: count, rating and how recent.' },
 ];
 
-function CTA({ label = 'Get your free after-hours audit', dark = false }: { label?: string; dark?: boolean }) {
+function CTA({ label = 'Check if your area is open', dark = false }: { label?: string; dark?: boolean }) {
   return (
     <a
       href="#book"
@@ -81,14 +82,19 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
   const showExample = Boolean(example && example.niche === niche.slug);
   const faqs = [
     {
-      question: 'What is the free after-hours audit?',
+      question: 'What does checking my area mean?',
       answer:
-        'We call your practice or firm after hours, check how fast your website answers an inquiry, and compare your reviews to the top 3 nearby competitors. You get a short video walkthrough of what we found. No charge, and it is yours to keep.',
+        "We work with one practice or firm per specialty within 5 miles. Tell us your specialty and city and we'll confirm within one business day whether your area is open. On a short call we show you what we found: an after-hours test call, your website's reply speed, and your reviews next to the top 3 nearby competitors.",
+    },
+    {
+      question: 'Is it really $0 to start?',
+      answer:
+        "Yes. On the 12-month agreement the $3,000 build is waived, and your first monthly payment is charged only once you're live and every call and inquiry is answered within 60 seconds.",
     },
     {
       question: 'What does it cost?',
       answer:
-        'AxeonCORE is from $799/mo on a 12-month agreement, with the $3,000 setup included. Month-to-month is available if you pay the setup upfront. AxeonGROWTH, which adds Google Local Services Ads and search ads management, is from $1,999/mo plus ad spend.',
+        'AxeonCORE is from $799/mo on a 12-month agreement, with the $3,000 build waived and nothing due until it is working. Month-to-month is available if you pay the $3,000 upfront. AxeonGROWTH, which adds Google Local Services Ads and search ads management, is from $1,999/mo plus ad spend.',
     },
     {
       question: 'What if it doesn’t work?',
@@ -131,7 +137,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
               Get More {funnel.customers.replace(/\b\w/g, (c) => c.toUpperCase())}. Every One Answered in 60 Seconds.
             </h1>
             <p className="mt-4 text-base sm:text-lg font-semibold text-white">
-              From $799/mo. 12-month agreement, $3,000 setup included. Month-to-month available.
+              From $799/mo. $0 to start. Nothing due until it&apos;s working.
             </p>
             <p className="mt-4 text-lg sm:text-xl text-neutral-300 leading-relaxed max-w-xl">
               {funnel.result}
@@ -172,23 +178,23 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
 
 
       {/* 2. Where they lose customers: the niche's own leaks, right under the offer */}
-      <NichePainPoints niche={niche} variant="compact" closerHref="#book" closerLabel="See yours with a free audit" closerArrow="up" />
+      <NichePainPoints niche={niche} variant="compact" closerHref="#book" closerLabel="Check if your area is open" closerArrow="up" />
 
-      {/* 3. Proof we can honestly offer: the audit, run on their own practice */}
+      {/* 3. Proof we can honestly offer: what we find on their own practice, shown on the call */}
       <section className="px-4 sm:px-8 py-20 sm:py-24 border-b border-neutral-200">
         <div className="max-w-5xl mx-auto">
           <div className="max-w-3xl">
-            <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ THE FREE AFTER-HOURS AUDIT ]</p>
+            <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ WHAT WE SHOW YOU ON THE CALL ]</p>
             <h2 className="mt-4 text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1] text-balance">
               See what happens when {funnel.customers} reach your {funnel.business} after hours
             </h2>
             <p className="mt-5 text-lg text-neutral-600 leading-relaxed">
-              You get a short video walkthrough of what we found. No charge, and it is yours to keep whether or not you
-              work with us.
+              Once you check your area, we test your own {funnel.business} and go over what we found with you, whether or
+              not you work with us.
             </p>
           </div>
           <ol className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-5">
-            {AUDIT_STEPS.map(({ icon: Icon, t, d }, i) => (
+            {CALL_FINDINGS.map(({ icon: Icon, t, d }, i) => (
               <li key={t} className="rounded-3xl border border-neutral-200 bg-white p-6 sm:p-7">
                 <div className="flex items-center justify-between">
                   <Icon size={24} className="text-blue-600" />
@@ -250,13 +256,13 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
       <section className="px-4 sm:px-8 py-20 sm:py-24 bg-neutral-950 text-white">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1]">
-            What happens after you ask for the audit
+            What happens after you check your area
           </h2>
           <ol className="mt-12 border-l border-white/15 ml-2">
             {[
-              { t: 'We run the tests', d: 'An after-hours call, a timed web inquiry, and a review comparison with the top 3 nearby competitors.' },
-              { t: 'You get a short video walkthrough', d: 'What a new patient or client experienced when they reached out. No charge.' },
-              { t: 'If it fits, we talk', d: 'AxeonCORE is from $799/mo. No pressure: the audit is yours to keep either way.' },
+              { t: 'We confirm your area', d: 'Within one business day: one practice or firm per specialty within 5 miles.' },
+              { t: 'We test your practice', d: 'An after-hours call, a timed web inquiry, and a review comparison with the top 3 nearby competitors.' },
+              { t: 'If it fits, we partner', d: '$0 to start. Nothing due until it’s working. No pressure either way.' },
             ].map((s) => (
               <li key={s.t} className="relative pl-8 sm:pl-10 pb-10 last:pb-0">
                 <span className="absolute -left-[7px] top-1.5 w-3.5 h-3.5 rounded-full bg-blue-500 ring-4 ring-neutral-950" />
@@ -289,7 +295,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
       {/* 9. FAQ */}
       <section className="px-4 sm:px-8 py-20 sm:py-24 bg-neutral-50">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl font-extrabold font-display tracking-tight mb-10">Questions before you ask for the audit</h2>
+          <h2 className="text-3xl sm:text-4xl font-extrabold font-display tracking-tight mb-10">Questions before you check your area</h2>
           <FAQAccordion items={faqs} />
         </div>
       </section>
@@ -297,9 +303,9 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
       {/* 10. Final CTA */}
       <section className="px-4 sm:px-8 py-20 sm:py-28 text-center">
         <h2 className="text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1] max-w-3xl mx-auto text-balance">
-          Find out what happens after hours
+          Is your specialty still open in your area?
         </h2>
-        <p className="mt-5 text-lg text-neutral-600">A free audit and video walkthrough. AxeonCORE from $799/mo if it fits.</p>
+        <p className="mt-5 text-lg text-neutral-600">$0 to start. Nothing due until it&apos;s working. AxeonCORE from $799/mo.</p>
         <div className="mt-10">
           <CTA />
         </div>
@@ -316,7 +322,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
           data-track-cta="ad_funnel_sticky"
           className="flex items-center justify-center gap-2 w-full py-4 rounded-full bg-blue-600 text-white font-bold text-lg"
         >
-          Get your free audit <ArrowRight size={18} />
+          Check your area <ArrowRight size={18} />
         </a>
       </div>
       <div className="sm:hidden h-24" aria-hidden="true" />

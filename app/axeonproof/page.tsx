@@ -103,8 +103,8 @@ export default function AxeonProofPage() {
               The portal every AxeonCORE and AxeonGROWTH practice and firm signs into. How many missed calls and after-hours inquiries were recovered, how fast each got a reply, and which turned into booked exams, consults, case reviews and client meetings.
             </p>
             <div style={{ animationDelay: '3400ms' }} className="proof-hero-stagger animate-proof-rise mt-10 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row sm:gap-4">
-              <Link href="/audit" data-track="cta_click" data-track-cta="axeonproof_hero" className={`${CTA} w-full max-w-xs sm:w-auto`}>
-                Get your free after-hours audit <ArrowRight size={18} />
+              <Link href="/check-your-area" data-track="cta_click" data-track-cta="axeonproof_hero" className={`${CTA} w-full max-w-xs sm:w-auto`}>
+                Check if your area is open <ArrowRight size={18} />
               </Link>
               <a href="#proof-live" className={`${CTA_GLASS} w-full max-w-xs sm:w-auto`}>
                 See It Live
@@ -230,7 +230,7 @@ export default function AxeonProofPage() {
               </Link>
             ))}
           </div>
-          <p className="mt-6 text-sm text-neutral-400">12-month agreement · $3,000 setup included · month-to-month available.</p>
+          <p className="mt-6 text-sm text-neutral-400">$0 to start · $3,000 build waived on the 12-month agreement · nothing due until it&apos;s working.</p>
         </div>
       </section>
 
@@ -242,11 +242,11 @@ export default function AxeonProofPage() {
             Ready to see <Accent>your</Accent> own dashboard?
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-neutral-300">
-            Start with the free after-hours audit. We call your practice or firm after hours, time how fast your website answers an inquiry, and show you what PROOF would have caught.
+            Start by checking your area. On the call we show you what happens when we call your practice or firm after hours, how fast your website answers an inquiry, and what PROOF would have caught.
           </p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-            <Link href="/audit" data-track="cta_click" data-track-cta="axeonproof_closing" className={`${CTA} w-full max-w-xs sm:w-auto`}>
-              Get your free after-hours audit <ArrowRight size={18} />
+            <Link href="/check-your-area" data-track="cta_click" data-track-cta="axeonproof_closing" className={`${CTA} w-full max-w-xs sm:w-auto`}>
+              Check if your area is open <ArrowRight size={18} />
             </Link>
             <Link href="/book" data-track="cta_click" data-track-cta="axeonproof_closing_call" className={`${CTA_GLASS} w-full max-w-xs sm:w-auto`}>
               Book a call

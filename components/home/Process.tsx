@@ -14,11 +14,11 @@ interface ProcessStep {
 const steps: ProcessStep[] = [
   {
     num: '01',
-    title: 'Free After-Hours Audit',
-    desc: 'We call your practice or firm after hours, time how fast your website answers an inquiry, and compare your reviews to the top 3 competitors near you.',
+    title: 'Check Your Area',
+    desc: 'Tell us your specialty and city. We confirm within one business day whether your 5-mile area is open, then show you what we found about your practice or firm on a short call.',
     duration: 'Before you sign anything',
-    deliverables: ['After-hours call test', 'Inquiry response time', 'Reviews vs. the top 3 nearby', 'Mobile speed'],
-    outcome: 'A short video walkthrough of where patients and clients slip away today.',
+    deliverables: ['Your area confirmed', 'After-hours call test', 'Website reply speed', 'Reviews vs. the top 3 nearby'],
+    outcome: 'A clear picture of where patients and clients slip away today.',
   },
   {
     num: '02',
@@ -26,7 +26,7 @@ const steps: ProcessStep[] = [
     desc: 'We map how every call and web inquiry should be answered, booked and followed up for your practice or firm, then put the scope and price in writing.',
     duration: 'One call',
     deliverables: ['Intake flow for your front desk or intake team', 'Booking rules by provider, attorney or service', 'Signed Client Services Agreement'],
-    outcome: 'A plan and a price, with the performance commitment written in.',
+    outcome: '$0 to start: the build is waived on the 12-month agreement, with the performance commitment written in.',
   },
   {
     num: '03',
@@ -34,7 +34,7 @@ const steps: ProcessStep[] = [
     desc: 'We build your website and set up missed-call text-back, the 60-second inquiry reply, online booking, the text inbox for your front desk or intake team, and review requests.',
     duration: 'Live within 30 days of your materials',
     deliverables: ['Mockups you review', 'Phone, text and booking set up', 'Intake that never asks for health details'],
-    outcome: 'Every call and inquiry answered, starting on launch day.',
+    outcome: 'Every call and inquiry answered, starting on launch day. Your first payment starts here, not before.',
   },
   {
     num: '04',
@@ -59,10 +59,10 @@ export function Process() {
       <div className="w-full max-w-6xl mx-auto">
         <div className="max-w-4xl mb-12 sm:mb-16">
           <div className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-4">
-            [ FROM FREE AUDIT TO EVERY INQUIRY ANSWERED ]
+            [ FROM AREA CHECK TO EVERY INQUIRY ANSWERED ]
           </div>
           <h2 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-neutral-950 font-display tracking-tight leading-[1.05]">
-            Four steps. The first one is free.
+            Four steps. $0 to start.
           </h2>
           <p className="mt-5 text-base sm:text-xl text-neutral-600 leading-relaxed max-w-2xl">
             One goal: no patient or client waits until tomorrow for an answer. We work as your partner, so you always know what we&apos;re doing and why.
@@ -143,10 +143,10 @@ export function Process() {
 
         <div className="mt-10 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-8">
           <Link
-            href="/audit"
+            href="/check-your-area"
             className="py-2 inline-flex items-center gap-2 text-base font-semibold text-blue-600 hover:text-blue-700"
           >
-            Get your free after-hours audit <ArrowRight size={16} />
+            Check if your area is open <ArrowRight size={16} />
           </Link>
           <Link
             href="/book"

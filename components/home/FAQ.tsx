@@ -4,7 +4,7 @@ import { FAQAccordion } from '@/components/common/FAQAccordion';
 import { faqItems } from '@/data/faqData';
 
 export function FAQ() {
-  // Lead with the three questions practice owners ask before an audit: price,
+  // Lead with the three questions practice owners ask before an area check: price,
   // the performance commitment, and "we already have a site". Matched by topic
   // so a reworded data/faqData.ts still fills the slots; falls back to the
   // first three.
@@ -39,12 +39,12 @@ export function FAQ() {
         <FAQAccordion items={condensed} defaultOpenCount={1} size="large" />
         <div className="mt-12 sm:mt-14 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
           <Link
-            href="/audit"
+            href="/check-your-area"
             data-track="cta_click"
-            data-track-cta="audit_home_faq"
+            data-track-cta="area_check_home_faq"
             className="inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base sm:text-lg transition-colors shadow-lg shadow-blue-600/20"
           >
-            <span>Still deciding? Get the free audit</span>
+            <span>Still deciding? Check your area</span>
             <ArrowRight size={20} />
           </Link>
           <Link

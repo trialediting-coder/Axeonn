@@ -71,8 +71,11 @@ const nextConfig = {
       // 2026-10-19 repositioning to private practices (dental, med spa, law,
       // accounting). Retired trade industry pages go to the practice hub.
       ...RETIRED_NICHES.map((slug) => ({ source: `/solutions/${slug}`, destination: '/solutions', permanent: true })),
-      // Retired paid-ad funnels go straight to the free after-hours audit.
-      ...RETIRED_FUNNELS.map((slug) => ({ source: `/go/${slug}`, destination: '/audit', permanent: true })),
+      // Retired paid-ad funnels go straight to the area check (the front door since 2026-10-19).
+      ...RETIRED_FUNNELS.map((slug) => ({ source: `/go/${slug}`, destination: '/check-your-area', permanent: true })),
+      // The free after-hours audit stopped being the hook (2026-10-19): it is now
+      // what we show on the call after an area check. Keep query strings (?plan=).
+      { source: '/audit', destination: '/check-your-area', permanent: true },
     ];
   },
 };

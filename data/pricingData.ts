@@ -10,7 +10,7 @@ export interface PricingTier {
   price: string;
   /** Shown next to the price, e.g. "/mo". */
   billingNote: string;
-  /** The term line under the price, e.g. "12-month agreement · $3,000 setup included". */
+  /** The term line under the price, e.g. "$0 to start · $3,000 build waived on the 12-month agreement". */
   startFee: string;
   /** Small line under the term; empty for none. */
   startNote: string;
@@ -37,10 +37,14 @@ export interface AddOn {
 // Two public plans (2026-10-19 repositioning): patient & client intake
 // infrastructure for established private practices (dental, med spa, law, CPA).
 // Public copy shows "From $799/mo" and "From $1,999/mo" only. No self-serve
-// checkout; every plan starts with the free after-hours audit or a call.
-// AxeonCORE: 12-month agreement, $3,000 implementation credited in full;
+// checkout; every plan starts with an area check (/check-your-area) or a call.
+// Front-door offer (owner, 2026-10-19 later): "$0 to start. Nothing due until
+// it's working." = the $3,000 build is waived on the 12-month partnership and
+// the first monthly payment is charged at go-live (site up, every call and
+// inquiry answered within 60 seconds). OFFER_* below are the only wording.
+// AxeonCORE: 12-month agreement, $3,000 implementation (the build) waived;
 // month-to-month available with the $3,000 paid upfront; prepay a year = 2
-// months free. AxeonGROWTH: 12-month agreement, $5,000 implementation credited,
+// months free. AxeonGROWTH: 12-month agreement, $5,000 implementation waived,
 // ad spend separate ($500/mo minimum, paid to Google directly).
 // Never promise a number of leads, patients, revenue or rankings.
 // Keep in sync with data/agreementTemplate.ts (Schedule A), content/brand-guardrails.md,
@@ -52,11 +56,28 @@ export interface AddOn {
 export const STARTING_PRICE = '$799';
 export const STARTING_PRICE_LINE = 'From $799/mo';
 
-export const TERM_LINE = '12-month agreement · $3,000 setup included · month-to-month available';
+export const TERM_LINE = '12-month agreement · $3,000 build waived · first payment at go-live · month-to-month available';
 export const ANNUAL_DEAL = 'Prepay a year and get 2 months free.';
 export const AD_SPEND_RULE =
   'Ad spend is separate: $500/mo minimum, paid to Google directly on your own card, with no markup.';
-export const TERRITORY_LINE = 'One practice per specialty within 5 miles.';
+export const TERRITORY_LINE = 'One practice or firm per specialty within 5 miles.';
+/** Exclusivity as a policy that protects the client. Never fake scarcity: no countdowns, no "spots left". */
+export const EXCLUSIVITY_LINE =
+  "One practice or firm per specialty within 5 miles. When we're working with you, we don't work for the competitor down the street.";
+
+/** The primary CTA everywhere (replaces the free after-hours audit as the hook). */
+export const AREA_CHECK_HREF = '/check-your-area';
+export const AREA_CHECK_CTA = 'Check your area';
+export const AREA_CHECK_CTA_LONG = 'Check if your area is open';
+
+/** The front-door offer, word for word. */
+export const OFFER_LINE = "$0 to start. Nothing due until it's working.";
+export const OFFER_SHORT = '$0 to start';
+export const OFFER_POINTS = [
+  'The $3,000 build is waived on the 12-month partnership.',
+  "Your first payment is charged only once you're live and every call and inquiry is answered within 60 seconds.",
+  "90-day performance commitment: if we miss it, you can walk away.",
+] as const;
 export const OWNERSHIP_LINE =
   'Your domain, Google Business Profile, and patient and client contact data are always yours. The website design and code become yours once the 12-month term is paid. The intake system, phone and text numbers, and AxeonPROOF are a service and stop if you leave.';
 export const COMPLIANCE_LINE =
@@ -70,8 +91,8 @@ export const pricingTiers: PricingTier[] = [
     pricePrefix: 'From',
     price: '$799',
     billingNote: '/mo',
-    startFee: '12-month agreement · $3,000 setup included',
-    startNote: 'Month-to-month available with the $3,000 setup paid upfront. Prepay a year and get 2 months free.',
+    startFee: '$0 to start · $3,000 build waived on the 12-month agreement',
+    startNote: "First payment once you're live. Month-to-month: $3,000 upfront, then monthly from go-live. Prepay a year and get 2 months free.",
     turnaround: 'Live within 30 days of getting your materials',
     badge: 'Most practices and firms start here',
     bestFor:
@@ -98,7 +119,7 @@ export const pricingTiers: PricingTier[] = [
         icon: 'proof',
       },
     ],
-    cta: 'Get your free after-hours audit',
+    cta: 'Check if your area is open',
     variant: 'featured',
   },
   {
@@ -108,8 +129,8 @@ export const pricingTiers: PricingTier[] = [
     pricePrefix: 'From',
     price: '$1,999',
     billingNote: '/mo + ad spend',
-    startFee: '12-month agreement · $5,000 setup included',
-    startNote: 'Ad spend is separate: $500/mo minimum, paid to Google directly.',
+    startFee: '$0 to start · $5,000 build waived on the 12-month agreement',
+    startNote: "First payment once you're live. Ad spend is separate: $500/mo minimum, paid to Google directly.",
     turnaround: 'Live within 30 days of getting your materials',
     bestFor:
       'Right for you if your intake is solid and you want more new patients or clients coming in: we run your Google ads, answer your phones with AI, and work your list of past patients or clients.',
@@ -129,7 +150,7 @@ export const pricingTiers: PricingTier[] = [
       { feature: 'AI phone receptionist', icon: 'phone' },
       { feature: 'Quarterly photo & video: review videos and reels', icon: 'video' },
     ],
-    cta: 'Get your free after-hours audit',
+    cta: 'Check if your area is open',
     variant: 'premium',
   },
 ];
@@ -151,19 +172,23 @@ export interface PricingFaq {
 export const pricingFaqs: PricingFaq[] = [
   {
     q: 'How does the pricing work?',
-    a: 'AxeonCORE starts at $799/mo and AxeonGROWTH at $1,999/mo, on a 12-month agreement. The setup ($3,000 on CORE, $5,000 on GROWTH) is credited in full when you take the 12-month term, so nothing is due for it at signing. Prepay a year and you get 2 months free. Your exact price is confirmed after the free audit, based on your locations and providers.',
+    a: "$0 to start. Nothing due until it's working. AxeonCORE starts at $799/mo and AxeonGROWTH at $1,999/mo, on a 12-month growth partnership. The build ($3,000 on CORE, $5,000 on GROWTH) is waived on the 12-month agreement, and your first monthly payment is charged only once you're live: site up, and every call and web inquiry answered within 60 seconds. Prepay a year and you get 2 months free. Your exact price is confirmed on the call, based on your locations and providers.",
   },
   {
     q: 'Why a 12-month agreement?',
-    a: "We work as a 12-month growth partnership, not a one-off build. Setting up your website, phone and text numbers, booking, and review requests is a few weeks of work up front, and the 12-month term is how we credit that $3,000 setup instead of billing it. After 12 months it continues month-to-month, and either side can stop with 30 days' notice.",
+    a: "We work as a 12-month growth partnership, not a one-off build. Building your website, phone and text numbers, booking, and review requests is a few weeks of work up front. On the 12-month term we waive that $3,000 build and only start billing once it's working. After 12 months it continues month-to-month, and either side can stop with 30 days' notice.",
   },
   {
     q: 'Can I go month-to-month instead?',
-    a: 'Yes. Pay the $3,000 setup upfront and AxeonCORE runs month-to-month from the start. Most practices and firms take the 12-month agreement because the setup is then credited in full.',
+    a: 'Yes. Pay the $3,000 build upfront, then AxeonCORE bills monthly from go-live with no 12-month term. Or prepay a year for $7,990 and get 2 months free. Most practices and firms take the 12-month agreement because the build is then waived and nothing is due until it is working.',
   },
   {
     q: 'What is the $3,000?',
-    a: "It's the implementation fee for AxeonCORE: the website build, number setup and carrier registration, booking, the inquiry reply system, review requests, and AxeonPROOF. On the 12-month agreement it is credited in full and never charged. On month-to-month it is paid upfront. AxeonGROWTH's implementation is $5,000, credited the same way.",
+    a: "It's the build for AxeonCORE: the website, number setup and carrier registration, booking, the inquiry reply system, review requests, and AxeonPROOF. On the 12-month agreement it is waived and never charged. On month-to-month it is paid upfront. AxeonGROWTH's build is $5,000, waived the same way.",
+  },
+  {
+    q: "What does 'working' mean?",
+    a: "Your new site is live, and every missed call and web inquiry gets a reply within 60 seconds, 24/7. That is when your first monthly payment is charged. Nothing is billed while we build.",
   },
   {
     q: 'What is the 90-day performance commitment?',
@@ -175,7 +200,7 @@ export const pricingFaqs: PricingFaq[] = [
   },
   {
     q: 'What does territory exclusivity mean?',
-    a: "One practice per specialty within 5 miles. While your account is in good standing, we won't take on another dental practice, med spa, law firm or CPA firm in your specialty within 5 miles of you.",
+    a: "One practice or firm per specialty within 5 miles. When we're working with you, we don't work for the competitor down the street. While your account is in good standing, we won't take on another dental practice, med spa, law firm or CPA firm in your specialty within 5 miles of you.",
   },
   {
     q: 'Do you collect health, case or financial information?',
@@ -191,7 +216,7 @@ export const pricingFaqs: PricingFaq[] = [
   },
   {
     q: 'Which plan should I pick?',
-    a: 'AxeonCORE if the problem is answering: calls going to voicemail, web inquiries waiting until morning, reviews that never get asked for. AxeonGROWTH if your intake is already solid and you want more new patients or clients coming in through Google ads, an AI receptionist, and campaigns to past patients and clients. The free audit usually makes the answer obvious.',
+    a: 'AxeonCORE if the problem is answering: calls going to voicemail, web inquiries waiting until morning, reviews that never get asked for. AxeonGROWTH if your intake is already solid and you want more new patients or clients coming in through Google ads, an AI receptionist, and campaigns to past patients and clients. The call where we go over your area usually makes the answer obvious.',
   },
 ];
 

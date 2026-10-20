@@ -43,7 +43,7 @@ export default function FaqPage() {
           <div>
             <h2 className="text-2xl sm:text-3xl font-extrabold font-display tracking-tight">Still have a question?</h2>
             <p className="mt-2 text-neutral-300 text-base sm:text-lg">
-              Start with the free after-hours audit, or{' '}
+              Check if your area is open, or{' '}
               <Link href="/book" className="underline underline-offset-4 hover:text-white">
                 book a call
               </Link>
@@ -51,12 +51,12 @@ export default function FaqPage() {
             </p>
           </div>
           <Link
-            href="/audit"
+            href="/check-your-area"
             data-track="cta_click"
             data-track-cta="faq_closer"
             className="shrink-0 text-center px-7 py-3.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
           >
-            Get your free audit
+            Check your area
           </Link>
         </div>
       </div>

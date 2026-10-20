@@ -23,12 +23,24 @@ local-only. Last updated 2026-10-19 (practice repositioning).
 - Tagline: "We Get You Patients and Clients, Not Clicks." (the practice and
   firm version of the former "We Get You Customers, Not Clicks."). The retired tagline "Your
   Business. Your Partner." must never be used.
-- Primary call to action everywhere: the free after-hours audit at /audit
-  ("Get your free after-hours audit", short form "Free audit"). What it is:
-  "We call your practice after hours, check how fast your website answers an
-  inquiry, and compare your reviews to the top 3 nearby practices. You get a
-  short video walkthrough of what we found — no charge." Secondary: "Book a
-  call" at /book.
+- Primary call to action everywhere (owner, 2026-10-19 later): "Check your
+  area" (long form "Check if your area is open") at /check-your-area. The
+  practice gives its specialty and city; we confirm within one business day
+  whether that specialty's 5-mile area is open, then show what we found about
+  the practice on a short call: an after-hours test call, website reply
+  speed, and reviews vs. the top 3 nearby competitors. That walkthrough is the
+  proof shown after they ask, not the hook: never write "free audit" or
+  "free after-hours audit" as a button, headline or call to action. /audit
+  redirects to /check-your-area. Secondary: "Book a call" at /book.
+- The front-door offer, word for word: "$0 to start. Nothing due until it's
+  working." Meaning: the $3,000 build is waived on the 12-month agreement, the
+  first monthly payment is charged only once the system is live (site up,
+  every call and inquiry answered within 60 seconds), and the 90-day
+  performance commitment still lets them walk away.
+- Exclusivity is a policy that protects the client, never fake scarcity:
+  "One practice or firm per specialty within 5 miles. When we're working with
+  you, we don't work for the competitor down the street." No countdowns, no
+  deadlines, no "only N spots left".
 
 ## Audience
 - Write for an owner or practice manager of an established private practice
@@ -43,12 +55,14 @@ local-only. Last updated 2026-10-19 (practice repositioning).
 ## Real pricing (never state a different number)
 - Two plans. Public display is "From $799/mo" (AxeonCORE) and
   "From $1,999/mo" (AxeonGROWTH). There is no self-serve checkout and no
-  "buy now"; every plan starts with the audit or a call and a signed agreement.
-- Terms: state the 12-month agreement plainly. Month-to-month is available
-  with the $3,000 implementation fee paid upfront. Never invent a different
+  "buy now"; every plan starts with an area check or a call and a signed
+  agreement.
+- Terms: state the 12-month agreement plainly. On it the build is waived and
+  the first payment is charged at go-live. Month-to-month is available with
+  the $3,000 build paid upfront, then monthly from go-live. Never invent a different
   term (no "24-month", no "3-month minimum", no "cancel anytime").
-- AxeonCORE: from $799/month, 12-month agreement, $3,000 implementation fee
-  credited in full. Prepay a year for $7,990 (2 months free). Includes a custom
+- AxeonCORE: from $799/month, 12-month agreement, $3,000 build
+  (implementation fee) waived, first payment at go-live. Prepay a year for $7,990 (2 months free). Includes a custom
   mobile-first practice website (providers and credentials, services, reviews,
   booking), 24/7 missed-call text-back, a first reply to every web inquiry
   within 60 seconds, online consultation booking, a two-way text inbox for the
@@ -58,7 +72,7 @@ local-only. Last updated 2026-10-19 (practice repositioning).
   2 hours of content updates a month, the 90-day performance commitment, and
   5-mile territory exclusivity for the practice's specialty.
 - AxeonGROWTH: from $1,999/month plus ad spend, 12-month agreement, $5,000
-  implementation fee credited. Everything in AxeonCORE plus Google Local
+  build (implementation fee) waived, first payment at go-live. Everything in AxeonCORE plus Google Local
   Services Ads and search ads management, a quarterly database reactivation
   campaign to past patients or clients, an AI phone receptionist,
   multi-provider calendar and intake routing, quarterly photo and video
@@ -77,9 +91,12 @@ local-only. Last updated 2026-10-19 (practice repositioning).
 
 ## Retired prices and offers (never cite)
 - $149/month (Essentials), $299/month (old AxeonCORE), $999/month (old
-  AxeonGROWTH), $99 to start, $1,500 to start, "first month free",
-  "$0 to start", the founding client offer, the "free website / $0 setup" ad
-  offer.
+  AxeonGROWTH), $99 to start, $1,500 to start, "first month free", the
+  founding client offer, the "free website / $0 setup" ad offer. ("$0 to
+  start" is live again since 2026-10-19, but only as the front-door offer
+  above, with its meaning stated.)
+- The free after-hours audit as a call to action or headline (retired
+  2026-10-19; it is now what we show on the call after an area check).
 - Ads add-on at +$399/month (now +$750/month for Local Services Ads on
   AxeonCORE).
 - The $2,800/$5,800 setup fees, the $284/$574 monthly plans, "$490/month".
@@ -101,8 +118,8 @@ local-only. Last updated 2026-10-19 (practice repositioning).
   Never attach a percentage or lift number to any feature.
 
 ## Territory, ownership and health information
-- Territory: "One practice per specialty within 5 miles." (While the account
-  is in good standing.)
+- Territory: "One practice or firm per specialty within 5 miles." (While the
+  account is in good standing.)
 - Ownership: the practice's domain, Google Business Profile, and
   patient/client contact data are always theirs. The website design and code
   become theirs once the 12-month term is paid. The intake system, phone/text
@@ -171,7 +188,9 @@ local-only. Last updated 2026-10-19 (practice repositioning).
   for the blog. Do not cite their rankings, review counts or quotes.
 - Hintz Family Dentistry is an unsolicited concept build. If it is ever
   mentioned, label it "Concept build" and never imply it is a client.
-- Use AxeonPROOF and the free audit as the proof of how the system works.
+- Use AxeonPROOF and what we show on the call after an area check (the
+  after-hours test call, website reply speed, reviews vs. the top 3 nearby)
+  as the proof of how the system works.
 - No unverifiable superlatives ("best", "#1", "leading", "first in Iowa").
 - Any external statistic (industry data, survey results, etc.) MUST come
   from a real source found via web search during generation, and MUST be
