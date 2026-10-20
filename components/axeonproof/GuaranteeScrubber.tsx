@@ -26,9 +26,10 @@ export function GuaranteeScrubber() {
     <div className={`rounded-3xl p-5 sm:p-7 ${GLASS}`}>
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
-          <label htmlFor={id} className={LABEL}>
-            Drag through the 90 days
-          </label>
+          {/* A heading of its own, so on a phone the scrubber is its own screen (owner rule 2026-10-19). */}
+          <h2 className={LABEL}>
+            <label htmlFor={id}>Drag through the 90 days</label>
+          </h2>
           <p className="mt-3 text-sm text-neutral-400">
             Day <span className="font-bold text-white tabular-nums">{day}</span> of 90 · {projected ? 'at this pace' : 'measured'}
           </p>

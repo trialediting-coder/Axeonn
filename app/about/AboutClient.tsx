@@ -17,9 +17,9 @@ import {
 // What we commit to, stated as facts we control (no client results: Axeon has
 // no practice clients yet, and never promises a number of patients or leads).
 const HERO_FACTS = [
-  { value: '60 sec', label: 'to the first reply on every missed call and web inquiry, 24/7' },
-  { value: '30 days', label: 'to go live once we have your materials' },
-  { value: '5 miles', label: 'one practice or firm per specialty, while your account is in good standing' },
+  { value: '60 sec', label: 'to the first reply on every missed call and web inquiry, 24/7', short: 'first reply, 24/7' },
+  { value: '30 days', label: 'to go live once we have your materials', short: 'to go live' },
+  { value: '5 miles', label: 'one practice or firm per specialty, while your account is in good standing', short: 'one per specialty' },
 ];
 
 // The three layers; the performance commitment is rendered as the fourth, blue cell.
@@ -28,16 +28,19 @@ const STEPS = [
     icon: LayoutTemplate,
     title: 'Practice or Firm Website',
     description: 'Your dentists, providers, attorneys or CPAs with credentials, services, real reviews and online booking on a fast, mobile-first site.',
+    short: 'Your people, credentials, real reviews and online booking.',
   },
   {
     icon: PhoneCall,
     title: '60-Second Intake',
     description: 'Every missed call and web inquiry answered within 60 seconds, 24/7, with a two-way text inbox for the front desk or intake team.',
+    short: 'Every missed call and inquiry answered in 60 seconds, 24/7.',
   },
   {
     icon: Star,
     title: 'Review Engine',
     description: 'An automatic review request after every completed appointment or engagement.',
+    short: 'A review request after every appointment.',
   },
 ];
 
@@ -58,29 +61,30 @@ export default function AboutClient() {
   return (
     <div className="min-h-screen bg-[#FAF9F8] text-neutral-950 font-sans selection:bg-blue-600 selection:text-white">
       {/* SECTION 1: Hero + proof */}
-      <section className="min-h-[70vh] flex flex-col justify-center px-4 sm:px-8 lg:px-14 xl:px-20 border-b border-neutral-200/80 relative pt-24 sm:pt-28 pb-12">
+      {/* Purpose: what Axeon fixes (missed calls) and the three commitments, with the first CTA. */}
+      <section className="sm:min-h-[70vh] flex flex-col justify-center px-4 sm:px-8 lg:px-14 xl:px-20 border-b border-neutral-200/80 relative pt-24 sm:pt-28 pb-8 sm:pb-12">
         <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
-          <div className="flex flex-wrap items-center gap-2 text-xs font-mono font-semibold tracking-widest text-neutral-500 uppercase mb-4">
+          <div className="flex flex-wrap items-center gap-2 text-xs font-mono font-semibold tracking-widest text-neutral-500 uppercase mb-3 sm:mb-4">
             <span>AXEON STUDIO</span>
             <span>/</span>
             <span className="text-blue-600">[ WEST DES MOINES, IOWA ]</span>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-end">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-8 lg:gap-12 items-end">
             <div className="lg:col-span-7 hero-rise">
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-neutral-950 font-display tracking-tight leading-[1.08]">
+              <h1 className="text-[28px] sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-neutral-950 font-display tracking-tight leading-[1.1] sm:leading-[1.08]">
                 Your practice or firm is great.
-                <span className="block text-blue-600 mt-2">Your voicemail is losing patients and clients.</span>
+                <span className="block text-blue-600 mt-1 sm:mt-2">Your voicemail is losing patients and clients.</span>
               </h1>
             </div>
 
             <div className="lg:col-span-5 flex flex-col justify-end hero-rise">
-              <p className="text-base sm:text-lg text-neutral-600 leading-relaxed">
+              <p className="text-[15px] sm:text-lg text-neutral-600 leading-relaxed">
                 Axeon was built in West Des Moines to fix that. We are a growth partner for dental practices, med spas, law
                 firms and CPA firms: we install the intake that answers every call and inquiry within 60 seconds, then stay
                 on it with you.
               </p>
-              <div className="mt-6 flex flex-wrap items-center gap-3">
+              <div className="mt-5 sm:mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 sm:gap-3">
                 <button
                   type="button"
                   onClick={() => router.push('/check-your-area')}
@@ -92,7 +96,7 @@ export default function AboutClient() {
                 <button
                   type="button"
                   onClick={() => router.push('/axeonproof')}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white hover:bg-neutral-100 text-neutral-800 border border-neutral-300 font-semibold text-sm tracking-tight transition-all duration-200 cursor-pointer"
+                  className="inline-flex items-center gap-2 min-h-11 sm:px-6 sm:py-3 rounded-full sm:bg-white sm:hover:bg-neutral-100 text-neutral-800 sm:border sm:border-neutral-300 font-semibold text-sm tracking-tight transition-all duration-200 cursor-pointer"
                 >
                   <span>Tour AxeonPROOF</span>
                   <ArrowUpRight size={16} />
@@ -102,21 +106,24 @@ export default function AboutClient() {
           </div>
 
           {/* What we commit to (replaces the stock team photo) */}
-          <div className="mt-12 sm:mt-16 rounded-2xl sm:rounded-3xl bg-neutral-950 text-white border border-neutral-800 shadow-xl p-6 sm:p-10">
-            <div className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-6">
+          <div className="mt-6 sm:mt-16 rounded-2xl sm:rounded-3xl bg-neutral-950 text-white border border-neutral-800 shadow-xl p-4 sm:p-10">
+            <div className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-3 sm:mb-6">
               [ WHAT WE COMMIT TO ]
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-10">
+            <div className="grid grid-cols-3 gap-3 sm:gap-10">
               {HERO_FACTS.map((p) => (
-                <div key={p.label} className="border-l-2 border-blue-600 pl-4">
-                  <p className="text-3xl sm:text-5xl font-black font-display tracking-tight">{p.value}</p>
-                  <p className="mt-1.5 text-sm text-neutral-400 leading-snug">{p.label}</p>
+                <div key={p.label} className="border-l-2 border-blue-600 pl-2.5 sm:pl-4">
+                  <p className="text-xl sm:text-5xl font-black font-display tracking-tight">{p.value}</p>
+                  <p className="mt-1 sm:mt-1.5 text-xs sm:text-sm text-neutral-400 leading-snug">
+                    <span className="sm:hidden">{p.short}</span>
+                    <span className="hidden sm:inline">{p.label}</span>
+                  </p>
                 </div>
               ))}
             </div>
             <Link
               href="/marketing-solutions"
-              className="py-2 mt-8 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-300 hover:text-white transition-colors"
+              className="py-2 mt-2 sm:mt-8 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-300 hover:text-white transition-colors"
             >
               See how it works <ArrowRight size={14} />
             </Link>
@@ -125,20 +132,21 @@ export default function AboutClient() {
       </section>
 
       {/* SECTION 2: the system in one row (three layers + the performance commitment) */}
-      <section className="px-4 sm:px-8 lg:px-14 xl:px-20 border-b border-neutral-200/80 py-12 lg:py-16 bg-[#F7F6F3]">
+      {/* Purpose: the three layers we install and the 90-day performance commitment behind them. */}
+      <section className="px-4 sm:px-8 lg:px-14 xl:px-20 border-b border-neutral-200/80 py-8 sm:py-12 lg:py-16 bg-[#F7F6F3]">
         <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
-          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-3 mb-8 sm:mb-10">
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-1 sm:gap-3 mb-3 sm:mb-10">
             <div>
               <span className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">
                 [ FROM FIRST CALL TO BOOKED CONSULT ]
               </span>
-              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-neutral-950 font-display tracking-tight mt-2">
+              <h2 className="text-[26px] leading-tight sm:text-4xl lg:text-5xl font-extrabold text-neutral-950 font-display tracking-tight mt-2">
                 Answered. Booked. Reviewed. Committed.
               </h2>
             </div>
             <Link
               href="/process"
-              className="py-2 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 shrink-0"
+              className="py-2 min-h-11 sm:min-h-0 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 shrink-0 self-start lg:self-auto"
             >
               See the full process <ArrowRight size={14} />
             </Link>
@@ -150,32 +158,35 @@ export default function AboutClient() {
               return (
                 <div
                   key={step.title}
-                  className="p-6 sm:p-8 border-b lg:border-b-0 lg:border-r border-neutral-200 flex gap-4 lg:block"
+                  className="px-4 py-3 sm:p-8 border-b lg:border-b-0 lg:border-r border-neutral-200 flex gap-3 sm:gap-4 lg:block"
                 >
-                  <div className="flex items-center gap-3 lg:mb-4 shrink-0">
+                  <div className="flex items-center gap-2 sm:gap-3 lg:mb-4 shrink-0 h-7 sm:h-auto">
                     <span className="font-mono text-xs font-bold text-neutral-400">0{idx + 1}</span>
                     <Icon size={20} className="text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="text-xl sm:text-2xl font-extrabold font-display tracking-tight text-neutral-950">
+                    <h3 className="text-lg sm:text-2xl font-extrabold font-display tracking-tight text-neutral-950">
                       {step.title}
                     </h3>
-                    <p className="mt-1.5 text-sm sm:text-base text-neutral-600 leading-relaxed">{step.description}</p>
+                    <p className="mt-0.5 sm:mt-1.5 text-sm sm:text-base text-neutral-600 leading-snug sm:leading-relaxed">
+                      <span className="sm:hidden">{step.short}</span>
+                      <span className="hidden sm:inline">{step.description}</span>
+                    </p>
                   </div>
                 </div>
               );
             })}
             <Link
               href="/pricing"
-              className="group p-6 sm:p-8 bg-blue-600 text-white flex flex-col justify-between gap-4 hover:bg-blue-700 transition-colors"
+              className="group p-4 sm:p-8 bg-blue-600 text-white flex flex-col justify-between gap-2 sm:gap-4 hover:bg-blue-700 transition-colors"
             >
               <div className="flex items-center gap-2 text-xs font-mono font-bold tracking-widest uppercase text-blue-100">
                 <ShieldCheck size={16} />
                 <span>Performance commitment</span>
               </div>
               <div>
-                <div className="text-5xl sm:text-6xl font-black font-display tracking-tight leading-none">90 days</div>
-                <p className="mt-3 text-sm sm:text-base text-blue-50 leading-relaxed">
+                <div className="text-4xl sm:text-6xl font-black font-display tracking-tight leading-none">90 days</div>
+                <p className="mt-2 sm:mt-3 text-sm sm:text-base text-blue-50 leading-snug sm:leading-relaxed">
                   Live within 30 days of getting your materials. Every missed call and web inquiry gets a reply within 60 seconds. Every completed appointment gets a review request. Miss any of those in the first 90 days and don&apos;t get it fixed within 15 days? Walk away and owe nothing for the rest of the term.
                 </p>
               </div>
@@ -187,11 +198,12 @@ export default function AboutClient() {
         </div>
       </section>
       {/* SECTION 3: Why Axeon exists */}
-      <section className="flex flex-col justify-center px-4 sm:px-8 lg:px-14 xl:px-20 border-b border-neutral-200/80 py-12 lg:py-16 relative bg-[#FAF9F8]">
+      {/* Purpose: why missed calls cost good practices, what Axeon does about it, and who it is for.
+          Phones skip the studio card and contact box (the closing section carries phone and email). */}
+      <section className="flex flex-col justify-center px-4 sm:px-8 lg:px-14 xl:px-20 border-b border-neutral-200/80 py-10 sm:py-12 lg:py-16 relative bg-[#FAF9F8]">
         <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
-            <div className="lg:col-span-5"
-            >
+            <div className="hidden sm:block lg:col-span-5">
               <div className="relative w-full max-w-md mx-auto lg:max-w-none rounded-3xl overflow-hidden shadow-xl border border-neutral-800 bg-neutral-950 text-white p-8 sm:p-10">
                 <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-blue-300 font-semibold mb-3">
                   <MapPin size={13} />
@@ -225,8 +237,7 @@ export default function AboutClient() {
               </div>
             </div>
 
-            <div className="lg:col-span-7 space-y-6"
-            >
+            <div className="lg:col-span-7 space-y-5 sm:space-y-6">
               <div>
                 <span className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">
                   [ WHY AXEON EXISTS ]
@@ -234,7 +245,7 @@ export default function AboutClient() {
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-neutral-950 font-display tracking-tight mt-2">
                   Why Axeon exists.
                 </h2>
-                <div className="mt-5 space-y-4 text-sm sm:text-base lg:text-lg text-neutral-600 leading-relaxed">
+                <div className="mt-3 sm:mt-5 space-y-3 sm:space-y-4 text-[15px] sm:text-base lg:text-lg text-neutral-600 leading-relaxed">
                   <p>
                     Good practices and firms lose new patients and clients every week without knowing it. The call comes in after
                     hours or during a busy morning, goes to voicemail, and the person books with whoever answered first.
@@ -248,14 +259,14 @@ export default function AboutClient() {
                 </div>
               </div>
 
-              <div className="p-6 sm:p-7 rounded-2xl bg-neutral-900 text-white border border-neutral-800 shadow-md">
+              <div className="p-5 sm:p-7 rounded-2xl bg-neutral-900 text-white border border-neutral-800 shadow-md">
                 <div className="text-xs font-mono font-bold uppercase tracking-wider text-blue-400">Who we work with</div>
-                <p className="mt-3 text-lg sm:text-xl font-bold font-display text-neutral-100 leading-snug">
+                <p className="mt-2 sm:mt-3 text-base sm:text-xl font-bold font-display text-neutral-100 leading-snug">
                   Established private practices and firms: dental offices, med spas, law firms and accounting and CPA firms.
                 </p>
                 <Link
                   href="/solutions"
-                  className="py-2 mt-3 inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-300 hover:text-white transition-colors"
+                  className="py-2 mt-1 sm:mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-300 hover:text-white transition-colors"
                 >
                   See who we serve <ArrowRight size={13} />
                 </Link>
@@ -266,25 +277,26 @@ export default function AboutClient() {
       </section>
 
       {/* SECTION 4: dark statement band — how we work */}
-      <section className="px-4 sm:px-8 lg:px-14 xl:px-20 py-16 sm:py-24 lg:py-28 bg-neutral-950 text-white">
-        <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+      {/* Purpose: how working with us feels day to day (direct contact, exclusivity, speed, reporting). */}
+      <section className="px-4 sm:px-8 lg:px-14 xl:px-20 py-10 sm:py-24 lg:py-28 bg-neutral-950 text-white">
+        <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-10 lg:gap-16">
           <div className="lg:col-span-5">
             <span className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">[ HOW WE WORK ]</span>
-            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-[1.05] mt-3">
+            <h2 className="text-[28px] sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-[1.08] sm:leading-[1.05] mt-2 sm:mt-3">
               You&apos;ll never talk to an account manager.
             </h2>
-            <p className="mt-5 text-base sm:text-lg text-neutral-400 leading-relaxed max-w-md">
+            <p className="mt-3 sm:mt-5 text-[15px] sm:text-lg text-neutral-400 leading-relaxed max-w-md">
               Out here you earn trust by doing what you said you would. One point of contact, and we never work for the
               competitor down the street. We grow when you grow.
             </p>
           </div>
           <ol className="lg:col-span-7 divide-y divide-white/10 border-y border-white/10">
             {HOW_WE_WORK.map((item, idx) => (
-              <li key={item} className="flex items-baseline gap-5 sm:gap-8 py-6 sm:py-7">
-                <span className="text-3xl sm:text-5xl font-black font-display text-blue-500 tabular-nums shrink-0">
+              <li key={item} className="flex items-baseline gap-4 sm:gap-8 py-3.5 sm:py-7">
+                <span className="text-xl sm:text-5xl font-black font-display text-blue-500 tabular-nums shrink-0">
                   0{idx + 1}
                 </span>
-                <span className="text-lg sm:text-2xl lg:text-[28px] font-bold font-display tracking-tight leading-snug text-neutral-100">
+                <span className="text-base sm:text-2xl lg:text-[28px] font-bold font-display tracking-tight leading-snug text-neutral-100">
                   {item}
                 </span>
               </li>
@@ -294,7 +306,8 @@ export default function AboutClient() {
       </section>
 
       {/* SECTION 5: Next Step CTA (light, so it doesn't echo the dark band above) */}
-      <section className="px-4 sm:px-8 lg:px-14 xl:px-20 py-16 sm:py-24">
+      {/* Purpose: check if your area is open, or call; exclusivity and the $0-to-start offer. */}
+      <section className="px-4 sm:px-8 lg:px-14 xl:px-20 py-12 sm:py-24">
         <div className="w-full max-w-4xl mx-auto text-center">
           <span className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ LET&apos;S TALK ]</span>
           <h2 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-neutral-950 font-display tracking-tight mt-3">

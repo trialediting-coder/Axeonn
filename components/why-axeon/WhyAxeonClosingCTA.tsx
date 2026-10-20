@@ -1,15 +1,16 @@
 import Link from 'next/link';
 
 // The performance commitment is stated once, in the band above. This is just the ask.
+// Purpose: check if your area is open (exclusivity + $0 to start), or see pricing.
 export default function WhyAxeonClosingCTA() {
   return (
-    <section className="w-full py-20 sm:py-24 px-4 sm:px-10 lg:px-16 xl:px-24">
+    <section className="w-full py-12 sm:py-24 px-4 sm:px-10 lg:px-16 xl:px-24">
       <div className="max-w-4xl mx-auto text-center">
         <div className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-4">[ NEXT STEP ]</div>
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight font-display leading-tight text-neutral-950 mb-5">
+        <h2 className="text-[28px] sm:text-4xl lg:text-5xl font-extrabold tracking-tight font-display leading-tight text-neutral-950 mb-4 sm:mb-5">
           Is your specialty still open in your area?
         </h2>
-        <p className="text-lg text-neutral-600 max-w-2xl mx-auto leading-relaxed mb-10">
+        <p className="text-base sm:text-lg text-neutral-600 max-w-2xl mx-auto leading-relaxed mb-8 sm:mb-10">
           One practice or firm per specialty within 5 miles. When we&apos;re working with you, we don&apos;t work for the
           competitor down the street. $0 to start. Nothing due until it&apos;s working. Every partnership with us starts here.
         </p>

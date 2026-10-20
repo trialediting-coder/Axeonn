@@ -138,7 +138,7 @@ export function ProofTour() {
         </div>
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_320px] lg:gap-8">
+      <div className="mt-3 grid gap-3 sm:mt-6 sm:gap-6 lg:grid-cols-[1fr_320px] lg:gap-8">
         {/* The screen */}
         <div id="proof-tour-panel" role="tabpanel" aria-labelledby={`proof-tab-${tab.key}`} className="min-w-0">
           {device === 'desktop' ? (
@@ -154,7 +154,7 @@ export function ProofTour() {
                     app.axeonstudio.co/?tab={tab.key}
                   </span>
                 </div>
-                <div key={tab.key} className="h-[560px] overflow-y-auto overscroll-contain sm:h-[640px]" onWheel={stop} onPointerDown={stop}>
+                <div key={tab.key} className="h-[330px] overflow-y-auto overscroll-contain sm:h-[640px]" onWheel={stop} onPointerDown={stop}>
                   <DashboardShell tab={tab.key} onTab={onTab}>
                     <ScreenFor tab={tab.key} full={false} />
                   </DashboardShell>
@@ -180,7 +180,7 @@ export function ProofTour() {
         </div>
 
         {/* What this tab is */}
-        <aside className={`flex flex-col rounded-3xl p-6 sm:p-7 ${GLASS}`}>
+        <aside className={`flex flex-col rounded-2xl px-4 py-3.5 sm:rounded-3xl sm:p-7 ${GLASS}`}>
           <div className="flex items-center justify-between gap-3">
             <p className={LABEL}>
               Tab {index + 1} of {n}
@@ -197,16 +197,16 @@ export function ProofTour() {
           </div>
 
           <div key={tab.key} className="animate-proof-rise">
-            <span className="mt-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-700 to-blue-500 text-white shadow-lg shadow-blue-600/30">
+            <span className="mt-6 hidden h-12 w-12 items-center sm:flex justify-center rounded-2xl bg-gradient-to-tr from-blue-700 to-blue-500 text-white shadow-lg shadow-blue-600/30">
               <Icon size={22} />
             </span>
-            <h3 className="mt-5 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">{tab.label}</h3>
-            <span className={`mt-3 inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold ${CHIP_STYLE[tab.tier]}`}>{PLAN_CHIP[tab.tier]}</span>
-            <p className="mt-4 text-base leading-relaxed text-neutral-300">{TAB_NOTES[tab.key]}</p>
+            <h3 className="mt-1.5 inline text-xl font-extrabold tracking-tight text-white sm:mt-5 sm:block sm:text-3xl">{tab.label}</h3>
+            <span className={`ml-2 mt-1.5 inline-flex align-middle sm:ml-0 sm:mt-3 rounded-full px-2.5 py-1 text-[11px] font-bold ${CHIP_STYLE[tab.tier]}`}>{PLAN_CHIP[tab.tier]}</span>
+            <p className="mt-1.5 text-[15px] leading-snug text-neutral-300 sm:mt-4 sm:text-base sm:leading-relaxed">{TAB_NOTES[tab.key]}</p>
           </div>
 
-          <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-6 lg:mt-auto">
-            <div className="flex items-center gap-1 rounded-full bg-white/[0.06] p-1 text-xs font-semibold text-neutral-300 ring-1 ring-white/10" role="group" aria-label="Screen size">
+          <div className="mt-3 flex flex-wrap items-center justify-end gap-4 border-t border-white/10 pt-3 sm:mt-8 sm:justify-between sm:pt-6 lg:mt-auto">
+            <div className="hidden items-center gap-1 rounded-full bg-white/[0.06] p-1 text-xs font-semibold text-neutral-300 ring-1 ring-white/10 sm:flex" role="group" aria-label="Screen size">
               {(['desktop', 'phone'] as const).map((d) => (
                 <button
                   key={d}
@@ -225,7 +225,7 @@ export function ProofTour() {
                 type="button"
                 onClick={() => pick(index - 1)}
                 aria-label="Previous tab"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white ring-1 ring-white/15 transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full sm:h-10 sm:w-10 text-white ring-1 ring-white/15 transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400"
               >
                 <ArrowLeft size={16} />
               </button>
@@ -233,7 +233,7 @@ export function ProofTour() {
                 type="button"
                 onClick={() => pick(index + 1)}
                 aria-label="Next tab"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white shadow-md shadow-blue-600/30 transition-colors hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full sm:h-10 sm:w-10 bg-blue-600 text-white shadow-md shadow-blue-600/30 transition-colors hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400"
               >
                 <ArrowRight size={16} />
               </button>

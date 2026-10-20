@@ -49,35 +49,41 @@ const INCLUDED = [
     title: 'A real website',
     description:
       'Custom design, mobile-first, fast, and accessible. The same quality our paying clients get, not a stripped-down template.',
+    short: 'Custom, mobile-first, fast and accessible. Not a template.',
   },
   {
     icon: Search,
     title: 'Found on Google and in AI answers',
     description:
       'Google and AI search set up from day one, so people find you on Google and when they ask ChatGPT, Perplexity, or Gemini for help nearby.',
+    short: 'Set up from day one for Google, ChatGPT, Perplexity and Gemini.',
   },
   {
     icon: MapPin,
     title: 'Google Business Profile',
     description:
       'Set up or cleaned up with your hours, photos, services, and a review link, so you show up on Google Maps.',
+    short: 'Hours, photos, services and a review link, on Google Maps.',
   },
   {
     icon: HeartHandshake,
     title: 'Donate and volunteer pages',
     description:
       'Clear paths to give and to help, connected to a free donation tool that your organization owns.',
+    short: 'Connected to a free donation tool your organization owns.',
   },
   {
     icon: ClipboardList,
     title: 'Intake and sign-up forms',
     description: 'Volunteer sign-ups, client intake, and event RSVPs that land where your team will see them.',
+    short: 'Volunteer sign-ups, client intake and event RSVPs.',
   },
   {
     icon: Languages,
     title: 'Translated pages',
     description:
       'Key pages in the languages your community speaks. First priority for immigrant- and refugee-serving organizations.',
+    short: 'Key pages in your community’s languages.',
   },
 ];
 
@@ -157,7 +163,8 @@ export default function NonprofitsPage() {
       <BreadcrumbJsonLd items={[{ name: 'Nonprofits', path: '/nonprofits' }]} />
 
       {/* Hero */}
-      <section className="relative w-full min-h-[100dvh] flex items-center px-6 sm:px-10 lg:px-16 xl:px-24 pt-32 pb-24 bg-neutral-950 text-white overflow-hidden">
+      {/* Purpose: the offer (a free digital presence, you cover hosting), the deadline, and the two ways to reach us. */}
+      <section className="relative w-full min-h-[85svh] sm:min-h-[100dvh] flex items-center px-6 sm:px-10 lg:px-16 xl:px-24 pt-28 pb-14 sm:pt-32 sm:pb-24 bg-neutral-950 text-white overflow-hidden">
         {/* Background video: Food Bank of Iowa's public b-roll, embedded from YouTube (not rehosted). */}
         <HeroYouTube
           videoId={HERO_VIDEO_ID}
@@ -177,26 +184,26 @@ export default function NonprofitsPage() {
           <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-4">
             [ {PROGRAM_NAME} ]
           </p>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight leading-[1.05] font-display mb-6">
+          <h1 className="text-[34px] sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight leading-[1.05] font-display mb-4 sm:mb-6">
             A Free Digital Presence for Iowa Nonprofits
           </h1>
-          <p className="text-lg sm:text-xl text-neutral-300 leading-relaxed max-w-3xl mb-5">
+          <p className="text-base sm:text-xl text-neutral-300 leading-relaxed max-w-3xl mb-4 sm:mb-5">
             We build your website, get you found on Google and in AI search, and set up your Google Business
             Profile, for free. Seriously. The only thing you cover is basic hosting.
           </p>
-          <p className="text-sm font-semibold text-blue-300 mb-8">
+          <p className="text-sm font-semibold text-blue-300 mb-6 sm:mb-8">
             The {GROUP_NAME} group closes {GROUP_DEADLINE}. No application needed.
           </p>
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
             <a
               href={CONTACT_HREF}
-              className="inline-flex items-center gap-2 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
+              className="inline-flex items-center gap-2 px-6 sm:px-7 py-3.5 sm:py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
             >
               Email Us About Your Nonprofit <ArrowRight size={18} />
             </a>
             <Link
               href="/book"
-              className="inline-flex items-center gap-2 px-7 py-4 rounded-full border border-neutral-700 hover:border-neutral-500 text-white font-bold text-base transition-colors"
+              className="inline-flex items-center gap-2 px-6 sm:px-7 py-3.5 sm:py-4 rounded-full border border-neutral-700 hover:border-neutral-500 text-white font-bold text-base transition-colors"
             >
               Book a Fit Call
             </Link>
@@ -205,10 +212,11 @@ export default function NonprofitsPage() {
       </section>
 
       {/* At a glance */}
+      {/* Purpose: the four terms at a glance: $0 build, hosting only, you own it, the deadline. */}
       <section className="w-full border-b border-neutral-200 bg-white px-6 sm:px-10 lg:px-16 xl:px-24">
         <dl className="max-w-6xl mx-auto grid grid-cols-2 lg:grid-cols-4 divide-neutral-200 lg:divide-x">
           {GLANCE.map(({ label, value }) => (
-            <div key={label} className="py-7 lg:px-8 first:lg:pl-0">
+            <div key={label} className="py-4 sm:py-7 lg:px-8 first:lg:pl-0">
               <dt className="text-xs font-mono uppercase tracking-wider text-neutral-500 mb-1">{label}</dt>
               <dd className="text-lg sm:text-xl font-bold text-neutral-950">{value}</dd>
             </div>
@@ -217,34 +225,35 @@ export default function NonprofitsPage() {
       </section>
 
       {/* Why: mission statement */}
-      <section className="w-full lg:min-h-[100dvh] flex items-center py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
+      {/* Purpose: why we do this, in our own words. */}
+      <section className="w-full lg:min-h-[100dvh] flex items-center py-10 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
         <figure className="max-w-6xl mx-auto w-full grid lg:grid-cols-12 gap-10 lg:gap-16 items-center">
           <div className="lg:col-span-10 lg:col-start-2">
-            <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-6">[ WHY WE DO THIS ]</p>
-            <span aria-hidden="true" className="block font-display text-8xl leading-none text-blue-600/25 -mb-6">
+            <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3 sm:mb-6">[ WHY WE DO THIS ]</p>
+            <span aria-hidden="true" className="hidden sm:block font-display text-8xl leading-none text-blue-600/25 -mb-6">
               &ldquo;
             </span>
-            <blockquote className="space-y-6">
+            <blockquote className="space-y-3 sm:space-y-6">
               <p className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-snug text-neutral-950">
                 Iowa runs on people who show up for each other.
               </p>
-              <p className="text-lg text-neutral-700 leading-relaxed">
+              <p className="text-[15px] sm:text-lg text-neutral-700 leading-relaxed">
                 You see it everywhere once you start looking. The food pantry that stays open late on a Tuesday.
                 The free clinic that knows its patients by name. The volunteers pulling trash out of a river on a
                 Saturday morning. The neighbors who help a new family figure out where to even begin. Most of that
                 work happens quietly, carried by small teams who give far more than they ever get back.
               </p>
-              <p className="text-lg text-neutral-700 leading-relaxed">
+              <p className="text-[15px] sm:text-lg text-neutral-700 leading-relaxed">
                 Those missions deserve to be found. But most small nonprofits cannot pay agency rates, so they get
                 by with an outdated website or none at all, and the people who need them most never find them. That
                 is a problem we know how to fix, so we are fixing it for free, for as many Iowa nonprofits as we
                 can.
               </p>
-              <p className="text-lg text-neutral-950 font-semibold leading-relaxed">
+              <p className="text-[15px] sm:text-lg text-neutral-950 font-semibold leading-relaxed">
                 This state has given us a lot. This is one way we get to give some of it back.
               </p>
             </blockquote>
-            <figcaption className="mt-8 flex items-center gap-4">
+            <figcaption className="mt-4 sm:mt-8 flex items-center gap-4">
               <span aria-hidden="true" className="h-px w-10 bg-blue-600" />
               <span>
                 <span className="block font-bold text-neutral-950">Axeon Studio</span>
@@ -256,25 +265,29 @@ export default function NonprofitsPage() {
       </section>
 
       {/* What's included: one message -- the full paid build, free. */}
-      <section className="w-full py-20 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50 border-y border-neutral-200">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+      {/* Purpose: the six things the free build includes (phones: one line each). */}
+      <section className="w-full py-10 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50 border-y border-neutral-200">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-10 lg:gap-16">
           <div className="lg:col-span-5">
-            <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ WHAT YOU GET ]</p>
-            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight font-display leading-[1.05]">
+            <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-2 sm:mb-3">[ WHAT YOU GET ]</p>
+            <h2 className="text-[28px] sm:text-5xl lg:text-6xl font-extrabold tracking-tight font-display leading-[1.08] sm:leading-[1.05]">
               The same build paying clients get, free.
             </h2>
-            <p className="mt-5 text-lg text-neutral-600 leading-relaxed">
+            <p className="mt-2 sm:mt-5 text-[15px] sm:text-lg text-neutral-600 leading-relaxed">
               So donors, volunteers and the people you serve find you first. You own your domain, your content, and
               your accounts. You only cover basic hosting.
             </p>
           </div>
           <ul className="lg:col-span-7 divide-y divide-neutral-200 border-y border-neutral-200">
-            {INCLUDED.map(({ icon: Icon, title, description }) => (
-              <li key={title} className="flex gap-4 py-5">
-                <Icon size={20} className="mt-1 shrink-0 text-blue-600" />
+            {INCLUDED.map(({ icon: Icon, title, description, short }) => (
+              <li key={title} className="flex gap-3 sm:gap-4 py-2.5 sm:py-5">
+                <Icon size={20} className="mt-0.5 sm:mt-1 shrink-0 text-blue-600" />
                 <div>
-                  <h3 className="text-lg font-bold">{title}</h3>
-                  <p className="mt-1 text-neutral-600 leading-relaxed">{description}</p>
+                  <h3 className="text-base sm:text-lg font-bold leading-snug sm:leading-normal">{title}</h3>
+                  <p className="sm:mt-1 text-sm sm:text-base text-neutral-600 leading-snug sm:leading-relaxed">
+                    <span className="sm:hidden">{short}</span>
+                    <span className="hidden sm:inline">{description}</span>
+                  </p>
                 </div>
               </li>
             ))}
@@ -283,23 +296,26 @@ export default function NonprofitsPage() {
       </section>
 
       {/* Causes */}
-      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
+      {/* Purpose: every Iowa nonprofit is welcome; three causes go to the front of each group. */}
+      <section className="w-full py-10 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight mb-4">
+          <h2 className="text-[28px] sm:text-4xl lg:text-5xl font-extrabold tracking-tight mb-2 sm:mb-4">
             Open to Every Iowa Nonprofit
           </h2>
-          <p className="text-lg text-neutral-600 max-w-3xl mb-12 leading-relaxed">
+          <p className="text-[15px] sm:text-lg text-neutral-600 max-w-3xl mb-5 sm:mb-12 leading-relaxed">
             Any Iowa nonprofit is welcome. These three causes are personal to us, so they go to the front of
             each group.
           </p>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-2.5 sm:gap-6">
             {CAUSES.map(({ icon: Icon, title, description }) => (
-              <div key={title} className="rounded-3xl border-2 border-blue-600/20 bg-blue-50/40 p-8">
-                <div className="w-11 h-11 rounded-xl bg-blue-600 text-white flex items-center justify-center mb-5">
-                  <Icon size={22} />
+              <div key={title} className="flex gap-3.5 md:block rounded-2xl sm:rounded-3xl border-2 border-blue-600/20 bg-blue-50/40 p-4 sm:p-8">
+                <div className="shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-blue-600 text-white flex items-center justify-center md:mb-5">
+                  <Icon size={20} />
                 </div>
-                <h3 className="text-xl font-bold mb-2">{title}</h3>
-                <p className="text-neutral-600 leading-relaxed">{description}</p>
+                <div>
+                  <h3 className="text-base sm:text-xl font-bold sm:mb-2">{title}</h3>
+                  <p className="text-[15px] sm:text-base text-neutral-600 leading-snug sm:leading-relaxed">{description}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -307,6 +323,7 @@ export default function NonprofitsPage() {
       </section>
 
       {/* Deadline band */}
+      {/* Purpose: the deadline for the current group, with the email CTA. */}
       <section className="w-full py-12 sm:py-16 px-4 sm:px-10 lg:px-16 xl:px-24 bg-blue-600 text-white">
         <div className="max-w-6xl mx-auto flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div>
@@ -327,30 +344,31 @@ export default function NonprofitsPage() {
       </section>
 
       {/* How it works + requirements */}
-      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
-        <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-12">
+      {/* Purpose: the five steps from reaching out to launch, and who qualifies. */}
+      <section className="w-full py-10 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-5 sm:gap-12">
           <div className="lg:col-span-7">
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-10">How It Works</h2>
-            <ol className="space-y-6">
+            <h2 className="text-[28px] sm:text-4xl font-extrabold tracking-tight mb-3 sm:mb-10">How It Works</h2>
+            <ol className="space-y-2.5 sm:space-y-6">
               {STEPS.map((step, i) => (
-                <li key={step.title} className="flex gap-5">
-                  <span className="flex-none w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center">
+                <li key={step.title} className="flex gap-3.5 sm:gap-5">
+                  <span className="flex-none w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-600 text-white text-sm sm:text-base font-bold flex items-center justify-center">
                     {i + 1}
                   </span>
                   <div>
-                    <h3 className="text-lg font-bold">{step.title}</h3>
-                    <p className="text-neutral-300 leading-relaxed">{step.description}</p>
+                    <h3 className="text-base sm:text-lg font-bold leading-snug sm:leading-normal">{step.title}</h3>
+                    <p className="text-sm sm:text-base text-neutral-300 leading-snug sm:leading-relaxed">{step.description}</p>
                   </div>
                 </li>
               ))}
             </ol>
           </div>
           <div className="lg:col-span-5">
-            <div className="rounded-3xl border border-neutral-700 p-8">
-              <h3 className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-5">[ WHO QUALIFIES ]</h3>
-              <ul className="space-y-4">
+            <div className="rounded-2xl sm:rounded-3xl border border-neutral-700 p-4 sm:p-8">
+              <h3 className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-2.5 sm:mb-5">[ WHO QUALIFIES ]</h3>
+              <ul className="space-y-1.5 sm:space-y-4">
                 {REQUIREMENTS.map((item) => (
-                  <li key={item} className="flex gap-3 text-neutral-200 leading-relaxed">
+                  <li key={item} className="flex gap-3 text-sm sm:text-base text-neutral-200 leading-snug sm:leading-relaxed">
                     <span className="mt-2 flex-none w-1.5 h-1.5 rounded-full bg-blue-400" />
                     {item}
                   </li>
@@ -362,15 +380,17 @@ export default function NonprofitsPage() {
       </section>
 
       {/* FAQ */}
-      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
+      {/* Purpose: answer the common questions (cost, who qualifies, ownership). Collapsed so every question shows at once. */}
+      <section className="w-full py-10 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-10">Questions Nonprofits Ask</h2>
-          <FAQAccordion items={NONPROFIT_FAQ} defaultOpenCount={1} />
+          <h2 className="text-[28px] sm:text-4xl font-extrabold tracking-tight mb-3 sm:mb-10">Questions Nonprofits Ask</h2>
+          <FAQAccordion items={NONPROFIT_FAQ} />
         </div>
       </section>
 
       {/* CTA */}
-      <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
+      {/* Purpose: the closing ask: reach out by the deadline (email or fit call). */}
+      <section className="w-full py-12 sm:py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-4">[ BUILT FOR IOWA ]</p>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight mb-6">
