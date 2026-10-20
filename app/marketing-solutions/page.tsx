@@ -1,3 +1,4 @@
+import { COMMITMENT_HEADLINE, COMMITMENT_TERMS_HREF, OWNERSHIP_LINE } from '@/data/pricingData';
 import LineIcon from '@/components/common/LineIcon';
 import Link from 'next/link';
 import { ArrowRight, ArrowUpRight, Check, MapPin, ShieldCheck, KeyRound } from 'lucide-react';
@@ -75,9 +76,7 @@ export default function HowItWorksPage() {
             Patient &amp; client intake, installed for you
           </h1>
           <p className="mt-4 sm:mt-6 text-base sm:text-xl text-neutral-300 leading-relaxed max-w-2xl mx-auto">
-            Calls after hours and during busy mornings go to voicemail. Forms wait until tomorrow. Axeon answers every missed
-            call and web inquiry within 60 seconds, 24/7, books the consultation, and asks every patient and client for a review after the
-            visit.
+            Every missed call and inquiry answered in 60 seconds, booked, and reviewed.
           </p>
           <div className="mt-6 sm:mt-10 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-1 sm:gap-5">
             <Link
@@ -118,8 +117,7 @@ export default function HowItWorksPage() {
               The new patient or client books with whoever answers first.
             </h2>
             <p className="mt-3 sm:mt-5 text-[15px] sm:text-lg text-neutral-600 leading-snug sm:leading-relaxed">
-              Most practices and firms do not need more traffic first. They need every call and inquiry they already get answered before
-              the person moves on. Here is one example evening.
+              One example evening.
             </p>
           </div>
           <div className="mt-5 sm:mt-12 grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-5">
@@ -159,8 +157,7 @@ export default function HowItWorksPage() {
               Three layers. One team installs and runs all of them.
             </h2>
             <p className="mt-3 sm:mt-5 text-[15px] sm:text-base text-neutral-600 leading-snug sm:leading-normal">
-              Also in AxeonCORE: the AxeonPROOF client portal, and one practice per specialty within 5 miles while your account is
-              in good standing.
+              Plus the AxeonPROOF client portal.
             </p>
           </div>
         </section>
@@ -176,7 +173,7 @@ export default function HowItWorksPage() {
                 <p className="text-sm font-semibold text-neutral-400">{layer.step}</p>
                 <h2 className="mt-1 text-2xl sm:text-4xl font-black font-display tracking-tight">{layer.title}</h2>
                 <p className="mt-2 sm:mt-3 text-base sm:text-lg font-semibold text-neutral-900 leading-snug">{layer.promise}</p>
-                <p className="mt-2 sm:mt-4 text-sm sm:text-base text-neutral-600 leading-snug sm:leading-relaxed">{layer.problem}</p>
+                <p className="hidden sm:block mt-4 text-base text-neutral-600 leading-relaxed">{layer.problem}</p>
               </div>
               <div className="md:col-span-7">
                 <ul className="divide-y divide-neutral-200 border-y border-neutral-200">
@@ -189,7 +186,7 @@ export default function HowItWorksPage() {
                     </li>
                   ))}
                 </ul>
-                {layer.note && <p className="mt-3 sm:mt-4 text-sm text-neutral-500 leading-snug sm:leading-relaxed">{layer.note}</p>}
+                {layer.note && <p className="hidden sm:block mt-4 text-sm text-neutral-500 leading-relaxed">{layer.note}</p>}
                 <div className="mt-2 sm:mt-5 flex flex-wrap gap-x-5">
                   {layer.links.map((link) => (
                     <Link
@@ -272,7 +269,12 @@ export default function HowItWorksPage() {
               <ShieldCheck size={22} className="shrink-0 text-blue-600 sm:block sm:mb-4 sm:w-[26px] sm:h-[26px]" aria-hidden="true" />
               90-day performance commitment
             </h3>
-            <p className="mt-2 sm:mt-3 text-sm sm:text-base text-neutral-600 leading-snug sm:leading-relaxed">{COMMITMENT}</p>
+            <p className="mt-2 sm:mt-3 text-sm sm:text-base text-neutral-600 leading-snug sm:leading-relaxed">
+              {COMMITMENT_HEADLINE}{' '}
+              <Link href={COMMITMENT_TERMS_HREF} className="font-semibold text-blue-600 underline underline-offset-2">
+                Terms
+              </Link>
+            </p>
           </div>
           <div className="rounded-2xl sm:rounded-3xl bg-white border border-neutral-200 p-4 sm:p-7">
             <h3 className="flex items-center gap-2.5 sm:block text-lg sm:text-xl font-extrabold font-display tracking-tight">
@@ -280,8 +282,7 @@ export default function HowItWorksPage() {
               Territory exclusivity
             </h3>
             <p className="mt-2 sm:mt-3 text-sm sm:text-base text-neutral-600 leading-snug sm:leading-relaxed">
-              One practice or firm per specialty within 5 miles, while your account is in good standing. When we&apos;re
-              working with you, we don&apos;t work for the competitor down the street.
+              One practice or firm per specialty within 5 miles.
             </p>
           </div>
           <div className="rounded-2xl sm:rounded-3xl bg-white border border-neutral-200 p-4 sm:p-7">
@@ -290,9 +291,7 @@ export default function HowItWorksPage() {
               What you own
             </h3>
             <p className="mt-2 sm:mt-3 text-sm sm:text-base text-neutral-600 leading-snug sm:leading-relaxed">
-              Your domain, Google Business Profile and patient or client contact data are always yours. The website design and
-              code become yours once the 12-month term is paid. The intake system, phone and text numbers and AxeonPROOF are a
-              service and stop if you leave.
+              {OWNERSHIP_LINE}
             </p>
           </div>
         </div>
@@ -315,8 +314,7 @@ export default function HowItWorksPage() {
                 Is your area open?
               </h2>
               <p className="mt-2 sm:mt-3 text-[15px] sm:text-base text-blue-50 leading-snug sm:leading-relaxed">
-                One practice or firm per specialty within 5 miles. Check yours and we&apos;ll show you what we found: an
-                after-hours test call, your website&apos;s reply speed, and your reviews next to the top 3 nearby. $0 to start.
+                One practice or firm per specialty within 5 miles. $0 to start.
               </p>
             </div>
             <span className="inline-flex items-center gap-2 font-semibold">
@@ -334,8 +332,7 @@ export default function HowItWorksPage() {
                 The portal every client gets
               </h2>
               <p className="mt-2 sm:mt-3 text-[15px] sm:text-base text-neutral-600 leading-snug sm:leading-relaxed">
-                A live counter of recovered inquiries, change requests and a monthly report. You see every reply and every
-                booking, not a summary we wrote.
+                Every reply and booking, live.
               </p>
             </div>
             <span className="inline-flex items-center gap-2 font-semibold text-blue-600">

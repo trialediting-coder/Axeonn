@@ -29,9 +29,7 @@ export default function SolutionsHubPage() {
           Built for established practices and professional firms.
         </h1>
         <p className="text-base sm:text-lg text-neutral-600 leading-snug sm:leading-normal max-w-2xl mb-8 sm:mb-14">
-          Dental practices, med spas, law firms and CPA firms lose new patients and clients in the same place: the call or form
-          nobody answers until tomorrow. Pick yours to see where it happens and how we answer it within 60 seconds. AxeonCORE
-          starts at $799/mo with a 90-day performance commitment.
+          Pick yours.
         </p>
 
         {/* Purpose: pick your practice type (each card leads with that practice's leak). */}
@@ -67,9 +65,7 @@ export default function SolutionsHubPage() {
               A different kind of practice or firm?
             </h2>
             <p className="text-[15px] sm:text-lg text-neutral-300 leading-snug sm:leading-relaxed mb-6 sm:mb-8">
-              If your practice or firm books consultations or appointments, it runs on the same thing: a call or an inquiry that
-              needs an answer before the person calls someone else. Check if your area is open and we will tell
-              you honestly whether the system fits.
+              If you book consults or appointments, it probably fits. We&apos;ll tell you honestly.
             </p>
             <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-4">
               <Link

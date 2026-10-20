@@ -15,7 +15,7 @@ export function NicheCard({ niche }: { niche: Niche }) {
         <h3 className="text-[22px] font-extrabold font-display tracking-tight leading-[1.15] text-balance text-neutral-950 sm:text-[26px]">
           {niche.leakHeadline}
         </h3>
-        <p className="mt-2.5 sm:mt-4 text-sm leading-snug sm:leading-relaxed text-neutral-600">{niche.cardLine}</p>
+        <p className="hidden sm:block mt-4 text-sm leading-relaxed text-neutral-600">{niche.cardLine}</p>
       </div>
       <span className="mt-4 sm:mt-8 text-sm font-semibold text-blue-600">
         See {niche.name}{' '}

@@ -36,8 +36,7 @@ export function NicheClosingCTA({ niche }: { niche: Niche }) {
           </Link>
         </div>
         <p className="mt-4 sm:mt-6 text-xs text-neutral-500 max-w-xl mx-auto leading-relaxed">
-          Included with AxeonCORE and AxeonGROWTH and written into your agreement. We don&apos;t promise a number of new
-          {' '}{niche.customerNoun}, revenue, or rankings. We promise the system does its job, and we stay on as your growth partner. Or call{' '}
+          Or call{' '}
           <a href="tel:+15154938017" className="inline-flex items-center gap-1 underline underline-offset-2 hover:text-white">
             <Phone size={12} /> (515) 493-8017
           </a>

@@ -22,8 +22,7 @@ export function NicheProof({ niche }: { niche: Niche }) {
             Find out what happens when {niche.customerNoun} reach you after hours.
           </h2>
           <p className="mt-2.5 sm:mt-4 max-w-xl text-[15px] sm:text-base leading-snug sm:leading-relaxed text-blue-100">
-            Check your area and we&apos;ll show you what we found: an after-hours test call, how fast your website answers
-            an inquiry, and your reviews next to the top 3 nearby competitors.
+            We test it on your practice and show you.
           </p>
           <Link
             href={`/check-your-area?specialty=${niche.slug}`}
