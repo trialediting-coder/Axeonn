@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { SetupPrice } from '@/components/common/SetupPrice';
 import type { Metadata } from 'next';
 import { ArrowRight, Check, Phone, ShieldCheck, PhoneCall, Timer, Star } from 'lucide-react';
 import { adFunnels, adFunnelFor } from '@/data/adFunnels';
@@ -89,12 +90,12 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
     {
       question: 'Is it really $0 to start?',
       answer:
-        "Yes. On the 12-month agreement the $3,000 build is waived, and your first monthly payment is charged only once you're live and every call and inquiry is answered within 60 seconds.",
+        "Yes. On the 12-month agreement setup is $0 (normally $3,000), and your first monthly payment is charged only once you're live and every call and inquiry is answered within 60 seconds.",
     },
     {
       question: 'What does it cost?',
       answer:
-        'AxeonCORE is from $799/mo on a 12-month agreement, with the $3,000 build waived and nothing due until it is working. Month-to-month is available if you pay the $3,000 upfront. AxeonGROWTH, which adds Google Local Services Ads and search ads management, is from $1,999/mo plus ad spend.',
+        'AxeonCORE is from $799/mo on a 12-month agreement: $0 setup (normally $3,000) and nothing due until it is working. Month-to-month is available if you pay the $3,000 upfront. AxeonGROWTH, which adds Google Local Services Ads and search ads management, is from $1,999/mo plus ad spend.',
     },
     {
       question: 'What if it doesn’t work?',
@@ -140,7 +141,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
               Get more {funnel.customers}. Every one answered in 60 seconds.
             </h1>
             <p className="mt-4 text-base sm:text-lg font-semibold text-white">
-              From $799/mo. $0 to start. Nothing due until it&apos;s working.
+              From $799/mo. <SetupPrice />. Nothing due until it&apos;s working.
             </p>
             <p className="mt-3 sm:mt-4 text-base sm:text-xl text-neutral-300 leading-relaxed max-w-xl">
               {funnel.result}

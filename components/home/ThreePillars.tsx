@@ -32,9 +32,8 @@ const PILLARS: Pillar[] = [
   {
     name: 'Step 1',
     promise: 'Answered.',
-    detail:
-      'Every missed call gets a text back and every web inquiry gets a first reply within 60 seconds, 24/7, so the patient or client hears from you before they call the next practice.',
-    short: 'Every missed call gets a text back and every web inquiry a first reply within 60 seconds, 24/7.',
+    detail: 'Every call and inquiry gets a reply in 60 seconds, 24/7.',
+    short: 'Every call and inquiry gets a reply in 60 seconds, 24/7.',
     href: '/marketing-solutions/lead-generation',
     cta: 'How every inquiry gets answered',
     image: '/philosophy/marketing.webp',
@@ -44,9 +43,8 @@ const PILLARS: Pillar[] = [
   {
     name: 'Step 2',
     promise: 'Booked.',
-    detail:
-      'Online consultation booking and a two-way text inbox for your front desk or intake team, so the conversation ends with a time on the calendar instead of a callback list.',
-    short: 'Online booking and a two-way text inbox for your front desk, so it ends with a time on the calendar.',
+    detail: 'They pick a time on your calendar, not a callback list.',
+    short: 'They pick a time on your calendar, not a callback list.',
     href: '/marketing-solutions/ai-chat-scheduling',
     cta: 'How consultations get booked',
     image: '/philosophy/technology.webp',
@@ -56,9 +54,8 @@ const PILLARS: Pillar[] = [
   {
     name: 'Step 3',
     promise: 'Reviewed.',
-    detail:
-      'An automatic review request after every completed appointment, so your Google rating reflects the patients and clients you actually see.',
-    short: 'An automatic review request after every completed appointment, so your rating reflects who you see.',
+    detail: 'Every visit ends with a review request, automatically.',
+    short: 'Every visit ends with a review request, automatically.',
     href: '/axeonproof',
     cta: 'How AxeonPROOF tracks it',
     image: '/philosophy/brand.webp',
@@ -154,12 +151,7 @@ export function ThreePillars() {
             How intake should work.
           </h2>
           <div className="lg:col-span-5">
-            <p className="hidden sm:block text-xl sm:text-2xl font-semibold text-white leading-snug">
-              Answered. Booked. Reviewed.
-            </p>
-            <p className="sm:mt-3 text-[15px] sm:text-xl text-neutral-400 leading-relaxed max-w-xl">
-              Most practices lose new patients and clients between the first call and the first appointment. We run all three steps as one system, so an inquiry at 9 PM ends up on your calendar.
-            </p>
+            <p className="text-lg sm:text-2xl font-semibold text-neutral-300 leading-snug">Answered. Booked. Reviewed.</p>
           </div>
         </div>
       </div>
@@ -179,9 +171,6 @@ export function ThreePillars() {
           Check if your area is open
           <ArrowUpRight size={18} />
         </Link>
-        <p className="text-sm sm:text-lg text-neutral-400 text-center sm:text-left">
-          One growth partner for all three steps, backed by our 90-day performance commitment.
-        </p>
       </div>
     </section>
   );

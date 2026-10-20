@@ -1,14 +1,13 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { guaranteeSentence } from '@/data/pricingData';
+import { COMMITMENT_HEADLINE } from '@/data/pricingData';
 
 // Shared closing CTA for /marketing-solutions and its six service pages.
 // The performance commitment is the exact wording from data/pricingData.ts:
 // never paraphrase it or attach a number of patients, revenue or rankings to it.
 
-export const GUARANTEE_LINE = guaranteeSentence;
-export const GUARANTEE_TERMS =
-  'Included with AxeonCORE and AxeonGROWTH and written into your agreement. We don’t promise a number of new patients, clients, cases, revenue, or rankings. We promise the system does its job, and we stay on as your growth partner.';
+export const GUARANTEE_LINE = COMMITMENT_HEADLINE;
+export const GUARANTEE_TERMS = 'Included with AxeonCORE and AxeonGROWTH and written into your agreement.';
 
 // Purpose: the commitment in full and the one next step.
 export function ServiceClosingCta({ trackId, specialty }: { trackId?: string; specialty?: string }) {

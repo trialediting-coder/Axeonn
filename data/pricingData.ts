@@ -12,6 +12,8 @@ export interface PricingTier {
   billingNote: string;
   /** The term line under the price, e.g. "$0 to start · $3,000 build waived on the 12-month agreement". */
   startFee: string;
+  /** The list setup price shown crossed out (components/common/SetupPrice.tsx). */
+  setupWas: string;
   /** Small line under the term; empty for none. */
   startNote: string;
   turnaround: string;
@@ -56,7 +58,7 @@ export interface AddOn {
 export const STARTING_PRICE = '$799';
 export const STARTING_PRICE_LINE = 'From $799/mo';
 
-export const TERM_LINE = '12-month agreement · $3,000 build waived · first payment at go-live · month-to-month available';
+export const TERM_LINE = "12-month agreement · first payment when you're live · month-to-month available";
 export const ANNUAL_DEAL = 'Prepay a year and get 2 months free.';
 export const AD_SPEND_RULE =
   'Ad spend is separate: $500/mo minimum, paid to Google directly on your own card, with no markup.';
@@ -73,10 +75,10 @@ export const AREA_CHECK_CTA_LONG = 'Check if your area is open';
 /** The front-door offer, word for word. */
 export const OFFER_LINE = "$0 to start. Nothing due until it's working.";
 export const OFFER_SHORT = '$0 to start';
+/** Shown under a <SetupPrice /> line, which carries the crossed-out setup price. */
 export const OFFER_POINTS = [
-  'The $3,000 build is waived on the 12-month agreement.',
-  "Your first payment is charged only once you're live and every call and inquiry is answered within 60 seconds.",
-  "90-day performance commitment: if we miss it, you can walk away.",
+  "First payment only once you're live and answering every inquiry in 60 seconds.",
+  'Miss the 90-day commitment and you can walk away.',
 ] as const;
 export const OWNERSHIP_LINE =
   'Your domain, Google Business Profile, and patient and client contact data are always yours. The website design and code become yours once the 12-month term is paid. The intake system, phone and text numbers, and AxeonPROOF are a service and stop if you leave.';
@@ -91,7 +93,8 @@ export const pricingTiers: PricingTier[] = [
     pricePrefix: 'From',
     price: '$799',
     billingNote: '/mo',
-    startFee: '$0 to start · $3,000 build waived on the 12-month agreement',
+    startFee: "12-month agreement · first payment when you're live",
+    setupWas: '$3,000',
     startNote: "First payment once you're live. Month-to-month: $3,000 upfront, then monthly from go-live. Prepay a year and get 2 months free.",
     turnaround: 'Live within 30 days of getting your materials',
     badge: 'Most practices and firms start here',
@@ -129,7 +132,8 @@ export const pricingTiers: PricingTier[] = [
     pricePrefix: 'From',
     price: '$1,999',
     billingNote: '/mo + ad spend',
-    startFee: '$0 to start · $5,000 build waived on the 12-month agreement',
+    startFee: "12-month agreement · first payment when you're live",
+    setupWas: '$5,000',
     startNote: "First payment once you're live. Ad spend is separate: $500/mo minimum, paid to Google directly.",
     turnaround: 'Live within 30 days of getting your materials',
     bestFor:
@@ -228,6 +232,15 @@ export const pricingFaqs: PricingFaq[] = [
 /** The performance commitment, word for word. Never paraphrase it. */
 export const guaranteeSentence =
   "Live within 30 days of getting your materials. Every missed call and web inquiry gets a reply within 60 seconds. Every completed appointment gets a review request. If we miss any of those in the first 90 days and don't fix it within 15 days, you can walk away and owe nothing for the rest of the term.";
+
+/**
+ * The commitment as the site shows it: one confident line (owner, 2026-10-19:
+ * the full sentence everywhere read like "we're trying to prove something").
+ * The full wording above lives in the FAQ, /terms and client documents.
+ */
+export const COMMITMENT_HEADLINE = 'Live in 30 days. Every inquiry answered in 60 seconds. Or you walk away.';
+export const COMMITMENT_NOTE = 'Written into your agreement.';
+export const COMMITMENT_TERMS_HREF = '/pricing#pricing-faq';
 
 /** The short form, for badges and strips. */
 export const guaranteeShort =

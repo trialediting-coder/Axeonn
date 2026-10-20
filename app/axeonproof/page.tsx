@@ -264,7 +264,7 @@ export default function AxeonProofPage() {
               </Link>
             ))}
           </div>
-          <p className="mt-3 text-sm text-neutral-400 sm:mt-6">$0 to start · $3,000 build waived on the 12-month agreement · nothing due until it&apos;s working.</p>
+          <p className="mt-3 text-sm text-neutral-400 sm:mt-6">$0 setup (normally $3,000) on the 12-month agreement · nothing due until it&apos;s working.</p>
         </div>
       </section>
 

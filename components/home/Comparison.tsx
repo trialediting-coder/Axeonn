@@ -22,8 +22,8 @@ const ROWS: ComparisonRow[] = [
   {
     dimension: 'Pricing',
     typical: 'A large build fee up front, plus separate software, phone and marketing bills every month.',
-    axeon: 'AxeonCORE from $799/mo on a 12-month agreement. $0 to start: the $3,000 build is waived and nothing is due until it is working.',
-    axeonShort: "From $799/mo, 12-month agreement. $0 to start: $3,000 build waived, nothing due until it's working.",
+    axeon: 'AxeonCORE from $799/mo on a 12-month agreement. $0 setup (normally $3,000) and nothing is due until it is working.',
+    axeonShort: "From $799/mo, 12-month agreement. $0 setup (normally $3,000), nothing due until it's working.",
   },
   {
     dimension: 'After hours',

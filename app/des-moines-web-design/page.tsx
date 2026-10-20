@@ -66,7 +66,7 @@ const LOCAL_FAQ = [
   {
     question: 'How much does Axeon cost for a Des Moines practice or firm?',
     answer:
-      'AxeonCORE is from $799/mo on a 12-month agreement: $0 to start, with the $3,000 build waived and nothing due until it is working. Month-to-month is available if you pay the $3,000 upfront. AxeonGROWTH is from $1,999/mo plus ad spend and adds Google Local Services Ads and search ads management, reactivation of past patients and clients, and an AI phone receptionist.',
+      'AxeonCORE is from $799/mo on a 12-month agreement: $0 setup (normally $3,000) and nothing due until it is working. Month-to-month is available if you pay the $3,000 upfront. AxeonGROWTH is from $1,999/mo plus ad spend and adds Google Local Services Ads and search ads management, reactivation of past patients and clients, and an AI phone receptionist.',
   },
   {
     question: 'What kinds of practices and firms do you work with?',

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight, Phone } from 'lucide-react';
 import type { Niche } from '@/data/nichesData';
-import { guaranteeSentence } from '@/data/pricingData';
+import { COMMITMENT_HEADLINE } from '@/data/pricingData';
 
 // Purpose: the result we commit to, and the two ways to start.
 export function NicheClosingCTA({ niche }: { niche: Niche }) {
@@ -15,7 +15,7 @@ export function NicheClosingCTA({ niche }: { niche: Niche }) {
           Get more new {niche.customerNoun}, starting with your area.
         </h2>
         <p className="text-[15px] sm:text-lg text-neutral-300 max-w-2xl mx-auto leading-snug sm:leading-relaxed mb-6 sm:mb-10">
-          {guaranteeSentence}
+          {COMMITMENT_HEADLINE}
         </p>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-4">
           <Link

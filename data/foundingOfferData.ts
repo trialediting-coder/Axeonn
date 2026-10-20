@@ -23,7 +23,7 @@ export const foundingOffer = {
   /** Side-tab and banner label. */
   tabLabel: 'Check your area',
   includes: [
-    '$0 to start: the $3,000 build is waived',
+    '$0 setup (normally $3,000)',
     "First payment only once it's working",
     '90-day performance commitment',
     'One practice or firm per specialty within 5 miles',

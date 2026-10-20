@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight, Check, Clock } from 'lucide-react';
-import { guaranteeSentence } from '@/data/pricingData';
+import { COMMITMENT_HEADLINE } from '@/data/pricingData';
 
 interface ProcessStep {
   num: string;
@@ -26,7 +26,7 @@ const steps: ProcessStep[] = [
     desc: 'We map how every call and web inquiry should be answered, booked and followed up for your practice or firm, then put the scope and price in writing.',
     duration: 'One call',
     deliverables: ['Intake flow for your front desk or intake team', 'Booking rules by provider, attorney or service', 'Signed Client Services Agreement'],
-    outcome: '$0 to start: the build is waived on the 12-month agreement, with the performance commitment written in.',
+    outcome: '$0 setup (normally $3,000) on the 12-month agreement, with the performance commitment written in.',
   },
   {
     num: '03',
@@ -42,7 +42,7 @@ const steps: ProcessStep[] = [
     desc: 'AxeonPROOF shows every recovered call and inquiry as it happens. From there we stay on as your growth partner, tuning replies, booking and review requests.',
     duration: 'Your first 90 days, and every month after',
     deliverables: ['Live recovered-inquiry counter', 'Change requests in AxeonPROOF', 'Monthly report'],
-    outcome: guaranteeSentence,
+    outcome: COMMITMENT_HEADLINE,
   },
 ];
 

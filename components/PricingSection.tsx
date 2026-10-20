@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type ReactNode } from 'react';
+import { SetupPrice } from '@/components/common/SetupPrice';
 import Link from 'next/link';
 import {
   Check,
@@ -19,7 +20,9 @@ import {
   pricingTiers,
   addOns,
   pricingFaqs,
-  guaranteeSentence,
+  COMMITMENT_HEADLINE,
+  COMMITMENT_NOTE,
+  COMMITMENT_TERMS_HREF,
   FEATURED_BULLETS,
   TERM_LINE,
   TERRITORY_LINE,
@@ -105,22 +108,25 @@ export function PricingSection({
             AxeonCORE from $799/mo. AxeonGROWTH from $1,999/mo. One growth partner either way.
           </p>
           <p className="mt-3 sm:mt-5 text-lg sm:text-2xl font-extrabold font-display tracking-tight text-blue-600">{OFFER_LINE}</p>
-          <p className="mt-1.5 sm:mt-2 text-[13px] sm:text-base font-semibold text-neutral-700 text-balance">{TERM_LINE}</p>
+          <p className="mt-1.5 sm:mt-2 text-[13px] sm:text-base font-semibold text-neutral-700 text-balance">
+            <SetupPrice /> · {TERM_LINE}
+          </p>
         </div>
 
-        {/* Purpose: the 90-day performance commitment, word for word, and what it does not promise. */}
+        {/* Purpose: the 90-day performance commitment in one line; the full terms are in the pricing FAQ. */}
         <div className="max-w-[1240px] mx-auto rounded-[24px] sm:rounded-[36px] bg-blue-600 text-white px-5 py-7 sm:px-12 sm:py-14 lg:px-16 shadow-xl shadow-blue-600/20">
           <h2 className="flex items-center gap-2.5 text-xs sm:text-sm font-mono font-bold tracking-widest uppercase text-blue-100">
             <ShieldCheck size={18} className="shrink-0" />
             <span>[ 90-DAY PERFORMANCE COMMITMENT ]</span>
           </h2>
-          <p className="mt-3 sm:mt-5 text-lg sm:text-3xl lg:text-4xl font-extrabold font-display tracking-tight leading-[1.3] sm:leading-[1.2]">
-            {guaranteeSentence}
+          <p className="mt-3 sm:mt-5 text-xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-[1.2] sm:leading-[1.1] max-w-4xl">
+            {COMMITMENT_HEADLINE}
           </p>
-          <p className="mt-3 sm:mt-5 text-sm sm:text-base text-blue-100 leading-relaxed max-w-3xl">
-            Included with AxeonCORE and AxeonGROWTH, written into your agreement and measured in AxeonPROOF. We
-            don&apos;t promise a number of new patients, clients, cases, revenue, or rankings. We promise the system does its job.
-            Plus territory exclusivity: {TERRITORY_LINE.toLowerCase()}
+          <p className="mt-3 sm:mt-5 text-sm sm:text-base text-blue-100">
+            {COMMITMENT_NOTE}{' '}
+            <a href={COMMITMENT_TERMS_HREF} className="font-semibold text-white underline underline-offset-2">
+              See the terms
+            </a>
           </p>
         </div>
 
@@ -303,9 +309,10 @@ function PlanCard({ tier }: { tier: PricingTier }) {
         <span className="text-[44px] leading-none sm:text-6xl font-black tracking-tight whitespace-nowrap">{tier.price}</span>
         <span className={`text-base sm:text-lg font-semibold ${muted}`}>{tier.billingNote}</span>
       </div>
-      <p className={`mt-2 text-base sm:text-xl font-bold leading-snug text-balance ${isPremium ? 'text-white' : 'text-neutral-900'}`}>
-        {tier.startFee}
+      <p className={`mt-2 text-lg sm:text-2xl font-bold leading-snug ${isPremium ? 'text-white' : 'text-neutral-900'}`}>
+        <SetupPrice was={tier.setupWas} />
       </p>
+      <p className={`mt-0.5 text-sm sm:text-base font-semibold text-balance ${muted}`}>{tier.startFee}</p>
       {/* Phones: the start note and "right for you if" sit behind "See everything included". */}
       {tier.startNote ? (
         <p className={`hidden sm:block mt-1 text-sm sm:text-base leading-relaxed mb-8 ${muted}`}>{tier.startNote}</p>
@@ -398,6 +405,9 @@ function OfferStrip() {
       <div className="flex-1 min-w-0">
         <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ HOW IT STARTS ]</p>
         <p className="mt-2 text-lg sm:text-xl font-bold font-display text-neutral-950 leading-snug">{OFFER_LINE}</p>
+        <p className="mt-1 text-base sm:text-lg text-neutral-800">
+          <SetupPrice />
+        </p>
         <ul className="mt-3 flex flex-col gap-y-2 text-sm sm:text-base text-neutral-600">
           {OFFER_POINTS.map((point) => (
             <li key={point} className="flex items-start gap-2">

@@ -37,7 +37,7 @@ export const faqItems: FaqItem[] = [
   {
     question: 'Is there a contract, and how long is it?',
     answer:
-      "Yes. AxeonCORE and AxeonGROWTH run on a 12-month agreement. On it, the build is waived and your first monthly payment is charged only once you're live. After 12 months it continues month-to-month, and either side can stop with 30 days' notice. Leaving before then without cause means the rest of the 12 months is still owed, unless we miss the 90-day performance commitment. Prefer month-to-month from day one? Pay the $3,000 build upfront instead.",
+      "Yes. AxeonCORE and AxeonGROWTH run on a 12-month agreement. On it, setup is $0 (normally $3,000) and your first monthly payment is charged only once you're live. After 12 months it continues month-to-month, and either side can stop with 30 days' notice. Leaving before then without cause means the rest of the 12 months is still owed, unless we miss the 90-day performance commitment. Prefer month-to-month from day one? Pay the $3,000 build upfront instead.",
   },
   {
     question: 'Do I get access to my own analytics?',
@@ -52,7 +52,7 @@ export const faqItems: FaqItem[] = [
   {
     question: 'How much does it cost to work with Axeon?',
     answer:
-      "$0 to start. Nothing due until it's working. AxeonCORE is from $799/mo and AxeonGROWTH from $1,999/mo plus ad spend, on a 12-month agreement: the build is waived and your first payment is charged once it's working, meaning your new site is live and every missed call and web inquiry gets a reply within 60 seconds, 24/7. Month-to-month is available with the $3,000 build paid upfront, and prepaying a year gets you 2 months free.",
+      "$0 to start. Nothing due until it's working. AxeonCORE is from $799/mo and AxeonGROWTH from $1,999/mo plus ad spend, on a 12-month agreement: $0 setup (normally $3,000), and your first payment is charged once it's working, meaning your new site is live and every missed call and web inquiry gets a reply within 60 seconds, 24/7. Month-to-month is available with the $3,000 build paid upfront, and prepaying a year gets you 2 months free.",
   },
   {
     question: 'Which plan should I pick?',

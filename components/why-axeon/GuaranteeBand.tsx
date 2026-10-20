@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Check, X } from 'lucide-react';
-import { guaranteeSentence } from '@/data/pricingData';
+import { COMMITMENT_HEADLINE, COMMITMENT_TERMS_HREF } from '@/data/pricingData';
 
 /** /why-axeon section 04: full-bleed blue band, "90 days" at giant size + the exact performance commitment. */
 export function GuaranteeBand({ id = 'guarantee' }: { id?: string }) {
@@ -18,12 +18,11 @@ export function GuaranteeBand({ id = 'guarantee' }: { id?: string }) {
           </p>
           <div className="lg:col-span-7">
             <h2 className="text-lg sm:text-3xl lg:text-[34px] font-extrabold font-display tracking-tight leading-snug sm:leading-[1.2]">
-              {guaranteeSentence}
+              {COMMITMENT_HEADLINE}
             </h2>
             <p className="mt-2 sm:mt-4 text-sm sm:text-base text-blue-100 leading-snug sm:leading-relaxed max-w-2xl">
-              Included with AxeonCORE and AxeonGROWTH, written into your agreement, and measured in AxeonPROOF. We
-              don&apos;t promise a number of new patients, clients, cases, revenue, or rankings.{' '}
-              <Link href="/pricing" className="underline underline-offset-2 font-semibold text-white">
+              Written into your agreement and tracked in AxeonPROOF.{' '}
+              <Link href={COMMITMENT_TERMS_HREF} className="underline underline-offset-2 font-semibold text-white">
                 See the terms
               </Link>
             </p>

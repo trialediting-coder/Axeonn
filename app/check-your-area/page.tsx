@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SetupPrice } from '@/components/common/SetupPrice';
 import Link from 'next/link';
 import { Check, MapPin, MessageSquareText, PhoneOff, Phone, Star } from 'lucide-react';
 import { buildMetadata } from '@/lib/metadata';
@@ -40,7 +41,7 @@ const PROOF = [
 const FAQS = [
   {
     q: 'Is it really $0 to start?',
-    a: "Yes. On the 12-month agreement the $3,000 build is waived, and your first monthly payment is charged only once your system is live and working. Nothing is due while we build. If you'd rather go month-to-month, the $3,000 is paid upfront instead.",
+    a: "Yes. On the 12-month agreement setup is $0 (normally $3,000), and your first monthly payment is charged only once your system is live and working. Nothing is due while we build. If you'd rather go month-to-month, the $3,000 is paid upfront instead.",
   },
   {
     q: "What does 'working' mean?",
@@ -88,6 +89,9 @@ export default function CheckYourAreaPage() {
             {/* Purpose: the offer, word for word. */}
             <div className="order-3 lg:order-none lg:mt-8 rounded-2xl bg-blue-600 text-white p-5 sm:p-6 shadow-lg shadow-blue-600/20">
               <p className="text-xl sm:text-2xl font-extrabold font-display tracking-tight leading-snug">{OFFER_LINE}</p>
+              <p className="mt-1 text-base sm:text-lg text-white">
+                <SetupPrice />
+              </p>
               <ul className="mt-3 space-y-2">
                 {OFFER_POINTS.map((point) => (
                   <li key={point} className="flex items-start gap-2.5 text-sm sm:text-base text-blue-50 leading-relaxed">

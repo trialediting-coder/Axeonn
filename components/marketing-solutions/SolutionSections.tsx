@@ -220,7 +220,7 @@ function HowItsBoughtSection({ buying, showCommitment }: { buying: ServicePage['
           </h2>
           <p className="mt-2.5 sm:mt-5 text-sm sm:text-lg leading-snug sm:leading-relaxed text-neutral-400">
             {buying.intro ??
-              "$0 to start. Nothing due until it's working: the build is waived on the 12-month agreement, and your first payment is charged once you're live. No self-serve checkout; every partnership starts with an area check or a call. Month-to-month is available."}
+              "$0 to start. Nothing due until it's working: setup is $0 (normally $3,000) on the 12-month agreement, and your first payment is charged once you're live. No self-serve checkout; every partnership starts with an area check or a call. Month-to-month is available."}
           </p>
         </div>
         {/* Phones: one ruled row per plan (name and price on a line, the detail under it). */}

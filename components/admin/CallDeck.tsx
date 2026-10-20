@@ -672,7 +672,7 @@ export function CallDeck({ initialLeads, dbError, initialAudits = {} }: { initia
             </p>
             <h4 className="mt-4 text-xs font-bold uppercase tracking-wide text-neutral-500">Price, once they&apos;ve said what one is worth</h4>
             <p className="mt-1 text-[13px]">
-              $799 a month on a 12-month agreement, and the $3,000 setup is credited. If we&apos;re not live in 30 days, replies take longer than 60 seconds, or review requests aren&apos;t
+              $799 a month on a 12-month agreement, and setup is $0 (normally $3,000). If we&apos;re not live in 30 days, replies take longer than 60 seconds, or review requests aren&apos;t
               going out, you can walk in the first 90 days. Month-to-month is there too: $3,000 setup upfront, then $799.
             </p>
             <h4 className="mt-4 text-xs font-bold uppercase tracking-wide text-neutral-500">If they say</h4>
