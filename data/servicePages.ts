@@ -203,7 +203,6 @@ export const websitePage: ServicePage = {
     options: [
       { plan: 'AxeonCORE', price: 'From $799/mo', detail: 'The website, 60-second intake, booking and review requests together.' },
       { plan: 'AxeonGROWTH', price: 'From $1,999/mo', detail: 'Everything in AxeonCORE plus ads, an AI phone receptionist and quarterly photo and video.' },
-      { plan: 'Extra page', price: '+$450', detail: 'Another service, location or provider page beyond the core build.' },
     ],
   },
   showCommitment: true,
@@ -223,7 +222,7 @@ export const websitePage: ServicePage = {
     {
       question: 'Can we add pages later?',
       answer:
-        'Yes. Small changes fit in the 2 hours of content updates included each month. A whole new service, location or provider page is +$450.',
+        'Yes. Small changes fit in the 2 hours of content updates included each month. A whole new service, location or provider page we price with you.',
     },
     {
       question: 'Do you build websites on their own, without the intake system?',
@@ -295,7 +294,7 @@ export const seoPage: ServicePage = {
       },
       {
         label: 'Want the top of the page sooner?',
-        items: ['Google Local Services Ads and search ads, in AxeonGROWTH or +$750/mo on AxeonCORE'],
+        items: ['Google Local Services Ads and search ads, in AxeonGROWTH'],
       },
     ],
   },
@@ -330,7 +329,6 @@ export const seoPage: ServicePage = {
     options: [
       { plan: 'AxeonCORE', price: 'From $799/mo', detail: 'Profile upkeep, service pages, review requests and reporting, together with the website and intake.' },
       { plan: 'AxeonGROWTH', price: 'From $1,999/mo', detail: 'Adds Local Services Ads and search ads for the top of the page.' },
-      { plan: 'Extra page', price: '+$450', detail: 'Another service or location page to be found for.' },
     ],
   },
   showCommitment: true,
@@ -459,7 +457,6 @@ export const leadGenerationPage: ServicePage = {
     options: [
       { plan: 'AxeonCORE', price: 'From $799/mo', detail: 'The 60-second reply, booking, text inbox and call tracking, with the website and review requests.' },
       { plan: 'AxeonGROWTH', price: 'From $1,999/mo', detail: 'Adds ads, a quarterly reactivation campaign and an AI phone receptionist.' },
-      { plan: 'Reactivation on AxeonCORE', price: '$100 per showed appointment', detail: 'A campaign to past patients or clients, billed only when someone shows up.' },
     ],
   },
   showCommitment: true,
@@ -501,7 +498,7 @@ export const aiChatPage: ServicePage = {
   quickAnswer: {
     question: 'How does online booking with Axeon work?',
     answer:
-      'Patients and clients pick an open time on your real calendar, from your website or a text reply, any hour. An AI phone receptionist is in AxeonGROWTH or +$199/mo on AxeonCORE.',
+      'Patients and clients pick an open time on your real calendar, from your website or a text reply, any hour. An AI phone receptionist comes with AxeonGROWTH.',
   },
   hero: {
     eyebrow: 'Services · AI chat & booking',
@@ -509,7 +506,7 @@ export const aiChatPage: ServicePage = {
     subtitle:
       'A chat that answers from what you approve, then books the consult.',
     priceLine: `Included in ${CORE_PRICE}`,
-    note: 'AI phone receptionist on AxeonGROWTH or +$199/mo',
+    note: 'AI phone receptionist on AxeonGROWTH',
   },
   how: {
     heading: 'From question to booked consultation',
@@ -549,7 +546,7 @@ export const aiChatPage: ServicePage = {
       {
         label: 'In AxeonGROWTH, or as an add-on',
         items: [
-          'An AI phone receptionist that answers calls your team can’t get to and books the consultation (+$199/mo on AxeonCORE)',
+          'An AI phone receptionist that answers calls your team can’t get to and books the consultation (AxeonGROWTH)',
           'Multi-provider calendars and intake routing (AxeonGROWTH)',
         ],
       },
@@ -586,7 +583,6 @@ export const aiChatPage: ServicePage = {
     options: [
       { plan: 'AxeonCORE', price: 'From $799/mo', detail: 'Website chat, online booking and the 60-second reply.' },
       { plan: 'AxeonGROWTH', price: 'From $1,999/mo', detail: 'Adds the AI phone receptionist and multi-provider routing.' },
-      { plan: 'AI phone receptionist on AxeonCORE', price: '+$199/mo', detail: 'Your phone answered the same way your website is.' },
     ],
   },
   showCommitment: true,
@@ -606,7 +602,7 @@ export const aiChatPage: ServicePage = {
     {
       question: 'What does the AI phone receptionist do?',
       answer:
-        'It answers the calls your front desk can’t get to, takes name, contact and the service they need, and books the consultation. It comes with AxeonGROWTH, or +$199/mo on AxeonCORE.',
+        'It answers the calls your front desk can’t get to, takes name, contact and the service they need, and books the consultation. It comes with AxeonGROWTH.',
     },
     {
       question: 'Can we change what it says?',

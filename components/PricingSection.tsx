@@ -19,7 +19,6 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import {
   pricingTiers,
-  addOns,
   pricingFaqs,
   COMMITMENT_HEADLINE,
   COMMITMENT_NOTE,
@@ -139,23 +138,13 @@ export function PricingSection({
 
         {afterPlans}
 
-        {/* Purpose: what can be added to a plan, and what it costs. */}
-        <div className="mt-12 sm:mt-24">
-          <h2 className="text-2xl sm:text-3xl font-bold font-display text-neutral-950 mb-4 sm:mb-8 text-center">
-            Add to your plan
-          </h2>
-          <ul className="max-w-[1240px] mx-auto divide-y divide-neutral-200 border-y border-neutral-200 sm:divide-y-0 sm:border-0 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
-            {addOns.map((addOn) => (
-              <li
-                key={addOn.name}
-                className="flex items-center justify-between gap-4 py-3 sm:block sm:p-7 sm:rounded-2xl sm:border sm:border-neutral-200 sm:bg-white sm:text-center sm:shadow-xs"
-              >
-                <div className="text-[15px] sm:text-lg text-neutral-700 font-medium sm:mb-2 leading-snug">{addOn.name}</div>
-                <div className="shrink-0 text-base sm:text-2xl font-black text-blue-600 whitespace-nowrap">{addOn.price}</div>
-              </li>
-            ))}
-          </ul>
-        </div>
+        {/* Add-ons are priced on the call, not listed (owner, 2026-10-20): a menu of
+            +$ items invites line-by-line shopping. One line on /pricing only. */}
+        {showFaq && (
+          <p className="mt-10 sm:mt-16 text-center text-[15px] sm:text-lg text-neutral-600">
+            Need ads, more pages or another location? We&apos;ll price it with you on the&nbsp;call.
+          </p>
+        )}
 
         {beforeFaq}
 

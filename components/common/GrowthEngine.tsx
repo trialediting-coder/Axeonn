@@ -4,7 +4,7 @@ import type { LucideIcon } from 'lucide-react';
 import LineIcon from '@/components/common/LineIcon';
 
 // What AxeonGROWTH adds on top of AxeonCORE's intake. All four come with
-// AxeonGROWTH; on AxeonCORE some are add-ons (prices live on /pricing, data/pricingData.ts).
+// AxeonGROWTH; on AxeonCORE some are add-ons (priced on the call; the list stays in data/pricingData.ts for admin and Stripe).
 interface EngineModule {
   icon: LucideIcon;
   title: string;
