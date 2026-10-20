@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Check, MessageSquareText, PhoneOff, Phone, Star } from 'lucide-react';
 import { buildMetadata } from '@/lib/metadata';
-import { BreadcrumbJsonLd, JsonLd } from '@/components/common/JsonLd';
+import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { AreaCheckRequest } from '@/components/area-check/AreaCheckRequest';
 import { SetupPrice } from '@/components/common/SetupPrice';
 import { COMPLIANCE_LINE, EXCLUSIVITY_LINE, OFFER_LINE, OFFER_POINTS } from '@/data/pricingData';
@@ -24,37 +24,16 @@ export const metadata: Metadata = buildMetadata({
 });
 
 const PROOF = [
-  { icon: PhoneOff, title: 'An after-hours test call', body: 'What a new patient or client gets when they call after hours.' },
-  { icon: MessageSquareText, title: 'Your website reply speed', body: 'How long the first reply to your website form takes.' },
-  { icon: Star, title: 'Reviews vs. the top 3 nearby', body: 'Your Google rating next to the three that show up first.' },
+  { icon: PhoneOff, title: 'An after-hours test call to your office' },
+  { icon: MessageSquareText, title: 'How fast your website form gets a reply' },
+  { icon: Star, title: 'Your reviews next to the top 3 nearby' },
 ];
 
-const FAQS = [
-  {
-    q: 'Is it really $0 to start?',
-    a: "Yes. On the 12-month agreement setup is $0 (normally $3,000), and your first monthly payment is charged only once your system is live and working. Nothing is due while we build. If you'd rather go month-to-month, the $3,000 is paid upfront instead.",
-  },
-  {
-    q: "What does 'working' mean?",
-    a: 'Your new site is live, and every missed call and web inquiry gets a reply within 60 seconds, 24/7. After that, the 90-day performance commitment applies: if we miss it and do not fix it within 15 days, you can walk away and owe nothing for the rest of the term.',
-  },
-  {
-    q: 'What if my area is taken?',
-    a: "We'll tell you plainly. We can put you on the list for your area, and if you have an office in a nearby area we can check that instead. Another specialty isn't affected: a dental practice next to a law firm we work with is still open.",
-  },
-];
-
-const faqJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: FAQS.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
-};
 
 export default function CheckYourAreaPage() {
   return (
     <main className="min-h-screen bg-neutral-50 text-neutral-950">
       <BreadcrumbJsonLd items={[{ name: 'Check Your Area', path: '/check-your-area' }]} />
-      <JsonLd data={faqJsonLd} />
 
       {/* Purpose: the lead. Headline and form only. */}
       <section className="relative isolate overflow-hidden bg-neutral-950 text-white pt-24 sm:pt-36 pb-10 sm:pb-24">
@@ -87,9 +66,9 @@ export default function CheckYourAreaPage() {
       </section>
 
       {/* Below the fold: for anyone who wants more before they send it. */}
-      <div className="w-full max-w-[1320px] mx-auto px-4 sm:px-8 lg:px-14 py-10 sm:py-24 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
-        {/* Purpose: the offer and what we test on the call. */}
-        <section aria-labelledby="area-offer">
+      <div className="w-full max-w-[1320px] mx-auto px-4 sm:px-8 lg:px-14 py-10 sm:py-20">
+        {/* Purpose: the offer and what we test on the call, one line each. No FAQ wall (owner, 2026-10-20). */}
+        <section aria-labelledby="area-offer" className="max-w-[760px]">
           <h2 id="area-offer" className="text-2xl sm:text-4xl font-extrabold font-display tracking-tight">
             {OFFER_LINE}
           </h2>
@@ -109,47 +88,28 @@ export default function CheckYourAreaPage() {
 
           <h3 className="mt-8 sm:mt-12 text-lg sm:text-xl font-bold tracking-tight">What we show you on the call</h3>
           <ul className="mt-3 sm:mt-4 space-y-3 sm:space-y-4">
-            {PROOF.map(({ icon: Icon, title, body }) => (
+            {PROOF.map(({ icon: Icon, title }) => (
               <li key={title} className="flex gap-3">
                 <LineIcon>
                   <Icon size={20} className="text-blue-600" />
                 </LineIcon>
-                <div>
-                  <p className="font-bold">{title}</p>
-                  <p className="text-[15px] sm:text-base text-neutral-600 leading-snug">{body}</p>
-                </div>
+                <p className="text-[15px] sm:text-lg">{title}</p>
               </li>
             ))}
           </ul>
-        </section>
 
-        {/* Purpose: the three questions people ask before they submit. */}
-        <section aria-labelledby="area-faq">
-          <h2 id="area-faq" className="text-2xl sm:text-4xl font-extrabold font-display tracking-tight">
-            Questions before you check
-          </h2>
-          <dl className="mt-3 sm:mt-5 divide-y divide-neutral-200 border-y border-neutral-200">
-            {FAQS.map((f) => (
-              <div key={f.q} className="py-3.5 sm:py-5">
-                <dt className="text-base sm:text-lg font-bold text-neutral-950">{f.q}</dt>
-                <dd className="mt-1 sm:mt-1.5 text-[15px] sm:text-base text-neutral-600 leading-relaxed">{f.a}</dd>
-              </div>
-            ))}
-          </dl>
-          <p className="mt-4 sm:mt-6 text-[15px] sm:text-base text-neutral-600">
-            Already know you want to talk?{' '}
-            <Link href="/book" className="font-semibold text-blue-600 hover:text-blue-700 underline underline-offset-2">
-              Book a call
-            </Link>{' '}
-            or call{' '}
-            <a href="tel:+15154938017" className="font-semibold text-blue-600 hover:text-blue-700 underline underline-offset-2">
+          <p className="mt-8 text-[15px] sm:text-base text-neutral-600">
+            Rather talk?{' '}
+            <a href="tel:+15154938017" className="font-semibold text-blue-600 underline underline-offset-2">
               (515) 493-8017
-            </a>
+            </a>{' '}
+            or{' '}
+            <Link href="/book" className="font-semibold text-blue-600 underline underline-offset-2">
+              book a call
+            </Link>
             .
           </p>
-          <p className="mt-6 text-xs sm:text-sm text-neutral-500 leading-relaxed">
-            For dental practices, med spas, law firms and accounting and CPA firms. {COMPLIANCE_LINE}
-          </p>
+          <p className="mt-4 text-xs text-neutral-500">{COMPLIANCE_LINE}</p>
         </section>
       </div>
     </main>
