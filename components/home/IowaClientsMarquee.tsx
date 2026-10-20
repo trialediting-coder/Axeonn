@@ -7,11 +7,12 @@
 // client list, so only real, approved clients may ever appear here in
 // production.
 //
-// Preview deploys and local dev scroll PLACEHOLDER Iowa practices and firms
-// instead (owner, 2026-10-19), so the client strip can be designed now. Every
-// name below is invented. Replace them with real clients (and show them in
-// production) as practices and firms sign and approve being listed.
-const SHOW_PLACEHOLDERS = process.env.VERCEL_ENV === 'preview' || process.env.NODE_ENV === 'development';
+// Preview deploys and local dev scroll real Iowa business logos instead (owner,
+// 2026-10-19: "just to see" the logo strip). Most of these businesses are NOT
+// Axeon clients, so this list must never render in production: showing them
+// there would present them as clients. Swap in real, approved client logos
+// before anything like this ships.
+const SHOW_PREVIEW_LOGOS = process.env.VERCEL_ENV === 'preview' || process.env.NODE_ENV === 'development';
 
 const INCLUDED = [
   '60-second first reply, 24/7',
@@ -24,18 +25,28 @@ const INCLUDED = [
   'One practice or firm per specialty within 5 miles',
 ];
 
-type Placeholder = { name: string; city: string; kind: 'Dental' | 'Med spa' | 'Law' | 'Accounting'; style: string };
+type Logo = {
+  name: string;
+  logo: string;
+  // Stacked/square marks need more height than wide wordmarks to read at the same weight.
+  heightClass: string;
+  /** Intrinsic size, so the browser reserves the width before the logo loads. */
+  w: number;
+  h: number;
+};
 
-// Invented names, two per vertical, interleaved so no vertical bunches up.
-const PLACEHOLDERS: Placeholder[] = [
-  { name: 'Quillmont Family Dental', city: 'West Des Moines', kind: 'Dental', style: 'font-display font-black tracking-tight' },
-  { name: 'Harlan & Pike', city: 'Des Moines', kind: 'Law', style: 'font-serif font-semibold tracking-wide uppercase' },
-  { name: 'Verawood Aesthetics', city: 'Ankeny', kind: 'Med spa', style: 'font-serif italic font-medium tracking-wide' },
-  { name: 'Ostrander Tax & Advisory', city: 'Urbandale', kind: 'Accounting', style: 'font-sans font-bold tracking-tight' },
-  { name: 'Bluestem Dental Studio', city: 'Waukee', kind: 'Dental', style: 'font-sans font-extrabold lowercase tracking-tight' },
-  { name: 'Kestrel Brandt Attorneys', city: 'Clive', kind: 'Law', style: 'font-serif font-bold tracking-tight' },
-  { name: 'Prairie Glow Med Spa', city: 'Johnston', kind: 'Med spa', style: 'font-display font-semibold tracking-[0.08em] uppercase' },
-  { name: 'Ledgerline CPA Group', city: 'Ames', kind: 'Accounting', style: 'font-mono font-bold tracking-tight' },
+// Preview only (see above). Practices and firms first, interleaved.
+const PREVIEW_LOGOS: Logo[] = [
+  { name: 'Hintz Family Dentistry', logo: '/logos/iowa/hintz-family-dentistry.webp', heightClass: 'h-12 sm:h-16', w: 195, h: 160 },
+  { name: 'Mark Gray Law', logo: '/logos/iowa/mark-gray-law.webp', heightClass: 'h-9 sm:h-11', w: 643, h: 160 },
+  { name: 'Iowa Wealth Management', logo: '/logos/iowa/iowa-wealth-management.svg', heightClass: 'h-8 sm:h-10', w: 358, h: 74 },
+  { name: 'A-1 Auto Detailing', logo: '/logos/iowa/a1-auto-detailing.webp', heightClass: 'h-12 sm:h-20', w: 154, h: 160 },
+  { name: 'Patrick Finnegan', logo: '/logos/iowa/patrick-finnegan.webp', heightClass: 'h-8 sm:h-10', w: 1475, h: 160 },
+  { name: 'Obsidian Heating & Cooling', logo: '/logos/iowa/obsidian-heating-cooling.webp', heightClass: 'h-12 sm:h-20', w: 167, h: 160 },
+  { name: 'MSH Realty Group', logo: '/logos/iowa/msh-realty-group.webp', heightClass: 'h-12 sm:h-20', w: 165, h: 160 },
+  { name: "Andrew's Roofing Company", logo: '/logos/iowa/andrews-roofing.webp', heightClass: 'h-10 sm:h-12', w: 517, h: 160 },
+  { name: 'Outdoors by JK', logo: '/logos/iowa/outdoors-by-jk.webp', heightClass: 'h-10 sm:h-12', w: 345, h: 160 },
+  { name: 'Select Construction & Remodeling', logo: '/logos/iowa/select-construction.webp', heightClass: 'h-9 sm:h-12', w: 611, h: 160 },
 ];
 
 function Included({ label }: { label: string }) {
@@ -47,14 +58,20 @@ function Included({ label }: { label: string }) {
   );
 }
 
-function Wordmark({ p }: { p: Placeholder }) {
+function LogoCard({ l }: { l: Logo }) {
   return (
-    <span className="shrink-0 inline-flex flex-col items-center leading-tight whitespace-nowrap select-none">
-      <span className={`text-base sm:text-2xl text-neutral-800 ${p.style}`}>{p.name}</span>
-      <span className="mt-0.5 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.16em] text-neutral-400">
-        {p.kind} · {p.city}, IA
-      </span>
-    </span>
+    <div className="shrink-0 h-14 sm:h-20 flex items-center justify-center">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={l.logo}
+        alt={l.name}
+        width={l.w}
+        height={l.h}
+        loading="lazy"
+        decoding="async"
+        className={`${l.heightClass} w-auto max-w-[130px] sm:max-w-[210px] object-contain select-none pointer-events-none`}
+      />
+    </div>
   );
 }
 
@@ -66,7 +83,7 @@ export function IowaClientsMarquee() {
   // Each track must be wider than half the container on wide screens, or the
   // two-track loop shows a gap (same rule as NichePlatformsMarquee).
   const included = [...INCLUDED, ...INCLUDED];
-  const names = [...PLACEHOLDERS, ...PLACEHOLDERS];
+  const logos = [...PREVIEW_LOGOS, ...PREVIEW_LOGOS];
 
   return (
     <section id="iowa-partners" aria-label="Partnering with Iowa businesses" className="w-full py-4 sm:py-9 bg-white border-b border-neutral-200">
@@ -75,7 +92,7 @@ export function IowaClientsMarquee() {
       </p>
 
       <ul className="sr-only">
-        {SHOW_PLACEHOLDERS ? PLACEHOLDERS.map((p) => <li key={p.name}>{p.name}</li>) : INCLUDED.map((item) => <li key={item}>{item}</li>)}
+        {SHOW_PREVIEW_LOGOS ? PREVIEW_LOGOS.map((l) => <li key={l.name}>{l.name}</li>) : INCLUDED.map((item) => <li key={item}>{item}</li>)}
       </ul>
 
       <div aria-hidden="true" className="relative w-full overflow-hidden group">
@@ -85,8 +102,8 @@ export function IowaClientsMarquee() {
         <div className="flex w-max select-none py-2 sm:py-3">
           {[1, 2].map((track) => (
             <Track key={track}>
-              {SHOW_PLACEHOLDERS
-                ? names.map((p, i) => <Wordmark key={`${track}-${p.name}-${i}`} p={p} />)
+              {SHOW_PREVIEW_LOGOS
+                ? logos.map((l, i) => <LogoCard key={`${track}-${l.name}-${i}`} l={l} />)
                 : included.map((item, i) => <Included key={`${track}-${item}-${i}`} label={item} />)}
             </Track>
           ))}
