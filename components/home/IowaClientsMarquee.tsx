@@ -2,10 +2,9 @@
 // (owner, 2026-10-19: frame Axeon as a partner in the client's growth, not a
 // vendor selling a service).
 //
-// Production scrolls what every AxeonCORE practice or firm gets. Axeon has no
-// practice or firm clients to show yet, and a row of business names reads as a
-// client list, so only real, approved clients may ever appear here in
-// production.
+// Production scrolls real client logos only (CLIENT_LOGOS below). A row of
+// business logos reads as a client list, so only real, approved clients may
+// ever appear here in production.
 //
 // Preview deploys and local dev scroll a DESIGN MOCKUP instead (owner,
 // 2026-10-19: "find real businesses in our verticals to put there, not ones
@@ -16,17 +15,6 @@
 // approved client logos before anything like this ships.
 const SHOW_PREVIEW_LOGOS = process.env.VERCEL_ENV === 'preview' || process.env.NODE_ENV === 'development';
 
-const INCLUDED = [
-  '60-second first reply, 24/7',
-  'Missed-call text-back',
-  'Online consultation booking',
-  'Two-way text inbox for your front desk or intake team',
-  'Review request after every appointment',
-  'Call tracking',
-  'AxeonPROOF client portal',
-  'One practice or firm per specialty within 5 miles',
-];
-
 type Logo = {
   name: string;
   logo: string;
@@ -36,6 +24,16 @@ type Logo = {
   w: number;
   h: number;
 };
+
+// Production: real clients only (owner, 2026-10-20: "why did you remove the
+// business pictures, put them back"). A-1 Auto Detailing and Patrick Finnegan are
+// clients; MSH Realty Group is the owner's own company. The old placeholder
+// businesses are not clients and stay out. Add new logos here once approved.
+const CLIENT_LOGOS: Logo[] = [
+  { name: 'A-1 Auto Detailing', logo: '/logos/iowa/a1-auto-detailing.webp', heightClass: 'h-12 sm:h-20', w: 154, h: 160 },
+  { name: 'Patrick Finnegan', logo: '/logos/iowa/patrick-finnegan.webp', heightClass: 'h-8 sm:h-10', w: 1475, h: 160 },
+  { name: 'MSH Realty Group', logo: '/logos/iowa/msh-realty-group.webp', heightClass: 'h-12 sm:h-20', w: 165, h: 160 },
+];
 
 // Preview-only design mockup (see above). Not Axeon clients. Verticals interleaved:
 // dental, law, med spa, CPA.
@@ -49,15 +47,6 @@ const PREVIEW_LOGOS: Logo[] = [
   { name: 'Skin Body Soul Spa', logo: '/logos/iowa/preview/skin-body-soul.webp', heightClass: 'h-12 sm:h-16', w: 160, h: 160 },
   { name: 'Tarbell & Co., P.L.C.', logo: '/logos/iowa/preview/tarbell-and-co.webp', heightClass: 'h-6 sm:h-8', w: 1063, h: 160 },
 ];
-
-function Included({ label }: { label: string }) {
-  return (
-    <span className="shrink-0 inline-flex items-center gap-3 sm:gap-4 text-sm sm:text-xl font-bold tracking-tight text-neutral-800 whitespace-nowrap">
-      <span aria-hidden="true" className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-blue-600" />
-      {label}
-    </span>
-  );
-}
 
 function LogoCard({ l }: { l: Logo }) {
   return (
@@ -83,8 +72,9 @@ function Track({ children }: { children: React.ReactNode }) {
 export function IowaClientsMarquee() {
   // Each track must be wider than half the container on wide screens, or the
   // two-track loop shows a gap (same rule as NichePlatformsMarquee).
-  const included = [...INCLUDED, ...INCLUDED];
-  const logos = [...PREVIEW_LOGOS, ...PREVIEW_LOGOS];
+  const source = SHOW_PREVIEW_LOGOS ? PREVIEW_LOGOS : CLIENT_LOGOS;
+  // Repeat until each track holds at least 12 logos, so the loop never shows a gap.
+  const logos = Array.from({ length: Math.ceil(12 / source.length) }, () => source).flat();
 
   return (
     <section id="iowa-partners" aria-label="Partnering with Iowa businesses" className="w-full py-4 sm:py-9 bg-white border-b border-neutral-200">
@@ -93,7 +83,7 @@ export function IowaClientsMarquee() {
       </p>
 
       <ul className="sr-only">
-        {SHOW_PREVIEW_LOGOS ? PREVIEW_LOGOS.map((l) => <li key={l.name}>{l.name}</li>) : INCLUDED.map((item) => <li key={item}>{item}</li>)}
+        {source.map((l) => <li key={l.name}>{l.name}</li>)}
       </ul>
 
       <div aria-hidden="true" className="relative w-full overflow-hidden group">
@@ -103,9 +93,9 @@ export function IowaClientsMarquee() {
         <div className="flex w-max select-none py-2 sm:py-3">
           {[1, 2].map((track) => (
             <Track key={track}>
-              {SHOW_PREVIEW_LOGOS
-                ? logos.map((l, i) => <LogoCard key={`${track}-${l.name}-${i}`} l={l} />)
-                : included.map((item, i) => <Included key={`${track}-${item}-${i}`} label={item} />)}
+              {logos.map((l, i) => (
+                <LogoCard key={`${track}-${l.name}-${i}`} l={l} />
+              ))}
             </Track>
           ))}
         </div>

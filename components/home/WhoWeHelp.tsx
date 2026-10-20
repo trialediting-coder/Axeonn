@@ -143,7 +143,7 @@ export function WhoWeHelp() {
         {/* Grand Video Canvas Card. On phones the card hugs its content and uses a
             static still instead of autoplay video: the video is almost entirely
             hidden behind the scrim at that width, so it was pure bandwidth. */}
-        <div className="relative rounded-[28px] sm:rounded-[48px] overflow-hidden sm:min-h-[920px] lg:min-h-[1040px] shadow-2xl bg-neutral-950 flex flex-col justify-center border border-black/5">
+        <div className="relative rounded-[28px] sm:rounded-[48px] overflow-hidden min-h-[620px] sm:min-h-[1000px] lg:min-h-[1140px] shadow-2xl bg-neutral-950 flex flex-col justify-center border border-black/5">
           {/* Base / Idle Background: still image everywhere, video on sm+ only */}
           <div
             aria-hidden="true"
@@ -207,7 +207,7 @@ export function WhoWeHelp() {
             {/* Horizontal Side-by-Side Flex Container */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-3 sm:gap-6 md:gap-8 max-w-full">
               {/* Left Column: Stack of Industry Pills */}
-              <div className="w-full sm:w-[480px] md:w-[540px] shrink-0 flex flex-col gap-2.5 sm:gap-4">
+              <div className="w-full sm:w-[480px] md:w-[540px] shrink-0 flex flex-col gap-3.5 sm:gap-5">
                 {whoWeHelpEntries.map((entry) => {
                   const Icon = INDUSTRY_ICONS[entry.label] || Smile;
                   const isActive = activeIndustryId === entry.id;
@@ -251,7 +251,7 @@ export function WhoWeHelp() {
                     </>
                   );
 
-                  const commonClasses = `group w-full flex items-center justify-between px-5 py-3.5 sm:px-8 sm:py-6.5 rounded-2xl transition-all duration-200 cursor-pointer border text-left backdrop-blur-md ${
+                  const commonClasses = `group w-full flex items-center justify-between px-5 py-5 sm:px-8 sm:py-8 rounded-2xl transition-all duration-200 cursor-pointer border text-left backdrop-blur-md ${
                     isActive
                       ? 'bg-gradient-to-r from-[#2c40a5] via-[#374cb8] to-[#425ec8] border-blue-300/60 shadow-2xl shadow-blue-950/70 ring-2 ring-blue-300/40'
                       : 'bg-white/[0.09] hover:bg-white/[0.16] active:bg-white/[0.16] border-white/20 hover:border-white/35 shadow-lg shadow-black/25'

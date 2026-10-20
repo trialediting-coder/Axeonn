@@ -454,7 +454,7 @@ export function Header() {
             href={areaHref}
             data-track="cta_click"
             data-track-cta="area_check_nav"
-            className="inline-flex items-center justify-center whitespace-nowrap min-h-[44px] px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-full bg-blue-600 text-white text-[15px] md:text-sm font-semibold"
+            className="inline-flex items-center justify-center whitespace-nowrap min-h-[44px] ml-3 px-3.5 sm:px-6 py-2.5 sm:py-3.5 rounded-full bg-blue-600 text-white text-[14px] sm:text-[15px] md:text-sm font-semibold"
           >
             Check your area
           </Link>

@@ -35,12 +35,11 @@ export function TextUsButton() {
       title={`Text us at ${BUSINESS.telephoneDisplay}`}
       data-track-location="text_us_button"
       // Phones and tablets only: sms: links do nothing useful on most desktops
-      // (friction audit E11). On phones it is the only floating element, 48px in
+      // (friction audit E11). On phones it is the only floating element, 60px in
       // the corner, below the page's own CTAs.
-      className="lg:hidden fixed z-40 right-3 sm:right-4 bottom-[calc(max(0.75rem,env(safe-area-inset-bottom))_+_var(--case-study-card-h,0px))] transition-all duration-300 sm:right-6 sm:bottom-6 flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-blue-600 hover:bg-blue-700 text-white ring-1 ring-white/25 shadow-lg shadow-blue-950/30"
+      className="lg:hidden fixed z-40 right-3 sm:right-4 bottom-[calc(max(0.75rem,env(safe-area-inset-bottom))_+_var(--case-study-card-h,0px))] transition-all duration-300 sm:right-6 sm:bottom-6 flex items-center justify-center w-[60px] h-[60px] sm:w-[72px] sm:h-[72px] rounded-full bg-blue-600 hover:bg-blue-700 text-white ring-1 ring-white/25 shadow-lg shadow-blue-950/30"
     >
-      {/* Phones: 48px, so it covers less of the page while staying an easy tap. */}
-      <MessageCircle strokeWidth={2.25} className="w-6 h-6 sm:w-[30px] sm:h-[30px]" />
+      <MessageCircle strokeWidth={2.25} className="w-[28px] h-[28px] sm:w-[34px] sm:h-[34px]" />
     </a>
   );
 }
@@ -77,7 +76,7 @@ export function TextUsDesktop() {
       {open && (
         <div
           id="text-us-panel"
-          className="absolute right-0 bottom-[76px] w-72 rounded-2xl bg-white text-neutral-950 shadow-2xl shadow-neutral-950/25 ring-1 ring-neutral-200 p-2"
+          className="absolute right-0 bottom-[88px] w-72 rounded-2xl bg-white text-neutral-950 shadow-2xl shadow-neutral-950/25 ring-1 ring-neutral-200 p-2"
         >
           <p className="px-3 pt-2 pb-1.5 text-sm font-bold">Talk to a real person</p>
           <ul>
@@ -103,9 +102,9 @@ export function TextUsDesktop() {
         aria-expanded={open}
         aria-controls="text-us-panel"
         aria-label={open ? 'Close contact options' : 'Contact us'}
-        className="flex items-center justify-center w-16 h-16 rounded-full bg-blue-600 hover:bg-blue-700 text-white ring-1 ring-white/25 shadow-lg shadow-blue-950/30 transition-colors"
+        className="flex items-center justify-center w-[72px] h-[72px] rounded-full bg-blue-600 hover:bg-blue-700 text-white ring-1 ring-white/25 shadow-lg shadow-blue-950/30 transition-colors"
       >
-        {open ? <X size={28} strokeWidth={2.25} /> : <MessageCircle size={30} strokeWidth={2.25} />}
+        {open ? <X size={32} strokeWidth={2.25} /> : <MessageCircle size={34} strokeWidth={2.25} />}
       </button>
     </div>
   );
