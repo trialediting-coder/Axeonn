@@ -66,6 +66,10 @@ export function Hero() {
             <img
               key={s.image}
               src={s.image}
+              // Phones get an 828px copy (public/who-we-help/*-828.webp, 13-31 KB)
+              // instead of the 1600px photo: it is the homepage's largest paint.
+              srcSet={`${s.image.replace('.webp', '-828.webp')} 828w, ${s.image} 1600w`}
+              sizes="100vw"
               alt=""
               width={1600}
               height={1067}

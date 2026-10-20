@@ -57,9 +57,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           axeonstudio.co, so previews, localhost and the app host stay out.
         */}
         <script defer src="/t.js" data-site={SELF_SITE_KEY} data-host={SELF_SITE_HOST} />
+        {/* Analytics scripts load once the page has finished loading (lazyOnload), so they don't compete
+            with the first paint on phones (Lighthouse mobile, 2026-10-20). gtag() calls
+            made before then queue in dataLayer and are sent once it loads. */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-2EDMD31CEP"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
         {/*
           Privacy signals. We honor the Global Privacy Control header/JS signal
@@ -85,7 +88,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           `}
         </Script>
         {/* Microsoft Clarity — heatmaps & session recordings (skipped under GPC) */}
-        <Script id="clarity-init" strategy="afterInteractive">
+        <Script id="clarity-init" strategy="lazyOnload">
           {`
             if (navigator.globalPrivacyControl !== true) {
               (function(c,l,a,r,i,t,y){
@@ -112,7 +115,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: `function initApollo(){var n=Math.random().toString(36).substring(7),o=document.createElement("script");
 o.src="https://assets.apollo.io/micro/website-tracker/tracker.iife.js?nocache="+n,o.async=!0,o.defer=!0,
 o.onload=function(){window.trackingFunctions.onLoad({appId:"6aa40b35866f41001c1c9ae4"})},
-document.head.appendChild(o)}if(navigator.globalPrivacyControl!==true){initApollo();}`,
+document.head.appendChild(o)}if(navigator.globalPrivacyControl!==true){if(document.readyState==="complete"){initApollo();}else{window.addEventListener("load",initApollo);}}`,
           }}
         />
         <LeadModalProvider>

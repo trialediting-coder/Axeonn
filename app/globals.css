@@ -527,7 +527,9 @@ html, #root {
    it held a black screen for 3.2 s on a phone (friction audit E8). */
 @media (max-width: 639px) {
   .proof-intro-curtain { display: none !important; }
-  .proof-hero-stagger { animation-delay: 0ms !important; }
+  /* No entrance fade on phones either: starting from opacity 0 kept the headline
+     out of the first paint (Lighthouse mobile 69, 2026-10-20). */
+  .proof-hero-stagger { animation: none !important; }
 }
 @media (prefers-reduced-motion: reduce) {
   .animate-proof-rise, .animate-proof-grow, .animate-proof-width, .animate-proof-draw, .animate-proof-pop, .animate-proof-slide, .animate-proof-zoom-in, .animate-proof-zoom-out, .animate-proof-settle, .animate-proof-extend, .animate-proof-fly, .animate-proof-backdrop { animation: none; }
