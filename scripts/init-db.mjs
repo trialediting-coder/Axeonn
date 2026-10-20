@@ -674,6 +674,12 @@ async function main() {
   // AxeonPROOF v2 (lib/proofV2.ts): the delivery-schedule settings, pins on drafts,
   // the page program, summary-link opens and the reactivation (DBR) sprint. All additive.
   await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS proof_v2 JSONB NOT NULL DEFAULT '{}'::jsonb;`;
+  // Type of practice or firm (data/industryWords.ts): prefilled from the agreement's
+  // specialty, confirmed by the client in the portal's first question, which then
+  // sends the dashboard invite once (dashboard_invite_sent_at). All additive.
+  await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS industry TEXT;`;
+  await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS industry_confirmed_at TIMESTAMPTZ;`;
+  await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS dashboard_invite_sent_at TIMESTAMPTZ;`;
   await sql`
     CREATE TABLE IF NOT EXISTS proof_pins (
       id BIGSERIAL PRIMARY KEY,

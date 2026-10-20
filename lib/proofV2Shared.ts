@@ -17,6 +17,7 @@
 //   - Location / procedure pages pass a uniqueness gate before they publish.
 //   - The upgrade conversation is AxeonGROWTH at $1,999/mo.
 import { DELIVERY_SCHEDULE, type ScheduleAuto, type ScheduleStep } from '@/data/deliverySchedule';
+import { fillWords, wordsFor, type Industry, type IndustryWords } from '@/data/industryWords';
 
 export const GROWTH_UPGRADE_PRICE = 1999;
 export const CORE_PRICE = 799;
@@ -94,6 +95,11 @@ export interface ProofV2Settings {
   frontDesk?: { signedOffAt?: string; signedOffBy?: string };
   /** Dollar value of one booked appointment, by pipeline key ("contact:12", "booking:40"). */
   bookingValues?: Record<string, number>;
+  /**
+   * Law firms only: the firm reviewed the win-back texts (attorney advertising).
+   * Holds the exact texts reviewed; editing them afterwards needs a fresh review.
+   */
+  dbrReview?: { reviewedAt: string; reviewedBy: string; steps: DbrStep[] };
   summaries?: { lastMonth?: string; lastWeek?: string };
 }
 
@@ -127,6 +133,8 @@ export function dateOfDay(startAt: string, day: number): string {
 /** Facts the tracker reads: each one from a real row, or set by the admin. */
 export interface MilestoneFacts {
   startAt: string;
+  /** Type of practice or firm: the client's words in every step (missing = neutral). */
+  industry?: Industry | null;
   settings: ProofV2Settings;
   /** When each automatic step's event happened (lib/proofV2.ts autoDone). */
   autoDone: Partial<Record<ScheduleAuto, string>>;
@@ -181,7 +189,7 @@ const dayOnly = (iso: string) => new Date(parseDay(iso)).toISOString().slice(0, 
 const todayOf = (now: Date) => now.toISOString().slice(0, 10);
 
 /** One step on the schedule: its date, and whether the client sees it done. */
-export function stepView(step: ScheduleStep, facts: MilestoneFacts, now: Date): StepView {
+export function stepView(step: ScheduleStep, facts: MilestoneFacts, now: Date, words: IndustryWords = wordsFor(facts.industry)): StepView {
   const own = facts.settings.steps?.[step.key];
   const planned = own?.date && /^\d{4}-\d{2}-\d{2}$/.test(own.date) ? own.date : dateOfDay(facts.startAt, step.day);
   const actual = own?.doneAt ?? (step.auto ? (facts.autoDone[step.auto] ?? null) : null);
@@ -190,10 +198,10 @@ export function stepView(step: ScheduleStep, facts: MilestoneFacts, now: Date): 
   const today = todayOf(now);
   const doneDate = shown && shown <= today ? shown : null;
   const state: StepState = doneDate ? 'done' : planned > today ? 'upcoming' : planned === today ? 'current' : 'waiting';
-  return { key: step.key, title: step.title, client: step.client, date: planned, shifted: !!own?.date, state, doneDate, actualDoneAt: actual, note: own?.note?.trim() || null };
+  return { key: step.key, title: fillWords(step.title, words), client: fillWords(step.client, words), date: planned, shifted: !!own?.date, state, doneDate, actualDoneAt: actual, note: own?.note?.trim() || null };
 }
 
-function phaseMetric(key: PhaseKey, facts: MilestoneFacts, now: Date): string {
+function phaseMetric(key: PhaseKey, facts: MilestoneFacts, now: Date, w: IndustryWords): string {
   const s = facts.settings;
   switch (key) {
     case 'p1': {
@@ -216,8 +224,8 @@ function phaseMetric(key: PhaseKey, facts: MilestoneFacts, now: Date): string {
     case 'p3': {
       const d = facts.dbr;
       if (d.booked) return `${d.booked} booked${d.pipelineDollars != null ? ` · ${money(d.pipelineDollars)} pipeline (est.)` : ''}`;
-      if (d.status !== 'none') return `${d.sent} texts sent to ${d.imported} past ${d.imported === 1 ? 'customer' : 'customers'}`;
-      return d.imported ? `${d.imported} records imported` : 'Customer list not imported yet';
+      if (d.status !== 'none') return `${d.sent} texts sent to ${d.imported} past ${d.imported === 1 ? w.person : w.people}`;
+      return d.imported ? `${d.imported} records imported` : `Past-${w.person} list not imported yet`;
     }
     case 'p4': {
       const r = facts.reviewEngine;
@@ -244,8 +252,9 @@ function phaseMetric(key: PhaseKey, facts: MilestoneFacts, now: Date): string {
 /** The six phases on the client's schedule, every step's date, and the phase that is on now. */
 export function deriveMilestones(facts: MilestoneFacts, now: Date = new Date()): Milestone[] {
   const today = todayOf(now);
+  const words = wordsFor(facts.industry);
   const out: Milestone[] = DELIVERY_SCHEDULE.map((def) => {
-    const steps = def.steps.map((st) => stepView(st, facts, now));
+    const steps = def.steps.map((st) => stepView(st, facts, now, words));
     const dates = steps.map((x) => x.date);
     const from = [dateOfDay(facts.startAt, def.from), ...dates].sort()[0];
     const to = [dateOfDay(facts.startAt, def.to), ...dates].sort().at(-1)!;
@@ -259,11 +268,11 @@ export function deriveMilestones(facts: MilestoneFacts, now: Date = new Date()):
       key: def.key,
       title: def.title,
       days: def.days,
-      summary: def.summary,
+      summary: fillWords(def.summary, words),
       from,
       to,
       status,
-      metric: status === 'scheduled' && def.key !== 'p6' ? `Starts ${shortDate(from)}` : phaseMetric(def.key, facts, now),
+      metric: status === 'scheduled' && def.key !== 'p6' ? `Starts ${shortDate(from)}` : phaseMetric(def.key, facts, now, words),
       note: o?.note?.trim() || null,
       overridden,
       current: false,
@@ -476,6 +485,8 @@ export interface DbrStep {
 }
 
 export const DBR_STOP_LINE = 'Reply STOP to opt out.';
+/** Every win-back text from a law firm carries this line; the firm reviews the texts before they start. */
+export const ATTORNEY_ADVERTISING_LINE = 'Attorney advertising.';
 
 /** Three texts over seven days. Axeon edits the words per client before starting. */
 export const DEFAULT_DBR_STEPS: readonly DbrStep[] = [
@@ -484,7 +495,33 @@ export const DEFAULT_DBR_STEPS: readonly DbrStep[] = [
   { day: 7, body: "Last note from {business}, {name}. If now isn't the time, no problem. Reply any time and we'll get you scheduled." },
 ];
 
-export function validateDbrSteps(raw: unknown): DbrStep[] {
+/** The starting texts for a type of practice or firm. Plain check-ins: no offers, and nothing about anyone's health, case or finances. */
+export function defaultDbrSteps(industry: Industry | null | undefined): DbrStep[] {
+  switch (industry) {
+    case 'med_spa':
+      return [
+        { day: 0, body: "Hi {name}, it's {business}. It's been a while since your last treatment. We have openings this month; reply here and we'll find you a time. Reply STOP to opt out." },
+        { day: 3, body: 'Hi {name}, {business} again. Want us to save you a spot? Reply with a day that works.' },
+        { day: 7, body: "Last note from {business}, {name}. If now isn't the time, no problem. Reply any time and we'll get you booked." },
+      ];
+    case 'law':
+      return [
+        { day: 0, body: "Hi {name}, it's {business}. It's been a while since we worked together. If anything new has come up, reply here and we'll set up a time to talk. Attorney advertising. Reply STOP to opt out." },
+        { day: 3, body: '{business} again, {name}. Just checking in: reply with a good time if you would like to talk. Attorney advertising.' },
+        { day: 7, body: "Last note from {business}, {name}. If now isn't the time, no problem. Reply any time. Attorney advertising." },
+      ];
+    case 'accounting':
+      return [
+        { day: 0, body: "Hi {name}, it's {business}. It's been a while since we worked together. If you would like a hand this year, reply here and we'll find a time. Reply STOP to opt out." },
+        { day: 3, body: '{business} again, {name}. Just checking in: want us to save you a spot? Reply with a day that works.' },
+        { day: 7, body: "Last note from {business}, {name}. If now isn't the time, no problem. Reply any time and we'll get you scheduled." },
+      ];
+    default:
+      return DEFAULT_DBR_STEPS.map((x) => ({ ...x }));
+  }
+}
+
+export function validateDbrSteps(raw: unknown, industry: Industry | null | undefined = null): DbrStep[] {
   if (!Array.isArray(raw) || raw.length !== 3) throw new Error('The reactivation sprint is exactly 3 texts.');
   const steps = raw.map((r, i) => {
     const day = Number((r as DbrStep)?.day);
@@ -495,7 +532,30 @@ export function validateDbrSteps(raw: unknown): DbrStep[] {
   });
   for (let i = 1; i < steps.length; i += 1) if (steps[i].day <= steps[i - 1].day) throw new Error('Each text must come on a later day than the one before.');
   if (!/reply stop/i.test(steps[0].body)) steps[0] = { ...steps[0], body: `${steps[0].body} ${DBR_STOP_LINE}` };
+  if (industry === 'law') {
+    for (let i = 0; i < steps.length; i += 1) {
+      if (/attorney advertising/i.test(steps[i].body)) continue;
+      const body = `${steps[i].body} ${ATTORNEY_ADVERTISING_LINE}`;
+      if (body.length > 320) throw new Error(`Text ${i + 1}: leave room for "${ATTORNEY_ADVERTISING_LINE}" (320 characters in all).`);
+      steps[i] = { ...steps[i], body };
+    }
+  }
   return steps;
+}
+
+const sameSteps = (a: readonly DbrStep[], b: readonly DbrStep[]) => a.length === b.length && a.every((x, i) => x.day === b[i].day && x.body === b[i].body);
+
+/**
+ * Why the win-back sprint cannot start, or null. A law firm's texts are attorney
+ * advertising: the firm must have reviewed these exact texts (recorded in the
+ * admin), and a later edit needs a fresh review. We never judge the wording
+ * ourselves; the firm does.
+ */
+export function dbrStartBlock(industry: Industry | null | undefined, steps: readonly DbrStep[], review: ProofV2Settings['dbrReview']): string | null {
+  if (industry !== 'law') return null;
+  if (!review?.reviewedAt) return 'A law firm reviews its own win-back texts first. Tick "The firm reviewed these texts" once they have.';
+  if (!sameSteps(review.steps ?? [], steps)) return 'The texts changed after the firm reviewed them. Have the firm review the new wording, then tick the box again.';
+  return null;
 }
 
 export function fillDbrText(body: string, vars: { name: string | null; business: string | null }): string {
@@ -576,6 +636,12 @@ export function valueFor(key: string, entered: Record<string, number> | undefine
 export const FRONT_DESK_ROUTINE: readonly { key: string; when: string; what: string }[] = [
   { key: 'inbox', when: 'Every day, 8:30 AM', what: 'Inbox zero: open every missed-call and text thread from overnight and reply or call back.' },
   { key: 'mark', when: 'Every day', what: 'Mark each lead Booked or Not a fit, so the numbers and the review requests stay right.' },
-  { key: 'weekly', when: 'Every Monday', what: 'The practice manager reads the weekly summary email and checks nothing is left waiting.' },
+  { key: 'weekly', when: 'Every Monday', what: 'The {manager} reads the weekly summary email and checks nothing is left waiting.' },
   { key: 'monthly', when: 'The 1st of each month', what: 'The owner opens the monthly summary link (no password) and sees what the month produced.' },
 ];
+
+/** The routine in the client's words. */
+export function frontDeskRoutine(industry: Industry | null | undefined): { key: string; when: string; what: string }[] {
+  const w = wordsFor(industry);
+  return FRONT_DESK_ROUTINE.map((r) => ({ ...r, what: fillWords(r.what, w) }));
+}

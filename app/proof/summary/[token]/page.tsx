@@ -15,6 +15,7 @@ import { logSummaryAccess, monthSummary } from '@/lib/proofV2';
 import { monthLabel } from '@/lib/projectsShared';
 import { APP_ORIGIN } from '@/lib/hostRouting';
 import { auth } from '@/lib/auth';
+import { wordsFor } from '@/data/industryWords';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: { absolute: 'Your monthly summary | AxeonPROOF' }, robots: { index: false, follow: false, nocache: true }, referrer: 'no-referrer' };
@@ -53,9 +54,11 @@ export default async function SummaryPage({ params }: { params: Promise<{ token:
   if (!admin) await logSummaryAccess(onboarding.id, claim.month, claim.recipient, (await headers()).get('user-agent') ?? '').catch(() => undefined);
   const name = onboarding.businessName || 'Your business';
   const booked = s.dbrBooked + s.webBooked;
+  const w = wordsFor(onboarding.industry);
+  const Bookings = w.bookings[0].toUpperCase() + w.bookings.slice(1);
   const tiles = [
     { icon: PhoneCall, label: 'Missed calls rescued', value: String(s.rescued), sub: s.missed ? `${s.missed} missed · ${s.textedBack} auto-texted · rescued = the caller wrote or called back` : 'No missed calls this month' },
-    { icon: CalendarCheck, label: 'Booked from win-back texts + website', value: String(booked), sub: s.pipelineDollars != null ? `${money(s.pipelineDollars)} pipeline, estimated from your values` : `${s.dbrBooked} win-back · ${s.webBooked} website` },
+    { icon: CalendarCheck, label: `${Bookings} booked from win-back texts + website`, value: String(booked), sub: s.pipelineDollars != null ? `${money(s.pipelineDollars)} pipeline, estimated from your values` : `${s.dbrBooked} win-back · ${s.webBooked} website` },
     { icon: Star, label: 'New Google reviews', value: s.newReviews != null ? `${s.newReviews >= 0 ? '+' : ''}${s.newReviews}` : '—', sub: s.newReviews != null ? `${s.reviewRequests} review requests sent` : `${s.reviewRequests} requests sent · counted after two review scans` },
     { icon: Search, label: 'Seen in Google search', value: s.impressions != null ? s.impressions.toLocaleString('en-US') : '—', sub: s.impressions != null ? (s.topKeywords.length ? `Top: ${s.topKeywords.join(', ')}` : `${s.clicks ?? 0} clicks`) : 'Tracked from month 3 of your schedule' },
   ];

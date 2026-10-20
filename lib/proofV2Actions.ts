@@ -4,7 +4,8 @@
 // app/api/welcome/[token]/front-desk) call runAdminAction / runClientAction.
 // Throws a message safe to show.
 import type { Onboarding } from '@/lib/onboarding';
-import { setProofVersion } from '@/lib/onboarding';
+import { setIndustry, setProofVersion } from '@/lib/onboarding';
+import { isIndustry } from '@/data/industryWords';
 import { isProofVersion } from '@/data/dashboardVersions';
 import { isStepKey } from '@/data/deliverySchedule';
 import { sendLaunchCertificateEmail } from '@/lib/email';
@@ -32,6 +33,7 @@ import {
   PIN_STAGES,
   REVIEW_STAGES,
   canGoLive,
+  dbrStartBlock,
   isNapKey,
   napProgress,
   stagingState,
@@ -147,6 +149,16 @@ export async function runAdminAction(o: Onboarding, body: Body): Promise<string 
     if (!isProofVersion(v)) throw new Error('Version must be 1 or 2');
     await setProofVersion(o.id, v);
     return `Now on AxeonPROOF v${v}.`;
+  }
+  if (body.action === 'industry') {
+    // Any client, v1 or v2: the words in their portal and dashboard. Not the client's own confirmation.
+    if (body.industry === null || body.industry === '') {
+      await setIndustry(o.id, null);
+      return 'Type of practice cleared.';
+    }
+    if (!isIndustry(body.industry)) throw new Error('Unknown type of practice');
+    await setIndustry(o.id, body.industry);
+    return null;
   }
   requireV2(o);
   const s = await getV2Settings(o.id);
@@ -340,8 +352,22 @@ export async function runAdminAction(o: Onboarding, body: Body): Promise<string 
       await setV2Entry(o.id, 'bookingValues', key, Math.round(v));
       return null;
     }
+    case 'dbrReviewed': {
+      // Law firms: record that the firm reviewed these exact texts (they are attorney advertising).
+      if (body.on === false) {
+        await patchV2(o.id, { dbrReview: null });
+        return null;
+      }
+      const by = str(body.by, 80);
+      if (by.length < 2) throw new Error('Who at the firm reviewed the texts?');
+      const steps = validateDbrSteps(body.steps, o.industry);
+      await patchV2(o.id, { dbrReview: { reviewedAt: nowIso(), reviewedBy: by, steps } });
+      return 'Recorded: the firm reviewed these texts. Editing them needs a fresh review.';
+    }
     case 'dbrStart': {
-      const steps = validateDbrSteps(body.steps);
+      const steps = validateDbrSteps(body.steps, o.industry);
+      const blocked = dbrStartBlock(o.industry, steps, s.dbrReview);
+      if (blocked) throw new Error(blocked);
       const { queued } = await startDbrSprint(o.id, steps);
       return `Sprint started: ${queued} past customers queued. Texts go out between 8 AM and 8 PM their time.`;
     }
@@ -356,7 +382,7 @@ export async function runAdminAction(o: Onboarding, body: Body): Promise<string 
 async function sendCertificate(o: Onboarding, s: Awaited<ReturnType<typeof getV2Settings>>): Promise<boolean> {
   if (!v2SendsEnabled() || !s.goLiveAt) return false;
   const to = [o.clientEmail, s.manager?.email].filter((x): x is string => !!x);
-  const sent = await sendLaunchCertificateEmail({ to, businessName: o.businessName, goLiveAt: s.goLiveAt, liveItems: s.liveItems ?? [], url: `${APP_ORIGIN}/?tab=program` }).catch((err) => {
+  const sent = await sendLaunchCertificateEmail({ to, businessName: o.businessName, goLiveAt: s.goLiveAt, liveItems: s.liveItems ?? [], url: `${APP_ORIGIN}/?tab=program`, industry: o.industry }).catch((err) => {
     console.error('[proof-v2] certificate email failed', err instanceof Error ? err.message : err);
     return false;
   });

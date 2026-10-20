@@ -9,9 +9,10 @@
 
 import LineIcon from '@/components/common/LineIcon';
 import { useMemo, useState, type FormEvent, type ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import { Check, CheckCircle2, ChevronDown, Clock, Loader2, Lock, Pencil, Phone, Sparkles } from 'lucide-react';
-import { CALL_INSTEAD_KEY, type ItemField, type OnboardingItem } from '@/data/onboardingItems';
+import { CALL_INSTEAD_KEY, PRACTICE_TYPE_ITEM, type ItemField, type OnboardingItem } from '@/data/onboardingItems';
 import type { ItemState } from '@/lib/onboarding';
 
 export interface PortalProps {
@@ -88,7 +89,11 @@ export function OnboardingPortal(props: PortalProps) {
   // welcome email quoted (setupMinutes in data/onboardingItems.ts), never capped.
   const minutesLeft = counted.filter((i) => !isDone(i)).reduce((sum, i) => sum + (i.minutes ?? 1), 0);
 
+  const router = useRouter();
+
   function onSaved(state: ItemState) {
+    // The type of practice or firm rewords every card: fetch them again in the client's words.
+    if (state.itemKey === PRACTICE_TYPE_ITEM) router.refresh();
     const next = { ...states, [state.itemKey]: state };
     setStates(next);
     // Advance to the next pending card so the client keeps moving.
@@ -208,7 +213,7 @@ export function OnboardingPortal(props: PortalProps) {
             <Sparkles size={15} />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-base font-semibold text-neutral-800">We are handling {props.items.axeon.length} things for you</span>
+            <span className="block text-base font-semibold text-neutral-800 [text-wrap:balance]">We are handling {props.items.axeon.length} things for you</span>
             <span className="block text-sm text-neutral-600">{axeonDone > 0 ? `${axeonDone} set up so far. ` : ''}Nothing needed from you.</span>
           </span>
           <ChevronDown size={18} className={`shrink-0 text-neutral-400 transition-transform ${showAxeon ? 'rotate-180' : ''}`} />
@@ -293,7 +298,7 @@ function CardShell({
         </span>
         <span className="min-w-0 flex-1">
           <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <span className={`text-base sm:text-lg font-bold tracking-tight ${isDone ? 'text-neutral-700' : 'text-neutral-950'}`}>{item.title}</span>
+            <span className={`text-base sm:text-lg font-bold tracking-tight [text-wrap:balance] ${isDone ? 'text-neutral-700' : 'text-neutral-950'}`}>{item.title}</span>
           </span>
           {!open && isDone && summary ? <span className="mt-1 block text-sm text-neutral-600 leading-relaxed">{summary}</span> : null}
         </span>
@@ -360,7 +365,8 @@ function ConfirmCard({
   const summary = onCall ? 'We will cover this on a call.' : fields
     .map((f) => {
       const v = display(f, state?.data?.[f.key]);
-      return v ? `${f.label}: ${v}` : null;
+      // A one-question card shows just the answer ("Dental practice"), not "Pick one: Dental practice".
+      return v ? (fields.length === 1 ? v : `${f.label}: ${v}`) : null;
     })
     .filter(Boolean)
     .slice(0, 2)

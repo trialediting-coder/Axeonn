@@ -3,12 +3,15 @@
 // without a database (app/proof/dev-fixture, which 404s outside `next dev`).
 // stage 'setup': day 11, preview of the site in review. stage 'live': day 100,
 // live since day 14, phases 1-4 done, search growth on now, numbers in.
+// industry: dental (default) | med_spa | law | accounting | other, for the
+// per-industry wording (data/industryWords.ts).
 // Never imported by a production route; nothing here is shown to a client.
 import { TIER_LABELS } from '@/data/onboardingItems';
 import { computeProgress, orderedItems, type ItemState, type Onboarding } from '@/lib/onboarding';
 import type { DashboardData } from '@/lib/proofDashboardData';
 import type { ProofV2View } from '@/lib/proofV2';
-import { canGoLive, deriveMilestones, napProgress, pipelineTotals, programDay, stagingState, type MilestoneFacts, type PipelineRow, type ProofV2Settings, DEFAULT_DBR_STEPS } from '@/lib/proofV2Shared';
+import { canGoLive, deriveMilestones, napProgress, pipelineTotals, programDay, stagingState, type MilestoneFacts, type PipelineRow, type ProofV2Settings, defaultDbrSteps } from '@/lib/proofV2Shared';
+import type { Industry } from '@/data/industryWords';
 import type { ProofVersion } from '@/data/dashboardVersions';
 import type { MonthlyReport } from '@/lib/projects';
 import type { TrafficSummary } from '@/lib/projectsShared';
@@ -17,8 +20,18 @@ const DAY = 86_400_000;
 
 export type FixtureStage = 'setup' | 'live';
 
-export function fixtureDashboard(version: ProofVersion, now: Date = new Date(), stage: FixtureStage = 'setup'): DashboardData {
+/** A made-up name and page list per type of practice or firm. */
+export const FIXTURE_PRACTICES: Record<Industry, { name: string; pages: string[] }> = {
+  dental: { name: 'Example Family Dental', pages: ['Ankeny dental implants', 'West Des Moines Invisalign', 'Urbandale family dentist', 'Emergency dentist Des Moines', 'Teeth whitening Ankeny', 'Kids dentist Waukee', 'Dental crowns Johnston', 'Clive dentist'] },
+  med_spa: { name: 'Example Aesthetics', pages: ['Botox in West Des Moines', 'Laser hair removal Ankeny', 'HydraFacial Urbandale', 'Lip filler Waukee', 'Chemical peels Clive', 'Microneedling Johnston', 'Med spa Des Moines', 'IPL photofacial Ankeny'] },
+  law: { name: 'Example Law Group', pages: ['Des Moines personal injury lawyer', 'Ankeny estate planning', 'West Des Moines DUI defense', 'Car accident attorney Urbandale', 'Wills and trusts Waukee', 'Workers comp lawyer Des Moines', 'Probate attorney Clive', 'Family law Johnston'] },
+  accounting: { name: 'Example CPA Partners', pages: ['Small business tax prep Des Moines', 'Bookkeeping West Des Moines', 'Payroll services Ankeny', 'Individual tax returns Urbandale', 'CPA for contractors Waukee', 'IRS notice help Des Moines', 'Fractional CFO Clive', 'Farm tax Johnston'] },
+  other: { name: 'Example Services Co.', pages: ['Des Moines consultations', 'West Des Moines services', 'Ankeny services', 'Urbandale services', 'Waukee services', 'Clive services', 'Johnston services', 'Altoona services'] },
+};
+
+export function fixtureDashboard(version: ProofVersion, now: Date = new Date(), stage: FixtureStage = 'setup', industry: Industry = 'dental'): DashboardData {
   const live = stage === 'live';
+  const practice = FIXTURE_PRACTICES[industry];
   const iso = (daysAgo: number) => new Date(now.getTime() - daysAgo * DAY).toISOString();
   const onboarding: Onboarding = {
     id: 1,
@@ -26,7 +39,7 @@ export function fixtureDashboard(version: ProofVersion, now: Date = new Date(), 
     tier: 'axeoncore',
     clientEmail: 'owner@example.com',
     clientName: 'Dana Example',
-    businessName: 'Example Family Dental',
+    businessName: practice.name,
     phone: null,
     stripeCustomerId: null,
     checkoutSessionId: null,
@@ -38,6 +51,9 @@ export function fixtureDashboard(version: ProofVersion, now: Date = new Date(), 
     createdAt: iso(12),
     updatedAt: iso(1),
     proofVersion: version,
+    industry,
+    industryConfirmedAt: iso(11),
+    dashboardInviteSentAt: iso(11),
   };
   // Live: every setup item and every build item done, as they would be by day 100.
   const states: Record<string, ItemState> = live
@@ -83,8 +99,8 @@ export function fixtureDashboard(version: ProofVersion, now: Date = new Date(), 
   const line = { number: '+15155550142', smsReady: true, textBackOn: true };
   const mcat = live ? { missed: 41, textedBack: 41, under30: 41, medianSeconds: 9, rescued: 23 } : { missed: 6, textedBack: 6, under30: 6, medianSeconds: 11, rescued: 4 };
   const dbr = live
-    ? { imported: 312, consented: 312, firstImportAt: dayAt(15), status: 'done' as const, steps: DEFAULT_DBR_STEPS.map((s) => ({ ...s })), startedAt: dayAt(16), endedAt: dayAt(23), sent: 902, pending: 0, stopped: 34, replied: 34 }
-    : { imported: 0, consented: 0, firstImportAt: null, status: 'none' as const, steps: DEFAULT_DBR_STEPS.map((s) => ({ ...s })), startedAt: null, endedAt: null, sent: 0, pending: 0, stopped: 0, replied: 0 };
+    ? { imported: 312, consented: 312, firstImportAt: dayAt(15), status: 'done' as const, steps: defaultDbrSteps(industry), startedAt: dayAt(16), endedAt: dayAt(23), sent: 902, pending: 0, stopped: 34, replied: 34 }
+    : { imported: 0, consented: 0, firstImportAt: null, status: 'none' as const, steps: defaultDbrSteps(industry), startedAt: null, endedAt: null, sent: 0, pending: 0, stopped: 0, replied: 0 };
   const rows: PipelineRow[] = live
     ? [
         ...Array.from({ length: 14 }, (_, i): PipelineRow => ({ key: `dbr:${i}`, source: 'dbr', label: ['Maria L.', 'Tom R.', 'Priya S.', 'Kevin D.'][i % 4], at: dayAt(17 + i), value: null, valueBasis: null })),
@@ -127,6 +143,7 @@ export function fixtureDashboard(version: ProofVersion, now: Date = new Date(), 
   };
   const facts: MilestoneFacts = {
     startAt,
+    industry,
     settings,
     autoDone,
     line,
@@ -141,6 +158,7 @@ export function fixtureDashboard(version: ProofVersion, now: Date = new Date(), 
     version === 2
       ? {
           startAt,
+          industry,
           day: programDay(startAt, now),
           milestones: deriveMilestones(facts, now),
           settings,
@@ -157,7 +175,7 @@ export function fixtureDashboard(version: ProofVersion, now: Date = new Date(), 
           reviews: live ? { enabled: true, enabledAt: dayAt(45), sent: 118, newReviews: 37, rating: 4.9, reviews: 212 } : { enabled: false, enabledAt: null, sent: 0, newReviews: null, rating: null, reviews: null },
           nap,
           pages: live
-            ? ['Ankeny dental implants', 'West Des Moines Invisalign', 'Urbandale family dentist', 'Emergency dentist Des Moines', 'Teeth whitening Ankeny', 'Kids dentist Waukee', 'Dental crowns Johnston', 'Clive dentist'].map((title, i) => ({ id: i + 1, title, status: 'published', indexed: i < 6 }) as ProofV2View['pages'][number])
+            ? practice.pages.map((title, i) => ({ id: i + 1, title, status: 'published', indexed: i < 6 }) as ProofV2View['pages'][number])
             : [],
           frontDesk: live
             ? { waiting: 0, week: { missed: 4, autoTexted: 4, staffReplied: 4, booked: 5, archived: 1 }, signedOffAt: dayAt(15), signedOffBy: 'Sam Example', access: [{ month: iso(20).slice(0, 7), recipient: 'owner', at: iso(19) }] }
@@ -188,7 +206,7 @@ export function fixtureDashboard(version: ProofVersion, now: Date = new Date(), 
     onboarding,
     progress: computeProgress('axeoncore', states),
     planLabel: TIER_LABELS.axeoncore,
-    axeonItems: orderedItems('axeoncore').axeon,
+    axeonItems: orderedItems('axeoncore', industry).axeon,
     states,
     setupUrl: '/welcome/FIXTUREFIXTUREFIXTUR',
     details: { kickoffAt: startAt, targetLaunchAt: null, baselineCalls: null, baselineLeads: null, baselineKeyword: null, baselineRank: null },

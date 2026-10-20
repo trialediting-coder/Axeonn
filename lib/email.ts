@@ -13,6 +13,7 @@ import { OUTLOOK_NOTE, SETUP_GUIDES, gmailUrl, type Mailbox } from '@/lib/busine
 import { sequenceEmailHtml, sequenceEmailText, sequenceFromAddress } from '@/lib/sequenceShared';
 import { isEmailOptedOut, unsubscribeUrl } from '@/lib/unsubscribe';
 import { APP_ORIGIN } from '@/lib/hostRouting';
+import { wordsFor, type Industry } from '@/data/industryWords';
 
 const ADMIN_NOTIFICATION_EMAIL = process.env.ADMIN_EMAIL;
 // Resend rejects sends from a domain that hasn't been verified in the
@@ -259,22 +260,38 @@ export async function sendWelcomeEmail(input: {
   return true;
 }
 
-/**
- * For a client who was live before AxeonPROOF existed: here is your dashboard.
- * Same secure link as the welcome; no checklist talk, no "about N minutes".
- */
-export async function sendDashboardInviteEmail(input: {
+export interface DashboardInviteInput {
   to: string;
   clientName: string | null;
   businessName: string | null;
   url: string;
   /** True when they already chose a password: the copy says "sign in" instead of "choose a password". */
   hasAccount: boolean;
-}): Promise<boolean> {
+  /** Their confirmed type of practice or firm: the copy uses their words. Null = the original wording (clients who were live before AxeonPROOF). */
+  industry?: Industry | null;
+  /** 2 = the delivery schedule is mentioned. */
+  proofVersion?: 1 | 2;
+}
+
+/** What the dashboard is, in one sentence, for the invite email. */
+export function dashboardInviteLine(input: Pick<DashboardInviteInput, 'businessName' | 'industry' | 'proofVersion'>): string {
+  const biz = input.businessName ? escapeHtml(input.businessName) : 'your business';
+  if (!input.industry) {
+    return `We set up AxeonPROOF for ${biz}: a private dashboard with your website visits, the buttons customers press, how many reach out, and every update and monthly report from us. On the 1st of each month the same numbers land in your inbox.`;
+  }
+  const w = wordsFor(input.industry);
+  const schedule = input.proofVersion === 2 ? ' and where your build is on your 180-day delivery schedule' : '';
+  return `Your AxeonPROOF dashboard for ${biz} is ready. It shows every call, text and booked ${w.booking}, which page or listing each new ${w.person} came from${schedule}. Once your new site is live, the month's numbers also land in your inbox on the 1st.`;
+}
+
+/**
+ * Here is your AxeonPROOF dashboard: same secure link as the welcome; no checklist
+ * talk, no "about N minutes". Worded for their type of practice or firm once known.
+ */
+export async function sendDashboardInviteEmail(input: DashboardInviteInput): Promise<boolean> {
   const resend = getClient('dashboard_invite');
   if (!resend) return false;
   const first = input.clientName?.split(' ')[0];
-  const biz = input.businessName ? escapeHtml(input.businessName) : 'your business';
   await sendChecked(resend, {
     from: CLIENT_FROM_ADDRESS,
     replyTo: CLIENT_REPLY_TO,
@@ -284,7 +301,7 @@ export async function sendDashboardInviteEmail(input: {
       'Your numbers, in one place.',
       `
         <p style="margin:0 0 12px">${first ? `Hi ${escapeHtml(first)},` : 'Hi there,'}</p>
-        <p style="margin:0 0 12px">We set up AxeonPROOF for ${biz}: a private dashboard with your website visits, the buttons customers press, how many reach out, and every update and monthly report from us. On the 1st of each month the same numbers land in your inbox.</p>
+        <p style="margin:0 0 12px">${dashboardInviteLine(input)}</p>
         <p style="margin:0 0 12px">${
           input.hasAccount
             ? 'Sign in with your business email and the password you already chose.'
@@ -1508,7 +1525,8 @@ export async function sendOwnerNoticeEmail(input: { to: string; subject: string;
 const v2Tile = (label: string, value: string, sub = '') =>
   `<td style="padding:12px;border:1px solid #e5e5e5;border-radius:12px;vertical-align:top;width:50%"><div style="font-size:12px;color:#737373">${escapeHtml(label)}</div><div style="font-size:24px;font-weight:800;margin-top:2px">${escapeHtml(value)}</div>${sub ? `<div style="font-size:12px;color:#737373;margin-top:2px">${escapeHtml(sub)}</div>` : ''}</td>`;
 
-export function renderLaunchCertificateEmail(input: { businessName: string | null; goLiveAt: string; liveItems: readonly string[]; url: string }): { subject: string; html: string } {
+export function renderLaunchCertificateEmail(input: { businessName: string | null; goLiveAt: string; liveItems: readonly string[]; url: string; industry?: Industry | null }): { subject: string; html: string } {
+  const w = wordsFor(input.industry);
   const biz = input.businessName ? escapeHtml(input.businessName) : 'Your business';
   const when = new Date(`${input.goLiveAt.slice(0, 10)}T12:00:00Z`).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
   return {
@@ -1522,7 +1540,7 @@ export function renderLaunchCertificateEmail(input: { businessName: string | nul
           <p style="margin:4px 0 14px;color:#525252">Live since ${escapeHtml(when)}</p>
           <ul style="margin:0;padding-left:18px">${input.liveItems.map((i) => `<li style="margin:2px 0">${escapeHtml(i)}</li>`).join('')}</ul>
         </div>
-        <p style="margin:0 0 12px">From today every call, text, form and booking is counted in AxeonPROOF. Next on your delivery schedule: win-back texts to your past patients and clients.</p>
+        <p style="margin:0 0 12px">From today every call, text, form and booking is counted in AxeonPROOF. Next on your delivery schedule: win-back texts to your past ${w.people}.</p>
         ${button(input.url, 'Open AxeonPROOF')}
       `
     ),
@@ -1549,10 +1567,13 @@ export interface ExecSummaryEmailInput {
   pipelineDollars: number | null;
   impressions: number | null;
   url: string;
+  industry?: Industry | null;
 }
 
 export function renderExecSummaryEmail(input: ExecSummaryEmailInput): { subject: string; html: string } {
   const money = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
+  const w = wordsFor(input.industry);
+  const Bookings = w.bookings[0].toUpperCase() + w.bookings.slice(1);
   const booked = input.dbrBooked + input.webBooked;
   return {
     subject: `${input.monthLabel} at ${input.businessName ?? 'your business'}: your executive summary`,
@@ -1560,7 +1581,7 @@ export function renderExecSummaryEmail(input: ExecSummaryEmailInput): { subject:
       `${escapeHtml(input.monthLabel)}, in one minute`,
       `
         <table role="presentation" cellspacing="8" cellpadding="0" style="width:100%;margin:0 0 8px;border-collapse:separate">
-          <tr>${v2Tile('Missed calls rescued', String(input.rescued), `of ${input.missed} missed`)}${v2Tile('Booked from win-back texts + web', String(booked), input.pipelineDollars != null ? `${money(input.pipelineDollars)} pipeline (est.)` : '')}</tr>
+          <tr>${v2Tile('Missed calls rescued', String(input.rescued), `of ${input.missed} missed`)}${v2Tile(`${Bookings} booked from win-back texts + web`, String(booked), input.pipelineDollars != null ? `${money(input.pipelineDollars)} pipeline (est.)` : '')}</tr>
           <tr>${v2Tile('New reviews', input.newReviews != null ? `${input.newReviews >= 0 ? '+' : ''}${input.newReviews}` : '—', `${input.reviewRequests} requests sent`)}${v2Tile('Seen in Google search', input.impressions != null ? input.impressions.toLocaleString('en-US') : '—', input.impressions != null ? 'Google Search' : 'tracked from month 3')}</tr>
         </table>
         <p style="margin:0 0 12px">The full summary opens without a password. The link works for 45 days and only shows this summary.</p>
@@ -1579,14 +1600,15 @@ export async function sendExecSummaryEmail(input: ExecSummaryEmailInput & { to: 
   return true;
 }
 
-export function renderWeeklySummaryEmail(input: { businessName: string | null; managerName: string | null; waiting: number; missed: number; autoTexted: number; staffReplied: number; booked: number; archived: number; url: string }): { subject: string; html: string } {
+export function renderWeeklySummaryEmail(input: { businessName: string | null; managerName: string | null; waiting: number; missed: number; autoTexted: number; staffReplied: number; booked: number; archived: number; url: string; industry?: Industry | null }): { subject: string; html: string } {
   const first = input.managerName?.split(' ')[0];
+  const w = wordsFor(input.industry);
   return {
-    subject: input.waiting ? `${input.waiting} missed-call ${input.waiting === 1 ? 'thread is' : 'threads are'} still waiting` : 'Your weekly front-desk summary: inbox zero',
+    subject: input.waiting ? `${input.waiting} missed-call ${input.waiting === 1 ? 'thread is' : 'threads are'} still waiting` : `Your weekly ${w.frontDesk} summary: inbox zero`,
     html: clientLayout(
-      'Your week at the front desk',
+      `Your week at the ${w.frontDesk}`,
       `
-        <p style="margin:0 0 12px">${first ? `Hi ${escapeHtml(first)},` : 'Hi,'} here is the last 7 days for ${input.businessName ? escapeHtml(input.businessName) : 'the practice'}.</p>
+        <p style="margin:0 0 12px">${first ? `Hi ${escapeHtml(first)},` : 'Hi,'} here is the last 7 days for ${input.businessName ? escapeHtml(input.businessName) : `the ${w.office}`}.</p>
         <table role="presentation" cellspacing="8" cellpadding="0" style="width:100%;margin:0 0 8px;border-collapse:separate">
           <tr>${v2Tile('Still waiting on a reply', String(input.waiting), 'goal: 0')}${v2Tile('Missed calls', String(input.missed), `${input.autoTexted} auto-texted · ${input.staffReplied} answered by the team`)}</tr>
           <tr>${v2Tile('Marked booked', String(input.booked))}${v2Tile('Marked not a fit', String(input.archived))}</tr>

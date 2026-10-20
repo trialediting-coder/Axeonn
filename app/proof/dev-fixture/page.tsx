@@ -2,25 +2,27 @@
 // DEV ONLY (`next dev`): renders the AxeonPROOF v1 or v2 dashboard with a made-up
 // practice (lib/__fixtures__/proofDashboardFixture.ts) for screenshots without a
 // database. ?v=1|2&tab=<any tab>|program&stage=setup|live, or ?view=admin for the
-// admin v2 panel.
+// admin v2 panel. &industry=dental|med_spa|law|accounting|other words it for that kind of practice.
 // 404 in every other environment.
 import { notFound } from 'next/navigation';
 import { ProofDashboard } from '@/components/proof/ProofDashboard';
 import { ProofV2Panel } from '@/components/insights/ProofV2Panel';
 import { fixtureDashboard } from '@/lib/__fixtures__/proofDashboardFixture';
 import { PROOF_TABS, type ProofTabKey } from '@/lib/proofTabs';
+import { isIndustry } from '@/data/industryWords';
 
 export const dynamic = 'force-dynamic';
 
-export default async function DevFixture({ searchParams }: { searchParams: Promise<{ v?: string; tab?: string; view?: string; stage?: string }> }) {
+export default async function DevFixture({ searchParams }: { searchParams: Promise<{ v?: string; tab?: string; view?: string; stage?: string; industry?: string }> }) {
   if (process.env.NODE_ENV !== 'development') notFound();
-  const { v, tab, view, stage } = await searchParams;
+  const { v, tab, view, stage, industry } = await searchParams;
   const version = v === '1' ? 1 : 2;
-  const data = fixtureDashboard(version, new Date(), stage === 'live' ? 'live' : 'setup');
+  const kind = isIndustry(industry) ? industry : 'dental';
+  const data = fixtureDashboard(version, new Date(), stage === 'live' ? 'live' : 'setup', kind);
   if (view === 'admin') {
     return (
       <main className="mx-auto min-h-screen max-w-5xl bg-[#F3F5F8] p-4 sm:p-8">
-        <ProofV2Panel token="dev-fixture" initialVersion={version} initial={data.v2 ?? null} />
+        <ProofV2Panel token="dev-fixture" initialVersion={version} initialIndustry={kind} industryConfirmed initial={data.v2 ?? null} />
       </main>
     );
   }

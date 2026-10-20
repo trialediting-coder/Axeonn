@@ -6,6 +6,7 @@
 import { NextResponse, after } from 'next/server';
 import { saveClientItem } from '@/lib/onboarding';
 import { afterOnboardingChange } from '@/lib/onboardingSync';
+import { maybeAutoInvite } from '@/lib/onboardingFulfillment';
 import { clientIp, isDeviceVerified, loadOnboarding, notFound, rateLimited } from '@/lib/welcomeApi';
 
 export const runtime = 'nodejs';
@@ -27,8 +28,12 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ token: string
   }
   try {
     const state = await saveClientItem(onboarding, body.itemKey, body.data ?? {}, body.done === true, body.callInstead === true);
-    // Airtable mirror and the "finished" alert run after the client has their response.
-    after(() => afterOnboardingChange(onboarding.token));
+    // Airtable mirror, the "finished" alert and the one-time dashboard invite (once the
+    // client confirmed their type of practice or firm) run after the client has their response.
+    after(async () => {
+      await afterOnboardingChange(onboarding.token);
+      await maybeAutoInvite(onboarding);
+    });
     return NextResponse.json({ ok: true, item: state });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Could not save';

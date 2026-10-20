@@ -16,6 +16,9 @@ import {
   textSimilarity,
   validateDbrSteps,
   DEFAULT_DBR_STEPS,
+  dbrStartBlock,
+  defaultDbrSteps,
+  frontDeskRoutine,
   valueFor,
   weeklySummaryDue,
   type MilestoneFacts,
@@ -222,4 +225,49 @@ test('schedule status: on track only when nothing is late, and a late step is pu
   // Axeon's own step late (the number itself): behind, never "on track".
   const behind = scheduleStatus(deriveMilestones(facts(), at('2026-10-03')));
   assert.equal(behind.tone, 'behind');
+});
+
+test('law: every win-back text carries the attorney-advertising line', () => {
+  const plain = [{ day: 0, body: 'Hi {name}, it is {business}, checking in.' }, { day: 3, body: 'Second note from {business} here.' }, { day: 7, body: 'Last note from {business} here.' }];
+  const law = validateDbrSteps(plain, 'law');
+  for (const s of law) assert.match(s.body, /Attorney advertising\./);
+  assert.match(law[0].body, /Reply STOP to opt out\. Attorney advertising\.$/);
+  for (const s of validateDbrSteps(plain, 'dental')) assert.doesNotMatch(s.body, /Attorney advertising/);
+  // Already there: not added twice.
+  assert.equal(validateDbrSteps(defaultDbrSteps('law'), 'law').map((s) => s.body.match(/Attorney advertising/g)!.length).join(), '1,1,1');
+  assert.throws(() => validateDbrSteps([{ day: 0, body: 'x'.repeat(300) + ' Reply STOP' }, ...plain.slice(1)], 'law'), /leave room/);
+});
+
+test('law: the sprint waits for the firm to review these exact texts', () => {
+  const steps = validateDbrSteps(defaultDbrSteps('law'), 'law');
+  assert.match(dbrStartBlock('law', steps, undefined)!, /reviews its own win-back texts/);
+  const review = { reviewedAt: '2026-10-19T10:00:00Z', reviewedBy: 'J. Partner', steps };
+  assert.equal(dbrStartBlock('law', steps, review), null);
+  const edited = steps.map((s, i) => (i === 1 ? { ...s, body: s.body.replace('checking in', 'saying hello') } : s));
+  assert.match(dbrStartBlock('law', edited, review)!, /changed after the firm reviewed/);
+  // Other kinds of practice never need it.
+  for (const i of ['dental', 'med_spa', 'accounting', 'other', null] as const) assert.equal(dbrStartBlock(i, steps, undefined), null);
+});
+
+test('default win-back texts per industry: three, valid, no health, case or money details', () => {
+  for (const i of ['dental', 'med_spa', 'law', 'accounting', 'other', null] as const) {
+    const s = validateDbrSteps(defaultDbrSteps(i), i);
+    assert.equal(s.length, 3);
+    for (const x of s) assert.doesNotMatch(x.body, /treatment plan|diagnos|case number|balance|refund/i);
+  }
+});
+
+test('the schedule and the routine are worded for the client', () => {
+  const dental = deriveMilestones(facts({ industry: 'dental' }), new Date('2026-10-02T12:00:00Z'));
+  const law = deriveMilestones(facts({ industry: 'law' }), new Date('2026-10-02T12:00:00Z'));
+  const neutral = deriveMilestones(facts(), new Date('2026-10-02T12:00:00Z'));
+  const step = (ms: typeof dental, key: string) => ms.flatMap((m) => m.steps).find((x) => x.key === key)!;
+  assert.equal(step(dental, 'p3-import').title, 'Past-patient list imported');
+  assert.equal(step(law, 'p3-import').title, 'Past-client list imported');
+  assert.equal(step(neutral, 'p3-import').title, 'Past-customer list imported');
+  assert.match(step(law, 'p1-number').client, /front office/);
+  assert.match(law.find((m) => m.key === 'p5')!.summary, /practice areas/);
+  for (const m of [...dental, ...law, ...neutral]) for (const t of [m.summary, m.metric, ...m.steps.flatMap((x) => [x.title, x.client])]) assert.doesNotMatch(t, /\{[A-Za-z]+\}/, t);
+  assert.match(frontDeskRoutine('law').find((r) => r.key === 'weekly')!.what, /office manager/);
+  assert.match(frontDeskRoutine('dental').find((r) => r.key === 'weekly')!.what, /practice manager/);
 });

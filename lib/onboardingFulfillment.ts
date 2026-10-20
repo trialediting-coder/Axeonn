@@ -5,7 +5,10 @@
 // and resends. Idempotent: a retry of the same session, or a second purchase by
 // the same email, reuses the existing portal instead of minting another.
 import {
+  claimDashboardInvite,
   createOnboarding,
+  markDashboardInviteSent,
+  releaseDashboardInvite,
   findOnboardingForCheckout,
   findOpenOnboardingByEmail,
   markWelcomeSent,
@@ -22,6 +25,7 @@ import { afterOnboardingChange } from '@/lib/onboardingSync';
 import { isDatabaseConfigured, sql } from '@/lib/db';
 import { latestSignedAgreementFor } from '@/lib/agreements';
 import { proofVersionFor } from '@/lib/proofVersion';
+import { industryFromSpecialty } from '@/data/industryWords';
 
 /** The setup time quoted in the welcome email: the plan's first-round minutes, the same number the portal counts down from. */
 export function estimatedMinutes(tier: OnboardingTier): number {
@@ -86,10 +90,12 @@ export async function ensureOnboardingForPurchase(input: OnboardingInput, opts: 
   }
 
   // PROOF v1 or v2 (lib/proofVersion.ts): from the agreement this purchase came from, else the client's latest signed one.
-  const agreementVersion =
-    opts.agreementVersion !== undefined ? opts.agreementVersion : ((await latestSignedAgreementFor(input.clientEmail).catch(() => null))?.version ?? null);
+  const agreement = await latestSignedAgreementFor(input.clientEmail).catch(() => null);
+  const agreementVersion = opts.agreementVersion !== undefined ? opts.agreementVersion : (agreement?.version ?? null);
   const proofVersion = input.proofVersion ?? proofVersionFor({ tier: input.tier, agreementVersion, legacy: opts.quiet === true });
-  const onboarding = await createOnboarding({ ...input, proofVersion });
+  // The agreement's specialty prefills the portal's first question when it maps clearly; the client still confirms it.
+  const industry = input.industry ?? industryFromSpecialty(agreement?.specialty);
+  const onboarding = await createOnboarding({ ...input, proofVersion, industry });
   if (opts.quiet) await sql`UPDATE onboardings SET auto_reports = false, updated_at = now() WHERE id = ${onboarding.id};`;
   const welcomeSent = await welcome(onboarding);
   await afterOnboardingChange(onboarding.token);
@@ -97,20 +103,93 @@ export async function ensureOnboardingForPurchase(input: OnboardingInput, opts: 
 }
 
 /**
- * For a client who is already live: "here is your AxeonPROOF dashboard", with
- * the same secure link as the welcome (email code on a new device, then they
- * choose a password). Only ever sent from the button on the admin page.
+ * "Here is your AxeonPROOF dashboard", with the same secure link as the welcome
+ * (email code on a new device, then they choose a password), worded for their
+ * type of practice or firm once they confirmed it. Sent by the admin's button,
+ * or automatically once (maybeAutoInvite) when a CORE / GROWTH client answers
+ * the portal's first question.
  */
 export async function sendDashboardInviteFor(onboarding: Onboarding): Promise<void> {
   if (onboarding.status === 'closed') throw new Error('This onboarding is closed');
+  await deliverInvite(onboarding);
+  await markDashboardInviteSent(onboarding.id);
+}
+
+async function deliverInvite(onboarding: Onboarding): Promise<void> {
   const sent = await sendDashboardInviteEmail({
     to: onboarding.clientEmail,
     clientName: onboarding.clientName,
     businessName: onboarding.businessName,
     url: welcomeUrl(onboarding.token),
     hasAccount: await hasAccountForOnboarding(onboarding.id),
+    // Only a confirmed answer tailors the email; a prefill alone could be wrong.
+    industry: onboarding.industryConfirmedAt ? onboarding.industry : null,
+    proofVersion: onboarding.proofVersion,
   });
   if (!sent) throw new Error('Email is not configured (RESEND_API_KEY)');
+}
+
+export type AutoInviteBlock = 'not_production' | 'plan' | 'closed' | 'not_confirmed' | 'already_sent' | 'already_emailed';
+
+/**
+ * Why the automatic dashboard invite must not go out now, or null to send it.
+ * Production only (like the PROOF v2 sends), AxeonCORE / AxeonGROWTH only, after
+ * the client confirmed their type of practice or firm, and never a second time:
+ * not after an earlier invite (automatic or the admin's button), nor when the
+ * email log already shows one delivered to this address.
+ */
+export function autoInviteBlock(
+  o: Pick<Onboarding, 'tier' | 'status' | 'industry' | 'industryConfirmedAt' | 'dashboardInviteSentAt'>,
+  env: { production: boolean; alreadyEmailed: boolean }
+): AutoInviteBlock | null {
+  if (!env.production) return 'not_production';
+  if (TIER_RANK[o.tier] < TIER_RANK.axeoncore) return 'plan';
+  if (o.status === 'closed') return 'closed';
+  if (!o.industry || !o.industryConfirmedAt) return 'not_confirmed';
+  if (o.dashboardInviteSentAt) return 'already_sent';
+  if (env.alreadyEmailed) return 'already_emailed';
+  return null;
+}
+
+/** Automatic sends from the portal: production only, and can be paused with ONBOARDING_AUTO_INVITE=off. */
+export function autoInviteEnabled(): boolean {
+  return process.env.NODE_ENV === 'production' && process.env.ONBOARDING_AUTO_INVITE !== 'off';
+}
+
+async function inviteAlreadyEmailed(email: string): Promise<boolean> {
+  const res = await sql<{ n: number }>`
+    SELECT count(*)::int AS n FROM email_log WHERE kind = 'dashboard_invite' AND status = 'sent' AND recipient = ${email.trim().toLowerCase()};
+  `;
+  return (res.rows[0]?.n ?? 0) > 0;
+}
+
+/**
+ * Called after every portal save (app/api/welcome/<token>/items). Sends the
+ * dashboard invite once the client has confirmed their type of practice or firm.
+ * Idempotent: the claim on onboardings.dashboard_invite_sent_at lets exactly one
+ * request send; a failed send frees it for the next save. Never throws.
+ */
+export async function maybeAutoInvite(onboarding: Onboarding): Promise<'sent' | AutoInviteBlock | 'failed'> {
+  try {
+    if (!isDatabaseConfigured()) return 'not_production';
+    const block = autoInviteBlock(onboarding, { production: autoInviteEnabled(), alreadyEmailed: false });
+    if (block) return block;
+    if (await inviteAlreadyEmailed(onboarding.clientEmail)) {
+      await markDashboardInviteSent(onboarding.id);
+      return 'already_emailed';
+    }
+    if (!(await claimDashboardInvite(onboarding.id))) return 'already_sent';
+    try {
+      await deliverInvite(onboarding);
+      return 'sent';
+    } catch (err) {
+      await releaseDashboardInvite(onboarding.id);
+      throw err;
+    }
+  } catch (err) {
+    console.error('[onboarding] dashboard invite failed', err instanceof Error ? err.message : err);
+    return 'failed';
+  }
 }
 
 /**
@@ -123,7 +202,7 @@ export async function sendNudgeFor(onboarding: Onboarding): Promise<void> {
   const states = await getItemStates(onboarding.id);
   // Connect items are optional (S6-R13): never nag about them. Only the current round
   // is listed: the basics until they are done, then the before-launch items.
-  const open = orderedItems(onboarding.tier).client.filter((i) => !i.connect && states[i.key]?.status !== 'done');
+  const open = orderedItems(onboarding.tier, onboarding.industry).client.filter((i) => !i.connect && states[i.key]?.status !== 'done');
   if (open.length === 0) throw new Error('Nothing is open for this client');
   const round1 = open.filter((i) => !i.later);
   const round = round1.length > 0 ? 'start' : 'launch';

@@ -76,9 +76,11 @@ test('higher tiers include everything from the tiers below', () => {
   for (const k of core) assert.ok(growth.includes(k), `AxeonGROWTH missing ${k}`);
   assert.ok(core.length > essentials.length && growth.length > core.length);
   // The first visit stays short on every plan: round 1 (items without `later`) is what the client sees first.
+  // CORE / GROWTH round 1 is 9 since 2026-10-19: the type-of-practice question comes first.
   for (const tier of ONBOARDING_TIERS) {
     const round1 = orderedItems(tier).client.filter((i) => !i.later);
-    assert.ok(round1.length <= 8, `${tier} asks for ${round1.length} things before the build can start`);
+    const limit = tier === 'axeoncore' || tier === 'axeongrowth' ? 9 : 8;
+    assert.ok(round1.length <= limit, `${tier} asks for ${round1.length} things before the build can start`);
   }
   assert.ok(orderedItems('essentials').client.length <= 9, 'Essentials asks the client for more than 9 things');
 });

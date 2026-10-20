@@ -17,9 +17,10 @@ import { listAuditsForOnboarding } from '@/lib/audits';
 import { section } from '@/lib/auditShared';
 import { getTrackingSettings } from '@/lib/siteStats';
 import type { ScheduleAuto } from '@/data/deliverySchedule';
+import type { Industry } from '@/data/industryWords';
 import {
-  DEFAULT_DBR_STEPS,
   canGoLive,
+  defaultDbrSteps,
   deriveMilestones,
   fillDbrText,
   napProgress,
@@ -223,7 +224,7 @@ export interface DbrState {
   replied: number;
 }
 
-export async function dbrState(onboardingId: number): Promise<DbrState> {
+export async function dbrState(onboardingId: number, industry: Industry | null = null): Promise<DbrState> {
   await ensureSchema();
   const [{ rows: pc }, { rows: sp }, { rows: sends }] = await Promise.all([
     sql<{ total: number; consented: number; first: DbTime | null }>`
@@ -247,7 +248,7 @@ export async function dbrState(onboardingId: number): Promise<DbrState> {
     consented: num(pc[0]?.consented),
     firstImportAt: pc[0]?.first ? iso(pc[0].first) : null,
     status: s?.status ?? 'none',
-    steps: Array.isArray(s?.steps) ? s.steps : DEFAULT_DBR_STEPS.map((x) => ({ ...x })),
+    steps: Array.isArray(s?.steps) ? s.steps : defaultDbrSteps(industry),
     startedAt: s ? iso(s.started_at) : null,
     endedAt: s?.ended_at ? iso(s.ended_at) : null,
     sent: num(sends[0]?.sent),
@@ -492,6 +493,8 @@ async function reviewFacts(onboardingId: number, since: string): Promise<{ enabl
 
 export interface ProofV2View {
   startAt: string;
+  /** Type of practice or firm (onboardings.industry): the client's words on every v2 card. */
+  industry: Industry | null;
   day: number;
   milestones: Milestone[];
   settings: ProofV2Settings;
@@ -520,7 +523,7 @@ export async function loadV2View(onboarding: Onboarding, opts: { now?: Date } = 
   const startAt = startDateFor(onboarding, settings, agreement);
   const [mcat, dbr, reviews, pages, pins, desk, pipeline, { rows: pageDates }] = await Promise.all([
     phoneFacts(onboarding.id, startAt),
-    dbrState(onboarding.id),
+    dbrState(onboarding.id, onboarding.industry),
     reviewFacts(onboarding.id, startAt),
     listPages(onboarding.id),
     listPins(onboarding.id),
@@ -535,6 +538,7 @@ export async function loadV2View(onboarding: Onboarding, opts: { now?: Date } = 
   const autoDone = autoDoneFor({ settings, line, dbr, reviews, nap, pageDates: pageDates[0] ?? null, stagingPhase: staging.phase, stagingEndsAt: staging.endsAt });
   const facts: MilestoneFacts = {
     startAt,
+    industry: onboarding.industry,
     settings,
     autoDone,
     line: lineView,
@@ -547,6 +551,7 @@ export async function loadV2View(onboarding: Onboarding, opts: { now?: Date } = 
   };
   return {
     startAt,
+    industry: onboarding.industry,
     day: programDay(startAt, now),
     milestones: deriveMilestones(facts, now),
     settings,
