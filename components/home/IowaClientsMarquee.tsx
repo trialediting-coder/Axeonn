@@ -7,11 +7,13 @@
 // client list, so only real, approved clients may ever appear here in
 // production.
 //
-// Preview deploys and local dev scroll real Iowa business logos instead (owner,
-// 2026-10-19: "just to see" the logo strip). Most of these businesses are NOT
-// Axeon clients, so this list must never render in production: showing them
-// there would present them as clients. Swap in real, approved client logos
-// before anything like this ships.
+// Preview deploys and local dev scroll a DESIGN MOCKUP instead (owner,
+// 2026-10-19: "find real businesses in our verticals to put there, not ones
+// we've worked with"). These are real Des Moines-area dental practices, med
+// spas, law firms and CPA firms. None of them is an Axeon client and none has
+// approved this use, so this list must never render in production: showing
+// them there would present them as clients. Preview-only; swap in real,
+// approved client logos before anything like this ships.
 const SHOW_PREVIEW_LOGOS = process.env.VERCEL_ENV === 'preview' || process.env.NODE_ENV === 'development';
 
 const INCLUDED = [
@@ -35,18 +37,17 @@ type Logo = {
   h: number;
 };
 
-// Preview only (see above). Practices and firms first, interleaved.
+// Preview-only design mockup (see above). Not Axeon clients. Verticals interleaved:
+// dental, law, med spa, CPA.
 const PREVIEW_LOGOS: Logo[] = [
-  { name: 'Hintz Family Dentistry', logo: '/logos/iowa/hintz-family-dentistry.webp', heightClass: 'h-12 sm:h-16', w: 195, h: 160 },
-  { name: 'Mark Gray Law', logo: '/logos/iowa/mark-gray-law.webp', heightClass: 'h-9 sm:h-11', w: 643, h: 160 },
-  { name: 'Iowa Wealth Management', logo: '/logos/iowa/iowa-wealth-management.svg', heightClass: 'h-8 sm:h-10', w: 358, h: 74 },
-  { name: 'A-1 Auto Detailing', logo: '/logos/iowa/a1-auto-detailing.webp', heightClass: 'h-12 sm:h-20', w: 154, h: 160 },
-  { name: 'Patrick Finnegan', logo: '/logos/iowa/patrick-finnegan.webp', heightClass: 'h-8 sm:h-10', w: 1475, h: 160 },
-  { name: 'Obsidian Heating & Cooling', logo: '/logos/iowa/obsidian-heating-cooling.webp', heightClass: 'h-12 sm:h-20', w: 167, h: 160 },
-  { name: 'MSH Realty Group', logo: '/logos/iowa/msh-realty-group.webp', heightClass: 'h-12 sm:h-20', w: 165, h: 160 },
-  { name: "Andrew's Roofing Company", logo: '/logos/iowa/andrews-roofing.webp', heightClass: 'h-10 sm:h-12', w: 517, h: 160 },
-  { name: 'Outdoors by JK', logo: '/logos/iowa/outdoors-by-jk.webp', heightClass: 'h-10 sm:h-12', w: 345, h: 160 },
-  { name: 'Select Construction & Remodeling', logo: '/logos/iowa/select-construction.webp', heightClass: 'h-9 sm:h-12', w: 611, h: 160 },
+  { name: 'Davidson Family Dentistry', logo: '/logos/iowa/preview/davidson-family-dentistry.webp', heightClass: 'h-14 sm:h-20', w: 261, h: 160 },
+  { name: 'Dickinson Bradshaw', logo: '/logos/iowa/preview/dickinson-bradshaw.svg', heightClass: 'h-8 sm:h-11', w: 250, h: 65 },
+  { name: 'Revive Dermatology Clinic & Spa', logo: '/logos/iowa/preview/revive-dermatology-clinic-spa.webp', heightClass: 'h-10 sm:h-14', w: 571, h: 160 },
+  { name: 'Flagg & Company CPAs', logo: '/logos/iowa/preview/flagg-and-company.webp', heightClass: 'h-9 sm:h-12', w: 380, h: 160 },
+  { name: 'Veranda Dentistry', logo: '/logos/iowa/preview/veranda-dentistry.webp', heightClass: 'h-10 sm:h-12', w: 403, h: 160 },
+  { name: 'Erbe Law Firm', logo: '/logos/iowa/preview/erbe-law-firm.webp', heightClass: 'h-9 sm:h-12', w: 484, h: 160 },
+  { name: 'Skin Body Soul Spa', logo: '/logos/iowa/preview/skin-body-soul.webp', heightClass: 'h-12 sm:h-16', w: 160, h: 160 },
+  { name: 'Tarbell & Co., P.L.C.', logo: '/logos/iowa/preview/tarbell-and-co.webp', heightClass: 'h-6 sm:h-8', w: 1063, h: 160 },
 ];
 
 function Included({ label }: { label: string }) {
