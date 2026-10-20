@@ -105,7 +105,7 @@ export function PricingSection({
             AxeonCORE from $799/mo. AxeonGROWTH from $1,999/mo. One growth partner either way.
           </p>
           <p className="mt-3 sm:mt-5 text-lg sm:text-2xl font-extrabold font-display tracking-tight text-blue-600">{OFFER_LINE}</p>
-          <p className="mt-1.5 sm:mt-2 text-[13px] sm:text-base font-semibold text-neutral-700">{TERM_LINE}</p>
+          <p className="mt-1.5 sm:mt-2 text-[13px] sm:text-base font-semibold text-neutral-700 text-balance">{TERM_LINE}</p>
         </div>
 
         {/* Purpose: the 90-day performance commitment, word for word, and what it does not promise. */}
@@ -303,7 +303,7 @@ function PlanCard({ tier }: { tier: PricingTier }) {
         <span className="text-[44px] leading-none sm:text-6xl font-black tracking-tight whitespace-nowrap">{tier.price}</span>
         <span className={`text-base sm:text-lg font-semibold ${muted}`}>{tier.billingNote}</span>
       </div>
-      <p className={`mt-2 text-base sm:text-xl font-bold leading-snug ${isPremium ? 'text-white' : 'text-neutral-900'}`}>
+      <p className={`mt-2 text-base sm:text-xl font-bold leading-snug text-balance ${isPremium ? 'text-white' : 'text-neutral-900'}`}>
         {tier.startFee}
       </p>
       {/* Phones: the start note and "right for you if" sit behind "See everything included". */}

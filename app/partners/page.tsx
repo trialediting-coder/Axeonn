@@ -85,7 +85,7 @@ const FITS = [
   },
   {
     icon: Receipt,
-    title: 'Billing and back-office firms',
+    title: 'Billing and back‑office firms',
     description: 'Dental and medical billing, legal billing, bookkeeping. You see the schedule gaps first. We help fill them with the inquiries that were going to voicemail.',
   },
   {
@@ -243,8 +243,7 @@ export default function PartnersPage() {
             <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-3 sm:mb-5">[ The Axeon Partner Program ]</p>
             <h1 className="text-[38px] sm:text-6xl xl:text-7xl font-black tracking-[-0.04em] leading-[1.02] sm:leading-[0.98] font-display mb-4 sm:mb-7">
               Send us a practice or firm.
-              <br />
-              <span className="text-neutral-400">We&apos;ll start by checking their area.</span>
+              <span className="block text-neutral-400">We&apos;ll start by checking their area.</span>
             </h1>
             <p className="text-base sm:text-lg text-neutral-200 leading-relaxed max-w-xl mb-6 sm:mb-10">
               CPAs, practice consultants and billing firms already advise the practices and firms that lose new patients and clients after hours.

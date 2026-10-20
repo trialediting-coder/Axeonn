@@ -148,7 +148,7 @@ export default function AxeonProofPage() {
             pill="Every tab"
             title={
               <>
-                Click around. It is the <Accent>real</Accent> thing.
+                Click around.{' '}<span className="whitespace-nowrap">It is the</span> <Accent>real</Accent> thing.
               </>
             }
             intro="Every screen a practice or firm sees, from the first inquiry to the invoice. A tab outside your plan stays visible and shows an example month, so you always know what the next plan adds."
@@ -220,7 +220,7 @@ export default function AxeonProofPage() {
             pillOnPhones={false}
             title={
               <>
-                Both plans get a sign-in. AxeonGROWTH switches on <Accent>more</Accent> tabs.
+                Both plans get a sign‑in. AxeonGROWTH switches on <Accent>more</Accent> tabs.
               </>
             }
           />
