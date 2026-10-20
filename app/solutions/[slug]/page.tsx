@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ServicesForVertical } from '@/components/marketing-solutions/FunnelPage';
+import { SpecialtiesForVertical } from '@/components/niches/SpecialtyPageView';
 import { FUNNEL_VERTICALS } from '@/data/serviceFunnels';
 import type { PracticeVertical } from '@/data/servicePages';
 
@@ -132,6 +133,7 @@ export default async function NichePage({
           </p>
         </div>
       </section>
+      <SpecialtiesForVertical vertical={niche.slug} />
       {isPracticeVertical(niche.slug) && <ServicesForVertical vertical={niche.slug} />}
       <NicheClosingCTA niche={niche} />
     </main>

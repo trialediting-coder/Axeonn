@@ -272,10 +272,10 @@ export const niches: Niche[] = [
     leadNoun: 'new-client inquiry',
     cardLine: 'Tax-season overflow answered and advisory consults booked, even when the phones are buried.',
     schemaType: 'AccountingService',
-    seoTitle: 'Marketing for CPA Firms in Des Moines',
-    keywordLine: 'Marketing for CPA & accounting firms · Iowa',
+    seoTitle: 'CPA Firm Marketing for Accountants',
+    keywordLine: 'CPA firm marketing for accountants · Iowa',
     seoDescription:
-      'Marketing for CPA and accounting firms in Des Moines: every call answered in 60 seconds, even in March, and meetings booked online. From $799/mo.',
+      'CPA firm marketing for Iowa accountants and accounting firms: every call answered in 60 seconds, even in March, and meetings booked online. From $799/mo.',
     headline: 'In March, new clients wait on hold. Answer them in 60 seconds.',
     subheadline:
       'Every missed call answered in 60 seconds, even in tax season, and booked.',

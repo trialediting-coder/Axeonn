@@ -818,8 +818,8 @@ const SEO_TARGETS: Record<FunnelService, Record<PracticeVertical, SeoTarget>> = 
       faqs: [q('How much does a law firm website cost?', `The website is part of ${CORE}, with $0 setup (normally $3,000) and the first payment once you're live. Hosting, updates and 60-second intake are included.`)],
     },
     accounting: {
-      keyword: 'CPA website design',
-      title: 'Websites for Accountants & CPA Firms | Axeon Studio',
+      keyword: 'Accounting & CPA website design',
+      title: 'Accounting & CPA Website Design | Axeon Studio',
       description:
         'CPA website design for Iowa accounting firms: service pages and online booking for tax and advisory meetings, every inquiry answered in 60 seconds.',
       faqs: [q('How do you build an accounting firm website?', 'A page for each service you want more of, team bios, online booking for tax and advisory meetings, and a reply to every form in 60 seconds. We write it; you approve it.')],

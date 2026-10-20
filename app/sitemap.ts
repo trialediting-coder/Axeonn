@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { funnelPages, funnelPath } from '@/data/serviceFunnels';
 import { niches } from '@/data/nichesData';
+import { specialtyPages, specialtyPath } from '@/data/specialtyPages';
 import { allCityPages } from '@/data/cityPages';
 import { services } from '@/data/marketingSolutionsData';
 import { listPosts } from '@/lib/posts';
@@ -58,6 +59,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: staticLastModified,
       changeFrequency: 'monthly' as const,
       priority: 0.7,
+    })),
+    ...specialtyPages.map((p) => ({
+      url: `${baseUrl}${specialtyPath(p)}`,
+      lastModified: staticLastModified,
+      changeFrequency: 'monthly' as const,
+      priority: 0.8,
     })),
     ...niches.map((niche) => ({
       url: `${baseUrl}/solutions/${niche.slug}`,

@@ -9,6 +9,7 @@
 import { validatePost } from '../lib/postValidation';
 import { loadRewrites } from './lib/insightRewrites.mjs';
 import { FUNNEL_SERVICES, FUNNEL_VERTICALS, funnelPath } from '../data/serviceFunnels';
+import { specialtyPages, specialtyPath } from '../data/specialtyPages';
 
 const VALID_NICHES = new Set(['dental', 'med-spa', 'law-firms', 'accounting']);
 const INTERNAL_LINKS = new Set([
@@ -20,6 +21,8 @@ const INTERNAL_LINKS = new Set([
   '/insights/how-to-get-your-business-recommended-by-chatgpt',
   // Every service x practice funnel page (/marketing-solutions/{service}/{vertical}).
   ...FUNNEL_SERVICES.flatMap((s) => FUNNEL_VERTICALS.map((v) => funnelPath(s, v))),
+  // Every practice-area page (/solutions/{vertical}/{specialty}).
+  ...specialtyPages.map(specialtyPath),
 ]);
 const LINT: { pattern: RegExp; reason: string }[] = [
   { pattern: /\b(contractors?|roof(ers?|ing)|hvac|plumb(ers?|ing)|detail(ers?|ing)|landscap\w*|remodel\w*|real estate|crews?|shops?|booked jobs?|jobs?)\b/i, reason: 'trade / home-services wording' },
