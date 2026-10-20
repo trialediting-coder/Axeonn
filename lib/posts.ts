@@ -177,3 +177,8 @@ export async function publishDuePosts(): Promise<Post[]> {
   `;
   return rows.map(rowToPost);
 }
+
+/** Posts retired with the 2026-10-19 practice repositioning: still in the database
+ *  until the rewrite script unpublishes them, but 301'd to /work (next.config.mjs),
+ *  so /insights and the sitemap leave them out. */
+export const RETIRED_POST_SLUGS = new Set(['a-1-auto-detailing-website-case-study']);

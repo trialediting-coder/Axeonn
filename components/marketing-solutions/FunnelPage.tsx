@@ -15,6 +15,7 @@ import { nicheHeroTempImages } from '@/data/nicheHeroTempImages';
 import { serviceHeroImages } from '@/data/serviceHeroImages';
 import { HeroBackdrop } from '@/components/marketing-solutions/HeroBackdrop';
 import { servicePages, type PracticeVertical } from '@/data/servicePages';
+import { specialtiesFor, specialtyPath } from '@/data/specialtyPages';
 import {
   FUNNEL_SERVICES,
   FUNNEL_VERTICALS,
@@ -143,9 +144,11 @@ function IncludedSection({ page }: { page: FunnelPage }) {
   );
 }
 
-// Purpose: the other five services for this practice type, plus the way back up.
+// Purpose: the other five services for this practice type, its practice-area pages,
+// plus the way back up.
 function OtherServicesFor({ page }: { page: FunnelPage }) {
   const others = FUNNEL_SERVICES.filter((s) => s !== page.service);
+  const areas = specialtiesFor(page.vertical);
   return (
     <section className="w-full px-4 sm:px-8 lg:px-16 pt-10 sm:pt-16 pb-2 bg-white text-neutral-950">
       <div className="max-w-5xl mx-auto">
@@ -164,6 +167,25 @@ function OtherServicesFor({ page }: { page: FunnelPage }) {
             </li>
           ))}
         </ul>
+        {areas.length > 0 && (
+          <>
+            <Eyebrow className="mt-8 sm:mt-10 mb-3 sm:mb-5">By practice area</Eyebrow>
+            <ul className={`grid grid-cols-1 sm:grid-cols-2 ${areas.length === 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-2 sm:gap-3`}>
+              {areas.map((a) => (
+                <li key={a.slug}>
+                  <Link
+                    href={specialtyPath(a)}
+                    data-spot
+                    className="group ix-card relative flex items-center justify-between gap-3 rounded-2xl border border-neutral-200 px-4 py-3 sm:py-4 hover:border-blue-300 transition-colors"
+                  >
+                    <span className="font-bold group-hover:text-blue-600 transition-colors">{a.name}</span>
+                    <ArrowRight size={16} className="shrink-0 text-neutral-400 group-hover:text-blue-600 transition-colors" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
         <p className="mt-4 sm:mt-6 text-sm sm:text-base text-neutral-600">
           <Link href={parentPath(page.service)} className="font-semibold text-blue-600 hover:text-blue-700 underline underline-offset-2">
             {SERVICE_SHORT[page.service]} for every practice type

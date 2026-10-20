@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { listPosts, type Post } from '@/lib/posts';
+import { listPosts, RETIRED_POST_SLUGS, type Post } from '@/lib/posts';
 import { PostCard } from '@/components/insights/PostCard';
 import { buildMetadata } from '@/lib/metadata';
 import { BreadcrumbJsonLd, JsonLd } from '@/components/common/JsonLd';
@@ -16,8 +16,6 @@ export const metadata = buildMetadata({
 
 export const revalidate = 3600;
 
-// Retired with the 2026-10-19 practice repositioning (301s to /work).
-const RETIRED_SLUGS = new Set(['a-1-auto-detailing-website-case-study']);
 
 // What the guides cover, each tied to the service page that does it for you.
 const TOPICS = [
@@ -55,7 +53,7 @@ export default async function InsightsPage() {
   // page still renders its guide index and topic copy without it.
   let posts: Post[] = [];
   try {
-    posts = (await listPosts({ status: 'published' })).filter((post) => !RETIRED_SLUGS.has(post.slug));
+    posts = (await listPosts({ status: 'published' })).filter((post) => !RETIRED_POST_SLUGS.has(post.slug));
   } catch {
     posts = [];
   }

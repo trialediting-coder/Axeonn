@@ -4,7 +4,7 @@ import { niches } from '@/data/nichesData';
 import { specialtyPages, specialtyPath } from '@/data/specialtyPages';
 import { allCityPages } from '@/data/cityPages';
 import { services } from '@/data/marketingSolutionsData';
-import { listPosts } from '@/lib/posts';
+import { listPosts, RETIRED_POST_SLUGS } from '@/lib/posts';
 import { CONTENT_LAST_UPDATED } from '@/lib/seo';
 
 // Without this, Next prerenders the sitemap once at build time and freezes
@@ -23,7 +23,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let posts: Awaited<ReturnType<typeof listPosts>> = [];
   try {
-    posts = await listPosts({ status: 'published' });
+    posts = (await listPosts({ status: 'published' })).filter((post) => !RETIRED_POST_SLUGS.has(post.slug));
   } catch {
     // Database not provisioned yet in this environment — sitemap still
     // generates correctly for every other route.
