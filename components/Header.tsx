@@ -225,7 +225,7 @@ export function Header() {
               setServicesOpen(false);
             }
           }}
-          className={`hidden xl:flex items-center gap-7 2xl:gap-8 text-base whitespace-nowrap font-semibold transition-colors ${
+          className={`hidden xl:flex items-center gap-7 2xl:gap-8 text-base whitespace-nowrap font-semibold [word-spacing:0.14em] transition-colors ${
             onDarkHero ? 'text-white' : 'text-neutral-800'
           }`}
         >
@@ -422,7 +422,7 @@ export function Header() {
           </div>
         </nav>
 
-        <div className="hidden xl:flex items-center gap-5">
+        <div className="hidden xl:flex items-center gap-5 [word-spacing:0.14em]">
           <a
             href="tel:+15154938017"
             className={`hidden xl:inline-block text-[15px] font-semibold whitespace-nowrap transition-colors ${

@@ -12,7 +12,7 @@ import { TrustBadges } from '@/components/common/TrustBadges';
 // with it, so no single kind of practice owns the first screen (owner,
 // 2026-10-19: tailor to all our verticals, not just clinics).
 const SLIDES = [
-  { word: 'New Patients', image: '/who-we-help/dental.webp', position: 'object-[70%_center]' },
+  { word: 'New Patients', image: '/who-we-help/dental.webp', position: 'object-[40%_22%]' },
   { word: 'Consultations', image: '/who-we-help/med-spa.webp', position: 'object-[60%_center]' },
   { word: 'Signed Cases', image: '/who-we-help/law-firms.webp', position: 'object-center' },
   { word: 'New Clients', image: '/who-we-help/accounting.webp', position: 'object-[65%_center]' },
