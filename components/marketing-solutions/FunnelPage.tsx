@@ -12,6 +12,8 @@ import { ServiceFaqJsonLd, ServiceFaqSection } from '@/components/marketing-solu
 import { buildMetadata } from '@/lib/metadata';
 import { serviceJsonLd } from '@/lib/seo';
 import { nicheHeroTempImages } from '@/data/nicheHeroTempImages';
+import { serviceHeroImages } from '@/data/serviceHeroImages';
+import { HeroBackdrop } from '@/components/marketing-solutions/HeroBackdrop';
 import { servicePages, type PracticeVertical } from '@/data/servicePages';
 import {
   FUNNEL_SERVICES,
@@ -41,11 +43,8 @@ function FunnelHero({ page }: { page: FunnelPage }) {
   const price = SERVICE_PRICE[page.service];
   return (
     <section className="relative w-full px-4 sm:px-8 lg:px-16 bg-neutral-950 text-white overflow-hidden pt-24 sm:pt-36 pb-10 sm:pb-20">
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 pointer-events-none"
-        style={{ backgroundImage: 'radial-gradient(ellipse 70% 55% at 50% 35%, rgba(37,99,235,0.28), transparent 70%)' }}
-      />
+      {/* Their own kind of practice behind the hero; the service photo sits in the next section. */}
+      <HeroBackdrop photo={{ src: nicheHeroTempImages[page.vertical], position: '50% 35%' }} />
       <div className="relative z-10 w-full max-w-4xl mx-auto text-center">
         <Link
           href={parentPath(page.service)}
@@ -76,7 +75,7 @@ function MomentSection({ page }: { page: FunnelPage }) {
       <div className="max-w-5xl mx-auto grid md:grid-cols-12 gap-6 md:gap-12 items-center">
         <div className="hidden md:block md:col-span-5">
           <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-neutral-900">
-            <Image src={nicheHeroTempImages[page.vertical]} alt="" fill sizes="(max-width: 768px) 100vw, 420px" className="object-cover" />
+            <Image src={serviceHeroImages[page.service].src} alt="" fill sizes="(max-width: 768px) 100vw, 420px" className="object-cover" />
           </div>
         </div>
         <div className="md:col-span-7">

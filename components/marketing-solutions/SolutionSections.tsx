@@ -9,6 +9,8 @@ import { withGeneralFaqs, type FaqItem } from '@/data/faqData';
 import { PracticeExamples } from '@/components/marketing-solutions/PracticeExamples';
 import { services } from '@/data/marketingSolutionsData';
 import type { ServicePage, SourcedStat } from '@/data/servicePages';
+import { serviceHeroImages, type HeroPhoto } from '@/data/serviceHeroImages';
+import { HeroBackdrop } from '@/components/marketing-solutions/HeroBackdrop';
 
 // Shared sections for /marketing-solutions ("How it works") and the six
 // service pages under it. Copy lives in data/servicePages.ts; these
@@ -48,20 +50,18 @@ export function ServiceHero({
   subtitle,
   priceLine,
   note,
+  photo,
 }: {
   eyebrow: string;
   title: string;
   subtitle: string;
   priceLine: string;
   note?: string;
+  photo?: HeroPhoto;
 }) {
   return (
     <section className="relative w-full px-4 sm:px-8 lg:px-16 bg-neutral-950 text-white overflow-hidden pt-24 sm:pt-40 pb-10 sm:pb-24">
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 pointer-events-none"
-        style={{ backgroundImage: 'radial-gradient(ellipse 70% 55% at 50% 35%, rgba(37,99,235,0.28), transparent 70%)' }}
-      />
+      <HeroBackdrop photo={photo} />
       <div className="relative z-10 w-full max-w-4xl mx-auto text-center">
         <Link
           href="/marketing-solutions"
@@ -349,7 +349,7 @@ export function ServiceFaqJsonLd({ items }: { items: FaqItem[] }) {
 export function ServicePageView({ page }: { page: ServicePage }) {
   return (
     <>
-      <ServiceHero {...page.hero} />
+      <ServiceHero {...page.hero} photo={serviceHeroImages[page.slug]} />
       <QuickAnswer {...page.quickAnswer} localLink={page.localLink} />
       {page.stat && <SourcedStatBand stat={page.stat} />}
       <HowItWorksSection how={page.how} />
