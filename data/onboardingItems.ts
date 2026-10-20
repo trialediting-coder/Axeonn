@@ -134,7 +134,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     title: 'What type of practice or firm are you?',
     description: 'Your dashboard, texts and pages use the right words for it.',
     minutes: 1,
-    fields: [{ key: 'industry', label: 'Type of practice or firm', type: 'select', required: true, options: INDUSTRY_OPTIONS, prefill: 'industry' }],
+    fields: [{ key: 'industry', label: 'Pick one', type: 'select', required: true, options: INDUSTRY_OPTIONS, prefill: 'industry' }],
   },
   // ───────────────────────── Essentials: the client's part ─────────────────────────
   {

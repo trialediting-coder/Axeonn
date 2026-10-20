@@ -213,7 +213,7 @@ export function OnboardingPortal(props: PortalProps) {
             <Sparkles size={15} />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-base font-semibold text-neutral-800">We are handling {props.items.axeon.length} things for you</span>
+            <span className="block text-base font-semibold text-neutral-800 [text-wrap:balance]">We are handling {props.items.axeon.length} things for you</span>
             <span className="block text-sm text-neutral-600">{axeonDone > 0 ? `${axeonDone} set up so far. ` : ''}Nothing needed from you.</span>
           </span>
           <ChevronDown size={18} className={`shrink-0 text-neutral-400 transition-transform ${showAxeon ? 'rotate-180' : ''}`} />
@@ -298,7 +298,7 @@ function CardShell({
         </span>
         <span className="min-w-0 flex-1">
           <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <span className={`text-base sm:text-lg font-bold tracking-tight ${isDone ? 'text-neutral-700' : 'text-neutral-950'}`}>{item.title}</span>
+            <span className={`text-base sm:text-lg font-bold tracking-tight [text-wrap:balance] ${isDone ? 'text-neutral-700' : 'text-neutral-950'}`}>{item.title}</span>
           </span>
           {!open && isDone && summary ? <span className="mt-1 block text-sm text-neutral-600 leading-relaxed">{summary}</span> : null}
         </span>
@@ -365,7 +365,8 @@ function ConfirmCard({
   const summary = onCall ? 'We will cover this on a call.' : fields
     .map((f) => {
       const v = display(f, state?.data?.[f.key]);
-      return v ? `${f.label}: ${v}` : null;
+      // A one-question card shows just the answer ("Dental practice"), not "Pick one: Dental practice".
+      return v ? (fields.length === 1 ? v : `${f.label}: ${v}`) : null;
     })
     .filter(Boolean)
     .slice(0, 2)
