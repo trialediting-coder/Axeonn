@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://axeonstudio.co'),
   ...buildMetadata({
     path: '/',
-    title: 'Des Moines Digital Marketing Agency for Practices | Axeon',
+    title: 'Des Moines Digital Marketing Agency | Axeon Studio',
     description:
     'Des Moines digital marketing agency for dental practices, med spas, law firms and CPA firms: every call and inquiry answered in 60 seconds and booked.',
   }),

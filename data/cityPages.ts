@@ -121,7 +121,7 @@ export const cityPages: CityPage[] = [
     slug: 'ankeny-web-design',
     city: 'Ankeny',
     linkLabel: 'Ankeny Practices & Firms',
-    title: 'Ankeny Web Design & Marketing for Practices | Axeon Studio',
+    title: 'Ankeny Web Design & Marketing | Axeon Studio',
     description:
       'Ankeny dental practices, med spas, law firms and CPA firms: every after-hours call and web inquiry answered in 60 seconds and booked. From $799/mo.',
     eyebrow: 'Ankeny web design & marketing · North metro',
@@ -170,7 +170,7 @@ export const cityPages: CityPage[] = [
     slug: 'waukee-web-design',
     city: 'Waukee',
     linkLabel: 'Waukee Practices & Firms',
-    title: 'Waukee Web Design & Marketing for Practices | Axeon Studio',
+    title: 'Waukee Web Design & Marketing | Axeon Studio',
     description:
       'For Waukee dental practices, med spas, law firms and CPA firms: a site that books and a reply to every call in 60 seconds, from a team next door.',
     eyebrow: 'Waukee web design & marketing · West metro',
@@ -220,7 +220,7 @@ export const cityPages: CityPage[] = [
     slug: 'urbandale-web-design',
     city: 'Urbandale',
     linkLabel: 'Urbandale Practices & Firms',
-    title: 'Urbandale Web Design & Marketing for Firms | Axeon Studio',
+    title: 'Urbandale Web Design & Marketing | Axeon Studio',
     description:
       'Urbandale dental practices, med spas, law firms and CPA firms: turn a good reputation into booked consultations, with every inquiry answered in 60 seconds.',
     eyebrow: 'Urbandale web design & marketing · NW metro',
