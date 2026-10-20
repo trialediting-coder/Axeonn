@@ -51,14 +51,14 @@ export default function BookClient() {
                 </h1>
 
                 <p className="text-[15px] sm:text-lg text-zinc-600 leading-relaxed font-normal">
-                  We look at what happens today when a patient or client calls after hours or fills out your web form, where they slip away, and what AxeonCORE would change.
+                  Where patients and clients slip away today, and what we&apos;d change.
                 </p>
 
                 <ul className="space-y-1.5 sm:space-y-2.5 sm:pt-1">
                   {[
-                    'How your calls and web inquiries are answered today, after hours and during busy hours',
+                    'How your calls and inquiries get answered today',
                     'Your reviews next to the top 3 competitors near you',
-                    'A clear plan and price: AxeonCORE from $799/mo, with our 90-day performance commitment',
+                    'A clear plan and price, from $799/mo',
                   ].map((item) => (
                     <li key={item} className="flex items-start gap-2.5 text-sm sm:text-base text-zinc-700 leading-snug sm:leading-relaxed">
                       <LineIcon>
@@ -75,8 +75,7 @@ export default function BookClient() {
                     Not sure your area is open?
                   </p>
                   <p className="mt-1.5 text-sm text-zinc-600 leading-relaxed">
-                    One practice or firm per specialty within 5 miles. Tell us where you are and we&apos;ll confirm within one
-                    business day. $0 to start.
+                    One practice or firm per specialty within 5 miles.
                   </p>
                   <Link
                     href="/check-your-area"

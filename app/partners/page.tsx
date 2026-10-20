@@ -126,17 +126,17 @@ const PARTNER_FAQ = [
   {
     question: 'What is the Technology Advisory Share?',
     answer:
-      'CPAs, practice consultants and billing firms who introduce a practice or firm earn a 15% recurring share for as long as it stays a client. It is disclosed to the client in writing. The partner brief spells out exactly how it is calculated and paid.',
+      'A 15% recurring share for as long as the practice or firm stays a client, disclosed to the client in writing.',
   },
   {
     question: 'My professional rules limit referral fees. Can I still partner?',
     answer:
-      'Yes. You can pass the full value to your client as a fee credit on their Axeon account instead of taking the share. Either way, the arrangement is disclosed in writing. Check your own professional rules; we will follow whichever option you choose.',
+      'Yes. Pass the value to your client as a fee credit instead. Either way it is disclosed in writing.',
   },
   {
     question: 'What do my clients get?',
     answer:
-      "We check whether their specialty's 5-mile area is open, then show them what we found on a short call: an after-hours test call, how fast their website answers an inquiry, and their reviews next to the top 3 nearby competitors. If they partner with us, it is $0 to start and nothing is due until it's working.",
+      "An area check and a short call showing what we found. $0 to start, nothing due until it's working.",
   },
   {
     question: 'Do I have to sell anything?',
@@ -146,12 +146,12 @@ const PARTNER_FAQ = [
   {
     question: 'Why do you review applications?',
     answer:
-      'Your name is on every introduction you make, and we take one practice or firm per specialty within 5 miles. We keep the program small so each introduction gets real attention.',
+      'Your name is on every introduction, so we keep the program small.',
   },
   {
     question: 'I build software for practices or firms. How does that work?',
     answer:
-      'Apply on the Collaboration track. If the practices and firms we serve would benefit from your product, we can recommend it and set it up properly alongside the intake we install, and you can do the same for us.',
+      'Apply on the Collaboration track. We recommend each other when it fits.',
   },
 ];
 
@@ -250,9 +250,7 @@ export default function PartnersPage() {
               <span className="block text-blue-400">We&apos;ll start by checking their&nbsp;area.</span>
             </h1>
             <p className="text-base sm:text-lg text-neutral-200 leading-relaxed max-w-xl mb-6 sm:mb-10">
-              CPAs, practice consultants and billing firms already advise the practices and firms that lose new patients and clients after hours.
-              Introduce them to us and earn a 15% recurring Technology Advisory Share, disclosed to the client in writing,
-              or pass it to your client as a fee credit.
+              Earn a 15% recurring share, disclosed in writing, or pass it on as a fee credit.
             </p>
             <div className="flex flex-wrap items-center gap-3 sm:gap-4">
               <a
@@ -295,8 +293,7 @@ export default function PartnersPage() {
           <div className="lg:col-span-4">
             <h2 className="text-[28px] sm:text-5xl font-black tracking-[-0.03em] font-display mb-2 sm:mb-4">Who we partner with</h2>
             <p className="text-[15px] sm:text-lg text-neutral-600 leading-relaxed">
-              The people practice and firm owners already trust. If your clients run a dental office, med spa, law firm or
-              accounting firm, this is for you.
+              The people practice and firm owners already trust.
             </p>
           </div>
           <ul className="lg:col-span-8 grid grid-cols-2 gap-2 sm:gap-x-10 sm:gap-y-0 sm:border-t border-neutral-300">
@@ -375,7 +372,7 @@ export default function PartnersPage() {
               Know a practice or firm that loses calls after hours?
             </h2>
             <p className="text-base sm:text-lg text-neutral-300 leading-relaxed">
-              Request the partner brief. We hand-deliver it with the full terms and reply to every request.
+              Request the brief. Full terms inside.
             </p>
           </div>
           <div className="w-full lg:max-w-md shrink-0">

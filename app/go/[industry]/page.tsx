@@ -1,4 +1,5 @@
 import LineIcon from '@/components/common/LineIcon';
+import { COMMITMENT_HEADLINE } from '@/data/pricingData';
 import { notFound } from 'next/navigation';
 import { SetupPrice } from '@/components/common/SetupPrice';
 import type { Metadata } from 'next';
@@ -86,26 +87,26 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
     {
       question: 'What does checking my area mean?',
       answer:
-        "We work with one practice or firm per specialty within 5 miles. Tell us your specialty and city and we'll confirm within one business day whether your area is open. On a short call we show you what we found: an after-hours test call, your website's reply speed, and your reviews next to the top 3 nearby competitors.",
+        "We take one practice or firm per specialty within 5 miles. We confirm yours within one business day, then show you what we found.",
     },
     {
       question: 'Is it really $0 to start?',
       answer:
-        "Yes. On the 12-month agreement setup is $0 (normally $3,000), and your first monthly payment is charged only once you're live and every call and inquiry is answered within 60 seconds.",
+        "Yes. Setup is $0 (normally $3,000) on the 12-month agreement, and the first payment comes once you're live.",
     },
     {
       question: 'What does it cost?',
       answer:
-        'AxeonCORE is from $799/mo on a 12-month agreement: $0 setup (normally $3,000) and nothing due until it is working. Month-to-month is available if you pay the $3,000 upfront. AxeonGROWTH, which adds Google Local Services Ads and search ads management, is from $1,999/mo plus ad spend.',
+        'AxeonCORE from $799/mo. AxeonGROWTH, which adds ads, from $1,999/mo plus ad spend.',
     },
     {
       question: 'What if it doesn’t work?',
-      answer: `Our 90-day performance commitment: ${COMMITMENT}`,
+      answer: COMMITMENT_HEADLINE,
     },
     {
       question: 'What do we own?',
       answer:
-        'Your domain, your Google Business Profile, and your patient and client contact data are always yours. The website design and code become yours once the 12-month term is paid. The intake system, phone and text numbers, and AxeonPROOF are a service and stop if you leave.',
+        'Your domain, Google profile and contact data, always. The site once the 12-month term is paid.',
     },
     ...(nicheFaqData[niche.slug] ?? []),
   ];
@@ -144,7 +145,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
             <p className="mt-4 text-base sm:text-lg font-semibold text-white">
               From $799/mo. <SetupPrice />. Nothing due until it&apos;s working.
             </p>
-            <p className="mt-3 sm:mt-4 text-base sm:text-xl text-neutral-300 leading-relaxed max-w-xl">
+            <p className="hidden sm:block mt-4 text-xl text-neutral-300 leading-relaxed max-w-xl">
               {funnel.result}
             </p>
             <ul className="mt-5 sm:mt-8 flex flex-col gap-2.5 sm:gap-3 text-[15px] sm:text-lg">
@@ -197,8 +198,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
               See what happens when {funnel.customers} reach your {funnel.business} after hours
             </h2>
             <p className="mt-3 sm:mt-5 text-[15px] sm:text-lg text-neutral-600 leading-snug sm:leading-relaxed">
-              Once you check your area, we test your own {funnel.business} and go over what we found with you, whether or
-              not you work with us.
+              We test your {funnel.business} and walk you through it, either way.
             </p>
           </div>
           <ol className="mt-5 sm:mt-12 grid grid-cols-1 md:grid-cols-3 gap-2.5 sm:gap-5">
@@ -212,15 +212,11 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
                 </div>
                 <div>
                   <p className="sm:mt-5 text-base sm:text-xl font-bold leading-snug">{t}</p>
-                  <p className="mt-1 sm:mt-2 text-sm sm:text-base text-neutral-600 leading-snug sm:leading-relaxed">{d}</p>
+                  <p className="hidden sm:block mt-2 text-base text-neutral-600 leading-relaxed">{d}</p>
                 </div>
               </li>
             ))}
           </ol>
-          <p className="mt-4 sm:mt-8 text-sm sm:text-base text-neutral-600 leading-snug sm:leading-normal">
-            Clients then see every reply and booking in AxeonPROOF, their live client portal: a recovered-inquiry counter,
-            change requests and a monthly report.
-          </p>
           <div className="mt-6 sm:mt-10 text-left flex flex-col gap-4 empty:hidden">
             <Placeholder label={funnel.proofPlaceholder} />
             <Placeholder label={`Client testimonial from this practice type (${niche.name})`} />
@@ -275,7 +271,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
           <ol className="mt-6 sm:mt-12 border-l border-white/15 ml-2">
             {[
               { t: 'We confirm your area', d: 'Within one business day: one practice or firm per specialty within 5 miles.' },
-              { t: 'We test your practice', d: 'An after-hours call, a timed web inquiry, and a review comparison with the top 3 nearby competitors.' },
+              { t: 'We test your practice', d: 'After-hours call, timed inquiry, review comparison.' },
               { t: 'If it fits, we partner', d: '$0 to start. Nothing due until it’s working. No pressure either way.' },
             ].map((s) => (
               <li key={s.t} className="relative pl-7 sm:pl-10 pb-6 sm:pb-10 last:pb-0">
@@ -298,11 +294,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
           <div className="rounded-3xl border-2 border-emerald-500 p-5 sm:p-9">
             <ShieldCheck size={28} className="text-emerald-600" />
             <h2 className="mt-3 sm:mt-4 text-2xl sm:text-3xl font-extrabold font-display tracking-tight">90-day performance commitment</h2>
-            <p className="mt-3 text-base sm:text-lg text-neutral-700 leading-relaxed">{COMMITMENT}</p>
-            <p className="mt-3 text-sm text-neutral-500 leading-relaxed">
-              We commit to what we control: speed, replies and review requests. We never promise a number of patients,
-              clients or rankings.
-            </p>
+            <p className="mt-3 text-base sm:text-lg text-neutral-700 leading-relaxed">{COMMITMENT_HEADLINE}</p>
           </div>
         </div>
       </section>
