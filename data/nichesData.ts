@@ -43,6 +43,8 @@ export interface Niche {
   // Short, SEO-tuned <title> tag text (kept separate from `headline`, the
   // on-page H1). Stays under ~45 chars so "<seoTitle> | Axeon Studio" fits.
   seoTitle: string;
+  /** The primary search phrase as the hero's first line (Semrush keyword map, 2026-10-20). */
+  keywordLine: string;
   /** Meta description for /solutions/[slug]; falls back to subheadline. */
   seoDescription?: string;
   headline: string;
@@ -78,9 +80,10 @@ export const niches: Niche[] = [
     leadNoun: 'new-patient inquiry',
     cardLine: 'New-patient calls and implant or Invisalign questions answered within 60 seconds, day or night.',
     schemaType: 'Dentist',
-    seoTitle: 'Dental Practice Marketing in Des Moines, IA',
+    seoTitle: 'Dental Marketing for Des Moines Practices',
+    keywordLine: 'Dental marketing · Des Moines & Iowa',
     seoDescription:
-      'Dental practice marketing in Des Moines: every new-patient call and web inquiry answered in 60 seconds, 24/7, exams booked online, reviews after every visit.',
+      'Dental marketing for Des Moines practices: every new-patient call and inquiry answered in 60 seconds, exams booked online, a review ask after every visit.',
     headline: 'New patients call after hours. Answer them in 60 seconds.',
     subheadline:
       'Every missed call answered in 60 seconds, 24/7, and the exam booked.',
@@ -142,9 +145,10 @@ export const niches: Niche[] = [
     leadNoun: 'consult request',
     cardLine: 'Consult requests answered within 60 seconds and booked before they shop around.',
     schemaType: 'MedicalBusiness',
-    seoTitle: 'Med Spa Marketing in Des Moines, IA',
+    seoTitle: 'Med Spa Marketing Agency in Des Moines',
+    keywordLine: 'Med spa marketing · Des Moines & Iowa',
     seoDescription:
-      'Med spa marketing in Des Moines: every consult request answered in 60 seconds, 24/7, consultations booked online and a review request after every visit.',
+      'Med spa marketing in Des Moines: every consultation request answered in 60 seconds and booked online, with a review ask after every visit. From $799/mo.',
     headline: 'Consult requests come in at night. Answer them in 60 seconds.',
     subheadline:
       'Every consult request answered in 60 seconds, 24/7, and booked.',
@@ -204,9 +208,10 @@ export const niches: Niche[] = [
     leadNoun: 'intake call',
     cardLine: 'Intake calls answered within 60 seconds and consultations booked, with attorney advertising rules respected.',
     schemaType: 'LegalService',
-    seoTitle: 'Law Firm Client Intake in Des Moines, IA',
+    seoTitle: 'Law Firm Marketing in Des Moines, IA',
+    keywordLine: 'Law firm marketing · Des Moines & Iowa',
     seoDescription:
-      'Law firm client intake in Des Moines: every missed call and web inquiry answered in 60 seconds, 24/7, consultations booked, conflict-safe first contact.',
+      'Law firm marketing for Des Moines attorneys: every call and inquiry answered in 60 seconds, case reviews booked, reviews within bar rules. From $799/mo.',
     headline: 'People call a lawyer the night it happens. Answer in 60 seconds.',
     subheadline:
       'Every missed intake call answered in 60 seconds, 24/7, and the consult booked.',
@@ -267,9 +272,10 @@ export const niches: Niche[] = [
     leadNoun: 'new-client inquiry',
     cardLine: 'Tax-season overflow answered and advisory consults booked, even when the phones are buried.',
     schemaType: 'AccountingService',
-    seoTitle: 'CPA & Accounting Firm Marketing in Des Moines',
+    seoTitle: 'Marketing for CPA Firms in Des Moines',
+    keywordLine: 'Marketing for CPA & accounting firms · Iowa',
     seoDescription:
-      'CPA and accounting firm marketing in Des Moines: every call answered in 60 seconds, even in tax season, advisory consults booked and reviews requested.',
+      'Marketing for CPA and accounting firms in Des Moines: every call answered in 60 seconds, even in March, and meetings booked online. From $799/mo.',
     headline: 'In March, new clients wait on hold. Answer them in 60 seconds.',
     subheadline:
       'Every missed call answered in 60 seconds, even in tax season, and booked.',

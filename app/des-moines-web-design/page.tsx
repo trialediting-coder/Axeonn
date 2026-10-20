@@ -12,9 +12,9 @@ import { cityPages, METRO_SYSTEM as SYSTEM } from '@/data/cityPages';
 
 export const metadata = buildMetadata({
   path: '/des-moines-web-design',
-  title: 'Des Moines Practice & Firm Intake | Axeon Studio',
+  title: 'Web Design Des Moines for Practices & Firms | Axeon Studio',
   description:
-    'Websites and 60-second intake for Des Moines dental practices, med spas, law firms and CPA firms, from one West Des Moines team. From $799/mo, $0 to start.',
+    'Web design in Des Moines for dental practices, med spas, law firms and CPA firms: websites that book, every inquiry answered in 60 seconds. From $799/mo.',
 });
 
 const webDesignServiceJsonLd = serviceJsonLd({
@@ -112,7 +112,7 @@ export default function DesMoinesWebDesignPage() {
             <span>West Des Moines, Iowa · Serving the Des Moines Metro</span>
           </p>
           <h1 className="text-[32px] sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight leading-[1.08] sm:leading-[1.05] font-display mb-4 sm:mb-6 text-balance">
-            Des Moines practices and firms: every inquiry answered in 60 seconds
+            Des Moines web design that answers every inquiry in 60 seconds
           </h1>
           <p className="text-base sm:text-xl text-neutral-300 leading-relaxed max-w-3xl mb-6 sm:mb-10">
             Every missed call answered, booked and followed by a review request.
@@ -239,6 +239,9 @@ export default function DesMoinesWebDesignPage() {
             AxeonCORE from $799/mo. AxeonGROWTH from $1,999/mo plus ad spend.{' '}
             <Link href="/pricing" className="font-semibold text-blue-600 hover:underline">
               See pricing &rarr;
+            </Link>{' '}
+            <Link href="/des-moines-seo" className="font-semibold text-blue-600 hover:underline">
+              Des Moines SEO &rarr;
             </Link>
           </p>
         </div>

@@ -88,7 +88,7 @@ export function Hero() {
               badges to the bottom of the hero, right above the "what's included" band. */}
           <div aria-hidden="true" className="flex-1 sm:hidden" />
           <p className="hero-rise text-center sm:text-left text-xs sm:text-sm font-bold tracking-[0.18em] uppercase text-blue-300">
-            Dental · Med spa · Law · Accounting
+            Des Moines digital marketing agency
           </p>
           <h1 className="hero-rise mt-3 text-center sm:text-left text-[min(2.75rem,11vw)] sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-[-0.03em] [word-spacing:0.12em] leading-[1.05] font-display text-white">
             Get More

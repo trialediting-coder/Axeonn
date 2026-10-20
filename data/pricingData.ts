@@ -178,6 +178,14 @@ export const pricingFaqs: PricingFaq[] = [
     a: "AxeonCORE from $799/mo, AxeonGROWTH from $1,999/mo, on a 12-month agreement. Setup is $0, and the first payment comes once you're live. Exact price is confirmed on the call.",
   },
   {
+    q: 'How much does dental SEO cost?',
+    a: "Local SEO is part of AxeonCORE, from $799/mo, with the website and 60-second intake. No separate SEO retainer, and no ranking guarantees from us or anyone honest.",
+  },
+  {
+    q: 'How much does a law firm website cost?',
+    a: "The website is part of AxeonCORE, from $799/mo on a 12-month agreement, with $0 setup (normally $3,000). Hosting, updates and intake are included.",
+  },
+  {
     q: 'Why a 12-month agreement?',
     a: "The build is weeks of work up front. On 12 months we waive it and bill only once it's working. After that it's month-to-month with 30 days' notice.",
   },

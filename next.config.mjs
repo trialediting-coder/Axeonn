@@ -76,6 +76,8 @@ const nextConfig = {
       // The free after-hours audit stopped being the hook (2026-10-19): it is now
       // what we show on the call after an area check. Keep query strings (?plan=).
       { source: '/audit', destination: '/check-your-area', permanent: true },
+      // Old self-serve picker: a permanent redirect (the page-level redirect() was a 307). /get-started/success stays.
+      { source: '/get-started', destination: '/check-your-area', permanent: true },
     ];
   },
 };

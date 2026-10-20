@@ -58,6 +58,31 @@ export async function generateMetadata({
   });
 }
 
+// The top question search for each practice type (Semrush, 2026-10-20), answered
+// first in the FAQ and in the FAQPage schema.
+const AEO_FAQ: Record<string, { question: string; answer: string }> = {
+  dental: {
+    question: 'How do you market a dental practice?',
+    answer:
+      'Get found on Google, answer every new-patient call and inquiry fast, make booking one tap and ask every patient for a review. AxeonCORE runs all four, from $799/mo.',
+  },
+  'med-spa': {
+    question: 'How do you market a med spa?',
+    answer:
+      'A page per treatment, injector credentials up front, every consult request answered in 60 seconds and booked, and a review ask after each visit.',
+  },
+  'law-firms': {
+    question: 'How do you market a small law firm?',
+    answer:
+      'Rank locally for your practice areas, answer every call and form the night it happens, and book the case review on the spot. Ads come later, with AxeonGROWTH.',
+  },
+  accounting: {
+    question: 'How do you grow an accounting firm?',
+    answer:
+      'Show up when business owners search nearby, answer every call fast, especially in tax season, and let clients book tax and advisory meetings online.',
+  },
+};
+
 export default async function NichePage({
   params,
 }: {
@@ -67,7 +92,8 @@ export default async function NichePage({
   const niche = niches.find((n) => n.slug === slug);
   if (!niche) notFound();
 
-  const faqs = [...(nicheFaqData[niche.slug] ?? []).slice(0, 3), ...pickGeneralFaqs()];
+  const aeo = AEO_FAQ[niche.slug];
+  const faqs = [...(aeo ? [aeo] : []), ...(nicheFaqData[niche.slug] ?? []).slice(0, 3), ...pickGeneralFaqs()];
 
   const faqJsonLd = {
     '@context': 'https://schema.org',

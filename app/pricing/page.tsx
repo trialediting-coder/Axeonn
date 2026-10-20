@@ -7,7 +7,7 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/pricing',
-  title: 'Practice Marketing Pricing: From $799/mo | Axeon Studio',
+  title: 'Practice Marketing & SEO Pricing From $799/mo | Axeon Studio',
   description:
     "AxeonCORE from $799/mo and AxeonGROWTH from $1,999/mo for dental, med spa, law and CPA firms in Iowa. $0 to start. Nothing due until it's working.",
 });

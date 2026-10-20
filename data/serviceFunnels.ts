@@ -73,6 +73,8 @@ export const MOMENT_LABEL: Record<FunnelService, string> = {
 export interface FunnelPage {
   service: FunnelService;
   vertical: PracticeVertical;
+  /** The primary search phrase, shown as the hero eyebrow. */
+  keyword: string;
   metaTitle: string;
   metaDescription: string;
   headline: string;
@@ -87,7 +89,7 @@ export interface FunnelPage {
   faqs: FaqItem[];
 }
 
-type Draft = Omit<FunnelPage, 'service' | 'vertical' | 'metaTitle' | 'metaDescription'> & { metaTitle?: string; metaDescription?: string };
+type Draft = Omit<FunnelPage, 'service' | 'vertical' | 'keyword' | 'metaTitle' | 'metaDescription'> & { metaTitle?: string; metaDescription?: string };
 
 const q = (question: string, answer: string): FaqItem => ({ question, answer });
 
@@ -778,38 +780,219 @@ const DRAFTS: Record<FunnelService, Record<PracticeVertical, Draft>> = {
   },
 };
 
-// Titles lead with the phrase people actually search (Semrush US, 2026-10-20:
-// "dental website design" 2.9K, "dental seo marketing" 3.6K, "law firm marketing"
-// 8.1K, "med spa marketing agency" 1.3K, "cpa firm marketing" 1.3K), e.g.
-// "Dental Website Design for Iowa Practices | Axeon Studio".
-const META_SERVICE: Record<FunnelService, string> = {
-  website: 'Website Design',
-  seo: 'SEO',
-  'lead-generation': 'Lead Generation',
-  'ai-chat-scheduling': 'AI Chat & Online Booking',
-  advertising: 'Google Ads',
-  'video-photography': 'Photography & Video',
-};
+// Search targeting per page, from the Semrush keyword map (Desktop\files\Axeon
+// SEO-AEO Research 2026-10-20.md, §2). `keyword` is the hero eyebrow, the first
+// visible line, so the phrase people search shows above the headline; title
+// <= 60 and description <= 155 characters. Extra FAQs answer the question
+// searches (§4) in one or two sentences and must match the real offer.
+interface SeoTarget {
+  keyword: string;
+  title: string;
+  description: string;
+  faqs?: FaqItem[];
+}
 
-const META_VERTICAL: Record<PracticeVertical, string> = {
-  dental: 'Dental',
-  'med-spa': 'Med Spa',
-  'law-firms': 'Law Firm',
-  accounting: 'CPA',
-};
+const CORE = 'AxeonCORE, from $799/mo on a 12-month agreement';
 
-const META_AUDIENCE: Record<PracticeVertical, string> = {
-  dental: 'Iowa Practices',
-  'med-spa': 'Iowa Med Spas',
-  'law-firms': 'Iowa Firms',
-  accounting: 'Iowa Firms',
+const SEO_TARGETS: Record<FunnelService, Record<PracticeVertical, SeoTarget>> = {
+  website: {
+    dental: {
+      keyword: 'Dental website design',
+      title: 'Dental Website Design for Iowa Practices | Axeon Studio',
+      description:
+        'Dental website design for Iowa practices: dental websites that book new-patient exams, every form answered in 60 seconds. In AxeonCORE from $799/mo.',
+      faqs: [q('How much does a dental website cost?', `The website is part of ${CORE}, with $0 setup (normally $3,000) and the first payment once you're live. Hosting, updates and 60-second intake are included.`)],
+    },
+    'med-spa': {
+      keyword: 'Med spa website design',
+      title: 'Medical Spa Website Design in Iowa | Axeon Studio',
+      description:
+        'Med spa website design that books consultations: a page per treatment, injector bios and online booking, every inquiry answered in 60 seconds.',
+      faqs: [q('What makes a med spa website book consultations?', 'A page per treatment, injector credentials up front, booking on every page and a reply to every inquiry within 60 seconds.')],
+    },
+    'law-firms': {
+      keyword: 'Law firm website design',
+      title: 'Law Firm Website Design for Iowa Firms | Axeon Studio',
+      description:
+        'Law firm website design for Iowa attorneys: practice-area pages, attorney bios and consultation booking, every inquiry answered in 60 seconds.',
+      faqs: [q('How much does a law firm website cost?', `The website is part of ${CORE}, with $0 setup (normally $3,000) and the first payment once you're live. Hosting, updates and 60-second intake are included.`)],
+    },
+    accounting: {
+      keyword: 'CPA website design',
+      title: 'Websites for Accountants & CPA Firms | Axeon Studio',
+      description:
+        'CPA website design for Iowa accounting firms: service pages and online booking for tax and advisory meetings, every inquiry answered in 60 seconds.',
+      faqs: [q('How do you build an accounting firm website?', 'A page for each service you want more of, team bios, online booking for tax and advisory meetings, and a reply to every form in 60 seconds. We write it; you approve it.')],
+    },
+  },
+  seo: {
+    dental: {
+      keyword: 'Dental SEO',
+      title: 'Dental SEO: Local SEO for Dentists in Iowa | Axeon Studio',
+      description:
+        'Dental SEO for Iowa practices: local SEO for dentists that works the map pack, service pages and reviews for you. In AxeonCORE from $799/mo.',
+      faqs: [
+        q('How much does dental SEO cost?', `Dental SEO is part of ${CORE}, together with your website and 60-second intake. $0 setup, first payment once you're live.`),
+        q('How do I choose a dental SEO company?', 'Ask what gets done each month, who owns the site and how calls are tracked to booked exams. Walk away from anyone who guarantees rankings.'),
+      ],
+    },
+    'med-spa': {
+      keyword: 'Med spa SEO',
+      title: 'Med Spa SEO Company for Iowa Med Spas | Axeon Studio',
+      description:
+        'Medical spa SEO: a page per treatment, injector credentials on your profile and steady reviews so nearby clients find you. In AxeonCORE from $799/mo.',
+      faqs: [q('How much does med spa SEO cost?', `Med spa SEO is part of ${CORE}, with your website and 60-second intake. $0 setup, first payment once you're live.`)],
+    },
+    'law-firms': {
+      keyword: 'Law firm SEO',
+      title: 'Law Firm SEO & SEO for Lawyers in Iowa | Axeon Studio',
+      description:
+        'Law firm SEO for Iowa attorneys: practice-area pages, local map rankings and reviews within bar rules, with 60-second intake behind it. From $799/mo.',
+      faqs: [
+        q('How much does law firm SEO cost?', `SEO for lawyers is part of ${CORE}, with your website and 60-second intake. Ads are AxeonGROWTH, from $1,999/mo plus ad spend.`),
+        q('How long does law firm SEO take?', 'Months, not weeks, and it depends on your practice area and city. You see calls and case reviews in AxeonPROOF every month, so the trend is never a guess.'),
+      ],
+    },
+    accounting: {
+      keyword: 'SEO for accountants',
+      title: 'SEO for Accountants & CPA Firms in Iowa | Axeon Studio',
+      description:
+        'SEO for accountants and accounting firms: tax, bookkeeping and advisory pages, map rankings and reviews from finished returns. From $799/mo.',
+      faqs: [
+        q('How much does SEO for accountants cost?', `SEO for accounting firms is part of ${CORE}, with your website and 60-second intake. $0 setup, first payment once you're live.`),
+        q('How can SEO help an accounting firm?', 'It puts your firm in the map pack and on pages for tax prep, bookkeeping and advisory when business owners search nearby. Intake then books the meeting.'),
+      ],
+    },
+  },
+  'lead-generation': {
+    dental: {
+      keyword: 'Dental answering service & lead generation',
+      title: 'Dental Answering Service & Lead Generation | Axeon Studio',
+      description:
+        'A dental answering service that never sleeps: every missed call texted back in 60 seconds and new-patient leads booked. In AxeonCORE from $799/mo.',
+      faqs: [
+        q('How is this different from a dental answering service?', 'An answering service takes a message. We text every missed call back in 60 seconds with a way to book, and show each call and booking in AxeonPROOF.'),
+        q('How do I track patient calls from my marketing?', 'Tracked numbers on your site, Google profile and ads show where each call came from, and AxeonPROOF ties calls to booked exams.'),
+      ],
+    },
+    'med-spa': {
+      keyword: 'Med spa lead generation',
+      title: 'Medical Spa Lead Generation & Intake | Axeon Studio',
+      description:
+        'Med spa lead generation that ends in booked consultations: every inquiry answered in 60 seconds, 24/7, and tracked to the treatment. From $799/mo.',
+    },
+    'law-firms': {
+      keyword: 'Legal intake services',
+      title: 'Legal Intake Services for Law Firms | Axeon Studio',
+      description:
+        'Legal intake services for Iowa firms: a law firm answering service that replies to every call and form in 60 seconds and books case reviews.',
+      faqs: [
+        q('Is this a law firm answering service?', 'It does more: every missed call gets a text in 60 seconds, your intake questions are asked, and the case review is booked on your calendar.'),
+        q('How do I track law firm marketing ROI?', 'Tracked numbers and forms tie every inquiry to its source, and you mark which ones became case reviews in AxeonPROOF.'),
+      ],
+    },
+    accounting: {
+      keyword: 'Lead generation for accountants',
+      title: 'Lead Generation for Accountants & CPAs | Axeon Studio',
+      description:
+        'Lead generation for accountants: every call and inquiry answered in 60 seconds, even in March, and booked into a tax or advisory meeting.',
+      faqs: [q('How do accounting firms get new clients?', 'Show up when business owners search nearby, answer every call and form fast, and make booking one tap. AxeonCORE runs all three.')],
+    },
+  },
+  'ai-chat-scheduling': {
+    dental: {
+      keyword: 'AI dental receptionist',
+      title: 'AI Dental Receptionist & Online Booking | Axeon Studio',
+      description:
+        'An AI dental receptionist on your site: answers questions and books new-patient exams any hour, with no health information collected. From $799/mo.',
+    },
+    'med-spa': {
+      keyword: 'Med spa booking & AI chat',
+      title: 'Med Spa Booking & AI Chat, No New Software | Axeon Studio',
+      description:
+        'Med spa booking with AI chat on your site: questions answered and consultations booked at 11 PM on your own calendar, no new software. From $799/mo.',
+    },
+    'law-firms': {
+      keyword: 'Legal virtual receptionist',
+      title: 'Legal Virtual Receptionist & Online Intake | Axeon Studio',
+      description:
+        'A legal virtual receptionist on your site: answers "do you handle this?" at midnight, runs intake and books the consultation. From $799/mo.',
+    },
+    accounting: {
+      keyword: 'Online booking for CPA firms',
+      title: 'Online Booking & AI Chat for CPA Firms | Axeon Studio',
+      description:
+        'Online booking and AI chat for accounting firms: clients book tax-prep and advisory meetings without a phone call, any hour. From $799/mo.',
+    },
+  },
+  advertising: {
+    dental: {
+      keyword: 'PPC & Google Ads for dentists',
+      title: 'PPC & Google Ads for Dentists in Iowa | Axeon Studio',
+      description:
+        'PPC for dentists measured in booked new-patient exams: dental Google Ads and Local Services Ads with every call answered. AxeonGROWTH from $1,999/mo.',
+      faqs: [q('How much do Google Ads for dentists cost?', 'Management is in AxeonGROWTH, from $1,999/mo, or +$750/mo on AxeonCORE. Ad spend is paid to Google directly, from $500/mo, with no markup.')],
+    },
+    'med-spa': {
+      keyword: 'Med spa advertising',
+      title: 'Med Spa Advertising & PPC in Iowa | Axeon Studio',
+      description:
+        'Med spa advertising for the treatments you want to grow, measured in booked consultations, with every inquiry answered. AxeonGROWTH from $1,999/mo.',
+    },
+    'law-firms': {
+      keyword: 'PPC for law firms',
+      title: 'PPC for Law Firms & Lawyer Google Ads | Axeon Studio',
+      description:
+        'PPC for law firms that ends in a case review: Google Ads and Local Services Ads for lawyers, with 60-second intake behind every click.',
+      faqs: [q('How should a law firm advertise?', 'Where people search the night it happens: Local Services Ads and search ads for your practice areas, with every call answered in 60 seconds.')],
+    },
+    accounting: {
+      keyword: 'Advertising for accounting firms',
+      title: 'Advertising for Accounting Firms & CPAs | Axeon Studio',
+      description:
+        'Advertising for accounting firms timed to tax season and advisory demand: Google Ads for accountants, every call answered. AxeonGROWTH from $1,999/mo.',
+    },
+  },
+  'video-photography': {
+    dental: {
+      keyword: 'Dental photography & video',
+      title: 'Dental Photography & Video Marketing | Axeon Studio',
+      description:
+        'Dental photography and video marketing that puts nervous patients at ease: your real team and office, on your site and Google profile.',
+    },
+    'med-spa': {
+      keyword: 'Med spa photography & social content',
+      title: 'Med Spa Photography & Social Content | Axeon Studio',
+      description:
+        'Med spa photography and video for your site and social media: the injector and the room shown the right way, consent first. Quarterly in AxeonGROWTH.',
+    },
+    'law-firms': {
+      keyword: 'Law firm video production',
+      title: 'Law Firm Video Production in Iowa | Axeon Studio',
+      description:
+        'Law firm video production that lets people meet the attorney before they call: short bios and practice-area videos for your site.',
+    },
+    accounting: {
+      keyword: 'Photos & video for accounting firms',
+      title: 'Photos & Video for Accounting Firms | Axeon Studio',
+      description:
+        'Photography and video for accounting firms: team headshots and short videos for your site and social media, so clients see who does the work.',
+    },
+  },
 };
 
 function build(service: FunnelService, vertical: PracticeVertical): FunnelPage {
   const d = DRAFTS[service][vertical];
-  const metaTitle = d.metaTitle ?? `${META_VERTICAL[vertical]} ${META_SERVICE[service]} for ${META_AUDIENCE[vertical]} | Axeon Studio`;
-  const desc = `${d.headline} ${d.sub} Des Moines and Iowa.`;
-  return { service, vertical, ...d, metaTitle, metaDescription: d.metaDescription ?? desc };
+  const t = SEO_TARGETS[service][vertical];
+  return {
+    service,
+    vertical,
+    ...d,
+    keyword: t.keyword,
+    metaTitle: d.metaTitle ?? t.title,
+    metaDescription: d.metaDescription ?? t.description,
+    faqs: [...(t.faqs ?? []), ...d.faqs],
+  };
 }
 
 export const funnelPages: FunnelPage[] = FUNNEL_SERVICES.flatMap((s) => FUNNEL_VERTICALS.map((v) => build(s, v)));

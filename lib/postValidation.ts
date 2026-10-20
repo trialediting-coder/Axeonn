@@ -30,7 +30,7 @@ const BANNED_PHRASE_PATTERNS: { pattern: RegExp; reason: string }[] = [
   { pattern: /\$\s?(149|299|999|399|284|574|2,?800|5,?800)\b/, reason: 'Cites a retired price ($149/$299/$999 plans, +$399 ads, $284/$574 monthly or $2,800/$5,800 setup).' },
   // "$0 to start" is live again (owner, 2026-10-19): the front-door offer "$0 to start.
   // Nothing due until it's working." Only "$0 down/setup" (the old free-website ad) stays retired.
-  { pattern: /\$\s?(99|1,?500)\s*(to start|down|setup|start fee)|\$\s?0\s*(down|setup|start fee)|first month (is )?free|founding (client )?offer/i, reason: 'Cites a retired start offer ($99/$1,500 to start, $0 down/setup, first month free, founding offer).' },
+  { pattern: /\$\s?(99|1,?500)\s*(to start|down|setup|start fee)|\$\s?0\s*(down|start fee)|\$\s?0\s*setup(?!\s*\(normally)|first month (is )?free|founding (client )?offer/i, reason: 'Cites a retired start offer ($99/$1,500 to start, $0 down/setup, first month free, founding offer).' }, // "$0 setup (normally $3,000)" is the live offer since 2026-10-19.
   // The primary CTA is "Check your area" (/check-your-area); the after-hours audit is shown on the call, not offered as a hook.
   { pattern: /free (after[- ]hours )?audit|\]\(\/audit\)/i, reason: 'Uses the retired "free audit" call to action; the CTA is "Check your area" at /check-your-area.' },
   { pattern: /90[- ]day (customer )?guarantee|customer guarantee|keep working for free/i, reason: 'Uses the retired 90-day customer guarantee; the current wording is the 90-day performance commitment.' },

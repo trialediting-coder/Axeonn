@@ -55,7 +55,7 @@ function FunnelHero({ page }: { page: FunnelPage }) {
           {SERVICE_SHORT[page.service]}
         </Link>
         <Eyebrow tone="dark" className="mb-2.5 sm:mb-5">
-          {SERVICE_SHORT[page.service]} for {VERTICAL_PLURAL[page.vertical]}
+          {page.keyword}
         </Eyebrow>
         <h1 className="text-[30px] sm:text-5xl lg:text-6xl font-black font-display tracking-tight leading-[1.08] text-balance mb-3 sm:mb-6">
           {page.headline}

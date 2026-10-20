@@ -89,13 +89,29 @@ export function ServiceHero({
 
 /** Answer-first block for search and AI answer engines: one question, one short answer. */
 // Purpose: the direct answer to the page's main question, in two sentences at most.
-export function QuickAnswer({ question, answer }: { question: string; answer: string }) {
+export function QuickAnswer({
+  question,
+  answer,
+  localLink,
+}: {
+  question: string;
+  answer: string;
+  localLink?: { label: string; href: string };
+}) {
   return (
     <section className="w-full bg-white px-4 sm:px-8 lg:px-16 py-8 sm:py-16 text-neutral-950">
       <div className="max-w-3xl mx-auto">
         <Eyebrow label="Quick answer" className="mb-2 sm:mb-3" />
         <h2 className="text-[24px] sm:text-4xl font-black font-display tracking-tight leading-tight text-balance">{question}</h2>
         <p className="mt-2 sm:mt-4 text-[15px] sm:text-xl leading-snug sm:leading-relaxed text-neutral-700">{answer}</p>
+        {localLink ? (
+          <p className="mt-3 sm:mt-5 text-[15px] sm:text-base text-neutral-600">
+            In the Des Moines metro?{' '}
+            <Link href={localLink.href} className="font-semibold text-blue-600 hover:underline">
+              {localLink.label}
+            </Link>
+          </p>
+        ) : null}
       </div>
     </section>
   );
@@ -334,7 +350,7 @@ export function ServicePageView({ page }: { page: ServicePage }) {
   return (
     <>
       <ServiceHero {...page.hero} />
-      <QuickAnswer {...page.quickAnswer} />
+      <QuickAnswer {...page.quickAnswer} localLink={page.localLink} />
       {page.stat && <SourcedStatBand stat={page.stat} />}
       <HowItWorksSection how={page.how} />
       <IncludedSection included={page.included} note={page.note} />

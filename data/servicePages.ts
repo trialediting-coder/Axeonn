@@ -62,6 +62,8 @@ export interface ServicePage {
   };
   /** Answer-first block under the hero: the page's main question, max ~35 words, not a repeat of the hero. */
   quickAnswer: { question: string; answer: string };
+  /** Optional local page link under the quick answer (Semrush local cluster, 2026-10-20). */
+  localLink?: { label: string; href: string };
   stat?: SourcedStat;
   how: { heading: string; intro: string; steps: ServiceStep[] };
   included: { heading: string; intro?: string; groups: IncludedGroup[] };
@@ -112,6 +114,7 @@ const CORE_NOTE = "$0 to start. Nothing due until it's working.";
 
 export const websitePage: ServicePage = {
   slug: 'website',
+  localLink: { label: 'Des Moines web design', href: '/des-moines-web-design' },
   path: '/marketing-solutions/website',
   name: 'Website Design for Practices and Firms',
   serviceType: 'Website Design for Dental, Med Spa, Law and Accounting Practices',
@@ -235,6 +238,7 @@ export const websitePage: ServicePage = {
 
 export const seoPage: ServicePage = {
   slug: 'seo',
+  localLink: { label: 'Des Moines SEO', href: '/des-moines-seo' },
   path: '/marketing-solutions/seo',
   name: 'Local SEO for Practices and Firms',
   serviceType: 'Local SEO for Dentists, Med Spas, Law Firms and CPA Firms',

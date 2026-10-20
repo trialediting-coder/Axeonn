@@ -72,10 +72,10 @@ export const cityPages: CityPage[] = [
     slug: 'west-des-moines-web-design',
     city: 'West Des Moines',
     linkLabel: 'West Des Moines Practices & Firms',
-    title: 'West Des Moines Practice & Firm Intake | Axeon Studio',
+    title: 'West Des Moines Marketing Agency & Web Design | Axeon Studio',
     description:
-      'Websites and 60-second intake for West Des Moines dental practices, med spas, law firms and CPA firms, from a team based here. From $799/mo, $0 to start.',
-    eyebrow: 'West Des Moines, Iowa · Home Base',
+      'West Des Moines marketing agency for dental practices, med spas, law firms and CPA firms: web design, SEO and 60-second intake. From $799/mo.',
+    eyebrow: 'West Des Moines marketing agency · Home base',
     h1: 'Every after-hours call answered, for West Des Moines practices and firms',
     intro:
       'Every missed call and web inquiry answered in 60 seconds, from a team based here.',
@@ -121,10 +121,10 @@ export const cityPages: CityPage[] = [
     slug: 'ankeny-web-design',
     city: 'Ankeny',
     linkLabel: 'Ankeny Practices & Firms',
-    title: 'Ankeny Practice & Firm Intake | Axeon Studio',
+    title: 'Ankeny Web Design & Marketing for Practices | Axeon Studio',
     description:
       'Ankeny dental practices, med spas, law firms and CPA firms: every after-hours call and web inquiry answered in 60 seconds and booked. From $799/mo.',
-    eyebrow: 'Ankeny, Iowa · North Metro',
+    eyebrow: 'Ankeny web design & marketing · North metro',
     h1: 'Ankeny is growing. Answer every new patient and client first.',
     intro:
       'New neighbors are picking a dentist, lawyer and CPA. Answer them in 60 seconds.',
@@ -170,10 +170,10 @@ export const cityPages: CityPage[] = [
     slug: 'waukee-web-design',
     city: 'Waukee',
     linkLabel: 'Waukee Practices & Firms',
-    title: 'Waukee Practice & Firm Intake | Axeon Studio',
+    title: 'Waukee Web Design & Marketing for Practices | Axeon Studio',
     description:
       'For Waukee dental practices, med spas, law firms and CPA firms: a site that books and a reply to every call in 60 seconds, from a team next door.',
-    eyebrow: 'Waukee, Iowa · West Metro',
+    eyebrow: 'Waukee web design & marketing · West metro',
     h1: 'Waukee practices and firms: answer first, even against older names',
     intro:
       'Older names have more reviews. You can still answer every call first.',
@@ -220,10 +220,10 @@ export const cityPages: CityPage[] = [
     slug: 'urbandale-web-design',
     city: 'Urbandale',
     linkLabel: 'Urbandale Practices & Firms',
-    title: 'Urbandale Practice & Firm Intake | Axeon Studio',
+    title: 'Urbandale Web Design & Marketing for Firms | Axeon Studio',
     description:
       'Urbandale dental practices, med spas, law firms and CPA firms: turn a good reputation into booked consultations, with every inquiry answered in 60 seconds.',
-    eyebrow: 'Urbandale, Iowa · Northwest Metro',
+    eyebrow: 'Urbandale web design & marketing · NW metro',
     h1: 'Urbandale practices and firms: a great reputation still needs an answer',
     intro:
       'A loyal following and an old website. We fix the second part.',

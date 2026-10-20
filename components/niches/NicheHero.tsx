@@ -28,9 +28,7 @@ export function NicheHero({ niche }: { niche: Niche }) {
 
       <div className="relative z-10 w-full max-w-5xl mx-auto text-center">
         {/* Geo + service line: the message-match a paid click needs to see first */}
-        <p className="text-xs sm:text-sm font-mono uppercase tracking-wider text-blue-400 mb-3 sm:mb-4">
-          Patient &amp; client intake for {niche.name} &middot; Des Moines metro &amp; Iowa
-        </p>
+        <p className="eyebrow eyebrow-dark mb-3 sm:mb-4">{niche.keywordLine}</p>
         <h1 className="text-[32px] sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-[1.1] sm:leading-tight mb-4 sm:mb-6">
           {niche.headline}
         </h1>
