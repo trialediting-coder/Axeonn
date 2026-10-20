@@ -91,7 +91,7 @@ export function Header() {
   const isNichePage = pathname.startsWith('/solutions/');
   // Standalone pages that open on a full-bleed dark hero.
   const isOtherDarkHeroPage =
-    ['/nonprofits', '/partners', '/des-moines-web-design', '/axeonproof'].includes(pathname) ||
+    ['/nonprofits', '/partners', '/des-moines-web-design', '/axeonproof', '/check-your-area'].includes(pathname) ||
     pathname === '/marketing-solutions' ||
     pathname.startsWith('/marketing-solutions/');
 

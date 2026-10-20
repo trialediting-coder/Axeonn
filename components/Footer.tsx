@@ -101,7 +101,7 @@ export function Footer({ year }: FooterProps) {
   // Pages that already end with their own closing CTA skip the footer card, so
   // the page never ends with two calls to action back to back.
   const pageHasCloser =
-    ['/', '/pricing', '/process', '/why-axeon', '/des-moines-web-design', '/about', '/marketing-solutions', '/axeonproof', '/partners', '/nonprofits', '/book', '/faq', '/insights'].includes(pathname) ||
+    ['/', '/pricing', '/process', '/why-axeon', '/des-moines-web-design', '/about', '/marketing-solutions', '/axeonproof', '/partners', '/nonprofits', '/book', '/faq', '/insights', '/check-your-area'].includes(pathname) ||
     cityPages.some((city) => pathname === `/${city.slug}`) ||
     pathname.startsWith('/solutions/') ||
     pathname.startsWith('/marketing-solutions/');
