@@ -138,18 +138,8 @@ export function WhoWeHelp() {
       className="w-full py-10 sm:py-32 px-4 sm:px-8 lg:px-12 xl:px-16 bg-transparent text-neutral-950"
     >
       <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
-        {/* Top Eyebrow & Headlines */}
-        <div className="mb-5 sm:mb-16">
-          <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3 sm:mb-5">
-            [ PICK YOUR PRACTICE ]
-          </p>
-
-          <h2 className="text-[28px] sm:text-5xl md:text-6xl lg:text-[68px] font-black font-display tracking-tight text-neutral-950 leading-[1.08] max-w-5xl">
-            Every practice and firm loses new patients and clients in its own way.{' '}
-            <span className="text-blue-600">See yours.</span>
-          </h2>
-        </div>
-
+        {/* No headline above the card (owner, 2026-10-20): this section only routes
+            the visitor to the page written in their language. */}
         {/* Grand Video Canvas Card. On phones the card hugs its content and uses a
             static still instead of autoplay video: the video is almost entirely
             hidden behind the scrim at that width, so it was pure bandwidth. */}
@@ -210,12 +200,9 @@ export function WhoWeHelp() {
           {/* Navigation Overlay - Two columns opening horizontally side-by-side on sm+,
               a single accordion column on phones */}
           <div className="relative z-10 p-5 sm:p-12 lg:p-18 xl:p-22 w-full flex flex-col justify-center my-auto">
-            {/* Small uppercase label */}
-            <div className="mb-3 sm:mb-6 pl-1">
-              <span className="text-xs sm:text-base font-extrabold tracking-[0.25em] text-white/90 uppercase">
-                WHO WE HELP
-              </span>
-            </div>
+            <h2 className="mb-5 sm:mb-10 pl-1 text-[34px] sm:text-6xl lg:text-7xl font-black font-display tracking-tight leading-none text-white">
+              Who we help
+            </h2>
 
             {/* Horizontal Side-by-Side Flex Container */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-3 sm:gap-6 md:gap-8 max-w-full">

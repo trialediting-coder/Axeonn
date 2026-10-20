@@ -145,7 +145,7 @@ export function PricingSection({
         {/* Purpose: what can be added to a plan, and what it costs. */}
         <div className="mt-12 sm:mt-24">
           <h2 className="text-2xl sm:text-3xl font-bold font-display text-neutral-950 mb-4 sm:mb-8 text-center">
-            Add-ons
+            Add to your plan
           </h2>
           <ul className="max-w-[1240px] mx-auto divide-y divide-neutral-200 border-y border-neutral-200 sm:divide-y-0 sm:border-0 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
             {addOns.map((addOn) => (

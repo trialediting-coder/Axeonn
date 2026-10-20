@@ -14,7 +14,7 @@ import { TrustBadges } from '@/components/common/TrustBadges';
 const SLIDES = [
   { word: 'New Patients', image: '/who-we-help/dental.webp', position: 'object-[40%_22%]' },
   { word: 'Consultations', image: '/who-we-help/med-spa.webp', position: 'object-[60%_center]' },
-  { word: 'Signed Cases', image: '/who-we-help/law-firms.webp', position: 'object-center' },
+  { word: 'Signed Cases', image: '/who-we-help/law-firms.webp', position: 'object-[55%_30%]' },
   { word: 'New Clients', image: '/who-we-help/accounting.webp', position: 'object-[65%_center]' },
 ] as const;
 const ROTATE_INTERVAL_MS = 2600;
