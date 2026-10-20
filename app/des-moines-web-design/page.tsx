@@ -12,7 +12,7 @@ import { cityPages, METRO_SYSTEM as SYSTEM } from '@/data/cityPages';
 
 export const metadata = buildMetadata({
   path: '/des-moines-web-design',
-  title: 'Web Design Des Moines for Practices & Firms | Axeon Studio',
+  title: 'Des Moines Web Design Company | Axeon Studio',
   description:
     'Web design in Des Moines for dental practices, med spas, law firms and CPA firms: websites that book, every inquiry answered in 60 seconds. From $799/mo.',
 });
@@ -26,6 +26,19 @@ const webDesignServiceJsonLd = serviceJsonLd({
 });
 
 const TEL_HREF = `tel:${BUSINESS.telephone.replace(/-/g, '')}`;
+
+// What we do, one line each, in the words people search (Semrush On Page SEO
+// Checker, 2026-10-20: this page ranks for "web design company des moines",
+// "seo company in des moines", "marketing agencies des moines", "web development
+// company des moines" and "des moines content writing" without using them).
+const WHAT_WE_DO = [
+  { label: 'Web design and web development', line: 'Custom, mobile-first websites built to book, not templates.', href: '/marketing-solutions/website' },
+  { label: 'Local SEO', line: 'The SEO company side: Google profile, a page for every service and town.', href: '/des-moines-seo' },
+  { label: 'Content writing', line: 'We write every page. You approve every word.', href: '/marketing-solutions/website' },
+  { label: 'Lead generation and intake', line: 'Every missed call and form answered in 60 seconds.', href: '/marketing-solutions/lead-generation' },
+  { label: 'Digital advertising', line: 'Google Ads and Local Services Ads, tracked to booked appointments.', href: '/marketing-solutions/advertising' },
+  { label: 'Video production and photography', line: 'Real photos and short videos of your team.', href: '/marketing-solutions/video-photography' },
+];
 
 const LOCAL_REASONS = [
   {
@@ -133,6 +146,32 @@ export default function DesMoinesWebDesignPage() {
               <PhoneCall size={18} /> {BUSINESS.telephoneDisplay}
             </a>
           </div>
+        </div>
+      </section>
+
+      {/* Purpose: everything one Des Moines web design company and marketing agency does, one line each. */}
+      <section className="w-full py-10 sm:py-20 px-4 sm:px-10 lg:px-16 xl:px-24 border-b border-neutral-200">
+        <div className="max-w-5xl mx-auto">
+          <p className="eyebrow mb-2 sm:mb-3">What we do</p>
+          <h2 className="text-[26px] sm:text-4xl font-extrabold font-display tracking-tight leading-tight mb-5 sm:mb-10 text-balance">
+            A Des Moines web design company and marketing agency in one
+          </h2>
+          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
+            {WHAT_WE_DO.map((item) => (
+              <li key={item.label}>
+                <Link
+                  href={item.href}
+                  className="group block h-full rounded-2xl border border-neutral-200 p-4 sm:p-6 hover:border-blue-300 transition-colors"
+                >
+                  <span className="flex items-center justify-between gap-3 font-bold text-[17px] sm:text-lg group-hover:text-blue-600 transition-colors">
+                    {item.label}
+                    <ArrowRight size={16} className="shrink-0 text-neutral-400 group-hover:text-blue-600 transition-colors" />
+                  </span>
+                  <span className="mt-1 block text-[15px] sm:text-base text-neutral-600 leading-snug">{item.line}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 

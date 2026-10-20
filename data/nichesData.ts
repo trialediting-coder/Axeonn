@@ -80,7 +80,7 @@ export const niches: Niche[] = [
     leadNoun: 'new-patient inquiry',
     cardLine: 'New-patient calls and implant or Invisalign questions answered within 60 seconds, day or night.',
     schemaType: 'Dentist',
-    seoTitle: 'Dental Marketing for Des Moines Practices',
+    seoTitle: 'Dental Marketing in Des Moines & Iowa',
     keywordLine: 'Dental marketing · Des Moines & Iowa',
     seoDescription:
       'Dental marketing for Des Moines practices: every new-patient call and inquiry answered in 60 seconds, exams booked online, a review ask after every visit.',
