@@ -178,6 +178,17 @@ export default function HowItWorksPage() {
                     ))}
                   </ul>
                   {layer.note && <p className="mt-4 text-sm text-neutral-500 leading-relaxed">{layer.note}</p>}
+                  <div className="mt-5 flex flex-wrap gap-x-5 gap-y-1">
+                    {layer.links.map((link) => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        className="py-2 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700"
+                      >
+                        {link.label} <ArrowRight size={14} />
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               </article>
             ))}
@@ -199,6 +210,17 @@ export default function HowItWorksPage() {
             </h2>
             <p className="mt-5 text-lg text-neutral-300 leading-relaxed">{growthLayer.intro}</p>
             <p className="mt-5 text-sm font-semibold text-blue-300">{growthLayer.price}</p>
+            <div className="mt-6 flex flex-col items-start gap-1">
+              {growthLayer.links.map((link) => (
+                <Link
+                  key={link.href + link.label}
+                  href={link.href}
+                  className="py-2 inline-flex items-center gap-1.5 text-sm font-semibold text-white hover:text-blue-300"
+                >
+                  {link.label} <ArrowRight size={14} />
+                </Link>
+              ))}
+            </div>
           </div>
           <ul className="lg:col-span-7 divide-y divide-white/10 border-y border-white/10">
             {growthLayer.includes.map((item) => (

@@ -12,7 +12,6 @@ const RETIRED_NICHES = [
   'real-estate',
 ];
 const RETIRED_FUNNELS = ['hvac', 'roofing', 'home-remodeling', 'real-estate', 'landscaping', 'auto-detailing'];
-const RETIRED_SERVICE_PAGES = ['website', 'seo', 'lead-generation', 'ai-chat-scheduling', 'advertising', 'video-photography'];
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -72,12 +71,6 @@ const nextConfig = {
       ...RETIRED_NICHES.map((slug) => ({ source: `/solutions/${slug}`, destination: '/solutions', permanent: true })),
       // Retired paid-ad funnels go straight to the free after-hours audit.
       ...RETIRED_FUNNELS.map((slug) => ({ source: `/go/${slug}`, destination: '/audit', permanent: true })),
-      // The six service pages were consolidated into the "How it works" hub.
-      ...RETIRED_SERVICE_PAGES.map((slug) => ({
-        source: `/marketing-solutions/${slug}`,
-        destination: '/marketing-solutions',
-        permanent: true,
-      })),
     ];
   },
 };

@@ -1,6 +1,5 @@
-// Content for the layers on /marketing-solutions ("How it works"). The six old
-// service pages that used to read from this file were consolidated into that
-// hub on 2026-10-19 (they 301 there now).
+// Content for the layers on /marketing-solutions ("How it works"). Each layer
+// links to the service pages that go deeper (copy in data/servicePages.ts).
 //
 // Every claim stays inside the offer as written in content/brand-guardrails.md:
 // AxeonCORE from $799/mo, AxeonGROWTH from $1,999/mo plus ad spend. No invented
@@ -20,6 +19,8 @@ export interface SolutionLayer {
   includes: string[];
   /** Optional trust note shown under the list. */
   note?: string;
+  /** Service pages that cover this layer in depth. */
+  links: { label: string; href: string }[];
 }
 
 export const coreLayers: SolutionLayer[] = [
@@ -38,6 +39,7 @@ export const coreLayers: SolutionLayer[] = [
       'Hosting, security and monitoring included',
       'Up to 2 hours of content updates every month',
     ],
+    links: [{ label: 'Websites', href: '/marketing-solutions/website' }],
   },
   {
     id: 'intake',
@@ -54,6 +56,10 @@ export const coreLayers: SolutionLayer[] = [
       'Call tracking, so you see which calls came from where',
     ],
     note: 'Intake collects name, contact, service and preferred time only. Never symptoms, insurance or health details.',
+    links: [
+      { label: 'Lead generation & intake', href: '/marketing-solutions/lead-generation' },
+      { label: 'AI chat & online booking', href: '/marketing-solutions/ai-chat-scheduling' },
+    ],
   },
   {
     id: 'reviews',
@@ -67,6 +73,7 @@ export const coreLayers: SolutionLayer[] = [
       'Sent by text, so it arrives while the visit is still fresh',
       'One tap to your Google review page',
     ],
+    links: [{ label: 'Local SEO', href: '/marketing-solutions/seo' }],
   },
 ];
 
@@ -85,5 +92,10 @@ export const growthLayer = {
     'Quarterly photo and video: review videos and reels',
     'A monthly strategy call and a quarterly business review',
     'Priority support',
+  ],
+  links: [
+    { label: 'Google Ads & Local Services Ads', href: '/marketing-solutions/advertising' },
+    { label: 'AI phone receptionist', href: '/marketing-solutions/ai-chat-scheduling' },
+    { label: 'Photo & video', href: '/marketing-solutions/video-photography' },
   ],
 };

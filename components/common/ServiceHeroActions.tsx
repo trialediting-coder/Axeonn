@@ -12,7 +12,7 @@ interface ServiceHeroActionsProps {
 }
 
 /**
- * Shared hero action row for the five /marketing-solutions service pages:
+ * Shared hero action row for the six /marketing-solutions service pages:
  * a real price anchor (the #1 objection), one primary booking CTA, a
  * click-to-call, and pricing demoted to a text link. Dark-hero styling.
  */

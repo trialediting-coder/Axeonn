@@ -24,6 +24,14 @@ The problem Axeon fixes: calls and web inquiries that come in after hours or whi
 - [Home](https://axeonstudio.co/): What Axeon installs for private practices and how the intake system works.
 - [Free after-hours audit](https://axeonstudio.co/audit): Request the free audit and video walkthrough.
 - [Pricing](https://axeonstudio.co/pricing): AxeonCORE from $799/month and AxeonGROWTH from $1,999/month, agreement terms, add-ons, and the 90-day performance commitment.
+- [How it works](https://axeonstudio.co/marketing-solutions): The three AxeonCORE layers (website, 60-second intake and booking, review requests) and the AxeonGROWTH acquisition layer.
+- Services (one page each, written for dental practices, med spas, law firms and CPA firms):
+  - [Websites](https://axeonstudio.co/marketing-solutions/website): Custom mobile-first websites with online consultation booking. In AxeonCORE; extra pages $450.
+  - [Local SEO](https://axeonstudio.co/marketing-solutions/seo): Google Business Profile upkeep, service pages built for local search, and review requests after every visit. In AxeonCORE. No ranking promises.
+  - [Lead generation & intake](https://axeonstudio.co/marketing-solutions/lead-generation): Missed-call text-back, a 60-second first reply to web inquiries, a two-way text inbox and call tracking. In AxeonCORE; reactivation campaigns in AxeonGROWTH or $100 per showed appointment.
+  - [AI chat & online booking](https://axeonstudio.co/marketing-solutions/ai-chat-scheduling): Website chat that answers common questions from approved information and books consultations. In AxeonCORE; AI phone receptionist in AxeonGROWTH or +$199/month.
+  - [Google Ads & Local Services Ads](https://axeonstudio.co/marketing-solutions/advertising): Local Services Ads and search ads tracked to the booked consultation. In AxeonGROWTH or +$750/month on AxeonCORE; ad spend $500/month minimum, paid to Google directly.
+  - [Photo & video](https://axeonstudio.co/marketing-solutions/video-photography): Provider, attorney and team photos, office photos, review videos and reels. Quarterly in AxeonGROWTH or a $1,500 on-site shoot.
 - [Practices we serve](https://axeonstudio.co/solutions): [Dental practices](https://axeonstudio.co/solutions/dental), [Med spas](https://axeonstudio.co/solutions/med-spa), [Law firms](https://axeonstudio.co/solutions/law-firms), [Accounting & CPA firms](https://axeonstudio.co/solutions/accounting).
 - [AxeonPROOF](https://axeonstudio.co/axeonproof): The client portal at app.axeonstudio.co, shown with an example month (not a real client's numbers): recovered inquiries, calls, bookings, reviews, change requests and monthly reports.
 - [Partners](https://axeonstudio.co/partners): Referral program for CPAs, practice consultants and billing firms.
