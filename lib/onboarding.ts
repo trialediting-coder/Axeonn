@@ -27,6 +27,7 @@ import {
   type OnboardingItem,
   type OnboardingTier,
 } from '@/data/onboardingItems';
+import type { ProofVersion } from '@/data/dashboardVersions';
 
 export type OnboardingStatus = 'active' | 'complete' | 'closed';
 export type ItemStatus = 'pending' | 'done';
@@ -49,6 +50,8 @@ export interface Onboarding {
   completedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  /** Which AxeonPROOF dashboard the client sees (data/dashboardVersions.ts). Existing clients stay 1; see lib/proofVersion.ts. */
+  proofVersion: ProofVersion;
 }
 
 export interface ItemState {
@@ -82,6 +85,8 @@ export interface OnboardingInput {
   phone?: string | null;
   stripeCustomerId?: string | null;
   checkoutSessionId?: string | null;
+  /** Set by the caller from lib/proofVersion.ts proofVersionFor; missing = 1 (the current dashboard). */
+  proofVersion?: ProofVersion;
 }
 
 interface OnboardingRow {
@@ -106,6 +111,7 @@ interface OnboardingRow {
   completed_at: string | null;
   created_at: string;
   updated_at: string;
+  proof_version?: number | null;
 }
 
 interface ItemRow {
@@ -475,6 +481,7 @@ function rowToOnboarding(row: OnboardingRow): Onboarding {
     completedAt: iso(row.completed_at),
     createdAt: new Date(row.created_at).toISOString(),
     updatedAt: new Date(row.updated_at).toISOString(),
+    proofVersion: row.proof_version === 2 ? 2 : 1,
   };
 }
 
@@ -496,11 +503,11 @@ export async function createOnboarding(input: OnboardingInput): Promise<Onboardi
     const token = generateOnboardingToken();
     const res = await sql<OnboardingRow>`
       INSERT INTO onboardings (
-        token, tier, client_email, client_name, business_name, phone, stripe_customer_id, checkout_session_id
+        token, tier, client_email, client_name, business_name, phone, stripe_customer_id, checkout_session_id, proof_version
       )
       VALUES (
         ${token}, ${input.tier}, ${input.clientEmail}, ${input.clientName ?? null}, ${input.businessName ?? null},
-        ${input.phone ?? null}, ${input.stripeCustomerId ?? null}, ${input.checkoutSessionId ?? null}
+        ${input.phone ?? null}, ${input.stripeCustomerId ?? null}, ${input.checkoutSessionId ?? null}, ${input.proofVersion === 2 ? 2 : 1}
       )
       ON CONFLICT (token) DO NOTHING
       RETURNING *;
@@ -508,6 +515,13 @@ export async function createOnboarding(input: OnboardingInput): Promise<Onboardi
     if (res.rows[0]) return rowToOnboarding(res.rows[0]);
   }
   throw new Error('Could not allocate a unique onboarding token');
+}
+
+/** Admin: put a client on AxeonPROOF v1 or v2 (testing, or opting an existing client in). */
+export async function setProofVersion(id: number, version: ProofVersion): Promise<void> {
+  requireDatabase();
+  await ensureSchema();
+  await sql`UPDATE onboardings SET proof_version = ${version}, updated_at = now() WHERE id = ${id};`;
 }
 
 export async function getOnboardingByToken(rawToken: string): Promise<Onboarding | null> {

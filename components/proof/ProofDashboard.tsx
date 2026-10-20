@@ -27,6 +27,8 @@ import {
   Users,
 } from 'lucide-react';
 import { AxeonLogo } from '@/components/brand/AxeonLogo';
+import { VersionTag } from '@/components/common/VersionTag';
+import { proofVersionInfo } from '@/data/dashboardVersions';
 import { ActiveTabIntoView } from '@/components/proof/ActiveTabIntoView';
 import { LeadLog, type LeadMonth } from '@/components/proof/LeadLog';
 import { FormLeads, type FormMonth } from '@/components/proof/FormLeads';
@@ -1095,6 +1097,7 @@ export function ProofDashboard({
           </a>
         </p>
         </>) : null}
+        <VersionTag version={proofVersionInfo(onboarding.proofVersion)} className="mt-8" />
       </main>
     </div>
   );

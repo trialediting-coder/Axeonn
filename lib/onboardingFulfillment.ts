@@ -20,6 +20,8 @@ import { getItemStates, markNudgeSent } from '@/lib/onboarding';
 import { hasAccountForOnboarding } from '@/lib/proofAuth';
 import { afterOnboardingChange } from '@/lib/onboardingSync';
 import { isDatabaseConfigured, sql } from '@/lib/db';
+import { latestSignedAgreementFor } from '@/lib/agreements';
+import { proofVersionFor } from '@/lib/proofVersion';
 
 /** The setup time quoted in the welcome email: the plan's first-round minutes, the same number the portal counts down from. */
 export function estimatedMinutes(tier: OnboardingTier): number {
@@ -53,6 +55,8 @@ export interface FulfillmentOptions {
    * "Send welcome" or "Send dashboard invite" is pressed on their page.
    */
   quiet?: boolean;
+  /** The version of the agreement this purchase paid for (Stripe metadata `agreement`); undefined = look up the latest signed one. */
+  agreementVersion?: string | null;
 }
 
 /**
@@ -81,7 +85,11 @@ export async function ensureOnboardingForPurchase(input: OnboardingInput, opts: 
     return { onboarding: open, created: false, welcomeSent: await welcome(open) };
   }
 
-  const onboarding = await createOnboarding(input);
+  // PROOF v1 or v2 (lib/proofVersion.ts): from the agreement this purchase came from, else the client's latest signed one.
+  const agreementVersion =
+    opts.agreementVersion !== undefined ? opts.agreementVersion : ((await latestSignedAgreementFor(input.clientEmail).catch(() => null))?.version ?? null);
+  const proofVersion = input.proofVersion ?? proofVersionFor({ tier: input.tier, agreementVersion, legacy: opts.quiet === true });
+  const onboarding = await createOnboarding({ ...input, proofVersion });
   if (opts.quiet) await sql`UPDATE onboardings SET auto_reports = false, updated_at = now() WHERE id = ${onboarding.id};`;
   const welcomeSent = await welcome(onboarding);
   await afterOnboardingChange(onboarding.token);

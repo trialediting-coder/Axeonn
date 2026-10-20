@@ -314,6 +314,8 @@ export function ensureSchema(): Promise<void> {
       await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS referral_paid_at TIMESTAMPTZ;`;
       // The business email every plan includes: domain, mailboxes, DNS checks, client requests (lib/businessEmail.ts).
       await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS email_setup JSONB;`;
+      // AxeonPROOF v2 (2026-10-19, lib/proofVersion.ts): every existing row stays 1 (the current dashboard).
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS proof_version INTEGER NOT NULL DEFAULT 1;`;
       // The call deck (/admin/calls, lib/callLeads.ts): prospects imported from the
       // Iowa detailer spreadsheet, plus the owner's notes and call outcomes.
       await sql`
@@ -862,6 +864,80 @@ export function ensureSchema(): Promise<void> {
       await sql`CREATE INDEX IF NOT EXISTS social_posts_client_idx ON social_posts (onboarding_id, created_at DESC);`;
       // Set just before a publish call and cleared only by a clear answer: a crash or an unclear reply leaves it true, so the reel is never published twice.
       await sql`ALTER TABLE social_posts ADD COLUMN IF NOT EXISTS publish_unclear BOOLEAN NOT NULL DEFAULT false;`;
+      // AxeonPROOF v2 (lib/proofV2.ts): the delivery-schedule settings, pins on drafts,
+      // the page program, summary-link opens and the reactivation (DBR) sprint. All additive.
+      await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS proof_v2 JSONB NOT NULL DEFAULT '{}'::jsonb;`;
+      await sql`
+        CREATE TABLE IF NOT EXISTS proof_pins (
+          id BIGSERIAL PRIMARY KEY,
+          onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+          stage TEXT NOT NULL CHECK (stage IN ('wireframe', 'copy', 'staging')),
+          x REAL NOT NULL CHECK (x >= 0 AND x <= 100),
+          y REAL NOT NULL CHECK (y >= 0 AND y <= 100),
+          note TEXT NOT NULL,
+          author TEXT NOT NULL CHECK (author IN ('client', 'axeon')),
+          status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'resolved')),
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          resolved_at TIMESTAMPTZ
+        );
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS proof_pins_client_idx ON proof_pins (onboarding_id, stage, created_at);`;
+      await sql`
+        CREATE TABLE IF NOT EXISTS proof_pages (
+          id SERIAL PRIMARY KEY,
+          onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+          kind TEXT NOT NULL CHECK (kind IN ('location', 'procedure')),
+          title TEXT NOT NULL,
+          slug TEXT NOT NULL,
+          intro TEXT NOT NULL DEFAULT '',
+          body TEXT NOT NULL DEFAULT '',
+          status TEXT NOT NULL DEFAULT 'planned' CHECK (status IN ('planned', 'published')),
+          published_at TIMESTAMPTZ,
+          indexed BOOLEAN NOT NULL DEFAULT false,
+          indexed_at TIMESTAMPTZ,
+          created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          UNIQUE (onboarding_id, slug)
+        );
+      `;
+      await sql`
+        CREATE TABLE IF NOT EXISTS proof_link_access (
+          id BIGSERIAL PRIMARY KEY,
+          onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+          month TEXT NOT NULL,
+          recipient TEXT NOT NULL CHECK (recipient IN ('owner', 'manager')),
+          accessed_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          user_agent TEXT NOT NULL DEFAULT ''
+        );
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS proof_link_access_client_idx ON proof_link_access (onboarding_id, accessed_at DESC);`;
+      await sql`
+        CREATE TABLE IF NOT EXISTS dbr_sprints (
+          onboarding_id INTEGER PRIMARY KEY REFERENCES onboardings(id) ON DELETE CASCADE,
+          steps JSONB NOT NULL,
+          status TEXT NOT NULL DEFAULT 'running' CHECK (status IN ('running', 'done', 'stopped')),
+          imported_count INTEGER NOT NULL DEFAULT 0,
+          started_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+          ended_at TIMESTAMPTZ
+        );
+      `;
+      await sql`
+        CREATE TABLE IF NOT EXISTS dbr_sends (
+          id BIGSERIAL PRIMARY KEY,
+          onboarding_id INTEGER NOT NULL REFERENCES onboardings(id) ON DELETE CASCADE,
+          past_customer_id INTEGER NOT NULL REFERENCES past_customers(id) ON DELETE CASCADE,
+          phone TEXT NOT NULL,
+          name TEXT NOT NULL DEFAULT '',
+          step INTEGER NOT NULL,
+          due_at TIMESTAMPTZ NOT NULL,
+          status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'sending', 'sent', 'skipped', 'stopped', 'failed')),
+          reason TEXT,
+          sent_at TIMESTAMPTZ,
+          UNIQUE (onboarding_id, past_customer_id, step)
+        );
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS dbr_sends_due_idx ON dbr_sends (status, due_at);`;
+      await sql`CREATE INDEX IF NOT EXISTS dbr_sends_phone_idx ON dbr_sends (onboarding_id, phone);`;
       await sql`
         CREATE TABLE IF NOT EXISTS meta_deletions (
           code_hash TEXT PRIMARY KEY,

@@ -18,7 +18,7 @@ import {
 import { sendBillingNotification } from '@/lib/email';
 import { formatCents } from '@/lib/billingMath';
 import { markPayLinkPaid } from '@/lib/payLinks';
-import { setAgreementStatus } from '@/lib/agreements';
+import { getAgreement, setAgreementStatus } from '@/lib/agreements';
 import { ensureOnboardingForPurchase } from '@/lib/onboardingFulfillment';
 import { tierFromStripeKey } from '@/lib/onboarding';
 
@@ -161,6 +161,8 @@ async function startOnboarding(session: Stripe.Checkout.Session, record: Billing
   const tier = tierFromStripeKey(md.tier ?? md.plan_key ?? null);
   if (!tier || !record.customerEmail) return;
   try {
+    // The agreement behind this checkout decides PROOF v1 or v2 (lib/proofVersion.ts).
+    const agreementVersion = typeof md.agreement === 'string' && md.agreement ? ((await getAgreement(md.agreement).catch(() => null))?.version ?? undefined) : undefined;
     const result = await ensureOnboardingForPurchase({
       tier,
       clientEmail: record.customerEmail,
@@ -169,7 +171,7 @@ async function startOnboarding(session: Stripe.Checkout.Session, record: Billing
       phone: session.customer_details?.phone ?? null,
       stripeCustomerId: record.customerId ?? null,
       checkoutSessionId: session.id,
-    });
+    }, { agreementVersion });
     if (result?.created) {
       console.log('[stripe-webhook] onboarding created', { token: result.onboarding.token, welcomeSent: result.welcomeSent });
     }

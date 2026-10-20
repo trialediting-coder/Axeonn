@@ -16,6 +16,8 @@ import { OnboardingPortal } from '@/components/welcome/OnboardingPortal';
 import { ProofPasswordCard } from '@/components/welcome/ProofPasswordCard';
 import { hasAccountForOnboarding } from '@/lib/proofAuth';
 import { connectNotice } from '@/lib/metaShared';
+import { VersionTag } from '@/components/common/VersionTag';
+import { DASHBOARD_VERSIONS } from '@/data/dashboardVersions';
 
 // The client onboarding portal: /welcome/<20-char token>. The token is the first
 // factor; a 6-digit email code on each new device is the second (lib/onboarding.ts).
@@ -36,6 +38,7 @@ function Frame({ children }: { children: React.ReactNode }) {
         <p className="text-sm font-mono uppercase tracking-wider text-blue-600">Axeon Studio · Client setup</p>
       </div>
       {children}
+      <VersionTag version={DASHBOARD_VERSIONS.setup} className="max-w-2xl mx-auto mt-10" />
     </main>
   );
 }
