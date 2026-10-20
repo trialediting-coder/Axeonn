@@ -117,7 +117,7 @@ export function dueAtSigning(a: AgreementFields & Versioned): { cents: number; b
       breakdown:
         a.setupCents > 0
           ? `${money(a.setupCents)} implementation fee today; ${money(a.monthlyCents)}/month starts when you're live`
-          : `your first month (${money(a.monthlyCents)}) is billed when you're live${a.setupCreditCents ? `, and the ${money(a.setupCreditCents)} build is credited` : ''}`,
+          : `your first month (${money(a.monthlyCents)}) is billed when you're live${a.setupCreditCents ? `, and setup is $0 (normally ${money(a.setupCreditCents)})` : ''}`,
     };
   }
   const credit = a.setupCreditCents ? `, ${money(a.setupCreditCents)} implementation fee credited` : '';
