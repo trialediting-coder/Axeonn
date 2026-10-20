@@ -1,4 +1,8 @@
 import Link from 'next/link';
+import { ServicesForVertical } from '@/components/marketing-solutions/FunnelPage';
+import { FUNNEL_VERTICALS } from '@/data/serviceFunnels';
+import type { PracticeVertical } from '@/data/servicePages';
+
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { niches } from '@/data/nichesData';
@@ -16,6 +20,8 @@ import { JsonLd } from '@/components/common/JsonLd';
 import { faqItems } from '@/data/faqData';
 import { nicheFaqData } from '@/data/nicheFaqData';
 import { buildMetadata } from '@/lib/metadata';
+
+const isPracticeVertical = (s: string): s is PracticeVertical => (FUNNEL_VERTICALS as readonly string[]).includes(s);
 
 // Max 6 FAQs per practice page: up to 3 practice questions plus 3 general ones
 // (cost, the performance commitment, ownership). Matched by topic rather than
@@ -100,6 +106,7 @@ export default async function NichePage({
           </p>
         </div>
       </section>
+      {isPracticeVertical(niche.slug) && <ServicesForVertical vertical={niche.slug} />}
       <NicheClosingCTA niche={niche} />
     </main>
   );

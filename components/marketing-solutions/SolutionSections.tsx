@@ -195,13 +195,13 @@ function IncludedSection({ included, note }: { included: ServicePage['included']
   );
 }
 
-// Purpose: what the service looks like at each of the four practice types (tabs on phones).
-function PracticeExamplesSection({ examples }: { examples: ServicePage['examples'] }) {
+// Purpose: send each visitor to this service's page for their practice type.
+function PracticeExamplesSection({ examples, service }: { examples: ServicePage['examples']; service: string }) {
   return (
     <section className={`${SECTION_PAD} bg-white text-neutral-950`}>
       <div className="max-w-6xl mx-auto">
-        <SectionHeader eyebrow="By practice" heading={examples.heading} intro={examples.intro} />
-        <PracticeExamples items={examples.items} />
+        <SectionHeader eyebrow="Pick your practice" heading={examples.heading} />
+        <PracticeExamples items={examples.items} service={service} />
       </div>
     </section>
   );
@@ -338,7 +338,7 @@ export function ServicePageView({ page }: { page: ServicePage }) {
       {page.stat && <SourcedStatBand stat={page.stat} />}
       <HowItWorksSection how={page.how} />
       <IncludedSection included={page.included} note={page.note} />
-      <PracticeExamplesSection examples={page.examples} />
+      <PracticeExamplesSection examples={page.examples} service={page.slug} />
       <HowItsBoughtSection buying={page.buying} showCommitment={page.showCommitment} />
       <ServiceFaqSection heading={page.faqHeading} faqs={page.faqs} />
       <OtherServices current={page.slug} />

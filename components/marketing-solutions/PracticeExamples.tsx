@@ -1,83 +1,43 @@
-'use client';
-
-import LineIcon from '@/components/common/LineIcon';
-import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Check } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { nicheHeroTempImages } from '@/data/nicheHeroTempImages';
 import type { VerticalExample } from '@/data/servicePages';
+import { funnelPath, SERVICE_SHORT, VERTICAL_PLURAL, isFunnelService } from '@/data/serviceFunnels';
 
-// Per-practice examples on the service pages. Phones get a 2x2 set of tabs and
-// one example at a time, so the whole set fits one screen; tablets and up show
-// all four cards side by side. Every example is in the HTML either way.
-export function PracticeExamples({ items }: { items: VerticalExample[] }) {
-  const [active, setActive] = useState(0);
-
+// Per-practice selector on the six service pages (owner, 2026-10-20): four
+// cards, each going to that service's own funnel page for that practice type
+// (/marketing-solutions/{service}/{vertical}). Phones get compact rows; tablets
+// and up get photo cards. The card line is the example moment for that practice.
+export function PracticeExamples({ items, service }: { items: VerticalExample[]; service: string }) {
+  if (!isFunnelService(service)) return null;
   return (
-    <>
-      <div role="tablist" aria-label="Practice type" className="md:hidden grid grid-cols-2 gap-2 mb-3">
-        {items.map((item, i) => (
-          <button
-            key={item.vertical}
-            type="button"
-            role="tab"
-            id={`example-tab-${item.vertical}`}
-            aria-selected={i === active}
-            aria-controls={`example-${item.vertical}`}
-            onClick={() => setActive(i)}
-            className={`min-h-11 rounded-full px-2 text-sm leading-tight font-bold transition-colors cursor-pointer ${
-              i === active
-                ? 'bg-neutral-950 text-white'
-                : 'bg-white text-neutral-700 ring-1 ring-neutral-200 hover:ring-blue-300'
-            }`}
+    <ul className="grid grid-cols-1 md:grid-cols-2 gap-2.5 md:gap-5">
+      {items.map((item) => (
+        <li key={item.vertical}>
+          <Link
+            href={funnelPath(service, item.vertical)}
+            data-spot
+            className="group ix-card relative h-full flex md:flex-col rounded-2xl md:rounded-3xl border border-neutral-200 overflow-hidden hover:border-blue-300 transition-colors"
           >
-            {item.name}
-          </button>
-        ))}
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {items.map((item, i) => (
-          <article
-            key={item.vertical}
-            id={`example-${item.vertical}`}
-            role="tabpanel"
-            aria-labelledby={`example-tab-${item.vertical}`}
-            className={`rounded-3xl border border-neutral-200 overflow-hidden flex-col ${i === active ? 'flex' : 'hidden md:flex'}`}
-          >
-            <div className="relative h-20 sm:h-40 bg-neutral-900">
-              <Image
-                src={nicheHeroTempImages[item.vertical]}
-                alt=""
-                fill
-                sizes="(max-width: 768px) 100vw, 560px"
-                className="object-cover opacity-70"
-              />
-              <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-neutral-950/85 to-neutral-950/10" />
-              <Link
-                href={`/solutions/${item.vertical}`}
-                className="absolute left-5 sm:left-6 bottom-2 sm:bottom-4 min-h-11 inline-flex items-end pb-1 gap-1.5 text-xl sm:text-2xl font-black font-display tracking-tight text-white hover:text-blue-300 transition-colors"
-              >
-                {item.name} <ArrowRight size={18} className="mb-1 md:hidden" aria-hidden="true" />
-              </Link>
+            <div className="hidden md:block relative h-40 bg-neutral-900">
+              <Image src={nicheHeroTempImages[item.vertical]} alt="" fill sizes="560px" className="object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+              <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 to-transparent" />
+              <span className="absolute left-6 bottom-4 text-2xl font-black font-display tracking-tight text-white">{item.name}</span>
             </div>
-            <div className="p-5 sm:p-7 flex-1">
-              <p className="eyebrow text-neutral-400">Example</p>
-              <p className="mt-1.5 sm:mt-2 text-base sm:text-lg font-semibold leading-snug">{item.scenario}</p>
-              <ul className="mt-3 sm:mt-4 space-y-2 sm:space-y-2.5">
-                {item.points.map((point) => (
-                  <li key={point} className="flex items-start gap-2.5 text-sm sm:text-[15px] leading-snug sm:leading-relaxed text-neutral-600">
-                    <LineIcon>
-                      <Check size={16} strokeWidth={2.6} className="text-blue-600" />
-                    </LineIcon>
-                    <span>{point}</span>
-                  </li>
-                ))}
-              </ul>
+            <div className="flex-1 flex items-center md:items-start justify-between gap-3 px-4 py-3.5 md:p-6">
+              <div className="min-w-0">
+                <p className="md:hidden font-bold text-neutral-950">{item.name}</p>
+                <p className="text-sm md:text-base text-neutral-600 leading-snug">{item.scenario}</p>
+                <p className="hidden md:inline-flex mt-3 items-center gap-1.5 font-semibold text-blue-600">
+                  {SERVICE_SHORT[service]} for {VERTICAL_PLURAL[item.vertical]} <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                </p>
+              </div>
+              <ArrowRight size={18} className="md:hidden shrink-0 text-neutral-400 group-hover:text-blue-600" aria-hidden="true" />
             </div>
-          </article>
-        ))}
-      </div>
-    </>
+          </Link>
+        </li>
+      ))}
+    </ul>
   );
 }
