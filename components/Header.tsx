@@ -112,6 +112,30 @@ export function Header() {
   const toggleMobileSection = (section: MobileSection) =>
     setMobileSection((current) => (current === section ? null : section));
 
+  // The nav's "Check your area" button stays hidden until the visitor scrolls past
+  // the hero, which carries the page's main CTA (owner, 2026-10-20). The hero is the
+  // first section in <main>; the button shows once its bottom passes under the header.
+  const [pastHero, setPastHero] = useState(false);
+  useEffect(() => {
+    const update = () => {
+      const hero = document.querySelector('main section');
+      const heroBottom = hero ? hero.getBoundingClientRect().bottom : window.innerHeight * 0.8;
+      // A page whose first section is long content, not a hero (/pricing), shows the
+      // button after one screen of scrolling instead.
+      setPastHero(heroBottom < 80 || window.scrollY > window.innerHeight);
+    };
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => {
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, [pathname]);
+  const navCtaHidden = !pastHero && !mobileMenuOpen;
+  const navCtaProps = navCtaHidden ? { 'aria-hidden': true, tabIndex: -1 } : {};
+  const navCtaFade = `transition-opacity duration-300 ${navCtaHidden ? 'opacity-0 pointer-events-none' : 'opacity-100'}`;
+
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -443,7 +467,8 @@ export function Header() {
             href={areaHref}
             data-track="cta_click"
             data-track-cta="area_check_nav"
-            className="px-7 py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold whitespace-nowrap shadow-sm hover:shadow-md transition-all"
+            {...navCtaProps}
+            className={`px-7 py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold whitespace-nowrap shadow-sm hover:shadow-md ${navCtaFade}`}
           >
             Check your area
           </Link>
@@ -454,7 +479,8 @@ export function Header() {
             href={areaHref}
             data-track="cta_click"
             data-track-cta="area_check_nav"
-            className="inline-flex items-center justify-center whitespace-nowrap min-h-[44px] ml-3 px-3.5 sm:px-6 py-2.5 sm:py-3.5 rounded-full bg-blue-600 text-white text-[14px] sm:text-[15px] md:text-sm font-semibold"
+            {...navCtaProps}
+            className={`inline-flex items-center justify-center whitespace-nowrap min-h-[44px] ml-3 px-3.5 sm:px-6 py-2.5 sm:py-3.5 rounded-full bg-blue-600 text-white text-[14px] sm:text-[15px] md:text-sm font-semibold ${navCtaFade}`}
           >
             Check your area
           </Link>
