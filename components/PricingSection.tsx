@@ -105,10 +105,7 @@ export function PricingSection({
           <h2 className="text-[32px] sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold font-display tracking-tight text-neutral-950 mb-3 sm:mb-6 leading-[1.08]">
             Two plans. Every inquiry answered.
           </h2>
-          <p className="text-base sm:text-2xl text-neutral-600 leading-relaxed max-w-3xl mx-auto">
-            AxeonCORE from $799/mo. AxeonGROWTH from $1,999/mo. One growth partner either way.
-          </p>
-          <p className="mt-3 sm:mt-5 text-lg sm:text-2xl font-extrabold font-display tracking-tight text-blue-600">{OFFER_LINE}</p>
+          <p className="text-lg sm:text-2xl font-extrabold font-display tracking-tight text-blue-600">{OFFER_LINE}</p>
           <p className="mt-1.5 sm:mt-2 text-[13px] sm:text-base font-semibold text-neutral-700 text-balance">
             <SetupPrice /> · <DotParts text={TERM_LINE} />
           </p>
@@ -436,16 +433,6 @@ function OfferStrip() {
         <p className="mt-1 text-base sm:text-lg text-neutral-800">
           <SetupPrice />
         </p>
-        <ul className="mt-3 flex flex-col gap-y-2 text-sm sm:text-base text-neutral-600">
-          {OFFER_POINTS.map((point) => (
-            <li key={point} className="flex items-start gap-2">
-              <LineIcon>
-                <Check size={16} className="text-blue-600" strokeWidth={3} />
-              </LineIcon>
-              {point}
-            </li>
-          ))}
-        </ul>
         <p className="mt-3 flex items-start gap-2 text-sm sm:text-base text-neutral-600">
           <LineIcon>
             <MapPin size={16} className="text-blue-600" />

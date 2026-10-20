@@ -35,7 +35,7 @@ function SectionHeader({ eyebrow, heading, intro }: { eyebrow: string; heading: 
       <h2 className="text-[28px] sm:text-4xl lg:text-5xl font-black font-display tracking-tight leading-[1.1] text-neutral-950 text-balance">
         {heading}
       </h2>
-      {intro && <p className="mt-2.5 sm:mt-5 text-[15px] sm:text-lg leading-snug sm:leading-relaxed text-neutral-600">{intro}</p>}
+      {intro && <p className="hidden sm:block mt-5 text-lg leading-relaxed text-neutral-600">{intro}</p>}
     </div>
   );
 }
@@ -144,7 +144,7 @@ function HowItWorksSection({ how }: { how: ServicePage['how'] }) {
               </span>
               <div>
                 <h3 className="sm:mt-5 text-lg sm:text-xl font-extrabold font-display tracking-tight leading-snug">{step.title}</h3>
-                <p className="mt-0.5 sm:mt-2 text-sm sm:text-[15px] leading-snug sm:leading-relaxed text-neutral-600">{step.body}</p>
+                <p className="hidden sm:block mt-2 text-[15px] leading-relaxed text-neutral-600">{step.body}</p>
               </div>
             </li>
           ))}
@@ -164,7 +164,7 @@ function IncludedSection({ included, note }: { included: ServicePage['included']
           <h2 className="text-[28px] sm:text-4xl lg:text-5xl font-black font-display tracking-tight leading-[1.1] text-balance">
             {included.heading}
           </h2>
-          {included.intro && <p className="mt-2.5 sm:mt-5 text-[15px] sm:text-lg leading-snug sm:leading-relaxed text-neutral-600">{included.intro}</p>}
+          {included.intro && <p className="hidden sm:block mt-5 text-lg leading-relaxed text-neutral-600">{included.intro}</p>}
           {note && <p className="mt-3 sm:mt-6 text-sm leading-snug sm:leading-relaxed text-neutral-500 border-l-2 border-blue-600 pl-3 sm:pl-4">{note}</p>}
         </div>
         <div className="lg:col-span-8 flex flex-col gap-2.5 sm:gap-5">
@@ -173,7 +173,7 @@ function IncludedSection({ included, note }: { included: ServicePage['included']
               key={group.label}
               className={`rounded-2xl sm:rounded-3xl p-4 sm:p-8 ${gi === 0 ? 'bg-white border border-neutral-200/80 shadow-sm' : 'bg-neutral-950 text-white'}`}
             >
-              <p className={`text-xs font-mono font-bold tracking-widest uppercase ${gi === 0 ? 'text-blue-600' : 'text-blue-400'}`}>
+              <p className={gi === 0 ? 'eyebrow' : 'eyebrow eyebrow-dark'}>
                 {group.label}
               </p>
               <ul className="mt-2.5 sm:mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 sm:gap-y-3">
@@ -218,8 +218,7 @@ function HowItsBoughtSection({ buying, showCommitment }: { buying: ServicePage['
             {buying.heading}
           </h2>
           <p className="mt-2.5 sm:mt-5 text-sm sm:text-lg leading-snug sm:leading-relaxed text-neutral-400">
-            {buying.intro ??
-              "$0 to start. Nothing due until it's working: setup is $0 (normally $3,000) on the 12-month agreement, and your first payment is charged once you're live. No self-serve checkout; every partnership starts with an area check or a call. Month-to-month is available."}
+            $0 setup (normally $3,000). First payment when you&apos;re live.
           </p>
         </div>
         {/* Phones: one ruled row per plan (name and price on a line, the detail under it). */}
@@ -230,7 +229,7 @@ function HowItsBoughtSection({ buying, showCommitment }: { buying: ServicePage['
                 <p className="text-sm font-semibold text-blue-300">{option.plan}</p>
                 <p className="sm:mt-2 text-xl sm:text-3xl font-black font-display tracking-tight">{option.price}</p>
               </div>
-              <p className="mt-1 sm:mt-3 text-sm sm:text-[15px] leading-snug sm:leading-relaxed text-neutral-400">{option.detail}</p>
+              <p className="hidden sm:block mt-3 text-[15px] leading-relaxed text-neutral-400">{option.detail}</p>
             </div>
           ))}
         </div>
@@ -241,7 +240,7 @@ function HowItsBoughtSection({ buying, showCommitment }: { buying: ServicePage['
               <div>
                 <p className="font-bold">90-day performance commitment</p>
                 {/* Phones: the full wording is in the closing section a scroll below, so it is said once. */}
-                <p className="sm:hidden mt-0.5 text-sm leading-snug text-neutral-400">Included and written into your agreement. The full terms are below.</p>
+                <p className="sm:hidden mt-0.5 text-sm leading-snug text-neutral-400">Written into your agreement.</p>
                 <p className="hidden sm:block mt-1 text-sm leading-relaxed text-neutral-400">{GUARANTEE_LINE}</p>
               </div>
             </div>

@@ -7,6 +7,7 @@ import { FAQAccordion } from '@/components/common/FAQAccordion';
 import { Testimonials } from '@/components/home/Testimonials';
 import { JsonLd, BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { BUSINESS, cityAreaServed, serviceJsonLd } from '@/lib/seo';
+import { COMMITMENT_HEADLINE } from '@/data/pricingData';
 
 const TEL_HREF = `tel:${BUSINESS.telephone.replace(/-/g, '')}`;
 const EYEBROW = 'eyebrow';
@@ -109,8 +110,7 @@ export function CityLanding({ page }: { page: CityPage }) {
               </span>
               <span className="block">
                 <span className="block text-base sm:text-xl font-bold leading-snug">
-                  How fast does your practice or firm answer after hours? Check your area and we&apos;ll show you: a test call,
-                  your website&apos;s reply time, and your reviews next to the top 3 nearby.
+                  How fast do you answer after hours? We&apos;ll test it for you.
                 </span>
                 <span className="mt-1.5 sm:mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-300 group-hover:text-white">
                   Check if your area is open <ArrowRight size={14} />
@@ -190,12 +190,9 @@ export function CityLanding({ page }: { page: CityPage }) {
       <section className="w-full py-10 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-6xl mx-auto">
           <p className={`${EYEBROW} mb-3`}>WHO WE HELP</p>
-          <h2 className="text-[28px] sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-[1.1] mb-3 sm:mb-4 text-balance">
+          <h2 className="text-[28px] sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-[1.1] mb-5 sm:mb-10 text-balance">
             Practices and firms we serve in {page.city}
           </h2>
-          <p className="text-[15px] sm:text-lg text-neutral-600 max-w-3xl mb-5 sm:mb-10 leading-snug sm:leading-relaxed">
-            Pick yours to see where new patients and clients slip away, and how we answer them within 60 seconds.
-          </p>
           <ul className="grid sm:grid-cols-2 gap-2 sm:gap-3">
             {featured.map((niche) => (
               <li key={niche.slug}>
@@ -225,8 +222,7 @@ export function CityLanding({ page }: { page: CityPage }) {
           <div className="lg:col-span-5">
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2 sm:mb-4">Serving the metro</h2>
             <p className="text-neutral-300 leading-relaxed">
-              Based in West Des Moines, IA 50266. In-person kickoffs and front-desk training anywhere in the Des Moines
-              metro, including {page.city}.
+              In person anywhere in the metro, including {page.city}.
             </p>
             <address className="not-italic mt-3 sm:mt-6 text-[15px] sm:text-base text-neutral-300 space-y-0.5 sm:space-y-1">
               <div className="font-semibold text-white">{BUSINESS.name}</div>
@@ -295,7 +291,7 @@ export function CityLanding({ page }: { page: CityPage }) {
             $0 to start. Nothing due until it&apos;s working.
           </h2>
           <p className="text-[15px] sm:text-lg text-neutral-300 max-w-2xl mx-auto leading-snug sm:leading-relaxed mb-6 sm:mb-10">
-            Live within 30 days of getting your materials. Every missed call and web inquiry gets a reply within 60 seconds. Every completed appointment gets a review request. If we miss any of those in the first 90 days and don&apos;t fix it within 15 days, you can walk away and owe nothing for the rest of the term.
+            {COMMITMENT_HEADLINE}
           </p>
           <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-center gap-2.5 sm:gap-4">
             <Link
@@ -313,10 +309,6 @@ export function CityLanding({ page }: { page: CityPage }) {
               <PhoneCall size={18} /> {BUSINESS.telephoneDisplay}
             </a>
           </div>
-          <p className="mt-4 sm:mt-6 text-xs text-neutral-500 max-w-xl mx-auto leading-relaxed">
-            Included with AxeonCORE and AxeonGROWTH. We commit to speed, replies and review requests, never to a number of
-            patients, clients or rankings.
-          </p>
         </div>
       </section>
     </main>

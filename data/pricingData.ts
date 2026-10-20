@@ -64,8 +64,7 @@ export const AD_SPEND_RULE =
   'Ad spend is separate: $500/mo minimum, paid to Google directly on your own card, with no markup.';
 export const TERRITORY_LINE = 'One practice or firm per specialty within 5 miles.';
 /** Exclusivity as a policy that protects the client. Never fake scarcity: no countdowns, no "spots left". */
-export const EXCLUSIVITY_LINE =
-  "One practice or firm per specialty within 5 miles. When we're working with you, we don't work for the competitor down the street.";
+export const EXCLUSIVITY_LINE = 'One practice or firm per specialty within 5 miles.';
 
 /** The primary CTA everywhere (replaces the free after-hours audit as the hook). */
 export const AREA_CHECK_HREF = '/check-your-area';
@@ -77,11 +76,11 @@ export const OFFER_LINE = "$0 to start. Nothing due until it's working.";
 export const OFFER_SHORT = '$0 to start';
 /** Shown under a <SetupPrice /> line, which carries the crossed-out setup price. */
 export const OFFER_POINTS = [
-  "First payment only once you're live and answering every inquiry in 60 seconds.",
-  'Miss the 90-day commitment and you can walk away.',
+  "First payment only once you're live.",
+  'Miss the 90-day commitment, walk away.',
 ] as const;
 export const OWNERSHIP_LINE =
-  'Your domain, Google Business Profile, and patient and client contact data are always yours. The website design and code become yours once the 12-month term is paid. The intake system, phone and text numbers, and AxeonPROOF are a service and stop if you leave.';
+  'Your domain, Google profile and contact data are always yours. The site is yours once the 12-month term is paid.';
 export const COMPLIANCE_LINE =
   'Intake collects name, contact, service and preferred time only — never symptoms, insurance, case facts or tax details.';
 
@@ -99,7 +98,7 @@ export const pricingTiers: PricingTier[] = [
     turnaround: 'Live within 30 days of getting your materials',
     badge: 'Most practices and firms start here',
     bestFor:
-      'Right for you if calls and web inquiries go to voicemail or sit until morning. Every one gets a reply within 60 seconds, 24/7, and a way to book.',
+      'For calls and inquiries that hit voicemail or wait until morning.',
     features: [
       'Custom mobile-first website: providers or attorneys & credentials, services, reviews, booking',
       '24/7 missed-call text-back',
@@ -176,28 +175,28 @@ export interface PricingFaq {
 export const pricingFaqs: PricingFaq[] = [
   {
     q: 'How does the pricing work?',
-    a: "$0 to start. Nothing due until it's working. AxeonCORE starts at $799/mo and AxeonGROWTH at $1,999/mo, on a 12-month agreement. The build ($3,000 on CORE, $5,000 on GROWTH) is waived on the 12-month agreement, and your first monthly payment is charged only once you're live: site up, and every call and web inquiry answered within 60 seconds. Prepay a year and you get 2 months free. Your exact price is confirmed on the call, based on your locations and providers.",
+    a: "AxeonCORE from $799/mo, AxeonGROWTH from $1,999/mo, on a 12-month agreement. Setup is $0, and the first payment comes once you're live. Exact price is confirmed on the call.",
   },
   {
     q: 'Why a 12-month agreement?',
-    a: "We work as a 12-month growth partnership, not a one-off build. Building your website, phone and text numbers, booking, and review requests is a few weeks of work up front. On the 12-month term we waive that $3,000 build and only start billing once it's working. After 12 months it continues month-to-month, and either side can stop with 30 days' notice.",
+    a: "The build is weeks of work up front. On 12 months we waive it and bill only once it's working. After that it's month-to-month with 30 days' notice.",
   },
   {
     // Honest, not hidden (friction audit C2): what leaving early costs.
     q: 'Can I leave before the 12 months are up?',
-    a: "Yes, for free, if we miss the 90-day performance commitment and don't fix it within 15 days: you walk away and owe nothing for the rest of the term. Outside that, if you leave early without cause, the remaining months of the 12-month term are still owed. That is the trade for the waived build and nothing being due until it's working. If you want to keep the option to stop at any time, month-to-month (with the build paid upfront) has no term.",
+    a: "Yes, owing nothing, if we miss the 90-day commitment and don't fix it in 15 days. Otherwise the rest of the term is still owed. Month-to-month has no term.",
   },
   {
     q: 'Can I go month-to-month instead?',
-    a: 'Yes. Pay the $3,000 build upfront, then AxeonCORE bills monthly from go-live with no 12-month term. Or prepay a year for $7,990 and get 2 months free. Most practices and firms take the 12-month agreement because the build is then waived and nothing is due until it is working.',
+    a: 'Yes. Pay the $3,000 build upfront, then monthly from go-live. Or prepay a year for $7,990 and get 2 months free.',
   },
   {
     q: 'What is the $3,000?',
-    a: "It's the build for AxeonCORE: the website, number setup and carrier registration, booking, the inquiry reply system, review requests, and AxeonPROOF. On the 12-month agreement it is waived and never charged. On month-to-month it is paid upfront. AxeonGROWTH's build is $5,000, waived the same way.",
+    a: "The AxeonCORE build: site, numbers, booking, replies, reviews and AxeonPROOF. Waived on 12 months, paid upfront on month-to-month. GROWTH's is $5,000.",
   },
   {
     q: "What does 'working' mean?",
-    a: "Your new site is live, and every missed call and web inquiry gets a reply within 60 seconds, 24/7. That is when your first monthly payment is charged. Nothing is billed while we build.",
+    a: "Your site is live and every inquiry gets a reply in 60 seconds. That's when the first payment is charged.",
   },
   {
     q: 'What is the 90-day performance commitment?',
@@ -205,27 +204,27 @@ export const pricingFaqs: PricingFaq[] = [
   },
   {
     q: 'Is ad spend included in AxeonGROWTH?',
-    a: "No. Your ad budget goes straight to Google, on your own card and in your own account, with no markup from us. The minimum is $500/mo, because below that there isn't enough data to keep improving the campaigns. Local Services Ads bill you per lead. The $1,999/mo is for running them.",
+    a: "No. Ad spend goes straight to Google on your own card, no markup. The minimum is $500/mo.",
   },
   {
     q: 'What does territory exclusivity mean?',
-    a: "One practice or firm per specialty within 5 miles. When we're working with you, we don't work for the competitor down the street. While your account is in good standing, we won't take on another dental practice, med spa, law firm or CPA firm in your specialty within 5 miles of you.",
+    a: "One practice or firm per specialty within 5 miles, while your account is in good standing. We don't work for the competitor down the street.",
   },
   {
     q: 'Do you collect health, case or financial information?',
-    a: 'No. Intake collects name, contact, service and preferred time only. No symptoms, insurance or health details for dental practices and med spas; no case facts for law firms, so your conflict check comes first; no tax or account details for CPA firms. The forms and text replies are set up that way on purpose. Is it HIPAA compliant? Because intake never asks for health details, no protected health information is meant to flow through Axeon, and Axeon isn’t your business associate unless we sign a separate business associate agreement (BAA). If a patient volunteers health details by text anyway, your team moves that conversation into your practice software.',
+    a: 'No. Name, contact, service and preferred time only. Never health, case or tax details. Need a business associate agreement (BAA)? We sign one on request.',
   },
   {
     q: 'What do I own?',
-    a: 'Your domain, Google Business Profile, and patient and client contact data are always yours. The website design and code become yours once the 12-month term is paid. The intake system, phone and text numbers, and AxeonPROOF are a service, so they stop if you leave.',
+    a: 'Your domain, Google profile and contact data, always. The site once the 12-month term is paid. Intake and AxeonPROOF are a service.',
   },
   {
     q: 'What happens after 12 months?',
-    a: "The agreement continues month-to-month at the same price, and you can stop with 30 days' notice. Once the term is paid, the website design and code are yours, and if you leave we hand over the files and your contact data.",
+    a: "It goes month-to-month at the same price, stop with 30 days' notice. The site is yours.",
   },
   {
     q: 'Which plan should I pick?',
-    a: 'AxeonCORE if the problem is answering: calls going to voicemail, web inquiries waiting until morning, reviews that never get asked for. AxeonGROWTH if your intake is already solid and you want more new patients or clients coming in through Google ads, an AI receptionist, and campaigns to past patients and clients. The call where we go over your area usually makes the answer obvious.',
+    a: 'AxeonCORE if the problem is answering. AxeonGROWTH if intake is solid and you want more coming in through ads. The call makes it obvious.',
   },
 ];
 

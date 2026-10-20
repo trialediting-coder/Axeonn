@@ -16,13 +16,13 @@ const engineModules: EngineModule[] = [
   {
     icon: Megaphone,
     title: 'Google Ads & LSA',
-    body: 'Local Services Ads and search ads on the services you want more of, reported in AxeonPROOF.',
+    body: 'Local Services Ads and search ads, reported in AxeonPROOF.',
     href: '/marketing-solutions/advertising',
   },
   {
     icon: PhoneCall,
     title: 'AI Receptionist',
-    body: 'Answers the calls your front desk or intake team can’t get to, takes the details, and books the consultation.',
+    body: 'Answers the calls your team can’t get to and books the consult.',
     href: '/marketing-solutions/ai-chat-scheduling',
   },
   {
@@ -34,7 +34,7 @@ const engineModules: EngineModule[] = [
   {
     icon: Clapperboard,
     title: 'Photo & Video',
-    body: 'Quarterly shoots for review videos and reels, so people see your practice before they book.',
+    body: 'Quarterly shoots for review videos and reels.',
     href: '/marketing-solutions/video-photography',
   },
 ];
@@ -85,8 +85,7 @@ export function GrowthEngine({ showBuilds = true, variant = 'section' }: GrowthE
             Add more once intake is solid.
           </h2>
           <p className="mt-3 sm:mt-4 text-[15px] sm:text-lg text-neutral-400 leading-relaxed">
-            AxeonCORE makes sure every call and inquiry gets answered. When you want more new patients or clients
-            coming in, AxeonGROWTH adds these.
+            AxeonGROWTH adds these when you want more coming in.
           </p>
           <Link
             href="/check-your-area"
