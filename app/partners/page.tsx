@@ -157,7 +157,7 @@ const PARTNER_FAQ = [
 
 /**
  * The hero's message as a full-width visual: You -> Axeon -> your client ->
- * back to you. Big numbered stops with arrows between them (stacked on phones).
+ * back to you. Icon stops with arrows between them (stacked on phones); no step numbers (owner, 2026-10-20).
  */
 // Purpose: the referral loop in four steps: you introduce, we check, your client gets answered, the share comes back to you.
 function ReferralLoop() {
@@ -179,25 +179,15 @@ function ReferralLoop() {
                     isLast ? 'bg-blue-600 text-white shadow-xl shadow-blue-600/25' : 'bg-white border border-neutral-200'
                   }`}
                 >
-                  <div className="flex items-center justify-between shrink-0">
-                    <span
-                      className={`w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center ${
-                        isLast ? 'bg-white/15 text-white' : 'bg-blue-50 text-blue-600'
-                      }`}
-                    >
-                      <Icon size={22} className="sm:w-[26px] sm:h-[26px]" />
-                    </span>
-                    <span
-                      className={`hidden sm:inline text-4xl font-black font-display tracking-tight ${
-                        isLast ? 'text-white/40' : 'text-neutral-200'
-                      }`}
-                    >
-                      0{i + 1}
-                    </span>
-                  </div>
+                  <span
+                    className={`shrink-0 w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center ${
+                      isLast ? 'bg-white/15 text-white' : 'bg-blue-50 text-blue-600'
+                    }`}
+                  >
+                    <Icon size={22} className="sm:w-[26px] sm:h-[26px]" />
+                  </span>
                   <div className="min-w-0">
                     <p className="sm:mt-5 text-lg sm:text-3xl font-extrabold font-display tracking-tight leading-tight">
-                      <span className={`sm:hidden mr-1.5 font-mono text-xs ${isLast ? 'text-white/60' : 'text-neutral-400'}`}>0{i + 1}</span>
                       {who}
                     </p>
                     <p className={`mt-0.5 sm:mt-2 text-sm sm:text-base leading-snug ${isLast ? 'text-blue-50' : 'text-neutral-600'}`}>{what}</p>
