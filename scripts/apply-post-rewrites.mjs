@@ -5,6 +5,13 @@
 //                      (status, published_at, cover image and author are left alone.)
 //   action: retire  -> UPDATE status = 'draft', scheduled_publish_at = NULL, updated_at.
 //                      The 301 for the retired slug lives in next.config.mjs.
+//   action: create  -> INSERT a new post with status = 'published' and
+//                      published_at = now() (the moment --apply runs), plus title,
+//                      excerpt, content, author, niche_tags, meta, cover image,
+//                      faq_items and sources. Only when the slug is free: if a post
+//                      with that slug already exists it is REFUSED and left exactly
+//                      as it is (create never overwrites; switch the file to
+//                      action: rewrite to update a live post).
 //
 // Dry run by default (reads the current rows and prints what would change).
 // Nothing is written unless you pass --apply. All writes run in one transaction.
@@ -15,7 +22,7 @@
 //   node scripts/apply-post-rewrites.mjs --offline      (no DB: just list the plan)
 //
 // Run `npx tsx scripts/validate-post-rewrites.ts` first; this script refuses to
-// write a rewrite that is missing title/excerpt/content.
+// write a rewrite or create that is missing title/excerpt/content.
 import { createPool } from '@vercel/postgres';
 import { loadRewrites } from './lib/insightRewrites.mjs';
 
@@ -65,17 +72,17 @@ function planFor(rewrite, row) {
 async function main() {
   const rewrites = loadRewrites();
   for (const r of rewrites) {
-    if (r.action === 'rewrite' && !(r.title && r.excerpt && r.content.trim())) {
-      throw new Error(`${r.file}: rewrite is missing title, excerpt or content`);
+    if (r.action !== 'retire' && !(r.title && r.excerpt && r.content.trim())) {
+      throw new Error(`${r.file}: ${r.action} is missing title, excerpt or content`);
     }
   }
 
   if (OFFLINE || !connectionString) {
     if (!OFFLINE) console.log('No POSTGRES_URL (or --url) given: showing the plan without reading the database.\n');
     for (const r of rewrites) {
-      console.log(r.action === 'retire'
-        ? `RETIRE   ${r.slug}  -> status=draft, 301 to ${r.redirectTo}`
-        : `REWRITE  ${r.slug}  -> "${short(r.title, 90)}" [${r.nicheTags.join(',')}]`);
+      if (r.action === 'retire') console.log(`RETIRE   ${r.slug}  -> status=draft, 301 to ${r.redirectTo}`);
+      else if (r.action === 'create') console.log(`CREATE   ${r.slug}  -> "${short(r.title, 90)}" [${r.nicheTags.join(',')}] published on --apply if the slug is free`);
+      else console.log(`REWRITE  ${r.slug}  -> "${short(r.title, 90)}" [${r.nicheTags.join(',')}]`);
     }
     if (APPLY) console.log('\n--apply ignored: no database connection.');
     return;
@@ -91,6 +98,19 @@ async function main() {
     const work = [];
     for (const r of rewrites) {
       const row = bySlug.get(r.slug);
+      if (r.action === 'create') {
+        if (row) {
+          console.log(`REFUSE   ${r.slug}  (create, but post id ${row.id} already has this slug, status ${row.status}; left untouched. Use action: rewrite to update it.)`);
+          continue;
+        }
+        console.log(`CREATE   ${r.slug}  (new post, status published, published_at = now() at apply time)`);
+        console.log(`           title: ${short(r.title)}`);
+        console.log(`           meta_title: ${short(r.metaTitle)}`);
+        console.log(`           author: ${r.author}, niche_tags: ${r.nicheTags.join(',')}, cover: ${r.coverImageUrl ?? '(none)'}`);
+        console.log(`           content: ${r.content.length} chars, faq_items: ${r.faqItems.length}, sources: ${r.sources.length}`);
+        work.push({ r, row: null });
+        continue;
+      }
       if (!row) {
         console.log(`MISSING  ${r.slug}  (no post with this slug; skipped)`);
         continue;
@@ -104,13 +124,35 @@ async function main() {
     }
 
     if (!APPLY) {
-      console.log(`\nDry run: ${work.length} post(s) would change. Re-run with --apply to write.`);
+      console.log(`\nDry run: ${work.length} post(s) would be created or changed. Re-run with --apply to write.`);
       return;
     }
 
     await client.query('BEGIN');
     for (const { r, row } of work) {
-      if (r.action === 'retire') {
+      if (r.action === 'create') {
+        // ON CONFLICT guards the gap between the read above and this write: if the
+        // slug appeared in between, nothing is overwritten and the whole run rolls back.
+        const { rows: inserted } = await client.query(
+          `INSERT INTO posts (
+             slug, title, excerpt, content, status, author, niche_tags,
+             meta_title, meta_description, cover_image_url, cover_image_alt,
+             faq_items, sources, scheduled_publish_at, published_at
+           ) VALUES (
+             $1, $2, $3, $4, 'published', $5, $6::text[],
+             $7, $8, $9, $10,
+             $11::jsonb, $12::jsonb, NULL, now()
+           )
+           ON CONFLICT (slug) DO NOTHING
+           RETURNING id`,
+          [
+            r.slug, r.title, r.excerpt, r.content, r.author, r.nicheTags,
+            r.metaTitle, r.metaDescription, r.coverImageUrl, r.coverImageAlt,
+            JSON.stringify(r.faqItems), JSON.stringify(r.sources),
+          ],
+        );
+        if (inserted.length === 0) throw new Error(`${r.slug}: a post with this slug appeared during the run; nothing was written.`);
+      } else if (r.action === 'retire') {
         await client.query(
           `UPDATE posts SET status = 'draft', scheduled_publish_at = NULL, updated_at = now() WHERE id = $1`,
           [row.id],
@@ -132,7 +174,7 @@ async function main() {
       }
     }
     await client.query('COMMIT');
-    console.log(`\nApplied: ${work.length} post(s) updated. /insights pages revalidate within an hour (revalidate = 3600).`);
+    console.log(`\nApplied: ${work.length} post(s) written (created or updated). /insights pages revalidate within an hour (revalidate = 3600).`);
   } catch (err) {
     if (APPLY) await client.query('ROLLBACK').catch(() => {});
     throw err;

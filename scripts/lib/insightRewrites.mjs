@@ -5,6 +5,12 @@
 // posts.content column stores it (rendered by react-markdown + remark-gfm on
 // /insights/[slug]; a leading "# Title" line is stripped there because the page
 // renders the title itself).
+//
+// action: rewrite | create need title, excerpt and niche_tags (JSON array).
+// action: create also needs author ("human" or "ai"; posts.author has no default)
+// and may set cover_image_url + cover_image_alt (both or neither; the page and
+// the /insights cards render fine without a cover).
+// action: retire needs redirect_to.
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -29,17 +35,26 @@ export function parseRewrite(text, file = '(inline)') {
   }
   const body = m[2].replace(/^\n+/, '').replace(/\s+$/, '') + '\n';
   if (!meta.slug) throw new Error(`${file}: frontmatter needs slug`);
-  if (meta.action !== 'rewrite' && meta.action !== 'retire') throw new Error(`${file}: action must be rewrite or retire`);
+  if (!['rewrite', 'create', 'retire'].includes(meta.action)) throw new Error(`${file}: action must be rewrite, create or retire`);
   if (meta.action === 'retire' && !meta.redirect_to) throw new Error(`${file}: retire needs redirect_to`);
-  if (meta.action === 'rewrite') {
-    for (const k of ['title', 'excerpt']) if (!meta[k]) throw new Error(`${file}: rewrite needs ${k}`);
+  if (meta.action === 'rewrite' || meta.action === 'create') {
+    for (const k of ['title', 'excerpt']) if (!meta[k]) throw new Error(`${file}: ${meta.action} needs ${k}`);
     if (!Array.isArray(meta.niche_tags)) throw new Error(`${file}: niche_tags must be a JSON array`);
+  }
+  if (meta.action === 'create') {
+    if (meta.author !== 'human' && meta.author !== 'ai') throw new Error(`${file}: create needs author: human or ai`);
+    if (Boolean(meta.cover_image_url) !== Boolean(meta.cover_image_alt)) {
+      throw new Error(`${file}: set cover_image_url and cover_image_alt together (or neither)`);
+    }
   }
   return {
     file,
     slug: meta.slug,
     action: meta.action,
     redirectTo: meta.redirect_to ?? null,
+    author: meta.author ?? null,
+    coverImageUrl: meta.cover_image_url || null,
+    coverImageAlt: meta.cover_image_alt || null,
     title: meta.title ?? null,
     excerpt: meta.excerpt ?? null,
     metaTitle: meta.meta_title ?? null,

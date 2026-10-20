@@ -1,11 +1,14 @@
 // scripts/validate-post-rewrites.ts
-// Runs every content/insights-rewrites/*.md (action: rewrite) through
+// Runs every content/insights-rewrites/*.md (action: rewrite or create) through
 // lib/postValidation.ts, plus a stricter local lint for guardrail rules the
 // validator doesn't encode (trade wording, plain-language bans, hype words,
-// retired proof, internal links). Exit code 1 on any failure.
+// retired proof, internal links). Create files are also checked for an author,
+// an on-site cover image with alt text, and the tighter meta lengths new posts
+// are written to (title <= 60, description <= 155). Exit code 1 on any failure.
 //   npx tsx scripts/validate-post-rewrites.ts
 import { validatePost } from '../lib/postValidation';
 import { loadRewrites } from './lib/insightRewrites.mjs';
+import { FUNNEL_SERVICES, FUNNEL_VERTICALS, funnelPath } from '../data/serviceFunnels';
 
 const VALID_NICHES = new Set(['dental', 'med-spa', 'law-firms', 'accounting']);
 const INTERNAL_LINKS = new Set([
@@ -15,6 +18,8 @@ const INTERNAL_LINKS = new Set([
   '/marketing-solutions/ai-chat-scheduling', '/marketing-solutions/advertising', '/marketing-solutions/video-photography',
   '/insights/how-much-does-a-website-cost-des-moines', '/insights/how-to-choose-a-marketing-agency-des-moines',
   '/insights/how-to-get-your-business-recommended-by-chatgpt',
+  // Every service x practice funnel page (/marketing-solutions/{service}/{vertical}).
+  ...FUNNEL_SERVICES.flatMap((s) => FUNNEL_VERTICALS.map((v) => funnelPath(s, v))),
 ]);
 const LINT: { pattern: RegExp; reason: string }[] = [
   { pattern: /\b(contractors?|roof(ers?|ing)|hvac|plumb(ers?|ing)|detail(ers?|ing)|landscap\w*|remodel\w*|real estate|crews?|shops?|booked jobs?|jobs?)\b/i, reason: 'trade / home-services wording' },
@@ -29,8 +34,10 @@ const LINT: { pattern: RegExp; reason: string }[] = [
 
 let failures = 0;
 const rewrites = loadRewrites();
+// Posts in this folder may link to each other (they go live in the same apply run).
+for (const r of rewrites) if (r.action !== 'retire') INTERNAL_LINKS.add(`/insights/${r.slug}`);
 for (const r of rewrites) {
-  if (r.action !== 'rewrite') {
+  if (r.action === 'retire') {
     console.log(`SKIP  ${r.slug} (retire -> ${r.redirectTo})`);
     continue;
   }
@@ -62,6 +69,14 @@ for (const r of rewrites) {
   }
   if (r.metaDescription && r.metaDescription.length > 160) problems.push(`meta_description is ${r.metaDescription.length} chars (>160)`);
   if (r.metaTitle && r.metaTitle.length > 65) problems.push(`meta_title is ${r.metaTitle.length} chars (>65)`);
+  if (r.action === 'create') {
+    if (!r.metaTitle || r.metaTitle.length > 60) problems.push(`create: meta_title must be set and <= 60 chars (is ${r.metaTitle?.length ?? 0})`);
+    if (!r.metaDescription || r.metaDescription.length > 155) problems.push(`create: meta_description must be set and <= 155 chars (is ${r.metaDescription?.length ?? 0})`);
+    if (r.author !== 'human' && r.author !== 'ai') problems.push('create: author must be human or ai');
+    if (r.coverImageUrl && !/^https:\/\/axeonstudio\.co\//.test(r.coverImageUrl)) problems.push(`create: cover_image_url should be an absolute on-site URL: ${r.coverImageUrl}`);
+    if (r.faqItems.length < 4 || r.faqItems.length > 6) problems.push(`create: expected 4-6 FAQ items, found ${r.faqItems.length}`);
+    if (!r.content.includes('](/check-your-area)')) problems.push('create: missing the /check-your-area call to action');
+  }
 
   const words = r.content.replace(/[#*_>`-]/g, ' ').split(/\s+/).filter(Boolean).length;
   if (problems.length) {
@@ -69,8 +84,8 @@ for (const r of rewrites) {
     console.log(`FAIL  ${r.slug} (${words} words)`);
     for (const p of problems) console.log(`      - ${p}`);
   } else {
-    console.log(`PASS  ${r.slug} (${words} words, ${r.sources.length} sources, ${r.faqItems.length} FAQs)`);
+    console.log(`PASS  ${r.action === 'create' ? '[create] ' : ''}${r.slug} (${words} words, ${r.sources.length} sources, ${r.faqItems.length} FAQs)`);
   }
 }
-console.log(failures ? `\n${failures} rewrite(s) failed.` : `\nAll ${rewrites.filter((r: { action: string }) => r.action === 'rewrite').length} rewrites pass.`);
+console.log(failures ? `\n${failures} post file(s) failed.` : `\nAll ${rewrites.filter((r: { action: string }) => r.action !== 'retire').length} rewrite/create files pass.`);
 process.exit(failures ? 1 : 0);
