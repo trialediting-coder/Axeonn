@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 import { useState, type MouseEvent } from 'react';
 import { Check, ExternalLink, MapPin } from 'lucide-react';
 import type { Pin } from '@/lib/proofV2';
-import type { PinStage, ReviewItem } from '@/lib/proofV2Shared';
+import { shortDate, type PinStage, type ReviewItem } from '@/lib/proofV2Shared';
 
 function usePost(api: string | null) {
   const router = useRouter();
@@ -123,7 +123,16 @@ export function ReviewApproval({ stage, item, pins, api }: { stage: 'wireframe' 
   const open = pins.filter((p) => p.stage === stage && p.status === 'open').length;
   return (
     <div>
-      <PinBoard stage={stage} imageUrl={item.imageUrl} pins={pins} api={api} locked={!!item.approvedAt} />
+      {item.approvedAt ? (
+        <details>
+          <summary className="cursor-pointer text-xs font-semibold text-blue-600">See the approved draft and its pins</summary>
+          <div className="mt-2">
+            <PinBoard stage={stage} imageUrl={item.imageUrl} pins={pins} api={api} locked />
+          </div>
+        </details>
+      ) : (
+        <PinBoard stage={stage} imageUrl={item.imageUrl} pins={pins} api={api} locked={false} />
+      )}
       <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
         {item.url ? (
           <a href={item.url} target="_blank" rel="noreferrer" className={`${BTN} border border-neutral-300 text-neutral-800`}>
@@ -132,7 +141,7 @@ export function ReviewApproval({ stage, item, pins, api }: { stage: 'wireframe' 
         ) : null}
         {item.approvedAt ? (
           <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-700">
-            <Check size={15} /> Approved {new Date(item.approvedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+            <Check size={15} /> Approved {shortDate(item.approvedAt)}
           </span>
         ) : api ? (
           <button type="button" disabled={busy} onClick={() => post({ action: 'approve', stage })} className={`${BTN} bg-emerald-600 text-white`}>
@@ -188,7 +197,7 @@ export function FrontDeskSignoff({ api, signedOffAt, signedOffBy }: { api: strin
   if (signedOffAt) {
     return (
       <p className="flex items-center gap-1.5 text-sm font-semibold text-emerald-700">
-        <Check size={15} /> Signed off by {signedOffBy} on {new Date(signedOffAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+        <Check size={15} /> Signed off by {signedOffBy} on {shortDate(signedOffAt)}
       </p>
     );
   }
