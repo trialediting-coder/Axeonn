@@ -3,11 +3,12 @@ import { ArrowRight, CalendarDays } from 'lucide-react';
 import type { Niche } from '@/data/nichesData';
 import { nicheHeroTempImages, defaultNicheHeroTempImage } from '@/data/nicheHeroTempImages';
 
+// Purpose: the result, the price anchor and the one next step, before the first scroll.
 export function NicheHero({ niche }: { niche: Niche }) {
   const heroImage = nicheHeroTempImages[niche.slug] ?? defaultNicheHeroTempImage;
 
   return (
-    <section className="relative w-full min-h-[92svh] sm:min-h-screen flex items-center px-6 sm:px-10 lg:px-16 xl:px-24 pt-28 pb-16 bg-neutral-950 text-white overflow-hidden">
+    <section className="relative w-full sm:min-h-screen flex items-center px-5 sm:px-10 lg:px-16 xl:px-24 pt-24 pb-10 sm:pt-28 sm:pb-16 bg-neutral-950 text-white overflow-hidden">
       {heroImage ? (
         <>
           <div
@@ -27,18 +28,18 @@ export function NicheHero({ niche }: { niche: Niche }) {
 
       <div className="relative z-10 w-full max-w-5xl mx-auto text-center">
         {/* Geo + service line: the message-match a paid click needs to see first */}
-        <p className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-4">
+        <p className="text-xs sm:text-sm font-mono uppercase tracking-wider text-blue-400 mb-3 sm:mb-4">
           Patient &amp; client intake for {niche.name} &middot; Des Moines metro &amp; Iowa
         </p>
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-tight mb-6">
+        <h1 className="text-[32px] sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-[1.1] sm:leading-tight mb-4 sm:mb-6">
           {niche.headline}
         </h1>
-        <p className="text-lg sm:text-xl text-neutral-300 max-w-3xl mx-auto leading-relaxed mb-8">
+        <p className="text-base sm:text-xl text-neutral-300 max-w-3xl mx-auto leading-relaxed mb-5 sm:mb-8">
           {niche.subheadline}
         </p>
 
         {/* Price anchor: the #1 objection, answered before the first scroll */}
-        <p className="inline-flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 rounded-2xl sm:rounded-full bg-white/[0.07] border border-white/15 px-4 py-2 text-sm sm:text-base text-neutral-200 mb-8">
+        <p className="inline-flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 rounded-2xl sm:rounded-full bg-white/[0.07] border border-white/15 px-4 py-2 text-sm sm:text-base text-neutral-200 mb-5 sm:mb-8">
           <span className="font-bold text-white">From $799/mo</span>
           <span className="text-neutral-400">
             <span className="hidden sm:inline">&middot; </span>$0 to start. Nothing due until it&apos;s working.
@@ -46,18 +47,18 @@ export function NicheHero({ niche }: { niche: Niche }) {
         </p>
 
         {/* One primary action, one fast path, one text link */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 mb-5">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-4 mb-2 sm:mb-5">
           <Link
             href="/check-your-area"
             data-track="cta_click"
             data-track-cta={`niche_hero_area_check_${niche.slug}`}
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/25"
+            className="inline-flex items-center justify-center gap-2 px-8 py-3.5 sm:py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/25"
           >
             {niche.primaryCTA} <ArrowRight size={18} />
           </Link>
           <Link
             href="/book"
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full border border-white/25 bg-white/[0.06] hover:bg-white/[0.12] text-white font-semibold text-base transition-colors"
+            className="inline-flex items-center justify-center gap-2 px-8 py-3.5 sm:py-4 rounded-full border border-white/25 bg-white/[0.06] hover:bg-white/[0.12] text-white font-semibold text-base transition-colors"
           >
             <CalendarDays size={17} /> Book a call
           </Link>

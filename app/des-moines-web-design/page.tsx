@@ -100,32 +100,33 @@ export default function DesMoinesWebDesignPage() {
       <BreadcrumbJsonLd items={[{ name: 'Des Moines Web Design', path: '/des-moines-web-design' }]} />
 
       {/* Hero */}
-      <section className="relative w-full px-6 sm:px-10 lg:px-16 xl:px-24 pt-36 pb-20 sm:pt-44 sm:pb-28 bg-neutral-950 text-white overflow-hidden">
+      {/* Purpose: the result for metro practices and firms, and the two ways to start. */}
+      <section className="relative w-full px-6 sm:px-10 lg:px-16 xl:px-24 pt-28 pb-12 sm:pt-44 sm:pb-28 bg-neutral-950 text-white overflow-hidden">
         <div className="absolute -top-40 -right-40 w-[520px] h-[520px] bg-blue-600/25 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 max-w-5xl mx-auto">
-          <p className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-4 inline-flex items-center gap-2">
+          <p className="text-xs sm:text-sm font-mono uppercase tracking-wider text-blue-400 mb-3 sm:mb-4 inline-flex items-center gap-2">
             <MapPin size={15} /> West Des Moines, Iowa · Serving the Des Moines Metro
           </p>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight leading-[1.05] font-display mb-6">
+          <h1 className="text-[32px] sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight leading-[1.08] sm:leading-[1.05] font-display mb-4 sm:mb-6 text-balance">
             Des Moines Practices and Firms: Every Inquiry Answered in 60 Seconds
           </h1>
-          <p className="text-lg sm:text-xl text-neutral-300 leading-relaxed max-w-3xl mb-10">
+          <p className="text-base sm:text-xl text-neutral-300 leading-relaxed max-w-3xl mb-6 sm:mb-10">
             Axeon Studio installs patient and client intake for dental practices, med spas, law firms and CPA firms across the
             Des Moines metro. Every missed call and web inquiry gets a reply within 60 seconds, 24/7, the consultation gets
             booked, and every patient and client gets asked for a review afterward.
           </p>
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-4">
             <Link
               href="/check-your-area"
               data-track="cta_click"
               data-track-cta="area_check_des_moines"
-              className="inline-flex items-center gap-2 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 sm:py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
             >
               Check if your area is open <ArrowRight size={18} />
             </Link>
             <a
               href={TEL_HREF}
-              className="inline-flex items-center gap-2 px-7 py-4 rounded-full border border-neutral-700 hover:border-neutral-500 text-white font-bold text-base transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 sm:py-4 rounded-full border border-neutral-700 hover:border-neutral-500 text-white font-bold text-base transition-colors"
             >
               <PhoneCall size={18} /> {BUSINESS.telephoneDisplay}
             </a>
@@ -134,9 +135,11 @@ export default function DesMoinesWebDesignPage() {
       </section>
 
       {/* Why local: one message -- the team that builds it answers the phone. */}
-      <section className="w-full py-20 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24">
+      {/* Purpose: why a local team: the people who build it answer the phone and train your staff. */}
+      <section className="w-full py-10 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
-          <div className="lg:col-span-5">
+          {/* Decorative name card: tablet and up (the heading says the same thing on phones). */}
+          <div className="hidden sm:block lg:col-span-5">
             <div className="relative w-full max-w-sm mx-auto lg:max-w-none rounded-3xl overflow-hidden bg-neutral-950 text-white border border-neutral-800 shadow-xl p-8 sm:p-10">
               <div className="text-xs font-mono font-bold tracking-widest text-blue-300 uppercase">[ WEST DES MOINES, IOWA ]</div>
               <div className="mt-3 text-3xl sm:text-4xl font-extrabold font-display leading-tight">Axeon Studio</div>
@@ -150,30 +153,31 @@ export default function DesMoinesWebDesignPage() {
             <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">
               [ WHY A LOCAL TEAM ]
             </p>
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-[1.05]">
+            <h2 className="text-[28px] sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-[1.1] sm:leading-[1.05]">
               The team that builds it answers the phone.
             </h2>
-            <p className="mt-5 text-lg text-neutral-600 leading-relaxed">{LOCAL_REASONS[0].description}</p>
+            <p className="mt-3 sm:mt-5 text-[15px] sm:text-lg text-neutral-600 leading-snug sm:leading-relaxed">{LOCAL_REASONS[0].description}</p>
             <a
               href={TEL_HREF}
-              className="mt-5 inline-flex items-center gap-2 text-base font-bold text-blue-600 hover:text-blue-700"
+              className="mt-1 sm:mt-5 min-h-11 inline-flex items-center gap-2 text-base font-bold text-blue-600 hover:text-blue-700"
             >
               <PhoneCall size={18} /> {BUSINESS.telephoneDisplay}
             </a>
 
-            <ul className="mt-10 divide-y divide-neutral-200 border-y border-neutral-200">
+            <ul className="mt-3 sm:mt-10 divide-y divide-neutral-200 border-y border-neutral-200">
               {LOCAL_REASONS.slice(1, 3).map(({ icon: Icon, title, description }) => (
-                <li key={title} className="flex gap-4 py-5">
-                  <Icon size={20} className="mt-1 shrink-0 text-blue-600" />
+                <li key={title} className="flex gap-3 sm:gap-4 py-3.5 sm:py-5">
+                  <Icon size={20} className="mt-0.5 sm:mt-1 shrink-0 text-blue-600" />
                   <div>
-                    <h3 className="text-lg font-bold">{title}</h3>
-                    <p className="mt-1 text-neutral-600 leading-relaxed">{description}</p>
+                    <h3 className="text-base sm:text-lg font-bold leading-snug">{title}</h3>
+                    <p className="mt-1 text-[15px] sm:text-base text-neutral-600 leading-snug sm:leading-relaxed">{description}</p>
                   </div>
                 </li>
               ))}
             </ul>
 
-            <div className="mt-8 flex gap-4 rounded-3xl bg-neutral-950 text-white p-6 sm:p-8">
+            {/* The commitment card: tablet and up. On phones the same commitment closes the page, in full. */}
+            <div className="hidden sm:flex mt-8 gap-4 rounded-3xl bg-neutral-950 text-white p-6 sm:p-8">
               <ShieldCheck size={22} className="mt-1 shrink-0 text-blue-400" />
               <div>
                 <h3 className="text-lg sm:text-xl font-bold leading-snug">{LOCAL_REASONS[3].title}</h3>
@@ -191,7 +195,8 @@ export default function DesMoinesWebDesignPage() {
       </section>
 
       {/* The system, as one slim strip (not another card grid). */}
-      <section className="w-full py-10 sm:py-12 px-4 sm:px-10 lg:px-16 xl:px-24 bg-[#F7F6F3] border-y border-neutral-200">
+      {/* Purpose: the three layers every practice gets, and the price. */}
+      <section className="w-full py-8 sm:py-12 px-4 sm:px-10 lg:px-16 xl:px-24 bg-[#F7F6F3] border-y border-neutral-200">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col lg:flex-row lg:items-center gap-5 lg:gap-10">
             <div className="lg:w-72 shrink-0">
@@ -200,12 +205,12 @@ export default function DesMoinesWebDesignPage() {
                 What Every Metro Practice and Firm Gets
               </h2>
             </div>
-            <ol className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
+            <ol className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-3">
               {SYSTEM.map((item, idx) => (
                 <li key={item.step}>
                   <Link
                     href={item.href}
-                    className="group flex items-center justify-between gap-3 rounded-2xl bg-white border border-neutral-200 px-5 py-4 hover:border-blue-400 transition-colors"
+                    className="group flex items-center justify-between gap-3 rounded-2xl bg-white border border-neutral-200 px-4 py-3 sm:px-5 sm:py-4 hover:border-blue-400 transition-colors"
                   >
                     <span>
                       <span className="block text-xs font-mono font-bold text-neutral-400">0{idx + 1}</span>
@@ -218,7 +223,7 @@ export default function DesMoinesWebDesignPage() {
               ))}
             </ol>
           </div>
-          <p className="mt-6 text-sm sm:text-base text-neutral-700">
+          <p className="mt-4 sm:mt-6 text-sm sm:text-base text-neutral-700">
             AxeonCORE from $799/mo. AxeonGROWTH from $1,999/mo plus ad spend.{' '}
             <Link href="/pricing" className="font-semibold text-blue-600 hover:underline">
               See pricing &rarr;
@@ -228,21 +233,22 @@ export default function DesMoinesWebDesignPage() {
       </section>
 
       {/* Industries */}
-      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
+      {/* Purpose: route each practice type to its own page. */}
+      <section className="w-full py-10 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-6xl mx-auto">
           <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ WHO WE HELP ]</p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight mb-4">
+          <h2 className="text-[28px] sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-[1.1] mb-3 sm:mb-4 text-balance">
             Practices and Firms We Serve Across Des Moines
           </h2>
-          <p className="text-lg text-neutral-600 max-w-3xl mb-10 leading-relaxed">
+          <p className="text-[15px] sm:text-lg text-neutral-600 max-w-3xl mb-5 sm:mb-10 leading-snug sm:leading-relaxed">
             Pick yours to see where new patients and clients slip away, and how we answer them within 60 seconds.
           </p>
-          <ul className="grid sm:grid-cols-2 gap-3">
+          <ul className="grid sm:grid-cols-2 gap-2 sm:gap-3">
             {niches.map((niche) => (
               <li key={niche.slug}>
                 <Link
                   href={`/solutions/${niche.slug}`}
-                  className="flex items-center justify-between rounded-xl border border-neutral-200 px-5 py-4 hover:border-blue-400 hover:bg-blue-50/40 transition-colors font-semibold"
+                  className="flex items-center justify-between rounded-xl border border-neutral-200 px-4 py-3 sm:px-5 sm:py-4 hover:border-blue-400 hover:bg-blue-50/40 transition-colors font-semibold"
                 >
                   {niche.name}
                   <ArrowRight size={16} className="text-blue-600" />
@@ -250,7 +256,7 @@ export default function DesMoinesWebDesignPage() {
               </li>
             ))}
           </ul>
-          <p className="mt-8 text-neutral-600">
+          <p className="mt-4 sm:mt-8 text-[15px] sm:text-base text-neutral-600">
             A different kind of practice or firm?{' '}
             <Link href="/solutions#other-practices" className="text-blue-600 font-semibold hover:underline">
               See whether it fits.
@@ -260,15 +266,16 @@ export default function DesMoinesWebDesignPage() {
       </section>
 
       {/* Service area */}
-      <section className="w-full py-16 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
-        <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-10 items-start">
+      {/* Purpose: where we are, hours, and the metro pages. */}
+      <section className="w-full py-10 sm:py-16 px-4 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-5 sm:gap-10 items-start">
           <div className="lg:col-span-5">
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">Service Area</h2>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2 sm:mb-4">Service Area</h2>
             <p className="text-neutral-300 leading-relaxed">
               Based in West Des Moines, IA 50266. In-person kickoffs and front-desk training anywhere in the metro;
               remote setup for practices and firms across Iowa.
             </p>
-            <address className="not-italic mt-6 text-neutral-300 space-y-1">
+            <address className="not-italic mt-3 sm:mt-6 text-[15px] sm:text-base text-neutral-300 space-y-0.5 sm:space-y-1">
               <div className="font-semibold text-white">{BUSINESS.name}</div>
               <div>West Des Moines, Iowa 50266</div>
               <div>
@@ -285,15 +292,15 @@ export default function DesMoinesWebDesignPage() {
             </address>
           </div>
           <div className="lg:col-span-7">
-            <h3 className="text-sm font-mono uppercase tracking-wider text-blue-400 mb-4">Serving the Metro</h3>
-            <ul className="flex flex-wrap gap-2.5">
+            <h3 className="text-xs sm:text-sm font-mono uppercase tracking-wider text-blue-400 mb-2.5 sm:mb-4">Serving the Metro</h3>
+            <ul className="flex flex-wrap gap-2 sm:gap-2.5">
               {METRO_CITIES.map((city) => {
                 const cityPage = cityPages.find((c) => c.city === city);
                 return cityPage ? (
                   <li key={city}>
                     <Link
                       href={`/${cityPage.slug}`}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-blue-500/60 hover:border-blue-400 hover:bg-blue-500/10 text-sm font-semibold text-white transition-colors"
+                      className="min-h-11 inline-flex items-center gap-1.5 px-4 rounded-full border border-blue-500/60 hover:border-blue-400 hover:bg-blue-500/10 text-sm font-semibold text-white transition-colors"
                     >
                       {city}, IA <ArrowRight size={13} className="text-blue-400" />
                     </Link>
@@ -301,14 +308,14 @@ export default function DesMoinesWebDesignPage() {
                 ) : (
                   <li
                     key={city}
-                    className="px-4 py-2 rounded-full border border-neutral-700 text-sm font-medium text-neutral-200"
+                    className="min-h-11 inline-flex items-center px-4 rounded-full border border-neutral-700 text-sm font-medium text-neutral-200"
                   >
                     {city}, IA
                   </li>
                 );
               })}
             </ul>
-            <p className="mt-6 text-sm text-neutral-400">
+            <p className="mt-3 sm:mt-6 text-sm text-neutral-400 leading-snug sm:leading-normal">
               Also serving Polk, Dallas, Warren, and Story counties, and practices and firms statewide. {cityList} are simply
               where we can show up in person.
             </p>
@@ -316,50 +323,53 @@ export default function DesMoinesWebDesignPage() {
         </div>
       </section>
 
+      {/* Purpose: why answering first matters (sourced stats; shared with the home page) */}
       <Testimonials />
 
       {/* FAQ */}
-      <section className="w-full py-20 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
+      {/* Purpose: the local questions; every question in view, answers one tap away. */}
+      <section className="w-full py-10 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-3xl mx-auto">
           <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ FAQ ]</p>
-          <h2 className="text-3xl sm:text-4xl font-extrabold font-display tracking-tight mb-10">
+          <h2 className="text-2xl sm:text-4xl font-extrabold font-display tracking-tight leading-tight mb-3 sm:mb-10 text-balance">
             Questions Des Moines Practice and Firm Owners Ask
           </h2>
-          <FAQAccordion items={LOCAL_FAQ} defaultOpenCount={1} />
+          <FAQAccordion items={LOCAL_FAQ} />
         </div>
       </section>
 
       {/* CTA */}
-      <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
+      {/* Purpose: the offer and the commitment, with the two ways to start. */}
+      <section className="w-full py-12 sm:py-20 px-5 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-4">
+          <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-3 sm:mb-4">
             [ 90-DAY PERFORMANCE COMMITMENT ]
           </p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-tight mb-6">
+          <h2 className="text-[28px] sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-[1.1] sm:leading-tight mb-4 sm:mb-6 text-balance">
             $0 to start. Nothing due until it&apos;s working.
           </h2>
-          <p className="text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-10">
+          <p className="text-[15px] sm:text-lg text-neutral-300 max-w-2xl mx-auto leading-snug sm:leading-relaxed mb-6 sm:mb-10">
             Live within 30 days of getting your materials. Every missed call and web inquiry gets a reply within 60 seconds.
             Every completed appointment gets a review request. If we miss any of those in the first 90 days and don&apos;t
             fix it within 15 days, you can walk away and owe nothing for the rest of the term.
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-center gap-2.5 sm:gap-4">
             <Link
               href="/check-your-area"
               data-track="cta_click"
               data-track-cta="area_check_des_moines"
-              className="inline-flex items-center gap-2 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 sm:py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
             >
               Check if your area is open <ArrowRight size={18} />
             </Link>
             <a
               href={TEL_HREF}
-              className="inline-flex items-center gap-2 px-7 py-4 rounded-full border border-neutral-700 hover:border-neutral-500 text-white font-bold text-base transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 sm:py-4 rounded-full border border-neutral-700 hover:border-neutral-500 text-white font-bold text-base transition-colors"
             >
               <PhoneCall size={18} /> {BUSINESS.telephoneDisplay}
             </a>
           </div>
-          <p className="mt-6 text-xs text-neutral-500 max-w-xl mx-auto leading-relaxed">
+          <p className="mt-4 sm:mt-6 text-xs text-neutral-500 max-w-xl mx-auto leading-relaxed">
             We commit to speed, replies and review requests, never to a number of patients, clients, cases or rankings.
           </p>
         </div>

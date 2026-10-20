@@ -3,25 +3,26 @@ import { ArrowRight, Phone } from 'lucide-react';
 import type { Niche } from '@/data/nichesData';
 import { guaranteeSentence } from '@/data/pricingData';
 
+// Purpose: the result we commit to, and the two ways to start.
 export function NicheClosingCTA({ niche }: { niche: Niche }) {
   return (
-    <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
+    <section className="w-full py-12 sm:py-20 px-5 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
       <div className="max-w-4xl mx-auto text-center">
-        <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-4">
+        <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-3 sm:mb-4">
           [ 90-DAY PERFORMANCE COMMITMENT ]
         </p>
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-tight mb-6">
-          Stop losing {niche.customerNoun} to voicemail.
+        <h2 className="text-[28px] sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-[1.1] sm:leading-tight mb-4 sm:mb-6 text-balance">
+          Get more new {niche.customerNoun}, starting with your area.
         </h2>
-        <p className="text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-10">
+        <p className="text-[15px] sm:text-lg text-neutral-300 max-w-2xl mx-auto leading-snug sm:leading-relaxed mb-6 sm:mb-10">
           {guaranteeSentence}
         </p>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-4">
           <Link
             href="/check-your-area"
             data-track="cta_click"
             data-track-cta={`niche_${niche.slug}_closing_area_check`}
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/25"
+            className="inline-flex items-center justify-center gap-2 px-8 py-3.5 sm:py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/25"
           >
             Check if your area is open <ArrowRight size={18} />
           </Link>
@@ -29,12 +30,12 @@ export function NicheClosingCTA({ niche }: { niche: Niche }) {
             href="/book"
             data-track="cta_click"
             data-track-cta={`niche_${niche.slug}_closing_call`}
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full border border-white/25 bg-white/[0.06] hover:bg-white/[0.12] text-white font-semibold text-base transition-colors"
+            className="inline-flex items-center justify-center gap-2 px-8 py-3.5 sm:py-4 rounded-full border border-white/25 bg-white/[0.06] hover:bg-white/[0.12] text-white font-semibold text-base transition-colors"
           >
             Book a call
           </Link>
         </div>
-        <p className="mt-6 text-xs text-neutral-500 max-w-xl mx-auto leading-relaxed">
+        <p className="mt-4 sm:mt-6 text-xs text-neutral-500 max-w-xl mx-auto leading-relaxed">
           Included with AxeonCORE and AxeonGROWTH and written into your agreement. We don&apos;t promise a number of new
           {' '}{niche.customerNoun}, revenue, or rankings. We promise the system does its job, and we stay on as your growth partner. Or call{' '}
           <a href="tel:+15154938017" className="inline-flex items-center gap-1 underline underline-offset-2 hover:text-white">
@@ -42,16 +43,16 @@ export function NicheClosingCTA({ niche }: { niche: Niche }) {
           </a>
           .
         </p>
-        <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-x-8 gap-y-3">
+        <div className="mt-3 sm:mt-6 flex flex-col sm:flex-row items-center justify-center gap-x-8 sm:gap-y-3">
           <Link
             href="/pricing"
-            className="py-2 text-sm text-neutral-400 hover:text-blue-400 underline underline-offset-4 transition-colors"
+            className="min-h-11 inline-flex items-center text-sm text-neutral-400 hover:text-blue-400 underline underline-offset-4 transition-colors"
           >
             {niche.secondaryCTA}
           </Link>
           <Link
             href="/solutions"
-            className="py-2 text-sm text-neutral-400 hover:text-blue-400 underline underline-offset-4 transition-colors"
+            className="min-h-11 inline-flex items-center text-sm text-neutral-400 hover:text-blue-400 underline underline-offset-4 transition-colors"
           >
             Not your specialty? See the practices and firms we serve
           </Link>

@@ -6,6 +6,7 @@ import { WorkCard } from '@/components/work/WorkCard';
 
 // Shows any /work projects tagged with this practice type; renders nothing
 // when there are none. Concept builds are labeled as such (never as clients).
+// Purpose: show a real build in this specialty (only when one exists).
 export function NicheWork({ niche }: { niche: Niche }) {
   const projects = projectsForNiche(niche.slug);
   if (projects.length === 0) return null;
