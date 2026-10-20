@@ -798,8 +798,8 @@ export function ProofDashboard({
                 <dd className="font-medium text-neutral-900">{prettyDay(details.kickoffAt)}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-neutral-500">Target launch</dt>
-                <dd className="font-medium text-neutral-900">{prettyDay(details.targetLaunchAt)}</dd>
+                <dt className="text-neutral-500">{v2?.settings.goLiveAt ? 'Live since' : 'Target launch'}</dt>
+                <dd className="font-medium text-neutral-900">{prettyDay(v2?.settings.goLiveAt ?? details.targetLaunchAt)}</dd>
               </div>
               {baseline != null ? (
                 <div className="flex justify-between gap-4">
@@ -808,7 +808,7 @@ export function ProofDashboard({
                 </div>
               ) : null}
             </dl>
-            {guarantee && guaranteeDay != null ? (
+            {guarantee && guaranteeDay != null && (!v2 || guaranteeDay <= 90) ? (
               <div className="mt-5 rounded-lg bg-blue-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">First 90 days · Day {guaranteeDay} of 90</p>
                 <div className="mt-2 h-1.5 rounded-full bg-blue-100">
