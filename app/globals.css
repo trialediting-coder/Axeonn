@@ -557,8 +557,7 @@ html, #root {
   }
   .ix-on [data-spot].is-spot::after { opacity: 1; }
   /* Plans side by side: the one under the pointer stays bright, the other eases back. */
-  .ix-on .ix-plans > * { transition: opacity 300ms ease, translate 350ms cubic-bezier(.2,.8,.2,1); }
-  .ix-on .ix-plans:has(> :hover) > :not(:hover) { opacity: 0.86; }
+  .ix-on .ix-plans > * { transition: translate 350ms cubic-bezier(.2,.8,.2,1); }
   /* Top nav: an underline slides in under the hovered or open item. */
   .ix-on .ix-navline { background: linear-gradient(currentColor, currentColor) no-repeat 0 100% / 0 1.5px; transition: background-size 250ms ease, color 150ms; }
   .ix-on .ix-navline:hover, .ix-on .ix-navline[aria-expanded="true"] { background-size: 100% 1.5px; }
