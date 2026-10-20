@@ -778,25 +778,36 @@ const DRAFTS: Record<FunnelService, Record<PracticeVertical, Draft>> = {
   },
 };
 
+// Titles lead with the phrase people actually search (Semrush US, 2026-10-20:
+// "dental website design" 2.9K, "dental seo marketing" 3.6K, "law firm marketing"
+// 8.1K, "med spa marketing agency" 1.3K, "cpa firm marketing" 1.3K), e.g.
+// "Dental Website Design for Iowa Practices | Axeon Studio".
 const META_SERVICE: Record<FunnelService, string> = {
   website: 'Website Design',
-  seo: 'Local SEO',
-  'lead-generation': 'Lead Generation & Intake',
+  seo: 'SEO',
+  'lead-generation': 'Lead Generation',
   'ai-chat-scheduling': 'AI Chat & Online Booking',
-  advertising: 'Google Ads & Local Services Ads',
-  'video-photography': 'Photo & Video',
+  advertising: 'Google Ads',
+  'video-photography': 'Photography & Video',
 };
 
 const META_VERTICAL: Record<PracticeVertical, string> = {
-  dental: 'Dental Practices',
-  'med-spa': 'Med Spas',
-  'law-firms': 'Law Firms',
-  accounting: 'CPA Firms',
+  dental: 'Dental',
+  'med-spa': 'Med Spa',
+  'law-firms': 'Law Firm',
+  accounting: 'CPA',
+};
+
+const META_AUDIENCE: Record<PracticeVertical, string> = {
+  dental: 'Iowa Practices',
+  'med-spa': 'Iowa Med Spas',
+  'law-firms': 'Iowa Firms',
+  accounting: 'Iowa Firms',
 };
 
 function build(service: FunnelService, vertical: PracticeVertical): FunnelPage {
   const d = DRAFTS[service][vertical];
-  const metaTitle = d.metaTitle ?? `${META_SERVICE[service]} for ${META_VERTICAL[vertical]} | Axeon Studio`;
+  const metaTitle = d.metaTitle ?? `${META_VERTICAL[vertical]} ${META_SERVICE[service]} for ${META_AUDIENCE[vertical]} | Axeon Studio`;
   const desc = `${d.headline} ${d.sub} Des Moines and Iowa.`;
   return { service, vertical, ...d, metaTitle, metaDescription: d.metaDescription ?? desc };
 }
