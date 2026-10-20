@@ -18,6 +18,7 @@ import { FAQAccordion } from '@/components/common/FAQAccordion';
 import { PartnerTracks } from './PartnerTracks';
 import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { BUSINESS } from '@/lib/seo';
+import { PartnerBriefRequest } from '@/components/partners/PartnerBriefRequest';
 
 export const metadata = buildMetadata({
   path: '/partners',
@@ -38,8 +39,10 @@ const APPLY_BODY = [
   'Best phone number:',
 ].join('\n\n');
 const APPLY_HREF = `mailto:${BUSINESS.email}?subject=${encodeURIComponent(APPLY_SUBJECT)}&body=${encodeURIComponent(APPLY_BODY)}`;
-// The partner brief (PDF) is hand-delivered, so the CTA is an email request.
-const BRIEF_HREF = 'mailto:hello@axeonstudio.co?subject=Partner%20brief';
+// The partner brief (PDF) is hand-delivered. Every "Request the partner brief"
+// scrolls to the short form at the bottom (name, firm, email), which saves the
+// request like any lead; it used to be a mailto: that did nothing on many desktops.
+const BRIEF_HREF = '#partner-brief';
 
 const BUTTON =
   'inline-flex items-center gap-2 px-7 py-4 rounded-full font-bold text-base transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4';
@@ -362,32 +365,25 @@ export default function PartnersPage() {
       </section>
 
       {/* CTA */}
-      {/* Purpose: the closing ask: request the brief or book an intro call. */}
-      <section className="w-full pb-12 sm:pb-28 px-4 sm:px-10 lg:px-16 xl:px-24">
+      {/* Purpose: the closing ask: request the brief (three fields) or book an intro call. */}
+      <section id="partner-brief" className="scroll-mt-24 w-full pb-12 sm:pb-28 px-4 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-6xl mx-auto rounded-3xl sm:rounded-[32px] bg-neutral-950 text-white px-6 py-10 sm:px-14 sm:py-16 flex flex-col lg:flex-row lg:items-center justify-between gap-6 sm:gap-8">
           <div className="max-w-xl">
             <h2 className="text-[28px] sm:text-4xl font-black tracking-[-0.03em] font-display mb-3">
               Know a practice or firm that loses calls after hours?
             </h2>
-            <p className="text-lg text-neutral-300 leading-relaxed">
+            <p className="text-base sm:text-lg text-neutral-300 leading-relaxed">
               Request the partner brief. We hand-deliver it with the full terms and reply to every request.
             </p>
           </div>
-          <div className="flex flex-wrap gap-3 shrink-0">
-            <a
-              href={BRIEF_HREF}
-              data-track="cta_click"
-              data-track-cta="partner_brief_closer"
-              className={`${BUTTON} bg-blue-600 hover:bg-blue-500 text-white focus-visible:outline-blue-400`}
-            >
-              Request the partner brief
-            </a>
-            <Link
-              href="/book"
-              className={`${BUTTON} border border-white/30 hover:bg-white/10 text-white focus-visible:outline-blue-400`}
-            >
-              Book an intro call
-            </Link>
+          <div className="w-full lg:max-w-md shrink-0">
+            <PartnerBriefRequest />
+            <p className="mt-3 text-center text-sm text-neutral-400">
+              Rather talk first?{' '}
+              <Link href="/book" className="inline-flex min-h-[44px] items-center font-semibold text-white underline underline-offset-2">
+                Book an intro call
+              </Link>
+            </p>
           </div>
         </div>
       </section>

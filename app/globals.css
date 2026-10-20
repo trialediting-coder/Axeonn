@@ -494,6 +494,12 @@ html, #root {
 .proof-paused, .proof-paused * { animation-play-state: paused !important; }
 /* When the entry curtain is skipped (seen this session, reduced motion) the hero does not wait for it. */
 .proof-no-intro .proof-hero-stagger { animation-delay: 0ms !important; }
+/* Phones skip the entry curtain entirely, from the first paint (no waiting for JS):
+   it held a black screen for 3.2 s on a phone (friction audit E8). */
+@media (max-width: 639px) {
+  .proof-intro-curtain { display: none !important; }
+  .proof-hero-stagger { animation-delay: 0ms !important; }
+}
 @media (prefers-reduced-motion: reduce) {
   .animate-proof-rise, .animate-proof-grow, .animate-proof-width, .animate-proof-draw, .animate-proof-pop, .animate-proof-slide, .animate-proof-zoom-in, .animate-proof-zoom-out, .animate-proof-settle, .animate-proof-extend, .animate-proof-fly, .animate-proof-backdrop { animation: none; }
 }

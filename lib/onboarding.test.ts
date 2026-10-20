@@ -7,6 +7,7 @@ import {
   ONBOARDING_TIERS,
   getItem,
   itemsForTier,
+  setupMinutes,
 } from '../data/onboardingItems';
 import {
   assertNoCredentialFields,
@@ -103,8 +104,17 @@ test('validateItemData honors a field max (the missed-call text is one SMS-sized
   assert.equal(validateItemData(phone, { mainNumber: '515-555-0134', trackingPreference: 'Not sure, recommend something', answerers: 'Mike' }).textBack, '');
 });
 
-test('every tier is quoted the same short setup time', () => {
-  for (const tier of ONBOARDING_TIERS) assert.equal(estimatedMinutes(tier), 5, tier);
+test('the quoted setup time is the real first-round minutes, and phone setup is in round 1', () => {
+  for (const tier of ONBOARDING_TIERS) {
+    const firstRound = itemsForTier(tier)
+      .filter((i) => i.kind !== 'axeon' && !i.connect && !i.later)
+      .reduce((sum, i) => sum + (i.minutes ?? 1), 0);
+    assert.equal(estimatedMinutes(tier), firstRound, tier);
+    assert.equal(setupMinutes(tier).firstRound, firstRound, tier);
+  }
+  assert.equal(getItem('phone-setup')?.later, undefined);
+  // The exit offer is optional: a blank save finishes it.
+  assert.deepEqual(validateItemData(getItem('exit-offer')!, {}), { offer: '' });
 });
 
 // ───────────── Tokens and codes ─────────────

@@ -15,39 +15,39 @@ const VARIANT = 'v4_area_check';
 const DISMISS_KEY = 'axeon-area-offer-dismissed-at';
 const CLAIMED_KEY = 'axeon-area-offer-claimed';
 const MINIMIZED_KEY = 'axeon-area-offer-minimized';
-const SITE_ENTERED_KEY = 'axeon-site-entered-at'; // sessionStorage
 const COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000; // 7 days after closing the side tab
 
-// Time-only trigger (owner decision 2026-09-29; shortened to a few seconds
-// after landing 2026-10-01): opens once the visitor has spent this long on
-// the site this session, counted across page loads. No scroll or exit-intent
-// triggers.
-const OPEN_AFTER_MS = 5_000;
+// Scroll trigger (friction audit 2026-10-19, E1): the old 5-second timer
+// covered the hero while visitors were still reading it. Now it opens once,
+// on desktop only, after the visitor has read 60% of a page. Phones never get it.
+const OPEN_AT_SCROLL = 0.6;
 // Pages where the visitor is already converting.
 // /nonprofits has its own free program (Groundwork Grant); a second free offer there confuses it.
-const EXCLUDED_PATHS = ['/check-your-area', '/audit', '/book', '/get-started', '/get-started/success', '/nonprofits'];
+// /pricing, /partners, /axeonproof and /work: the visitor came for something specific
+// (or isn't a prospect, on /partners); the header button is enough there.
+const EXCLUDED_PATHS = [
+  '/check-your-area',
+  '/audit',
+  '/book',
+  '/get-started',
+  '/get-started/success',
+  '/nonprofits',
+  '/pricing',
+  '/partners',
+  '/axeonproof',
+  '/work',
+];
 // Pages for people who already pay us, or who came for something else: a personal
-// payment link, the after-payment page, report feedback, Meta data deletion. The
-// dashboard, portal, admin and contracts never mount this at all (HideOnAdFunnel).
-const EXCLUDED_PREFIXES = ['/pay/', '/billing/', '/f/', '/meta/'];
+// payment link, the after-payment page, report feedback, Meta data deletion, blog
+// posts (they have their own inline CTA). The dashboard, portal, admin and
+// contracts never mount this at all (HideOnAdFunnel).
+const EXCLUDED_PREFIXES = ['/pay/', '/billing/', '/f/', '/meta/', '/insights/', '/work/'];
 
 function isExcluded(pathname: string): boolean {
   return EXCLUDED_PATHS.includes(pathname) || EXCLUDED_PREFIXES.some((p) => pathname.startsWith(p));
 }
 
 type OfferState = 'hidden' | 'open' | 'minimized';
-
-function siteEnteredAt(): number {
-  try {
-    const saved = Number(window.sessionStorage.getItem(SITE_ENTERED_KEY));
-    if (saved) return saved;
-    const now = Date.now();
-    window.sessionStorage.setItem(SITE_ENTERED_KEY, String(now));
-    return now;
-  } catch {
-    return Date.now();
-  }
-}
 
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
@@ -120,8 +120,8 @@ export function FreeWebsiteOfferPopup() {
     leadModalOpenRef.current = isLeadModalOpen;
   }, [isLeadModalOpen]);
 
-  // Re-evaluated on every page change: restores the side tab, or schedules the
-  // first (and only) open for when the visitor reaches OPEN_AFTER_MS of time on site.
+  // Re-evaluated on every page change: restores the side tab, or waits for the
+  // visitor to read OPEN_AT_SCROLL of the page before the first (and only) open.
   useEffect(() => {
     if (!foundingOffer.active) return;
     // /check-your-area and /book are already conversion flows; the popup would only interrupt them.
@@ -142,24 +142,11 @@ export function FreeWebsiteOfferPopup() {
 
     const show = () => {
       if (shownRef.current) return;
-      // Don't stack on top of the booking modal; try again shortly.
-      if (leadModalOpenRef.current) {
-        retryId = window.setTimeout(show, 5_000);
-        return;
-      }
+      // Don't stack on top of the booking modal; try again on the next scroll.
+      if (leadModalOpenRef.current) return;
       if (isExcluded(window.location.pathname)) return;
-      // On the homepage, never cover the hero: wait until they scroll past it.
-      if (window.location.pathname === '/' && window.scrollY < window.innerHeight * 0.85) {
-        const onScroll = () => {
-          if (window.scrollY < window.innerHeight * 0.85) return;
-          window.removeEventListener('scroll', onScroll);
-          show();
-        };
-        window.addEventListener('scroll', onScroll, { passive: true });
-        removeScroll = () => window.removeEventListener('scroll', onScroll);
-        return;
-      }
       shownRef.current = true;
+      window.removeEventListener('scroll', onScroll);
       // The full popup opens once per visitor. Saved the moment it opens, not when it is
       // closed, so a refresh, a second tab or a new visit brings back only the side tab.
       writeStorage(MINIMIZED_KEY, '1');
@@ -172,15 +159,13 @@ export function FreeWebsiteOfferPopup() {
       });
     };
 
-    let retryId: number | undefined;
-    let removeScroll = () => {};
-    const remaining = Math.max(0, siteEnteredAt() + OPEN_AFTER_MS - Date.now());
-    const timeoutId = window.setTimeout(show, remaining);
-    return () => {
-      window.clearTimeout(timeoutId);
-      window.clearTimeout(retryId);
-      removeScroll();
+    const onScroll = () => {
+      const doc = document.documentElement;
+      const read = (window.scrollY + window.innerHeight) / Math.max(doc.scrollHeight, 1);
+      if (read >= OPEN_AT_SCROLL) show();
     };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, [pathname]);
 
   /** Closing the popup shrinks it into the side tab instead of losing it. */
@@ -373,7 +358,7 @@ export function FreeWebsiteOfferPopup() {
                 <span>{foundingOffer.cta}</span>
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </button>
-              <p id="founding-offer-terms" className="mt-5 text-[11px] leading-relaxed text-neutral-400">
+              <p id="founding-offer-terms" className="mt-5 text-xs leading-relaxed text-neutral-500">
                 {foundingOffer.terms}
               </p>
             </div>

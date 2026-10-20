@@ -10,7 +10,7 @@
 import { useMemo, useState, type FormEvent, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Check, CheckCircle2, ChevronDown, Clock, Loader2, Lock, Pencil, Phone, Sparkles } from 'lucide-react';
-import { CALL_INSTEAD_KEY, SETUP_MINUTES, type ItemField, type OnboardingItem } from '@/data/onboardingItems';
+import { CALL_INSTEAD_KEY, type ItemField, type OnboardingItem } from '@/data/onboardingItems';
 import type { ItemState } from '@/lib/onboarding';
 
 export interface PortalProps {
@@ -83,8 +83,9 @@ export function OnboardingPortal(props: PortalProps) {
   const complete = allCounted.length > 0 && allCounted.every(isDone);
   // Front-loaded: opening the portal already shows a start, so the bar never sits at zero.
   const percent = total === 0 || done === total ? 100 : Math.round(12 + (88 * done) / total);
-  // Owner call (2026-10-17): the setup is promised as about 5 minutes, so the count starts there and only drops below it near the end.
-  const minutesLeft = Math.min(SETUP_MINUTES, counted.filter((i) => !isDone(i)).reduce((sum, i) => sum + (i.minutes ?? 1), 0));
+  // The real minutes left in this round, from each item's estimate: the same total the
+  // welcome email quoted (setupMinutes in data/onboardingItems.ts), never capped.
+  const minutesLeft = counted.filter((i) => !isDone(i)).reduce((sum, i) => sum + (i.minutes ?? 1), 0);
 
   function onSaved(state: ItemState) {
     const next = { ...states, [state.itemKey]: state };

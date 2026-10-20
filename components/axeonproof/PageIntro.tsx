@@ -6,7 +6,7 @@
 // camera flies through the lockup, slow at first then fast, out of frame
 // while the black holds, the black clears, and the page is
 // there, settling in from a slight zoom of its own (app/axeonproof/page.tsx). Once per session, never
-// under reduced motion. Rendered on the server already showing, so the hero
+// under reduced motion, never on phones. Rendered on the server already showing, so the hero
 // never flashes before it.
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -24,7 +24,10 @@ export function PageIntro() {
     try {
       seen = sessionStorage.getItem(KEY) === '1';
     } catch {}
-    if (seen || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    // Phones never get it (the CSS already hides it from the first paint): a 3.2 s
+    // black screen on a phone read as a broken page.
+    const phone = window.matchMedia('(max-width: 639px)').matches;
+    if (seen || phone || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       document.documentElement.classList.add('proof-no-intro');
       setStage('done');
       return;
@@ -41,7 +44,7 @@ export function PageIntro() {
   }, []);
   if (stage === 'done') return null;
   const node = (
-    <div aria-hidden className={`fixed inset-0 z-[9998] flex items-center justify-center bg-neutral-950 ${stage === 'out' ? 'animate-proof-backdrop' : ''}`}>
+    <div aria-hidden className={`proof-intro-curtain fixed inset-0 z-[9998] flex items-center justify-center bg-neutral-950 ${stage === 'out' ? 'animate-proof-backdrop' : ''}`}>
       <div className={`flex items-center gap-4 ${stage === 'out' ? 'animate-proof-fly' : ''}`}>
         <svg viewBox="0 0 24 20" fill="currentColor" className="h-9 w-auto text-blue-600 sm:h-12">
           <polygon points="6,0 2,20 6,20 10,0" className="animate-proof-grow [transform-box:fill-box] [transform-origin:bottom]" style={d(100)} />

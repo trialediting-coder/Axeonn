@@ -8,6 +8,7 @@ import {
   agreementUrl,
   billsFromGoLive,
   createAgreement,
+  dueAtSigning,
   getAgreement,
   listAgreements,
   setAgreementStatus,
@@ -33,6 +34,8 @@ async function emailAgreement(a: Agreement): Promise<string | null> {
       planLabel: TIER_LABELS[a.tier],
       number: a.number,
       url: agreementUrl(a.token),
+      // $0 agreements get "add a card, nothing today" copy instead of "make the first payment".
+      dueTodayCents: dueAtSigning(a).cents,
     });
     return null;
   } catch (err) {

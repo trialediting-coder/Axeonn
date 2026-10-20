@@ -16,8 +16,25 @@ async function goToCheckout(token: string): Promise<string | null> {
   return data.error ?? 'Could not open checkout. Call us at (515) 493-8017.';
 }
 
-/** Sign (typed name + consent), then straight on to Stripe Checkout. */
-export function SignPanel(props: { token: string; signerName: string; signerTitle: string; fees: string }) {
+/** Why the card is asked for when nothing is charged: said once, plainly (friction audit P2). */
+const CARD_ON_FILE_NOTE =
+  'Your card stays on file so your first month can be billed the day your system goes live, without another form. Nothing is due while we build.';
+
+/**
+ * Sign (typed name + consent), then straight on to Stripe Checkout. `dueCents` is
+ * what Checkout charges today (dueAtSigning); at 0 the copy says "add a payment
+ * method", never "payment".
+ */
+export function SignPanel(props: {
+  token: string;
+  signerName: string;
+  signerTitle: string;
+  fees: string;
+  dueCents: number;
+  /** First-round setup minutes for this plan (setupMinutes), quoted after signing. */
+  setupMinutes?: number;
+}) {
+  const noChargeToday = props.dueCents === 0;
   const [name, setName] = useState(props.signerName);
   const [title, setTitle] = useState(props.signerTitle);
   const [consent, setConsent] = useState(false);
@@ -49,7 +66,11 @@ export function SignPanel(props: { token: string; signerName: string; signerTitl
   return (
     <form onSubmit={sign} className="rounded-[20px] border border-neutral-200 bg-white p-6 sm:p-8 shadow-xs">
       <h2 className="text-xl font-extrabold tracking-tight font-display text-neutral-950">Sign and get started</h2>
-      <p className="mt-1 text-sm text-neutral-600">Type your full name to sign. Next you {props.fees}, and we start.</p>
+      <p className="mt-1 text-sm text-neutral-600">
+        Type your full name to sign. Next you {props.fees}, and we start.
+        {props.setupMinutes ? ` Then your setup page takes about ${props.setupMinutes} minutes.` : ''}
+      </p>
+      {noChargeToday && <p className="mt-2 text-sm text-neutral-600">{CARD_ON_FILE_NOTE}</p>}
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <label className="block">
           <span className="block text-sm font-semibold text-neutral-700 mb-1.5">Full name</span>
@@ -78,7 +99,7 @@ export function SignPanel(props: { token: string; signerName: string; signerTitl
         disabled={busy || !consent || name.trim().length < 3}
         className="mt-6 w-full sm:w-auto px-7 py-3.5 rounded-full bg-blue-600 hover:bg-blue-500 disabled:bg-neutral-300 text-white font-bold text-base transition-colors"
       >
-        {busy ? 'Signing…' : 'Sign and continue to payment'}
+        {busy ? 'Signing…' : noChargeToday ? 'Sign and add a payment method' : 'Sign and continue to payment'}
       </button>
       <p className="mt-3 flex items-center gap-1.5 text-xs text-neutral-500">
         <Lock size={12} /> We record the time, your IP address and a fingerprint of this exact text with your signature.
@@ -88,7 +109,8 @@ export function SignPanel(props: { token: string; signerName: string; signerTitl
 }
 
 /** Shown on a signed agreement that has not been paid yet. */
-export function PayPanel({ token, headline, breakdown }: { token: string; headline: string; breakdown: string }) {
+export function PayPanel({ token, headline, breakdown, dueCents }: { token: string; headline: string; breakdown: string; dueCents: number }) {
+  const noChargeToday = dueCents === 0;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   return (
@@ -98,7 +120,10 @@ export function PayPanel({ token, headline, breakdown }: { token: string; headli
       </p>
       <h2 className="mt-2 text-xl font-extrabold tracking-tight font-display text-neutral-950">{headline}</h2>
       <p className="mt-1 text-sm text-neutral-700">{breakdown}.</p>
-      <p className="mt-1 text-sm text-neutral-600">Secure checkout by Stripe, card or bank. Your setup page arrives by email as soon as it goes through.</p>
+      {noChargeToday && <p className="mt-1 text-sm text-neutral-600">{CARD_ON_FILE_NOTE}</p>}
+      <p className="mt-1 text-sm text-neutral-600">
+        Secure checkout by Stripe, card or bank. Your setup page arrives by email as soon as {noChargeToday ? 'your card is added' : 'it goes through'}.
+      </p>
       {error && <p className="mt-4 text-sm font-semibold text-red-600">{error}</p>}
       <button
         type="button"
@@ -113,7 +138,7 @@ export function PayPanel({ token, headline, breakdown }: { token: string; headli
         }}
         className="mt-5 px-7 py-3.5 rounded-full bg-blue-600 hover:bg-blue-500 disabled:bg-neutral-300 text-white font-bold text-base transition-colors"
       >
-        {busy ? 'Opening checkout…' : 'Continue to checkout'}
+        {busy ? 'Opening checkout…' : noChargeToday ? 'Add a payment method' : 'Continue to checkout'}
       </button>
     </div>
   );

@@ -7,17 +7,43 @@
 // and what we found (after-hours test call, website reply speed, reviews vs the
 // top 3 nearby). Posts to /api/get-started/lead like components/funnel/FunnelBooking.tsx.
 // The lead API has no city field, so the city rides in packageName and answers.goal.
+//
+// Lead capture never fails silently (friction audit F1): a failed save is retried
+// once, and if it still fails the visitor sees a plain error with click-to-call and
+// a pre-written email holding their answers. Success is shown only after a 2xx.
+// Arriving with ?specialty=dental (or med-spa, law-firms, accounting) preselects
+// the specialty, so vertical pages can link straight in.
 
-import { useRef, useState, type ChangeEvent, type FormEvent } from 'react';
-import { ArrowRight, Check, Loader2, Lock } from 'lucide-react';
+import { cloneElement, isValidElement, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
+import { AlertTriangle, ArrowRight, Check, Loader2, Lock, Mail, Phone } from 'lucide-react';
 import { BookingCalendar } from '@/components/booking/BookingCalendar';
+import { OWNER_PHONE_DISPLAY, OWNER_PHONE_HREF, leadMailto, saveLead } from '@/lib/leadSubmit';
 import { trackEvent } from '@/components/providers/AnalyticsTracker';
 
 export const AREA_SPECIALTIES = ['Dental', 'Med spa', 'Law firm', 'Accounting', 'Other'] as const;
 type Specialty = (typeof AREA_SPECIALTIES)[number];
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const LEAD_TIMEOUT_MS = 10000;
+
+/** ?specialty= values used by links across the site, mapped to the select's options. */
+const SPECIALTY_PARAM: Record<string, Specialty> = {
+  dental: 'Dental',
+  dentist: 'Dental',
+  'med-spa': 'Med spa',
+  medspa: 'Med spa',
+  'law-firms': 'Law firm',
+  'law-firm': 'Law firm',
+  law: 'Law firm',
+  legal: 'Law firm',
+  accounting: 'Accounting',
+  cpa: 'Accounting',
+  financial: 'Accounting',
+};
+
+export function specialtyFromParam(value: string | null | undefined): Specialty | '' {
+  if (!value) return '';
+  return SPECIALTY_PARAM[value.trim().toLowerCase()] ?? '';
+}
 
 interface AreaCheckForm {
   contactName: string;
@@ -49,7 +75,6 @@ function validate(f: AreaCheckForm): Errors {
   if (!f.businessName.trim()) e.businessName = 'Add your practice or firm name.';
   if (!f.specialty) e.specialty = 'Choose your specialty.';
   if (!f.city.trim()) e.city = 'Add the city your office is in.';
-  if (!f.website.trim()) e.website = 'Add your website so we can look at it.';
   if (f.phone.replace(/\D/g, '').length < 10) e.phone = 'Add the main office number we should call.';
   if (!EMAIL_RE.test(f.email.trim())) e.email = 'Add a valid email so we can confirm your area.';
   return e;
@@ -65,7 +90,15 @@ export function AreaCheckRequest({ source = 'check_your_area' }: { source?: stri
   const [form, setForm] = useState<AreaCheckForm>(EMPTY);
   const [errors, setErrors] = useState<Errors>({});
   const [submitting, setSubmitting] = useState(false);
+  const [failed, setFailed] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
+
+  // Preselect the specialty when the visitor came from a vertical page.
+  useEffect(() => {
+    const fromUrl = specialtyFromParam(new URLSearchParams(window.location.search).get('specialty'));
+    if (fromUrl) setForm((f) => (f.specialty ? f : { ...f, specialty: fromUrl }));
+  }, []);
 
   const set = (key: keyof AreaCheckForm) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const value = e.target.value;
@@ -85,42 +118,58 @@ export function AreaCheckRequest({ source = 'check_your_area' }: { source?: stri
     }
 
     setSubmitting(true);
-    try {
-      const res = await fetch('/api/get-started/lead', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contactName: form.contactName.trim(),
-          businessName: form.businessName.trim(),
-          phone: form.phone.trim(),
-          email: form.email.trim(),
-          website: form.website.trim(),
-          services: [],
-          packageId: 'area-check',
-          packageName: `Area check: ${form.specialty} in ${form.city.trim()}`,
-          packagePrice: 0,
-          answers: {
-            businessType: form.specialty,
-            hasWebsite: 'Yes',
-            goal: `Area check: ${form.specialty} in ${form.city.trim()}`,
-            budget: '',
-            timeline: '',
-          },
-          company_fax: form.company_fax,
-        }),
-        keepalive: true,
-        signal: AbortSignal.timeout(LEAD_TIMEOUT_MS),
-      });
-      if (!res.ok) console.error('[area-check] lead submit failed', res.status);
-    } catch (err) {
-      // Never block the visitor on lead capture; the owner email/Airtable path logs its own failures.
-      console.error('[area-check] lead submit failed', err);
+    setFailed(false);
+    const city = form.city.trim();
+    const website = form.website.trim();
+    const saved = await saveLead(
+      {
+        contactName: form.contactName.trim(),
+        businessName: form.businessName.trim(),
+        phone: form.phone.trim(),
+        email: form.email.trim(),
+        website,
+        services: [],
+        packageId: 'area-check',
+        packageName: `Area check: ${form.specialty} in ${city}`,
+        packagePrice: 0,
+        answers: {
+          businessType: form.specialty,
+          hasWebsite: website ? 'Yes' : 'Not given',
+          goal: `Area check: ${form.specialty} in ${city}`,
+          budget: '',
+          timeline: '',
+        },
+        company_fax: form.company_fax,
+      },
+      'area-check',
+    );
+    setSubmitting(false);
+
+    if (!saved) {
+      // Never show "Got it" when we don't have it: say so and give two ways through.
+      setFailed(true);
+      trackEvent('lead_save_failed', { source, lead_type: 'area_check' });
+      requestAnimationFrame(() => errorRef.current?.focus());
+      return;
     }
 
     trackEvent('generate_lead', { source, lead_type: 'area_check', specialty: form.specialty });
-    setSubmitting(false);
     setStep('calendar');
     requestAnimationFrame(() => boxRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  };
+
+  // The visitor's answers, ready to send by email when the save failed.
+  const mailtoHref = () => {
+    const lines = [
+      `Name: ${form.contactName.trim()}`,
+      `Practice or firm: ${form.businessName.trim()}`,
+      `Specialty: ${form.specialty}`,
+      `City: ${form.city.trim()}`,
+      `Website: ${form.website.trim() || '(not given)'}`,
+      `Office phone: ${form.phone.trim()}`,
+      `Email: ${form.email.trim()}`,
+    ];
+    return leadMailto(`Area check: ${form.specialty} in ${form.city.trim()}`, 'Please check my area.', lines);
   };
 
   if (step === 'calendar') {
@@ -155,12 +204,12 @@ export function AreaCheckRequest({ source = 'check_your_area' }: { source?: stri
   }
 
   return (
-    <div ref={boxRef} className="scroll-mt-28">
+    <div ref={boxRef} id="area-form" className="scroll-mt-28">
       <form onSubmit={submit} noValidate className="relative">
         <h2 className="text-[22px] sm:text-3xl font-extrabold font-display tracking-tight text-neutral-950 leading-tight">
           Check if your area is open
         </h2>
-        <p className="mt-1 sm:mt-2 text-sm sm:text-base text-neutral-500">Takes 30 seconds. All fields are required.</p>
+        <p className="mt-1 sm:mt-2 text-sm sm:text-base text-neutral-500">Takes 30 seconds. Website is optional.</p>
 
         {/* Honeypot: hidden from people, filled by bots. */}
         <div aria-hidden="true" className="absolute -left-[10000px] top-auto h-px w-px overflow-hidden">
@@ -233,7 +282,7 @@ export function AreaCheckRequest({ source = 'check_your_area' }: { source?: stri
               onChange={set('city')}
             />
           </Field>
-          <Field id="website" label="Website" error={errors.website}>
+          <Field id="website" label="Website (optional)" error={errors.website}>
             <input
               id="area-website"
               name="website"
@@ -277,6 +326,37 @@ export function AreaCheckRequest({ source = 'check_your_area' }: { source?: stri
           </Field>
         </div>
 
+        {failed && (
+          <div
+            ref={errorRef}
+            tabIndex={-1}
+            role="alert"
+            className="mt-4 sm:mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3.5 text-sm sm:text-base text-red-900 outline-none"
+          >
+            <p className="flex items-start gap-2 font-semibold">
+              <AlertTriangle size={18} className="mt-0.5 shrink-0" />
+              Something went wrong on our side and your request didn&apos;t reach us.
+            </p>
+            <p className="mt-1 text-red-800">
+              Call us and we&apos;ll check your area on the phone, or send the email we wrote for you with your answers.
+            </p>
+            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <a
+                href={OWNER_PHONE_HREF}
+                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-red-600 px-4 font-semibold text-white hover:bg-red-700"
+              >
+                <Phone size={16} /> Call {OWNER_PHONE_DISPLAY}
+              </a>
+              <a
+                href={mailtoHref()}
+                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border border-red-300 bg-white px-4 font-semibold text-red-800 hover:bg-red-100"
+              >
+                <Mail size={16} /> Email your answers
+              </a>
+            </div>
+          </div>
+        )}
+
         <button
           type="submit"
           disabled={submitting}
@@ -290,7 +370,7 @@ export function AreaCheckRequest({ source = 'check_your_area' }: { source?: stri
             </>
           ) : (
             <>
-              Check if your area is open{' '}
+              {failed ? 'Try again' : 'Check if your area is open'}{' '}
               <ArrowRight size={18} className="group-hover:translate-x-0.5 transition-transform" />
             </>
           )}
@@ -322,9 +402,12 @@ function Field({
       <label htmlFor={`area-${id}`} className="mb-1 sm:mb-1.5 block text-[13px] sm:text-sm font-semibold text-neutral-800">
         {label}
       </label>
-      {children}
+      {/* Ties the message to its input for screen readers (audit F5). */}
+      {isValidElement<{ 'aria-describedby'?: string }>(children) && error
+        ? cloneElement(children, { 'aria-describedby': `area-${id}-error` })
+        : children}
       {error && (
-        <p role="alert" className="mt-1 sm:mt-1.5 text-xs sm:text-sm font-medium text-red-600">
+        <p id={`area-${id}-error`} className="mt-1 sm:mt-1.5 text-xs sm:text-sm font-medium text-red-600">
           {error}
         </p>
       )}

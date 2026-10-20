@@ -14,6 +14,7 @@ import {
   verifyDeviceCookie,
   type Onboarding,
 } from '@/lib/onboarding';
+import { getSignedInClient } from '@/lib/proofServer';
 
 export const notFound = () => NextResponse.json({ ok: false, error: 'Not found' }, { status: 404 });
 
@@ -57,10 +58,19 @@ export async function loadOnboarding(rawToken: string): Promise<Onboarding | nul
   }
 }
 
-/** Has this device completed the email code for this token? */
+/**
+ * Has this device completed the email code for this token? A device already
+ * signed in to AxeonPROOF as this portal's client counts too: that sign-in proved
+ * the same person (email + password), so they aren't asked for a code again
+ * (friction audit P5, 2026-10-19).
+ */
 export async function isDeviceVerified(token: string): Promise<boolean> {
   const jar = await cookies();
-  return verifyDeviceCookie(jar.get(deviceCookieName(token))?.value, token);
+  if (verifyDeviceCookie(jar.get(deviceCookieName(token))?.value, token)) return true;
+  const client = await getSignedInClient();
+  if (!client) return false;
+  const onboarding = await loadOnboarding(token);
+  return Boolean(onboarding && onboarding.status !== 'closed' && onboarding.id === client.onboardingId);
 }
 
 /** Sets the signed device cookie on a response. Path-wide so the API routes see it too. */

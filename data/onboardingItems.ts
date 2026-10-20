@@ -91,8 +91,10 @@ export interface OnboardingItem {
   callable?: boolean;
 }
 
-/** The time the client is quoted for setup, in the welcome email and the portal header (owner call 2026-10-17). */
-export const SETUP_MINUTES = 5;
+// Setup time is computed from the items' own `minutes`, never typed in copy
+// (friction audit P4, 2026-10-19): the welcome email, the portal counter, the
+// after-checkout page and the sign page all quote setupMinutes(tier).firstRound,
+// "the rest closer to launch". See setupMinutes() at the bottom of this file.
 
 /** Saved on a callable item when the client chose to answer it on a call. */
 export const CALL_INSTEAD_KEY = 'callInstead';
@@ -126,15 +128,16 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
         type: 'tel',
         required: true,
         placeholder: '(515) 555-0134',
-        hint: 'The number customers should call.',
+        hint: 'The number patients and clients should call.',
         sensitive: true,
+        prefill: 'phone',
       },
       {
         key: 'address',
-        label: 'Address or service area',
+        label: 'Office address (or service area)',
         type: 'text',
         required: true,
-        placeholder: '123 Main St, Des Moines, IA or "Des Moines metro, 25 miles"',
+        placeholder: '123 Main St, West Des Moines, IA',
       },
       {
         key: 'hours',
@@ -149,6 +152,9 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     // Where clients come from, and who to thank: a referrer named here shows on the
     // admin Data page as a referral owed $300 once this client's first invoice is paid (lib/referrals.ts).
     key: 'how-found',
+    // Second round (friction audit P5): not needed to start the build, and it made
+    // room in round 1 for phone setup.
+    later: true,
     kind: 'confirm',
     tier: 'website',
     title: 'How did you find us?',
@@ -162,7 +168,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
         required: true,
         options: FOUND_OPTIONS,
       },
-      { key: 'referredBy', label: 'Who sent you? (name or business)', type: 'text', placeholder: 'Mike at A-1 Auto Detailing', hint: 'Only if someone referred you.' },
+      { key: 'referredBy', label: 'Who sent you? (name or business)', type: 'text', placeholder: 'Your CPA, consultant or a colleague', hint: 'Only if someone referred you.' },
     ],
   },
   {
@@ -254,7 +260,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
         required: true,
         options: ['Yes, I own one', 'No, please register one for me', 'Not sure'],
       },
-      { key: 'domainName', label: 'Domain (if you have one)', type: 'text', placeholder: 'a1autodetailing.com' },
+      { key: 'domainName', label: 'Domain (if you have one)', type: 'text', placeholder: 'yourpractice.com' },
       {
         key: 'registrar',
         label: 'Where is it registered?',
@@ -267,7 +273,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
         label: 'Business email addresses you want, and who uses each',
         type: 'textarea',
         required: true,
-        placeholder: 'mike@ for Mike (owner), info@ as a shared inbox',
+        placeholder: 'drlee@ for Dr. Lee, frontdesk@ as a shared inbox',
         hint: MAILBOX_HINT,
       },
       {
@@ -275,7 +281,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
         label: "Where should Google send each person's sign-in email?",
         type: 'textarea',
         required: true,
-        placeholder: 'Mike: mike.smith@gmail.com',
+        placeholder: 'Dr. Lee: jamie.lee@gmail.com',
         hint: 'A personal address they check today. Google sends the sign-in straight there, so we never handle a password.',
       },
       {
@@ -304,7 +310,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
         required: true,
         options: ['Yes, I own one', 'No, please register one for me', 'Not sure'],
       },
-      { key: 'domainName', label: 'Domain (if you have one)', type: 'text', placeholder: 'a1autodetailing.com' },
+      { key: 'domainName', label: 'Domain (if you have one)', type: 'text', placeholder: 'yourpractice.com' },
       {
         key: 'registrar',
         label: 'Where is it registered?',
@@ -319,7 +325,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     kind: 'confirm',
     tier: 'essentials',
     title: 'Where leads should go',
-    description: 'Every quote request lands here the second it comes in.',
+    description: 'Every new inquiry lands here the second it comes in.',
     minutes: 1,
     fields: [
       {
@@ -350,7 +356,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     tier: 'essentials',
     later: true,
     title: 'How you invoice and get paid',
-    description: 'So new inquiries and paying customers can line up in one place.',
+    description: 'So new inquiries and paying patients or clients can line up in one place.',
     minutes: 1,
     fields: [
       {
@@ -368,7 +374,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
           'Square or Clover': 'Nothing changes for you. Leads come to your phone and inbox, and you keep billing the way you do now.',
           Other: 'Nothing changes for you. Leads come to your phone and inbox, and you keep billing the way you do now.',
           'Paper, cash or check':
-            "Don't worry! Axeon is an official partner with industry-standard platforms like Intuit QuickBooks and Jobber. We will send you our direct partner onboarding link with exclusive partner pricing, so you can send digital invoices, take card payments online and get paid faster.",
+            "No problem. Axeon partners with QuickBooks and Jobber, and we can send you their onboarding link with partner pricing if you want digital invoices and online card payments. Nothing changes until you decide.",
         },
       },
     ],
@@ -416,7 +422,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     kind: 'axeon',
     tier: 'website',
     title: 'Hosting and security',
-    description: 'Fast hosting, SSL, backups, and uptime monitoring, so we know before your customers do if the site ever goes down.',
+    description: 'Fast hosting, SSL, backups, and uptime monitoring, so we know before your patients or clients do if the site ever goes down.',
   },
   {
     key: 'business-email',
@@ -429,7 +435,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     key: 'quote-form',
     kind: 'axeon',
     tier: 'essentials',
-    title: 'Quote request form with instant alerts',
+    title: 'Inquiry form with instant alerts',
     description: 'Every request lands on your phone and in your inbox, at the number and email you gave us.',
   },
   {
@@ -442,21 +448,24 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
 
   // ───────────────────────── AxeonCORE: the client's part ─────────────────────────
   {
+    // First round, not "later" (friction audit P7): the 60-second missed-call
+    // text-back depends on it, and carrier (10DLC) registration takes days, so it
+    // starts on day 1. The main number is prefilled from what we already have.
     key: 'phone-setup',
-    later: true,
     kind: 'confirm',
     tier: 'axeoncore',
     title: 'Phone setup for call tracking and missed-call text-back',
-    description: 'Call tracking shows which pages make your phone ring. Missed-call text-back catches the ones you cannot answer.',
+    description: 'Call tracking shows which pages make your phone ring. Missed-call text-back catches the ones you cannot answer. We start the carrier registration as soon as this is in.',
     minutes: 2,
     fields: [
       {
         key: 'mainNumber',
-        label: 'Your main business number',
+        label: 'Your main office number',
         type: 'tel',
         required: true,
         placeholder: '(515) 555-0134',
         sensitive: true,
+        prefill: 'phone',
       },
       {
         key: 'trackingPreference',
@@ -474,7 +483,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
         label: 'Who answers calls and texts?',
         type: 'textarea',
         required: true,
-        placeholder: 'Mike (owner) 515-555-0134, Sarah (office) 515-555-0199',
+        placeholder: 'Dr. Lee 515-555-0134, Sarah (front desk) 515-555-0199',
         hint: 'Names and mobiles. Instant call-back rings these people.',
         sensitive: true,
       },
@@ -484,7 +493,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
         label: 'The text people get when you miss their call',
         type: 'textarea',
         max: 320,
-        placeholder: "Hi, it's [your business]. Sorry we missed your call! Reply here with what you need and we'll get right back to you.",
+        placeholder: "Hi, it's [your practice]. Sorry we missed your call. Reply here with what you need and we'll get right back to you.",
         hint: 'Leave it blank to use the message shown. It goes out right after a missed call.',
       },
     ],
@@ -495,12 +504,13 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     kind: 'accept',
     tier: 'axeoncore',
     title: 'Share your calendar for online booking',
-    description: 'Leads book themselves 24/7 without double-booking you.',
+    description: 'New patients and clients book themselves 24/7 without double-booking you.',
     minutes: 2,
     steps: [
       'Look for a calendar sharing invite from Axeon Studio in your email.',
       'Accept it. Google Calendar, Outlook, and Apple Calendar all work.',
       'Reply to that email with the services people can book and how long each takes.',
+      'Booking lives in your practice software (Dentrix, Open Dental, Clio or similar)? Tap the button and tell us which one; we set it up with you on the kickoff call.',
     ],
     doneLabel: 'Shared it',
   },
@@ -535,20 +545,20 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
         label: 'What happens today when a lead comes in?',
         type: 'textarea',
         required: true,
-        placeholder: 'I call back when I get a break, usually within a few hours. If they do not pick up I text once.',
+        placeholder: 'The front desk calls back between patients, usually within a few hours. If they do not pick up we leave one voicemail.',
       },
       {
         key: 'pitch',
         label: 'What do you usually say that gets people to book?',
         type: 'textarea',
         required: true,
-        placeholder: 'We come to you, we are insured, and we fix what the last guy missed.',
+        placeholder: 'New patients are seen within a week, we have evening hours, and the doctor explains every option before any treatment.',
       },
       {
         key: 'dealKillers',
         label: 'What makes a lead a bad fit?',
         type: 'textarea',
-        placeholder: 'Anyone outside 30 miles, or looking for the cheapest possible price.',
+        placeholder: 'Anyone outside our area, or asking for a service we do not offer.',
       },
     ],
   },
@@ -558,7 +568,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     kind: 'confirm',
     tier: 'axeoncore',
     title: 'Review requests after every appointment',
-    description: 'We generate your Google review link ourselves. We just need to know when an appointment or job is done so the request fires.',
+    description: 'We generate your Google review link ourselves. We just need to know when an appointment is finished so the request goes out.',
     minutes: 1,
     fields: [
       {
@@ -576,20 +586,23 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     ],
   },
   {
+    // Optional (friction audit P6): exit-intent offers are restricted for attorneys
+    // and some clinical services. Leaving it blank and saving finishes the step.
     key: 'exit-offer',
     later: true,
     kind: 'confirm',
     tier: 'axeoncore',
-    title: 'One offer for visitors about to leave',
-    description: 'Something you are happy to honor. It only shows to people about to close the tab.',
+    title: 'Optional: one offer for visitors about to leave',
+    description:
+      'Only if you are comfortable making one and your profession allows it. It shows only to people about to close the tab. Law and CPA firms usually skip this: leave it blank and tap save.',
     minutes: 1,
     fields: [
       {
         key: 'offer',
-        label: 'The offer',
+        label: 'The offer (optional)',
         type: 'text',
-        required: true,
-        placeholder: '$25 off your first detail',
+        placeholder: 'Free 15-minute consultation',
+        hint: 'Examples: “Free 15-minute consultation”, or a “New-patient exam special” where your state board allows it.',
       },
     ],
   },
@@ -600,7 +613,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     kind: 'axeon',
     tier: 'axeoncore',
     title: 'AxeonPROOF dashboard',
-    description: 'Every call, lead, and booked job, and where each came from. Live once the site is.',
+    description: 'Every call, inquiry and booked appointment, and where each came from. Live once the site is.',
   },
   {
     key: 'core-pages',
@@ -621,7 +634,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     kind: 'axeon',
     tier: 'axeoncore',
     title: 'Missed-call text-back',
-    description: 'Anyone who calls and cannot reach you gets an instant text, so they do not move on to the next company.',
+    description: 'Anyone who calls and cannot reach you gets a text within 60 seconds, so they do not move on to the next practice or firm.',
   },
   {
     key: 'instant-callback',
@@ -657,7 +670,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     kind: 'axeon',
     tier: 'axeoncore',
     title: 'Quote follow-up',
-    description: 'Estimates that have not closed get 3 automatic follow-ups, so fewer jobs slip away.',
+    description: 'Consultations and estimates that have not turned into a booking get 3 automatic follow-ups, so fewer slip away.',
   },
   {
     key: 'appointment-reminders',
@@ -670,22 +683,22 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     key: 'past-customers',
     kind: 'axeon',
     tier: 'axeoncore',
-    title: 'A text to past customers every quarter',
-    description: 'Brings repeat work back in.',
+    title: 'A text to past patients and clients every quarter',
+    description: 'Brings people who have not been back in a while back in.',
   },
   {
     key: 'review-requests',
     kind: 'axeon',
     tier: 'axeoncore',
     title: 'Review requests switched on',
-    description: 'A request goes out after every job, so your Google rating keeps climbing.',
+    description: 'A request goes out after every appointment, so your Google rating keeps climbing.',
   },
   {
     key: 'last-chance-offer',
     kind: 'axeon',
     tier: 'axeoncore',
     title: 'Last-chance offer on your site',
-    description: 'Visitors about to leave see the offer you picked, tied to the service they were looking at.',
+    description: 'If you picked an offer, visitors about to leave see it, tied to the service they were looking at.',
   },
 
   // ───────────────────────── AxeonGROWTH: the client's part ─────────────────────────
@@ -741,14 +754,14 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
         label: 'Services to push with ads',
         type: 'textarea',
         required: true,
-        placeholder: 'Ceramic coating and full interior details',
+        placeholder: 'Implant consults and Invisalign',
       },
       {
         key: 'geography',
         label: 'Where should ads show?',
         type: 'text',
         required: true,
-        placeholder: 'ZIP codes, cities, or "25 miles around Pleasant Hill"',
+        placeholder: 'ZIP codes, cities, or "10 miles around West Des Moines"',
       },
       {
         key: 'bookedOut',
@@ -767,7 +780,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     kind: 'confirm',
     tier: 'axeongrowth',
     title: 'What your AI receptionist should know',
-    description: 'It answers every call 24/7 and books the job. This is its training sheet.',
+    description: 'It answers every call 24/7 and books the appointment. This is its training sheet.',
     minutes: 5,
     fields: [
       {
@@ -775,27 +788,27 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
         label: 'Questions people always ask, and your answers',
         type: 'textarea',
         required: true,
-        placeholder: 'Do you come to me? Yes, anywhere in the metro. How long does it take? 2 to 4 hours.',
+        placeholder: 'Are you taking new patients? Yes. How soon can I be seen? Usually within a week. Do you have evening hours? Tuesdays until 7.',
       },
       {
         key: 'quotablePricing',
         label: 'Prices it is allowed to quote',
         type: 'textarea',
         required: true,
-        placeholder: 'Interior detail from $150, full detail from $275. Ceramic coating: book an estimate.',
+        placeholder: 'Initial consultation is free. Anything else: book a consultation for a quote.',
       },
       {
         key: 'neverPromise',
         label: 'Things it should never promise',
         type: 'textarea',
-        placeholder: 'Same-day service, exact prices on paint correction, anything about insurance claims.',
+        placeholder: 'Diagnoses, treatment results, legal or tax advice, or whether insurance covers something.',
       },
       {
         key: 'escalation',
         label: 'When should it hand off to a human, and to whom?',
         type: 'textarea',
         required: true,
-        placeholder: 'Angry customers or anything about a warranty: text Mike at 515-555-0134.',
+        placeholder: 'Anything urgent or an upset caller: text Sarah at the front desk, 515-555-0199.',
         sensitive: true,
       },
     ],
@@ -810,7 +823,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     description: 'A half-day on site. We will confirm the date by text and send a one-page release to sign beforehand.',
     minutes: 2,
     fields: [
-      { key: 'shootLocation', label: 'Shoot location', type: 'text', required: true, placeholder: 'Shop address, or a customer site you can arrange' },
+      { key: 'shootLocation', label: 'Shoot location', type: 'text', required: true, placeholder: 'Your office address' },
       {
         key: 'dateWindow',
         label: 'Best weeks and days',
@@ -818,7 +831,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
         required: true,
         placeholder: 'Any weekday morning in the next 3 weeks except Oct 14',
       },
-      { key: 'onCamera', label: 'Who will be on camera?', type: 'text', required: true, placeholder: 'Mike and one tech' },
+      { key: 'onCamera', label: 'Who will be on camera?', type: 'text', required: true, placeholder: 'Dr. Lee and the front-desk team' },
     ],
   },
   {
@@ -846,21 +859,21 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     kind: 'axeon',
     tier: 'axeongrowth',
     title: 'Google and Meta ads run for you',
-    description: 'On the services you want more of, in your own ad account, tracked to the booked job.',
+    description: 'On the services you want more of, in your own ad account, tracked to the booked appointment.',
   },
   {
     key: 'local-services-ads',
     kind: 'axeon',
     tier: 'axeongrowth',
     title: 'Google Local Services Ads',
-    description: 'The pay-per-lead spots at the very top of the search, for trades Google offers them to.',
+    description: 'The pay-per-lead spots at the very top of the search, where Google offers them for your specialty.',
   },
   {
     key: 'ai-receptionist',
     kind: 'axeon',
     tier: 'axeongrowth',
     title: 'AI phone receptionist',
-    description: 'Trained on the answers you gave us. Picks up every call 24/7, answers questions, and books the job.',
+    description: 'Trained on the answers you gave us. Picks up every call 24/7, answers questions, and books the appointment.',
   },
   {
     key: 'video-edit',
@@ -881,7 +894,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     kind: 'axeon',
     tier: 'axeongrowth',
     title: 'Ad reporting in AxeonPROOF',
-    description: 'Every ad dollar shown next to the calls and jobs it brought in.',
+    description: 'Every ad dollar shown next to the calls and appointments it brought in.',
   },
   {
     key: 'monthly-page',
@@ -913,4 +926,22 @@ export function getItem(key: string): OnboardingItem | undefined {
 
 export function isOnboardingTier(value: unknown): value is OnboardingTier {
   return typeof value === 'string' && (ONBOARDING_TIERS as readonly string[]).includes(value);
+}
+
+/**
+ * Minutes of the client's own work on a plan, from each item's `minutes` (1 when
+ * unset). `firstRound` is what we ask for before the build starts; `later` waits
+ * until we are closer to launch. Connect items (Facebook) are optional and left out.
+ * This is the only setup-time promise: welcome email, portal counter, after-checkout
+ * page and sign page all quote it.
+ */
+export function setupMinutes(tier: OnboardingTier, metaLive?: boolean): { firstRound: number; later: number; total: number } {
+  let firstRound = 0;
+  let later = 0;
+  for (const item of itemsForTier(tier, metaLive)) {
+    if (item.kind === 'axeon' || item.connect) continue;
+    if (item.later) later += item.minutes ?? 1;
+    else firstRound += item.minutes ?? 1;
+  }
+  return { firstRound, later, total: firstRound + later };
 }

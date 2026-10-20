@@ -40,7 +40,7 @@ const PROOF = [
 const FAQS = [
   {
     q: 'Is it really $0 to start?',
-    a: "Yes. On the 12-month partnership the $3,000 build is waived, and your first monthly payment is charged only once your system is live and working. Nothing is due while we build. If you'd rather go month-to-month, the $3,000 is paid upfront instead.",
+    a: "Yes. On the 12-month agreement the $3,000 build is waived, and your first monthly payment is charged only once your system is live and working. Nothing is due while we build. If you'd rather go month-to-month, the $3,000 is paid upfront instead.",
   },
   {
     q: "What does 'working' mean?",

@@ -17,7 +17,7 @@ export const nicheFaqData: Record<string, NicheFaqItem[]> = {
     {
       question: 'Does the intake collect any health or insurance information?',
       answer:
-        'No. Intake collects name, contact, service and preferred time only. Never symptoms, insurance or health details. Anything clinical stays in your practice management software and your front desk.',
+        'No. Intake collects name, contact, service and preferred time only. Never symptoms, insurance or health details. Anything clinical stays in your practice management software and your front desk. Is it HIPAA compliant? Because intake never asks for health details, no protected health information is meant to flow through Axeon, and Axeon isn’t your business associate unless we sign a separate business associate agreement (BAA). If a patient volunteers health details by text anyway, your team moves that conversation into your practice software.',
     },
     {
       question: 'Do we have to replace Dentrix, Eaglesoft or Open Dental?',
@@ -39,7 +39,7 @@ export const nicheFaqData: Record<string, NicheFaqItem[]> = {
     {
       question: 'Does the intake collect any health information?',
       answer:
-        'No. Intake collects name, contact, service and preferred time only. Never symptoms, medical history or health details.',
+        'No. Intake collects name, contact, service and preferred time only. Never symptoms, medical history or health details. Is it HIPAA compliant? Because intake never asks for health details, no protected health information is meant to flow through Axeon, and Axeon isn’t your business associate unless we sign a separate business associate agreement (BAA). If a patient volunteers health details by text anyway, your team moves that conversation into your practice software.',
     },
   ],
   'law-firms': [

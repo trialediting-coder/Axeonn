@@ -240,14 +240,14 @@ export async function sendWelcomeEmail(input: {
     from: CLIENT_FROM_ADDRESS,
     replyTo: CLIENT_REPLY_TO,
     to: input.to,
-    subject: `Welcome to Axeon: your ${input.tierLabel} setup (about ${input.minutes} minutes)`,
+    subject: `Welcome to Axeon: your ${input.tierLabel} setup (about ${input.minutes} minutes to start)`,
     html: clientLayout(
       'Welcome aboard. Here is your setup page.',
       `
         <p style="margin:0 0 12px">${greeting}</p>
         <p style="margin:0 0 12px">Thanks for choosing Axeon Studio. We have already started on your ${escapeHtml(
           input.tierLabel
-        )} build. To finish setup we need a few quick things from you, about ${input.minutes} minutes total, and you can do them on your phone.</p>
+        )} build. To start, we need a few quick things from you: about ${input.minutes} minutes, and you can do them on your phone. A few more come later, when we are closer to launch.</p>
         <p style="margin:0 0 12px">Your setup page is private to you. Opening it on a new device asks for a 6-digit code that we send to this email address.</p>
         ${button(input.url, 'Open my setup page')}
         <p style="margin:0 0 12px;font-size:14px;color:#525252">Or copy this link: <a href="${escapeHtml(input.url)}" style="color:#2563eb">${escapeHtml(input.url)}</a></p>
@@ -384,13 +384,19 @@ export async function sendPasswordResetEmail(input: { to: string; url: string })
 // ───────────────────────────── Owner alerts ─────────────────────────────
 // They go to ADMIN_EMAIL from the same From as the other owner alerts.
 
-/** A new or returning website lead from /get-started. */
+/** A new or returning website lead: the area check (/check-your-area), the /go ad funnel, or the old /get-started flow. */
 export async function sendLeadNotification(input: {
   returning: boolean;
   businessName: string;
   contactName: string;
   email: string;
   phone: string;
+  /** Optional on the area check. */
+  website?: string;
+  /** 'area-check' for /check-your-area: its own subject and no budget/timeline lines. */
+  packageId?: string;
+  /** The specialty on the area check (answers.businessType). */
+  specialty?: string;
   packageName: string;
   services: string[];
   budget: string;
@@ -407,19 +413,36 @@ export async function sendLeadNotification(input: {
         ? 'They were already in Airtable, so their record was updated (status unchanged).'
         : 'Saved in Airtable as a <b>Lead</b>.'
       : '<b>Not saved to Airtable</b> (it failed or is not connected). Copy these details by hand.';
-  await sendChecked(resend, {
-    from: FROM_ADDRESS,
-    to: ADMIN_NOTIFICATION_EMAIL,
-    replyTo: input.email,
-    subject: `${input.returning ? 'Returning lead' : 'New website lead'}: ${who} (${input.packageName || 'no package'})`,
-    html: `
-      <p><b>${escapeHtml(input.contactName || 'Someone')}</b>${input.businessName ? ` from <b>${escapeHtml(input.businessName)}</b>` : ''} filled out the Get Started form.</p>
+  const website = input.website?.trim()
+    ? `<a href="${escapeHtml(/^https?:\/\//i.test(input.website.trim()) ? input.website.trim() : `https://${input.website.trim()}`)}">${escapeHtml(input.website.trim())}</a>`
+    : '(not given)';
+  const isAreaCheck = input.packageId === 'area-check';
+  // packageName on the area check is "Area check: <Specialty> in <City>".
+  const subject = isAreaCheck
+    ? `${input.returning ? 'Returning: ' : ''}${input.packageName || 'Area check'}, ${who}`
+    : `${input.returning ? 'Returning lead' : 'New website lead'}: ${who} (${input.packageName || 'no package'})`;
+  const details = isAreaCheck
+    ? `<p><b>${escapeHtml(input.contactName || 'Someone')}</b>${input.businessName ? ` from <b>${escapeHtml(input.businessName)}</b>` : ''} asked whether their area is open.</p>
+      <p>${escapeHtml(input.packageName || 'Area check')}<br>
+      Specialty: ${escapeHtml(input.specialty || 'n/a')}<br>
+      Website: ${website}<br>
+      Email: ${escapeHtml(input.email)}<br>
+      Phone: ${escapeHtml(input.phone || '(none)')}</p>`
+    : `<p><b>${escapeHtml(input.contactName || 'Someone')}</b>${input.businessName ? ` from <b>${escapeHtml(input.businessName)}</b>` : ''} filled out a form on the site.</p>
       <p>Recommended: <b>${escapeHtml(input.packageName || 'n/a')}</b><br>
       Services: ${escapeHtml(input.services.join(', ') || 'none')}<br>
       Budget: ${escapeHtml(input.budget || 'n/a')} · Timeline: ${escapeHtml(input.timeline || 'n/a')}<br>
       Goal: ${escapeHtml(input.goal || 'n/a')}<br>
+      Website: ${website}<br>
       Email: ${escapeHtml(input.email)}<br>
-      Phone: ${escapeHtml(input.phone || '(none)')}</p>
+      Phone: ${escapeHtml(input.phone || '(none)')}</p>`;
+  await sendChecked(resend, {
+    from: FROM_ADDRESS,
+    to: ADMIN_NOTIFICATION_EMAIL,
+    replyTo: input.email,
+    subject,
+    html: `
+      ${details}
       <p>${saved} Reply to this email to answer them directly.</p>
     `,
   });
@@ -524,7 +547,11 @@ const firstName = (name: string | null | undefined) => {
   return first ? `Hi ${escapeHtml(first)},` : 'Hi there,';
 };
 
-/** "Please review and sign": sent when Axeon creates an agreement in the admin. */
+/**
+ * "Please review and sign": sent when Axeon creates an agreement in the admin.
+ * With nothing due at signing (the usual $0-to-start agreement), it says so: the
+ * card goes on file, $0 today, and the first month is billed at go-live.
+ */
 export async function sendAgreementEmail(input: {
   to: string;
   contactName: string;
@@ -532,7 +559,16 @@ export async function sendAgreementEmail(input: {
   planLabel: string;
   number: string;
   url: string;
+  /** What Stripe charges at signing, from dueAtSigning(). Omitted: the generic "payment shown on the page" copy. */
+  dueTodayCents?: number;
 }): Promise<void> {
+  const noChargeToday = input.dueTodayCents === 0;
+  const steps = noChargeToday
+    ? 'Read it, sign by typing your name, then add a payment method. Nothing is charged today.'
+    : 'Read it, sign by typing your name, then make the first payment shown on the page.'
+  const after = noChargeToday
+    ? 'Your card stays on file so your first month can be billed the day your system goes live, without another form. Nothing is due while we build. As soon as your card is added, you get your setup page by email and we start building.'
+    : 'As soon as payment goes through, you get your setup page by email and we start building.';
   await sendChecked(requireClient('agreement_sent'), {
     from: CLIENT_FROM_ADDRESS,
     replyTo: CLIENT_REPLY_TO,
@@ -544,9 +580,9 @@ export async function sendAgreementEmail(input: {
         <p style="margin:0 0 12px">${firstName(input.contactName)}</p>
         <p style="margin:0 0 12px">Here is the Client Services Agreement for <b>${escapeHtml(input.businessName)}</b> on the ${escapeHtml(
           input.planLabel
-        )} plan. Read it, sign by typing your name, then make the first payment shown on the page. It takes about five minutes.</p>
+        )} plan. ${steps} It takes a few minutes.</p>
         ${button(input.url, 'Review and sign')}
-        <p style="margin:0 0 12px;font-size:14px;color:#525252">As soon as payment goes through, you get your setup page by email and we start building.</p>
+        <p style="margin:0 0 12px;font-size:14px;color:#525252">${after}</p>
       `
     ),
   });
@@ -573,7 +609,7 @@ export async function sendAgreementSignedEmails(input: {
         <p style="margin:0 0 12px">${firstName(input.contactName)}</p>
         <p style="margin:0 0 12px">Thanks. Your agreement is signed and countersigned by Axeon Studio. Keep this email: the link below always opens your signed copy, which you can print or save as a PDF.</p>
         ${button(input.url, 'View my signed agreement')}
-        <p style="margin:0 0 12px;font-size:14px;color:#525252">If you have not paid yet, the same page has a button to finish payment.</p>
+        <p style="margin:0 0 12px;font-size:14px;color:#525252">If you have not added your payment method yet, the same page has a button to finish that step.</p>
       `
     ),
   });

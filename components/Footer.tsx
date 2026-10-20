@@ -23,7 +23,7 @@ const COMPANY_LINKS: FooterLink[] = [
   { label: 'Process', href: '/process' },
   { label: 'Pricing', href: '/pricing' },
   { label: 'Insights', href: '/insights' },
-  { label: 'Partners', href: '/partners' },
+  { label: 'For advisors', href: '/partners' },
   { label: 'FAQ', href: '/faq' },
 ];
 
