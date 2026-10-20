@@ -52,7 +52,7 @@ const SOCIAL_LINKS: FooterLink[] = [
 function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) {
   return (
     <div>
-      <div className="font-mono text-xs uppercase tracking-wider text-neutral-400 font-semibold mb-4">{title}</div>
+      <div className="eyebrow eyebrow-muted mb-4">{title}</div>
       <ul className="space-y-0.5 text-sm text-neutral-600">
         {links.map((link) => (
           <li key={link.href}>
@@ -70,7 +70,7 @@ function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) 
 function FooterAccordion({ title, links }: { title: string; links: FooterLink[] }) {
   return (
     <details className="group">
-      <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between font-mono text-xs uppercase tracking-wider text-neutral-500 font-semibold [&::-webkit-details-marker]:hidden">
+      <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between eyebrow eyebrow-muted [&::-webkit-details-marker]:hidden">
         {title}
         <ChevronDown size={16} className="text-neutral-400 transition-transform group-open:rotate-180" aria-hidden />
       </summary>
