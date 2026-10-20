@@ -125,12 +125,12 @@ const NONPROFIT_FAQ = [
   {
     question: 'Is it really free?',
     answer:
-      'Yes. There is no charge for the design, the build, search setup, or your Google Business Profile. The only cost is basic hosting to keep your site online, passed through at cost with no markup.',
+      'Yes. Design, build, search setup and Google profile are free. Hosting is passed through at cost.',
   },
   {
     question: 'Which nonprofits qualify?',
     answer:
-      'Any nonprofit based in Iowa or mainly serving Iowans, as long as you are a registered 501(c)(3) or have a fiscal sponsor. Immigrant and refugee, environment, and health organizations go to the front of each group, but everyone is welcome.',
+      'Any Iowa 501(c)(3), or a group with a fiscal sponsor, based in or mainly serving Iowa.',
   },
   {
     question: 'Do we need to apply?',
@@ -149,12 +149,12 @@ const NONPROFIT_FAQ = [
   {
     question: 'What is not included?',
     answer:
-      'Custom apps, paid ad management, ongoing content writing, and photography are not part of the program. We are happy to point you to good options for any of those.',
+      'Custom apps, paid ads, ongoing writing and photography.',
   },
   {
     question: 'Why are you doing this?',
     answer:
-      'Most small nonprofits cannot pay agency rates, so the people they serve cannot find them online. We are an Iowa studio, and this is how we give back to the state that supports us.',
+      'We are an Iowa studio, and this is how we give back.',
   },
 ];
 
@@ -189,8 +189,7 @@ export default function NonprofitsPage() {
             A Free Digital Presence for Iowa Nonprofits
           </h1>
           <p className="text-base sm:text-xl text-neutral-300 leading-relaxed max-w-3xl mb-4 sm:mb-5">
-            We build your website, get you found on Google and in AI search, and set up your Google Business
-            Profile, for free. Seriously. The only thing you cover is basic hosting.
+            Website, Google and AI search setup, free. You only cover hosting.
           </p>
           <p className="text-sm font-semibold text-blue-300 mb-6 sm:mb-8">
             The {GROUP_NAME} group closes {GROUP_DEADLINE}. No application needed.
@@ -239,16 +238,7 @@ export default function NonprofitsPage() {
                 Iowa runs on people who show up for each other.
               </p>
               <p className="text-[15px] sm:text-lg text-neutral-700 leading-relaxed">
-                You see it everywhere once you start looking. The food pantry that stays open late on a Tuesday.
-                The free clinic that knows its patients by name. The volunteers pulling trash out of a river on a
-                Saturday morning. The neighbors who help a new family figure out where to even begin. Most of that
-                work happens quietly, carried by small teams who give far more than they ever get back.
-              </p>
-              <p className="text-[15px] sm:text-lg text-neutral-700 leading-relaxed">
-                Those missions deserve to be found. But most small nonprofits cannot pay agency rates, so they get
-                by with an outdated website or none at all, and the people who need them most never find them. That
-                is a problem we know how to fix, so we are fixing it for free, for as many Iowa nonprofits as we
-                can.
+                Those missions deserve to be found. Most small nonprofits can&apos;t pay agency rates, so we do it free.
               </p>
               <p className="text-[15px] sm:text-lg text-neutral-950 font-semibold leading-relaxed">
                 This state has given us a lot. This is one way we get to give some of it back.
@@ -275,8 +265,7 @@ export default function NonprofitsPage() {
               The same build paying clients get, free.
             </h2>
             <p className="mt-2 sm:mt-5 text-[15px] sm:text-lg text-neutral-600 leading-relaxed">
-              So donors, volunteers and the people you serve find you first. You own your domain, your content, and
-              your accounts. You only cover basic hosting.
+              You own everything. You only cover hosting.
             </p>
           </div>
           <ul className="lg:col-span-7 divide-y divide-neutral-200 border-y border-neutral-200">
@@ -306,8 +295,7 @@ export default function NonprofitsPage() {
             Open to Every Iowa Nonprofit
           </h2>
           <p className="text-[15px] sm:text-lg text-neutral-600 max-w-3xl mb-5 sm:mb-12 leading-relaxed">
-            Any Iowa nonprofit is welcome. These three causes are personal to us, so they go to the front of
-            each group.
+            These three causes go to the front of each group.
           </p>
           <div className="grid md:grid-cols-3 gap-2.5 sm:gap-6">
             {CAUSES.map(({ icon: Icon, title, description }) => (

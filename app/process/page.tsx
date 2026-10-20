@@ -34,11 +34,6 @@ export default function ProcessPage() {
             <p className="mt-2 sm:mt-3 text-[22px] sm:text-4xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.15]">
               Live in 30 days, 60-second replies, review requests on every visit. Or walk away.
             </p>
-            <p className="mt-3 sm:mt-4 text-[15px] sm:text-lg text-neutral-600 leading-relaxed">
-              Live within 30 days of getting your materials. Every missed call and web inquiry gets a reply within 60
-              seconds. Every completed appointment gets a review request. If we miss any of those in the first 90 days and
-              don&apos;t fix it within 15 days, you can walk away and owe nothing for the rest of the term.
-            </p>
           </div>
         </div>
       </section>
@@ -51,8 +46,7 @@ export default function ProcessPage() {
             Start by checking your area
           </h2>
           <p className="text-base sm:text-xl text-neutral-300 max-w-2xl mx-auto leading-relaxed">
-            One practice or firm per specialty within 5 miles. We&apos;ll confirm yours within one business day, then show
-            you what we found about your practice or firm on a short call. $0 to start. Nothing due until it&apos;s working.
+            One practice or firm per specialty within 5 miles. $0 to start.
           </p>
           <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4">
             <Link

@@ -80,9 +80,7 @@ export default function AboutClient() {
 
             <div className="lg:col-span-5 flex flex-col justify-end hero-rise">
               <p className="text-[15px] sm:text-lg text-neutral-600 leading-relaxed">
-                Axeon was built in West Des Moines to fix that. We are a growth partner for dental practices, med spas, law
-                firms and CPA firms: we install the intake that answers every call and inquiry within 60 seconds, then stay
-                on it with you.
+                We answer every call and inquiry in 60 seconds, from West Des Moines.
               </p>
               <div className="mt-5 sm:mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 sm:gap-3">
                 <button
@@ -187,7 +185,7 @@ export default function AboutClient() {
               <div>
                 <div className="text-4xl sm:text-6xl font-black font-display tracking-tight leading-none">90 days</div>
                 <p className="mt-2 sm:mt-3 text-sm sm:text-base text-blue-50 leading-snug sm:leading-relaxed">
-                  Live within 30 days of getting your materials. Every missed call and web inquiry gets a reply within 60 seconds. Every completed appointment gets a review request. Miss any of those in the first 90 days and don&apos;t get it fixed within 15 days? Walk away and owe nothing for the rest of the term.
+                  Live in 30 days. Every inquiry answered in 60 seconds. Or you walk away.
                 </p>
               </div>
               <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-white">
@@ -245,18 +243,9 @@ export default function AboutClient() {
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-neutral-950 font-display tracking-tight mt-2">
                   Why Axeon exists.
                 </h2>
-                <div className="mt-3 sm:mt-5 space-y-3 sm:space-y-4 text-[15px] sm:text-base lg:text-lg text-neutral-600 leading-relaxed">
-                  <p>
-                    Good practices and firms lose new patients and clients every week without knowing it. The call comes in after
-                    hours or during a busy morning, goes to voicemail, and the person books with whoever answered first.
-                    The web form waits until tomorrow.
-                  </p>
-                  <p>
-                    So <strong className="text-neutral-950 font-display">Axeon</strong> installs the intake that answers
-                    them: a reply within 60 seconds, a way to book, and a review request after the visit or engagement. We commit to
-                    those in writing, and you can walk away if we miss them.
-                  </p>
-                </div>
+                <p className="mt-3 sm:mt-5 text-[15px] sm:text-base lg:text-lg text-neutral-600 leading-relaxed">
+                  Good practices lose new patients to voicemail every week. We fix that, in writing.
+                </p>
               </div>
 
               <div className="p-5 sm:p-7 rounded-2xl bg-neutral-900 text-white border border-neutral-800 shadow-md">
@@ -286,8 +275,7 @@ export default function AboutClient() {
               You&apos;ll never talk to an account manager.
             </h2>
             <p className="mt-3 sm:mt-5 text-[15px] sm:text-lg text-neutral-400 leading-relaxed max-w-md">
-              Out here you earn trust by doing what you said you would. One point of contact, and we never work for the
-              competitor down the street. We grow when you grow.
+              One point of contact. We grow when you grow.
             </p>
           </div>
           <ol className="lg:col-span-7 divide-y divide-white/10 border-y border-white/10">
@@ -314,8 +302,7 @@ export default function AboutClient() {
             Is your specialty still open in your area?
           </h2>
           <p className="text-base sm:text-lg text-neutral-600 mt-4 leading-relaxed max-w-2xl mx-auto">
-            One practice or firm per specialty within 5 miles. When we&apos;re working with you, we don&apos;t work for the
-            competitor down the street. $0 to start. Nothing due until it&apos;s working.
+            One practice or firm per specialty within 5 miles. $0 to start.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
             <button
