@@ -143,7 +143,8 @@ export default function GetFoundComparison() {
           href="/check-your-area"
           data-track="cta_click"
           data-track-cta="area_check_why_get_found"
-          className="group mt-3 sm:mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 rounded-2xl sm:rounded-3xl border border-blue-100 bg-blue-50 px-4 py-3.5 sm:p-8 hover:border-blue-300 transition-colors"
+          data-spot
+          className="group ix-card relative mt-3 sm:mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 rounded-2xl sm:rounded-3xl border border-blue-100 bg-blue-50 px-4 py-3.5 sm:p-8 hover:border-blue-300 transition-colors"
         >
           <div>
             <div className="hidden sm:block text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-2">[ SEE YOUR OWN ]</div>

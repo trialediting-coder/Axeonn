@@ -275,7 +275,8 @@ function OtherServices({ current }: { current: string }) {
               <li key={s.slug}>
                 <Link
                   href={s.href}
-                  className="group h-full flex flex-col justify-between gap-1 sm:gap-3 rounded-2xl border border-neutral-200 px-4 py-3 sm:p-5 hover:border-blue-300 transition-colors"
+                  data-spot
+                  className="group ix-card relative h-full flex flex-col justify-between gap-1 sm:gap-3 rounded-2xl border border-neutral-200 px-4 py-3 sm:p-5 hover:border-blue-300 transition-colors"
                 >
                   <span className="font-bold text-neutral-950 group-hover:text-blue-600 transition-colors">{s.title}</span>
                   <span className="text-sm text-neutral-600 leading-relaxed">{s.outcome}</span>

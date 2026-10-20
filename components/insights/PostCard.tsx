@@ -5,7 +5,8 @@ export function PostCard({ post }: { post: Post }) {
   return (
     <Link
       href={`/insights/${post.slug}`}
-      className="group flex flex-col rounded-2xl border border-neutral-200 bg-white overflow-hidden hover:border-blue-300 hover:shadow-lg transition-all"
+      data-spot
+      className="group ix-card relative flex flex-col rounded-2xl border border-neutral-200 bg-white overflow-hidden hover:border-blue-300 hover:shadow-lg transition-all"
     >
       {post.coverImageUrl && (
         <div className="aspect-[16/9] w-full overflow-hidden bg-neutral-100">

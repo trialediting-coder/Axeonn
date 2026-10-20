@@ -132,7 +132,7 @@ export function PricingSection({
         </div>
 
         {/* Purpose: each plan's price, terms and top five inclusions; one card per phone screen. */}
-        <div className="mt-10 sm:mt-16 grid lg:grid-cols-2 gap-10 sm:gap-8 lg:gap-8 xl:gap-12 items-stretch max-w-[1240px] mx-auto">
+        <div className="ix-plans mt-10 sm:mt-16 grid lg:grid-cols-2 gap-10 sm:gap-8 lg:gap-8 xl:gap-12 items-stretch max-w-[1240px] mx-auto">
           {pricingTiers.map((tier) => (
             <PlanCard key={tier.id} tier={tier} />
           ))}
@@ -301,7 +301,10 @@ function PlanCard({ tier }: { tier: PricingTier }) {
   const muted = isPremium ? 'text-neutral-400' : 'text-neutral-500';
 
   return (
-    <div className={`relative rounded-[24px] sm:rounded-[32px] px-5 pt-7 pb-5 sm:p-10 lg:p-9 xl:p-12 flex flex-col ${CARD_STYLES[variant]}`}>
+    <div
+      data-spot={isPremium ? 'dark' : ''}
+      className={`ix-card relative rounded-[24px] sm:rounded-[32px] px-5 pt-7 pb-5 sm:p-10 lg:p-9 xl:p-12 flex flex-col ${CARD_STYLES[variant]}`}
+    >
       {tier.badge && (
         <span className="absolute -top-3.5 sm:-top-4 left-1/2 -translate-x-1/2 px-4 sm:px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold tracking-wide uppercase shadow-md whitespace-nowrap bg-blue-600 text-white">
           {tier.badge}
