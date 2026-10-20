@@ -231,7 +231,7 @@ export function Header() {
         >
           {/* Who We Help: the four practice types */}
           <div
-            className="static"
+            className="relative"
             onPointerEnter={mouseOnly(openSolutions)}
             onPointerLeave={mouseOnly(closeSolutionsDelayed)}
           >
@@ -247,7 +247,7 @@ export function Header() {
             </button>
             {solutionsOpen && (
               <div
-                className="absolute top-full whitespace-normal left-1/2 -translate-x-1/2 pt-4 z-50 w-[min(920px,calc(100vw-2rem))]"
+                className="absolute top-full whitespace-normal -left-4 pt-4 z-50 w-[min(920px,calc(100vw-2rem))]"
                 onPointerEnter={mouseOnly(openSolutions)}
                 onPointerLeave={mouseOnly(closeSolutionsDelayed)}
               >
@@ -333,7 +333,7 @@ export function Header() {
             </button>
             {servicesOpen && (
               <div
-                className="absolute top-full whitespace-normal left-1/2 -translate-x-1/2 pt-4 z-50 w-[min(640px,calc(100vw-2rem))]"
+                className="absolute top-full whitespace-normal -left-4 pt-4 z-50 w-[min(640px,calc(100vw-2rem))]"
                 onPointerEnter={mouseOnly(openServices)}
                 onPointerLeave={mouseOnly(closeServicesDelayed)}
               >
