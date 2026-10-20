@@ -225,6 +225,7 @@ const EXAMPLE_SETTINGS: ProofV2Settings = {
   frontDesk: { signedOffAt: onDay(15), signedOffBy: 'Sam (front desk)' },
 };
 const scheduleFacts: MilestoneFacts = {
+  industry: 'dental',
   startAt: SCHEDULE_START,
   settings: EXAMPLE_SETTINGS,
   autoDone: {},
@@ -250,6 +251,7 @@ const PIPELINE_ROWS: PipelineRow[] = [
  * screenshots or real business anywhere in it.
  */
 export const EXAMPLE_V2: ProofV2View = {
+  industry: 'dental',
   startAt: SCHEDULE_START,
   day: EXAMPLE_SCHEDULE.day,
   milestones: EXAMPLE_SCHEDULE.milestones,
