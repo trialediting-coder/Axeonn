@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ industry:
   const funnel = adFunnelFor(industry);
   if (!funnel) return {};
   return {
-    title: `Every Inquiry Answered in 60 Seconds | ${funnel.titleLabel}`,
+    title: `Get More ${funnel.customers.replace(/\b\w/g, (c) => c.toUpperCase())} | ${funnel.titleLabel}`,
     description: `Intake for your ${funnel.business}: every missed call and web inquiry answered within 60 seconds, 24/7, consultations booked, reviews requested. From $799/mo. Start with a free after-hours audit.`,
     robots: { index: false, follow: false },
   };
@@ -128,7 +128,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
           <div className="lg:col-span-7 lg:pt-6">
             <p className="text-sm font-bold tracking-[0.18em] uppercase text-blue-400">For {funnel.audience}</p>
             <h1 className="mt-4 text-4xl sm:text-5xl lg:text-6xl font-black font-display tracking-tight leading-[1.05] text-balance">
-              Stop Sending {funnel.customers.replace(/\b\w/g, (c) => c.toUpperCase())} to Voicemail
+              Get More {funnel.customers.replace(/\b\w/g, (c) => c.toUpperCase())}. Every One Answered in 60 Seconds.
             </h1>
             <p className="mt-4 text-base sm:text-lg font-semibold text-white">
               From $799/mo. 12-month agreement, $3,000 setup included. Month-to-month available.

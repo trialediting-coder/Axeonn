@@ -13,8 +13,11 @@ local-only. Last updated 2026-10-19 (practice repositioning).
   patient books with whoever answered first. Axeon answers every missed call
   and web inquiry within 60 seconds, 24/7, books the consultation, and asks
   every patient or client for a review after the visit.
-- The former tagline "We Get You Customers, Not Clicks." is not used in new
-  copy. The retired tagline "Your Business. Your Partner." must never be used.
+- Sell the result, not the service: lead with more new patients, clients and
+  booked consultations; the website, SEO, ads and 60-second intake are how.
+- Tagline: "We Get You Patients, Not Clicks." (the practice version of the
+  former "We Get You Customers, Not Clicks."). The retired tagline "Your
+  Business. Your Partner." must never be used.
 - Primary call to action everywhere: the free after-hours audit at /audit
   ("Get your free after-hours audit", short form "Free audit"). What it is:
   "We call your practice after hours, check how fast your website answers an

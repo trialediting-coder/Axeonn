@@ -7,9 +7,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import { TrustBadges } from '@/components/common/TrustBadges';
 import { useLeadModal } from '@/components/common/LeadModalProvider';
 
-// One phrase cycles in the otherwise-fixed headline "Stop Losing ___ to
-// Voicemail". Each is who a practice loses when nobody answers in time.
-const ROTATING_WORDS = ['New Patients', 'Consultations', 'New Clients'];
+// One phrase cycles in the otherwise-fixed headline "Get More ___": the result
+// a practice buys, not the service (owner, 2026-10-19: sell the outcome).
+const ROTATING_WORDS = ['New Patients', 'Consultations', 'Clients', 'Booked Appointments'];
 const ROTATE_INTERVAL_MS = 2200;
 
 // Matches Tailwind's `sm` breakpoint: below it the hero uses the portrait phone media.
@@ -266,7 +266,7 @@ export function Hero() {
               badges to the bottom of the hero, right above the "Helping 50+" band. */}
           <div aria-hidden="true" className="flex-1 sm:hidden" />
           <h1 className="hero-rise text-center sm:text-left text-[min(2.75rem,11vw)] sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-[-0.03em] [word-spacing:0.12em] leading-[1.05] font-display text-white">
-            Stop Losing
+            Get More
             {/* The rotating phrase always sits on its own line. */}
             <span className="grid">
               <AnimatePresence mode="wait" initial={false}>
@@ -282,7 +282,6 @@ export function Hero() {
                 </motion.span>
               </AnimatePresence>
             </span>
-            <span className="block">to Voicemail</span>
           </h1>
 
           <p
@@ -290,9 +289,9 @@ export function Hero() {
             className="hero-rise hidden sm:block mt-6 text-lg lg:text-xl text-neutral-300 font-normal leading-relaxed max-w-xl"
           >
             {/* Desktop only: on phones the hero is headline, CTAs and badges (owner, 2026-10-10). */}
-            Axeon answers every missed call and web inquiry within 60 seconds, 24/7,
-            books the consultation, and asks every patient for a review after the visit.
-            Built for dental, med spa, law and accounting practices.
+            A website, SEO and ads that bring patients in, and a system that answers every
+            call and inquiry within 60 seconds, 24/7, and books them. Built for dental, med spa,
+            law and accounting practices.
           </p>
 
           <div
