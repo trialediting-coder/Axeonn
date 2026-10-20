@@ -8,7 +8,7 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 export const metadata = buildMetadata({
   path: '/insights',
   title: 'Insights: Local Marketing & Lead Generation Guides | Axeon',
-  description: 'Practical guides to getting more calls, leads, and customers for local service businesses: SEO, AI search, websites, and lead follow-up.',
+  description: 'Practical guides to getting more patients and clients for dental practices, med spas, law firms and accounting firms: SEO, AI search, websites, ads and intake.',
 });
 
 export const revalidate = 3600;
@@ -38,7 +38,7 @@ export default async function InsightsPage() {
           Axeon Studio Insights
         </h1>
         <p className="text-lg text-neutral-600 max-w-2xl mb-14">
-          Practical guides to getting more calls, leads, and customers for local service businesses.
+          Practical guides to getting more patients and clients for dental practices, med spas, law firms and accounting firms.
         </p>
         {/* The one client case study leads the page, ahead of the guides. */}
         <Link

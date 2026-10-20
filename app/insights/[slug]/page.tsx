@@ -19,7 +19,6 @@ export const revalidate = 3600;
 // click that cover expecting to reach the real thing (Clarity logged it as a
 // dead click), so it links out.
 const CASE_STUDY_LIVE_SITES: Record<string, { name: string; url: string }> = {
-  'a-1-auto-detailing-website-case-study': { name: 'A-1 Auto Detailing', url: 'https://www.a-1autodetailing.net/' },
 };
 
 // A literal "</script>" inside JSON.stringify output would break out of the
@@ -171,12 +170,12 @@ export default async function InsightPostPage({
           className="mt-16 rounded-[28px] p-8 sm:p-10 bg-neutral-950 text-white"
         >
           <h2 className="text-2xl sm:text-3xl font-extrabold font-display tracking-tight text-white mb-3">
-            {liveSite ? `Want what ${liveSite.name} got?` : 'Want this for your business?'}
+            {liveSite ? `Want what ${liveSite.name} got?` : 'Want more patients and clients from this?'}
           </h2>
           <p className="text-neutral-300 leading-relaxed mb-6">
-            Book a free consultation. Before the call we design a custom mockup of your homepage and
-            pull an AI visibility report showing where you show up on Google, ChatGPT, and Perplexity.
-            Both are yours to keep, whether or not you hire us.
+            Start with a free after-hours audit. We call your practice or firm after hours, time how fast your
+            website answers an inquiry, and compare your reviews to the top three nearby. You get a short
+            video of what we found, whether or not you hire us.
           </p>
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <Link
