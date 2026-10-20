@@ -37,7 +37,7 @@ export function PromoBanner() {
       <div className="flex items-center gap-1.5 sm:gap-3 text-[11px] sm:text-sm font-medium text-center min-w-0 pr-8 sm:pr-0">
         <span className="truncate sm:whitespace-normal">
           <strong className="font-bold hidden sm:inline">{foundingOffer.eyebrow}: </strong>
-          <span className="hidden sm:inline">see what happens when a patient calls after hours. No charge.</span>
+          <span className="hidden sm:inline">see what happens when a new patient or client calls after hours. No charge.</span>
           <span className="sm:hidden">{foundingOffer.eyebrow}</span>
         </span>
         <Link

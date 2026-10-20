@@ -42,10 +42,10 @@ type Errors = Partial<Record<keyof AuditForm, string>>;
 function validate(f: AuditForm): Errors {
   const e: Errors = {};
   if (!f.contactName.trim()) e.contactName = 'Add your name.';
-  if (!f.businessName.trim()) e.businessName = 'Add your practice name.';
+  if (!f.businessName.trim()) e.businessName = 'Add your practice or firm name.';
   if (!f.specialty) e.specialty = 'Choose your specialty.';
   if (!f.website.trim()) e.website = 'Add your website so we can test it.';
-  if (f.phone.replace(/\D/g, '').length < 10) e.phone = 'Add the practice phone number we should call.';
+  if (f.phone.replace(/\D/g, '').length < 10) e.phone = 'Add the main office number we should call.';
   if (!EMAIL_RE.test(f.email.trim())) e.email = 'Add a valid email so we can send your video.';
   return e;
 }
@@ -175,7 +175,7 @@ export function AuditRequest({ source = 'audit' }: { source?: string }) {
               onChange={set('contactName')}
             />
           </Field>
-          <Field id="businessName" label="Practice name" error={errors.businessName}>
+          <Field id="businessName" label="Practice or firm name" error={errors.businessName}>
             <input
               id="audit-businessName"
               name="businessName"
@@ -213,7 +213,7 @@ export function AuditRequest({ source = 'audit' }: { source?: string }) {
               type="text"
               inputMode="url"
               autoComplete="url"
-              placeholder="yourpractice.com"
+              placeholder="yourpractice.com or yourfirm.com"
               spellCheck={false}
               className={inputClass}
               aria-invalid={Boolean(errors.website)}
@@ -221,7 +221,7 @@ export function AuditRequest({ source = 'audit' }: { source?: string }) {
               onChange={set('website')}
             />
           </Field>
-          <Field id="phone" label="Practice phone" error={errors.phone}>
+          <Field id="phone" label="Office phone" error={errors.phone}>
             <input
               id="audit-phone"
               name="phone"

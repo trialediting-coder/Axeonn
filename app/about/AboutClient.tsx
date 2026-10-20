@@ -19,31 +19,31 @@ import {
 const HERO_FACTS = [
   { value: '60 sec', label: 'to the first reply on every missed call and web inquiry, 24/7' },
   { value: '30 days', label: 'to go live once we have your materials' },
-  { value: '5 miles', label: 'one practice per specialty, while your account is in good standing' },
+  { value: '5 miles', label: 'one practice or firm per specialty, while your account is in good standing' },
 ];
 
 // The three layers; the performance commitment is rendered as the fourth, blue cell.
 const STEPS = [
   {
     icon: LayoutTemplate,
-    title: 'Practice Website',
-    description: 'Providers and credentials, services, real reviews and online booking on a fast, mobile-first site.',
+    title: 'Practice or Firm Website',
+    description: 'Your dentists, providers, attorneys or CPAs with credentials, services, real reviews and online booking on a fast, mobile-first site.',
   },
   {
     icon: PhoneCall,
     title: '60-Second Intake',
-    description: 'Every missed call and web inquiry answered within 60 seconds, 24/7, with a two-way text inbox for the front desk.',
+    description: 'Every missed call and web inquiry answered within 60 seconds, 24/7, with a two-way text inbox for the front desk or intake team.',
   },
   {
     icon: Star,
     title: 'Review Engine',
-    description: 'An automatic review request after every completed appointment.',
+    description: 'An automatic review request after every completed appointment or engagement.',
   },
 ];
 
 const HOW_WE_WORK = [
   'You talk to the people building your system. No account managers, no hand-offs to a junior team.',
-  'We take one practice per specialty in each area, so we are never building for your competitor down the street.',
+  'We take one practice or firm per specialty in each area, so we are never building for your competitor down the street.',
   'You go live within 30 days of getting your materials. Not six months.',
   'Every reply and booking shows up in AxeonPROOF, your client portal, with a report every month.',
 ];
@@ -69,15 +69,15 @@ export default function AboutClient() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-end">
             <div className="lg:col-span-7 hero-rise">
               <h1 className="text-3xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-neutral-950 font-display tracking-tight leading-[1.08]">
-                Your practice is great.
-                <span className="block text-blue-600 mt-2">Your voicemail is losing patients.</span>
+                Your practice or firm is great.
+                <span className="block text-blue-600 mt-2">Your voicemail is losing patients and clients.</span>
               </h1>
             </div>
 
             <div className="lg:col-span-5 flex flex-col justify-end hero-rise">
               <p className="text-base sm:text-lg text-neutral-600 leading-relaxed">
-                Axeon was built in West Des Moines to fix that. We install patient and client intake for dental, med spa,
-                law and accounting practices, so every call and inquiry gets an answer within 60 seconds. You work
+                Axeon was built in West Des Moines to fix that. We install patient and client intake for dental practices, med
+                spas, law firms and CPA firms, so every call and inquiry gets an answer within 60 seconds. You work
                 directly with the team doing the work.
               </p>
               <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -199,7 +199,7 @@ export default function AboutClient() {
                 </div>
                 <div className="text-3xl sm:text-4xl font-extrabold font-display leading-tight">Axeon Studio</div>
                 <p className="mt-3 text-sm sm:text-base text-neutral-400 leading-relaxed">
-                  Patient and client intake for private practices. Built here, answering the phone here.
+                  Patient and client intake for private practices and professional firms. Built here, answering the phone here.
                 </p>
               </div>
 
@@ -236,13 +236,13 @@ export default function AboutClient() {
                 </h2>
                 <div className="mt-5 space-y-4 text-sm sm:text-base lg:text-lg text-neutral-600 leading-relaxed">
                   <p>
-                    Good practices lose new patients and clients every week without knowing it. The call comes in after
+                    Good practices and firms lose new patients and clients every week without knowing it. The call comes in after
                     hours or during a busy morning, goes to voicemail, and the person books with whoever answered first.
                     The web form waits until tomorrow.
                   </p>
                   <p>
                     So <strong className="text-neutral-950 font-display">Axeon</strong> installs the intake that answers
-                    them: a reply within 60 seconds, a way to book, and a review request after the visit. We commit to
+                    them: a reply within 60 seconds, a way to book, and a review request after the visit or engagement. We commit to
                     those in writing, and you can walk away if we miss them.
                   </p>
                 </div>
@@ -251,13 +251,13 @@ export default function AboutClient() {
               <div className="p-6 sm:p-7 rounded-2xl bg-neutral-900 text-white border border-neutral-800 shadow-md">
                 <div className="text-xs font-mono font-bold uppercase tracking-wider text-blue-400">Who we work with</div>
                 <p className="mt-3 text-lg sm:text-xl font-bold font-display text-neutral-100 leading-snug">
-                  Established private practices: dental offices, med spas, law firms and accounting firms.
+                  Established private practices and firms: dental offices, med spas, law firms and accounting and CPA firms.
                 </p>
                 <Link
                   href="/solutions"
                   className="py-2 mt-3 inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-blue-300 hover:text-white transition-colors"
                 >
-                  See the practices we serve <ArrowRight size={13} />
+                  See who we serve <ArrowRight size={13} />
                 </Link>
               </div>
             </div>
@@ -275,7 +275,7 @@ export default function AboutClient() {
             </h2>
             <p className="mt-5 text-base sm:text-lg text-neutral-400 leading-relaxed max-w-md">
               Out here you earn trust by doing what you said you would. No big-city office overhead, so your money goes
-              into the system that answers your patients.
+              into the system that answers your patients and clients.
             </p>
           </div>
           <ol className="lg:col-span-7 divide-y divide-white/10 border-y border-white/10">
@@ -301,8 +301,8 @@ export default function AboutClient() {
             Find out what happens after hours.
           </h2>
           <p className="text-base sm:text-lg text-neutral-600 mt-4 leading-relaxed max-w-2xl mx-auto">
-            We call your practice after hours, check how fast your website answers an inquiry, and compare your reviews to
-            the top 3 nearby practices. You get a short video walkthrough of what we found. No charge.
+            We call your practice or firm after hours, check how fast your website answers an inquiry, and compare your reviews to
+            the top 3 nearby competitors. You get a short video walkthrough of what we found. No charge.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
             <button

@@ -25,7 +25,7 @@ export const metadata = buildMetadata({
   path: '/partners',
   title: 'Partner Program | Axeon Studio',
   description:
-    'CPAs, practice consultants and billing firms: refer dental, med spa, law and accounting practices to Axeon and earn a 15% recurring Technology Advisory Share, disclosed to the client in writing, or pass it to your client as a fee credit.',
+    'CPAs, practice consultants and billing firms: refer dental practices, med spas, law firms and CPA firms to Axeon and earn a 15% recurring Technology Advisory Share, disclosed to the client in writing, or pass it to your client as a fee credit.',
 });
 
 const APPLY_SUBJECT = 'Axeon partner application';
@@ -35,7 +35,7 @@ const APPLY_BODY = [
   'Website:',
   'City / area you serve:',
   'Track (Practice Advisor, Referral, Collaboration, or not sure):',
-  'Which practices you work with:',
+  'Which practices or firms you work with:',
   'How you picture us working together:',
   'Best phone number:',
 ].join('\n\n');
@@ -48,61 +48,61 @@ const BUTTON =
 
 // The referral loop shown in the hero: who does what, in order.
 const LOOP = [
-  { icon: UserRound, who: 'You', what: 'Introduce a practice that loses calls after hours' },
+  { icon: UserRound, who: 'You', what: 'Introduce a practice or firm that loses calls after hours' },
   { icon: Search, who: 'Axeon', what: 'Runs a free after-hours audit and walks them through it' },
   { icon: Rocket, who: 'Your client', what: 'Every missed call and inquiry answered within 60 seconds' },
   { icon: Gift, who: 'Back to you', what: 'A 15% recurring Technology Advisory Share, or a fee credit for your client' },
 ];
 
 const ADVISOR_POINTS = [
-  'A 15% recurring Technology Advisory Share for as long as the practice stays a client',
+  'A 15% recurring Technology Advisory Share for as long as the practice or firm stays a client',
   'Disclosed to your client in writing, every time',
   'Or pass the value to your client as a fee credit instead',
-  'Free after-hours audits for any practice you work with',
+  'Free after-hours audits for any practice or firm you work with',
   'Your clients get the 90-day performance commitment',
 ];
 
 const REFERRAL_POINTS = [
   'A simple way to make intros',
-  'A referral reward when the practice pays its first invoice',
+  'A referral reward when the practice or firm pays its first invoice',
   'Updates from the audit to launch',
 ];
 
 const COLLAB_POINTS = [
-  'Handoffs both ways when a practice needs what the other does',
+  'Handoffs both ways when a client needs what the other does',
   'Your tool set up properly alongside the intake we install',
-  'Joint guides or workshops for the practices we both serve',
+  'Joint guides or workshops for the practices and firms we both serve',
 ];
 
 const FITS = [
   {
     icon: Calculator,
     title: 'CPAs and accounting firms',
-    description: 'You already advise practice owners on their numbers. Missed new patients are part of those numbers.',
+    description: 'You already advise practice and firm owners on their numbers. Missed new patients and clients are part of those numbers.',
   },
   {
     icon: Briefcase,
-    title: 'Practice management consultants',
-    description: 'You fix operations for dental, med spa and professional practices. We handle the front door.',
+    title: 'Practice and law firm consultants',
+    description: 'You fix operations for dental offices, med spas, law firms and accounting firms. We handle the front door.',
   },
   {
     icon: Receipt,
-    title: 'Medical and dental billing firms',
-    description: 'You see the schedule gaps first. We help fill them with the inquiries that were going to voicemail.',
+    title: 'Billing and back-office firms',
+    description: 'Dental and medical billing, legal billing, bookkeeping. You see the schedule gaps first. We help fill them with the inquiries that were going to voicemail.',
   },
   {
     icon: Server,
-    title: 'Practice software vendors',
-    description: 'Practice management, scheduling and phone systems that practices already run on.',
+    title: 'Practice and firm software vendors',
+    description: 'Practice and case management, tax workflow, scheduling and phone systems that practices and firms already run on.',
   },
   {
     icon: Landmark,
-    title: 'Practice lenders and brokers',
-    description: 'Your clients are buying, expanding or transitioning a practice and need new patients to find it.',
+    title: 'Practice and firm lenders and brokers',
+    description: 'Your clients are buying, expanding or transitioning a practice or firm and need new patients or clients to find it.',
   },
   {
     icon: ShieldCheck,
-    title: 'IT and managed services for practices',
+    title: 'IT and managed services for practices and firms',
     description: 'You keep the office tech running. We install the intake on top of it.',
   },
 ];
@@ -111,7 +111,7 @@ const STEPS = [
   { title: 'Request the brief', description: 'We hand-deliver the partner brief with the full terms.' },
   { title: 'Intro call', description: 'A short call to see if we are a good fit and pick the right track.' },
   { title: 'Sign the agreement', description: 'A short, plain-English agreement, including the client disclosure.' },
-  { title: 'Introduce a practice', description: 'We start with a free after-hours audit for them.' },
+  { title: 'Introduce a practice or firm', description: 'We start with a free after-hours audit for them.' },
 ];
 
 const PROMISES = [
@@ -124,7 +124,7 @@ const PARTNER_FAQ = [
   {
     question: 'What is the Technology Advisory Share?',
     answer:
-      'CPAs, practice consultants and billing firms who introduce a practice earn a 15% recurring share for as long as that practice stays a client. It is disclosed to the client in writing. The partner brief spells out exactly how it is calculated and paid.',
+      'CPAs, practice consultants and billing firms who introduce a practice or firm earn a 15% recurring share for as long as it stays a client. It is disclosed to the client in writing. The partner brief spells out exactly how it is calculated and paid.',
   },
   {
     question: 'My professional rules limit referral fees. Can I still partner?',
@@ -134,7 +134,7 @@ const PARTNER_FAQ = [
   {
     question: 'What do my clients get?',
     answer:
-      'A free after-hours audit: we call the practice after hours, check how fast its website answers an inquiry, and compare its reviews to the top 3 nearby practices, then send a short video walkthrough. No charge and no obligation.',
+      'A free after-hours audit: we call the practice or firm after hours, check how fast its website answers an inquiry, and compare its reviews to the top 3 nearby competitors, then send a short video walkthrough. No charge and no obligation.',
   },
   {
     question: 'Do I have to sell anything?',
@@ -144,12 +144,12 @@ const PARTNER_FAQ = [
   {
     question: 'Why do you review applications?',
     answer:
-      'Your name is on every introduction you make, and we take one practice per specialty within 5 miles. We keep the program small so each introduction gets real attention.',
+      'Your name is on every introduction you make, and we take one practice or firm per specialty within 5 miles. We keep the program small so each introduction gets real attention.',
   },
   {
-    question: 'I build software for practices. How does that work?',
+    question: 'I build software for practices or firms. How does that work?',
     answer:
-      'Apply on the Collaboration track. If the practices we serve would benefit from your product, we can recommend it and set it up properly alongside the intake we install, and you can do the same for us.',
+      'Apply on the Collaboration track. If the practices and firms we serve would benefit from your product, we can recommend it and set it up properly alongside the intake we install, and you can do the same for us.',
   },
 ];
 
@@ -237,12 +237,12 @@ export default function PartnersPage() {
           <div className="lg:col-span-7">
             <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-5">[ The Axeon Partner Program ]</p>
             <h1 className="text-5xl sm:text-6xl xl:text-7xl font-black tracking-[-0.04em] leading-[0.98] font-display mb-7">
-              Send us a practice.
+              Send us a practice or firm.
               <br />
               <span className="text-neutral-400">We&apos;ll start with a free audit.</span>
             </h1>
             <p className="text-lg text-neutral-200 leading-relaxed max-w-xl mb-10">
-              CPAs, practice consultants and billing firms already advise the practices that lose new patients after hours.
+              CPAs, practice consultants and billing firms already advise the practices and firms that lose new patients and clients after hours.
               Introduce them to us and earn a 15% recurring Technology Advisory Share, disclosed to the client in writing,
               or pass it to your client as a fee credit.
             </p>
@@ -283,7 +283,7 @@ export default function PartnersPage() {
               <p className="text-xs font-mono font-bold tracking-widest text-blue-100 uppercase mb-2">[ For CPAs, consultants &amp; billing firms ]</p>
               <h3 className="text-3xl sm:text-4xl font-black tracking-tight font-display mb-3">Practice Advisor</h3>
               <p className="text-blue-100 text-lg leading-relaxed">
-                You advise practice owners on their numbers and operations. When a client is losing new patients or clients
+                You advise practice and firm owners on their numbers and operations. When a client is losing new patients or clients
                 to voicemail, introduce them. We run the audit, they decide, and you earn a recurring share or pass it to them.
               </p>
               <a
@@ -308,7 +308,7 @@ export default function PartnersPage() {
               <Send size={26} className="mb-6 text-blue-600" />
               <h3 className="text-2xl font-black tracking-tight font-display mb-2">Referral Partner</h3>
               <p className="text-neutral-600 text-lg mb-6 leading-relaxed">
-                You know a practice owner who keeps missing calls. Make the intro, we handle everything else.
+                You know a practice or firm owner who keeps missing calls. Make the intro, we handle everything else.
               </p>
               <ul className="mt-auto divide-y divide-neutral-200 border-t border-neutral-200">
                 {REFERRAL_POINTS.map((point) => (
@@ -322,7 +322,7 @@ export default function PartnersPage() {
               <Puzzle size={26} className="mb-6 text-blue-600" />
               <h3 className="text-2xl font-black tracking-tight font-display mb-2">Collaboration Partner</h3>
               <p className="text-neutral-600 text-lg mb-6 leading-relaxed">
-                You serve the same practices with software or a service that fits next to ours. We recommend each other when
+                You serve the same practices and firms with software or a service that fits next to ours. We recommend each other when
                 it makes sense.
               </p>
               <ul className="mt-auto divide-y divide-neutral-200 border-t border-neutral-200">
@@ -343,7 +343,7 @@ export default function PartnersPage() {
           <div className="lg:col-span-4">
             <h2 className="text-4xl sm:text-5xl font-black tracking-[-0.03em] font-display mb-4">Who we partner with</h2>
             <p className="text-lg text-neutral-600 leading-relaxed">
-              The people practice owners already trust. If your clients run a dental office, med spa, law firm or
+              The people practice and firm owners already trust. If your clients run a dental office, med spa, law firm or
               accounting firm, this is for you.
             </p>
           </div>
@@ -412,7 +412,7 @@ export default function PartnersPage() {
         <div className="max-w-6xl mx-auto rounded-[32px] bg-neutral-950 text-white px-8 py-14 sm:px-14 sm:py-16 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
           <div className="max-w-xl">
             <h2 className="text-3xl sm:text-4xl font-black tracking-[-0.03em] font-display mb-3">
-              Know a practice that loses calls after hours?
+              Know a practice or firm that loses calls after hours?
             </h2>
             <p className="text-lg text-neutral-300 leading-relaxed">
               Request the partner brief. We hand-deliver it with the full terms and reply to every request.

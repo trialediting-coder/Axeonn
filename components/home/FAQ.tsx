@@ -34,7 +34,7 @@ export function FAQ() {
       />
       <div className="max-w-5xl mx-auto">
         <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-neutral-950 mb-12 sm:mb-16 text-center">
-          Questions Practice Owners Ask
+          Questions Practice and Firm Owners Ask
         </h2>
         <FAQAccordion items={condensed} defaultOpenCount={1} size="large" />
         <div className="mt-12 sm:mt-14 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">

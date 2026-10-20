@@ -9,7 +9,7 @@ import { ArrowRight, ArrowUpRight, PhoneCall, Timer, Star, Gauge, MessageSquareT
 const AUDIT_STEPS = [
   { icon: PhoneCall, title: 'We call after hours', body: 'The way a new patient or client would, and note what they hear.' },
   { icon: Timer, title: 'We time your website', body: 'We send an inquiry through your site and clock the first reply.' },
-  { icon: Star, title: 'We compare your reviews', body: 'Your Google reviews next to the top 3 nearby practices.' },
+  { icon: Star, title: 'We compare your reviews', body: 'Your Google reviews next to the top 3 nearby competitors.' },
 ];
 
 const PORTAL = [
@@ -33,7 +33,7 @@ export function HomeProof() {
             id="home-proof-heading"
             className="mt-4 text-3xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.08] text-balance"
           >
-            Don&apos;t take our word for it. Test your own practice.
+            Don&apos;t take our word for it. Test your own practice or firm.
           </h2>
           <p className="mt-5 text-base sm:text-lg text-neutral-600 leading-relaxed">
             Start with a free audit of what happens today. If you become a client, you see every reply and booking in your own
@@ -46,7 +46,7 @@ export function HomeProof() {
           <div className="rounded-[28px] bg-neutral-950 text-white p-7 sm:p-10 flex flex-col">
             <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">[ The free after-hours audit ]</p>
             <h3 className="mt-4 text-2xl sm:text-3xl font-extrabold font-display tracking-tight leading-snug">
-              A short video walkthrough of what your next new patient will experience.
+              A short video walkthrough of what your next new patient or client will experience.
             </h3>
             <ul className="mt-8 divide-y divide-white/10 border-y border-white/10">
               {AUDIT_STEPS.map(({ icon: Icon, title, body }) => (
@@ -76,7 +76,7 @@ export function HomeProof() {
           <div className="rounded-[28px] border border-neutral-200 bg-white p-7 sm:p-10 flex flex-col">
             <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ AxeonPROOF ]</p>
             <h3 className="mt-4 text-2xl sm:text-3xl font-extrabold font-display tracking-tight leading-snug text-neutral-950">
-              The client portal every practice gets. You see the work, not a summary we wrote.
+              The client portal every practice and firm gets. You see the work, not a summary we wrote.
             </h3>
             <ul className="mt-8 divide-y divide-neutral-200 border-y border-neutral-200">
               {PORTAL.map(({ icon: Icon, title, body }) => (

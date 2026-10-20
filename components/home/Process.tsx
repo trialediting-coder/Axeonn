@@ -15,7 +15,7 @@ const steps: ProcessStep[] = [
   {
     num: '01',
     title: 'Free After-Hours Audit',
-    desc: 'We call your practice after hours, time how fast your website answers an inquiry, and compare your reviews to the top 3 practices near you.',
+    desc: 'We call your practice or firm after hours, time how fast your website answers an inquiry, and compare your reviews to the top 3 competitors near you.',
     duration: 'Before you sign anything',
     deliverables: ['After-hours call test', 'Inquiry response time', 'Reviews vs. the top 3 nearby', 'Mobile speed'],
     outcome: 'A short video walkthrough of where patients and clients slip away today.',
@@ -23,15 +23,15 @@ const steps: ProcessStep[] = [
   {
     num: '02',
     title: 'Plan & Agreement',
-    desc: 'We map how every call and web inquiry should be answered, booked and followed up for your practice, then put the scope and price in writing.',
+    desc: 'We map how every call and web inquiry should be answered, booked and followed up for your practice or firm, then put the scope and price in writing.',
     duration: 'One call',
-    deliverables: ['Intake flow for your front desk', 'Booking rules by provider and service', 'Signed Client Services Agreement'],
+    deliverables: ['Intake flow for your front desk or intake team', 'Booking rules by provider, attorney or service', 'Signed Client Services Agreement'],
     outcome: 'A plan and a price, with the performance commitment written in.',
   },
   {
     num: '03',
     title: 'Build & Go Live',
-    desc: 'We build your practice website and set up missed-call text-back, the 60-second inquiry reply, online booking, the front-desk text inbox and review requests.',
+    desc: 'We build your website and set up missed-call text-back, the 60-second inquiry reply, online booking, the text inbox for your front desk or intake team, and review requests.',
     duration: 'Live within 30 days of your materials',
     deliverables: ['Mockups you review', 'Phone, text and booking set up', 'Intake that never asks for health details'],
     outcome: 'Every call and inquiry answered, starting on launch day.',

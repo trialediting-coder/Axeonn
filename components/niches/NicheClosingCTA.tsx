@@ -53,7 +53,7 @@ export function NicheClosingCTA({ niche }: { niche: Niche }) {
             href="/solutions"
             className="py-2 text-sm text-neutral-400 hover:text-blue-400 underline underline-offset-4 transition-colors"
           >
-            Not your specialty? See other practice types
+            Not your specialty? See the practices and firms we serve
           </Link>
         </div>
       </div>

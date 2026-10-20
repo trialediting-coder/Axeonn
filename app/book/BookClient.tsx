@@ -45,7 +45,7 @@ export default function BookClient() {
               <div className="space-y-4 sm:space-y-5">
                 <span className="block text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ BOOK A CALL ]</span>
                 <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-zinc-950 tracking-tight leading-[1.12] font-display">
-                  Talk through your practice&apos;s intake in 30 minutes.
+                  Talk through your practice or firm&apos;s intake in 30 minutes.
                 </h1>
 
                 <p className="text-base sm:text-lg text-zinc-600 leading-relaxed font-normal">
@@ -55,7 +55,7 @@ export default function BookClient() {
                 <ul className="space-y-2.5 pt-1">
                   {[
                     'How your calls and web inquiries are answered today, after hours and during busy hours',
-                    'Your reviews next to the top 3 practices near you',
+                    'Your reviews next to the top 3 competitors near you',
                     'A clear plan and price: AxeonCORE from $799/mo, with our 90-day performance commitment',
                   ].map((item) => (
                     <li key={item} className="flex items-start gap-2.5 text-sm sm:text-base text-zinc-700 leading-relaxed">
@@ -71,7 +71,7 @@ export default function BookClient() {
                     Rather see the problem first?
                   </p>
                   <p className="mt-1.5 text-sm text-zinc-600 leading-relaxed">
-                    We call your practice after hours, check how fast your website answers an inquiry, and send you a
+                    We call your practice or firm after hours, check how fast your website answers an inquiry, and send you a
                     short video of what we found. No charge.
                   </p>
                   <Link

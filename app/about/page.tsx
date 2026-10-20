@@ -7,7 +7,7 @@ export const metadata = buildMetadata({
   path: '/about',
   title: 'About Axeon Studio | Patient & Client Intake, West Des Moines',
   description:
-    'Axeon Studio installs patient and client intake for dental, med spa, law and accounting practices. Based in West Des Moines. Work directly with the team building your system.',
+    'Axeon Studio installs patient and client intake for dental practices, med spas, law firms and CPA firms. Based in West Des Moines. Work directly with the team building your system.',
 });
 
 // The Organization node is defined once in the root layout graph;
@@ -17,7 +17,7 @@ const aboutPageJsonLd = {
   '@type': 'AboutPage',
   '@id': `${SITE_URL}/about#webpage`,
   url: `${SITE_URL}/about`,
-  name: 'About Axeon Studio | Patient & Client Intake for Practices',
+  name: 'About Axeon Studio | Patient & Client Intake for Practices and Firms',
   about: { '@id': ORG_ID },
   mainEntity: { '@id': ORG_ID },
 };

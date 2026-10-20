@@ -35,7 +35,7 @@ export default function WhyAxeonClient() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="text-lg text-neutral-600 leading-relaxed"
           >
-            A typical agency builds your practice a website and hands it over. Axeon installs what happens after
+            A typical agency builds your practice or firm a website and hands it over. Axeon installs what happens after
             someone finds you: the reply, the booking and the review.
           </motion.p>
         </div>
@@ -48,7 +48,7 @@ export default function WhyAxeonClient() {
         eyebrow="02 · GET CHOSEN"
         layout="giant"
         tone="warm"
-        heading="New patients compare reviews before they call."
+        heading="New patients and clients compare reviews before they call."
         stat={{
           value: '97%',
           label: 'of people read reviews before choosing a local business.',
@@ -56,12 +56,12 @@ export default function WhyAxeonClient() {
           href: 'https://www.brightlocal.com/research/local-consumer-review-survey/',
         }}
         typical={[
-          'Reviews depend on patients remembering to leave one.',
-          'Stock photos and provider bios that could be any practice.',
+          'Reviews depend on patients and clients remembering to leave one.',
+          'Stock photos and bios that could be any practice or firm.',
         ]}
         axeon={[
-          'An automatic review request after every completed appointment.',
-          'Your providers, credentials and real reviews up front.',
+          'An automatic review request after every completed appointment or engagement.',
+          'Your dentists, providers, attorneys or CPAs, their credentials and real reviews up front.',
           'Your Google Business Profile kept current.',
         ]}
       />
@@ -69,7 +69,7 @@ export default function WhyAxeonClient() {
       <VersusSection
         id="get-booked"
         eyebrow="03 · GET BOOKED"
-        heading="Every missed call is a new patient calling another practice."
+        heading="Every missed call is a new patient or client calling someone else."
         stat={{
           value: '21×',
           label: 'more likely to qualify when a lead hears back within 5 minutes instead of 30.',
@@ -82,7 +82,7 @@ export default function WhyAxeonClient() {
         ]}
         axeon={[
           'Every missed call and web inquiry answered within 60 seconds, 24/7.',
-          'Online consultation booking and a two-way text inbox for the front desk.',
+          'Online consultation booking and a two-way text inbox for the front desk or intake team.',
           'AxeonPROOF shows every recovered inquiry and booking, with a monthly report.',
         ]}
       />

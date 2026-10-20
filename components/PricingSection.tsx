@@ -105,7 +105,7 @@ export function PricingSection({
           </p>
           <p className="mt-5 text-sm sm:text-base text-blue-100 leading-relaxed max-w-3xl">
             Included with AxeonCORE and AxeonGROWTH, written into your agreement and measured in AxeonPROOF. We
-            don&apos;t promise a number of new patients, revenue, or rankings. We promise the system does its job.
+            don&apos;t promise a number of new patients, clients, cases, revenue, or rankings. We promise the system does its job.
             Plus territory exclusivity: {TERRITORY_LINE.toLowerCase()}
           </p>
         </div>
@@ -368,8 +368,8 @@ function FreeAuditStrip() {
           [ START HERE: FREE AFTER-HOURS AUDIT ]
         </p>
         <p className="mt-2 text-lg sm:text-xl font-bold font-display text-neutral-950 leading-snug">
-          We call your practice after hours, check how fast your website answers an inquiry, and compare your
-          reviews to the top 3 nearby practices.
+          We call your practice or firm after hours, check how fast your website answers an inquiry, and compare your
+          reviews to the top 3 nearby competitors.
         </p>
         <ul className="mt-3 flex flex-col sm:flex-row sm:flex-wrap gap-x-6 gap-y-2 text-sm sm:text-base text-neutral-600">
           <li className="flex items-center gap-2">

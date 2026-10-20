@@ -7,9 +7,9 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/pricing',
-  title: 'Pricing for Practices: AxeonCORE & AxeonGROWTH | Axeon Studio',
+  title: 'Pricing for Practices & Firms: AxeonCORE & AxeonGROWTH | Axeon Studio',
   description:
-    'Patient and client intake for dental, med spa, law and CPA practices. AxeonCORE from $799/mo, AxeonGROWTH from $1,999/mo. 12-month agreement, $3,000 setup included, month-to-month available. Start with a free after-hours audit.',
+    'Patient and client intake for dental practices, med spas, law firms and CPA firms. AxeonCORE from $799/mo, AxeonGROWTH from $1,999/mo. 12-month agreement, $3,000 setup included, month-to-month available. Start with a free after-hours audit.',
 });
 
 // Order: commitment + plans -> 21x band (why AxeonCORE) -> add-ons + engine -> FAQ -> CTA.
@@ -18,7 +18,7 @@ export default function PricingPage() {
   return (
     <main className="pt-24">
       <BreadcrumbJsonLd items={[{ name: 'Pricing', path: '/pricing' }]} />
-      <h1 className="sr-only">Pricing for Dental, Med Spa, Law and Accounting Practices — Axeon Studio, Iowa</h1>
+      <h1 className="sr-only">Pricing for Dental Practices, Med Spas, Law Firms and CPA Firms — Axeon Studio, Iowa</h1>
       <PricingSection
         includeFaqSchema
         tightTop
@@ -36,8 +36,8 @@ export default function PricingPage() {
             Find out what happens to your after-hours calls.
           </h2>
           <p className="text-lg sm:text-xl text-neutral-300 max-w-2xl mx-auto leading-relaxed">
-            We call your practice after hours, time how fast your website answers an inquiry, and compare your
-            reviews to the top 3 nearby practices. You get a short video walkthrough of what we found. No charge.
+            We call your practice or firm after hours, time how fast your website answers an inquiry, and compare your
+            reviews to the top 3 nearby competitors. You get a short video walkthrough of what we found. No charge.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4">
             <Link

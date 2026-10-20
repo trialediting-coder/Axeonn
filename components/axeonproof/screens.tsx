@@ -353,7 +353,7 @@ export function AnalyticsCards({ active, onActive, ms = 0 }: { active?: string |
       {card(
         'bring',
         4,
-        'Pages that bring patients',
+        'Pages that bring new patients and clients',
         'First page of the visit, and how many reached out',
         <>
           <Rows rows={a.bring} ms={ms} />
@@ -365,7 +365,7 @@ export function AnalyticsCards({ active, onActive, ms = 0 }: { active?: string |
       {card(
         'when',
         6,
-        'When patients reach out',
+        'When people reach out',
         'Calls, texts, emails, forms and bookings by time of day and day of week',
         <div className="mt-4 grid grid-cols-[3fr_1.2fr] gap-6">
           <div>
@@ -536,7 +536,7 @@ export function GhostScreen({ tab }: { tab: ProofTab }) {
               </p>
               <p className="mt-1 text-xs leading-relaxed text-neutral-600">Plus the ad budget you set ($500/mo minimum), paid to Google directly and yours to decide.</p>
             </div>
-            <p className="mt-4 text-xs leading-relaxed text-neutral-600">{plan} is set up for your practice, not switched on with a click. Tell us you are interested and we will walk you through what changes.</p>
+            <p className="mt-4 text-xs leading-relaxed text-neutral-600">{plan} is set up for your practice or firm, not switched on with a click. Tell us you are interested and we will walk you through what changes.</p>
             <span className="mt-3 inline-flex h-10 w-full items-center justify-center rounded-lg bg-blue-600 text-sm font-semibold text-white">Ask us about {plan}</span>
           </Card>
         </div>

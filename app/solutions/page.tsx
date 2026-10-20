@@ -6,7 +6,7 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/solutions',
-  title: 'Patient & Client Intake for Practices | Axeon Studio',
+  title: 'Patient & Client Intake for Practices & Firms | Axeon Studio',
   description:
     'Intake infrastructure for dental practices, med spas, law firms and accounting firms: every missed call and web inquiry answered within 60 seconds, 24/7, consultations booked, and a review request after every visit.',
 });
@@ -21,14 +21,14 @@ const EYEBROW = 'text-xs font-mono font-bold tracking-widest text-blue-600 upper
 export default function SolutionsHubPage() {
   return (
     <main className="w-full pt-36 sm:pt-40 pb-24 px-6 sm:px-10 lg:px-16 xl:px-24">
-      <BreadcrumbJsonLd items={[{ name: 'Practices', path: '/solutions' }]} />
+      <BreadcrumbJsonLd items={[{ name: 'Who we help', path: '/solutions' }]} />
       <div className="max-w-6xl mx-auto">
         <p className={`${EYEBROW} mb-3`}>[ WHO WE HELP ]</p>
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-[1.05] text-balance text-neutral-950 mb-5 max-w-4xl">
-          Built for established private practices.
+          Built for established practices and professional firms.
         </h1>
         <p className="text-lg text-neutral-600 max-w-2xl mb-14">
-          Dental, med spa, law and accounting practices lose new patients and clients in the same place: the call or form
+          Dental practices, med spas, law firms and CPA firms lose new patients and clients in the same place: the call or form
           nobody answers until tomorrow. Pick yours to see where it happens and how we answer it within 60 seconds. AxeonCORE
           starts at $799/mo with a 90-day performance commitment.
         </p>
@@ -61,10 +61,10 @@ export default function SolutionsHubPage() {
           />
           <div className="relative z-10 max-w-3xl">
             <h2 className="text-3xl sm:text-4xl font-extrabold font-display tracking-tight mb-4">
-              A different kind of private practice?
+              A different kind of practice or firm?
             </h2>
             <p className="text-base sm:text-lg text-neutral-300 leading-relaxed mb-8">
-              If your practice books consultations or appointments, it runs on the same thing: a call or an inquiry that
+              If your practice or firm books consultations or appointments, it runs on the same thing: a call or an inquiry that
               needs an answer before the person calls someone else. Start with the free after-hours audit and we will tell
               you honestly whether the system fits.
             </p>

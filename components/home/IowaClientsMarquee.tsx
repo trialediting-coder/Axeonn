@@ -6,11 +6,11 @@ const ITEMS = [
   '60-second first reply, 24/7',
   'Missed-call text-back',
   'Online consultation booking',
-  'Two-way text inbox for the front desk',
+  'Two-way text inbox for your front desk or intake team',
   'Review request after every visit',
   'Call tracking',
   'AxeonPROOF client portal',
-  'One practice per specialty within 5 miles',
+  'One practice or firm per specialty within 5 miles',
 ];
 
 function Item({ label }: { label: string }) {
@@ -30,7 +30,7 @@ export function IowaClientsMarquee() {
   return (
     <section
       id="whats-included"
-      aria-label="What every practice gets"
+      aria-label="What every practice and firm gets"
       className="w-full py-4 sm:py-9 bg-white border-b border-neutral-200"
     >
       <p className="text-center text-[11px] sm:text-base font-bold tracking-[0.06em] sm:tracking-[0.22em] whitespace-nowrap sm:whitespace-normal text-[#3366ff] uppercase mb-2 sm:mb-5 px-4">

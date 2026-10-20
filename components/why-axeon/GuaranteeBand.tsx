@@ -21,7 +21,7 @@ export function GuaranteeBand({ id = 'guarantee' }: { id?: string }) {
             </h2>
             <p className="mt-4 text-sm sm:text-base text-blue-100 leading-relaxed max-w-2xl">
               Included with AxeonCORE and AxeonGROWTH, written into your agreement, and measured in AxeonPROOF. We
-              don&apos;t promise a number of new patients, revenue, or rankings.{' '}
+              don&apos;t promise a number of new patients, clients, cases, revenue, or rankings.{' '}
               <Link href="/pricing" className="underline underline-offset-2 font-semibold text-white">
                 See the terms
               </Link>

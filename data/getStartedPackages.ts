@@ -23,7 +23,7 @@ export const GOALS = [
   'Answer every call and inquiry',
   'More new patients or clients',
   'More reviews',
-  'A new practice website',
+  'A new website for the practice or firm',
   'Something else',
 ] as const;
 export type Goal = (typeof GOALS)[number];
@@ -83,7 +83,7 @@ export const PACKAGES: Package[] = [
     priceLabel: 'From $799/mo',
     tagline: 'Patient & client intake: every missed call and web inquiry answered within 60 seconds, 24/7.',
     includes: [
-      'A custom practice website with online consultation booking',
+      'A custom website with online consultation booking',
       '24/7 missed-call text-back and a first reply to every web inquiry within 60 seconds',
       'Review requests after every appointment, AxeonPROOF, and the 90-day performance commitment',
     ],
@@ -102,7 +102,7 @@ export const PACKAGES: Package[] = [
     tagline: 'Intake infrastructure plus active acquisition: ads, an AI receptionist, and reactivation.',
     includes: [
       'Everything in AxeonCORE, plus Google Local Services Ads & search ads management',
-      'An AI phone receptionist and a quarterly past-patient reactivation campaign',
+      'An AI phone receptionist and a quarterly reactivation campaign to past patients and clients',
       'Quarterly photo & video, and a monthly strategy call',
     ],
     services: ['Website', 'SEO', 'Content', 'AI Automation', 'Google Ads', 'Meta Ads'],
@@ -120,9 +120,9 @@ export const CUSTOM_PACKAGE: Package = {
   name: 'Custom Plan',
   price: 0,
   priceLabel: 'Scoped on a call',
-  tagline: 'Your practice needs a custom scope. Let’s map it out together.',
+  tagline: 'Your practice or firm needs a custom scope. Let’s map it out together.',
   includes: [
-    'A short call to understand your practice and goals',
+    'A short call to understand your practice or firm and goals',
     'A recommended plan built around what you picked',
     'A clear price before you sign anything',
   ],

@@ -6,7 +6,7 @@ export const metadata = buildMetadata({
   path: '/book',
   title: 'Book a Call | Axeon Studio',
   description:
-    'Book a free 30-minute call with Axeon Studio. We look at how your practice answers calls and web inquiries today, where patients and clients slip away, and what AxeonCORE would change.',
+    'Book a free 30-minute call with Axeon Studio. We look at how your practice or firm answers calls and web inquiries today, where patients and clients slip away, and what AxeonCORE would change.',
 });
 
 export default function BookPage() {

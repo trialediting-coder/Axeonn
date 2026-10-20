@@ -5,7 +5,7 @@ import type { Niche } from '@/data/nichesData';
 // practice's own workflow as a timeline: horizontal on desktop, vertical on
 // mobile. Each step that plugs a leak says which one.
 const SYSTEM = [
-  { title: 'Practice website', body: 'Providers and credentials, services, reviews and booking on one fast, mobile-first site.' },
+  { title: 'Website', body: 'Your people and credentials, services, reviews and booking on one fast, mobile-first site.' },
   { title: '60-second intake', body: 'Every missed call and web inquiry gets a reply within 60 seconds, 24/7, and a way to book.' },
   { title: 'Review engine', body: 'An automatic review request after every appointment, so your reputation keeps up with your work.' },
 ];

@@ -6,9 +6,9 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/process',
-  title: 'Our Process: Practice Intake in 30 Days | Axeon Studio',
+  title: 'Our Process: Practice & Firm Intake in 30 Days | Axeon Studio',
   description:
-    'How we install a practice website, 60-second intake and booking, and review requests: from the free after-hours audit to live within 30 days of getting your materials, then your first 90 days.',
+    'How we install a website, 60-second intake and booking, and review requests: from the free after-hours audit to live within 30 days of getting your materials, then your first 90 days. For dental practices, med spas, law firms and CPA firms.',
 });
 
 
@@ -48,8 +48,8 @@ export default function ProcessPage() {
             Start with the free after-hours audit
           </h2>
           <p className="text-lg sm:text-xl text-neutral-300 max-w-2xl mx-auto leading-relaxed">
-            We call your practice after hours, check how fast your website answers an inquiry, and compare your reviews to
-            the top 3 nearby practices. You get a short video walkthrough. No charge.
+            We call your practice or firm after hours, check how fast your website answers an inquiry, and compare your reviews to
+            the top 3 nearby competitors. You get a short video walkthrough. No charge.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4">
             <Link

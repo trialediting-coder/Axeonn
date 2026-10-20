@@ -7,17 +7,22 @@ export const faqItems: FaqItem[] = [
   {
     question: 'Do you guarantee results?',
     answer:
-      "We guarantee the system works, not a number of patients. Our 90-day performance commitment: live within 30 days of getting your materials. Every missed call and web inquiry gets a reply within 60 seconds. Every completed appointment gets a review request. If we miss any of those in the first 90 days and don't fix it within 15 days, you can walk away and owe nothing for the rest of the term. It comes with AxeonCORE and AxeonGROWTH and is written into your agreement.",
+      "We guarantee the system works, not a number of new patients, clients or cases. Our 90-day performance commitment: live within 30 days of getting your materials. Every missed call and web inquiry gets a reply within 60 seconds. Every completed appointment gets a review request. If we miss any of those in the first 90 days and don't fix it within 15 days, you can walk away and owe nothing for the rest of the term. It comes with AxeonCORE and AxeonGROWTH and is written into your agreement.",
   },
   {
-    question: "What if my front desk can't answer every call?",
+    question: "What if my front desk or intake team can't answer every call?",
     answer:
-      "That's what AxeonCORE is built for. Anyone who calls and can't get through gets a text back within 60 seconds, any hour, with a link to book. Every web inquiry gets a first reply within 60 seconds too. Your front desk picks up the conversation from one two-way text inbox when they're free.",
+      "That's what AxeonCORE is built for. Anyone who calls and can't get through gets a text back within 60 seconds, any hour, with a link to book. Every web inquiry gets a first reply within 60 seconds too. Your front desk or intake team picks up the conversation from one two-way text inbox when they're free. It covers the dental office at lunch, the med spa during treatments, the law firm while attorneys are in court, and the CPA firm buried in tax season.",
   },
   {
-    question: 'Do you collect patient health information?',
+    question: 'Do you collect health, case or financial information?',
     answer:
-      'No. Intake collects name, contact, service and preferred time only, never symptoms, insurance or health details.',
+      'No. Intake collects name, contact, service and preferred time only. For dental practices and med spas that means never symptoms, insurance or health details. For law firms it means no case facts, so your team can run a conflict check before anyone discusses the matter, and you approve every word on your site for your state’s attorney advertising rules. For CPA firms it means no Social Security numbers, tax documents or account details; those stay in your secure client portal.',
+  },
+  {
+    question: 'Is this only for clinics, or for law and CPA firms too?',
+    answer:
+      'All four. The system is the same for dental practices, med spas, law firms and accounting and CPA firms: every missed call and web inquiry answered within 60 seconds, the consultation booked, and a review request after every completed appointment (for law firms, only on matters you approve). What changes is the wording and the booking: a new-patient exam, a med spa consult, an intake call or case review, a tax-season or advisory meeting.',
   },
   {
     question: 'How long does it take to launch?',
@@ -52,7 +57,7 @@ export const faqItems: FaqItem[] = [
   {
     question: 'Which plan should I pick?',
     answer:
-      'AxeonCORE (from $799/mo) if calls and web inquiries are slipping through: it answers every one within 60 seconds, books the consultation, and asks for a review after the visit. AxeonGROWTH (from $1,999/mo plus ad spend) adds Google Local Services and search ads, an AI phone receptionist, past-patient reactivation, and quarterly photo and video. Start with the free audit and we’ll recommend one.',
+      'AxeonCORE (from $799/mo) if calls and web inquiries are slipping through: it answers every one within 60 seconds, books the consultation, and asks for a review after the visit. AxeonGROWTH (from $1,999/mo plus ad spend) adds Google Local Services and search ads, an AI phone receptionist, reactivation campaigns to past patients and clients, and quarterly photo and video. Start with the free audit and we’ll recommend one.',
   },
 ];
 

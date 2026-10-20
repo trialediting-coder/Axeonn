@@ -22,11 +22,12 @@ import { PageIntro } from '@/components/axeonproof/PageIntro';
 import { DashboardShell } from '@/components/axeonproof/DashboardShell';
 import { OverviewScreen } from '@/components/axeonproof/screens';
 import { FlowField } from '@/components/axeonproof/FlowField';
+import { VerticalSwitcher } from '@/components/axeonproof/VerticalSwitcher';
 import { Accent, CTA, CTA_GLASS, GLASS, H2, Pill } from '@/components/axeonproof/ui';
 import { EXAMPLE } from '@/data/proofPage';
 
 const DESCRIPTION =
-  'AxeonPROOF is the client portal every AxeonCORE and AxeonGROWTH practice signs into: a live counter of recovered calls and inquiries, booked consultations, review requests, change requests and monthly reports. Click through a demo practice.';
+  'AxeonPROOF is the client portal every AxeonCORE and AxeonGROWTH practice and firm signs into: a live counter of recovered calls and inquiries, booked consultations, review requests, change requests and monthly reports. The same dashboard runs for dental practices, med spas, law firms and CPA firms. Click through a demo.';
 
 export const metadata = buildMetadata({
   path: '/axeonproof',
@@ -52,7 +53,7 @@ const GUARANTEE_STEPS = [
 ];
 
 const PLANS = [
-  { name: 'AxeonCORE', price: 'From $799/mo', note: 'Where most practices start.', items: ['Overview with the live recovered-inquiry counter', 'Leads: every call, text, form and booking', 'Calls: tracked numbers, missed-call text-back', 'Bookings: online consultation booking', 'Reviews: a request after every appointment', '90-day performance commitment tracking', 'Change requests and monthly reports'], featured: true },
+  { name: 'AxeonCORE', price: 'From $799/mo', note: 'Where most practices and firms start.', items: ['Overview with the live recovered-inquiry counter', 'Leads: every call, text, form and booking', 'Calls: tracked numbers, missed-call text-back', 'Bookings: online consultation booking', 'Reviews: a request after every appointment', '90-day performance commitment tracking', 'Change requests and monthly reports'], featured: true },
   { name: 'AxeonGROWTH', price: 'From $1,999/mo + ad spend', note: 'Intake plus active acquisition.', items: ['Everything in AxeonCORE', 'Ads: every dollar next to the inquiries it brought in', 'AI receptionist: every call answered, 24/7', 'Monthly strategy call and quarterly review'], featured: false },
 ];
 
@@ -99,7 +100,7 @@ export default function AxeonProofPage() {
               <br className="hidden lg:block" /> on one screen.
             </h1>
             <p style={{ animationDelay: '3250ms' }} className="proof-hero-stagger animate-proof-rise mt-8 max-w-3xl text-lg leading-relaxed text-neutral-300 sm:text-xl">
-              The portal every AxeonCORE and AxeonGROWTH practice signs into. How many missed calls and after-hours inquiries were recovered, how fast each got a reply, and which turned into booked consultations.
+              The portal every AxeonCORE and AxeonGROWTH practice and firm signs into. How many missed calls and after-hours inquiries were recovered, how fast each got a reply, and which turned into booked exams, consults, case reviews and client meetings.
             </p>
             <div style={{ animationDelay: '3400ms' }} className="proof-hero-stagger animate-proof-rise mt-10 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row sm:gap-4">
               <Link href="/audit" data-track="cta_click" data-track-cta="axeonproof_hero" className={`${CTA} w-full max-w-xs sm:w-auto`}>
@@ -120,6 +121,7 @@ export default function AxeonProofPage() {
                 <OverviewScreen />
               </DashboardShell>
             </ProofWindow>
+            <VerticalSwitcher />
           </div>
         </div>
       </section>
@@ -134,7 +136,7 @@ export default function AxeonProofPage() {
                 Click around. It is the <Accent>real</Accent> thing.
               </>
             }
-            intro="Every screen a practice sees, from the first inquiry to the invoice. A tab outside your plan stays visible and shows an example month, so you always know what the next plan adds."
+            intro="Every screen a practice or firm sees, from the first inquiry to the invoice. A tab outside your plan stays visible and shows an example month, so you always know what the next plan adds."
           />
           <ProofTour />
         </div>
@@ -147,7 +149,7 @@ export default function AxeonProofPage() {
             pill="Numbers you can act on"
             title={
               <>
-                Each card answers a question a practice owner <Accent>actually</Accent> asks.
+                Each card answers a question an owner <Accent>actually</Accent> asks.
               </>
             }
             intro="Hover or tap a card to see what it tells you. Every number comes straight from the site and the tracked phone number, not from a report someone typed up."
@@ -211,7 +213,7 @@ export default function AxeonProofPage() {
                     <h3 className="text-xl font-extrabold tracking-tight">{p.name}</h3>
                     <p className={`mt-1 text-sm ${p.featured ? 'text-blue-100' : 'text-neutral-400'}`}>{p.note}</p>
                   </div>
-                  {p.featured ? <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-blue-700">Most practices</span> : null}
+                  {p.featured ? <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-blue-700">Most practices and firms</span> : null}
                 </div>
                 <p className="mt-5 text-2xl font-black tracking-tight">{p.price}</p>
                 <ul className={`mt-6 space-y-2.5 text-sm ${p.featured ? 'text-blue-50' : 'text-neutral-300'}`}>
@@ -240,7 +242,7 @@ export default function AxeonProofPage() {
             Ready to see <Accent>your</Accent> own dashboard?
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-lg leading-relaxed text-neutral-300">
-            Start with the free after-hours audit. We call your practice after hours, time how fast your website answers an inquiry, and show you what PROOF would have caught.
+            Start with the free after-hours audit. We call your practice or firm after hours, time how fast your website answers an inquiry, and show you what PROOF would have caught.
           </p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
             <Link href="/audit" data-track="cta_click" data-track-cta="axeonproof_closing" className={`${CTA} w-full max-w-xs sm:w-auto`}>

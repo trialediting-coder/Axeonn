@@ -40,9 +40,9 @@ const COMMITMENT =
   'Live within 30 days of getting your materials. Every missed call and web inquiry gets a reply within 60 seconds. Every completed appointment gets a review request. If we miss any of those in the first 90 days and don’t fix it within 15 days, you can walk away and owe nothing for the rest of the term.';
 
 const AUDIT_STEPS = [
-  { icon: PhoneCall, t: 'We call your practice after hours', d: 'The way a new patient or client would, and note what they hear.' },
+  { icon: PhoneCall, t: 'We call your practice or firm after hours', d: 'The way a new patient or client would, and note what they hear.' },
   { icon: Timer, t: 'We time your website’s reply', d: 'We send an inquiry through your site and clock how long the first answer takes.' },
-  { icon: Star, t: 'We compare your reviews', d: 'Your Google reviews next to the top 3 nearby practices: count, rating and how recent.' },
+  { icon: Star, t: 'We compare your reviews', d: 'Your Google reviews next to the top 3 nearby competitors: count, rating and how recent.' },
 ];
 
 function CTA({ label = 'Get your free after-hours audit', dark = false }: { label?: string; dark?: boolean }) {
@@ -83,7 +83,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
     {
       question: 'What is the free after-hours audit?',
       answer:
-        'We call your practice after hours, check how fast your website answers an inquiry, and compare your reviews to the top 3 nearby practices. You get a short video walkthrough of what we found. No charge, and it is yours to keep.',
+        'We call your practice or firm after hours, check how fast your website answers an inquiry, and compare your reviews to the top 3 nearby competitors. You get a short video walkthrough of what we found. No charge, and it is yours to keep.',
     },
     {
       question: 'What does it cost?',
@@ -139,7 +139,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
             <ul className="mt-8 flex flex-col gap-3 text-base sm:text-lg">
               {[
                 'Every missed call and web inquiry answered within 60 seconds, 24/7',
-                'Consultations booked online, plus a two-way text inbox for your front desk',
+                'Consultations booked online, plus a two-way text inbox for your front desk or intake team',
                 'A review request after every appointment',
               ].map((item) => (
                 <li key={item} className="flex items-start gap-3">
@@ -216,7 +216,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
           <div className="max-w-5xl mx-auto">
             <div className="max-w-2xl">
               <h2 className="text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1]">
-                What your practice website could look like
+                What your website could look like
               </h2>
               <p className="mt-4 text-lg text-neutral-600 leading-relaxed">
                 Custom-designed, fast on phones, with providers, services, reviews and booking up front.
@@ -254,7 +254,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
           </h2>
           <ol className="mt-12 border-l border-white/15 ml-2">
             {[
-              { t: 'We run the tests', d: 'An after-hours call, a timed web inquiry, and a review comparison with the top 3 nearby practices.' },
+              { t: 'We run the tests', d: 'An after-hours call, a timed web inquiry, and a review comparison with the top 3 nearby competitors.' },
               { t: 'You get a short video walkthrough', d: 'What a new patient or client experienced when they reached out. No charge.' },
               { t: 'If it fits, we talk', d: 'AxeonCORE is from $799/mo. No pressure: the audit is yours to keep either way.' },
             ].map((s) => (
