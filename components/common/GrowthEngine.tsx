@@ -43,7 +43,7 @@ const builds = [
   {
     name: 'AxeonCORE',
     price: 'From $799/mo',
-    line: 'Every missed call and web inquiry answered within 60 seconds, 24/7, online booking, review requests after every visit, and AxeonPROOF.',
+    line: 'Every missed call and web inquiry answered within 60 seconds, 24/7, online booking, review requests after every appointment, and AxeonPROOF.',
     recommended: true,
   },
   {

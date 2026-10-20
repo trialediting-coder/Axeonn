@@ -29,7 +29,7 @@ const COMPANY_LINKS: FooterLink[] = [
 
 const WHO_WE_HELP_LINKS: FooterLink[] = [
   ...niches.map((niche) => ({ label: niche.name, href: `/solutions/${niche.slug}` })),
-  { label: 'All Practice Types', href: '/solutions' },
+  { label: 'All Practices & Firms', href: '/solutions' },
   { label: 'Des Moines Practices & Firms', href: '/des-moines-web-design' },
   { label: 'Des Moines SEO', href: '/des-moines-seo' },
   ...cityPages.map((city) => ({ label: city.linkLabel, href: `/${city.slug}` })),

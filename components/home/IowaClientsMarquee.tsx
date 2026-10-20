@@ -21,7 +21,7 @@ const INCLUDED = [
   'Missed-call text-back',
   'Online consultation booking',
   'Two-way text inbox for your front desk or intake team',
-  'Review request after every visit',
+  'Review request after every appointment',
   'Call tracking',
   'AxeonPROOF client portal',
   'One practice or firm per specialty within 5 miles',

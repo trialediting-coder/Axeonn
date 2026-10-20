@@ -32,7 +32,7 @@ export default function ProcessPage() {
               THE 90-DAY PERFORMANCE COMMITMENT
             </span>
             <p className="mt-2 sm:mt-3 text-[22px] sm:text-4xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.15]">
-              Live in 30 days, 60-second replies, review requests on every visit. Or walk away.
+              Live in 30 days, 60-second replies, review requests on every appointment. Or walk away.
             </p>
           </div>
         </div>

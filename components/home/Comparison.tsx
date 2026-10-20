@@ -62,7 +62,7 @@ export function Comparison() {
       <div className="max-w-6xl mx-auto">
         <div className="max-w-4xl">
           <span className="eyebrow hidden sm:block mb-4">
-            WHY PRACTICES SWITCH
+            WHY PRACTICES AND FIRMS SWITCH
           </span>
           <h2 className="text-[28px] sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.1] sm:leading-[1.08]">
             You Pay for Every Inquiry Answered, Not Deliverables

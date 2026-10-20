@@ -22,7 +22,7 @@ const webDesignServiceJsonLd = serviceJsonLd({
   serviceType: 'Patient & Client Intake for Practices and Firms',
   name: 'Axeon Studio — Des Moines Patient & Client Intake for Practices and Firms',
   description:
-    'Practice websites, 24/7 missed-call text-back, 60-second replies to web inquiries, online consultation booking and automated review requests for dental practices, med spas, law firms and CPA firms across the Des Moines metro.',
+    'Websites, 24/7 missed-call text-back, 60-second replies to web inquiries, online consultation booking and automated review requests for dental practices, med spas, law firms and CPA firms across the Des Moines metro.',
 });
 
 const TEL_HREF = `tel:${BUSINESS.telephone.replace(/-/g, '')}`;
@@ -58,7 +58,7 @@ const LOCAL_FAQ = [
   {
     question: 'Do you only work with practices and firms in Des Moines?',
     answer:
-      'No. The metro is home base, in person, and we work with practices across Iowa remotely.',
+      'No. The metro is home base, in person, and we work with practices and firms across Iowa remotely.',
   },
   {
     question: 'Can we meet in person?',

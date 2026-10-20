@@ -117,12 +117,12 @@ export const websitePage: ServicePage = {
   localLink: { label: 'Des Moines web design', href: '/des-moines-web-design' },
   path: '/marketing-solutions/website',
   name: 'Website Design for Practices and Firms',
-  serviceType: 'Website Design for Dental, Med Spa, Law and Accounting Practices',
-  metaTitle: 'Dental, Med Spa & Law Firm Website Design | Axeon Studio',
+  serviceType: 'Website Design for Dental Practices, Med Spas, Law Firms and CPA Firms',
+  metaTitle: 'Dental, Med Spa, Law & CPA Website Design | Axeon Studio',
   metaDescription:
     'Website design for dental practices, med spas, law firms and CPA firms in Des Moines and Iowa: mobile-first, with providers, reviews and online booking.',
   quickAnswer: {
-    question: 'What is an Axeon practice website?',
+    question: 'What is an Axeon website?',
     answer:
       'A custom, mobile-first website for your practice or firm, built and kept current by Axeon Studio in West Des Moines. It comes with AxeonCORE and is not sold on its own.',
   },
@@ -244,7 +244,7 @@ export const seoPage: ServicePage = {
   serviceType: 'Local SEO for Dentists, Med Spas, Law Firms and CPA Firms',
   metaTitle: 'SEO for Dentists, Med Spas, Law Firms & CPAs | Axeon Studio',
   metaDescription:
-    'Local SEO for dentists, med spas, law firms and CPA firms in Des Moines and Iowa: Google Business Profile upkeep, local service pages and reviews after visits.',
+    'Local SEO for dentists, med spas, law firms and CPA firms in Des Moines and Iowa: Google Business Profile upkeep, local service pages and reviews after every appointment.',
   quickAnswer: {
     question: "What does Axeon's local SEO do?",
     answer:
@@ -254,7 +254,7 @@ export const seoPage: ServicePage = {
     eyebrow: 'Services · Local SEO',
     title: 'Show up on Google Maps when new patients and clients search near you',
     subtitle:
-      'Your Google profile kept current, pages built for local search, a review after every visit.',
+      'Your Google profile kept current, pages built for local search, a review after every appointment.',
     priceLine: `Included in ${CORE_PRICE}`,
     note: CORE_NOTE,
   },
@@ -366,7 +366,7 @@ export const leadGenerationPage: ServicePage = {
   path: '/marketing-solutions/lead-generation',
   name: 'Lead Generation & Intake',
   serviceType: 'Lead Generation and Intake for Dental Practices, Med Spas, Law Firms and CPA Firms',
-  metaTitle: 'Lead Generation for Dentists, Law Firms & CPAs | Axeon',
+  metaTitle: 'Lead Gen for Dentists, Med Spas, Law & CPA Firms | Axeon',
   metaDescription:
     'Lead generation and intake for dental practices, med spas, law firms and CPA firms in Des Moines: every call and inquiry answered in 60 seconds, 24/7.',
   quickAnswer: {
@@ -397,7 +397,7 @@ export const leadGenerationPage: ServicePage = {
       },
       {
         title: 'Booked or picked up',
-        body: 'They book a consultation online, or your front desk continues the conversation in the two-way text inbox.',
+        body: 'They book a consultation online, or your team continues the conversation in the two-way text inbox.',
       },
       {
         title: 'Counted',
@@ -414,7 +414,7 @@ export const leadGenerationPage: ServicePage = {
           '24/7 missed-call text-back',
           'A first reply to every web inquiry within 60 seconds',
           'Online consultation booking',
-          'A two-way text inbox for your front desk',
+          'A two-way text inbox for your front desk or intake team',
           'Call tracking by source',
           'A live recovered-inquiry counter in AxeonPROOF',
         ],
@@ -480,7 +480,7 @@ export const leadGenerationPage: ServicePage = {
     {
       question: 'Do you guarantee a number of new patients, clients or cases?',
       answer:
-        'No. We commit to the system: live in 30 days, 60-second replies, a review request after every visit. Miss it and you can walk away.',
+        'No. We commit to the system: live in 30 days, 60-second replies, a review request after every appointment. Miss it and you can walk away.',
     },
     {
       question: 'Does intake collect health or case details?',
@@ -496,7 +496,7 @@ export const aiChatPage: ServicePage = {
   path: '/marketing-solutions/ai-chat-scheduling',
   name: 'AI Chat & Online Booking',
   serviceType: 'AI Chat and Online Consultation Booking for Practices and Firms',
-  metaTitle: 'Med Spa, Dental & Law Firm Online Booking + AI Chat | Axeon',
+  metaTitle: 'Med Spa, Dental, Law & CPA Online Booking + AI Chat | Axeon',
   metaDescription:
     'Online booking and AI chat for med spas, dental practices, law firms and CPA firms in Des Moines: questions answered 24/7, consults booked on your calendar.',
   quickAnswer: {
@@ -518,7 +518,7 @@ export const aiChatPage: ServicePage = {
     steps: [
       {
         title: 'They ask',
-        body: 'Hours, location, services, what a first visit looks like. The chat answers from information you approved.',
+        body: 'Hours, location, services, what a first consult looks like. The chat answers from information you approved.',
       },
       {
         title: 'It offers a time',
@@ -526,7 +526,7 @@ export const aiChatPage: ServicePage = {
       },
       {
         title: 'Booked',
-        body: 'The consultation is on the calendar and your front desk gets the details in the text inbox.',
+        body: 'The consultation is on the calendar and your team gets the details in the text inbox.',
       },
       {
         title: 'Handed off when it should be',
@@ -544,7 +544,7 @@ export const aiChatPage: ServicePage = {
           'Answers drawn only from information you approve',
           'Online consultation booking',
           'A first reply to every web inquiry within 60 seconds',
-          'Hand-off to your front desk in the two-way text inbox',
+          'Hand-off to your team in the two-way text inbox',
         ],
       },
       {
@@ -596,17 +596,17 @@ export const aiChatPage: ServicePage = {
     {
       question: 'What does the chat answer, and what does it refuse?',
       answer:
-        'It answers from information you approve: hours, location, services, what a first visit looks like, how to book. It never gives medical, legal or tax advice. Anything else goes to your front desk.',
+        'It answers from information you approve: hours, location, services, what a first consult looks like, how to book. It never gives medical, legal or tax advice. Anything else goes to your team.',
     },
     {
       question: 'Does it connect to our practice-management, EHR or case-management software?',
       answer:
-        'No. Consultations book into a calendar we set up for your practice, and your team is told right away. The chat never sees patient or client records.',
+        'No. Consultations book into a calendar we set up for you, and your team is told right away. The chat never sees patient or client records.',
     },
     {
       question: 'What does the AI phone receptionist do?',
       answer:
-        'It answers the calls your front desk can’t get to, takes name, contact and the service they need, and books the consultation. It comes with AxeonGROWTH.',
+        'It answers the calls your team can’t get to, takes name, contact and the service they need, and books the consultation. It comes with AxeonGROWTH.',
     },
     {
       question: 'Can we change what it says?',
@@ -621,7 +621,7 @@ export const advertisingPage: ServicePage = {
   path: '/marketing-solutions/advertising',
   name: 'Google Ads & Local Services Ads',
   serviceType: 'Google Local Services Ads and Search Ads Management for Practices and Firms',
-  metaTitle: 'Local Services Ads for Dentists & Law Firms | Axeon Studio',
+  metaTitle: 'Local Services Ads for Dentists, Law Firms & CPAs | Axeon',
   metaDescription:
     'Google Local Services Ads and search ads for dental practices, law firms, med spas and CPA firms in Des Moines and Iowa, tracked to the booked consultation.',
   quickAnswer: {
@@ -747,10 +747,10 @@ export const videoPhotographyPage: ServicePage = {
   slug: 'video-photography',
   path: '/marketing-solutions/video-photography',
   name: 'Photography & Video for Practices and Firms',
-  serviceType: 'Photography and Video for Dental, Med Spa, Law and Accounting Practices',
+  serviceType: 'Photography and Video for Dental Practices, Med Spas, Law Firms and CPA Firms',
   metaTitle: 'Dental Photography, Law Firm Headshots & Video | Axeon',
   metaDescription:
-    'Dental office photography, med spa video and law firm headshots in Des Moines and Iowa: real photos and short videos of your team for your site and Google.',
+    'Dental office photography, med spa video and law and CPA firm headshots in Des Moines and Iowa: real photos and short videos of your team for your site and Google.',
   quickAnswer: {
     question: 'What photo and video does Axeon provide?',
     answer:
@@ -760,7 +760,7 @@ export const videoPhotographyPage: ServicePage = {
     eyebrow: 'Services · Photo & video',
     title: 'Photos and video that make patients and clients choose you',
     subtitle:
-      'Real photos and short videos of your people, so new patients see who they will meet.',
+      'Real photos and short videos of your people, so new patients and clients see who they will meet.',
     priceLine: 'Quarterly in AxeonGROWTH · From $1,999/mo',
     note: 'or a single on-site shoot for $1,500',
   },
@@ -793,7 +793,7 @@ export const videoPhotographyPage: ServicePage = {
         label: 'Each quarter in AxeonGROWTH',
         items: [
           'Provider portraits and team photos',
-          'Office, reception and treatment-room photos',
+          'Office, reception, treatment and meeting-room photos',
           'Review videos with patients or clients who agree to take part',
           'Short reels for social and your Google profile',
           'Placed on your website and Google Business Profile',
@@ -841,7 +841,7 @@ export const videoPhotographyPage: ServicePage = {
     {
       question: 'Why not just use stock photos?',
       answer:
-        'People are choosing a person, not a building. Stock photos look like every other practice. Real photos of your providers, attorneys or advisors and your office show who they will actually see.',
+        'People are choosing a person, not a building. Stock photos look like every other practice or firm. Real photos of your providers, attorneys or advisors and your office show who they will actually see.',
     },
     {
       question: 'Do you film patients or clients?',

@@ -7,7 +7,7 @@ export const faqItems: FaqItem[] = [
   {
     question: 'Do you guarantee results?',
     answer:
-      "We guarantee the system, not a number of patients or cases. Live in 30 days, every inquiry answered in 60 seconds, a review request after every visit. Miss it and you can walk away.",
+      "We guarantee the system, not a number of patients or cases. Live in 30 days, every inquiry answered in 60 seconds, a review request after every appointment. Miss it and you can walk away.",
   },
   {
     question: "What if my front desk or intake team can't answer every call?",
@@ -55,19 +55,19 @@ export const faqItems: FaqItem[] = [
       "AxeonCORE is from $799/mo and AxeonGROWTH from $1,999/mo plus ad spend. $0 setup (normally $3,000), and nothing is due until it's working.",
   },
   {
-    question: 'How much should a dental practice spend on marketing?',
+    question: 'How much should a dental practice or med spa spend on marketing?',
     answer:
-      'Start from what one new patient is worth over a year. AxeonCORE, from $799/mo, covers the website, local SEO and intake; ads are AxeonGROWTH, from $1,999/mo plus ad spend.',
+      'Start from what one new patient or client is worth over a year. AxeonCORE, from $799/mo, covers the website, local SEO and intake; ads are AxeonGROWTH, from $1,999/mo plus ad spend.',
   },
   {
-    question: 'How much should a law firm spend on marketing?',
+    question: 'How much should a law or CPA firm spend on marketing?',
     answer:
-      'Work back from what one signed case is worth. Most firms start with AxeonCORE, from $799/mo, and add ads with AxeonGROWTH once every inquiry is answered.',
+      'Work back from what one signed case or client is worth. Most firms start with AxeonCORE, from $799/mo, and add ads with AxeonGROWTH once every inquiry is answered.',
   },
   {
     question: 'Which plan should I pick?',
     answer:
-      'AxeonCORE if calls and inquiries slip through. AxeonGROWTH adds ads, an AI receptionist and past-patient campaigns. We recommend one on the call.',
+      'AxeonCORE if calls and inquiries slip through. AxeonGROWTH adds ads, an AI receptionist and campaigns to past patients and clients. We recommend one on the call.',
   },
 ];
 

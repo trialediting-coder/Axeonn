@@ -52,7 +52,7 @@ export const METRO_SYSTEM = [
   },
   {
     step: 'Review engine',
-    title: 'A review ask after every visit',
+    title: 'A review ask after every appointment',
     description: 'An automatic review request after every completed appointment.',
     href: '/marketing-solutions#reviews',
   },
@@ -81,13 +81,13 @@ export const cityPages: CityPage[] = [
       'Every missed call and web inquiry answered in 60 seconds, from a team based here.',
     localHeading: 'Built in West Des Moines, for practices and firms here.',
     localBody: [
-      'People here call more than one office. Whoever answers first gets the appointment.',
+      'People here call more than one office. Whoever answers first gets the booking.',
     ],
     focusPoints: [
       {
         title: 'Answer the calls your front desk or intake team cannot',
         description:
-          'After hours or mid-appointment, every missed call gets a text in 60 seconds.',
+          'After hours or while your team is busy, every missed call gets a text in 60 seconds.',
       },
       {
         title: 'Look like the obvious pick',
@@ -106,9 +106,9 @@ export const cityPages: CityPage[] = [
           'Yes, West Des Moines, Iowa 50266. The team that builds your system answers the phone and meets at your office.',
       },
       {
-        question: 'What happens when someone calls my practice after hours?',
+        question: 'What happens when someone calls my office after hours?',
         answer:
-          'They get a text from your practice within 60 seconds with a way to book. Your team sees the conversation in the morning.',
+          'They get a text from your office within 60 seconds with a way to book. Your team sees the conversation in the morning.',
       },
       {
         question: 'Do you work with only one practice or firm of each kind?',
@@ -127,7 +127,7 @@ export const cityPages: CityPage[] = [
     eyebrow: 'Ankeny web design & marketing · North metro',
     h1: 'Ankeny is growing. Answer every new patient and client first.',
     intro:
-      'New neighbors are picking a dentist, lawyer and CPA. Answer them in 60 seconds.',
+      'New neighbors are picking a dentist, med spa, lawyer and CPA. Answer them in 60 seconds.',
     localHeading: 'New neighbors are choosing their dentist, med spa, lawyer and CPA right now.',
     localBody: [
       'A family that reaches voicemail at 6:30 PM tries the next name on the map.',
@@ -143,7 +143,7 @@ export const cityPages: CityPage[] = [
         description: 'Missed calls get a text back in 60 seconds, even on a full day.',
       },
       {
-        title: 'Build reviews with every visit',
+        title: 'Build reviews with every appointment',
         description: 'A review request after every appointment, automatically.',
       },
     ],

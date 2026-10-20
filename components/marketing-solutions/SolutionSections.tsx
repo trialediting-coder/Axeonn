@@ -216,7 +216,7 @@ function PracticeExamplesSection({ examples, service }: { examples: ServicePage[
   return (
     <section className={`${SECTION_PAD} bg-white text-neutral-950`}>
       <div className="max-w-6xl mx-auto">
-        <SectionHeader eyebrow="Pick your practice" heading={examples.heading} />
+        <SectionHeader eyebrow="Pick your specialty" heading={examples.heading} />
         <PracticeExamples items={examples.items} service={service} />
       </div>
     </section>

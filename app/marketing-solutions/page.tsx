@@ -44,7 +44,7 @@ const EVENING = {
   ],
   with: [
     { when: '7:12 PM', what: 'A new patient or client calls. Nobody can pick up.' },
-    { when: '7:13 PM', what: 'They get a text from your practice with a link to book a consultation.' },
+    { when: '7:13 PM', what: 'They get a text from your office with a link to book a consultation.' },
     { when: '7:16 PM', what: 'The consultation is on the calendar. The front desk or intake team sees the whole thread in the morning.' },
   ],
 };
@@ -52,9 +52,9 @@ const EVENING = {
 // What happens the moment someone reaches out.
 const TIMELINE = [
   { when: 'Second 0', what: 'Someone calls, texts, or sends a form through your website.' },
-  { when: 'Within 60 seconds', what: 'Nobody could pick up? They get a reply from your practice’s number with a way to book.' },
+  { when: 'Within 60 seconds', what: 'Nobody could pick up? They get a reply from your office’s number with a way to book.' },
   { when: 'Same day', what: 'The consultation is booked online, or your front desk or intake team picks up the thread in the two-way text inbox.' },
-  { when: 'After the visit', what: 'An automatic text asks for a review.' },
+  { when: 'After the appointment', what: 'An automatic text asks for a review.' },
   { when: 'Every month', what: 'AxeonPROOF shows every recovered inquiry and booking, with a monthly report.' },
 ];
 
@@ -309,7 +309,7 @@ export default function HowItWorksPage() {
             className="group ix-card relative rounded-3xl bg-blue-600 text-white p-6 sm:p-10 flex flex-col justify-between gap-5 sm:gap-8 hover:bg-blue-700 transition-colors"
           >
             <div>
-              <p className="eyebrow eyebrow-onblue">SEE IT ON YOUR OWN PRACTICE</p>
+              <p className="eyebrow eyebrow-onblue">SEE IT ON YOUR OWN PRACTICE OR FIRM</p>
               <h2 className="mt-3 sm:mt-4 text-2xl sm:text-3xl font-extrabold font-display tracking-tight leading-snug">
                 Is your area open?
               </h2>

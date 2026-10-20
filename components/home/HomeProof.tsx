@@ -9,7 +9,7 @@ import { ArrowRight, ArrowUpRight, PhoneCall, Timer, Star } from 'lucide-react';
 // example AxeonPROOF screen (made-up practice, labelled). Real past builds live
 // on /work as "Recent builds".
 const AUDIT_STEPS = [
-  { icon: PhoneCall, title: 'We call after hours, like a new patient would' },
+  { icon: PhoneCall, title: 'We call after hours, like a new patient or client would' },
   { icon: Timer, title: 'We time the reply to your website form' },
   { icon: Star, title: 'We put your reviews next to the top 3 nearby' },
 ];
@@ -34,7 +34,7 @@ export function HomeProof() {
         <div className="mt-6 sm:mt-14 grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Before: we test their practice */}
           <div className="rounded-[24px] sm:rounded-[28px] bg-neutral-950 text-white p-6 sm:p-10 flex flex-col">
-            <h3 className="text-xl sm:text-3xl font-extrabold font-display tracking-tight">First, we test your&nbsp;practice.</h3>
+            <h3 className="text-xl sm:text-3xl font-extrabold font-display tracking-tight">First, we test your&nbsp;office.</h3>
             <ul className="mt-5 sm:mt-8 space-y-3.5 sm:space-y-5">
               {AUDIT_STEPS.map(({ icon: Icon, title }) => (
                 <li key={title} className="flex gap-3 text-[15px] sm:text-lg text-neutral-200">

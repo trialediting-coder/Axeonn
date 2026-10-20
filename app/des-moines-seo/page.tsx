@@ -34,7 +34,7 @@ const TEL_HREF = `tel:${BUSINESS.telephone.replace(/-/g, '')}`;
 const COVERS = [
   { icon: MapPin, title: 'Your Google Business Profile, set up and kept current' },
   { icon: Search, title: 'A page for each service and city you want more of' },
-  { icon: Star, title: 'A review request after every visit, automatically' },
+  { icon: Star, title: 'A review request after every appointment, automatically' },
   { icon: LineChart, title: 'Calls tracked to booked appointments in AxeonPROOF' },
 ];
 
@@ -152,7 +152,7 @@ export default function DesMoinesSeoPage() {
       {/* Purpose: route each practice type to the SEO page written for it. */}
       <section className="w-full py-10 sm:py-20 px-4 sm:px-10 lg:px-16 xl:px-24 bg-[#F7F6F3] border-y border-neutral-200">
         <div className="max-w-6xl mx-auto">
-          <p className="eyebrow mb-3">By practice</p>
+          <p className="eyebrow mb-3">By specialty</p>
           <h2 className="text-[28px] sm:text-4xl font-extrabold font-display tracking-tight leading-tight mb-4 sm:mb-8">
             SEO written for your field
           </h2>

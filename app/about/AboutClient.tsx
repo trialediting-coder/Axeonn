@@ -244,7 +244,7 @@ export default function AboutClient() {
                   Why Axeon exists.
                 </h2>
                 <p className="mt-3 sm:mt-5 text-[15px] sm:text-base lg:text-lg text-neutral-600 leading-relaxed">
-                  Good practices lose new patients to voicemail every week. We fix that, in writing.
+                  Good practices and firms lose new patients and clients to voicemail every week. We fix that, in writing.
                 </p>
               </div>
 

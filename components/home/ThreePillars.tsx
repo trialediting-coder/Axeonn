@@ -54,8 +54,8 @@ const PILLARS: Pillar[] = [
   {
     name: 'Step 3',
     promise: 'Reviewed.',
-    detail: 'Every visit ends with a review request, automatically.',
-    short: 'Every visit ends with a review request, automatically.',
+    detail: 'Every appointment ends with a review request, automatically.',
+    short: 'Every appointment ends with a review request, automatically.',
     href: '/axeonproof',
     cta: 'How AxeonPROOF tracks it',
     image: '/philosophy/brand.webp',

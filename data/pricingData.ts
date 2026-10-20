@@ -178,11 +178,11 @@ export const pricingFaqs: PricingFaq[] = [
     a: "AxeonCORE from $799/mo, AxeonGROWTH from $1,999/mo, on a 12-month agreement. Setup is $0, and the first payment comes once you're live. Exact price is confirmed on the call.",
   },
   {
-    q: 'How much does dental SEO cost?',
+    q: 'How much does dental or med spa SEO cost?',
     a: "Local SEO is part of AxeonCORE, from $799/mo, with the website and 60-second intake. No separate SEO retainer, and no ranking guarantees from us or anyone honest.",
   },
   {
-    q: 'How much does a law firm website cost?',
+    q: 'How much does a law firm or CPA website cost?',
     a: "The website is part of AxeonCORE, from $799/mo on a 12-month agreement, with $0 setup (normally $3,000). Hosting, updates and intake are included.",
   },
   {
@@ -251,7 +251,7 @@ export const COMMITMENT_TERMS_HREF = '/pricing#pricing-faq';
 
 /** The short form, for badges and strips. */
 export const guaranteeShort =
-  '90-day performance commitment: live in 30 days, 60-second replies, review requests on every visit — or walk away.';
+  '90-day performance commitment: live in 30 days, 60-second replies, review requests on every appointment — or walk away.';
 
 /**
  * How many feature bullets a plan card shows up front; the rest sit behind
