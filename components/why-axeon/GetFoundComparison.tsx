@@ -119,8 +119,8 @@ export default function GetFoundComparison() {
           transition={{ duration: 0.6 }}
           className="max-w-3xl mb-4 sm:mb-10"
         >
-          <div className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3 sm:mb-4">
-            [ 01 · GET FOUND ]
+          <div className="eyebrow mb-3 sm:mb-4">
+            01 · GET FOUND
           </div>
           <h2 className="text-[26px] sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-neutral-950 font-display leading-[1.1] sm:leading-[1.08]">
             A template gets you a website. A site built for your practice or firm gets you booked.
@@ -147,7 +147,7 @@ export default function GetFoundComparison() {
           className="group ix-card relative mt-3 sm:mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 rounded-2xl sm:rounded-3xl border border-blue-100 bg-blue-50 px-4 py-3.5 sm:p-8 hover:border-blue-300 transition-colors"
         >
           <div>
-            <div className="hidden sm:block text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-2">[ SEE YOUR OWN ]</div>
+            <div className="eyebrow hidden sm:block mb-2">SEE YOUR OWN</div>
             <p className="text-base sm:text-2xl font-extrabold tracking-tight text-neutral-950 font-display leading-snug">
               How does your site answer an inquiry at 9 PM? Check your area and we&apos;ll time it.
               <span className="sm:hidden inline-flex h-[1lh] items-center align-top ml-1.5">

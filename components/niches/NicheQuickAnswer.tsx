@@ -36,7 +36,7 @@ export function NicheQuickAnswer({ niche }: { niche: Niche }) {
   return (
     <section className="w-full bg-white px-4 py-8 sm:px-10 sm:py-16 lg:px-16 xl:px-24">
       <div className="max-w-4xl mx-auto">
-        <p className="mb-2 sm:mb-3 text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ Quick answer ]</p>
+        <p className="eyebrow mb-2 sm:mb-3">Quick answer</p>
         <h2 className="text-[24px] sm:text-4xl font-extrabold font-display tracking-tight leading-tight text-neutral-950 text-balance">
           {qa.question}
         </h2>

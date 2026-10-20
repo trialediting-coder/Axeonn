@@ -20,7 +20,7 @@ export function ServiceClosingCta({ trackId, specialty }: { trackId?: string; sp
           style={{ backgroundImage: 'radial-gradient(ellipse 60% 70% at 50% 0%, rgba(37,99,235,0.32), transparent 70%)' }}
         />
         <div className="relative">
-          <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-3 sm:mb-5">[ 90-Day Performance Commitment ]</p>
+          <p className="eyebrow eyebrow-dark mb-3 sm:mb-5">90-Day Performance Commitment</p>
           <h2 className="text-[28px] sm:text-5xl font-black font-display tracking-tight leading-[1.1] text-balance">
             Is your specialty still open in your area?
           </h2>

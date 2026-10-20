@@ -1,4 +1,5 @@
 import LineIcon from '@/components/common/LineIcon';
+import { COMMITMENT_HEADLINE } from '@/data/pricingData';
 import Link from 'next/link';
 import { ArrowRight, MapPin, PhoneCall, Users, ShieldCheck } from 'lucide-react';
 import { buildMetadata } from '@/lib/metadata';
@@ -31,25 +32,25 @@ const LOCAL_REASONS = [
     icon: PhoneCall,
     title: 'You call the team that built it',
     description:
-      'Axeon is a West Des Moines studio, not a national agency with an Iowa landing page. The people who install your intake answer the phone and train your front desk or intake team. No call centers, no hand-offs.',
+      'A West Des Moines studio. The people who build it answer the phone.',
   },
   {
     icon: Users,
     title: 'Front-desk training in person',
     description:
-      'We meet your team at your office anywhere in the metro, walk through the two-way text inbox, and set up the booking rules with the people who use them every day.',
+      'At your office, with the people who use it every day.',
   },
   {
     icon: MapPin,
     title: 'One practice or firm per specialty within 5 miles',
     description:
-      'Territory exclusivity while your account is in good standing. When we are working with you, we do not work for the competitor down the street.',
+      'We never work for the competitor down the street.',
   },
   {
     icon: ShieldCheck,
     title: 'A commitment you can hold us to',
     description:
-      'Live within 30 days of getting your materials, 60-second replies, and a review request after every visit, or you can walk away.',
+      'Live in 30 days, 60-second replies, or you walk away.',
   },
 ];
 
@@ -57,22 +58,22 @@ const LOCAL_FAQ = [
   {
     question: 'Do you only work with practices and firms in Des Moines?',
     answer:
-      'No, but the metro is home base. We are located in West Des Moines and serve the whole Des Moines area in person, including Ankeny, Urbandale, Waukee, Clive, Johnston, Grimes, Altoona, and Norwalk. We also work with practices and firms across Iowa remotely.',
+      'No. The metro is home base, in person, and we work with practices across Iowa remotely.',
   },
   {
     question: 'Can we meet in person?',
     answer:
-      'Yes. Most calls are video calls because it is faster for everyone, but if your office is in the metro we are happy to meet at your office, and we usually do for kickoff and front-desk training.',
+      'Yes. We usually meet at your office for kickoff and front-desk training.',
   },
   {
     question: 'How much does Axeon cost for a Des Moines practice or firm?',
     answer:
-      'AxeonCORE is from $799/mo on a 12-month agreement: $0 setup (normally $3,000) and nothing due until it is working. Month-to-month is available if you pay the $3,000 upfront. AxeonGROWTH is from $1,999/mo plus ad spend and adds Google Local Services Ads and search ads management, reactivation of past patients and clients, and an AI phone receptionist.',
+      'AxeonCORE is from $799/mo, with $0 setup (normally $3,000) and nothing due until it is working. AxeonGROWTH is from $1,999/mo plus ad spend.',
   },
   {
     question: 'What kinds of practices and firms do you work with?',
     answer:
-      'Established private practices: dental practices, med spas and aesthetic clinics, law firms, and accounting and CPA firms. If your practice or firm books consultations or appointments, check whether your area is open and we will tell you honestly whether it fits.',
+      'Dental practices, med spas, law firms and CPA firms. If you book consults, we will tell you honestly whether it fits.',
   },
   {
     question: 'Does the intake collect any health or financial details?',
@@ -92,7 +93,6 @@ const localFaqJsonLd = {
 };
 
 export default function DesMoinesWebDesignPage() {
-  const cityList = METRO_CITIES.join(', ');
 
   return (
     <main className="w-full bg-white text-neutral-950">
@@ -105,7 +105,7 @@ export default function DesMoinesWebDesignPage() {
       <section className="relative w-full px-6 sm:px-10 lg:px-16 xl:px-24 pt-28 pb-12 sm:pt-44 sm:pb-28 bg-neutral-950 text-white overflow-hidden">
         <div className="absolute -top-40 -right-40 w-[520px] h-[520px] bg-blue-600/25 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 max-w-5xl mx-auto">
-          <p className="text-xs sm:text-sm font-mono uppercase tracking-wider text-blue-400 mb-3 sm:mb-4 flex items-start gap-2">
+          <p className="eyebrow eyebrow-dark mb-3 sm:mb-4 flex items-start gap-2">
             <LineIcon>
               <MapPin size={15} />
             </LineIcon>
@@ -115,9 +115,7 @@ export default function DesMoinesWebDesignPage() {
             Des Moines practices and firms: every inquiry answered in 60 seconds
           </h1>
           <p className="text-base sm:text-xl text-neutral-300 leading-relaxed max-w-3xl mb-6 sm:mb-10">
-            Axeon Studio installs patient and client intake for dental practices, med spas, law firms and CPA firms across the
-            Des Moines metro. Every missed call and web inquiry gets a reply within 60 seconds, 24/7, the consultation gets
-            booked, and every patient and client gets asked for a review afterward.
+            Every missed call answered, booked and followed by a review request.
           </p>
           <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-4">
             <Link
@@ -145,7 +143,7 @@ export default function DesMoinesWebDesignPage() {
           {/* Decorative name card: tablet and up (the heading says the same thing on phones). */}
           <div className="hidden sm:block lg:col-span-5">
             <div className="relative w-full max-w-sm mx-auto lg:max-w-none rounded-3xl overflow-hidden bg-neutral-950 text-white border border-neutral-800 shadow-xl p-8 sm:p-10">
-              <div className="text-xs font-mono font-bold tracking-widest text-blue-300 uppercase">[ WEST DES MOINES, IOWA ]</div>
+              <div className="eyebrow eyebrow-dark">WEST DES MOINES, IOWA</div>
               <div className="mt-3 text-3xl sm:text-4xl font-extrabold font-display leading-tight">Axeon Studio</div>
               <p className="mt-3 text-sm text-neutral-400 leading-relaxed">
                 Built in the metro, answering the phone in the metro.
@@ -154,8 +152,8 @@ export default function DesMoinesWebDesignPage() {
           </div>
 
           <div className="lg:col-span-7">
-            <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">
-              [ WHY A LOCAL TEAM ]
+            <p className="eyebrow mb-3">
+              WHY A LOCAL TEAM
             </p>
             <h2 className="text-[28px] sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-[1.1] sm:leading-[1.05]">
               The team that builds it answers the phone.
@@ -208,7 +206,7 @@ export default function DesMoinesWebDesignPage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col lg:flex-row lg:items-center gap-5 lg:gap-10">
             <div className="lg:w-72 shrink-0">
-              <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ THE SYSTEM ]</p>
+              <p className="eyebrow">THE SYSTEM</p>
               <h2 className="mt-2 text-2xl font-extrabold font-display tracking-tight leading-tight">
                 What every metro practice and firm gets
               </h2>
@@ -250,13 +248,10 @@ export default function DesMoinesWebDesignPage() {
       {/* Purpose: route each practice type to its own page. */}
       <section className="w-full py-10 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-6xl mx-auto">
-          <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ WHO WE HELP ]</p>
+          <p className="eyebrow mb-3">WHO WE HELP</p>
           <h2 className="text-[28px] sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-[1.1] mb-3 sm:mb-4 text-balance">
             Practices and firms we serve across Des Moines
           </h2>
-          <p className="text-[15px] sm:text-lg text-neutral-600 max-w-3xl mb-5 sm:mb-10 leading-snug sm:leading-relaxed">
-            Pick yours to see where new patients and clients slip away, and how we answer them within 60 seconds.
-          </p>
           <ul className="grid sm:grid-cols-2 gap-2 sm:gap-3">
             {niches.map((niche) => (
               <li key={niche.slug}>
@@ -288,8 +283,7 @@ export default function DesMoinesWebDesignPage() {
           <div className="lg:col-span-5">
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2 sm:mb-4">Service Area</h2>
             <p className="text-neutral-300 leading-relaxed">
-              Based in West Des Moines, IA 50266. In-person kickoffs and front-desk training anywhere in the metro;
-              remote setup for practices and firms across Iowa.
+              In person across the metro. Remote across Iowa.
             </p>
             <address className="not-italic mt-3 sm:mt-6 text-[15px] sm:text-base text-neutral-300 space-y-0.5 sm:space-y-1">
               <div className="font-semibold text-white">{BUSINESS.name}</div>
@@ -308,7 +302,7 @@ export default function DesMoinesWebDesignPage() {
             </address>
           </div>
           <div className="lg:col-span-7">
-            <h3 className="text-xs sm:text-sm font-mono uppercase tracking-wider text-blue-400 mb-2.5 sm:mb-4">Serving the Metro</h3>
+            <h3 className="eyebrow eyebrow-dark mb-2.5 sm:mb-4">Serving the Metro</h3>
             <ul className="flex flex-wrap gap-2 sm:gap-2.5">
               {METRO_CITIES.map((city) => {
                 const cityPage = cityPages.find((c) => c.city === city);
@@ -331,10 +325,6 @@ export default function DesMoinesWebDesignPage() {
                 );
               })}
             </ul>
-            <p className="mt-3 sm:mt-6 text-sm text-neutral-400 leading-snug sm:leading-normal">
-              Also serving Polk, Dallas, Warren, and Story counties, and practices and firms statewide. {cityList} are simply
-              where we can show up in person.
-            </p>
           </div>
         </div>
       </section>
@@ -346,7 +336,7 @@ export default function DesMoinesWebDesignPage() {
       {/* Purpose: the local questions; every question in view, answers one tap away. */}
       <section className="w-full py-10 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-3xl mx-auto">
-          <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ FAQ ]</p>
+          <p className="eyebrow mb-3">FAQ</p>
           <h2 className="text-2xl sm:text-4xl font-extrabold font-display tracking-tight leading-tight mb-3 sm:mb-10 text-balance">
             Questions Des Moines practice and firm owners ask
           </h2>
@@ -358,16 +348,14 @@ export default function DesMoinesWebDesignPage() {
       {/* Purpose: the offer and the commitment, with the two ways to start. */}
       <section className="w-full py-12 sm:py-20 px-5 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-3 sm:mb-4">
-            [ 90-DAY PERFORMANCE COMMITMENT ]
+          <p className="eyebrow eyebrow-dark mb-3 sm:mb-4">
+            90-DAY PERFORMANCE COMMITMENT
           </p>
           <h2 className="text-[28px] sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-[1.1] sm:leading-tight mb-4 sm:mb-6 text-balance">
             $0 to start. Nothing due until it&apos;s working.
           </h2>
           <p className="text-[15px] sm:text-lg text-neutral-300 max-w-2xl mx-auto leading-snug sm:leading-relaxed mb-6 sm:mb-10">
-            Live within 30 days of getting your materials. Every missed call and web inquiry gets a reply within 60 seconds.
-            Every completed appointment gets a review request. If we miss any of those in the first 90 days and don&apos;t
-            fix it within 15 days, you can walk away and owe nothing for the rest of the term.
+            {COMMITMENT_HEADLINE}
           </p>
           <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-center gap-2.5 sm:gap-4">
             <Link
@@ -385,9 +373,6 @@ export default function DesMoinesWebDesignPage() {
               <PhoneCall size={18} /> {BUSINESS.telephoneDisplay}
             </a>
           </div>
-          <p className="mt-4 sm:mt-6 text-xs text-neutral-500 max-w-xl mx-auto leading-relaxed">
-            We commit to speed, replies and review requests, never to a number of patients, clients, cases or rankings.
-          </p>
         </div>
       </section>
     </main>

@@ -8,8 +8,8 @@ export function NicheClosingCTA({ niche }: { niche: Niche }) {
   return (
     <section className="w-full py-12 sm:py-20 px-5 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
       <div className="max-w-4xl mx-auto text-center">
-        <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-3 sm:mb-4">
-          [ 90-DAY PERFORMANCE COMMITMENT ]
+        <p className="eyebrow eyebrow-dark mb-3 sm:mb-4">
+          90-DAY PERFORMANCE COMMITMENT
         </p>
         <h2 className="text-[28px] sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-[1.1] sm:leading-tight mb-4 sm:mb-6 text-balance">
           Get more new {niche.customerNoun}, starting with your area.
@@ -36,8 +36,7 @@ export function NicheClosingCTA({ niche }: { niche: Niche }) {
           </Link>
         </div>
         <p className="mt-4 sm:mt-6 text-xs text-neutral-500 max-w-xl mx-auto leading-relaxed">
-          Included with AxeonCORE and AxeonGROWTH and written into your agreement. We don&apos;t promise a number of new
-          {' '}{niche.customerNoun}, revenue, or rankings. We promise the system does its job, and we stay on as your growth partner. Or call{' '}
+          Or call{' '}
           <a href="tel:+15154938017" className="inline-flex items-center gap-1 underline underline-offset-2 hover:text-white">
             <Phone size={12} /> (515) 493-8017
           </a>

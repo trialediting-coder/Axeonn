@@ -317,12 +317,11 @@ export function Contact({ onBookAudit }: ContactProps) {
                   Check if your area is open
                 </h3>
                 <p className="text-sm sm:text-base text-neutral-600 mt-1.5">
-                  One practice or firm per specialty within 5 miles. $0 to start, nothing due until it&apos;s working.
-                  <span className="hidden sm:inline"> On a short call we show you what we found:</span>
+                  One practice or firm per specialty within 5 miles.
                 </p>
               </div>
 
-              <ol className="hidden sm:block divide-y divide-neutral-200 border-y border-neutral-200">
+              <ol className="hidden divide-y divide-neutral-200 border-y border-neutral-200">
                 {AUDIT_STEPS.map(({ icon: Icon, title, body }, i) => (
                   <li key={title} className="flex items-start gap-4 py-4">
                     <span className="font-mono text-xs font-bold text-neutral-400 pt-1">0{i + 1}</span>
@@ -367,7 +366,7 @@ export function Contact({ onBookAudit }: ContactProps) {
             </h2>
 
             <p className="mt-3 sm:mt-8 text-[15px] sm:text-lg lg:text-xl text-neutral-300 max-w-xl leading-relaxed font-normal">
-              Calls after hours and during busy mornings go to voicemail, and forms wait until tomorrow. Let us show you what a new patient or client experiences today. Every partnership with us starts here.
+              We&apos;ll show you what a new patient or client gets today.
             </p>
 
             {/* Direct Contact Details */}

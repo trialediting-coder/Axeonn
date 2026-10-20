@@ -9,8 +9,8 @@ export function GuaranteeBand({ id = 'guarantee' }: { id?: string }) {
     // Purpose: the 90-day performance commitment in full, and how it differs from a typical agency.
     <section id={id} className="w-full bg-blue-600 text-white py-10 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24">
       <div className="max-w-6xl mx-auto">
-        <div className="text-xs font-mono font-bold tracking-widest text-blue-100 uppercase mb-3 sm:mb-6">
-          [ 04 · THE PERFORMANCE COMMITMENT ]
+        <div className="eyebrow eyebrow-onblue mb-3 sm:mb-6">
+          04 · THE PERFORMANCE COMMITMENT
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-8 lg:gap-12 items-end">
           <p className="lg:col-span-5 font-black font-display tracking-tighter leading-[0.85] flex items-baseline gap-3 sm:block">

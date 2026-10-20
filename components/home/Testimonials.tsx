@@ -14,7 +14,7 @@ interface SourcedStat {
 export const SPEED_STAT: SourcedStat = {
   value: '21×',
   title: 'more likely to win the lead',
-  body: 'Leads called back within 5 minutes were about 21 times more likely to qualify than leads called back after 30.',
+  body: 'Called back in 5 minutes vs. 30.',
   source: 'MIT / InsideSales lead response study',
   href: 'https://25649.fs1.hubspotusercontent-na2.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf',
 };
@@ -22,7 +22,7 @@ export const SPEED_STAT: SourcedStat = {
 export const REVIEWS_STAT: SourcedStat = {
   value: '97%',
   title: 'read reviews before choosing',
-  body: 'Nearly everyone checks reviews before they call, so the practice or firm with recent, visible reviews gets the call.',
+  body: 'Recent, visible reviews get the call.',
   source: 'BrightLocal Local Consumer Review Survey 2026',
   href: 'https://www.brightlocal.com/research/local-consumer-review-survey/',
 };
@@ -60,7 +60,7 @@ export function Testimonials() {
   return (
     <section id="testimonials-section" className="w-full py-10 sm:py-32 px-4 sm:px-8 lg:px-14 xl:px-20">
       <div className="w-full max-w-6xl mx-auto">
-        <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ WHY SPEED WINS ]</p>
+        <p className="eyebrow">WHY SPEED WINS</p>
         <h2 className="mt-2 sm:mt-4 text-[28px] sm:text-5xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.1] max-w-3xl">
           The fastest answer wins the new patient or client
         </h2>
@@ -74,8 +74,7 @@ export function Testimonials() {
               to the first reply, day or night
             </p>
             <p className="mt-2 sm:mt-3 text-[15px] sm:text-lg text-neutral-600 leading-relaxed max-w-xl">
-              That is our commitment, not a statistic.<span className="hidden sm:inline"> Someone looking for a new dentist, a med spa consult, an injury lawyer or a CPA in tax season who calls after
-              hours or fills out a form at 9 PM hears back from you within a minute, with a way to book.</span>
+              Our commitment, not a statistic.
             </p>
           </div>
 
@@ -135,7 +134,7 @@ export function SpeedToLeadBand() {
         <p className="mt-3 text-lg sm:text-xl font-bold text-neutral-200">{SPEED_STAT.title}</p>
       </div>
       <div className="lg:col-span-7">
-        <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">[ WHY AXEONCORE ]</p>
+        <p className="eyebrow eyebrow-dark">WHY AXEONCORE</p>
         <h3 className="mt-2 sm:mt-3 text-[22px] sm:text-4xl font-extrabold font-display tracking-tight leading-[1.12]">
           Answering first wins. That&apos;s what AxeonCORE adds.
         </h3>

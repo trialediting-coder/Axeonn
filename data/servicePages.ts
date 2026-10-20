@@ -91,18 +91,18 @@ const ex = (vertical: PracticeVertical, scenario: string, points: string[]): Ver
 });
 
 const INTAKE_NOTE =
-  'Intake collects name, contact, service and preferred time only. Never symptoms, insurance or health details, case facts, or tax and financial records.';
+  'Intake collects name, contact, service and time only. Never health, case or tax details.';
 
 const SPEED_STAT: SourcedStat = {
   figure: '21×',
-  text: 'Leads called back within 5 minutes were about 21 times more likely to qualify than leads called back after 30.',
+  text: 'more likely to qualify when called back in 5 minutes, not 30.',
   sourceLabel: 'MIT / InsideSales lead response study',
   sourceUrl: 'https://25649.fs1.hubspotusercontent-na2.net/hub/25649/file-13535879-pdf/docs/mit_study.pdf',
 };
 
 const REVIEWS_STAT: SourcedStat = {
   figure: '97%',
-  text: 'of people read reviews before choosing a local business, so the practice or firm with recent, visible reviews gets the call.',
+  text: 'of people read reviews before choosing a local business.',
   sourceLabel: 'BrightLocal Local Consumer Review Survey 2026',
   sourceUrl: 'https://www.brightlocal.com/research/local-consumer-review-survey/',
 };
@@ -127,7 +127,7 @@ export const websitePage: ServicePage = {
     eyebrow: 'Services · Websites',
     title: 'A website that books consultations, not just visits',
     subtitle:
-      'For dental practices, med spas, law firms and CPA firms: custom and mobile-first, built around your dentists, injectors, attorneys or advisors, with online booking on every page and a 60-second reply behind every form.',
+      'Custom, mobile-first, built around your people, with booking on every page.',
     priceLine: `Included in ${CORE_PRICE}`,
     note: CORE_NOTE,
   },
@@ -213,7 +213,7 @@ export const websitePage: ServicePage = {
     {
       question: 'Do we own the website?',
       answer:
-        'Your domain, Google Business Profile and patient or client contact data are always yours. The website design and code become yours once the 12-month term is paid. The intake system, phone and text numbers and AxeonPROOF are a service and stop if you leave.',
+        'Your domain, Google profile and contact data are always yours. The site becomes yours once the 12-month term is paid.',
     },
     {
       question: 'How long does a new website take?',
@@ -251,7 +251,7 @@ export const seoPage: ServicePage = {
     eyebrow: 'Services · Local SEO',
     title: 'Show up on Google Maps when new patients and clients search near you',
     subtitle:
-      'For dental practices, med spas, law firms and CPA firms: your Google Business Profile kept current, a site built for local search, and a fresh review after every visit. No ranking promises, just the work local search rewards.',
+      'Your Google profile kept current, pages built for local search, a review after every visit.',
     priceLine: `Included in ${CORE_PRICE}`,
     note: CORE_NOTE,
   },
@@ -339,7 +339,7 @@ export const seoPage: ServicePage = {
     {
       question: 'Can you guarantee a spot in the Google map pack?',
       answer:
-        'No, and be careful with anyone who does. Google decides local rankings. We do the work its guidance rewards (a complete profile, clear service pages, steady reviews) and report what happens in AxeonPROOF. We never promise a ranking or a number of new patients, clients or cases.',
+        'No, and be careful with anyone who does. Google decides rankings. We do the work its guidance rewards and report the results in AxeonPROOF.',
     },
     {
       question: 'Do reviews really affect local search?',
@@ -353,7 +353,7 @@ export const seoPage: ServicePage = {
     {
       question: 'How long until we see results?',
       answer:
-        'It depends on your market and where you start, so we won’t give you a date for rankings. What we commit to is the work and the 60-second replies to every call and inquiry those searches produce.',
+        'It depends on your market, so we won’t promise a date. We commit to the work and the 60-second replies.',
     },
   ],
   trackId: 'service_seo',
@@ -376,7 +376,7 @@ export const leadGenerationPage: ServicePage = {
     eyebrow: 'Services · Lead generation & intake',
     title: 'Every inquiry answered in 60 seconds and booked',
     subtitle:
-      'Dental practice, med spa, law firm or CPA firm: missed calls get a text back, web forms get a reply, and your front desk or intake team picks up every thread in one inbox. Nobody waits until tomorrow.',
+      'Missed calls get a text back, forms get a reply, all in one inbox.',
     priceLine: `Included in ${CORE_PRICE}`,
     note: CORE_NOTE,
   },
@@ -479,7 +479,7 @@ export const leadGenerationPage: ServicePage = {
     {
       question: 'Do you guarantee a number of new patients, clients or cases?',
       answer:
-        'No. We commit to the system doing its job: live in 30 days, 60-second replies to every missed call and web inquiry, and a review request after every visit. If we miss that in the first 90 days and don’t fix it within 15 days, you can walk away.',
+        'No. We commit to the system: live in 30 days, 60-second replies, a review request after every visit. Miss it and you can walk away.',
     },
     {
       question: 'Does intake collect health or case details?',
@@ -507,7 +507,7 @@ export const aiChatPage: ServicePage = {
     eyebrow: 'Services · AI chat & booking',
     title: 'Patients and clients book their own consultation, day or night',
     subtitle:
-      'A new-patient exam, a med spa consult, a legal consultation or a tax appointment: a chat on your site answers common questions from information you approve, then offers a time. It lands on your calendar and your team is told right away.',
+      'A chat that answers from what you approve, then books the consult.',
     priceLine: `Included in ${CORE_PRICE}`,
     note: 'AI phone receptionist on AxeonGROWTH or +$199/mo',
   },
@@ -633,7 +633,7 @@ export const advertisingPage: ServicePage = {
     eyebrow: 'Services · Advertising',
     title: 'Ads that fill your schedule, tracked to the booked consult',
     subtitle:
-      'Google Local Services Ads and search ads for the work you want more of, whether that is implants, injectables, new cases or tax and advisory clients. Every ad call is answered within 60 seconds and counted in AxeonPROOF.',
+      'Local Services and search ads for the work you want more of. Every ad call answered.',
     priceLine: 'AxeonGROWTH · From $1,999/mo + ad spend',
     note: 'or +$750/mo on AxeonCORE',
   },
@@ -727,7 +727,7 @@ export const advertisingPage: ServicePage = {
     {
       question: 'Can you guarantee a cost per new patient, client or case?',
       answer:
-        'No. Ad results depend on your market, your services and Google. We commit to answering every ad call and inquiry within 60 seconds and to showing you exactly what the ads produced, all the way to the booked consultation.',
+        'No. Results depend on your market and Google. We commit to answering every ad call in 60 seconds and showing what the ads produced.',
     },
     {
       question: 'Will we get the Google Guaranteed or Google Screened badge?',
@@ -760,7 +760,7 @@ export const videoPhotographyPage: ServicePage = {
     eyebrow: 'Services · Photo & video',
     title: 'Photos and video that make patients and clients choose you',
     subtitle:
-      'Real photos of your dentists, injectors, attorneys or CPAs, your team and your office, plus short videos that answer what every new patient or client wants to know: who will I actually see?',
+      'Real photos and short videos of your people, so new patients see who they will meet.',
     priceLine: 'Quarterly in AxeonGROWTH · From $1,999/mo',
     note: 'or a single on-site shoot for $1,500',
   },

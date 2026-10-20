@@ -83,7 +83,7 @@ export const niches: Niche[] = [
       'Dental practice marketing in Des Moines: every new-patient call and web inquiry answered in 60 seconds, 24/7, exams booked online, reviews after every visit.',
     headline: 'New patients call after hours. Answer them in 60 seconds.',
     subheadline:
-      'Axeon replies to every missed call and web inquiry within 60 seconds, 24/7, books the new-patient exam or consult, and asks every patient for a review after the visit.',
+      'Every missed call answered in 60 seconds, 24/7, and the exam booked.',
     tagline: 'New-patient exams and implant consults booked, not lost to voicemail.',
     leakHeadline: 'The new-patient call that hit voicemail at 6:40 PM.',
     painPoints: [
@@ -147,7 +147,7 @@ export const niches: Niche[] = [
       'Med spa marketing in Des Moines: every consult request answered in 60 seconds, 24/7, consultations booked online and a review request after every visit.',
     headline: 'Consult requests come in at night. Answer them in 60 seconds.',
     subheadline:
-      'Axeon replies to every missed call and web inquiry within 60 seconds, 24/7, books the consultation, and asks every client for a review after the visit.',
+      'Every consult request answered in 60 seconds, 24/7, and booked.',
     tagline: 'More booked consults, treatment plans and memberships.',
     leakHeadline: 'The filler question nobody answered at 10 PM.',
     painPoints: [
@@ -209,7 +209,7 @@ export const niches: Niche[] = [
       'Law firm client intake in Des Moines: every missed call and web inquiry answered in 60 seconds, 24/7, consultations booked, conflict-safe first contact.',
     headline: 'People call a lawyer the night it happens. Answer in 60 seconds.',
     subheadline:
-      'Axeon replies to every missed intake call and web inquiry within 60 seconds, 24/7, books the consultation, and asks clients for a review when the matter allows it.',
+      'Every missed intake call answered in 60 seconds, 24/7, and the consult booked.',
     tagline: 'Intake calls answered and consultations booked.',
     leakHeadline: 'The night-after call goes to whoever answers.',
     painPoints: [
@@ -272,7 +272,7 @@ export const niches: Niche[] = [
       'CPA and accounting firm marketing in Des Moines: every call answered in 60 seconds, even in tax season, advisory consults booked and reviews requested.',
     headline: 'In March, new clients wait on hold. Answer them in 60 seconds.',
     subheadline:
-      'Axeon replies to every missed call and web inquiry within 60 seconds, 24/7, books the advisory consult, and asks every client for a review when the work is done.',
+      'Every missed call answered in 60 seconds, even in tax season, and booked.',
     tagline: 'Tax-season overflow answered, advisory consults booked.',
     leakHeadline: 'In March, your best new client waits behind W-2s.',
     painPoints: [

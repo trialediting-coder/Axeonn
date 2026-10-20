@@ -33,7 +33,7 @@ export function NichePlatformsMarquee({ slug }: { slug: string }) {
   return (
     <section className="w-full py-14 sm:py-16 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50 border-y border-neutral-200">
       <div className="max-w-4xl mx-auto text-center mb-8 sm:mb-10">
-        <p className="text-xs font-mono font-semibold tracking-widest text-neutral-400 uppercase mb-3">
+        <p className="eyebrow font-semibold text-neutral-400 mb-3">
           Built With Your Industry In Mind
         </p>
         <p className="text-base sm:text-lg text-neutral-700 leading-relaxed max-w-2xl mx-auto">

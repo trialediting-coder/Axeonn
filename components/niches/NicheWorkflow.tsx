@@ -23,7 +23,7 @@ export function NicheWorkflow({ niche }: { niche: Niche }) {
         {/* Header strip: the system in one line (tablet and up) */}
         <div className="hidden sm:grid gap-6 border-y border-neutral-300 py-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-12 mb-16">
           <div>
-            <p className="mb-2 text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ THE SYSTEM ]</p>
+            <p className="eyebrow mb-2">THE SYSTEM</p>
             <p className="text-2xl font-extrabold font-display tracking-tight leading-tight text-neutral-950 sm:text-3xl">
               Answered first. Booked first. Reviewed after.
             </p>
@@ -38,8 +38,8 @@ export function NicheWorkflow({ niche }: { niche: Niche }) {
           </ul>
         </div>
 
-        <p className="mb-2 sm:mb-3 text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">
-          [ HOW IT WORKS<span className="sm:hidden"> &middot; IN AXEONCORE</span> ]
+        <p className="eyebrow mb-2 sm:mb-3">
+          HOW IT WORKS<span className="sm:hidden"> &middot; IN AXEONCORE</span>
         </p>
         <h2 className="max-w-4xl text-[26px] font-extrabold font-display tracking-tight leading-[1.1] text-balance text-neutral-950 sm:text-5xl sm:leading-[1.05]">
           {niche.workflowHeadline}
@@ -72,7 +72,7 @@ export function NicheWorkflow({ niche }: { niche: Niche }) {
         </ol>
 
         <p className="mt-5 sm:mt-12 max-w-3xl rounded-2xl border border-neutral-300 bg-white px-4 py-3 sm:px-5 sm:py-4 text-sm leading-snug sm:leading-relaxed text-neutral-700 sm:text-base">
-          <span className="mr-2 font-mono text-xs font-bold tracking-widest text-blue-600">[ GOOD TO KNOW ]</span>
+          <span className="mr-2 font-mono text-xs font-bold tracking-widest text-blue-600">GOOD TO KNOW</span>
           {niche.complianceNote}
         </p>
       </div>

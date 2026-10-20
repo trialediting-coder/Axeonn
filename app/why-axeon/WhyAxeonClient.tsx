@@ -18,9 +18,9 @@ export default function WhyAxeonClient() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-4"
+            className="eyebrow mb-4"
           >
-            [ WHY AXEON ]
+            WHY AXEON
           </motion.div>
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
@@ -36,8 +36,7 @@ export default function WhyAxeonClient() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="text-base sm:text-lg text-neutral-600 leading-relaxed"
           >
-            A typical agency builds your practice or firm a website and hands it over. Axeon stays on as your growth
-            partner and runs what happens after someone finds you: the reply, the booking and the review.
+            Agencies hand over a website. We run the reply, the booking and the review.
           </motion.p>
         </div>
       </section>

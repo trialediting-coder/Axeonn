@@ -75,8 +75,8 @@ export function NichePainPoints({
         className={`w-full bg-stone-100 px-4 sm:px-10 lg:px-16 xl:px-24 pt-12 pb-4 ${compact ? 'sm:pt-20 sm:pb-6' : 'sm:pt-28 sm:pb-8'}`}
       >
         <div className="max-w-6xl mx-auto">
-          <p className="mb-3 sm:mb-4 text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">
-            [ Where new {niche.customerNoun} slip away ]
+          <p className="eyebrow mb-3 sm:mb-4">
+            Where new {niche.customerNoun} slip away
           </p>
           <h2
             className={`max-w-4xl font-extrabold font-display tracking-tight leading-[1.08] text-balance text-neutral-950 ${

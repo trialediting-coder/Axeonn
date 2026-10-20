@@ -37,7 +37,7 @@ export function PartnerTracks({
       <div className="max-w-2xl mb-4 sm:mb-12">
         <h2 className="text-[28px] sm:text-5xl font-black tracking-[-0.03em] font-display mb-2 sm:mb-4">Three ways to partner</h2>
         <p className="text-[15px] sm:text-lg text-neutral-600 leading-relaxed">
-          Pick the one that fits how you work. Not sure? Request the brief and we will figure it out together.
+          Not sure? Request the brief.
         </p>
       </div>
 
@@ -61,7 +61,7 @@ export function PartnerTracks({
       <div className={`${show('advisor', 'grid')} rounded-3xl lg:rounded-[32px] bg-blue-600 text-white p-5 sm:p-12 lg:grid-cols-2 gap-3 sm:gap-10`}>
         <div className="flex flex-col">
           <FileText size={28} className="hidden sm:block mb-8 text-blue-200" />
-          <p className="text-xs font-mono font-bold tracking-widest text-blue-100 uppercase mb-1 sm:mb-2">[ For CPAs, consultants &amp; billing firms ]</p>
+          <p className="eyebrow eyebrow-onblue mb-1 sm:mb-2">For CPAs, consultants &amp; billing firms</p>
           <h3 className="text-2xl sm:text-4xl font-black tracking-tight font-display sm:mb-3">Practice Advisor</h3>
           <p className="hidden sm:block text-blue-100 text-lg leading-relaxed">
             You advise practice and firm owners on their numbers and operations. When a client is losing new patients or clients
@@ -104,8 +104,7 @@ export function PartnerTracks({
           <Puzzle size={26} className="hidden sm:block mb-6 text-blue-600" />
           <h3 className="text-2xl font-black tracking-tight font-display mb-1 sm:mb-2">Collaboration Partner</h3>
           <p className="text-neutral-600 text-[15px] sm:text-lg mb-3 sm:mb-6 leading-relaxed">
-            You serve the same practices and firms with software or a service that fits next to ours. We recommend each other when
-            it makes sense.
+            You serve the same practices with a tool that fits next to ours.
           </p>
           <ul className="mt-auto divide-y divide-neutral-200 border-t border-neutral-200">
             {collabPoints.map((point) => (

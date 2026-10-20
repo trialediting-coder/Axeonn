@@ -6,13 +6,12 @@ export default function WhyAxeonClosingCTA() {
   return (
     <section className="w-full py-12 sm:py-24 px-4 sm:px-10 lg:px-16 xl:px-24">
       <div className="max-w-4xl mx-auto text-center">
-        <div className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-4">[ NEXT STEP ]</div>
+        <div className="eyebrow mb-4">NEXT STEP</div>
         <h2 className="text-[28px] sm:text-4xl lg:text-5xl font-extrabold tracking-tight font-display leading-tight text-neutral-950 mb-4 sm:mb-5">
           Is your specialty still open in your area?
         </h2>
         <p className="text-base sm:text-lg text-neutral-600 max-w-2xl mx-auto leading-relaxed mb-8 sm:mb-10">
-          One practice or firm per specialty within 5 miles. When we&apos;re working with you, we don&apos;t work for the
-          competitor down the street. $0 to start. Nothing due until it&apos;s working. Every partnership with us starts here.
+          One practice or firm per specialty within 5 miles. $0 to start.
         </p>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4">
           <Link

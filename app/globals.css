@@ -54,6 +54,27 @@ html.lenis, html.lenis body {
   -webkit-overflow-scrolling: touch;
 }
 
+
+/* Section eyebrows (owner, 2026-10-20): the "Partnering with Iowa Businesses"
+   marquee label style everywhere. No brackets, no mono. components/common/Eyebrow.tsx */
+@layer components {
+  .eyebrow {
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: #3366ff;
+  }
+  @media (min-width: 40rem) {
+    .eyebrow { font-size: 0.875rem; }
+  }
+  .eyebrow-dark { color: var(--color-blue-400); }
+  .eyebrow-onblue { color: var(--color-blue-100); }
+  .eyebrow-muted { color: var(--color-neutral-500); }
+}
+
 @layer utilities {
   .liquid-glass {
     background: rgba(255, 255, 255, 0.01);

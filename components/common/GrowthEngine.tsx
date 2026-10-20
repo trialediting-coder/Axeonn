@@ -16,13 +16,13 @@ const engineModules: EngineModule[] = [
   {
     icon: Megaphone,
     title: 'Google Ads & LSA',
-    body: 'Local Services Ads and search ads on the services you want more of, reported in AxeonPROOF.',
+    body: 'Local Services Ads and search ads, reported in AxeonPROOF.',
     href: '/marketing-solutions/advertising',
   },
   {
     icon: PhoneCall,
     title: 'AI Receptionist',
-    body: 'Answers the calls your front desk or intake team can’t get to, takes the details, and books the consultation.',
+    body: 'Answers the calls your team can’t get to and books the consult.',
     href: '/marketing-solutions/ai-chat-scheduling',
   },
   {
@@ -34,7 +34,7 @@ const engineModules: EngineModule[] = [
   {
     icon: Clapperboard,
     title: 'Photo & Video',
-    body: 'Quarterly shoots for review videos and reels, so people see your practice before they book.',
+    body: 'Quarterly shoots for review videos and reels.',
     href: '/marketing-solutions/video-photography',
   },
 ];
@@ -80,13 +80,12 @@ export function GrowthEngine({ showBuilds = true, variant = 'section' }: GrowthE
 
       <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-8 lg:gap-14 items-center">
         <div className="lg:col-span-5">
-          <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">[ AFTER LAUNCH ]</p>
+          <p className="eyebrow eyebrow-dark">AFTER LAUNCH</p>
           <h2 className="mt-2 sm:mt-3 text-[28px] sm:text-5xl font-extrabold font-display tracking-tight leading-[1.08]">
             Add more once intake is solid.
           </h2>
           <p className="mt-3 sm:mt-4 text-[15px] sm:text-lg text-neutral-400 leading-relaxed">
-            AxeonCORE makes sure every call and inquiry gets answered. When you want more new patients or clients
-            coming in, AxeonGROWTH adds these.
+            AxeonGROWTH adds these when you want more coming in.
           </p>
           <Link
             href="/check-your-area"
@@ -128,7 +127,7 @@ export function GrowthEngine({ showBuilds = true, variant = 'section' }: GrowthE
 
       {showBuilds && (
         <div className="relative mt-10 pt-8 border-t border-white/10">
-          <p className="text-xs font-mono font-semibold tracking-widest text-neutral-400 uppercase mb-4">
+          <p className="eyebrow font-semibold text-neutral-400 mb-4">
             Start with a plan
           </p>
           <div className="grid gap-4 sm:grid-cols-2">

@@ -16,7 +16,7 @@ const steps: ProcessStep[] = [
   {
     num: '01',
     title: 'Check Your Area',
-    desc: 'Tell us your specialty and city. We confirm within one business day whether your 5-mile area is open, then show you what we found about your practice or firm on a short call.',
+    desc: 'Tell us your specialty and city. We confirm within one business day.',
     duration: 'Before you sign anything',
     deliverables: ['Your area confirmed', 'After-hours call test', 'Website reply speed', 'Reviews vs. the top 3 nearby'],
     outcome: 'A clear picture of where patients and clients slip away today.',
@@ -24,7 +24,7 @@ const steps: ProcessStep[] = [
   {
     num: '02',
     title: 'Plan & Agreement',
-    desc: 'We map how every call and web inquiry should be answered, booked and followed up for your practice or firm, then put the scope and price in writing.',
+    desc: 'We map how every inquiry gets answered and booked, then put it in writing.',
     duration: 'One call',
     deliverables: ['Intake flow for your front desk or intake team', 'Booking rules by provider, attorney or service', 'Signed Client Services Agreement'],
     outcome: '$0 setup (normally $3,000) on the 12-month agreement, with the performance commitment written in.',
@@ -32,7 +32,7 @@ const steps: ProcessStep[] = [
   {
     num: '03',
     title: 'Build & Go Live',
-    desc: 'We build your website and set up missed-call text-back, the 60-second inquiry reply, online booking, the text inbox for your front desk or intake team, and review requests.',
+    desc: 'Website, text-back, 60-second replies, booking and review requests.',
     duration: 'Live within 30 days of your materials',
     deliverables: ['Mockups you review', 'Phone, text and booking set up', 'Intake that never asks for health details'],
     outcome: 'Every call and inquiry answered, starting on launch day. Your first payment starts here, not before.',
@@ -40,7 +40,7 @@ const steps: ProcessStep[] = [
   {
     num: '04',
     title: 'Run & Prove It',
-    desc: 'AxeonPROOF shows every recovered call and inquiry as it happens. From there we stay on as your growth partner, tuning replies, booking and review requests.',
+    desc: 'AxeonPROOF shows every recovered inquiry. We keep tuning from there.',
     duration: 'Your first 90 days, and every month after',
     deliverables: ['Live recovered-inquiry counter', 'Change requests in AxeonPROOF', 'Monthly report'],
     outcome: COMMITMENT_HEADLINE,
@@ -63,14 +63,14 @@ export function Process() {
     <section id="clear-process" className="w-full py-10 sm:py-16 lg:py-24 px-4 sm:px-8 lg:px-14 xl:px-20">
       <div className="w-full max-w-6xl mx-auto">
         <div className="max-w-4xl mb-6 sm:mb-16">
-          <div className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-4">
-            [ FROM AREA CHECK TO EVERY INQUIRY ANSWERED ]
+          <div className="eyebrow mb-4">
+            FROM AREA CHECK TO EVERY INQUIRY ANSWERED
           </div>
           <h2 className="text-3xl sm:text-5xl lg:text-7xl font-extrabold text-neutral-950 font-display tracking-tight leading-[1.05]">
             Four steps. $0 to start.
           </h2>
           <p className="mt-3 sm:mt-5 text-base sm:text-xl text-neutral-600 leading-relaxed max-w-2xl">
-            One goal: no patient or client waits until tomorrow for an answer. We work as your partner, so you always know what we&apos;re doing and why.
+            No patient or client waits until tomorrow.
           </p>
         </div>
 
@@ -104,8 +104,8 @@ export function Process() {
                         ))}
                       </ul>
                       <div className="mt-4 sm:mt-8 rounded-2xl bg-blue-600 p-4 sm:p-7">
-                        <p className="text-xs font-mono font-bold tracking-widest uppercase text-blue-100">
-                          [ THE 90-DAY PERFORMANCE COMMITMENT ]
+                        <p className="eyebrow eyebrow-onblue">
+                          THE 90-DAY PERFORMANCE COMMITMENT
                         </p>
                         <p className="mt-2 text-base sm:text-2xl font-extrabold font-display tracking-tight leading-snug">
                           {step.outcome}

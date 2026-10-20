@@ -87,7 +87,7 @@ export default async function InsightsPage() {
       <div className="max-w-6xl mx-auto">
         {/* Purpose: what these guides are, who they are for, in a few plain sentences. */}
         <section>
-          <div className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3 sm:mb-4">[ INSIGHTS ]</div>
+          <div className="eyebrow mb-3 sm:mb-4">INSIGHTS</div>
           <h1 className="text-[32px] sm:text-5xl font-extrabold tracking-tight text-neutral-950 font-display leading-[1.08] mb-3 sm:mb-4 text-balance">
             Guides for practices and firms that want more patients and clients
           </h1>
@@ -158,7 +158,7 @@ export default async function InsightsPage() {
               Want more patients and clients? Start with your area.
             </h2>
             <p className="mt-2 text-sm sm:text-base text-neutral-400">
-              One practice or firm per specialty within 5 miles. $0 to start. Nothing due until it&apos;s working.
+              One practice or firm per specialty within 5 miles. $0 to start.
             </p>
           </div>
           <Link

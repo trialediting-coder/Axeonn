@@ -88,7 +88,7 @@ export default async function NichePage({
       {/* Purpose: answer the last objections; every question visible, answers one tap away */}
       <section className="w-full py-10 sm:py-20 px-4 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50">
         <div className="max-w-3xl mx-auto">
-          <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-2 sm:mb-3">[ FAQ ]</p>
+          <p className="eyebrow mb-2 sm:mb-3">FAQ</p>
           <h2 className="text-[28px] sm:text-4xl font-extrabold font-display tracking-tight text-neutral-950 mb-4 sm:mb-10">
             Common Questions
           </h2>
