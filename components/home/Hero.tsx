@@ -1,122 +1,29 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { TrustBadges } from '@/components/common/TrustBadges';
 import { useLeadModal } from '@/components/common/LeadModalProvider';
 
-// One phrase cycles in the otherwise-fixed headline "Get More ___": the result
-// a practice buys, not the service (owner, 2026-10-19: sell the outcome).
-const ROTATING_WORDS = ['New Patients', 'Consultations', 'Clients', 'Booked Appointments'];
-const ROTATE_INTERVAL_MS = 2200;
-
-// Matches Tailwind's `sm` breakpoint: below it the hero uses the portrait phone media.
-const MOBILE_QUERY = '(max-width: 639px)';
+// The headline is "Get More ___": the result a practice or firm buys, not the
+// service (owner, 2026-10-19: sell the outcome). Each result belongs to one of
+// the four verticals, and the background crossfades to that vertical's photo
+// with it, so no single kind of practice owns the first screen (owner,
+// 2026-10-19: tailor to all our verticals, not just clinics).
+const SLIDES = [
+  { word: 'New Patients', image: '/who-we-help/dental.webp', position: 'object-[70%_center]' },
+  { word: 'Consultations', image: '/who-we-help/med-spa.webp', position: 'object-[60%_center]' },
+  { word: 'Signed Cases', image: '/who-we-help/law-firms.webp', position: 'object-center' },
+  { word: 'New Clients', image: '/who-we-help/accounting.webp', position: 'object-[65%_center]' },
+] as const;
+const ROTATE_INTERVAL_MS = 2600;
 
 export function Hero() {
   const { open: openLeadModal } = useLeadModal();
-  const heroVideoRef = useRef<HTMLVideoElement>(null);
-  const [wordIndex, setWordIndex] = useState(0);
+  const [index, setIndex] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
-  const mobileVideoRef = useRef<HTMLVideoElement>(null);
-  const [loopReady, setLoopReady] = useState(false);
-  const [mobilePlaying, setMobilePlaying] = useState(false);
-  const [avifFallback, setAvifFallback] = useState(false);
-  const sectionRef = useRef<HTMLElement>(null);
-  // Read by the play/retry handlers below so scroll-triggered retries never
-  // restart a video the viewer has scrolled past.
-  const heroInViewRef = useRef(true);
-  const [heroInView, setHeroInView] = useState(true);
-
-  // Pause the hero media while it is off screen, resume when it comes back.
-  // Saves decode work and battery on phones while the rest of the page is
-  // being scrolled; the AVIF fallback (software-decoded) is swapped for the
-  // static poster, since an animated image can't be paused.
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section || typeof IntersectionObserver === 'undefined') return;
-    const observer = new IntersectionObserver(([entry]) => {
-      const visible = entry.isIntersecting;
-      heroInViewRef.current = visible;
-      setHeroInView(visible);
-      const isMobile = window.matchMedia(MOBILE_QUERY).matches;
-      const video = isMobile ? mobileVideoRef.current : heroVideoRef.current;
-      if (!video) return;
-      if (!visible) {
-        video.pause();
-      } else if (video.paused) {
-        video.muted = true;
-        video.play().catch(() => {});
-      }
-    });
-    observer.observe(section);
-    return () => observer.disconnect();
-  }, []);
-
-  // Phones: nothing moving is fetched until the page has loaded, so the
-  // copy, CSS and JS get the bandwidth first. The portrait poster covers
-  // the gap.
-  useEffect(() => {
-    if (!window.matchMedia(MOBILE_QUERY).matches) return;
-    let idleId: number | undefined;
-    const start = () => {
-      const ric = window.requestIdleCallback;
-      if (ric) idleId = ric(() => setLoopReady(true), { timeout: 300 });
-      else setLoopReady(true);
-    };
-    // Owner, 2026-10-04: waiting for window load made the video feel slow.
-    start();
-    return () => {
-      window.removeEventListener('load', start);
-      if (idleId !== undefined) window.cancelIdleCallback?.(idleId);
-    };
-  }, []);
-
-  // Phones play a real H.264 video (hardware-decoded, smooth). The animated
-  // AVIF is decoded in software by WebKit on phones without AV1 hardware
-  // (e.g. iPhone 15), which made it visibly choppy. iOS can still refuse to
-  // autoplay (Low Power Mode, or until the first scroll), so the video stays
-  // invisible, play glyph included, until frames are actually moving; if it
-  // hasn't started within 3s the AVIF loop plays underneath as a fallback.
-  // Any later touch/scroll retries play() and the video fades in over it.
-  useEffect(() => {
-    const video = mobileVideoRef.current;
-    if (!loopReady || !video) return;
-
-    const tryPlay = () => {
-      if (!heroInViewRef.current) return;
-      video.muted = true;
-      video.defaultMuted = true;
-      if (video.paused) video.play().catch(() => {});
-    };
-    // `paused` flips to false as soon as play() is called, even while the
-    // file is still buffering, so track real playback via `playing`.
-    let started = false;
-    const onPlaying = () => {
-      started = true;
-      setMobilePlaying(true);
-    };
-    const onError = () => setAvifFallback(true);
-
-    video.addEventListener('playing', onPlaying);
-    video.addEventListener('error', onError);
-    tryPlay();
-    const fallbackId = window.setTimeout(() => {
-      if (!started) setAvifFallback(true);
-    }, 3000);
-
-    const gestureEvents = ['touchstart', 'pointerdown', 'click', 'scroll'] as const;
-    gestureEvents.forEach((evt) => window.addEventListener(evt, tryPlay, { passive: true }));
-
-    return () => {
-      window.clearTimeout(fallbackId);
-      video.removeEventListener('playing', onPlaying);
-      video.removeEventListener('error', onError);
-      gestureEvents.forEach((evt) => window.removeEventListener(evt, tryPlay));
-    };
-  }, [loopReady]);
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -128,157 +35,61 @@ export function Hero() {
 
   useEffect(() => {
     if (reducedMotion) return;
-    const id = window.setInterval(() => {
-      setWordIndex((i) => (i + 1) % ROTATING_WORDS.length);
-    }, ROTATE_INTERVAL_MS);
+    const id = window.setInterval(() => setIndex((i) => (i + 1) % SLIDES.length), ROTATE_INTERVAL_MS);
     return () => window.clearInterval(id);
   }, [reducedMotion]);
 
-  // Desktop/tablet only: phones get their own portrait video (with an AVIF
-  // fallback for when iOS blocks autoplay), handled in the effect above.
-  // Browsers can also silently drop the very first autoplay attempt when the
-  // file is still buffering, so retry on readiness milestones, on tab
-  // visibility/bfcache resume, and on a short poll until playback starts.
-  useEffect(() => {
-    const video = heroVideoRef.current;
-    if (!video || window.matchMedia(MOBILE_QUERY).matches) return;
-
-    const tryPlay = () => {
-      if (!heroInViewRef.current) return;
-      video.muted = true;
-      video.defaultMuted = true;
-      if (video.paused) {
-        video.play().catch(() => {
-          // Will retry on the next readiness event or poll tick below.
-        });
-      }
-    };
-
-    tryPlay();
-
-    const readinessEvents = ['loadedmetadata', 'loadeddata', 'canplay', 'canplaythrough', 'progress', 'suspend', 'stalled'];
-    readinessEvents.forEach((evt) => video.addEventListener(evt, tryPlay));
-    document.addEventListener('visibilitychange', tryPlay);
-    window.addEventListener('pageshow', tryPlay);
-
-    let attempts = 0;
-    const intervalId = window.setInterval(() => {
-      attempts += 1;
-      if (!video.paused || attempts >= 40) {
-        window.clearInterval(intervalId);
-        return;
-      }
-      tryPlay();
-    }, 500);
-
-    // If the browser still refuses, the first interaction unlocks play().
-    // Keep listening until the video is actually playing rather than giving
-    // up after the first event, which may not have counted as a gesture.
-    const gestureEvents = ['pointerdown', 'pointerup', 'click', 'keydown', 'wheel', 'scroll'] as const;
-    const removeGestureListeners = () => {
-      gestureEvents.forEach((evt) => window.removeEventListener(evt, tryPlay));
-    };
-    gestureEvents.forEach((evt) => window.addEventListener(evt, tryPlay, { passive: true }));
-    video.addEventListener('playing', removeGestureListeners);
-
-    return () => {
-      readinessEvents.forEach((evt) => video.removeEventListener(evt, tryPlay));
-      document.removeEventListener('visibilitychange', tryPlay);
-      window.removeEventListener('pageshow', tryPlay);
-      window.clearInterval(intervalId);
-      video.removeEventListener('playing', removeGestureListeners);
-      removeGestureListeners();
-    };
-  }, []);
+  const slide = SLIDES[reducedMotion ? 0 : index];
 
   return (
     <section
-      ref={sectionRef}
       id="hero-section"
       className="relative z-10 w-full min-h-[calc(100svh-7.5rem)] sm:min-h-[calc(100dvh-12.5rem)] flex items-stretch justify-center"
     >
-      {/*
-        The hero is a plain region. It used to be one giant click target that
-        routed to /book (with a custom follow-the-mouse cursor advertising it),
-        which produced accidental navigations from stray taps and polluted the
-        click data. The two explicit CTAs below are the only actions now.
-      */}
       {/* The hero stops short of the viewport so the "what's included" strip below is in the first screen. */}
       <div className="relative w-full bg-neutral-950 text-white flex flex-col px-6 sm:px-10 lg:px-16 xl:px-20 pt-20 sm:pt-28 pb-6 sm:pb-10 overflow-hidden">
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-          <video
-            ref={heroVideoRef}
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            poster="/who-we-help/dental.webp"
-            className="hidden sm:block w-full h-full object-cover object-center scale-105"
-          >
-            {/* No source matches on phones, so they never download the video. */}
-            <source src="/videos/industries/dental.mp4" type="video/mp4" media="(min-width: 640px)" />
-          </video>
-          {/*
-            Phones: portrait center crop of the same 30s clip (540x960, 24fps).
-            The old 480x270 landscape file was upscaled ~9x by object-cover on
-            a tall screen, which is what made it blurry. Layers, bottom up:
-            portrait poster (paints with the HTML) -> AVIF loop (only if the
-            video can't start, see avifFallback) -> H.264 video (faded in once
-            it is actually playing). Once the video plays, the poster/AVIF
-            layer is faded out and the AVIF dropped; both sit at full opacity
-            with the dark background, so leaving it would ghost through.
-          */}
-          <picture
-            className={`block w-full h-full sm:hidden transition-opacity duration-700 ${mobilePlaying ? 'opacity-0' : 'opacity-100'}`}
-          >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
+          {/* All four photos are stacked and crossfade with the headline word.
+              Only the first is fetched eagerly; the rest load while it shows. */}
+          {SLIDES.map((s, i) => (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
-              src="/who-we-help/dental.webp"
+              key={s.image}
+              src={s.image}
               alt=""
-              fetchPriority="high"
-              style={{ backgroundImage: 'url(/who-we-help/dental.webp)' }}
-              className="w-full h-full object-cover object-center bg-cover bg-center scale-105"
+              fetchPriority={i === 0 ? 'high' : 'low'}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              className={`absolute inset-0 w-full h-full object-cover ${s.position} transition-[opacity,transform] duration-[1400ms] ease-out ${
+                s === slide ? 'opacity-100 scale-105' : 'opacity-0 scale-100'
+              }`}
             />
-          </picture>
-          {loopReady && (
-            <video
-              ref={mobileVideoRef}
-              src="/videos/industries/dental.mp4"
-              loop
-              muted
-              playsInline
-              preload="auto"
-              aria-hidden="true"
-              className={`sm:hidden absolute inset-0 w-full h-full object-cover object-center scale-105 transition-opacity duration-700 ${mobilePlaying ? 'opacity-100' : 'opacity-0'}`}
-            />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-neutral-950/90 via-neutral-950/40 to-transparent sm:from-neutral-950/90 sm:via-neutral-950/60 sm:via-35% sm:to-transparent sm:to-70%" />
+          ))}
+          <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-neutral-950/95 via-neutral-950/60 to-neutral-950/20 sm:from-neutral-950/90 sm:via-neutral-950/60 sm:via-35% sm:to-transparent sm:to-70%" />
           <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/60 via-transparent to-neutral-950/40" />
-          {/* Soft glows as radial gradients: same look as a blurred disc, without a
-              64px blur filter that phones have to rasterize over the video. */}
           <div className="absolute -top-[13rem] -right-[13rem] w-[678px] h-[678px] rounded-full bg-[radial-gradient(closest-side,rgb(37_99_235/0.25)_62%,transparent)] pointer-events-none" />
-          <div className="absolute -bottom-16 right-[calc(25%-4rem)] w-[528px] h-[528px] rounded-full bg-[radial-gradient(closest-side,rgb(244_63_94/0.15)_52%,transparent)] pointer-events-none" />
         </div>
 
         <div className="relative z-10 w-full max-w-3xl flex-1 flex flex-col justify-center sm:ml-16 lg:ml-24 xl:ml-32">
           {/* Phones: the two flex-1 spacers center the headline + CTAs and pin the
-              badges to the bottom of the hero, right above the "Helping 50+" band. */}
+              badges to the bottom of the hero, right above the "what's included" band. */}
           <div aria-hidden="true" className="flex-1 sm:hidden" />
-          <h1 className="hero-rise text-center sm:text-left text-[min(2.75rem,11vw)] sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-[-0.03em] [word-spacing:0.12em] leading-[1.05] font-display text-white">
+          <p className="hero-rise text-center sm:text-left text-xs sm:text-sm font-bold tracking-[0.18em] uppercase text-blue-300">
+            Dental · Med spa · Law · Accounting
+          </p>
+          <h1 className="hero-rise mt-3 text-center sm:text-left text-[min(2.75rem,11vw)] sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-[-0.03em] [word-spacing:0.12em] leading-[1.05] font-display text-white">
             Get More
             {/* The rotating phrase always sits on its own line. */}
             <span className="grid">
               <AnimatePresence mode="wait" initial={false}>
                 <motion.span
-                  key={reducedMotion ? 'static' : ROTATING_WORDS[wordIndex]}
+                  key={slide.word}
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -16 }}
                   transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                   className="text-blue-400"
                 >
-                  {reducedMotion ? ROTATING_WORDS[0] : ROTATING_WORDS[wordIndex]}
+                  {slide.word}
                 </motion.span>
               </AnimatePresence>
             </span>
@@ -288,10 +99,10 @@ export function Hero() {
             style={{ animationDelay: '0.15s' }}
             className="hero-rise hidden sm:block mt-6 text-lg lg:text-xl text-neutral-300 font-normal leading-relaxed max-w-xl"
           >
-            {/* Desktop only: on phones the hero is headline, CTAs and badges (owner, 2026-10-10). */}
-            A website, SEO and ads that bring patients in, and a system that answers every
-            call and inquiry within 60 seconds, 24/7, and books them. Built for dental, med spa,
-            law and accounting practices.
+            {/* Desktop only: on phones the hero is eyebrow, headline, CTAs and badges (owner, 2026-10-10). */}
+            A website, SEO and ads that bring patients and clients in, and a system that answers every
+            call and inquiry within 60 seconds, 24/7, and books them. For dental practices, med spas,
+            law firms and accounting firms.
           </p>
 
           <div
@@ -325,10 +136,7 @@ export function Hero() {
 
           <div aria-hidden="true" className="flex-1 min-h-6 sm:hidden" />
 
-          <div
-            style={{ animationDelay: '0.35s' }}
-            className="hero-rise sm:mt-8"
-          >
+          <div style={{ animationDelay: '0.35s' }} className="hero-rise sm:mt-8">
             <TrustBadges variant="dark" size="lg" />
           </div>
         </div>

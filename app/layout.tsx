@@ -33,9 +33,9 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://axeonstudio.co'),
   ...buildMetadata({
     path: '/',
-    title: 'More New Patients for Private Practices | Axeon Studio',
+    title: 'More Patients and Clients for Practices and Firms | Axeon Studio',
     description:
-      'We get dental, med spa, law and CPA practices more new patients and clients: websites, SEO and ads that bring them in, and every call and inquiry answered in 60 seconds and booked.',
+      'We get dental practices, med spas, law firms and CPA firms more new patients and clients: websites, SEO and ads that bring them in, and every call and inquiry answered in 60 seconds and booked.',
   }),
   other: {
     'geo.region': 'US-IA',
