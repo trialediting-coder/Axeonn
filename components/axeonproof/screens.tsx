@@ -14,8 +14,8 @@ import type { LucideIcon } from 'lucide-react';
 import { AxeonLogo } from '@/components/brand/AxeonLogo';
 import { TIER_LABELS } from '@/data/onboardingItems';
 import { PROOF_TABS, TIER_PRICE, TIER_SHORT, tabLocked, type ProofTab, type ProofTabKey } from '@/lib/proofTabs';
-import { CARD_NOTES, EXAMPLE, EXAMPLE_SCHEDULE, type ExampleLead, type ExampleTile, type ShowcaseTabKey } from '@/data/proofPage';
-import { MilestoneTracker } from '@/components/proof/v2/MilestoneTracker';
+import { CARD_NOTES, EXAMPLE, EXAMPLE_V2, type ExampleLead, type ExampleTile, type ShowcaseTabKey } from '@/data/proofPage';
+import { FrontDeskCard, PipelineCard, ProgramTab, ScheduleStatusCard } from '@/components/proof/v2/V2Sections';
 import { CountUp } from '@/components/axeonproof/motion';
 
 const delay = (ms: number) => ({ animationDelay: `${ms}ms` });
@@ -424,6 +424,7 @@ export function OverviewScreen({ full = true }: { full?: boolean }) {
           <StatTile key={t.key} tile={t} ms={i * 70} />
         ))}
       </div>
+      <ProgramStatus />
       <LeadLog ms={280} />
       <div className="mt-4 grid grid-cols-1 gap-4 @3xl:mt-8 @3xl:grid-cols-3">
         <MonthChart ms={360} />
@@ -686,12 +687,34 @@ export function BillingScreen() {
   );
 }
 
-/** Program (AxeonPROOF v2): the app's own delivery-schedule card, for the demo practice on day 100. */
+// The v2 cards are the app's own (components/proof/v2/V2Sections.tsx) fed the demo
+// practice's day 100. Their links point inside the app, so on this page they are
+// inert; the tour's own tab bar does the moving around.
+const INERT = '[&_a]:pointer-events-none';
+// The app's cards pick their columns by screen width; inside the phone-width frame
+// on a wide screen they go by the frame instead, as they would on a real phone.
+const NARROW =
+  "@max-3xl:[&_[class*='lg:grid-cols-2']]:!grid-cols-1 @max-3xl:[&_[class*='sm:grid-cols-2']]:!grid-cols-1 @max-3xl:[&_[class*='sm:grid-cols-4']]:!grid-cols-2";
+
+/** After the numbers, as on a live client's Overview: where the program stands, the front desk and the pipeline. */
+function ProgramStatus() {
+  return (
+    <div className={`mt-4 space-y-4 @3xl:mt-8 @3xl:space-y-5 ${INERT} ${NARROW}`}>
+      <ScheduleStatusCard v={EXAMPLE_V2} />
+      <div className="grid gap-4 @3xl:grid-cols-2 @3xl:gap-5">
+        <FrontDeskCard v={EXAMPLE_V2} />
+        <PipelineCard v={EXAMPLE_V2} />
+      </div>
+    </div>
+  );
+}
+
+/** Program (AxeonPROOF v2): the app's own Program tab for the demo practice on day 100. */
 export function ProgramScreen() {
   return (
     // In a phone-width frame the "Days 1-3" tag goes, as on a real phone, so phase names are not cut off.
-    <div className="mt-5 @3xl:mt-8 @max-3xl:[&_summary_p+span]:!hidden">
-      <MilestoneTracker milestones={EXAMPLE_SCHEDULE.milestones} day={EXAMPLE_SCHEDULE.day} startAt={EXAMPLE_SCHEDULE.startAt} />
+    <div className={`mt-5 @3xl:mt-8 @max-3xl:[&_summary_p+span]:!hidden ${INERT} ${NARROW}`}>
+      <ProgramTab v={EXAMPLE_V2} api={null} tier={EXAMPLE.plan} businessName={EXAMPLE.name} ranking={null} upgradeRequestedAt={null} preview />
     </div>
   );
 }

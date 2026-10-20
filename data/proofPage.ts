@@ -15,7 +15,8 @@
 import type { OnboardingTier } from '@/data/onboardingItems';
 import { PROOF_TABS, type ProofTab, type ProofTabKey } from '@/lib/proofTabs';
 import { DELIVERY_SCHEDULE } from '@/data/deliverySchedule';
-import { dateOfDay, deriveMilestones, type MilestoneFacts } from '@/lib/proofV2Shared';
+import { dateOfDay, deriveMilestones, NAP_DIRECTORIES, napProgress, pipelineTotals, type MilestoneFacts, type NapStatus, type PipelineRow, type ProofV2Settings } from '@/lib/proofV2Shared';
+import type { ProofV2View } from '@/lib/proofV2';
 
 export interface ExampleLead {
   kind: 'Call button' | 'Text button' | 'Form' | 'Booking' | 'Email link';
@@ -196,16 +197,36 @@ export const SHOWCASE_TABS: readonly ShowcaseTab[] = [
 const SCHEDULE_START = '2026-07-07';
 const SCHEDULE_NOW = new Date('2026-10-14T15:00:00Z');
 const DONE_THROUGH_DAY = 92;
+/** Program day N of the demo practice, as an ISO time. */
+const onDay = (day: number) => `${dateOfDay(SCHEDULE_START, day)}T15:00:00Z`;
+/** 38 of the 40 directories synced, two still to go. */
+const EXAMPLE_NAP: Record<string, NapStatus> = Object.fromEntries(NAP_DIRECTORIES.map((d, i) => [d.key, i < 38 ? 'synced' : 'todo']));
+const EXAMPLE_SETTINGS: ProofV2Settings = {
+  steps: Object.fromEntries(
+    DELIVERY_SCHEDULE.flatMap((p) => p.steps)
+      .filter((s) => s.day <= DONE_THROUGH_DAY)
+      .map((s) => [s.key, { doneAt: onDay(s.day) }]),
+  ),
+  a2p: { brand: 'approved', campaign: 'approved', filedAt: onDay(2), approvedAt: onDay(3) },
+  reviews: { wireframe: { sharedAt: onDay(4), approvedAt: onDay(5) }, copy: { sharedAt: onDay(7), approvedAt: onDay(8) } },
+  staging: { readyAt: onDay(11), approvedAt: onDay(12) },
+  dnsCutoverAt: onDay(14),
+  goLiveAt: onDay(14),
+  certificateSentAt: onDay(14),
+  liveItems: ['New website on your domain', 'Tracked number on every page', 'Missed-call text-back', 'Online booking', 'Review requests', 'AxeonPROOF reporting'],
+  nap: EXAMPLE_NAP,
+  sitemapSubmittedAt: onDay(92),
+  organic: {
+    '2026-08': { impressions: 2140, clicks: 61, calls: 9, forms: 4 },
+    '2026-09': { impressions: 3380, clicks: 97, calls: 14, forms: 6 },
+    '2026-10': { impressions: 4410, clicks: 128, calls: 19, forms: 8 },
+  },
+  manager: { name: 'Sam (front desk)', email: 'frontdesk@quillmontdental.example' },
+  frontDesk: { signedOffAt: onDay(15), signedOffBy: 'Sam (front desk)' },
+};
 const scheduleFacts: MilestoneFacts = {
   startAt: SCHEDULE_START,
-  settings: {
-    steps: Object.fromEntries(
-      DELIVERY_SCHEDULE.flatMap((p) => p.steps)
-        .filter((s) => s.day <= DONE_THROUGH_DAY)
-        .map((s) => [s.key, { doneAt: `${dateOfDay(SCHEDULE_START, s.day)}T15:00:00Z` }]),
-    ),
-    goLiveAt: `${dateOfDay(SCHEDULE_START, 14)}T15:00:00Z`,
-  },
+  settings: EXAMPLE_SETTINGS,
   autoDone: {},
   line: { number: '+15155550142', smsReady: true, textBackOn: true },
   mcat: { missed: 41, textedBack: 41, under30: 41, medianSeconds: 9 },
@@ -217,10 +238,51 @@ const scheduleFacts: MilestoneFacts = {
 };
 export const EXAMPLE_SCHEDULE = { startAt: SCHEDULE_START, day: 100, milestones: deriveMilestones(scheduleFacts, SCHEDULE_NOW) };
 
+const PIPELINE_ROWS: PipelineRow[] = [
+  ...Array.from({ length: 14 }, (_, i): PipelineRow => ({ key: `dbr:${i}`, source: 'dbr', label: ['Maria L.', 'Tom R.', 'Priya S.', 'Kevin D.'][i % 4], at: onDay(17 + i), value: 240, valueBasis: 'average' })),
+  ...Array.from({ length: 22 }, (_, i): PipelineRow => ({ key: `web:${i}`, source: 'web', label: ['Jordan P.', 'Alex K.', 'Sara M.'][i % 3], at: onDay(20 + i * 3), value: 240, valueBasis: 'average' })),
+];
+
+/**
+ * The demo practice as AxeonPROOF v2 sees it on day 100, for the real v2 cards
+ * (components/proof/v2/V2Sections.tsx): the Overview's schedule status, front
+ * desk and pipeline cards, and the Program tab. Same fixed dates as above; no
+ * screenshots or real business anywhere in it.
+ */
+export const EXAMPLE_V2: ProofV2View = {
+  startAt: SCHEDULE_START,
+  day: EXAMPLE_SCHEDULE.day,
+  milestones: EXAMPLE_SCHEDULE.milestones,
+  settings: EXAMPLE_SETTINGS,
+  staging: { phase: 'approved', endsAt: null },
+  goLive: { ok: false, reason: 'Already live.' },
+  pins: [],
+  line: scheduleFacts.line,
+  mcat: { missed: 41, textedBack: 41, under30: 41, medianSeconds: 9, rescued: 23 },
+  dbr: { imported: 312, consented: 312, firstImportAt: onDay(15), status: 'done', steps: [], startedAt: onDay(16), endedAt: onDay(23), sent: 870, pending: 0, stopped: 31, replied: 34 },
+  pipeline: { rows: PIPELINE_ROWS, totals: pipelineTotals(PIPELINE_ROWS), average: 240 },
+  reviews: { enabled: true, enabledAt: onDay(45), sent: 118, newReviews: 37, rating: 4.9, reviews: 212 },
+  nap: napProgress(EXAMPLE_NAP),
+  pages: ['Des Moines family dentist', 'West Des Moines Invisalign', 'Ankeny dental implants', 'Urbandale teeth whitening', 'Emergency dentist Des Moines', 'Kids dentist Johnston', 'Dental crowns Clive', 'Waukee dentist'].map((title, i) => ({
+    id: i + 1,
+    kind: i % 2 ? 'procedure' : 'location',
+    title,
+    slug: title.toLowerCase().replace(/\s+/g, '-'),
+    intro: '',
+    body: '',
+    status: 'published',
+    publishedAt: onDay(70 + i * 3),
+    indexed: i < 6,
+    indexedAt: i < 6 ? onDay(80 + i * 3) : null,
+  })),
+  frontDesk: { waiting: 0, week: { missed: 4, autoTexted: 4, staffReplied: 4, booked: 5, archived: 1 }, signedOffAt: onDay(15), signedOffBy: 'Sam (front desk)', access: [{ month: '2026-09', recipient: 'owner', at: '2026-10-01T13:10:00Z' }] },
+  bookUrl: '/book',
+};
+
 /** One line under each tab in the tour: what the owner gets from it. */
 export const TAB_NOTES: Record<ShowcaseTabKey, string> = {
-  overview: 'This month at a glance: who reached out, how many were recovered after hours, and where they came from.',
-  program: 'Your first 180 days, step by step, with a date on every step.',
+  overview: 'This month at a glance, then where your program stands and what is next. One button when something needs you.',
+  program: 'Your first 180 days: what is done, what is on now, and when the next phase starts.',
   leads: 'Every call, text, form and booking, the day it happens. Tap Booked on the ones that turned into an appointment.',
   calls: 'Every call counted. A missed call gets a text back within 60 seconds, so the caller does not book with the next office.',
   bookings: 'New patients and clients book a consultation at 9 PM instead of calling whoever answers first. Reminders cut the no-shows.',

@@ -90,7 +90,7 @@ export function FrontDeskCard({ v }: { v: ProofV2View }) {
       <Head icon={Inbox} title="Front desk" sub="Inbox zero by 8:30 AM, every day" right={<a href="?tab=leads" className="shrink-0 text-xs font-semibold text-blue-600">Open inbox</a>} />
       <div className="mt-3 grid grid-cols-2 gap-2">
         <Stat label="Missed-call threads waiting" value={String(f.waiting)} sub={f.waiting ? 'Reply or call back today' : v.line ? 'Inbox zero' : 'Starts when your number is live'} />
-        <Stat label="This week" value={`${f.week.booked} booked`} sub={`${f.week.archived} marked not a fit · ${f.week.missed} missed calls, ${f.week.staffReplied} answered by your team`} />
+        <Stat label="This week" value={`${f.week.booked} booked`} sub={`${f.week.archived} not a fit · ${f.week.missed} missed, ${f.week.staffReplied} answered by your team`} />
       </div>
       <p className="mt-2 text-[11px] text-neutral-500">
         {f.access.length ? `Monthly summary last opened ${shortDate(f.access[0].at)} (${f.access[0].recipient === 'owner' ? 'owner' : 'practice manager'})` : 'Your monthly summary link arrives on the 1st.'}
@@ -156,7 +156,9 @@ export function ScheduleStatusCard({ v }: { v: ProofV2View }) {
   return (
     <Card>
       <div className="flex items-center justify-between gap-3">
-        <p className="text-xs font-medium text-neutral-500">Your delivery schedule · day {Math.min(v.day, 180)} of 180</p>
+        <p className="text-xs font-medium text-neutral-500">
+          Delivery schedule · <span className="whitespace-nowrap">day {Math.min(v.day, 180)} of 180</span>
+        </p>
         <span className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ${tone.cls}`}>{tone.label}</span>
       </div>
       <h2 className="mt-2 text-lg font-bold leading-snug tracking-tight text-neutral-950 sm:text-xl">
