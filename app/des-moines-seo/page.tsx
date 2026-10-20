@@ -16,7 +16,7 @@ import { funnelPath } from '@/data/serviceFunnels';
 // results or ranking promises.
 export const metadata = buildMetadata({
   path: '/des-moines-seo',
-  title: 'Des Moines SEO Company for Practices & Firms | Axeon Studio',
+  title: 'Des Moines SEO Company | Axeon Studio',
   description:
     'Des Moines SEO for dental practices, med spas, law firms and CPA firms: map pack, service pages and reviews, every call answered. From $799/mo.',
 });
