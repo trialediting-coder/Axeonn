@@ -7,8 +7,9 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata: Metadata = buildMetadata({
   path: '/faq',
-  title: 'FAQ: Questions Practice & Firm Owners Ask | Axeon Studio',
-  description: 'Answers to what owners of dental practices, med spas, law firms and CPA firms ask before working with Axeon Studio: the performance commitment, ownership, agreements and cost.',
+  title: 'FAQ for Practice & Firm Owners | Axeon Studio',
+  description:
+    'Straight answers for dental, med spa, law and CPA firm owners in Iowa: cost, the 90-day performance commitment, ownership, agreements and patient privacy.',
 });
 
 export default function FaqPage() {

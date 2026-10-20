@@ -12,7 +12,6 @@ const SYSTEM = [
   { title: 'Review engine', body: 'An automatic review request after every appointment, so your reputation keeps up with your work.' },
 ];
 
-const pad = (n: number) => String(n).padStart(2, '0');
 
 // Purpose: how the system answers, books and asks for the review, step by step, for this practice type.
 export function NicheWorkflow({ niche }: { niche: Niche }) {
@@ -66,14 +65,6 @@ export function NicheWorkflow({ niche }: { niche: Niche }) {
                 <span className="absolute left-0 top-0 flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">
                   {i + 1}
                 </span>
-                {step.plugsLeaks && step.plugsLeaks.length > 0 && (
-                  <a
-                    href="#the-leaks"
-                    className="relative after:absolute after:inset-x-0 after:-inset-y-3 after:content-[''] sm:after:hidden sm:py-2 sm:mb-2 inline-block font-mono text-xs font-bold tracking-widest text-blue-600 hover:text-blue-700"
-                  >
-                    [ PLUGS LEAK {step.plugsLeaks.map(pad).join(' + ')} ]
-                  </a>
-                )}
                 <p className="text-[15px] leading-snug sm:text-base sm:leading-relaxed text-neutral-800">{step.text}</p>
               </li>
             );

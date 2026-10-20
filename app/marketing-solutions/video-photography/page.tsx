@@ -15,6 +15,7 @@ const jsonLd = serviceJsonLd({
   serviceType: page.serviceType,
   name: `Axeon Studio: ${page.name}`,
   description: page.metaDescription,
+  plan: 'growth',
 });
 
 export default function VideoPhotographyPage() {

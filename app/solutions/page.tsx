@@ -6,9 +6,9 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/solutions',
-  title: 'Patient & Client Intake for Practices & Firms | Axeon Studio',
+  title: 'Marketing for Dental, Med Spa, Law & CPA Firms | Axeon',
   description:
-    'Intake infrastructure for dental practices, med spas, law firms and accounting firms: every missed call and web inquiry answered within 60 seconds, 24/7, consultations booked, and a review request after every visit.',
+    'More new patients and clients for dental practices, med spas, law firms and CPA firms in Des Moines: every call and inquiry answered in 60 seconds, 24/7.',
 });
 
 const GROUPS: { category: NicheCategory; label: string }[] = [

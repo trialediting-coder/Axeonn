@@ -32,7 +32,7 @@ const DESCRIPTION =
 export const metadata = buildMetadata({
   path: '/axeonproof',
   title: 'AxeonPROOF Client Dashboard | Axeon Studio',
-  description: DESCRIPTION,
+  description: 'AxeonPROOF is the client portal every Axeon practice and firm gets: a live counter of recovered inquiries, every reply and booking, and a monthly report.',
 });
 
 const jsonLd = serviceJsonLd({

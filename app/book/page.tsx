@@ -4,9 +4,9 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/book',
-  title: 'Book a Call | Axeon Studio',
+  title: 'Book a Call With Axeon Studio | West Des Moines',
   description:
-    'Book a free 30-minute call with Axeon Studio. We look at how your practice or firm answers calls and web inquiries today, where patients and clients slip away, and what AxeonCORE would change.',
+    'Book a free 30-minute call with Axeon Studio. We look at how your practice or firm answers calls and inquiries today and what would change. Des Moines, Iowa.',
 });
 
 export default function BookPage() {

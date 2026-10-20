@@ -19,7 +19,7 @@ export function NicheClosingCTA({ niche }: { niche: Niche }) {
         </p>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-4">
           <Link
-            href="/check-your-area"
+            href={`/check-your-area?specialty=${niche.slug}`}
             data-track="cta_click"
             data-track-cta={`niche_${niche.slug}_closing_area_check`}
             className="inline-flex items-center justify-center gap-2 px-8 py-3.5 sm:py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/25"

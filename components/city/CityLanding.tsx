@@ -150,7 +150,7 @@ export function CityLanding({ page }: { page: CityPage }) {
             <div className="lg:w-72 shrink-0">
               <p className={EYEBROW}>[ THE SYSTEM ]</p>
               <h2 className="mt-2 text-2xl font-extrabold font-display tracking-tight leading-tight">
-                What Every {page.city} Practice and Firm Gets
+                What every {page.city} practice and firm gets
               </h2>
             </div>
             <ol className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-3">
@@ -186,7 +186,7 @@ export function CityLanding({ page }: { page: CityPage }) {
         <div className="max-w-6xl mx-auto">
           <p className={`${EYEBROW} mb-3`}>[ WHO WE HELP ]</p>
           <h2 className="text-[28px] sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-[1.1] mb-3 sm:mb-4 text-balance">
-            Practices and Firms We Serve in {page.city}
+            Practices and firms we serve in {page.city}
           </h2>
           <p className="text-[15px] sm:text-lg text-neutral-600 max-w-3xl mb-5 sm:mb-10 leading-snug sm:leading-relaxed">
             Pick yours to see where new patients and clients slip away, and how we answer them within 60 seconds.
@@ -198,7 +198,7 @@ export function CityLanding({ page }: { page: CityPage }) {
                   href={`/solutions/${niche.slug}`}
                   className="flex items-center justify-between rounded-xl border border-neutral-200 px-4 py-3 sm:px-5 sm:py-4 hover:border-blue-400 hover:bg-blue-50/40 transition-colors font-semibold"
                 >
-                  {niche.name}
+                  {niche.name} in {page.city}
                   <ArrowRight size={16} className="text-blue-600" />
                 </Link>
               </li>
@@ -218,7 +218,7 @@ export function CityLanding({ page }: { page: CityPage }) {
       <section className="w-full py-10 sm:py-16 px-4 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
         <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-5 sm:gap-10 items-start">
           <div className="lg:col-span-5">
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2 sm:mb-4">Serving the Metro</h2>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2 sm:mb-4">Serving the metro</h2>
             <p className="text-neutral-300 leading-relaxed">
               Based in West Des Moines, IA 50266. In-person kickoffs and front-desk training anywhere in the Des Moines
               metro, including {page.city}.
@@ -273,7 +273,7 @@ export function CityLanding({ page }: { page: CityPage }) {
         <div className="max-w-3xl mx-auto">
           <p className={`${EYEBROW} mb-3`}>[ FAQ ]</p>
           <h2 className="text-2xl sm:text-4xl font-extrabold font-display tracking-tight leading-tight mb-3 sm:mb-10 text-balance">
-            Questions {page.city} Practice and Firm Owners Ask
+            Questions {page.city} practice and firm owners ask
           </h2>
           <FAQAccordion items={faqs} />
         </div>

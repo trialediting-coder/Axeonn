@@ -175,6 +175,8 @@ export function WhoWeHelp() {
               <img
                 src="/who-we-help/hero-mobile.webp"
                 alt=""
+                width={960}
+                height={540}
                 loading="lazy"
                 decoding="async"
                 className="w-full h-full object-cover object-[70%_center]"

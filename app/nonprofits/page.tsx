@@ -33,9 +33,9 @@ const GLANCE = [
 
 export const metadata = buildMetadata({
   path: '/nonprofits',
-  title: 'Axeon Groundwork Grant: Free Websites for Iowa Nonprofits | Axeon Studio',
+  title: 'Free Websites for Iowa Nonprofits | Axeon Groundwork Grant',
   description:
-    'The Axeon Groundwork Grant gives Iowa nonprofits a full digital presence for free: website, Google and AI search visibility, Google Business Profile, and donate and volunteer pages. You only cover basic hosting.',
+    'The Axeon Groundwork Grant gives Iowa nonprofits a free website, Google and AI search visibility, a Business Profile and donate pages. You only cover hosting.',
 });
 
 // No application form: an email or a call is all it takes.

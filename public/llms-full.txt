@@ -177,7 +177,7 @@ Yes. Plans run on a 12-month agreement. Month-to-month is available with the $3,
 Live within 30 days of getting your materials, a reply to every missed call and web inquiry within 60 seconds, and a review request after every completed appointment. If Axeon misses any of those in the first 90 days and does not fix it within 15 days, you can walk away and owe nothing for the rest of the term.
 
 ### Q: Does the intake system collect health information?
-No. It collects name, contact details, the service requested, and a preferred time only. Never symptoms, insurance, or health details.
+No. It collects name, contact details, the service requested, and a preferred time only. Never symptoms, insurance, or health details. For law and accounting firms it collects no case facts, tax documents, or financial details, and the automated first reply never gives legal advice.
 
 ### Q: Who owns the website?
 The practice's domain, Google Business Profile, and contact data are always the practice's. The website design and code become the practice's once the 12-month term is paid. The intake system and AxeonPROOF are a service.
@@ -203,6 +203,9 @@ Check if your area is open at https://axeonstudio.co/check-your-area, book a cal
   - AI chat & online booking: https://axeonstudio.co/marketing-solutions/ai-chat-scheduling
   - Google Ads & Local Services Ads: https://axeonstudio.co/marketing-solutions/advertising
   - Photo & video: https://axeonstudio.co/marketing-solutions/video-photography
+- Local pages: https://axeonstudio.co/des-moines-web-design, https://axeonstudio.co/west-des-moines-web-design, https://axeonstudio.co/ankeny-web-design, https://axeonstudio.co/waukee-web-design, https://axeonstudio.co/urbandale-web-design
+- Process: https://axeonstudio.co/process
+- Why Axeon: https://axeonstudio.co/why-axeon
 - AxeonPROOF: https://axeonstudio.co/axeonproof
 - Partners: https://axeonstudio.co/partners
 - Work: https://axeonstudio.co/work

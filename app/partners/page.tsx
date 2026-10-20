@@ -22,9 +22,9 @@ import { PartnerBriefRequest } from '@/components/partners/PartnerBriefRequest';
 
 export const metadata = buildMetadata({
   path: '/partners',
-  title: 'Partner Program | Axeon Studio',
+  title: 'Partner Program for CPAs & Consultants | Axeon Studio',
   description:
-    'CPAs, practice consultants and billing firms: refer dental practices, med spas, law firms and CPA firms to Axeon and earn a 15% recurring Technology Advisory Share, disclosed to the client in writing, or pass it to your client as a fee credit.',
+    'CPAs, practice consultants and billing firms: refer Iowa practices and firms to Axeon and earn a 15% recurring Technology Advisory Share, disclosed in writing.',
 });
 
 const APPLY_SUBJECT = 'Axeon partner application';

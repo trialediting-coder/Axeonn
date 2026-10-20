@@ -74,9 +74,9 @@ export const cityPages: CityPage[] = [
     linkLabel: 'West Des Moines Practices & Firms',
     title: 'West Des Moines Practice & Firm Intake | Axeon Studio',
     description:
-      'Websites and 60-second intake for West Des Moines dental practices, med spas, law firms and CPA firms, from a team based here. From $799/mo with a 90-day performance commitment.',
+      'Websites and 60-second intake for West Des Moines dental practices, med spas, law firms and CPA firms, from a team based here. From $799/mo, $0 to start.',
     eyebrow: 'West Des Moines, Iowa · Home Base',
-    h1: 'Every After-Hours Call Answered, for West Des Moines Practices and Firms',
+    h1: 'Every after-hours call answered, for West Des Moines practices and firms',
     intro:
       'Axeon Studio is based in West Des Moines. We install patient and client intake for local practices and firms: every missed call and web inquiry answered within 60 seconds, consultations booked, and a review request after every visit.',
     localHeading: 'Built in West Des Moines, for practices and firms here.',
@@ -124,9 +124,9 @@ export const cityPages: CityPage[] = [
     linkLabel: 'Ankeny Practices & Firms',
     title: 'Ankeny Practice & Firm Intake | Axeon Studio',
     description:
-      'Websites and 60-second intake for Ankeny dental practices, med spas, law firms and CPA firms: new residents answered and booked first. From $799/mo, 90-day performance commitment.',
+      'Ankeny dental practices, med spas, law firms and CPA firms: every after-hours call and web inquiry answered in 60 seconds and booked. From $799/mo.',
     eyebrow: 'Ankeny, Iowa · North Metro',
-    h1: 'Ankeny Is Growing. Answer Every New Patient and Client First.',
+    h1: 'Ankeny is growing. Answer every new patient and client first.',
     intro:
       'Every new Ankeny neighborhood is full of people who have not picked a dentist, a med spa, a lawyer or a CPA yet. We make sure that when they call or send a form, your practice or firm answers within 60 seconds and gets the consultation on the calendar.',
     localHeading: 'New neighbors are choosing their dentist, med spa, lawyer and CPA right now.',
@@ -174,9 +174,9 @@ export const cityPages: CityPage[] = [
     linkLabel: 'Waukee Practices & Firms',
     title: 'Waukee Practice & Firm Intake | Axeon Studio',
     description:
-      'Websites and 60-second intake that help newer Waukee dental practices, med spas, law firms and CPA firms get chosen over established names. From $799/mo with a 90-day performance commitment.',
+      'For Waukee dental practices, med spas, law firms and CPA firms: a site that books and a reply to every call in 60 seconds, from a team next door.',
     eyebrow: 'Waukee, Iowa · West Metro',
-    h1: 'Waukee Practices and Firms: Answer First, Even Against Older Names',
+    h1: 'Waukee practices and firms: answer first, even against older names',
     intro:
       'Waukee is growing fast, and new practices and firms open next to ones that have been around for years. You may not have their head start on reviews, but you can answer every call and inquiry within 60 seconds while others send people to voicemail.',
     localHeading: 'New office, established competition.',
@@ -225,9 +225,9 @@ export const cityPages: CityPage[] = [
     linkLabel: 'Urbandale Practices & Firms',
     title: 'Urbandale Practice & Firm Intake | Axeon Studio',
     description:
-      'Websites and 60-second intake for established Urbandale practices and firms with outdated sites. One West Des Moines team, from $799/mo, 90-day performance commitment.',
+      'Urbandale dental practices, med spas, law firms and CPA firms: turn a good reputation into booked consultations, with every inquiry answered in 60 seconds.',
     eyebrow: 'Urbandale, Iowa · Northwest Metro',
-    h1: 'Urbandale Practices and Firms: A Great Reputation Still Needs an Answer',
+    h1: 'Urbandale practices and firms: a great reputation still needs an answer',
     intro:
       'Urbandale has many established practices and firms with loyal patients and clients, and websites and phone setups that have not kept up. We rebuild the site and install intake so new people who find you today get answered within 60 seconds.',
     localHeading: 'Great reputation, outdated front door.',

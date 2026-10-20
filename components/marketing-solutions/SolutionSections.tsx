@@ -88,6 +88,20 @@ export function ServiceHero({
   );
 }
 
+/** Answer-first block for search and AI answer engines: one question, one short answer. */
+// Purpose: the direct answer to the page's main question, in two sentences at most.
+export function QuickAnswer({ question, answer }: { question: string; answer: string }) {
+  return (
+    <section className="w-full bg-white px-4 sm:px-8 lg:px-16 py-8 sm:py-16 text-neutral-950">
+      <div className="max-w-3xl mx-auto">
+        <Eyebrow label="Quick answer" className="mb-2 sm:mb-3" />
+        <h2 className="text-[24px] sm:text-4xl font-black font-display tracking-tight leading-tight text-balance">{question}</h2>
+        <p className="mt-2 sm:mt-4 text-[15px] sm:text-xl leading-snug sm:leading-relaxed text-neutral-700">{answer}</p>
+      </div>
+    </section>
+  );
+}
+
 /** One sourced third-party number on a dark band, linked to its source. */
 // Purpose: one sourced number that shows why this service matters.
 export function SourcedStatBand({ stat }: { stat: SourcedStat }) {
@@ -321,6 +335,7 @@ export function ServicePageView({ page }: { page: ServicePage }) {
   return (
     <>
       <ServiceHero {...page.hero} />
+      <QuickAnswer {...page.quickAnswer} />
       {page.stat && <SourcedStatBand stat={page.stat} />}
       <HowItWorksSection how={page.how} />
       <IncludedSection included={page.included} note={page.note} />

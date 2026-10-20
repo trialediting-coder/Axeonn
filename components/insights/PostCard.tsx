@@ -14,6 +14,8 @@ export function PostCard({ post }: { post: Post }) {
             alt={post.coverImageAlt ?? ''}
             loading="lazy"
             decoding="async"
+            width={1200}
+            height={675}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         </div>

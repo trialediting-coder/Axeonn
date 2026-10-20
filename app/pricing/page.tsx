@@ -7,9 +7,9 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/pricing',
-  title: 'Pricing for Practices & Firms: AxeonCORE & AxeonGROWTH | Axeon Studio',
+  title: 'Practice Marketing Pricing: From $799/mo | Axeon Studio',
   description:
-    'Your growth partner for patient and client intake at dental practices, med spas, law firms and CPA firms. AxeonCORE from $799/mo, AxeonGROWTH from $1,999/mo. $0 to start: the build is waived on the 12-month agreement and nothing is due until it is working. Month-to-month available. One practice or firm per specialty within 5 miles.',
+    "AxeonCORE from $799/mo and AxeonGROWTH from $1,999/mo for dental, med spa, law and CPA firms in Iowa. $0 to start. Nothing due until it's working.",
 });
 
 // Order: commitment + plans -> 21x band (why AxeonCORE) -> add-ons + engine -> FAQ -> CTA.

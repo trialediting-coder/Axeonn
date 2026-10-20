@@ -8,7 +8,7 @@ export const LEVI_QUOTE = {
   name: 'Levi Rench',
   role: 'Owner, A-1 Auto Detailing',
   place: 'Pleasant Hill, Iowa',
-  href: '/insights/a-1-auto-detailing-website-case-study',
+  href: '/work',
 };
 
 interface ClientQuoteProps {

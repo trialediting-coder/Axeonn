@@ -80,7 +80,7 @@ export const niches: Niche[] = [
     schemaType: 'Dentist',
     seoTitle: 'Dental Practice Marketing in Des Moines, IA',
     seoDescription:
-      'Patient intake for dental practices: every missed call and web inquiry answered within 60 seconds, 24/7, new-patient exams and implant or Invisalign consults booked online, and a review request after every visit.',
+      'Dental practice marketing in Des Moines: every new-patient call and web inquiry answered in 60 seconds, 24/7, exams booked online, reviews after every visit.',
     headline: 'New patients call after hours. Answer them in 60 seconds.',
     subheadline:
       'Axeon replies to every missed call and web inquiry within 60 seconds, 24/7, books the new-patient exam or consult, and asks every patient for a review after the visit.',
@@ -144,7 +144,7 @@ export const niches: Niche[] = [
     schemaType: 'MedicalBusiness',
     seoTitle: 'Med Spa Marketing in Des Moines, IA',
     seoDescription:
-      'Client intake for med spas: every consult request answered within 60 seconds, 24/7, consultations booked online, a two-way text inbox for treatment-plan follow-up, and a review request after every visit.',
+      'Med spa marketing in Des Moines: every consult request answered in 60 seconds, 24/7, consultations booked online and a review request after every visit.',
     headline: 'Consult requests come in at night. Answer them in 60 seconds.',
     subheadline:
       'Axeon replies to every missed call and web inquiry within 60 seconds, 24/7, books the consultation, and asks every client for a review after the visit.',
@@ -206,7 +206,7 @@ export const niches: Niche[] = [
     schemaType: 'LegalService',
     seoTitle: 'Law Firm Client Intake in Des Moines, IA',
     seoDescription:
-      'Client intake for law firms: every missed call and web inquiry answered within 60 seconds, 24/7, consultations booked online, a conflict-safe first contact, and site copy that respects attorney advertising rules.',
+      'Law firm client intake in Des Moines: every missed call and web inquiry answered in 60 seconds, 24/7, consultations booked, conflict-safe first contact.',
     headline: 'People call a lawyer the night it happens. Answer in 60 seconds.',
     subheadline:
       'Axeon replies to every missed intake call and web inquiry within 60 seconds, 24/7, books the consultation, and asks clients for a review when the matter allows it.',
@@ -269,7 +269,7 @@ export const niches: Niche[] = [
     schemaType: 'AccountingService',
     seoTitle: 'CPA & Accounting Firm Marketing in Des Moines',
     seoDescription:
-      'Client intake for accounting and CPA firms: every missed call and web inquiry answered within 60 seconds during tax season and after hours, advisory consults booked online, and a review request after every engagement.',
+      'CPA and accounting firm marketing in Des Moines: every call answered in 60 seconds, even in tax season, advisory consults booked and reviews requested.',
     headline: 'In March, new clients wait on hold. Answer them in 60 seconds.',
     subheadline:
       'Axeon replies to every missed call and web inquiry within 60 seconds, 24/7, books the advisory consult, and asks every client for a review when the work is done.',

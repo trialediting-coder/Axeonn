@@ -1,13 +1,19 @@
 import TermsClient from './TermsClient';
 import { buildMetadata } from '@/lib/metadata';
+import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/terms',
   title: 'Terms of Service | Axeon Studio',
   description:
-    'The Axeon Studio Terms of Service: how our practice website and intake services work, the 12-month term, ownership, the 90-day performance commitment, and our no-health-information rule.',
+    'Axeon Studio Terms of Service: how our practice website and intake services work, the 12-month term, ownership and the 90-day performance commitment.',
 });
 
 export default function TermsPage() {
-  return <TermsClient />;
+  return (
+    <>
+      <BreadcrumbJsonLd items={[{ name: 'Terms of Service', path: '/terms' }]} />
+      <TermsClient />
+    </>
+  );
 }

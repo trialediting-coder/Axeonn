@@ -59,6 +59,8 @@ export function HeroYouTube({ videoId, title }: Props) {
       <img
         src={`https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`}
         alt=""
+        width={1280}
+        height={720}
         className="absolute inset-0 w-full h-full object-cover"
         fetchPriority="high"
       />

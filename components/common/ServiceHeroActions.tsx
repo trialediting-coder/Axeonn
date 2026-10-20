@@ -9,6 +9,8 @@ interface ServiceHeroActionsProps {
   primaryLabel?: string;
   /** Hide the "See both builds" link on services that aren't sold as a build. */
   showPricingLink?: boolean;
+  /** Practice slug (data/nichesData.ts) to preselect on the area check, when the page knows it. */
+  specialty?: string;
 }
 
 /**
@@ -21,6 +23,7 @@ export function ServiceHeroActions({
   note,
   primaryLabel = 'Check if your area is open',
   showPricingLink = true,
+  specialty,
 }: ServiceHeroActionsProps) {
   return (
     <div className="mb-10">
@@ -35,7 +38,7 @@ export function ServiceHeroActions({
       </p>
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4">
         <Link
-          href="/check-your-area"
+          href={specialty ? `/check-your-area?specialty=${specialty}` : '/check-your-area'}
           className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/25"
         >
           {primaryLabel} <ArrowRight size={18} />

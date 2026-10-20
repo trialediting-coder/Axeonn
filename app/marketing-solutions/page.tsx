@@ -10,9 +10,9 @@ import { ServiceClosingCta } from '@/components/marketing-solutions/ServiceClosi
 
 export const metadata = buildMetadata({
   path: '/marketing-solutions',
-  title: 'How It Works: Patient & Client Intake | Axeon Studio',
+  title: 'How It Works: Websites, SEO & 60-Second Intake | Axeon',
   description:
-    'Three layers for dental practices, med spas, law firms and CPA firms: a website, 60-second intake and booking, and a review engine. Every missed call and web inquiry answered within 60 seconds, 24/7. From $799/mo.',
+    'Website, local SEO, ads and 60-second intake for Des Moines dental practices, med spas, law firms and CPA firms: every inquiry answered, booked and reviewed.',
 });
 
 const howItWorksJsonLd = {

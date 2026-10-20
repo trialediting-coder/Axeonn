@@ -6,9 +6,9 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata = buildMetadata({
   path: '/process',
-  title: 'Our Process: Practice & Firm Intake in 30 Days | Axeon Studio',
+  title: 'Our Process: Live in 30 Days | Axeon Studio',
   description:
-    'How we install a website, 60-second intake and booking, and review requests: from checking your area to live within 30 days of getting your materials, then your first 90 days. $0 to start, nothing due until it is working. For dental practices, med spas, law firms and CPA firms.',
+    'How Axeon installs a website, 60-second intake and review requests for practices and firms: area check, live within 30 days, then your first 90 days together.',
 });
 
 

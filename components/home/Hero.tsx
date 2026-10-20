@@ -64,6 +64,8 @@ export function Hero() {
               key={s.image}
               src={s.image}
               alt=""
+              width={1600}
+              height={1067}
               fetchPriority={i === 0 ? 'high' : 'low'}
               loading={i === 0 ? 'eager' : 'lazy'}
               className={`absolute inset-0 w-full h-full object-cover ${s.position} transition-[opacity,transform] duration-[1400ms] ease-out ${

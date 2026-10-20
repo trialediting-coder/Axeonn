@@ -35,6 +35,15 @@ function splitBeforeThirdSection(markdown: string): [string, string] {
 // script tag. Content here can include fragments of web-search results
 // (see lib/anthropic.ts), not just the model's own synthesis, so this isn't
 // purely defensive boilerplate.
+/** "https://www.brightlocal.com/research/..." -> "brightlocal.com": readable anchor text for a citation. */
+function sourceName(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return 'the source';
+  }
+}
+
 function safeJsonLd(value: unknown): string {
   return JSON.stringify(value).replace(/</g, '\\u003c');
 }
@@ -49,7 +58,8 @@ export async function generateMetadata({
   if (!post || post.status !== 'published') return {};
   return buildMetadata({
     path: `/insights/${post.slug}`,
-    title: post.metaTitle ?? `${post.title} | Axeon Studio`,
+    // Keep the <title> within ~60 characters: the brand suffix only when it fits.
+    title: post.metaTitle ?? (post.title.length <= 45 ? `${post.title} | Axeon Studio` : post.title),
     description: post.metaDescription ?? post.excerpt,
   });
 }
@@ -81,6 +91,11 @@ export default async function InsightPostPage({
     author: { '@id': ORG_ID },
     publisher: { '@id': ORG_ID },
     mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE_URL}/insights/${post.slug}` },
+    url: `${SITE_URL}/insights/${post.slug}`,
+    isPartOf: { '@id': `${SITE_URL}/insights#blog` },
+    about: post.nicheTags
+      .filter((t) => AREA_SPECIALTY_SLUGS.includes(t))
+      .map((t) => ({ '@type': 'Thing', name: niches.find((n) => n.slug === t)?.name ?? t })),
     inLanguage: 'en-US',
   };
 
@@ -107,7 +122,21 @@ export default async function InsightPostPage({
   const areaHref = specialty ? `/check-your-area?specialty=${specialty}` : '/check-your-area';
   const body = post.content.replace(/^\s*#\s+[^\n]*\n+/, '');
   const [bodyStart, bodyRest] = splitBeforeThirdSection(body);
-  const markdownComponents = { h1: ({ node: _node, ...props }: { node?: unknown } & React.HTMLAttributes<HTMLHeadingElement>) => <h2 {...props} /> };
+  const markdownComponents = {
+    // The page already has the h1 (the title); a markdown h1 in the body renders as h2.
+    h1: ({ node: _node, ...props }: { node?: unknown } & React.HTMLAttributes<HTMLHeadingElement>) => <h2 {...props} />,
+    // Every link carries readable text (an empty one falls back to the site name),
+    // and citations to outside sources are normal followed links in a new tab.
+    a: ({ node: _node, href, children, ...props }: { node?: unknown } & React.AnchorHTMLAttributes<HTMLAnchorElement>) => {
+      const external = typeof href === 'string' && /^https?:\/\//.test(href) && !href.includes('axeonstudio.co');
+      const hasText = typeof children === 'string' ? children.trim().length > 0 : Boolean(children);
+      return (
+        <a href={href} {...props} {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+          {hasText ? children : sourceName(href ?? '')}
+        </a>
+      );
+    },
+  };
 
   return (
     <main className="w-full pt-32 pb-24 px-6 sm:px-10 lg:px-16 xl:px-24">
@@ -164,6 +193,8 @@ export default async function InsightPostPage({
               alt={post.coverImageAlt ?? ''}
               loading="eager"
               decoding="async"
+              width={1200}
+              height={675}
               className="w-full rounded-2xl aspect-[16/9] object-cover transition-shadow group-hover:shadow-xl"
             />
             <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-blue-600 group-hover:underline">
@@ -178,11 +209,12 @@ export default async function InsightPostPage({
             alt={post.coverImageAlt ?? ''}
             loading="eager"
             decoding="async"
+            width={1200}
+            height={675}
             className="w-full rounded-2xl mb-10 aspect-[16/9] object-cover"
           />
         )}
         <div className="prose prose-neutral max-w-none prose-headings:font-display prose-headings:tracking-tight prose-a:text-blue-600">
-          {/* The page already has the h1 (the title); a markdown h1 in the body renders as h2. */}
           <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
             {bodyStart}
           </ReactMarkdown>
@@ -265,8 +297,8 @@ export default async function InsightPostPage({
               {post.sources.map((source, i) => (
                 <li key={i}>
                   {source.claim}{' '}
-                  <a href={source.url} target="_blank" rel="noreferrer nofollow" className="text-blue-600 hover:underline break-all">
-                    {source.url}
+                  <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                    Source: {sourceName(source.url)}
                   </a>
                 </li>
               ))}
@@ -289,10 +321,10 @@ export default async function InsightPostPage({
           </section>
         )}
 
-        {post.nicheTags.length > 0 && (
+        {post.nicheTags.some((tag) => nicheLookup.has(tag)) && (
           <p className="mt-10 text-sm text-neutral-500">
             Related industries:{' '}
-            {post.nicheTags.map((tag, i) => (
+            {post.nicheTags.filter((tag) => nicheLookup.has(tag)).map((tag, i) => (
               <span key={tag}>
                 {i > 0 && ', '}
                 <Link href={`/solutions/${tag}`} className="text-blue-600 hover:underline">

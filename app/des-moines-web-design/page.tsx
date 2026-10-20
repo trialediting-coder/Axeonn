@@ -12,7 +12,7 @@ export const metadata = buildMetadata({
   path: '/des-moines-web-design',
   title: 'Des Moines Practice & Firm Intake | Axeon Studio',
   description:
-    'Websites and 60-second patient and client intake for Des Moines dental practices, med spas, law firms and CPA firms, from one West Des Moines team. From $799/mo with a 90-day performance commitment.',
+    'Websites and 60-second intake for Des Moines dental practices, med spas, law firms and CPA firms, from one West Des Moines team. From $799/mo, $0 to start.',
 });
 
 const webDesignServiceJsonLd = serviceJsonLd({
@@ -108,7 +108,7 @@ export default function DesMoinesWebDesignPage() {
             <MapPin size={15} /> West Des Moines, Iowa · Serving the Des Moines Metro
           </p>
           <h1 className="text-[32px] sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight leading-[1.08] sm:leading-[1.05] font-display mb-4 sm:mb-6 text-balance">
-            Des Moines Practices and Firms: Every Inquiry Answered in 60 Seconds
+            Des Moines practices and firms: every inquiry answered in 60 seconds
           </h1>
           <p className="text-base sm:text-xl text-neutral-300 leading-relaxed max-w-3xl mb-6 sm:mb-10">
             Axeon Studio installs patient and client intake for dental practices, med spas, law firms and CPA firms across the
@@ -202,7 +202,7 @@ export default function DesMoinesWebDesignPage() {
             <div className="lg:w-72 shrink-0">
               <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ THE SYSTEM ]</p>
               <h2 className="mt-2 text-2xl font-extrabold font-display tracking-tight leading-tight">
-                What Every Metro Practice and Firm Gets
+                What every metro practice and firm gets
               </h2>
             </div>
             <ol className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-3">
@@ -238,7 +238,7 @@ export default function DesMoinesWebDesignPage() {
         <div className="max-w-6xl mx-auto">
           <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ WHO WE HELP ]</p>
           <h2 className="text-[28px] sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-[1.1] mb-3 sm:mb-4 text-balance">
-            Practices and Firms We Serve Across Des Moines
+            Practices and firms we serve across Des Moines
           </h2>
           <p className="text-[15px] sm:text-lg text-neutral-600 max-w-3xl mb-5 sm:mb-10 leading-snug sm:leading-relaxed">
             Pick yours to see where new patients and clients slip away, and how we answer them within 60 seconds.
@@ -250,7 +250,7 @@ export default function DesMoinesWebDesignPage() {
                   href={`/solutions/${niche.slug}`}
                   className="flex items-center justify-between rounded-xl border border-neutral-200 px-4 py-3 sm:px-5 sm:py-4 hover:border-blue-400 hover:bg-blue-50/40 transition-colors font-semibold"
                 >
-                  {niche.name}
+                  {niche.name} in Des Moines
                   <ArrowRight size={16} className="text-blue-600" />
                 </Link>
               </li>
@@ -332,7 +332,7 @@ export default function DesMoinesWebDesignPage() {
         <div className="max-w-3xl mx-auto">
           <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ FAQ ]</p>
           <h2 className="text-2xl sm:text-4xl font-extrabold font-display tracking-tight leading-tight mb-3 sm:mb-10 text-balance">
-            Questions Des Moines Practice and Firm Owners Ask
+            Questions Des Moines practice and firm owners ask
           </h2>
           <FAQAccordion items={LOCAL_FAQ} />
         </div>

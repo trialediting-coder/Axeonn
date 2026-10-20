@@ -4,7 +4,8 @@ export interface WorkProject {
   location: string;
   summary: string;
   image: string;
-  url: string;
+  /** Live site. Omit when the preview is no longer online (no dead outbound links). */
+  url?: string;
   // Matches a slug in data/nichesData.ts so the project also shows on that
   // practice page. Trade and portfolio builds keep a descriptive slug that no
   // longer matches a practice page, so they only appear on /work.
@@ -65,7 +66,7 @@ const PROJECTS: WorkProject[] = [
     summary:
       'An editorial homepage for a design-build remodeler, with a "Which path fits your project?" selector that sorts visitors into the right service tier before they ever fill out a form.',
     image: '/images/work/kaufman.webp',
-    url: 'https://kaufman-construction.vercel.app/',
+    // The preview was taken down (404 in the Oct 2026 site audit), so no link.
     concept: true,
   },
   {

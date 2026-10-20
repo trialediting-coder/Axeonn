@@ -60,6 +60,8 @@ export interface ServicePage {
     priceLine: string;
     note: string;
   };
+  /** Answer-first block under the hero: the page's main question, max ~35 words, not a repeat of the hero. */
+  quickAnswer: { question: string; answer: string };
   stat?: SourcedStat;
   how: { heading: string; intro: string; steps: ServiceStep[] };
   included: { heading: string; intro?: string; groups: IncludedGroup[] };
@@ -115,7 +117,12 @@ export const websitePage: ServicePage = {
   serviceType: 'Website Design for Dental, Med Spa, Law and Accounting Practices',
   metaTitle: 'Dental, Med Spa & Law Firm Website Design | Axeon Studio',
   metaDescription:
-    'Dental website design, med spa websites, and law firm and CPA firm website design in Des Moines and across Iowa: mobile-first sites with providers, reviews and online consultation booking. In AxeonCORE, from $799/mo.',
+    'Website design for dental practices, med spas, law firms and CPA firms in Des Moines and Iowa: mobile-first, with providers, reviews and online booking.',
+  quickAnswer: {
+    question: 'What is an Axeon practice website?',
+    answer:
+      'A custom, mobile-first website for your practice or firm, built and kept current by Axeon Studio in West Des Moines. It comes with AxeonCORE and is not sold on its own.',
+  },
   hero: {
     eyebrow: 'Services · Websites',
     title: 'A website that books consultations, not just visits',
@@ -234,7 +241,12 @@ export const seoPage: ServicePage = {
   serviceType: 'Local SEO for Dentists, Med Spas, Law Firms and CPA Firms',
   metaTitle: 'SEO for Dentists, Med Spas, Law Firms & CPAs | Axeon Studio',
   metaDescription:
-    'Local SEO for dentists, med spas, law firms and CPA firms in Des Moines and across Iowa: Google Business Profile upkeep, service pages built for local search, and fresh reviews after every visit.',
+    'Local SEO for dentists, med spas, law firms and CPA firms in Des Moines and Iowa: Google Business Profile upkeep, local service pages and reviews after visits.',
+  quickAnswer: {
+    question: "What does Axeon's local SEO do?",
+    answer:
+      'Axeon Studio keeps your Google Business Profile, local service pages and structured data current, so your practice or firm gets found on Google Maps and in AI answers across the Des Moines metro.',
+  },
   hero: {
     eyebrow: 'Services · Local SEO',
     title: 'Show up on Google Maps when new patients and clients search near you',
@@ -352,9 +364,14 @@ export const leadGenerationPage: ServicePage = {
   path: '/marketing-solutions/lead-generation',
   name: 'Lead Generation & Intake',
   serviceType: 'Lead Generation and Intake for Dental Practices, Med Spas, Law Firms and CPA Firms',
-  metaTitle: 'Lead Generation for Law Firms, Dentists, Med Spas & CPAs | Axeon',
+  metaTitle: 'Lead Generation for Dentists, Law Firms & CPAs | Axeon',
   metaDescription:
-    'Lead generation and intake for dental practices, med spas, law firms and CPA firms: every missed call and web inquiry answered within 60 seconds, 24/7, and booked. Des Moines, Iowa. From $799/mo.',
+    'Lead generation and intake for dental practices, med spas, law firms and CPA firms in Des Moines: every call and inquiry answered in 60 seconds, 24/7.',
+  quickAnswer: {
+    question: 'What is 60-second intake?',
+    answer:
+      "Axeon Studio's intake system replies to every missed call and web inquiry within 60 seconds, 24/7, and counts each one in AxeonPROOF. It collects no health, case or tax details.",
+  },
   hero: {
     eyebrow: 'Services · Lead generation & intake',
     title: 'Every inquiry answered in 60 seconds and booked',
@@ -480,7 +497,12 @@ export const aiChatPage: ServicePage = {
   serviceType: 'AI Chat and Online Consultation Booking for Practices and Firms',
   metaTitle: 'Med Spa, Dental & Law Firm Online Booking + AI Chat | Axeon',
   metaDescription:
-    'Med spa online booking, dental scheduling and AI chat for law and CPA firms: answers common questions 24/7 and books consultations on your calendar. AI phone receptionist available. Des Moines, Iowa.',
+    'Online booking and AI chat for med spas, dental practices, law firms and CPA firms in Des Moines: questions answered 24/7, consults booked on your calendar.',
+  quickAnswer: {
+    question: 'How does online booking with Axeon work?',
+    answer:
+      'Patients and clients pick an open time on your real calendar, from your website or a text reply, any hour. An AI phone receptionist is in AxeonGROWTH or +$199/mo on AxeonCORE.',
+  },
   hero: {
     eyebrow: 'Services · AI chat & booking',
     title: 'Patients and clients book their own consultation, day or night',
@@ -599,9 +621,14 @@ export const advertisingPage: ServicePage = {
   path: '/marketing-solutions/advertising',
   name: 'Google Ads & Local Services Ads',
   serviceType: 'Google Local Services Ads and Search Ads Management for Practices and Firms',
-  metaTitle: 'Local Services Ads for Dentists, Law Firms & CPAs | Axeon Studio',
+  metaTitle: 'Local Services Ads for Dentists & Law Firms | Axeon Studio',
   metaDescription:
-    'Dental Local Services Ads, law firm Google Ads and search ads for med spas and CPA firms, tracked to the booked consultation. In AxeonGROWTH or +$750/mo on AxeonCORE. Des Moines and Iowa.',
+    'Google Local Services Ads and search ads for dental practices, law firms, med spas and CPA firms in Des Moines and Iowa, tracked to the booked consultation.',
+  quickAnswer: {
+    question: 'What ads does Axeon run for practices and firms?',
+    answer:
+      'Google Local Services Ads and search ads for practices and firms, managed by Axeon Studio in West Des Moines and tracked from the ad to the booked consultation.',
+  },
   hero: {
     eyebrow: 'Services · Advertising',
     title: 'Ads that fill your schedule, tracked to the booked consult',
@@ -721,9 +748,14 @@ export const videoPhotographyPage: ServicePage = {
   path: '/marketing-solutions/video-photography',
   name: 'Photography & Video for Practices and Firms',
   serviceType: 'Photography and Video for Dental, Med Spa, Law and Accounting Practices',
-  metaTitle: 'Dental Office Photography, Law Firm Headshots & Video | Axeon',
+  metaTitle: 'Dental Photography, Law Firm Headshots & Video | Axeon',
   metaDescription:
-    'Dental office photography, med spa video and law firm headshots in Des Moines and across Iowa: real photos and short videos of your team for your website, Google profile and social. Quarterly in AxeonGROWTH.',
+    'Dental office photography, med spa video and law firm headshots in Des Moines and Iowa: real photos and short videos of your team for your site and Google.',
+  quickAnswer: {
+    question: 'What photo and video does Axeon provide?',
+    answer:
+      'A quarterly on-site shoot for practices and firms around Des Moines: provider portraits, office photos, review videos and short reels, placed on your website and Google profile.',
+  },
   hero: {
     eyebrow: 'Services · Photo & video',
     title: 'Photos and video that make patients and clients choose you',

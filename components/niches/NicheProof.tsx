@@ -26,7 +26,7 @@ export function NicheProof({ niche }: { niche: Niche }) {
             an inquiry, and your reviews next to the top 3 nearby competitors.
           </p>
           <Link
-            href="/check-your-area"
+            href={`/check-your-area?specialty=${niche.slug}`}
             data-track="cta_click"
             data-track-cta={`niche_proof_area_check_${niche.slug}`}
             className="mt-4 sm:mt-8 inline-flex min-h-11 items-center gap-1 rounded-full bg-white px-6 py-3 text-sm font-bold text-blue-700 transition-colors hover:bg-blue-50"

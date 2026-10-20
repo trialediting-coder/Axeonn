@@ -3,12 +3,7 @@ import type { WorkProject } from '@/data/workProjects';
 
 export function WorkCard({ project, showConcept = false }: { project: WorkProject; showConcept?: boolean }) {
   return (
-    <a
-      href={project.url}
-      target="_blank"
-      rel="noopener"
-      className="group flex flex-col"
-    >
+    <Wrapper project={project}>
       <div className="relative aspect-[1440/1000] w-full rounded-[24px] sm:rounded-[32px] overflow-hidden bg-neutral-100 border border-neutral-200/80 shadow-sm group-hover:shadow-xl transition-all duration-500">
         <img
           src={project.image}
@@ -39,6 +34,16 @@ export function WorkCard({ project, showConcept = false }: { project: WorkProjec
           </span>
         )}
       </div>
+    </Wrapper>
+  );
+}
+
+/** Links out to the live site when there is one; a plain card when the preview is offline. */
+function Wrapper({ project, children }: { project: WorkProject; children: React.ReactNode }) {
+  if (!project.url) return <div className="group flex flex-col">{children}</div>;
+  return (
+    <a href={project.url} target="_blank" rel="noopener" className="group flex flex-col">
+      {children}
     </a>
   );
 }

@@ -49,7 +49,7 @@ export function NicheHero({ niche }: { niche: Niche }) {
         {/* One primary action, one fast path, one text link */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-4 mb-2 sm:mb-5">
           <Link
-            href="/check-your-area"
+            href={`/check-your-area?specialty=${niche.slug}`}
             data-track="cta_click"
             data-track-cta={`niche_hero_area_check_${niche.slug}`}
             className="inline-flex items-center justify-center gap-2 px-8 py-3.5 sm:py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/25"

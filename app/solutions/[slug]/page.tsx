@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { niches } from '@/data/nichesData';
 import { NicheSchema } from '@/components/niches/NicheSchema';
 import { NicheHero } from '@/components/niches/NicheHero';
+import { NicheQuickAnswer } from '@/components/niches/NicheQuickAnswer';
 import { NichePainPoints } from '@/components/niches/NichePainPoints';
 import { NicheWorkflow } from '@/components/niches/NicheWorkflow';
 import { NicheWork } from '@/components/niches/NicheWork';
@@ -77,6 +78,7 @@ export default async function NichePage({
       <NicheSchema niche={niche} />
       <JsonLd data={faqJsonLd} />
       <NicheHero niche={niche} />
+      <NicheQuickAnswer niche={niche} />
       <NichePainPoints niche={niche} />
       {/* Purpose: why answering first matters (sourced stats; shared with the home page) */}
       <Testimonials />

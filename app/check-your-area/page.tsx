@@ -14,9 +14,9 @@ import { COMPLIANCE_LINE, EXCLUSIVITY_LINE, OFFER_LINE, OFFER_POINTS } from '@/d
 // no countdowns, no "spots left".
 export const metadata: Metadata = buildMetadata({
   path: '/check-your-area',
-  title: 'Check If Your Area Is Open | Axeon Studio, West Des Moines',
+  title: 'Check If Your Area Is Open | Axeon Studio',
   description:
-    "One dental practice, med spa, law firm or CPA firm per specialty within 5 miles. Tell us where you are and we'll confirm within one business day whether your area is open. $0 to start. Nothing due until it's working.",
+    "One dental practice, med spa, law firm or CPA firm per specialty within 5 miles. See if your Iowa area is open. $0 to start. Nothing due until it's working.",
 });
 
 const PROOF = [

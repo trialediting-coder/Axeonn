@@ -202,6 +202,35 @@ export function cityAreaServed(city: string) {
   return [{ '@type': 'City', name: city, containedInPlace: { '@type': 'State', name: 'Iowa' } }];
 }
 
+/** The four practice types every service page is written for. */
+export const PRACTICE_AUDIENCES = ['Dental practices', 'Med spas', 'Law firms', 'Accounting and CPA firms'] as const;
+
+const PLAN_PRICES = {
+  core: { name: 'AxeonCORE', price: '799' },
+  growth: { name: 'AxeonGROWTH', price: '1999' },
+} as const;
+
+/** A monthly plan offer ("from" price, 12-month agreement) for a Service node. */
+function planOffer(plan: keyof typeof PLAN_PRICES) {
+  const p = PLAN_PRICES[plan];
+  return {
+    '@type': 'Offer',
+    name: p.name,
+    url: `${SITE_URL}/pricing`,
+    price: p.price,
+    priceCurrency: 'USD',
+    availability: 'https://schema.org/InStock',
+    priceSpecification: {
+      '@type': 'UnitPriceSpecification',
+      price: p.price,
+      priceCurrency: 'USD',
+      unitCode: 'MON',
+      unitText: 'month',
+    },
+    description: `From $${Number(p.price).toLocaleString('en-US')}/month on a 12-month agreement. $0 to start: nothing is due until it is working.`,
+  };
+}
+
 interface ServiceArgs {
   path: string;
   serviceType: string;
@@ -210,9 +239,13 @@ interface ServiceArgs {
   category?: string;
   /** Defaults to the full metro SERVICE_AREA. */
   areaServed?: ReturnType<typeof cityAreaServed>;
+  /** Who the service is for. Defaults to all four practice types. */
+  audience?: readonly string[];
+  /** The plan the service is sold in. Defaults to AxeonCORE. */
+  plan?: keyof typeof PLAN_PRICES;
 }
 
-export function serviceJsonLd({ path, serviceType, name, description, category, areaServed }: ServiceArgs) {
+export function serviceJsonLd({ path, serviceType, name, description, category, areaServed, audience, plan = 'core' }: ServiceArgs) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Service',
@@ -224,6 +257,8 @@ export function serviceJsonLd({ path, serviceType, name, description, category, 
     ...(category ? { category } : {}),
     provider: providerRef,
     areaServed: areaServed ?? SERVICE_AREA,
+    audience: (audience ?? PRACTICE_AUDIENCES).map((audienceType) => ({ '@type': 'BusinessAudience', audienceType })),
+    offers: planOffer(plan),
   };
 }
 

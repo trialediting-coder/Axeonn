@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { WORK_PROJECTS } from '@/data/workProjects';
 import { WorkCard, ConceptDisclaimer } from '@/components/work/WorkCard';
 import { buildMetadata } from '@/lib/metadata';
@@ -12,7 +12,6 @@ export const metadata = buildMetadata({
     'Recent websites designed and built by Axeon Studio for businesses in Iowa and beyond, including concept builds. Every build is custom and mobile-first.',
 });
 
-const CASE_STUDY = '/insights/a-1-auto-detailing-website-case-study';
 const FEATURED_NAME = 'A-1 Auto Detailing';
 
 // Approved A-1 facts only (content/brand-guardrails.md; same figures as /about).
@@ -98,12 +97,6 @@ export default function WorkPage() {
                   ))}
                 </dl>
                 <div className="mt-5 sm:mt-8 lg:mt-auto lg:pt-8 flex flex-col sm:flex-row gap-2 sm:gap-3">
-                  <Link
-                    href={CASE_STUDY}
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm transition-colors"
-                  >
-                    Read how A-1 went from page 2 to #1 <ArrowRight size={16} />
-                  </Link>
                   <a
                     href={featured.url}
                     target="_blank"

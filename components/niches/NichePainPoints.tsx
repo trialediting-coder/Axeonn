@@ -6,8 +6,9 @@ import type { Niche, NicheLeak } from '@/data/nichesData';
 // so the loss reads as a loss instead of a feature list. Two sections so each
 // fits one phone screen: the featured story, then the other leaks + the closer.
 //
-// variant="compact" is the /go ad-funnel version: tighter spacing, and the plug
-// chips are plain labels because ad pages don't link out.
+// variant="compact" is the /go ad-funnel version: tighter spacing, and the fix
+// lines are plain text because ad pages don't link out. No gimmick labels
+// ("LEAK 01", "[ PLUG ]"): the story and the fix carry it (owner, 2026-10-19).
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -21,11 +22,7 @@ function PlugChip({ leak, linked, dark = false }: { leak: NicheLeak; linked: boo
   const hover = dark ? 'hover:bg-blue-500' : 'hover:text-blue-800 sm:hover:bg-blue-100';
   const content = (
     <>
-      <span
-        className={`shrink-0 pt-[2px] font-mono text-xs font-bold tracking-widest ${dark ? 'text-blue-100' : 'text-blue-600'}`}
-      >
-        [ PLUG ]
-      </span>
+      <span className={`shrink-0 ${dark ? 'text-blue-100' : 'text-blue-600'}`}>The fix:</span>
       <span>{leak.plug}</span>
     </>
   );
@@ -44,9 +41,7 @@ function PlugChip({ leak, linked, dark = false }: { leak: NicheLeak; linked: boo
 function CostLine({ cost, dark = false }: { cost: string; dark?: boolean }) {
   return (
     <p className={`font-bold leading-snug ${dark ? 'text-base sm:text-xl text-white' : 'text-[15px] sm:text-lg text-neutral-950'}`}>
-      <span className={`mr-2 font-mono text-xs font-bold tracking-widest ${dark ? 'text-red-300' : 'text-red-600'}`}>
-        COSTS YOU &rarr;
-      </span>
+      <span className={`mr-1.5 font-semibold ${dark ? 'text-red-300' : 'text-red-600'}`}>What it costs:</span>
       {cost}
     </p>
   );
@@ -81,7 +76,7 @@ export function NichePainPoints({
       >
         <div className="max-w-6xl mx-auto">
           <p className="mb-3 sm:mb-4 text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">
-            [ THE LEAKS &middot; {niche.name} ]
+            [ Where new {niche.customerNoun} slip away ]
           </p>
           <h2
             className={`max-w-4xl font-extrabold font-display tracking-tight leading-[1.08] text-balance text-neutral-950 ${
@@ -95,11 +90,8 @@ export function NichePainPoints({
           <article
             className={`${compact ? 'mt-6 sm:mt-10' : 'mt-6 sm:mt-16'} rounded-3xl sm:rounded-[28px] bg-neutral-950 p-6 text-white sm:p-12 lg:p-14`}
           >
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-xs font-bold tracking-widest">
-              <span className="text-blue-400">LEAK 01</span>
-              {featured.stamp && <span className="text-neutral-400">[ {featured.stamp} ]</span>}
-            </div>
-            <h3 className="mt-3 sm:mt-5 max-w-3xl text-2xl font-extrabold font-display tracking-tight leading-[1.15] text-balance sm:text-4xl lg:text-[40px]">
+            {featured.stamp && <p className="text-sm font-semibold text-neutral-400">{featured.stamp}</p>}
+            <h3 className={`${featured.stamp ? 'mt-2 sm:mt-4' : ''} max-w-3xl text-2xl font-extrabold font-display tracking-tight leading-[1.15] text-balance sm:text-4xl lg:text-[40px]`}>
               {featured.title}
             </h3>
             <p className="mt-3 sm:mt-5 max-w-2xl text-[15px] sm:text-lg leading-relaxed text-neutral-300">{featured.scenario}</p>
@@ -135,7 +127,6 @@ export function NichePainPoints({
                 </span>
                 <div className="min-w-0">
                   <h3 className="text-lg font-extrabold font-display tracking-tight leading-snug text-neutral-950 sm:text-[28px] sm:leading-tight">
-                    <span className="sr-only">Leak {pad(i + 2)}: </span>
                     {leak.title}
                   </h3>
                   <p className="hidden sm:block mt-3 max-w-2xl text-base leading-relaxed text-neutral-700">{leak.scenario}</p>
@@ -151,7 +142,7 @@ export function NichePainPoints({
           </ol>
 
           <p className="mt-6 sm:mt-12 text-lg font-extrabold font-display tracking-tight text-neutral-950 sm:text-2xl">
-            {niche.painPoints.length} leaks. One system plugs all of them.{' '}
+            {niche.painPoints.length} gaps. One system closes all of them.{' '}
             <a href={closerHref} className="inline-block py-2 whitespace-nowrap text-blue-600 hover:text-blue-700">
               {closerLabel} <span aria-hidden="true">{closerArrow === 'up' ? '↑' : '↓'}</span>
             </a>

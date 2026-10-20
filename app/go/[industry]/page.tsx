@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ industry:
   const funnel = adFunnelFor(industry);
   if (!funnel) return {};
   return {
-    title: `Get More ${funnel.customers.replace(/\b\w/g, (c) => c.toUpperCase())} | ${funnel.titleLabel}`,
+    title: `Get more ${funnel.customers} | ${funnel.titleLabel}`,
     description: `Intake for your ${funnel.business}: every missed call and web inquiry answered within 60 seconds, 24/7, consultations booked, reviews requested. From $799/mo. $0 to start, nothing due until it's working. Check if your area is open.`,
     robots: { index: false, follow: false },
   };
@@ -134,8 +134,10 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
         <div className="relative max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
           <div className="lg:col-span-7 lg:pt-6">
             <p className="text-sm font-bold tracking-[0.18em] uppercase text-blue-400">For {funnel.audience}</p>
-            <h1 className="mt-3 sm:mt-4 text-[34px] sm:text-5xl lg:text-6xl font-black font-display tracking-tight leading-[1.05] text-balance">
-              Get More {funnel.customers.replace(/\b\w/g, (c) => c.toUpperCase())}. Every One Answered in 60 Seconds.
+            {/* 31px on phones: every funnel's headline wraps to the same 3 lines in the
+                fallback font and in Plus Jakarta Sans, so the font swap moves nothing (CLS). */}
+            <h1 className="mt-3 sm:mt-4 text-[31px] min-h-[3lh] sm:min-h-0 sm:text-5xl lg:text-6xl font-black font-display tracking-tight leading-[1.05] text-balance">
+              Get more {funnel.customers}. Every one answered in 60 seconds.
             </h1>
             <p className="mt-4 text-base sm:text-lg font-semibold text-white">
               From $799/mo. $0 to start. Nothing due until it&apos;s working.
