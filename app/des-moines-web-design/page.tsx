@@ -1,4 +1,5 @@
 import LineIcon from '@/components/common/LineIcon';
+import { COMMITMENT_HEADLINE } from '@/data/pricingData';
 import Link from 'next/link';
 import { ArrowRight, MapPin, PhoneCall, Users, ShieldCheck } from 'lucide-react';
 import { buildMetadata } from '@/lib/metadata';
@@ -31,25 +32,25 @@ const LOCAL_REASONS = [
     icon: PhoneCall,
     title: 'You call the team that built it',
     description:
-      'Axeon is a West Des Moines studio, not a national agency with an Iowa landing page. The people who install your intake answer the phone and train your front desk or intake team. No call centers, no hand-offs.',
+      'A West Des Moines studio. The people who build it answer the phone.',
   },
   {
     icon: Users,
     title: 'Front-desk training in person',
     description:
-      'We meet your team at your office anywhere in the metro, walk through the two-way text inbox, and set up the booking rules with the people who use them every day.',
+      'At your office, with the people who use it every day.',
   },
   {
     icon: MapPin,
     title: 'One practice or firm per specialty within 5 miles',
     description:
-      'Territory exclusivity while your account is in good standing. When we are working with you, we do not work for the competitor down the street.',
+      'We never work for the competitor down the street.',
   },
   {
     icon: ShieldCheck,
     title: 'A commitment you can hold us to',
     description:
-      'Live within 30 days of getting your materials, 60-second replies, and a review request after every visit, or you can walk away.',
+      'Live in 30 days, 60-second replies, or you walk away.',
   },
 ];
 
@@ -57,22 +58,22 @@ const LOCAL_FAQ = [
   {
     question: 'Do you only work with practices and firms in Des Moines?',
     answer:
-      'No, but the metro is home base. We are located in West Des Moines and serve the whole Des Moines area in person, including Ankeny, Urbandale, Waukee, Clive, Johnston, Grimes, Altoona, and Norwalk. We also work with practices and firms across Iowa remotely.',
+      'No. The metro is home base, in person, and we work with practices across Iowa remotely.',
   },
   {
     question: 'Can we meet in person?',
     answer:
-      'Yes. Most calls are video calls because it is faster for everyone, but if your office is in the metro we are happy to meet at your office, and we usually do for kickoff and front-desk training.',
+      'Yes. We usually meet at your office for kickoff and front-desk training.',
   },
   {
     question: 'How much does Axeon cost for a Des Moines practice or firm?',
     answer:
-      'AxeonCORE is from $799/mo on a 12-month agreement: $0 setup (normally $3,000) and nothing due until it is working. Month-to-month is available if you pay the $3,000 upfront. AxeonGROWTH is from $1,999/mo plus ad spend and adds Google Local Services Ads and search ads management, reactivation of past patients and clients, and an AI phone receptionist.',
+      'AxeonCORE is from $799/mo, with $0 setup (normally $3,000) and nothing due until it is working. AxeonGROWTH is from $1,999/mo plus ad spend.',
   },
   {
     question: 'What kinds of practices and firms do you work with?',
     answer:
-      'Established private practices: dental practices, med spas and aesthetic clinics, law firms, and accounting and CPA firms. If your practice or firm books consultations or appointments, check whether your area is open and we will tell you honestly whether it fits.',
+      'Dental practices, med spas, law firms and CPA firms. If you book consults, we will tell you honestly whether it fits.',
   },
   {
     question: 'Does the intake collect any health or financial details?',
@@ -92,7 +93,6 @@ const localFaqJsonLd = {
 };
 
 export default function DesMoinesWebDesignPage() {
-  const cityList = METRO_CITIES.join(', ');
 
   return (
     <main className="w-full bg-white text-neutral-950">
@@ -115,9 +115,7 @@ export default function DesMoinesWebDesignPage() {
             Des Moines practices and firms: every inquiry answered in 60 seconds
           </h1>
           <p className="text-base sm:text-xl text-neutral-300 leading-relaxed max-w-3xl mb-6 sm:mb-10">
-            Axeon Studio installs patient and client intake for dental practices, med spas, law firms and CPA firms across the
-            Des Moines metro. Every missed call and web inquiry gets a reply within 60 seconds, 24/7, the consultation gets
-            booked, and every patient and client gets asked for a review afterward.
+            Every missed call answered, booked and followed by a review request.
           </p>
           <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-4">
             <Link
@@ -254,9 +252,6 @@ export default function DesMoinesWebDesignPage() {
           <h2 className="text-[28px] sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-[1.1] mb-3 sm:mb-4 text-balance">
             Practices and firms we serve across Des Moines
           </h2>
-          <p className="text-[15px] sm:text-lg text-neutral-600 max-w-3xl mb-5 sm:mb-10 leading-snug sm:leading-relaxed">
-            Pick yours to see where new patients and clients slip away, and how we answer them within 60 seconds.
-          </p>
           <ul className="grid sm:grid-cols-2 gap-2 sm:gap-3">
             {niches.map((niche) => (
               <li key={niche.slug}>
@@ -288,8 +283,7 @@ export default function DesMoinesWebDesignPage() {
           <div className="lg:col-span-5">
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2 sm:mb-4">Service Area</h2>
             <p className="text-neutral-300 leading-relaxed">
-              Based in West Des Moines, IA 50266. In-person kickoffs and front-desk training anywhere in the metro;
-              remote setup for practices and firms across Iowa.
+              In person across the metro. Remote across Iowa.
             </p>
             <address className="not-italic mt-3 sm:mt-6 text-[15px] sm:text-base text-neutral-300 space-y-0.5 sm:space-y-1">
               <div className="font-semibold text-white">{BUSINESS.name}</div>
@@ -331,10 +325,6 @@ export default function DesMoinesWebDesignPage() {
                 );
               })}
             </ul>
-            <p className="mt-3 sm:mt-6 text-sm text-neutral-400 leading-snug sm:leading-normal">
-              Also serving Polk, Dallas, Warren, and Story counties, and practices and firms statewide. {cityList} are simply
-              where we can show up in person.
-            </p>
           </div>
         </div>
       </section>
@@ -365,9 +355,7 @@ export default function DesMoinesWebDesignPage() {
             $0 to start. Nothing due until it&apos;s working.
           </h2>
           <p className="text-[15px] sm:text-lg text-neutral-300 max-w-2xl mx-auto leading-snug sm:leading-relaxed mb-6 sm:mb-10">
-            Live within 30 days of getting your materials. Every missed call and web inquiry gets a reply within 60 seconds.
-            Every completed appointment gets a review request. If we miss any of those in the first 90 days and don&apos;t
-            fix it within 15 days, you can walk away and owe nothing for the rest of the term.
+            {COMMITMENT_HEADLINE}
           </p>
           <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-center gap-2.5 sm:gap-4">
             <Link
@@ -385,9 +373,6 @@ export default function DesMoinesWebDesignPage() {
               <PhoneCall size={18} /> {BUSINESS.telephoneDisplay}
             </a>
           </div>
-          <p className="mt-4 sm:mt-6 text-xs text-neutral-500 max-w-xl mx-auto leading-relaxed">
-            We commit to speed, replies and review requests, never to a number of patients, clients, cases or rankings.
-          </p>
         </div>
       </section>
     </main>
