@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { CheckCircle2 } from 'lucide-react';
 import { dueAtSigning, getAgreement, money } from '@/lib/agreements';
+import { setupMinutes } from '@/data/onboardingItems';
 import { DocPaper } from '@/components/docs/DocPaper';
 import { AgreementDocument } from '@/components/sign/AgreementDocument';
 import { PayPanel, SignPanel } from '@/components/sign/SignPanel';
@@ -41,9 +42,25 @@ export default async function SignPage({ params }: { params: Promise<{ token: st
   const fees = due.cents === 0 ? `add a payment method. Nothing is charged today: ${breakdown}` : `pay ${dueToday} today (${breakdown})`;
   let panel: React.ReactNode;
   if (agreement.status === 'sent') {
-    panel = <SignPanel token={agreement.token} signerName={agreement.signerName} signerTitle={agreement.signerTitle} fees={fees} />;
+    panel = (
+      <SignPanel
+        token={agreement.token}
+        signerName={agreement.signerName}
+        signerTitle={agreement.signerTitle}
+        fees={fees}
+        dueCents={due.cents}
+        setupMinutes={setupMinutes(agreement.tier).firstRound}
+      />
+    );
   } else if (agreement.status === 'signed') {
-    panel = <PayPanel token={agreement.token} headline={due.cents === 0 ? 'Add a payment method. $0 today.' : `Pay ${dueToday} today`} breakdown={breakdown} />;
+    panel = (
+      <PayPanel
+        token={agreement.token}
+        headline={due.cents === 0 ? 'Add a payment method. $0 today.' : `Pay ${dueToday} today`}
+        breakdown={breakdown}
+        dueCents={due.cents}
+      />
+    );
   } else {
     panel = (
       <div className="rounded-[20px] border border-emerald-200 bg-emerald-50 p-6 text-emerald-900">

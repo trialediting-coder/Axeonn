@@ -100,19 +100,19 @@ export default function BookClient() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2.5">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                          Direct Phone &bull; Mon–Sat
+                        <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                          Direct phone
                         </span>
                         <button
                           type="button"
                           onClick={handleCopyPhone}
-                          className="inline-flex items-center gap-1 text-[11px] font-medium text-blue-600 hover:text-blue-800 cursor-pointer p-2 -m-2"
+                          className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 cursor-pointer p-2 -m-2"
                           title="Copy phone number"
                         >
                           {copiedPhone ? (
                             <>
                               <Check size={12} className="text-blue-600" />
-                              <span className="text-blue-600 font-bold">Copied!</span>
+                              <span className="text-blue-600 font-bold">Copied</span>
                             </>
                           ) : (
                             <>
@@ -137,7 +137,7 @@ export default function BookClient() {
                       <Mail size={19} className="stroke-[2.2]" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500 block">
                         Direct Email
                       </span>
                       <a
@@ -155,11 +155,11 @@ export default function BookClient() {
                       <MapPin size={19} className="stroke-[2.2]" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400 block">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500 block">
                         Headquarters &amp; Delivery
                       </span>
                       <p className="text-sm font-medium text-zinc-700 mt-0.5">
-                        West Des Moines, Iowa &mdash; Available locally across Greater Des Moines &amp; nationwide
+                        West Des Moines, Iowa. One point of contact for the whole partnership.
                       </p>
                     </div>
                   </div>
@@ -193,7 +193,7 @@ export default function BookClient() {
                 <h2 className="text-xs font-mono uppercase tracking-wider font-semibold text-zinc-700">
                   Select Date &amp; Time
                 </h2>
-                <span>Central Time (US &amp; Canada)</span>
+                {/* No hardcoded time zone: the calendar shows times in the visitor's own zone. */}
               </div>
 
               <div className="rounded-2xl border border-zinc-200/90 bg-white p-1 sm:p-2 shadow-md transition-shadow hover:shadow-lg">

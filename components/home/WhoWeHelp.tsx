@@ -18,16 +18,19 @@ import { useIsMobile } from '@/lib/useMediaQuery';
 function IndustryVideoLayer({
   entry,
   isActive,
+  inView,
 }: {
   entry: WhoWeHelpEntry;
   isActive: boolean;
+  /** False until the section nears the viewport: no clip is fetched before then. */
+  inView: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-    if (isActive) {
+    if (isActive && inView) {
       const playPromise = video.play();
       if (playPromise !== undefined) {
         playPromise.catch(() => {});
@@ -35,7 +38,7 @@ function IndustryVideoLayer({
     } else {
       video.pause();
     }
-  }, [isActive]);
+  }, [isActive, inView]);
 
   return (
     <div
@@ -51,9 +54,9 @@ function IndustryVideoLayer({
           loop
           muted
           playsInline
-          preload={isActive ? 'auto' : 'none'}
+          preload={isActive && inView ? 'auto' : 'none'}
           poster={entry.image}
-          src={entry.video}
+          src={inView ? entry.video : undefined}
           className="w-full h-full object-cover object-center"
         />
       ) : (
@@ -107,8 +110,30 @@ export function WhoWeHelp() {
   const activeEntry = whoWeHelpEntries.find((e) => e.id === activeIndustryId) ?? null;
   const showVideo = isMobile === false;
 
+  // The clips (1.5 MB and up) load only once the section is about to scroll into
+  // view, so the homepage's first screen doesn't pay for them.
+  const sectionRef = useRef<HTMLElement>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || inView) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setInView(true);
+          io.disconnect();
+        }
+      },
+      // Fires once the section's top is 30% up the screen, not at load on desktop.
+      { rootMargin: '0px 0px -30% 0px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [inView]);
+
   return (
     <section
+      ref={sectionRef}
       id="who-we-help"
       className="w-full py-10 sm:py-32 px-4 sm:px-8 lg:px-12 xl:px-16 bg-transparent text-neutral-950"
     >
@@ -140,9 +165,9 @@ export function WhoWeHelp() {
                 loop
                 muted
                 playsInline
-                preload={activeIndustryId === null ? 'auto' : 'none'}
+                preload={activeIndustryId === null && inView ? 'auto' : 'none'}
                 poster={whoWeHelpHeroImage}
-                src={whoWeHelpHeroVideo}
+                src={inView ? whoWeHelpHeroVideo : undefined}
                 className="w-full h-full object-cover object-center"
               />
             ) : (
@@ -164,6 +189,7 @@ export function WhoWeHelp() {
                 key={entry.id}
                 entry={entry}
                 isActive={activeIndustryId === entry.id}
+                inView={inView}
               />
             ))}
 

@@ -56,16 +56,16 @@ export function ProofPasswordCard({ token, email, hasAccount }: { token: string;
           <p className="mt-1 text-sm text-neutral-600 leading-relaxed">
             {done && !changing ? (
               <>
-                Sign in any time at{' '}
+                You&apos;re signed in on this device:{' '}
                 <a href="/" className="font-semibold text-blue-600 hover:text-blue-700">
-                  app.axeonstudio.co
+                  open AxeonPROOF
                 </a>{' '}
-                with <span className="font-semibold text-neutral-900">{email}</span> to see your setup now, and every
-                call, lead and booked job once you launch.
+                any time to see your setup now, and every call, inquiry and booked appointment once you launch. On a new
+                device, sign in with <span className="font-semibold text-neutral-900">{email}</span> and this password.
               </>
             ) : (
               <>
-                Your dashboard for every call, lead and booked job. You&apos;ll sign in with{' '}
+                Your dashboard for every call, inquiry and booked appointment. One password, and this device stays signed in. You&apos;ll sign in with{' '}
                 <span className="font-semibold text-neutral-900">{email}</span> and the password you pick here.
               </>
             )}

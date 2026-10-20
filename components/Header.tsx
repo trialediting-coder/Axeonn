@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, type PointerEvent as ReactPointerEvent } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, ChevronDown, ArrowRight } from 'lucide-react';
+import { Menu, X, ChevronDown, ArrowRight, Phone } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { niches } from '@/data/nichesData';
 import { services } from '@/data/marketingSolutionsData';
@@ -94,6 +94,10 @@ export function Header() {
     ['/nonprofits', '/partners', '/des-moines-web-design', '/axeonproof'].includes(pathname) ||
     pathname === '/marketing-solutions' ||
     pathname.startsWith('/marketing-solutions/');
+
+  // On the area-check page the header button scrolls to the form instead of
+  // reloading the page it is already on (friction audit E12).
+  const areaHref = pathname === '/check-your-area' ? '#area-form' : '/check-your-area';
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -372,8 +376,10 @@ export function Header() {
           <Link href="/axeonproof" className={`${navHoverClass} inline-flex items-center gap-1.5 transition-colors py-1`}>
             <ProofWordmark accent="text-blue-500" />
           </Link>
-          <Link href="/partners" className={`${navHoverClass} transition-colors py-1`}>
-            Partners
+          {/* The referral program for CPAs, consultants and billing firms. Labelled for
+              who it's for: "Partners" read as "how the partnership works" to prospects. */}
+          <Link href="/partners" className={`${navHoverClass} transition-colors py-1 whitespace-nowrap`}>
+            For advisors
           </Link>
 
           {/* About Dropdown */}
@@ -419,7 +425,7 @@ export function Header() {
         <div className="hidden xl:flex items-center gap-5">
           <a
             href="tel:+15154938017"
-            className={`hidden 2xl:inline-block text-[15px] font-semibold whitespace-nowrap transition-colors ${
+            className={`hidden xl:inline-block text-[15px] font-semibold whitespace-nowrap transition-colors ${
               onDarkHero ? 'text-white hover:text-blue-400' : 'text-neutral-700 hover:text-neutral-950'
             }`}
           >
@@ -427,14 +433,14 @@ export function Header() {
           </a>
           <Link
             href="/book"
-            className={`hidden lg:inline-block text-[15px] font-semibold whitespace-nowrap transition-colors ${
+            className={`hidden min-[1400px]:inline-block text-[15px] font-semibold whitespace-nowrap transition-colors ${
               onDarkHero ? 'text-white hover:text-blue-400' : 'text-neutral-700 hover:text-neutral-950'
             }`}
           >
             Book a call
           </Link>
           <Link
-            href="/check-your-area"
+            href={areaHref}
             data-track="cta_click"
             data-track-cta="area_check_nav"
             className="px-7 py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold whitespace-nowrap shadow-sm hover:shadow-md transition-all"
@@ -443,15 +449,23 @@ export function Header() {
           </Link>
         </div>
 
-        <div className="flex xl:hidden items-center gap-2.5">
+        <div className="flex xl:hidden items-center gap-0.5 sm:gap-2.5">
           <Link
-            href="/check-your-area"
+            href={areaHref}
             data-track="cta_click"
             data-track-cta="area_check_nav"
-            className="inline-flex items-center justify-center min-h-[44px] px-5 sm:px-6 py-2.5 sm:py-3.5 rounded-full bg-blue-600 text-white text-[15px] md:text-sm font-semibold"
+            className="inline-flex items-center justify-center whitespace-nowrap min-h-[44px] px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-full bg-blue-600 text-white text-[15px] md:text-sm font-semibold"
           >
             Check your area
           </Link>
+          {/* One tap to call, without opening the menu. */}
+          <a
+            href="tel:+15154938017"
+            aria-label="Call (515) 493-8017"
+            className={`hidden min-[375px]:inline-flex min-h-[44px] min-w-[44px] items-center justify-center transition-colors ${onDarkHero ? 'text-white' : 'text-neutral-800'}`}
+          >
+            <Phone size={20} />
+          </a>
           <button
             onClick={() => setMobileMenuOpen((v) => !v)}
             className={`min-h-[44px] min-w-[44px] inline-flex items-center justify-center transition-colors ${onDarkHero ? 'text-white' : 'text-neutral-800'}`}
@@ -562,7 +576,7 @@ export function Header() {
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center min-h-[52px] py-3 border-b border-neutral-100 text-[15px] font-semibold text-neutral-900"
               >
-                Partners
+                For advisors
               </Link>
               <MobileGroup
                 label="About"

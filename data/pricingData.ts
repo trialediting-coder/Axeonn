@@ -74,7 +74,7 @@ export const AREA_CHECK_CTA_LONG = 'Check if your area is open';
 export const OFFER_LINE = "$0 to start. Nothing due until it's working.";
 export const OFFER_SHORT = '$0 to start';
 export const OFFER_POINTS = [
-  'The $3,000 build is waived on the 12-month partnership.',
+  'The $3,000 build is waived on the 12-month agreement.',
   "Your first payment is charged only once you're live and every call and inquiry is answered within 60 seconds.",
   "90-day performance commitment: if we miss it, you can walk away.",
 ] as const;
@@ -172,11 +172,16 @@ export interface PricingFaq {
 export const pricingFaqs: PricingFaq[] = [
   {
     q: 'How does the pricing work?',
-    a: "$0 to start. Nothing due until it's working. AxeonCORE starts at $799/mo and AxeonGROWTH at $1,999/mo, on a 12-month growth partnership. The build ($3,000 on CORE, $5,000 on GROWTH) is waived on the 12-month agreement, and your first monthly payment is charged only once you're live: site up, and every call and web inquiry answered within 60 seconds. Prepay a year and you get 2 months free. Your exact price is confirmed on the call, based on your locations and providers.",
+    a: "$0 to start. Nothing due until it's working. AxeonCORE starts at $799/mo and AxeonGROWTH at $1,999/mo, on a 12-month agreement. The build ($3,000 on CORE, $5,000 on GROWTH) is waived on the 12-month agreement, and your first monthly payment is charged only once you're live: site up, and every call and web inquiry answered within 60 seconds. Prepay a year and you get 2 months free. Your exact price is confirmed on the call, based on your locations and providers.",
   },
   {
     q: 'Why a 12-month agreement?',
     a: "We work as a 12-month growth partnership, not a one-off build. Building your website, phone and text numbers, booking, and review requests is a few weeks of work up front. On the 12-month term we waive that $3,000 build and only start billing once it's working. After 12 months it continues month-to-month, and either side can stop with 30 days' notice.",
+  },
+  {
+    // Honest, not hidden (friction audit C2): what leaving early costs.
+    q: 'Can I leave before the 12 months are up?',
+    a: "Yes, for free, if we miss the 90-day performance commitment and don't fix it within 15 days: you walk away and owe nothing for the rest of the term. Outside that, if you leave early without cause, the remaining months of the 12-month term are still owed. That is the trade for the waived build and nothing being due until it's working. If you want to keep the option to stop at any time, month-to-month (with the build paid upfront) has no term.",
   },
   {
     q: 'Can I go month-to-month instead?',
@@ -204,7 +209,7 @@ export const pricingFaqs: PricingFaq[] = [
   },
   {
     q: 'Do you collect health, case or financial information?',
-    a: 'No. Intake collects name, contact, service and preferred time only. No symptoms, insurance or health details for dental practices and med spas; no case facts for law firms, so your conflict check comes first; no tax or account details for CPA firms. The forms and text replies are set up that way on purpose.',
+    a: 'No. Intake collects name, contact, service and preferred time only. No symptoms, insurance or health details for dental practices and med spas; no case facts for law firms, so your conflict check comes first; no tax or account details for CPA firms. The forms and text replies are set up that way on purpose. Is it HIPAA compliant? Because intake never asks for health details, no protected health information is meant to flow through Axeon, and Axeon isn’t your business associate unless we sign a separate business associate agreement (BAA). If a patient volunteers health details by text anyway, your team moves that conversation into your practice software.',
   },
   {
     q: 'What do I own?',

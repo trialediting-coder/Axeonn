@@ -23,7 +23,8 @@ export function SideTabCTA() {
     };
   }, [pathname]);
 
-  if (!foundingOffer.active || pathname === '/book' || pathname === '/check-your-area') return null;
+  // /partners is for advisors who refer practices, not prospects.
+  if (!foundingOffer.active || ['/book', '/check-your-area', '/partners'].includes(pathname)) return null;
 
   return (
     <Link

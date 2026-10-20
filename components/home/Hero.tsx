@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { TrustBadges } from '@/components/common/TrustBadges';
-import { useLeadModal } from '@/components/common/LeadModalProvider';
 
 // The headline is "Get More ___": the result a practice or firm buys, not the
 // service (owner, 2026-10-19: sell the outcome). Each result belongs to one of
@@ -21,8 +20,11 @@ const SLIDES = [
 const ROTATE_INTERVAL_MS = 2600;
 
 export function Hero() {
-  const { open: openLeadModal } = useLeadModal();
   const [index, setIndex] = useState(0);
+  // Highest slide reached so far. Photos mount one slide ahead of it, so a phone
+  // fetches the first photo (and the next one) instead of all four at once: they
+  // all sit in the viewport, so loading="lazy" never deferred them.
+  const [reached, setReached] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
@@ -39,6 +41,10 @@ export function Hero() {
     return () => window.clearInterval(id);
   }, [reducedMotion]);
 
+  useEffect(() => {
+    setReached((r) => Math.max(r, index));
+  }, [index]);
+
   const slide = SLIDES[reducedMotion ? 0 : index];
 
   return (
@@ -51,7 +57,8 @@ export function Hero() {
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* All four photos are stacked and crossfade with the headline word.
               Only the first is fetched eagerly; the rest load while it shows. */}
-          {SLIDES.map((s, i) => (
+          {SLIDES.map((s, i) =>
+            i > reached + 1 ? null : (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               key={s.image}
@@ -63,7 +70,8 @@ export function Hero() {
                 s === slide ? 'opacity-100 scale-105' : 'opacity-0 scale-100'
               }`}
             />
-          ))}
+            ),
+          )}
           <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-neutral-950/95 via-neutral-950/60 to-neutral-950/20 sm:from-neutral-950/90 sm:via-neutral-950/60 sm:via-35% sm:to-transparent sm:to-70%" />
           <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/60 via-transparent to-neutral-950/40" />
           <div className="absolute -top-[13rem] -right-[13rem] w-[678px] h-[678px] rounded-full bg-[radial-gradient(closest-side,rgb(37_99_235/0.25)_62%,transparent)] pointer-events-none" />
@@ -78,22 +86,37 @@ export function Hero() {
           </p>
           <h1 className="hero-rise mt-3 text-center sm:text-left text-[min(2.75rem,11vw)] sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-[-0.03em] [word-spacing:0.12em] leading-[1.05] font-display text-white">
             Get More
-            {/* The rotating phrase always sits on its own line. */}
+            {/* The rotating phrase always sits on its own line. Old and new words
+                share one grid cell and crossfade, so the line is never empty (with
+                mode="wait" it went blank for ~0.4 s on every change). An invisible
+                copy of the longest word holds the height and width steady. */}
             <span className="grid">
-              <AnimatePresence mode="wait" initial={false}>
+              <span aria-hidden="true" className="invisible col-start-1 row-start-1">
+                Consultations
+              </span>
+              <AnimatePresence initial={false}>
                 <motion.span
                   key={slide.word}
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -16 }}
                   transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                  className="text-blue-400"
+                  className="col-start-1 row-start-1 text-blue-400"
                 >
                   {slide.word}
                 </motion.span>
               </AnimatePresence>
             </span>
           </h1>
+
+          {/* Phones: one short line on what Axeon does, so a practice owner knows
+              this isn't another SEO agency before they scroll. */}
+          <p
+            style={{ animationDelay: '0.15s' }}
+            className="hero-rise sm:hidden mt-4 text-center text-[15px] leading-snug text-neutral-200 max-w-sm mx-auto"
+          >
+            We answer every missed call and web inquiry within 60 seconds, 24/7, and book the appointment.
+          </p>
 
           <p
             style={{ animationDelay: '0.15s' }}
@@ -107,7 +130,7 @@ export function Hero() {
 
           <div
             style={{ animationDelay: '0.25s' }}
-            className="hero-rise mt-12 sm:mt-8 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4"
+            className="hero-rise mt-8 sm:mt-8 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4"
           >
             {/* Primary: the area check */}
             <Link
@@ -123,15 +146,17 @@ export function Hero() {
               </div>
             </Link>
 
-            {/* Secondary as a text link, not a second button: one clear action per screen */}
-            <button
-              type="button"
+            {/* Secondary as a text link, not a second button: one clear action per screen.
+                Goes to /book like every other "Book a call" on the site. */}
+            <Link
+              href="/book"
               id="hero-secondary-cta"
-              onClick={() => openLeadModal('hero')}
+              data-track="cta_click"
+              data-track-cta="book_call_hero"
               className="inline-flex items-center justify-center gap-1.5 py-2 sm:py-4 text-base sm:text-lg font-semibold text-white/85 hover:text-white underline underline-offset-4 decoration-white/30 hover:decoration-white transition-colors cursor-pointer"
             >
               or book a call
-            </button>
+            </Link>
           </div>
 
           <div aria-hidden="true" className="flex-1 min-h-6 sm:hidden" />

@@ -14,16 +14,16 @@ import {
   type Onboarding,
   type OnboardingInput,
 } from '@/lib/onboarding';
-import { SETUP_MINUTES, TIER_LABELS, TIER_RANK, type OnboardingTier } from '@/data/onboardingItems';
+import { TIER_LABELS, TIER_RANK, setupMinutes, type OnboardingTier } from '@/data/onboardingItems';
 import { sendDashboardInviteEmail, sendNudgeEmail, sendWelcomeEmail } from '@/lib/email';
 import { getItemStates, markNudgeSent } from '@/lib/onboarding';
 import { hasAccountForOnboarding } from '@/lib/proofAuth';
 import { afterOnboardingChange } from '@/lib/onboardingSync';
 import { isDatabaseConfigured, sql } from '@/lib/db';
 
-/** The setup time quoted in the welcome email: the same on every plan, matching the portal header. */
-export function estimatedMinutes(_tier: OnboardingTier): number {
-  return SETUP_MINUTES;
+/** The setup time quoted in the welcome email: the plan's first-round minutes, the same number the portal counts down from. */
+export function estimatedMinutes(tier: OnboardingTier): number {
+  return setupMinutes(tier).firstRound;
 }
 
 export async function sendWelcomeFor(onboarding: Onboarding): Promise<boolean> {

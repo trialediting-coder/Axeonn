@@ -21,6 +21,16 @@ export const revalidate = 3600;
 const CASE_STUDY_LIVE_SITES: Record<string, { name: string; url: string }> = {
 };
 
+/** Niche tags the area-check form can preselect (?specialty=). */
+const AREA_SPECIALTY_SLUGS = ['dental', 'med-spa', 'law-firms', 'accounting'];
+
+/** Splits markdown before its third "## " heading, so a CTA can sit after the second section. */
+function splitBeforeThirdSection(markdown: string): [string, string] {
+  const heads = [...markdown.matchAll(/^##\s/gm)];
+  if (heads.length < 3 || heads[2].index === undefined) return [markdown, ''];
+  return [markdown.slice(0, heads[2].index), markdown.slice(heads[2].index)];
+}
+
 // A literal "</script>" inside JSON.stringify output would break out of the
 // script tag. Content here can include fragments of web-search results
 // (see lib/anthropic.ts), not just the model's own synthesis, so this isn't
@@ -90,6 +100,15 @@ export default async function InsightPostPage({
   const nicheLookup = new Map(niches.map((n) => [n.slug, n.name]));
   const liveSite = CASE_STUDY_LIVE_SITES[post.slug];
 
+  // Most readers stop partway, so the offer can't live only after the article
+  // (friction audit E6): one line under the byline, and one card after the second
+  // section. The area check preselects the post's specialty when it has one.
+  const specialty = post.nicheTags.find((t) => AREA_SPECIALTY_SLUGS.includes(t));
+  const areaHref = specialty ? `/check-your-area?specialty=${specialty}` : '/check-your-area';
+  const body = post.content.replace(/^\s*#\s+[^\n]*\n+/, '');
+  const [bodyStart, bodyRest] = splitBeforeThirdSection(body);
+  const markdownComponents = { h1: ({ node: _node, ...props }: { node?: unknown } & React.HTMLAttributes<HTMLHeadingElement>) => <h2 {...props} /> };
+
   return (
     <main className="w-full pt-32 pb-24 px-6 sm:px-10 lg:px-16 xl:px-24">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(articleJsonLd) }} />
@@ -124,6 +143,13 @@ export default async function InsightPostPage({
             </>
           )}
         </p>
+        <p className="-mt-4 mb-8 text-sm text-neutral-600">
+          For dental practices, med spas, law firms and CPA firms:{' '}
+          <Link href={areaHref} data-track="cta_click" data-track-cta="area_check_post_top" className="font-semibold text-blue-600 hover:text-blue-700 underline underline-offset-2">
+            check if your area is open
+          </Link>
+          .
+        </p>
         {post.coverImageUrl && liveSite && (
           <a
             href={liveSite.url}
@@ -157,10 +183,38 @@ export default async function InsightPostPage({
         )}
         <div className="prose prose-neutral max-w-none prose-headings:font-display prose-headings:tracking-tight prose-a:text-blue-600">
           {/* The page already has the h1 (the title); a markdown h1 in the body renders as h2. */}
-          <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ h1: ({ node: _node, ...props }) => <h2 {...props} /> }}>
-            {post.content.replace(/^\s*#\s+[^\n]*\n+/, '')}
+          <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+            {bodyStart}
           </ReactMarkdown>
         </div>
+        {bodyRest && (
+          <>
+            <aside
+              data-track-location="insight_post_inline_cta"
+              className="my-10 rounded-2xl border border-blue-100 bg-blue-50 px-5 py-5 sm:px-7 sm:py-6"
+            >
+              <p className="text-base sm:text-lg font-bold text-neutral-950">
+                Every missed call and web inquiry answered within 60 seconds, 24/7.
+              </p>
+              <p className="mt-1 text-sm sm:text-base text-neutral-700">
+                One practice or firm per specialty within 5 miles. $0 to start. Nothing due until it&apos;s working.
+              </p>
+              <Link
+                href={areaHref}
+                data-track="cta_click"
+                data-track-cta="area_check_post_inline"
+                className="mt-4 inline-flex min-h-[44px] items-center justify-center rounded-full bg-blue-600 hover:bg-blue-700 px-6 text-sm sm:text-base font-bold text-white"
+              >
+                Check if your area is open
+              </Link>
+            </aside>
+            <div className="prose prose-neutral max-w-none prose-headings:font-display prose-headings:tracking-tight prose-a:text-blue-600">
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                {bodyRest}
+              </ReactMarkdown>
+            </div>
+          </>
+        )}
 
         {/* Readers who finish a post had nowhere to go next (Clarity, 2026-09-28:
             a 3.5-minute read ended in an exit). Same offer as the pricing
@@ -179,7 +233,7 @@ export default async function InsightPostPage({
           </p>
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <Link
-              href="/check-your-area"
+              href={areaHref}
               className="text-center px-8 py-4 rounded-full font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/30 transition-colors"
             >
               Check if your area is open
