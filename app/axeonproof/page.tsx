@@ -13,7 +13,7 @@ import { ArrowRight, Check, ExternalLink } from 'lucide-react';
 import { buildMetadata } from '@/lib/metadata';
 import { serviceJsonLd } from '@/lib/seo';
 import { JsonLd, BreadcrumbJsonLd } from '@/components/common/JsonLd';
-import { GUARANTEE_LINE, GUARANTEE_TERMS } from '@/components/marketing-solutions/ServiceClosingCta';
+import { GUARANTEE_LINE } from '@/components/marketing-solutions/ServiceClosingCta';
 import { ProofWindow } from '@/components/axeonproof/ProofWindow';
 import { ProofTour } from '@/components/axeonproof/ProofTour';
 import { ProofHotspots } from '@/components/axeonproof/ProofHotspots';
@@ -114,7 +114,7 @@ export default function AxeonProofPage() {
               <br className="hidden lg:block" /> on one screen.
             </h1>
             <p style={{ animationDelay: '3250ms' }} className="proof-hero-stagger animate-proof-rise mt-4 max-w-3xl text-base leading-relaxed text-neutral-300 sm:mt-8 sm:text-xl">
-              The portal every AxeonCORE and AxeonGROWTH practice and firm signs into. How many missed calls and after-hours inquiries were recovered, how fast each got a reply, and which turned into booked exams, consults, case reviews and client meetings.
+              Every recovered call, how fast it got a reply, and what got booked.
             </p>
             <div style={{ animationDelay: '3400ms' }} className="proof-hero-stagger animate-proof-rise mt-6 flex w-full flex-col items-center justify-center gap-3 sm:mt-10 sm:w-auto sm:flex-row sm:gap-4">
               <Link href="/check-your-area" data-track="cta_click" data-track-cta="axeonproof_hero" className={`${CTA} w-full max-w-xs sm:w-auto`}>
@@ -188,7 +188,7 @@ export default function AxeonProofPage() {
                 The commitment lives in your dashboard, <Accent>not</Accent> in our promises.
               </h2>
               <p className="mt-3 text-[15px] leading-snug text-neutral-200 sm:mt-6 sm:text-lg sm:leading-relaxed">{GUARANTEE_LINE}</p>
-              <p className="mt-2 text-xs leading-snug text-neutral-400 sm:mt-4 sm:text-sm sm:leading-relaxed">{GUARANTEE_TERMS}</p>
+
             </div>
             <ol className="space-y-2 sm:space-y-3">
               {GUARANTEE_STEPS.map((s) => (
@@ -277,7 +277,7 @@ export default function AxeonProofPage() {
             Ready to see <Accent>your</Accent> own dashboard?
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-neutral-300 sm:mt-5 sm:text-lg">
-            Start by checking your area. On the call we show you what happens when we call your practice or firm after hours, how fast your website answers an inquiry, and what PROOF would have caught.
+            Start by checking your area.
           </p>
           <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:mt-9 sm:flex-row sm:gap-4">
             <Link href="/check-your-area" data-track="cta_click" data-track-cta="axeonproof_closing" className={`${CTA} w-full max-w-xs sm:w-auto`}>

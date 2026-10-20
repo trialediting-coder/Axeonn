@@ -40,8 +40,7 @@ export default function WorkPage() {
               Recent builds.
             </h1>
             <p className="text-sm sm:text-base lg:text-lg text-neutral-600 max-w-xl leading-relaxed lg:text-right">
-              Real sites we have designed and built, plus a few labeled concept builds. Click any project to see the live
-              build.
+              Real builds, plus a few labeled concepts.
             </p>
           </div>
 

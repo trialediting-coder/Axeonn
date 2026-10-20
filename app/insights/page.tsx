@@ -158,7 +158,7 @@ export default async function InsightsPage() {
               Want more patients and clients? Start with your area.
             </h2>
             <p className="mt-2 text-sm sm:text-base text-neutral-400">
-              One practice or firm per specialty within 5 miles. $0 to start. Nothing due until it&apos;s working.
+              One practice or firm per specialty within 5 miles. $0 to start.
             </p>
           </div>
           <Link

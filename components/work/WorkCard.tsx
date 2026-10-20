@@ -24,7 +24,7 @@ export function WorkCard({ project, showConcept = false }: { project: WorkProjec
           <p className="text-xs sm:text-sm text-neutral-500 font-medium mt-1">
             {project.industry} &middot; {project.location} &middot; {project.date}
           </p>
-          <p className="text-sm sm:text-[15px] text-neutral-600 leading-relaxed mt-3 max-w-xl">
+          <p className="hidden sm:block text-[15px] text-neutral-600 leading-relaxed mt-3 max-w-xl">
             {project.summary}
           </p>
         </div>

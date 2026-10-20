@@ -11,8 +11,7 @@ export default function WhyAxeonClosingCTA() {
           Is your specialty still open in your area?
         </h2>
         <p className="text-base sm:text-lg text-neutral-600 max-w-2xl mx-auto leading-relaxed mb-8 sm:mb-10">
-          One practice or firm per specialty within 5 miles. When we&apos;re working with you, we don&apos;t work for the
-          competitor down the street. $0 to start. Nothing due until it&apos;s working. Every partnership with us starts here.
+          One practice or firm per specialty within 5 miles. $0 to start.
         </p>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4">
           <Link
