@@ -55,9 +55,9 @@ export default async function SummaryPage({ params }: { params: Promise<{ token:
   const booked = s.dbrBooked + s.webBooked;
   const tiles = [
     { icon: PhoneCall, label: 'Missed calls rescued', value: String(s.rescued), sub: s.missed ? `${s.missed} missed · ${s.textedBack} auto-texted · rescued = the caller wrote or called back` : 'No missed calls this month' },
-    { icon: CalendarCheck, label: 'Booked from reactivation + website', value: String(booked), sub: s.pipelineDollars != null ? `${money(s.pipelineDollars)} pipeline, estimated from your values` : `${s.dbrBooked} reactivation · ${s.webBooked} website` },
+    { icon: CalendarCheck, label: 'Booked from win-back texts + website', value: String(booked), sub: s.pipelineDollars != null ? `${money(s.pipelineDollars)} pipeline, estimated from your values` : `${s.dbrBooked} win-back · ${s.webBooked} website` },
     { icon: Star, label: 'New Google reviews', value: s.newReviews != null ? `${s.newReviews >= 0 ? '+' : ''}${s.newReviews}` : '—', sub: s.newReviews != null ? `${s.reviewRequests} review requests sent` : `${s.reviewRequests} requests sent · counted after two review scans` },
-    { icon: Search, label: 'Google search impressions', value: s.impressions != null ? s.impressions.toLocaleString('en-US') : '—', sub: s.impressions != null ? (s.topKeywords.length ? `Top: ${s.topKeywords.join(', ')}` : `${s.clicks ?? 0} clicks`) : 'Tracked from Phase 5 of your schedule' },
+    { icon: Search, label: 'Seen in Google search', value: s.impressions != null ? s.impressions.toLocaleString('en-US') : '—', sub: s.impressions != null ? (s.topKeywords.length ? `Top: ${s.topKeywords.join(', ')}` : `${s.clicks ?? 0} clicks`) : 'Tracked from month 3 of your schedule' },
   ];
   return (
     <main className="min-h-screen bg-[#F3F5F8] px-4 pb-10 pt-6 sm:px-8">

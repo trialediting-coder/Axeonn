@@ -19,7 +19,7 @@ export function StatusPill({ status }: { status: PhaseStatus }) {
   return <span className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ${s.cls}`}>{s.label}</span>;
 }
 
-function StepRow({ step }: { step: StepView }) {
+export function StepRow({ step }: { step: StepView }) {
   const done = step.state === 'done';
   return (
     <li className="flex gap-2.5 py-1.5">
@@ -40,11 +40,24 @@ function StepRow({ step }: { step: StepView }) {
   );
 }
 
-export function MilestoneTracker({ milestones, day, startAt, expandAll = false }: { milestones: Milestone[]; day: number; startAt: string; expandAll?: boolean }) {
+export function MilestoneTracker({
+  milestones,
+  day,
+  startAt,
+  expandAll = false,
+  bare = false,
+}: {
+  milestones: Milestone[];
+  day: number;
+  startAt: string;
+  expandAll?: boolean;
+  /** Inside another card (the Overview status card): no card of its own. */
+  bare?: boolean;
+}) {
   const current = milestones.find((m) => m.current);
   return (
-    <section className="proof-rise rounded-2xl bg-white shadow-[0_2px_12px_-2px_rgba(16,24,40,0.08),0_1px_2px_rgba(16,24,40,0.04)]">
-      <div className="flex items-baseline justify-between gap-3 border-b border-neutral-100 px-4 py-3 sm:px-6 sm:py-4">
+    <section className={bare ? '' : 'proof-rise rounded-2xl bg-white shadow-[0_2px_12px_-2px_rgba(16,24,40,0.08),0_1px_2px_rgba(16,24,40,0.04)]'}>
+      <div className={`${bare ? 'hidden' : 'flex'} items-baseline justify-between gap-3 border-b border-neutral-100 px-4 py-3 sm:px-6 sm:py-4`}>
         <div className="min-w-0">
           <h2 className="text-base font-semibold text-neutral-950">Your delivery schedule</h2>
           <p className="truncate text-xs text-neutral-500">

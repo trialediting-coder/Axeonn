@@ -1,16 +1,17 @@
 // components/proof/v2/V2Sections.tsx
-// AxeonPROOF v2 on the client dashboard: what is added to the Overview (the
-// schedule, Launch Certificate, front desk, pipeline) and the Program tab (every
-// phase in detail). Numbers come from lib/proofV2.ts loadV2View; anything not
+// AxeonPROOF v2 on the client dashboard: what is added to the Overview (one
+// schedule status card, Launch Certificate, front desk, pipeline) and the Program
+// tab (done phases folded to a line, the phase on now in full, the rest by date). Numbers come from lib/proofV2.ts loadV2View; anything not
 // measured yet says when it starts on the schedule. Each section is sized to
 // sit on one phone screen.
 import type { ReactNode } from 'react';
-import { Award, CalendarCheck, Check, ExternalLink, Inbox, MapPin, PhoneCall, Search, Star, TrendingUp } from 'lucide-react';
+import { ArrowRight, Award, CalendarCheck, Check, ChevronDown, ExternalLink, Inbox, MapPin, PhoneCall, Search, Star, TrendingUp } from 'lucide-react';
 import type { ProofV2View } from '@/lib/proofV2';
-import { FRONT_DESK_ROUTINE, GROWTH_UPGRADE_PRICE, NAP_DIRECTORIES, PHASES, shortDate, type FilingStatus } from '@/lib/proofV2Shared';
+import { FRONT_DESK_ROUTINE, GROWTH_UPGRADE_PRICE, NAP_DIRECTORIES, scheduleStatus, shortDate, type FilingStatus, type Milestone, type ScheduleTone } from '@/lib/proofV2Shared';
 import type { OnboardingTier } from '@/data/onboardingItems';
 import type { RankingData } from '@/components/proof/RankingCard';
-import { MilestoneTracker } from '@/components/proof/v2/MilestoneTracker';
+import { MilestoneTracker, StatusPill, StepRow } from '@/components/proof/v2/MilestoneTracker';
+import LineIcon from '@/components/common/LineIcon';
 import { FrontDeskSignoff, ManagerForm, PinBoard, ReviewApproval, StagingActions } from '@/components/proof/v2/V2Interactive';
 import { UpgradeButton } from '@/components/proof/UpgradeButton';
 import { formatPhone } from '@/lib/phoneShared';
@@ -49,10 +50,7 @@ function Stat({ label, value, sub }: { label: string; value: string; sub?: strin
   );
 }
 
-const startsLine = (phase: 'p1' | 'p2' | 'p3' | 'p4' | 'p5' | 'p6', v: ProofV2View) => {
-  const m = v.milestones.find((x) => x.key === phase)!;
-  return `Starts in Phase ${PHASES.findIndex((p) => p.key === phase) + 1} (${shortDate(m.from)})`;
-};
+const startsLine = (phase: Milestone['key'], v: ProofV2View) => `Starts ${shortDate(v.milestones.find((x) => x.key === phase)!.from)}`;
 
 // ───────────────────────────── Overview cards ─────────────────────────────
 
@@ -80,7 +78,7 @@ export function LaunchCertificate({ v, businessName }: { v: ProofV2View; busines
           ))}
         </ul>
       ) : null}
-      {s.dnsCutoverAt ? <p className="mt-3 text-[11px] text-neutral-500">DNS switched {shortDate(s.dnsCutoverAt)}{s.certificateSentAt ? ` · emailed ${shortDate(s.certificateSentAt)}` : ''}</p> : null}
+      {s.dnsCutoverAt ? <p className="mt-3 text-[11px] text-neutral-500">Domain switched {shortDate(s.dnsCutoverAt)}{s.certificateSentAt ? ` · emailed ${shortDate(s.certificateSentAt)}` : ''}</p> : null}
     </Card>
   );
 }
@@ -106,9 +104,9 @@ export function PipelineCard({ v, full = false }: { v: ProofV2View; full?: boole
   const total = totals.anyValue ? (totals.dbrDollars ?? 0) + (totals.webDollars ?? 0) : null;
   return (
     <Card>
-      <Head icon={TrendingUp} title="Pipeline Revenue Tracker" sub={total != null ? `${money(total)} estimated from your own values` : 'Booked appointments from reactivation and your website'} />
+      <Head icon={TrendingUp} title="Pipeline Revenue Tracker" sub={total != null ? `${money(total)} estimated from your own values` : 'Bookings from win-back texts and your website'} />
       <div className="mt-3 grid grid-cols-2 gap-2">
-        <Stat label="From reactivation" value={String(totals.dbr)} sub={totals.dbrDollars != null ? money(totals.dbrDollars) : v.dbr.status === 'none' ? startsLine('p3', v) : 'booked'} />
+        <Stat label="From win-back texts" value={String(totals.dbr)} sub={totals.dbrDollars != null ? money(totals.dbrDollars) : v.dbr.status === 'none' ? startsLine('p3', v) : 'booked'} />
         <Stat label="From your website" value={String(totals.web)} sub={totals.webDollars != null ? money(totals.webDollars) : 'booked'} />
       </div>
       <p className="mt-2 text-[11px] leading-snug text-neutral-500">
@@ -119,7 +117,7 @@ export function PipelineCard({ v, full = false }: { v: ProofV2View; full?: boole
           {rows.slice(0, 50).map((r) => (
             <li key={r.key} className="flex items-center justify-between gap-3 py-2">
               <span className="min-w-0 truncate text-neutral-800">
-                {r.label} <span className="text-xs text-neutral-400">· {r.source === 'dbr' ? 'reactivation' : 'website'} · {shortDate(r.at)}</span>
+                {r.label} <span className="text-xs text-neutral-400">· {r.source === 'dbr' ? 'win-back' : 'website'} · {shortDate(r.at)}</span>
               </span>
               <span className="shrink-0 font-semibold text-neutral-950">{r.value != null ? money(r.value) : '—'}</span>
             </li>
@@ -130,34 +128,161 @@ export function PipelineCard({ v, full = false }: { v: ProofV2View; full?: boole
   );
 }
 
-/** Added at the top of the Overview for v2 clients. */
+const TONE: Record<ScheduleTone, { label: string; cls: string }> = {
+  on_track: { label: 'On track', cls: 'bg-emerald-50 text-emerald-700 ring-emerald-200' },
+  waiting_client: { label: 'Waiting on your approval', cls: 'bg-amber-50 text-amber-800 ring-amber-200' },
+  waiting_carrier: { label: 'Waiting on the phone carriers', cls: 'bg-amber-50 text-amber-800 ring-amber-200' },
+  behind: { label: 'Running behind', cls: 'bg-amber-50 text-amber-800 ring-amber-200' },
+  done: { label: 'All six phases done', cls: 'bg-emerald-50 text-emerald-700 ring-emerald-200' },
+};
+
+/** The one thing the client can do now, if anything: where it lives on the Program tab, or the booking link. */
+function clientAction(v: ProofV2View): { label: string; href: string; external?: boolean } | null {
+  const s = v.settings;
+  const current = v.milestones.find((m) => m.current)?.key;
+  if (s.reviews?.wireframe?.sharedAt && !s.reviews.wireframe.approvedAt) return { label: 'Approve your layout', href: '?tab=program#phase-p2' };
+  if (s.reviews?.copy?.sharedAt && !s.reviews.copy.approvedAt) return { label: 'Approve your words', href: '?tab=program#phase-p2' };
+  if (v.staging.phase === 'in_review') return { label: 'Review your new site', href: '?tab=program#phase-p2' };
+  if (s.goLiveAt && !v.frontDesk.signedOffAt) return { label: 'Sign off your front-desk routine', href: '?tab=program#front-desk' };
+  if (current === 'p6' && !s.sabr?.scheduledAt && !s.sabr?.completedAt) return { label: 'Book your six-month review', href: v.bookUrl, external: true };
+  return null;
+}
+
+/** The Overview's schedule card: where things stand in one look; the full schedule opens under it. */
+export function ScheduleStatusCard({ v }: { v: ProofV2View }) {
+  const st = scheduleStatus(v.milestones);
+  const tone = TONE[st.tone];
+  const action = clientAction(v);
+  return (
+    <Card>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs font-medium text-neutral-500">Your delivery schedule · day {Math.min(v.day, 180)} of 180</p>
+        <span className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ${tone.cls}`}>{tone.label}</span>
+      </div>
+      <h2 className="mt-2 text-lg font-bold leading-snug tracking-tight text-neutral-950 sm:text-xl">
+        {st.tone === 'done' ? 'Your first 180 days are done' : <>Phase {st.n} of 6: {st.title}</>}
+      </h2>
+      {st.next ? (
+        <p className="mt-1 text-sm text-neutral-600">
+          Next: {st.next.title} · <span className="whitespace-nowrap">{shortDate(st.next.date)}</span>
+        </p>
+      ) : null}
+      {action ? (
+        <a
+          href={action.href}
+          {...(action.external ? { target: '_blank', rel: 'noreferrer' } : {})}
+          className="mt-4 inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-md shadow-blue-600/25 hover:bg-blue-700 sm:w-auto"
+        >
+          {action.label} <ArrowRight size={15} />
+        </a>
+      ) : (
+        <p className="mt-3 flex items-start gap-2 text-sm font-medium text-neutral-700">
+          <LineIcon>
+            <Check size={15} className="text-emerald-600" />
+          </LineIcon>
+          Nothing needed from you right now.
+        </p>
+      )}
+      <details className="group mt-4 border-t border-neutral-100 pt-3">
+        <summary className="flex cursor-pointer list-none items-center gap-1 text-sm font-semibold text-blue-600 [&::-webkit-details-marker]:hidden">
+          See the full schedule <ChevronDown size={14} className="transition-transform group-open:rotate-180" />
+        </summary>
+        <div className="-mx-4 mt-2 sm:-mx-6">
+          <MilestoneTracker milestones={v.milestones} day={v.day} startAt={v.startAt} bare />
+        </div>
+      </details>
+    </Card>
+  );
+}
+
+const CERTIFICATE_DAYS = 30;
+
+/**
+ * The v2 part of the Overview. Before launch the schedule card leads; after it,
+ * the dashboard's own numbers lead (ProofDashboard puts this block below them)
+ * and the Launch Certificate shows for its first month only (it stays on the
+ * Program tab).
+ */
 export function V2Overview({ v, businessName }: { v: ProofV2View; businessName: string }) {
+  const live = !!v.settings.goLiveAt;
+  const freshLaunch = live && Date.now() - new Date(v.settings.goLiveAt!).getTime() < CERTIFICATE_DAYS * 86_400_000;
   return (
     <div className="mt-5 space-y-4 sm:mt-8 sm:space-y-5">
-      <MilestoneTracker milestones={v.milestones} day={v.day} startAt={v.startAt} />
-      <LaunchCertificate v={v} businessName={businessName} />
+      <ScheduleStatusCard v={v} />
+      {freshLaunch ? <LaunchCertificate v={v} businessName={businessName} /> : null}
       <div className="grid gap-4 lg:grid-cols-2 lg:gap-5">
         <FrontDeskCard v={v} />
         <PipelineCard v={v} />
       </div>
-      <a href="?tab=program" className="block text-center text-sm font-semibold text-blue-600 hover:text-blue-700">
-        See every phase in detail
-      </a>
     </div>
   );
 }
 
 // ───────────────────────────── Program tab ─────────────────────────────
 
-const FILING: Record<FilingStatus, string> = { not_filed: 'Not filed yet', pending: 'Filed, waiting on the carriers', approved: 'Approved', rejected: 'Needs a fix (we are on it)' };
+const FILING: Record<FilingStatus, string> = { not_filed: 'Not filed yet', pending: 'Waiting on the carriers', approved: 'Approved', rejected: 'Needs a fix (we are on it)' };
 
-function PhaseLabel({ n, title, v, phase }: { n: number; title: string; v: ProofV2View; phase: 'p1' | 'p2' | 'p3' | 'p4' | 'p5' | 'p6' }) {
-  const m = v.milestones.find((x) => x.key === phase)!;
+const today = () => new Date().toISOString().slice(0, 10);
+
+/**
+ * One phase on the Program tab. Done: one line with a check, opens to its steps
+ * and cards. On now: its cards in full. Coming: the name and start date, opens to
+ * the steps planned; its cards appear when it starts.
+ */
+function PhaseBlock({ m, n, children }: { m: Milestone; n: number; children: ReactNode }) {
+  const on = m.current || ((m.status === 'in_progress' || m.status === 'pending') && m.from <= today());
+  if (on) {
+    return (
+      <section id={`phase-${m.key}`} className="scroll-mt-6">
+        <div className="mb-3 mt-8 flex items-start gap-3">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white shadow-md shadow-blue-600/30">{n}</span>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <h3 className="text-lg font-bold leading-snug tracking-tight text-neutral-950">{m.title}</h3>
+              <StatusPill status={m.status} />
+            </div>
+            <p className="text-xs text-neutral-500">
+              {shortDate(m.from)}–{shortDate(m.to)} · {m.metric}
+            </p>
+          </div>
+        </div>
+        <details className="group mb-4 rounded-xl bg-white/70 px-4 py-2 ring-1 ring-neutral-200/70">
+          <summary className="flex cursor-pointer list-none items-center gap-1 text-xs font-semibold text-neutral-600 [&::-webkit-details-marker]:hidden">
+            {m.steps.filter((x) => x.state === 'done').length} of {m.steps.length} steps done <ChevronDown size={13} className="transition-transform group-open:rotate-180" />
+          </summary>
+          <ul className="mt-1 divide-y divide-neutral-100/70">
+            {m.steps.map((x) => (
+              <StepRow key={x.key} step={x} />
+            ))}
+          </ul>
+        </details>
+        <div className="space-y-4">{children}</div>
+      </section>
+    );
+  }
+  const done = m.status === 'completed';
   return (
-    <p className={`mb-2 mt-8 text-[11px] font-semibold uppercase tracking-wide ${m.current ? 'text-blue-700' : 'text-neutral-400'}`}>
-      Phase {n} · {title} · {shortDate(m.from)}–{shortDate(m.to)}
-      {m.current ? ' · now' : ''}
-    </p>
+    <details id={`phase-${m.key}`} className="group mt-3 scroll-mt-6 rounded-2xl bg-white shadow-[0_2px_12px_-2px_rgba(16,24,40,0.06)]">
+      <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 sm:px-6 [&::-webkit-details-marker]:hidden">
+        <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${done ? 'bg-emerald-500 text-white' : 'bg-neutral-100 text-neutral-500'}`}>
+          {done ? <Check size={14} className="stroke-[3]" /> : n}
+        </span>
+        <p className="min-w-0 flex-1 truncate text-sm font-semibold text-neutral-950">
+          {m.title}
+          <span className="font-normal text-neutral-500">{done ? ` · ${shortDate(m.from)}–${shortDate(m.to)}` : `, starts ${shortDate(m.from)}`}</span>
+        </p>
+        <ChevronDown size={14} className="shrink-0 text-neutral-400 transition-transform group-open:rotate-180" />
+      </summary>
+      <div className="border-t border-neutral-100 px-4 pb-4 pt-2 sm:px-6">
+        <p className="text-xs text-neutral-500">{done ? m.metric : m.summary}</p>
+        <ul className="mt-1 divide-y divide-neutral-100/70">
+          {m.steps.map((x) => (
+            <StepRow key={x.key} step={x} />
+          ))}
+        </ul>
+        {done ? <div className="mt-3 space-y-4">{children}</div> : null}
+      </div>
+    </details>
   );
 }
 
@@ -188,23 +313,16 @@ export function ProgramTab({
   const published = v.pages.filter((p) => p.status === 'published').length;
   const pipelineTotal = v.pipeline.totals.anyValue ? (v.pipeline.totals.dbrDollars ?? 0) + (v.pipeline.totals.webDollars ?? 0) : null;
   const rankPoints = (ranking?.points ?? []).filter((p) => p.rank != null);
+  const status = scheduleStatus(v.milestones);
 
-  return (
-    <div className="mt-6">
-      <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Your program</p>
-      <h2 className="mt-2 text-2xl font-bold tracking-tight text-neutral-950">The 180-day delivery schedule</h2>
-      <p className="mt-1 max-w-2xl text-sm text-neutral-600">The same six phases every Axeon practice runs, on your dates. Each step shows when it happens; done steps carry the date.</p>
-      <div className="mt-4">
-        <MilestoneTracker milestones={v.milestones} day={v.day} startAt={v.startAt} />
-      </div>
-
-      <PhaseLabel n={1} title="Phone infrastructure" v={v} phase="p1" />
+  const cards: Record<Milestone['key'], ReactNode> = {
+    p1: (
       <Card>
         <Head icon={PhoneCall} title={v.line ? `Your tracked number: ${formatPhone(v.line.number)}` : 'Your tracked number'} sub="Missed calls get a text within 30 seconds" />
         <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
           <Stat label="Number" value={v.line ? 'Live' : 'Coming'} sub={v.line ? 'forwards to your front desk' : startsLine('p1', v)} />
-          <Stat label="Texting brand (A2P)" value={v.line?.smsReady ? 'Approved' : FILING[s.a2p?.brand ?? 'not_filed']} />
-          <Stat label="Texting campaign" value={v.line?.smsReady ? 'Approved' : FILING[s.a2p?.campaign ?? 'not_filed']} />
+          <Stat label="Business registered" value={v.line?.smsReady ? 'Approved' : FILING[s.a2p?.brand ?? 'not_filed']} />
+          <Stat label="Texting approved by carriers" value={v.line?.smsReady ? 'Approved' : FILING[s.a2p?.campaign ?? 'not_filed']} />
           <Stat
             label="Auto-text under 30s"
             value={v.mcat.textedBack ? `${v.mcat.under30}/${v.mcat.textedBack}` : '—'}
@@ -212,9 +330,9 @@ export function ProgramTab({
           />
         </div>
       </Card>
-
-      <PhaseLabel n={2} title="Website build" v={v} phase="p2" />
-      <div className="space-y-4">
+    ),
+    p2: (
+      <>
         <Card>
           <Head icon={MapPin} title="Layout approval" sub="Drop a pin anywhere you want a change, then approve" />
           <div className="mt-3">
@@ -230,16 +348,16 @@ export function ProgramTab({
         <Card>
           <Head
             icon={CalendarCheck}
-            title="Staging review"
+            title="Preview of your new site"
             sub={
               st.phase === 'in_review'
-                ? `Staging review: 48h, ends ${when(st.endsAt!)}`
+                ? `Open for 48 hours, until ${when(st.endsAt!)}`
                 : st.phase === 'changes_requested'
-                  ? 'You asked for changes; we will reopen the review when they are made'
+                  ? 'You asked for changes; we reopen it when they are made'
                   : st.phase === 'approved'
                     ? `Approved ${shortDate(s.staging!.approvedAt!)}`
                     : st.phase === 'window_closed'
-                      ? '48-hour review closed with no changes asked for'
+                      ? 'The 48 hours passed with no changes asked for'
                       : `Your 48-hour review opens on ${shortDate(v.milestones.find((m) => m.key === 'p2')!.steps.find((x) => x.key === 'p2-staging')!.date)}`
             }
           />
@@ -249,14 +367,14 @@ export function ProgramTab({
               <div className="mt-3 flex flex-col gap-2 text-sm sm:flex-row sm:items-center sm:gap-4">
                 {s.staging?.url ? (
                   <a href={s.staging.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-semibold text-blue-600">
-                    Open the staging site <ExternalLink size={13} />
+                    Open the preview <ExternalLink size={13} />
                   </a>
                 ) : null}
                 {s.staging?.callAt ? (
                   <span className="text-neutral-700">Review call: {when(s.staging.callAt)}</span>
                 ) : (
                   <a href={v.bookUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-semibold text-blue-600">
-                    Book a staging review call <ExternalLink size={13} />
+                    Book a call to walk through it <ExternalLink size={13} />
                   </a>
                 )}
               </div>
@@ -265,38 +383,38 @@ export function ProgramTab({
             </div>
           ) : null}
           <ul className="mt-3 grid grid-cols-2 gap-2 text-xs text-neutral-600">
-            <li className="rounded-lg bg-neutral-50 px-3 py-2">DNS cutover: {s.dnsCutoverAt ? shortDate(s.dnsCutoverAt) : 'after your approval'}</li>
-            <li className="rounded-lg bg-neutral-50 px-3 py-2">Launch: {s.goLiveAt ? shortDate(s.goLiveAt) : 'right after DNS'}</li>
+            <li className="rounded-lg bg-neutral-50 px-3 py-2">Domain switch: {s.dnsCutoverAt ? shortDate(s.dnsCutoverAt) : 'after your approval'}</li>
+            <li className="rounded-lg bg-neutral-50 px-3 py-2">Launch: {s.goLiveAt ? shortDate(s.goLiveAt) : 'right after the switch'}</li>
           </ul>
         </Card>
         <LaunchCertificate v={v} businessName={businessName} />
-      </div>
-
-      <PhaseLabel n={3} title="Reactivation sprint" v={v} phase="p3" />
-      <div className="space-y-4">
+      </>
+    ),
+    p3: (
+      <>
         <Card>
-          <Head icon={CalendarCheck} title="Past-customer reactivation" sub="3 texts over 7 days from your number; replies land in your Leads inbox" />
+          <Head icon={CalendarCheck} title="Win-back texts to past patients and clients" sub="3 texts over 7 days from your number; replies land in your Leads inbox" />
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <Stat label="Records imported" value={String(v.dbr.imported)} sub={v.dbr.imported ? `${v.dbr.consented} with consent confirmed` : startsLine('p3', v)} />
-            <Stat label="Sprint" value={v.dbr.status === 'none' ? 'Not started' : v.dbr.status === 'running' ? 'Running' : v.dbr.status === 'done' ? 'Finished' : 'Stopped'} sub={v.dbr.startedAt ? `started ${shortDate(v.dbr.startedAt)}` : undefined} />
+            <Stat label="People on the list" value={String(v.dbr.imported)} sub={v.dbr.imported ? `${v.dbr.consented} with consent confirmed` : startsLine('p3', v)} />
+            <Stat label="Status" value={v.dbr.status === 'none' ? 'Not started' : v.dbr.status === 'running' ? 'Sending' : v.dbr.status === 'done' ? 'Finished' : 'Stopped'} sub={v.dbr.startedAt ? `started ${shortDate(v.dbr.startedAt)}` : undefined} />
             <Stat label="Texts sent" value={String(v.dbr.sent)} sub={v.dbr.pending ? `${v.dbr.pending} still scheduled` : undefined} />
             <Stat label="Replied (texts stopped)" value={String(v.dbr.replied)} />
           </div>
         </Card>
         <PipelineCard v={v} full />
-      </div>
-
-      <PhaseLabel n={4} title="Review engine + citations" v={v} phase="p4" />
+      </>
+    ),
+    p4: (
       <div className="grid gap-4 lg:grid-cols-2 lg:gap-5">
         <Card>
-          <Head icon={Star} title="Review engine" sub="A text 2 hours after you mark a visit completed" />
+          <Head icon={Star} title="Review requests" sub="A text 2 hours after you mark a visit completed" />
           <div className="mt-3 grid grid-cols-2 gap-2">
             <Stat label="Requests sent" value={String(v.reviews.sent)} sub={v.reviews.enabled ? 'on' : startsLine('p4', v)} />
             <Stat label="New Google reviews" value={v.reviews.newReviews != null ? `${v.reviews.newReviews >= 0 ? '+' : ''}${v.reviews.newReviews}` : '—'} sub={v.reviews.reviews != null ? `${v.reviews.reviews} total${v.reviews.rating ? ` · ${v.reviews.rating}★` : ''}` : 'counted from our review scans'} />
           </div>
         </Card>
         <Card>
-          <Head icon={MapPin} title={`Citations: ${v.nap.synced}/${v.nap.total} synced`} sub="Same name, address and phone on every directory" />
+          <Head icon={MapPin} title={`Listed on ${v.nap.synced} of ${v.nap.total} directories`} sub="Same name, address and phone on every one" />
           <div className="mt-3 h-2 rounded-full bg-neutral-100">
             <div className="h-2 rounded-full bg-emerald-500" style={{ width: `${v.nap.total ? (v.nap.synced / v.nap.total) * 100 : 0}%` }} />
           </div>
@@ -308,7 +426,7 @@ export function ProgramTab({
                 return (
                   <li key={d.key} className="flex justify-between gap-2 border-b border-neutral-100 py-1">
                     <span className="text-neutral-700">{d.name}</span>
-                    <span className={st2 === 'synced' ? 'font-semibold text-emerald-700' : st2 === 'submitted' ? 'text-blue-700' : 'text-neutral-400'}>{st2 === 'synced' ? 'Synced' : st2 === 'submitted' ? 'Submitted' : 'To do'}</span>
+                    <span className={st2 === 'synced' ? 'font-semibold text-emerald-700' : st2 === 'submitted' ? 'text-blue-700' : 'text-neutral-400'}>{st2 === 'synced' ? 'Listed' : st2 === 'submitted' ? 'Submitted' : 'To do'}</span>
                   </li>
                 );
               })}
@@ -316,24 +434,28 @@ export function ProgramTab({
           </details>
         </Card>
       </div>
-
-      <PhaseLabel n={5} title="Search growth" v={v} phase="p5" />
+    ),
+    p5: (
       <div className="grid gap-4 lg:grid-cols-2 lg:gap-5">
         <Card>
-          <Head icon={Search} title={pagesTotal ? `${pagesIndexed}/${pagesTotal} pages indexed` : 'Location and procedure pages'} sub={pagesTotal ? `${published} published · sitemap ${s.sitemapSubmittedAt ? `submitted ${shortDate(s.sitemapSubmittedAt)}` : 'not submitted yet'}` : startsLine('p5', v)} />
+          <Head
+            icon={Search}
+            title={pagesTotal ? `${pagesIndexed} of ${pagesTotal} pages on Google` : 'Pages for your locations and services'}
+            sub={pagesTotal ? `${published} published · ${s.sitemapSubmittedAt ? `Google told ${shortDate(s.sitemapSubmittedAt)}` : 'Google not told yet'}` : startsLine('p5', v)}
+          />
           {v.pages.length ? (
             <ul className="mt-3 max-h-60 divide-y divide-neutral-100 overflow-y-auto text-sm">
               {v.pages.map((p) => (
                 <li key={p.id} className="flex items-center justify-between gap-3 py-2">
                   <span className="min-w-0 truncate text-neutral-800">{p.title}</span>
-                  <span className={`shrink-0 text-xs font-semibold ${p.indexed ? 'text-emerald-700' : p.status === 'published' ? 'text-blue-700' : 'text-neutral-400'}`}>{p.indexed ? 'Indexed' : p.status === 'published' ? 'Published' : 'Writing'}</span>
+                  <span className={`shrink-0 text-xs font-semibold ${p.indexed ? 'text-emerald-700' : p.status === 'published' ? 'text-blue-700' : 'text-neutral-400'}`}>{p.indexed ? 'On Google' : p.status === 'published' ? 'Published' : 'Writing'}</span>
                 </li>
               ))}
             </ul>
           ) : null}
         </Card>
         <Card>
-          <Head icon={TrendingUp} title="Organic Conversion Harvest Report" sub={s.harvestPublishedAt ? `Published ${shortDate(s.harvestPublishedAt)}` : `Month 5 · ${shortDate(v.milestones.find((m) => m.key === 'p5')!.to)}`} />
+          <Head icon={TrendingUp} title="Your search report" sub={s.harvestPublishedAt ? `Published ${shortDate(s.harvestPublishedAt)}` : `Month 5 · ${shortDate(v.milestones.find((m) => m.key === 'p5')!.to)}`} />
           {organicMonths.length || rankPoints.length ? (
             <div className="mt-3 space-y-3">
               {rankPoints.length ? (
@@ -346,7 +468,7 @@ export function ProgramTab({
                   <thead>
                     <tr className="text-left text-neutral-500">
                       <th className="py-1 font-medium">Month</th>
-                      <th className="py-1 text-right font-medium">Impr.</th>
+                      <th className="py-1 text-right font-medium">Seen</th>
                       <th className="py-1 text-right font-medium">Clicks</th>
                       <th className="py-1 text-right font-medium">Calls</th>
                       <th className="py-1 text-right font-medium">Forms</th>
@@ -365,28 +487,28 @@ export function ProgramTab({
                   </tbody>
                 </table>
               ) : null}
-              <p className="text-[11px] text-neutral-500">Search numbers are from Google Search Console, entered by Axeon each month.</p>
+              <p className="text-[11px] text-neutral-500">“Seen” is how often you showed up in Google search, from Google Search Console, entered by Axeon each month.</p>
             </div>
           ) : (
-            <p className="mt-3 text-sm text-neutral-500">Rank trajectory, search clicks and the calls and forms that came from search. {startsLine('p5', v)}.</p>
+            <p className="mt-3 text-sm text-neutral-500">Your map rank, search clicks, and the calls and forms that came from search. {startsLine('p5', v)}.</p>
           )}
         </Card>
       </div>
-
-      <PhaseLabel n={6} title="Six-month review" v={v} phase="p6" />
+    ),
+    p6: (
       <Card>
-        <Head icon={Award} title="Semi-Annual Business Review" sub={s.sabr?.completedAt ? `Reviewed ${shortDate(s.sabr.completedAt)}` : s.sabr?.scheduledAt ? `30-minute review on ${longDate(s.sabr.scheduledAt)}` : `30 minutes around ${longDate(v.milestones.find((m) => m.key === 'p6')!.to)}`} />
+        <Head icon={Award} title="Six-month review" sub={s.sabr?.completedAt ? `Reviewed ${shortDate(s.sabr.completedAt)}` : s.sabr?.scheduledAt ? `30 minutes on ${longDate(s.sabr.scheduledAt)}` : `30 minutes around ${longDate(v.milestones.find((m) => m.key === 'p6')!.to)}`} />
         <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
           <Stat label="Recovered pipeline" value={pipelineTotal != null ? money(pipelineTotal) : String(v.pipeline.totals.dbr + v.pipeline.totals.web)} sub={pipelineTotal != null ? 'estimated from your values' : 'bookings so far'} />
           <Stat label="Missed calls rescued" value={String(v.mcat.rescued)} sub={`of ${v.mcat.missed} missed since day 1`} />
           <Stat label="New reviews" value={v.reviews.newReviews != null ? `${v.reviews.newReviews >= 0 ? '+' : ''}${v.reviews.newReviews}` : '—'} />
           <Stat
-            label="Search impressions"
+            label="Seen in Google search"
             value={lastOrganic?.impressions != null ? lastOrganic.impressions.toLocaleString('en-US') : '—'}
-            sub={firstImp && lastOrganic?.impressions != null && firstImp !== lastOrganic.impressions ? `${Math.round(((lastOrganic.impressions - firstImp) / firstImp) * 100)}% since the first month` : lastOrganic?.topKeywords?.length ? lastOrganic.topKeywords.join(', ') : 'tracked from Phase 5'}
+            sub={firstImp && lastOrganic?.impressions != null && firstImp !== lastOrganic.impressions ? `${Math.round(((lastOrganic.impressions - firstImp) / firstImp) * 100)}% since the first month` : lastOrganic?.topKeywords?.length ? lastOrganic.topKeywords.join(', ') : 'tracked from month 3'}
           />
         </div>
-        {lastOrganic?.topKeywords?.length ? <p className="mt-2 text-xs text-neutral-600">Top keywords: {lastOrganic.topKeywords.join(' · ')}</p> : null}
+        {lastOrganic?.topKeywords?.length ? <p className="mt-2 text-xs text-neutral-600">Top searches: {lastOrganic.topKeywords.join(' · ')}</p> : null}
         {!s.sabr?.scheduledAt && !s.sabr?.completedAt ? (
           <a href={v.bookUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-blue-600">
             Book your 30-minute review <ExternalLink size={13} />
@@ -402,38 +524,74 @@ export function ProgramTab({
           </div>
         ) : null}
       </Card>
+    ),
+  };
 
-      <p className="mb-2 mt-8 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">Every day · front desk</p>
-      <Card>
-        <Head icon={Inbox} title="Your front-desk routine" sub={`${v.frontDesk.waiting} missed-call thread${v.frontDesk.waiting === 1 ? '' : 's'} waiting · ${v.frontDesk.week.booked} booked and ${v.frontDesk.week.archived} not a fit this week`} />
-        <ol className="mt-3 space-y-2">
-          {FRONT_DESK_ROUTINE.map((r) => (
-            <li key={r.key} className="flex gap-3 text-sm">
-              <span className="w-28 shrink-0 text-xs font-semibold text-neutral-500 sm:w-36">{r.when}</span>
-              <span className="text-neutral-800">{r.what}</span>
-            </li>
-          ))}
-        </ol>
-        <div className="mt-4">
-          <FrontDeskSignoff api={api} signedOffAt={v.frontDesk.signedOffAt} signedOffBy={v.frontDesk.signedOffBy} />
+  const frontDesk = (
+    <>
+      <Head icon={Inbox} title="Your front-desk routine" sub={`${v.frontDesk.waiting} missed-call thread${v.frontDesk.waiting === 1 ? '' : 's'} waiting · ${v.frontDesk.week.booked} booked this week`} />
+      <ol className="mt-3 space-y-2">
+        {FRONT_DESK_ROUTINE.map((r) => (
+          <li key={r.key} className="flex flex-col gap-0.5 text-sm sm:flex-row sm:gap-3">
+            <span className="shrink-0 text-xs font-semibold text-neutral-500 sm:w-36">{r.when}</span>
+            <span className="text-neutral-800">{r.what}</span>
+          </li>
+        ))}
+      </ol>
+      <div className="mt-4">
+        <FrontDeskSignoff api={api} signedOffAt={v.frontDesk.signedOffAt} signedOffBy={v.frontDesk.signedOffBy} />
+      </div>
+      <div className="mt-4 border-t border-neutral-100 pt-4">
+        <p className="mb-2 text-xs font-semibold text-neutral-600">Practice manager (weekly summary + the monthly link)</p>
+        <ManagerForm api={api} manager={s.manager} />
+      </div>
+      {v.frontDesk.access.length ? (
+        <div className="mt-4 border-t border-neutral-100 pt-3">
+          <p className="text-xs font-semibold text-neutral-600">Monthly summary opens</p>
+          <ul className="mt-1 space-y-0.5 text-xs text-neutral-500">
+            {v.frontDesk.access.map((a, i) => (
+              <li key={i}>
+                {monthLabel(a.month)} summary · {a.recipient === 'owner' ? 'owner' : 'practice manager'} · {when(a.at)}
+              </li>
+            ))}
+          </ul>
         </div>
-        <div className="mt-4 border-t border-neutral-100 pt-4">
-          <p className="mb-2 text-xs font-semibold text-neutral-600">Practice manager (weekly summary + the monthly link)</p>
-          <ManagerForm api={api} manager={s.manager} />
-        </div>
-        {v.frontDesk.access.length ? (
-          <div className="mt-4 border-t border-neutral-100 pt-3">
-            <p className="text-xs font-semibold text-neutral-600">Monthly summary opens</p>
-            <ul className="mt-1 space-y-0.5 text-xs text-neutral-500">
-              {v.frontDesk.access.map((a, i) => (
-                <li key={i}>
-                  {monthLabel(a.month)} summary · {a.recipient === 'owner' ? 'owner' : 'practice manager'} · {when(a.at)}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
-      </Card>
+      ) : null}
+    </>
+  );
+
+  return (
+    <div className="mt-6">
+      <h2 className="text-2xl font-bold tracking-tight text-neutral-950">Your first 180 days</h2>
+      <p className="mt-1 text-sm text-neutral-600">
+        Day {Math.min(v.day, 180)} of 180 · {status.tone === 'done' ? 'all six phases done' : `phase ${status.n} of 6`}
+      </p>
+
+      {v.milestones.map((m, i) => (
+        <PhaseBlock key={m.key} m={m} n={i + 1}>
+          {cards[m.key]}
+        </PhaseBlock>
+      ))}
+
+      {s.goLiveAt ? (
+        <section id="front-desk" className="scroll-mt-6">
+          <p className="mb-2 mt-8 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">Every day · front desk</p>
+          <Card>{frontDesk}</Card>
+        </section>
+      ) : (
+        <details id="front-desk" className="group mt-3 scroll-mt-6 rounded-2xl bg-white shadow-[0_2px_12px_-2px_rgba(16,24,40,0.06)]">
+          <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 sm:px-6 [&::-webkit-details-marker]:hidden">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-neutral-500">
+              <Inbox size={14} />
+            </span>
+            <p className="min-w-0 flex-1 truncate text-sm font-semibold text-neutral-950">
+              Your front-desk routine<span className="font-normal text-neutral-500">, starts at launch</span>
+            </p>
+            <ChevronDown size={14} className="shrink-0 text-neutral-400 transition-transform group-open:rotate-180" />
+          </summary>
+          <div className="border-t border-neutral-100 px-4 pb-4 pt-3 sm:px-6">{frontDesk}</div>
+        </details>
+      )}
     </div>
   );
 }

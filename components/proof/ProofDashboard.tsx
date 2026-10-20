@@ -31,7 +31,7 @@ import { VersionTag } from '@/components/common/VersionTag';
 import { proofVersionInfo } from '@/data/dashboardVersions';
 import type { ProofV2View } from '@/lib/proofV2';
 import { ProgramTab, V2Overview } from '@/components/proof/v2/V2Sections';
-import { Route } from 'lucide-react';
+import { ChevronDown, Route } from 'lucide-react';
 import { ActiveTabIntoView } from '@/components/proof/ActiveTabIntoView';
 import { LeadLog, type LeadMonth } from '@/components/proof/LeadLog';
 import { FormLeads, type FormMonth } from '@/components/proof/FormLeads';
@@ -648,7 +648,8 @@ export function ProofDashboard({
         ) : null}
 
         {tab === 'overview' && !programTab ? (<>
-        {v2 ? <V2Overview v={v2} businessName={name} /> : null}
+        {/* v2: before launch the schedule leads; once live, the numbers lead and the schedule follows them. */}
+        {v2 && !v2.settings.goLiveAt ? <V2Overview v={v2} businessName={name} /> : null}
         {traffic ? <p className="mt-6 text-[11px] font-semibold uppercase tracking-wide text-neutral-400 sm:hidden">{trafficLabel}</p> : null}
         {traffic ? (
           <div className="mt-2 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-x-4 sm:gap-y-8 lg:gap-x-5 xl:grid-cols-4">
@@ -689,6 +690,7 @@ export function ProofDashboard({
           })}
         </div>
 
+        {v2?.settings.goLiveAt ? <V2Overview v={v2} businessName={name} /> : null}
         {ranking ? <RankingCard data={ranking} api={scanApi} /> : null}
 
         <div className="mt-4 sm:mt-9 grid grid-cols-1 gap-4 lg:gap-5 lg:grid-cols-3">
@@ -1097,12 +1099,17 @@ export function ProofDashboard({
         ) : null}
 
         <Card className="mt-4">
-          <div className="flex items-center justify-between border-b border-neutral-100 px-5 py-4 sm:px-6">
+          {/* v2 clients follow the delivery schedule, so this full list is folded for them; v1 is unchanged. */}
+          <details open={!v2} className="group">
+          <summary
+            className={`flex items-center justify-between gap-3 border-neutral-100 px-5 py-4 sm:px-6 [&::-webkit-details-marker]:hidden ${v2 ? 'cursor-pointer list-none group-open:border-b' : 'pointer-events-none list-none border-b'}`}
+          >
             <h2 className="text-base font-semibold text-neutral-950">What Axeon is building</h2>
-            <span className="text-sm text-neutral-500">
+            <span className="flex items-center gap-1 text-sm text-neutral-500">
               {progress.axeonDone} of {progress.axeonTotal} done
+              {v2 ? <ChevronDown size={14} className="transition-transform group-open:rotate-180" /> : null}
             </span>
-          </div>
+          </summary>
           <ul className="divide-y divide-neutral-100">
             {axeonItems.map((item) => {
               const done = states[item.key]?.status === 'done';
@@ -1130,6 +1137,7 @@ export function ProofDashboard({
               );
             })}
           </ul>
+          </details>
         </Card>
 
         <p className="mt-10 text-center text-sm text-neutral-500">

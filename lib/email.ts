@@ -1522,7 +1522,7 @@ export function renderLaunchCertificateEmail(input: { businessName: string | nul
           <p style="margin:4px 0 14px;color:#525252">Live since ${escapeHtml(when)}</p>
           <ul style="margin:0;padding-left:18px">${input.liveItems.map((i) => `<li style="margin:2px 0">${escapeHtml(i)}</li>`).join('')}</ul>
         </div>
-        <p style="margin:0 0 12px">From today every call, text, form and booking is counted in AxeonPROOF. Next on your delivery schedule: the reactivation sprint to your past customers.</p>
+        <p style="margin:0 0 12px">From today every call, text, form and booking is counted in AxeonPROOF. Next on your delivery schedule: win-back texts to your past patients and clients.</p>
         ${button(input.url, 'Open AxeonPROOF')}
       `
     ),
@@ -1560,8 +1560,8 @@ export function renderExecSummaryEmail(input: ExecSummaryEmailInput): { subject:
       `${escapeHtml(input.monthLabel)}, in one minute`,
       `
         <table role="presentation" cellspacing="8" cellpadding="0" style="width:100%;margin:0 0 8px;border-collapse:separate">
-          <tr>${v2Tile('Missed calls rescued', String(input.rescued), `of ${input.missed} missed`)}${v2Tile('Booked from reactivation + web', String(booked), input.pipelineDollars != null ? `${money(input.pipelineDollars)} pipeline (est.)` : '')}</tr>
-          <tr>${v2Tile('New reviews', input.newReviews != null ? `${input.newReviews >= 0 ? '+' : ''}${input.newReviews}` : '—', `${input.reviewRequests} requests sent`)}${v2Tile('Search impressions', input.impressions != null ? input.impressions.toLocaleString('en-US') : '—', input.impressions != null ? 'Google Search' : 'tracked from Phase 5')}</tr>
+          <tr>${v2Tile('Missed calls rescued', String(input.rescued), `of ${input.missed} missed`)}${v2Tile('Booked from win-back texts + web', String(booked), input.pipelineDollars != null ? `${money(input.pipelineDollars)} pipeline (est.)` : '')}</tr>
+          <tr>${v2Tile('New reviews', input.newReviews != null ? `${input.newReviews >= 0 ? '+' : ''}${input.newReviews}` : '—', `${input.reviewRequests} requests sent`)}${v2Tile('Seen in Google search', input.impressions != null ? input.impressions.toLocaleString('en-US') : '—', input.impressions != null ? 'Google Search' : 'tracked from month 3')}</tr>
         </table>
         <p style="margin:0 0 12px">The full summary opens without a password. The link works for 45 days and only shows this summary.</p>
         ${button(input.url, 'Open my summary')}

@@ -11,6 +11,7 @@ import {
   pageGate,
   pipelineTotals,
   programDay,
+  scheduleStatus,
   stagingState,
   textSimilarity,
   validateDbrSteps,
@@ -199,4 +200,26 @@ test('pipeline: entered value beats the average; no value means counts only', ()
     { key: 'c', source: 'web', label: '', at: '', value: null, valueBasis: null },
   ]);
   assert.deepEqual(t, { dbr: 2, web: 1, dbrDollars: 1200, webDollars: null, anyValue: true });
+});
+
+test('schedule status: on track only when nothing is late, and a late step is put down to who it waits on', () => {
+  const day1 = scheduleStatus(deriveMilestones(facts(), at('2026-10-01')));
+  assert.deepEqual([day1.n, day1.title, day1.tone], [1, 'Phone infrastructure', 'on_track']);
+  assert.deepEqual(day1.next, { title: 'Tracked phone number set up', date: '2026-10-01' });
+
+  // Phase 1 done on time, layout shared but not approved past its date: waiting on the client.
+  const autoDone = { line_provisioned: '2026-10-01T10:00:00Z', a2p_filed: '2026-10-02T10:00:00Z', a2p_approved: '2026-10-03T10:00:00Z', text_back_live: '2026-10-03T10:00:00Z' };
+  const line = { number: '+15155550100', smsReady: true, textBackOn: true };
+  const client = scheduleStatus(deriveMilestones(facts({ autoDone, line }), at('2026-10-07')));
+  assert.deepEqual([client.n, client.tone], [2, 'waiting_client']);
+
+  // Carrier approval late, nothing else: waiting on the carriers.
+  const carrier = scheduleStatus(deriveMilestones(facts({ autoDone: { line_provisioned: '2026-10-01T10:00:00Z', a2p_filed: '2026-10-02T10:00:00Z' } }), at('2026-10-03T23:00:00Z'.slice(0, 10))));
+  assert.equal(carrier.tone, 'on_track'); // due today, not late yet
+  const carrierLate = scheduleStatus(deriveMilestones(facts({ autoDone: { line_provisioned: '2026-10-01T10:00:00Z', a2p_filed: '2026-10-02T10:00:00Z', text_back_live: '2026-10-03T10:00:00Z' } }), at('2026-10-04')));
+  assert.equal(carrierLate.tone, 'waiting_carrier');
+
+  // Axeon's own step late (the number itself): behind, never "on track".
+  const behind = scheduleStatus(deriveMilestones(facts(), at('2026-10-03')));
+  assert.equal(behind.tone, 'behind');
 });

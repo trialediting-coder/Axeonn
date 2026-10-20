@@ -206,9 +206,9 @@ function phaseMetric(key: PhaseKey, facts: MilestoneFacts, now: Date): string {
     case 'p2': {
       if (s.goLiveAt) return `Live since ${shortDate(s.goLiveAt)}`;
       const st = stagingState(s.staging, now);
-      if (st.phase === 'in_review') return `Staging review open until ${new Date(st.endsAt!).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`;
-      if (st.phase === 'changes_requested') return 'Your staging changes are being made';
-      if (st.phase === 'approved' || st.phase === 'window_closed') return s.dnsCutoverAt ? 'DNS switched, launching' : 'Staging approved, DNS cutover next';
+      if (st.phase === 'in_review') return `Preview open until ${new Date(st.endsAt!).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`;
+      if (st.phase === 'changes_requested') return 'Your changes to the preview are being made';
+      if (st.phase === 'approved' || st.phase === 'window_closed') return s.dnsCutoverAt ? 'Domain switched, launching' : 'Preview approved, domain switch next';
       const waiting = REVIEW_STAGES.filter((k) => s.reviews?.[k]?.sharedAt && !s.reviews?.[k]?.approvedAt);
       if (waiting.length) return `${waiting.map((k) => (k === 'wireframe' ? 'Layout' : 'Copy')).join(' and ')} ready for your approval${facts.openPins ? ` · ${facts.openPins} open pin${facts.openPins === 1 ? '' : 's'}` : ''}`;
       return REVIEW_STAGES.some((k) => s.reviews?.[k]?.approvedAt) ? 'Design approved, building' : 'Layout draft coming';
@@ -223,7 +223,7 @@ function phaseMetric(key: PhaseKey, facts: MilestoneFacts, now: Date): string {
       const r = facts.reviewEngine;
       const parts: string[] = [];
       if (r.enabled || r.sent) parts.push(`${r.sent} review request${r.sent === 1 ? '' : 's'} sent${r.newReviews != null ? ` · ${r.newReviews >= 0 ? '+' : ''}${r.newReviews} reviews` : ''}`);
-      parts.push(`${facts.nap.synced}/${facts.nap.total} listings synced`);
+      parts.push(`Listed on ${facts.nap.synced} of ${facts.nap.total} directories`);
       return parts.join(' · ');
     }
     case 'p5': {
@@ -274,6 +274,45 @@ export function deriveMilestones(facts: MilestoneFacts, now: Date = new Date()):
   const current = out.find((m) => m.status !== 'completed' && m.from <= today) ?? out.find((m) => m.status !== 'completed');
   if (current) current.current = true;
   return out;
+}
+
+// ───────────────────────────── Schedule status (Overview card) ─────────────────────────────
+
+/** Steps that wait on the client, and the one that waits on the phone carriers. */
+const CLIENT_STEPS: ReadonlySet<string> = new Set(['p2-wireframe', 'p2-copy', 'p2-staging-approved', 'p3-import']);
+const CARRIER_STEPS: ReadonlySet<string> = new Set(['p1-a2p-approved']);
+
+export type ScheduleTone = 'on_track' | 'waiting_client' | 'waiting_carrier' | 'behind' | 'done';
+
+export interface ScheduleStatus {
+  /** 1-6, the phase on now. */
+  n: number;
+  title: string;
+  tone: ScheduleTone;
+  /** The first step not done yet, in schedule order. */
+  next: { title: string; date: string } | null;
+}
+
+/**
+ * One honest line for the top of the Overview. "On track" only when no step is
+ * past its planned date unfinished; a late step is put down to the client, the
+ * carriers or Axeon, whichever it waits on (Axeon's own counts as behind).
+ */
+export function scheduleStatus(milestones: Milestone[]): ScheduleStatus {
+  const i = Math.max(0, milestones.findIndex((m) => m.current));
+  const allDone = milestones.every((m) => m.status === 'completed');
+  const late = milestones.flatMap((m) => m.steps).filter((x) => x.state === 'waiting');
+  const tone: ScheduleTone = allDone
+    ? 'done'
+    : !late.length
+      ? 'on_track'
+      : late.some((x) => !CLIENT_STEPS.has(x.key) && !CARRIER_STEPS.has(x.key))
+        ? 'behind'
+        : late.some((x) => CLIENT_STEPS.has(x.key))
+          ? 'waiting_client'
+          : 'waiting_carrier';
+  const nextStep = milestones.flatMap((m) => m.steps).find((x) => x.state !== 'done') ?? null;
+  return { n: i + 1, title: milestones[i]?.title ?? '', tone, next: nextStep ? { title: nextStep.title, date: nextStep.date } : null };
 }
 
 // ───────────────────────────── Staging review gate ─────────────────────────────
