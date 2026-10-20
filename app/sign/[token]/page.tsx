@@ -38,17 +38,17 @@ export default async function SignPage({ params }: { params: Promise<{ token: st
   const due = dueAtSigning(agreement);
   const dueToday = money(due.cents);
   const breakdown = due.breakdown;
-  const fees = `${dueToday} today (${breakdown})`;
+  const fees = due.cents === 0 ? `add a payment method. Nothing is charged today: ${breakdown}` : `pay ${dueToday} today (${breakdown})`;
   let panel: React.ReactNode;
   if (agreement.status === 'sent') {
     panel = <SignPanel token={agreement.token} signerName={agreement.signerName} signerTitle={agreement.signerTitle} fees={fees} />;
   } else if (agreement.status === 'signed') {
-    panel = <PayPanel token={agreement.token} dueToday={dueToday} breakdown={breakdown} />;
+    panel = <PayPanel token={agreement.token} headline={due.cents === 0 ? 'Add a payment method. $0 today.' : `Pay ${dueToday} today`} breakdown={breakdown} />;
   } else {
     panel = (
       <div className="rounded-[20px] border border-emerald-200 bg-emerald-50 p-6 text-emerald-900">
         <p className="flex items-center gap-2 font-bold">
-          <CheckCircle2 size={18} /> Signed and paid. Welcome to Axeon.
+          <CheckCircle2 size={18} /> Signed. Welcome to Axeon.
         </p>
         <p className="mt-1 text-sm">Your setup page link is in your email. This page stays here as your signed copy.</p>
       </div>

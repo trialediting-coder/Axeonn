@@ -6,6 +6,7 @@ import { TIER_LABELS } from '@/data/onboardingItems';
 import { requireAdmin } from '@/lib/adminAuth';
 import {
   agreementUrl,
+  billsFromGoLive,
   createAgreement,
   getAgreement,
   listAgreements,
@@ -14,6 +15,7 @@ import {
   type Agreement,
 } from '@/lib/agreements';
 import { jsonError, readBody } from '@/lib/billingApi';
+import { startAgreementBilling } from '@/lib/billing';
 import { sendAgreementEmail } from '@/lib/email';
 
 export const runtime = 'nodejs';
@@ -69,6 +71,11 @@ export async function PATCH(req: Request) {
       if (agreement.status !== 'sent') throw new Error('Only an unsigned agreement can be voided.');
       await setAgreementStatus(agreement.token, 'void');
       return NextResponse.json({ ok: true });
+    }
+    if (body.action === 'startBilling') {
+      if (agreement.status !== 'paid') throw new Error('The client has not finished checkout yet.');
+      if (!billsFromGoLive(agreement)) throw new Error('This agreement already billed its first month at signing.');
+      return NextResponse.json({ ok: true, message: await startAgreementBilling(agreement.token) });
     }
     if (body.action === 'resend') {
       if (agreement.status === 'void') throw new Error('This agreement was voided.');

@@ -83,7 +83,7 @@ function agreementSections(t: AgreementTerms): AgreementSection[] {
     {
       heading: '4. Fees and payment',
       paragraphs: [
-        `4.1 Fees. Client will pay the Fees stated above (the “Fees”). Any implementation fee stated as due is payable on signing and is non-refundable${practice ? ' except as stated in Section 5.2' : ''}; it reserves Axeon's production capacity and covers implementation. The first monthly Fee is due at signing and each subsequent monthly Fee is due on the same day of each month thereafter.`,
+        `4.1 Fees. Client will pay the Fees stated above (the “Fees”). Any implementation fee stated as due is payable on signing and is non-refundable${practice ? ' except as stated in Section 5.2' : ''}; it reserves Axeon's production capacity and covers implementation. Unless the Fees above are an annual prepayment, nothing else is due at signing: the first monthly Fee is due on the date the Services go live, and each subsequent monthly Fee is due on the same day of each month thereafter. If go-live is delayed because Client has not met its obligations under Section 3, the first monthly Fee is instead due forty-five (45) days after the Effective Date.`,
         '4.2 Automatic payment. Client authorizes Axeon to charge the payment method on file (through Stripe or a successor processor) for all Fees and approved charges when due, and agrees to keep a valid payment method on file for the term of this Agreement.',
         "4.3 Ad spend. Advertising media costs (Google, Google Local Services, Meta, and any other network) are separate from and in addition to the Fees, are paid by Client directly to the advertising platform using Client's own payment method, and are never refundable by Axeon. Ads management requires a minimum ad spend of $500 per month. Axeon's management fee is not a percentage of or contingent on ad spend unless stated above.",
         "4.4 Late payment. Amounts not paid within five (5) days of the due date accrue a late fee of $35 or 1.5% per month, whichever is greater, to the extent permitted by law. If any amount is more than ten (10) days past due, Axeon may, on written notice, suspend the Services, take the website and any Axeon-hosted systems offline, and pause advertising until the account is current. Suspension does not relieve Client of its payment obligations, and the term is not extended by any suspension. Client is responsible for Axeon's reasonable costs of collection, including attorney's fees.",
@@ -281,8 +281,8 @@ export const TEMPLATE_2026_10_19: AgreementTemplate = {
     }
     const credit = t.setupCreditCents > 0 ? `; the ${money(t.setupCreditCents)} implementation fee is credited in full (Sec. 2.4)` : '';
     return t.setupCents > 0
-      ? `${money(t.setupCents)} implementation fee + ${money(t.monthlyCents)} / month; the first month is billed with the implementation fee, so ${money(t.setupCents + t.monthlyCents)} is due at signing`
-      : `${money(t.monthlyCents)} / month${credit}; the first month is due at signing`;
+      ? `${money(t.setupCents)} implementation fee due at signing + ${money(t.monthlyCents)} / month, billed from the day the Services go live (Sec. 4.1)`
+      : `${money(t.monthlyCents)} / month${credit}; nothing is due at signing, and the first month is billed when the Services go live (Sec. 4.1)`;
   },
   schedule: (t) => (t.scope === 'website' || t.tier === 'website' ? SCHEDULE_WEBSITE : SCHEDULE_A[t.tier]),
   definitions: SCHEDULE_A_DEFINITIONS,

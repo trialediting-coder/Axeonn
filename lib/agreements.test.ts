@@ -2,7 +2,7 @@
 // Run with: npm run test:onboarding   (pure helpers; no database)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { agreementText, agreementValues, hashAgreementText, isAgreementToken, money, newAgreementToken, validateAgreementInput } from './agreements';
+import { agreementText, agreementValues, dueAtSigning, hashAgreementText, isAgreementToken, money, newAgreementToken, validateAgreementInput } from './agreements';
 
 const RAW = {
   clientEmail: 'Office@HintzDental.com',
@@ -69,7 +69,9 @@ test('the signed text fills every placeholder and its hash changes with any fiel
 test('the 12-month practice agreement: credit, release, territory, no health information', () => {
   const a = { ...validateAgreementInput({ ...RAW, specialty: 'general dentistry' }), number: 'AX-2026-001' };
   const text = agreementText(a);
-  assert.ok(text.includes('Fees: $799 / month; the $3,000 implementation fee is credited in full (Sec. 2.4); the first month is due at signing'));
+  assert.ok(text.includes('Fees: $799 / month; the $3,000 implementation fee is credited in full (Sec. 2.4); nothing is due at signing, and the first month is billed when the Services go live (Sec. 4.1)'));
+  assert.ok(text.includes('the first monthly Fee is due on the date the Services go live'));
+  assert.equal(dueAtSigning(a).cents, 0, '$0 to start');
   assert.ok(text.includes('Initial Term: 12 months, then month-to-month'));
   assert.ok(text.includes('initial term of twelve (12) months'));
   assert.ok(text.includes('2.4 Implementation fee credit.'));
@@ -91,7 +93,8 @@ test('month-to-month charges the implementation fee upfront and has no credit', 
   const m = { ...validateAgreementInput({ ...RAW, minimumMonths: 0, setup: '3000' }), number: 'AX-2026-002' };
   assert.equal(m.setupCreditCents, 0);
   const text = agreementText(m);
-  assert.ok(text.includes('Fees: $3,000 implementation fee + $799 / month; the first month is billed with the implementation fee, so $3,799 is due at signing'));
+  assert.ok(text.includes('Fees: $3,000 implementation fee due at signing + $799 / month, billed from the day the Services go live (Sec. 4.1)'));
+  assert.equal(dueAtSigning(m).cents, 300000, 'only the implementation fee today');
   assert.ok(text.includes('Initial Term: Month-to-month, no minimum'));
   assert.ok(!text.includes('2.4 Implementation fee credit.'));
   assert.ok(!text.includes('may not terminate for convenience during the Initial Term'));
@@ -103,6 +106,7 @@ test('annual prepay is ten months for twelve', () => {
   assert.ok(text.includes('Fees: $7,990 for the twelve (12) months Initial Term, paid in full at signing'));
   assert.ok(text.includes('Initial Term: 12 months, prepaid, then month-to-month'));
   assert.ok(text.includes('2.3 Annual prepayment.'));
+  assert.equal(dueAtSigning(y).cents, 799000, 'the prepaid year is charged at signing');
 });
 
 test('Essentials on the new version keeps section numbers and has no Performance Commitment', () => {
@@ -162,6 +166,7 @@ test('2026-10-06: any whole number of months, 0 = none', () => {
 test('2026-10-06: a $0 setup fee reads as monthly only', () => {
   const a = { ...validateAgreementInput({ ...OLD_RAW, setup: '0', monthly: '49' }), version: OLD };
   assert.equal(agreementValues(a).fees, '$49 / month with no setup fee; the first month is due at signing');
+  assert.equal(dueAtSigning(a).cents, 4900, 'older agreements still bill the first month at signing');
 });
 
 test('Hosted Website agreement lists only the site and hosting', () => {

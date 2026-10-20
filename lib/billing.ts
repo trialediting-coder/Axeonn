@@ -511,8 +511,13 @@ export interface AgreementCheckoutInput {
   monthlyCents: number;
   /** Annual prepay: the Initial Term charged once now; the monthly plan starts after it. 0 = monthly billing. */
   prepaidCents?: number;
+  /** Monthly billing starts at go-live: the plan trials until the admin starts billing (45 days at most). */
+  billFromGoLive?: boolean;
   cancelUrl: string;
 }
+
+/** The longest a go-live-billed plan waits before its first charge (Agreement Sec. 4.1). */
+export const GO_LIVE_TRIAL_DAYS = 45;
 
 const AGREEMENT_TIER_KEYS = { website: 'hosted-website', essentials: 'core-web-build', axeoncore: 'axeoncore', axeongrowth: 'axeongrowth' } as const;
 
@@ -583,12 +588,35 @@ export async function createAgreementCheckout(input: AgreementCheckoutInput): Pr
     subscription_data: {
       description: `${input.planLabel} (Agreement ${input.number})`,
       metadata,
-      ...(prepaid ? { trial_end: Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60 } : {}),
+      ...(prepaid
+        ? { trial_end: Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60 }
+        : input.billFromGoLive
+          ? { trial_period_days: GO_LIVE_TRIAL_DAYS }
+          : {}),
     },
     metadata,
   });
   if (!session.url) throw new Error('Stripe did not return a Checkout URL');
-  return { url: session.url, sessionId: session.id, amountCents: input.setupCents + (prepaid ? input.prepaidCents! : input.monthlyCents) };
+  return {
+    url: session.url,
+    sessionId: session.id,
+    amountCents: input.setupCents + (prepaid ? input.prepaidCents! : input.billFromGoLive ? 0 : input.monthlyCents),
+  };
+}
+
+/**
+ * Go-live day for a go-live-billed agreement: ends the plan's trial so the first
+ * monthly Fee is charged now (Agreement Sec. 4.1). Returns what happened, in
+ * words the admin can show.
+ */
+export async function startAgreementBilling(token: string): Promise<string> {
+  const stripe = getStripe();
+  const found = await stripe.subscriptions.search({ query: `metadata['agreement']:'${token.replace(/[^A-Z0-9]/gi, '')}'`, limit: 5 });
+  const sub = found.data.find((s) => s.status === 'trialing') ?? found.data[0];
+  if (!sub) throw new Error('No subscription found for this agreement. Has the client finished checkout?');
+  if (sub.status !== 'trialing') return `Billing is already running (subscription ${sub.status}).`;
+  await stripe.subscriptions.update(sub.id, { trial_end: 'now', proration_behavior: 'none' });
+  return 'Billing started: the first month is being charged now.';
 }
 
 // ---------------------------------------------------------------------------

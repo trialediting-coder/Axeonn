@@ -87,14 +87,29 @@ export const agreementSchedule = (a: AgreementFields & Versioned) => templateOf(
 export const agreementPlanLabel = (a: Pick<AgreementFields, 'tier' | 'scope'>) => (a.scope === 'website' ? 'Hosted Website' : TIER_LABELS[a.tier]);
 
 /**
- * What the client pays at signing. Monthly: the implementation fee (if any) plus
- * the first month, on one invoice. Annual: the prepaid Initial Term, after which
- * the subscription continues month-to-month (lib/billing.ts createAgreementCheckout).
+ * What the client pays at signing. 2026-10-19 agreements: only the implementation
+ * fee (if any); monthly Fees start when the Services go live ("$0 to start,
+ * nothing due until it's working"). Annual: the prepaid Initial Term. Older
+ * agreements: the implementation fee plus the first month, on one invoice.
+ * See lib/billing.ts createAgreementCheckout.
  */
-export function dueAtSigning(a: AgreementFields): { cents: number; breakdown: string } {
+/** 2026-10-19+ monthly agreements bill from go-live; older ones and annual prepay bill at signing. */
+export const billsFromGoLive = (a: AgreementFields & Versioned) =>
+  a.billing !== 'annual' && (a.version ?? AGREEMENT_VERSION) !== '2026-10-06';
+
+export function dueAtSigning(a: AgreementFields & Versioned): { cents: number; breakdown: string } {
   if (a.billing === 'annual') {
     const cents = annualCents(a.monthlyCents);
     return { cents, breakdown: `12 months prepaid, then ${money(a.monthlyCents)}/month` };
+  }
+  if (billsFromGoLive(a)) {
+    return {
+      cents: a.setupCents,
+      breakdown:
+        a.setupCents > 0
+          ? `${money(a.setupCents)} implementation fee today; ${money(a.monthlyCents)}/month starts when you're live`
+          : `your first month (${money(a.monthlyCents)}) is billed when you're live${a.setupCreditCents ? `, and the ${money(a.setupCreditCents)} build is credited` : ''}`,
+    };
   }
   const credit = a.setupCreditCents ? `, ${money(a.setupCreditCents)} implementation fee credited` : '';
   return {

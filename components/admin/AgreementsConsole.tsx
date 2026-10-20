@@ -16,6 +16,7 @@ export interface AgreementRow {
   noMinimum?: boolean;
   minimumMonths?: number;
   billing?: 'monthly' | 'annual';
+  version?: string;
   signedName: string | null;
   signedAt: string | null;
   paidAt: string | null;
@@ -46,7 +47,7 @@ const today = () => new Date().toISOString().slice(0, 10);
  */
 type Deal = 'term' | 'monthToMonth' | 'annual';
 const DEALS: Array<{ value: Deal; label: string }> = [
-  { value: 'term', label: 'A · 12 months, implementation credited (recommended)' },
+  { value: 'term', label: 'A · 12 months, $0 to start (recommended)' },
   { value: 'monthToMonth', label: 'B · Month-to-month, implementation paid upfront' },
   { value: 'annual', label: 'C · 12 months prepaid (pay 10)' },
 ];
@@ -124,14 +125,15 @@ export function AgreementsConsole({ initialRows, options, dbError }: { initialRo
     await refresh();
   }
 
-  async function act(token: string, action: 'void' | 'resend') {
+  async function act(token: string, action: 'void' | 'resend' | 'startBilling') {
     const res = await fetch('/api/admin/agreements', {
       method: 'PATCH',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ token, action }),
     });
-    const data = (await res.json().catch(() => ({}))) as { error?: string };
-    setNotice(res.ok ? { ok: true, text: action === 'void' ? 'Agreement voided.' : 'Email sent again.' } : { ok: false, text: data.error ?? 'Failed' });
+    const data = (await res.json().catch(() => ({}))) as { error?: string; message?: string };
+    const done = { void: 'Agreement voided.', resend: 'Email sent again.', startBilling: data.message ?? 'Billing started.' }[action];
+    setNotice(res.ok ? { ok: true, text: done } : { ok: false, text: data.error ?? 'Failed' });
     await refresh();
   }
 
@@ -187,8 +189,8 @@ export function AgreementsConsole({ initialRows, options, dbError }: { initialRo
               ))}
             </select>
             <span className="mt-1 block text-xs text-neutral-500">
-              {deal === 'term' && `${dollars(plan.monthly)} due today; the ${dollars(plan.setupCredit)} implementation fee is credited for the 12 months (Sec. 2.4).`}
-              {deal === 'monthToMonth' && `${dollars(plan.setupCredit + plan.monthly)} due today; cancel any month with 30 days' notice.`}
+              {deal === 'term' && `$0 today. ${dollars(plan.monthly)}/mo starts at go-live; the ${dollars(plan.setupCredit)} build is credited for the 12 months (Sec. 2.4).`}
+              {deal === 'monthToMonth' && `${dollars(plan.setupCredit)} today, then ${dollars(plan.monthly)}/mo from go-live; cancel any month with 30 days' notice.`}
               {deal === 'annual' && `${dollars(plan.monthly * 10)} due today for 12 months, then ${dollars(plan.monthly)}/mo.`}
             </span>
           </label>
@@ -305,6 +307,16 @@ export function AgreementsConsole({ initialRows, options, dbError }: { initialRo
                   {r.status !== 'void' && r.status !== 'paid' && (
                     <button type="button" className={btn('secondary', 'sm')} onClick={() => act(r.token, 'resend')}>
                       Resend
+                    </button>
+                  )}
+                  {r.status === 'paid' && r.billing !== 'annual' && r.version && r.version !== '2026-10-06' && (
+                    <button
+                      type="button"
+                      className={btn('secondary', 'sm')}
+                      title="Go-live day: charge the first month now (Sec. 4.1). Stripe charges it on day 45 if you never press this."
+                      onClick={() => act(r.token, 'startBilling')}
+                    >
+                      Live: start billing
                     </button>
                   )}
                   {r.status === 'sent' && (

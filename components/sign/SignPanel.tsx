@@ -49,7 +49,7 @@ export function SignPanel(props: { token: string; signerName: string; signerTitl
   return (
     <form onSubmit={sign} className="rounded-[20px] border border-neutral-200 bg-white p-6 sm:p-8 shadow-xs">
       <h2 className="text-xl font-extrabold tracking-tight font-display text-neutral-950">Sign and get started</h2>
-      <p className="mt-1 text-sm text-neutral-600">Type your full name to sign. Next you pay {props.fees} by card or bank, and we start.</p>
+      <p className="mt-1 text-sm text-neutral-600">Type your full name to sign. Next you {props.fees}, and we start.</p>
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <label className="block">
           <span className="block text-sm font-semibold text-neutral-700 mb-1.5">Full name</span>
@@ -88,7 +88,7 @@ export function SignPanel(props: { token: string; signerName: string; signerTitl
 }
 
 /** Shown on a signed agreement that has not been paid yet. */
-export function PayPanel({ token, dueToday, breakdown }: { token: string; dueToday: string; breakdown: string }) {
+export function PayPanel({ token, headline, breakdown }: { token: string; headline: string; breakdown: string }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   return (
@@ -96,9 +96,9 @@ export function PayPanel({ token, dueToday, breakdown }: { token: string; dueTod
       <p className="flex items-center gap-2 text-sm font-semibold text-emerald-700">
         <CheckCircle2 size={16} /> Signed. One step left.
       </p>
-      <h2 className="mt-2 text-xl font-extrabold tracking-tight font-display text-neutral-950">Pay {dueToday} today</h2>
+      <h2 className="mt-2 text-xl font-extrabold tracking-tight font-display text-neutral-950">{headline}</h2>
       <p className="mt-1 text-sm text-neutral-700">{breakdown}.</p>
-      <p className="mt-1 text-sm text-neutral-600">Secure checkout by Stripe. Your setup page arrives by email as soon as it goes through.</p>
+      <p className="mt-1 text-sm text-neutral-600">Secure checkout by Stripe, card or bank. Your setup page arrives by email as soon as it goes through.</p>
       {error && <p className="mt-4 text-sm font-semibold text-red-600">{error}</p>}
       <button
         type="button"
@@ -113,7 +113,7 @@ export function PayPanel({ token, dueToday, breakdown }: { token: string; dueTod
         }}
         className="mt-5 px-7 py-3.5 rounded-full bg-blue-600 hover:bg-blue-500 disabled:bg-neutral-300 text-white font-bold text-base transition-colors"
       >
-        {busy ? 'Opening checkout…' : 'Continue to payment'}
+        {busy ? 'Opening checkout…' : 'Continue to checkout'}
       </button>
     </div>
   );
