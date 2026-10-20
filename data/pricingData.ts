@@ -96,7 +96,7 @@ export const pricingTiers: PricingTier[] = [
     setupWas: '$3,000',
     startNote: "First payment once you're live. Month-to-month: $3,000 upfront, then monthly from go-live. Prepay a year and get 2 months free.",
     turnaround: 'Live within 30 days of getting your materials',
-    badge: 'Most practices and firms start here',
+    badge: 'Most Partners Start Here',
     bestFor:
       'For calls and inquiries that hit voicemail or wait until morning.',
     features: [
