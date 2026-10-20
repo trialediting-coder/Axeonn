@@ -70,7 +70,7 @@ function PillarPanel({ pillar }: { pillar: Pillar }) {
       href={pillar.href}
       aria-label={`${pillar.name}: ${pillar.promise} ${pillar.cta}`}
       style={{ '--pillar': pillar.color } as React.CSSProperties}
-      className="group relative block overflow-hidden bg-[#05070a] min-h-0 sm:min-h-[520px] lg:min-h-[640px] xl:min-h-[700px] outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-inset"
+      className="group relative block max-sm:flex max-sm:flex-col max-sm:justify-end overflow-hidden bg-[#05070a] min-h-[200px] sm:min-h-[520px] lg:min-h-[640px] xl:min-h-[700px] outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-inset"
     >
       {/* Photo: grey and dim at rest, full color on hover / focus / touch */}
       <Image
@@ -101,13 +101,13 @@ function PillarPanel({ pillar }: { pillar: Pillar }) {
 
       {/* Text block */}
       {/* Phones: a compact row (step + promise on one line, the short copy under it). */}
-      <div className="relative sm:hidden px-5 py-4">
-        <h3 className="flex items-baseline gap-2 text-white leading-none">
-          <span className="text-2xl font-extrabold tracking-tight">{pillar.name}</span>
-          <span className="text-lg font-semibold text-white/85">{pillar.promise}</span>
-          <ArrowUpRight size={18} className="ml-auto self-center shrink-0 text-[var(--pillar)]" />
+      <div className="relative sm:hidden px-5 py-6">
+        <h3 className="flex items-baseline gap-2.5 text-white leading-none">
+          <span className="text-[32px] font-extrabold tracking-tight">{pillar.name}</span>
+          <span className="text-xl font-semibold text-white/85">{pillar.promise}</span>
+          <ArrowUpRight size={22} className="ml-auto self-center shrink-0 text-[var(--pillar)]" />
         </h3>
-        <p className="mt-2 text-[15px] text-neutral-100 leading-snug">{pillar.short}</p>
+        <p className="mt-2.5 text-base text-neutral-100 leading-snug">{pillar.short}</p>
       </div>
 
       <div className="hidden sm:flex absolute inset-x-0 bottom-0 p-7 sm:p-9 lg:p-11 flex-col">
