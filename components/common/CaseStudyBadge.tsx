@@ -26,7 +26,7 @@ const SCROLL_DEPTH = 0.3;
 const FALLBACK_DELAY_MS = 20_000;
 
 // Pages where a promo card would be noise or would sit on top of a flow.
-const HIDDEN_PREFIXES = [STORY_PATH, '/admin', '/book', '/audit', '/go', '/pay', '/billing'];
+const HIDDEN_PREFIXES = [STORY_PATH, '/admin', '/book', '/check-your-area', '/go', '/pay', '/billing'];
 
 function readStorage(key: string): string | null {
   try {

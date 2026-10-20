@@ -66,9 +66,9 @@ export function FunnelBooking({ slug, industryName }: FunnelBookingProps) {
         <form onSubmit={submit} noValidate>
           <p className="text-xs font-bold tracking-[0.18em] uppercase text-blue-600">Step 1 of 2</p>
           <h2 className="mt-2 text-2xl sm:text-3xl font-extrabold font-display tracking-tight leading-tight">
-            Book your free call
+            Check if your area is open
           </h2>
-          <p className="mt-2 text-neutral-600">Plans from $799/mo. Takes 20 seconds, then pick a time for your call.</p>
+          <p className="mt-2 text-neutral-600">$0 to start. Takes 20 seconds, then pick a time to go over your area.</p>
           <div className="mt-6 flex flex-col gap-3">
             <label className="sr-only" htmlFor="fb-name">Your name</label>
             <input id="fb-name" className={input} placeholder="Your name" autoComplete="name" value={form.contactName} onChange={set('contactName')} />

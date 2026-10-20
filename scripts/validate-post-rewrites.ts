@@ -9,7 +9,7 @@ import { loadRewrites } from './lib/insightRewrites.mjs';
 
 const VALID_NICHES = new Set(['dental', 'med-spa', 'law-firms', 'accounting']);
 const INTERNAL_LINKS = new Set([
-  '/audit', '/book', '/pricing', '/axeonproof', '/work', '/partners',
+  '/check-your-area', '/book', '/pricing', '/axeonproof', '/work', '/partners',
   '/solutions/dental', '/solutions/med-spa', '/solutions/law-firms', '/solutions/accounting',
   '/marketing-solutions/website', '/marketing-solutions/seo', '/marketing-solutions/lead-generation',
   '/marketing-solutions/ai-chat-scheduling', '/marketing-solutions/advertising', '/marketing-solutions/video-photography',

@@ -40,7 +40,7 @@ const SOLUTION_LINKS: FooterLink[] = [
   { label: 'How It Works', href: '/marketing-solutions' },
   ...marketingSolutions.map((layer) => ({ label: layer.title, href: layer.href })),
   { label: 'AxeonPROOF Client Portal', href: '/axeonproof' },
-  { label: 'Free After-Hours Audit', href: '/audit' },
+  { label: 'Check Your Area', href: '/check-your-area' },
 ];
 
 const SOCIAL_LINKS: FooterLink[] = [
@@ -96,19 +96,19 @@ export function Footer({ year }: FooterProps) {
         {/* CTA (hidden where the page has its own closer) */}
         <div className={`rounded-[28px] bg-neutral-950 text-white p-7 sm:p-10 ${pageHasCloser ? 'hidden' : 'flex'} flex-col lg:flex-row lg:items-center justify-between gap-6`}>
           <div>
-            <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">What happens when someone calls after hours?</h3>
+            <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Is your specialty still open in your area?</h3>
             <p className="mt-2 text-neutral-300 text-base sm:text-lg max-w-2xl">
-              We call your practice or firm after hours, check how fast your website answers an inquiry, and compare your reviews to the top 3 nearby competitors. You get a short video walkthrough. No charge.
+              One practice or firm per specialty within 5 miles. $0 to start. Nothing due until it&apos;s working.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 shrink-0">
             <Link
-              href="/audit"
+              href="/check-your-area"
               data-track="cta_click"
-              data-track-cta="audit_footer"
+              data-track-cta="area_check_footer"
               className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-colors"
             >
-              Get your free after-hours audit
+              Check if your area is open
             </Link>
             <Link
               href="/book"

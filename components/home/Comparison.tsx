@@ -20,7 +20,7 @@ const ROWS: ComparisonRow[] = [
   {
     dimension: 'Pricing',
     typical: 'A large build fee up front, plus separate software, phone and marketing bills every month.',
-    axeon: 'AxeonCORE from $799/mo on a 12-month agreement, with the $3,000 setup included. Month-to-month available.',
+    axeon: 'AxeonCORE from $799/mo on a 12-month agreement. $0 to start: the $3,000 build is waived and nothing is due until it is working.',
   },
   {
     dimension: 'After hours',
@@ -100,10 +100,10 @@ export function Comparison() {
 
         <div className="mt-10 flex flex-col sm:flex-row items-center gap-4">
           <Link
-            href="/audit"
+            href="/check-your-area"
             className="w-full sm:w-auto text-center px-8 py-3.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors"
           >
-            Get your free after-hours audit
+            Check if your area is open
           </Link>
           <Link
             href="/why-axeon"

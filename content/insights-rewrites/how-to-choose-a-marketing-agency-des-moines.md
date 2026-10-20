@@ -103,7 +103,7 @@ Since we asked you to use this list on everyone, here are our answers.
 
 **Ownership.** Your domain, Google Business Profile and patient or client contact data are always yours. The website design and code become yours once the 12-month term is paid. The intake system, phone and text numbers and AxeonPROOF are a service and stop if you leave.
 
-**Proof.** Our earlier builds were for local service businesses, so for practices and firms we don't lead with a logo wall. We show you AxeonPROOF and run the free after-hours audit on your own office, so you see the gap on your numbers instead of someone else's.
+**Proof.** Our earlier builds were for local service businesses, so for practices and firms we don't lead with a logo wall. We show you AxeonPROOF and, once you check your area, test your own office, so you see the gap on your numbers instead of someone else's.
 
 **In writing.** The 90-day performance commitment: live within 30 days of getting your materials. Every missed call and web inquiry gets a reply within 60 seconds. Every completed appointment gets a review request. If we miss any of those in the first 90 days and don't fix it within 15 days, you can walk away and owe nothing for the rest of the term. We don't promise a number of patients or clients, revenue or rankings.
 
@@ -113,4 +113,4 @@ Since we asked you to use this list on everyone, here are our answers.
 
 The right marketing agency for a Des Moines practice or firm is the one that can show you, in plain numbers, what happens to every call and inquiry, and that owns the whole path from the first search to the booked consultation. Ask all nine questions. Compare the answers side by side. Pick the one that's easiest to hold accountable.
 
-If you'd like to see where your practice or firm stands first, [get your free after-hours audit](/audit). We call your practice after hours, check how fast your website answers an inquiry, and compare your reviews to the top 3 nearby practices. You get a short video walkthrough of what we found, at no charge. Or [book a call](/book) and ask us the nine questions directly. Practice-specific detail is on our pages for [dental practices](/solutions/dental), [med spas](/solutions/med-spa), [law firms](/solutions/law-firms) and [accounting firms](/solutions/accounting).
+If you'd like to see where your practice or firm stands first, [check if your area is open](/check-your-area). One practice or firm per specialty within 5 miles. We confirm your area within one business day, then show you what we found on a short call: an after-hours test call, how fast your website answers an inquiry, and your reviews next to the top 3 nearby. $0 to start. Nothing due until it's working. Or [book a call](/book) and ask us the nine questions directly. Practice-specific detail is on our pages for [dental practices](/solutions/dental), [med spas](/solutions/med-spa), [law firms](/solutions/law-firms) and [accounting firms](/solutions/accounting).

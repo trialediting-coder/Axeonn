@@ -280,21 +280,21 @@ export function Header() {
                     {/* Right: the primary next step */}
                     <div className="w-full lg:w-[250px] shrink-0 flex flex-col pt-5 lg:pt-0 border-t lg:border-t-0 lg:border-l border-neutral-100 lg:pl-6">
                       <Link
-                        href="/audit"
+                        href="/check-your-area"
                         onClick={() => setSolutionsOpen(false)}
                         data-track="cta_click"
-                        data-track-cta="audit_nav_menu"
+                        data-track-cta="area_check_nav_menu"
                         className="group flex-1 flex flex-col justify-between rounded-2xl bg-neutral-950 p-5 text-left text-white transition-colors hover:bg-neutral-900"
                       >
                         <div>
-                          <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-400">Free audit</span>
-                          <p className="mt-2 text-[15px] font-bold leading-snug">What happens when someone calls your practice after hours?</p>
+                          <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-400">$0 to start</span>
+                          <p className="mt-2 text-[15px] font-bold leading-snug">Is your specialty still open in your area?</p>
                           <p className="mt-2 text-[12px] leading-relaxed text-neutral-400">
-                            We call, time your website&apos;s reply, and compare your reviews to the top 3 nearby. You get a short video walkthrough.
+                            One practice or firm per specialty within 5 miles. Nothing due until it&apos;s working.
                           </p>
                         </div>
                         <span className="mt-5 inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-blue-400 group-hover:text-blue-300">
-                          Get your free audit <ArrowRight size={14} />
+                          Check your area <ArrowRight size={14} />
                         </span>
                       </Link>
                     </div>
@@ -427,23 +427,23 @@ export function Header() {
             Book a call
           </Link>
           <Link
-            href="/audit"
+            href="/check-your-area"
             data-track="cta_click"
-            data-track-cta="audit_nav"
+            data-track-cta="area_check_nav"
             className="px-7 py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold whitespace-nowrap shadow-sm hover:shadow-md transition-all"
           >
-            Free audit
+            Check your area
           </Link>
         </div>
 
         <div className="flex xl:hidden items-center gap-2.5">
           <Link
-            href="/audit"
+            href="/check-your-area"
             data-track="cta_click"
-            data-track-cta="audit_nav"
+            data-track-cta="area_check_nav"
             className="inline-flex items-center justify-center px-6 py-3.5 rounded-full bg-blue-600 text-white text-[15px] md:text-sm font-semibold"
           >
-            Free audit
+            Check your area
           </Link>
           <button
             onClick={() => setMobileMenuOpen((v) => !v)}
@@ -496,12 +496,12 @@ export function Header() {
                     </div>
                   ))}
                   <Link
-                    href="/audit"
+                    href="/check-your-area"
                     onClick={() => setMobileMenuOpen(false)}
                     className="p-3.5 rounded-xl bg-neutral-950 block text-left"
                   >
-                    <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400">Free audit</div>
-                    <div className="text-sm font-semibold text-white mt-0.5">What happens when someone calls after hours? →</div>
+                    <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-400">$0 to start</div>
+                    <div className="text-sm font-semibold text-white mt-0.5">Check if your area is open →</div>
                   </Link>
                 </div>
               </MobileGroup>

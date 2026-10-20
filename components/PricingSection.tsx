@@ -8,10 +8,7 @@ import {
   ChevronDown,
   ChevronUp,
   Clapperboard,
-  PhoneOff,
-  Timer,
-  Star,
-  Video,
+  MapPin,
   ArrowRight,
   Gauge,
   Megaphone,
@@ -26,6 +23,11 @@ import {
   FEATURED_BULLETS,
   TERM_LINE,
   TERRITORY_LINE,
+  OFFER_LINE,
+  OFFER_POINTS,
+  EXCLUSIVITY_LINE,
+  AREA_CHECK_HREF,
+  AREA_CHECK_CTA_LONG,
   type HighlightIcon,
   type PricingTier,
 } from '@/data/pricingData';
@@ -91,7 +93,8 @@ export function PricingSection({
           <p className="text-lg sm:text-2xl text-neutral-600 leading-relaxed max-w-3xl mx-auto">
             AxeonCORE from $799/mo. AxeonGROWTH from $1,999/mo. One growth partner either way.
           </p>
-          <p className="mt-4 text-sm sm:text-base font-semibold text-neutral-700">{TERM_LINE}</p>
+          <p className="mt-5 text-xl sm:text-2xl font-extrabold font-display tracking-tight text-blue-600">{OFFER_LINE}</p>
+          <p className="mt-2 text-sm sm:text-base font-semibold text-neutral-700">{TERM_LINE}</p>
         </div>
 
         {/* The guarantee: its own full-width blue band, at display size. */}
@@ -116,7 +119,7 @@ export function PricingSection({
           ))}
         </div>
 
-        <FreeAuditStrip />
+        <OfferStrip />
 
         {afterPlans}
 
@@ -329,9 +332,9 @@ function PlanCard({ tier }: { tier: PricingTier }) {
       <div className="flex-1 min-h-8" />
 
       <Link
-        href={`/audit?plan=${tier.id}`}
+        href={`${AREA_CHECK_HREF}?plan=${tier.id}`}
         data-track="cta_click"
-        data-track-cta={`pricing_audit_${tier.id}`}
+        data-track-cta={`pricing_area_check_${tier.id}`}
         className={`text-center py-4 rounded-full font-bold text-base sm:text-lg transition-colors shadow-sm ${CTA_STYLES[variant]}`}
       >
         {tier.cta}
@@ -347,7 +350,7 @@ function PlanCard({ tier }: { tier: PricingTier }) {
         Book a call
       </Link>
       <p className={`mt-3 text-center text-xs sm:text-sm ${muted}`}>
-        No checkout here. We start with the audit or a call.{' '}
+        No checkout here. We start by checking your area, or with a call.{' '}
         <a href="tel:+15154938017" className="inline-block py-2 font-semibold underline underline-offset-2">
           Or call (515) 493-8017
         </a>
@@ -357,46 +360,36 @@ function PlanCard({ tier }: { tier: PricingTier }) {
 }
 
 /**
- * Not a third plan: a slim strip under the plans explaining the free
- * after-hours audit, which is where every engagement starts.
+ * Not a third plan: a slim strip under the plans with the front-door offer
+ * ("$0 to start. Nothing due until it's working.") and the area check, which
+ * is where every partnership starts. Exclusivity is a policy, never a countdown.
  */
-function FreeAuditStrip() {
+function OfferStrip() {
   return (
     <div className="mt-8 max-w-[1240px] mx-auto rounded-3xl border border-neutral-200 bg-[#F7F6F3] px-6 py-6 sm:px-8 sm:py-7 flex flex-col lg:flex-row lg:items-center gap-5 lg:gap-10">
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">
-          [ START HERE: FREE AFTER-HOURS AUDIT ]
-        </p>
-        <p className="mt-2 text-lg sm:text-xl font-bold font-display text-neutral-950 leading-snug">
-          We call your practice or firm after hours, check how fast your website answers an inquiry, and compare your
-          reviews to the top 3 nearby competitors.
-        </p>
-        <ul className="mt-3 flex flex-col sm:flex-row sm:flex-wrap gap-x-6 gap-y-2 text-sm sm:text-base text-neutral-600">
-          <li className="flex items-center gap-2">
-            <PhoneOff size={16} className="shrink-0 text-blue-600" />
-            After-hours call test
-          </li>
-          <li className="flex items-center gap-2">
-            <Timer size={16} className="shrink-0 text-blue-600" />
-            Inquiry response time
-          </li>
-          <li className="flex items-center gap-2">
-            <Star size={16} className="shrink-0 text-blue-600" />
-            Reviews vs. the top 3 nearby
-          </li>
-          <li className="flex items-center gap-2">
-            <Video size={16} className="shrink-0 text-blue-600" />
-            A short video walkthrough. No charge.
-          </li>
+        <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ HOW IT STARTS ]</p>
+        <p className="mt-2 text-lg sm:text-xl font-bold font-display text-neutral-950 leading-snug">{OFFER_LINE}</p>
+        <ul className="mt-3 flex flex-col gap-y-2 text-sm sm:text-base text-neutral-600">
+          {OFFER_POINTS.map((point) => (
+            <li key={point} className="flex items-start gap-2">
+              <Check size={16} className="mt-1 shrink-0 text-blue-600" strokeWidth={3} />
+              {point}
+            </li>
+          ))}
         </ul>
+        <p className="mt-3 flex items-start gap-2 text-sm sm:text-base text-neutral-600">
+          <MapPin size={16} className="mt-1 shrink-0 text-blue-600" />
+          {EXCLUSIVITY_LINE}
+        </p>
       </div>
       <Link
-        href="/audit"
+        href={AREA_CHECK_HREF}
         data-track="cta_click"
-        data-track-cta="free_audit_strip"
+        data-track-cta="area_check_strip"
         className="shrink-0 inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-base transition-colors"
       >
-        Get your free after-hours audit <ArrowRight size={16} />
+        {AREA_CHECK_CTA_LONG} <ArrowRight size={16} />
       </Link>
     </div>
   );

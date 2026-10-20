@@ -62,12 +62,12 @@ export function CityLanding({ page }: { page: CityPage }) {
           <p className="text-lg sm:text-xl text-neutral-300 leading-relaxed max-w-3xl mb-10">{page.intro}</p>
           <div className="flex flex-wrap items-center gap-4">
             <Link
-              href="/audit"
+              href="/check-your-area"
               data-track="cta_click"
-              data-track-cta="audit_city"
+              data-track-cta="area_check_city"
               className="inline-flex items-center gap-2 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
             >
-              Get your free after-hours audit <ArrowRight size={18} />
+              Check if your area is open <ArrowRight size={18} />
             </Link>
             <a
               href={TEL_HREF}
@@ -93,11 +93,11 @@ export function CityLanding({ page }: { page: CityPage }) {
               </p>
             ))}
 
-            {/* Proof we can honestly offer: the free audit, run on their own practice. */}
+            {/* Proof we can honestly offer: what we find on their own practice, shown after an area check. */}
             <Link
-              href="/audit"
+              href="/check-your-area"
               data-track="cta_click"
-              data-track-cta="audit_city_card"
+              data-track-cta="area_check_city_card"
               className="group mt-10 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 rounded-3xl bg-neutral-950 text-white p-6 sm:p-8"
             >
               <span className="text-5xl sm:text-6xl font-black font-display tracking-tighter text-blue-500 leading-none whitespace-nowrap">
@@ -105,11 +105,11 @@ export function CityLanding({ page }: { page: CityPage }) {
               </span>
               <span className="block">
                 <span className="block text-lg sm:text-xl font-bold leading-snug">
-                  How fast does your practice or firm answer after hours? We call, time your website&apos;s reply and compare your
-                  reviews to the top 3 nearby. Free.
+                  How fast does your practice or firm answer after hours? Check your area and we&apos;ll show you: a test call,
+                  your website&apos;s reply time, and your reviews next to the top 3 nearby.
                 </span>
                 <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-300 group-hover:text-white">
-                  Get your free after-hours audit <ArrowRight size={14} />
+                  Check if your area is open <ArrowRight size={14} />
                 </span>
               </span>
             </Link>
@@ -276,19 +276,19 @@ export function CityLanding({ page }: { page: CityPage }) {
             [ 90-DAY PERFORMANCE COMMITMENT ]
           </p>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-tight mb-6">
-            Find out what happens after hours
+            $0 to start. Nothing due until it&apos;s working.
           </h2>
           <p className="text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-10">
             Live within 30 days of getting your materials. Every missed call and web inquiry gets a reply within 60 seconds. Every completed appointment gets a review request. If we miss any of those in the first 90 days and don&apos;t fix it within 15 days, you can walk away and owe nothing for the rest of the term.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
-              href="/audit"
+              href="/check-your-area"
               data-track="cta_click"
-              data-track-cta="audit_city"
+              data-track-cta="area_check_city"
               className="inline-flex items-center gap-2 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
             >
-              Get your free after-hours audit <ArrowRight size={18} />
+              Check if your area is open <ArrowRight size={18} />
             </Link>
             <a
               href={TEL_HREF}

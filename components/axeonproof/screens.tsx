@@ -624,7 +624,7 @@ export function BillingScreen() {
   const invoices = [
     ['Oct 1, 2026', 'AxeonCORE · October', '$799.00', 'Paid'],
     ['Sep 1, 2026', 'AxeonCORE · September', '$799.00', 'Paid'],
-    ['Aug 28, 2026', 'AxeonCORE · first month ($3,000 setup credited)', '$799.00', 'Paid'],
+    ['Aug 28, 2026', 'AxeonCORE · first month, at go-live ($3,000 build waived)', '$799.00', 'Paid'],
   ];
   return (
     <>

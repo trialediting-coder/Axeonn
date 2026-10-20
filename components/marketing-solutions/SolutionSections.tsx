@@ -226,7 +226,7 @@ function HowItsBoughtSection({ buying, showCommitment }: { buying: ServicePage['
           </h2>
           <p className="mt-5 text-base sm:text-lg leading-relaxed text-neutral-400">
             {buying.intro ??
-              'No self-serve checkout. Every plan starts with the free audit or a call, then a 12-month agreement with setup credited in full. Month-to-month is available.'}
+              "$0 to start. Nothing due until it's working: the build is waived on the 12-month agreement, and your first payment is charged once you're live. No self-serve checkout; every partnership starts with an area check or a call. Month-to-month is available."}
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">

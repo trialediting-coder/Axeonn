@@ -109,15 +109,15 @@ export function Hero() {
             style={{ animationDelay: '0.25s' }}
             className="hero-rise mt-12 sm:mt-8 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4"
           >
-            {/* Primary: the free after-hours audit */}
+            {/* Primary: the area check */}
             <Link
-              href="/audit"
+              href="/check-your-area"
               id="hero-primary-cta"
               data-track="cta_click"
-              data-track-cta="audit_hero"
+              data-track-cta="area_check_hero"
               className="group inline-flex items-center justify-center gap-3 px-8 py-4 sm:py-[18px] rounded-full bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg font-bold transition-all duration-200 cursor-pointer shadow-lg shadow-blue-600/25 hover:scale-[1.02] active:scale-[0.98]"
             >
-              <span>Get your free after-hours audit</span>
+              <span>Check if your area is open</span>
               <div className="w-8 h-8 rounded-full bg-white/15 text-white flex items-center justify-center shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">
                 <ArrowUpRight size={15} />
               </div>

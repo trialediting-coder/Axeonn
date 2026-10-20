@@ -149,7 +149,7 @@ export default function TermsClient() {
             </h2>
             <div className="mt-3.5 space-y-3 text-gray-700 text-[15px] sm:text-base">
               <p>
-                By visiting our website, submitting an inquiry through our forms, requesting a free after-hours audit, or signing a Client Services Agreement with Axeon Studio, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.
+                By visiting our website, submitting an inquiry through our forms, requesting an area check, or signing a Client Services Agreement with Axeon Studio, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.
               </p>
               <p>
                 <strong>Signed agreements control.</strong> Paid services are provided under a written Client Services Agreement (the &ldquo;Agreement&rdquo;) signed by you and Axeon, including its Schedule A. These Terms summarize that Agreement for the public; if anything here conflicts with a signed Agreement, the signed Agreement controls.
@@ -175,7 +175,7 @@ export default function TermsClient() {
                 <li>Intake and messaging systems: missed-call text-back, first replies to web inquiries, online booking, a two-way text inbox, call tracking, and automated review requests</li>
                 <li>AxeonPROOF, our client portal for recovered inquiries, change requests, and monthly reports</li>
                 <li>On the AxeonGROWTH plan: Google Local Services Ads and search ads management, an AI phone receptionist, database reactivation campaigns, and photo and video</li>
-                <li>The free after-hours audit, which carries no charge and no obligation</li>
+                <li>The area check and the call where we go over what we found, which carry no charge and no obligation</li>
               </ul>
               <p>
                 The exact services, deliverables, content-update allowance, and fees for each client are set out in the signed Agreement and its Schedule A. Anything not listed there is outside the scope of the services.

@@ -79,12 +79,12 @@ export default function HowItWorksPage() {
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-5">
             <Link
-              href="/audit"
+              href="/check-your-area"
               data-track="cta_click"
               data-track-cta="how_it_works_hero"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors shadow-lg shadow-blue-600/30"
             >
-              Get your free after-hours audit <ArrowUpRight size={16} />
+              Check if your area is open <ArrowUpRight size={16} />
             </Link>
             <Link href="/pricing" className="py-2 inline-flex items-center gap-2 font-semibold text-white/80 hover:text-white transition-colors">
               See pricing <ArrowRight size={16} />
@@ -264,8 +264,8 @@ export default function HowItWorksPage() {
             <MapPin size={26} className="text-blue-600" aria-hidden="true" />
             <h3 className="mt-4 text-xl font-extrabold font-display tracking-tight">Territory exclusivity</h3>
             <p className="mt-3 text-neutral-600 leading-relaxed">
-              One practice per specialty within 5 miles, while your account is in good standing. We will not install the same
-              system for the practice down the street.
+              One practice or firm per specialty within 5 miles, while your account is in good standing. When we&apos;re
+              working with you, we don&apos;t work for the competitor down the street.
             </p>
           </div>
           <div className="rounded-3xl bg-white border border-neutral-200 p-7">
@@ -280,27 +280,27 @@ export default function HowItWorksPage() {
         </div>
       </section>
 
-      {/* 7. Proof we can honestly show: the audit and the portal */}
+      {/* 7. Proof we can honestly show: what we find on their practice and the portal */}
       <section className="py-24 sm:py-32 px-4 sm:px-8">
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-5">
           <Link
-            href="/audit"
+            href="/check-your-area"
             data-track="cta_click"
-            data-track-cta="how_it_works_audit_card"
+            data-track-cta="how_it_works_area_check_card"
             className="group rounded-3xl bg-blue-600 text-white p-8 sm:p-10 flex flex-col justify-between gap-8 hover:bg-blue-700 transition-colors"
           >
             <div>
               <p className="text-xs font-mono font-bold tracking-widest uppercase text-blue-100">[ SEE IT ON YOUR OWN PRACTICE ]</p>
               <h2 className="mt-4 text-2xl sm:text-3xl font-extrabold font-display tracking-tight leading-snug">
-                The free after-hours audit
+                Is your area open?
               </h2>
               <p className="mt-3 text-blue-50 leading-relaxed">
-                We call your practice after hours, check how fast your website answers an inquiry, and compare your reviews to
-                the top 3 nearby competitors. You get a short video walkthrough of what we found. No charge.
+                One practice or firm per specialty within 5 miles. Check yours and we&apos;ll show you what we found: an
+                after-hours test call, your website&apos;s reply speed, and your reviews next to the top 3 nearby. $0 to start.
               </p>
             </div>
             <span className="inline-flex items-center gap-2 font-semibold">
-              Get your free audit <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+              Check your area <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
             </span>
           </Link>
           <Link

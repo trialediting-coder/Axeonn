@@ -130,7 +130,7 @@ export const niches: Niche[] = [
       { text: 'After the visit, an automatic text asks for a Google review', plugsLeaks: [4] },
     ],
     complianceNote: HEALTH_INTAKE_NOTE,
-    primaryCTA: 'Get your free after-hours audit',
+    primaryCTA: 'Check if your area is open',
     secondaryCTA: 'See plans and pricing',
   },
   {
@@ -192,7 +192,7 @@ export const niches: Niche[] = [
       { text: 'After each appointment, an automatic text asks for a review', plugsLeaks: [4] },
     ],
     complianceNote: HEALTH_INTAKE_NOTE,
-    primaryCTA: 'Get your free after-hours audit',
+    primaryCTA: 'Check if your area is open',
     secondaryCTA: 'See plans and pricing',
   },
   {
@@ -255,7 +255,7 @@ export const niches: Niche[] = [
     ],
     complianceNote:
       'The automated first reply never gives legal advice and collects no case facts. Site copy is written with attorney advertising rules in mind: no promised outcomes, and you approve every word before launch.',
-    primaryCTA: 'Get your free after-hours audit',
+    primaryCTA: 'Check if your area is open',
     secondaryCTA: 'See plans and pricing',
   },
   {
@@ -320,7 +320,7 @@ export const niches: Niche[] = [
     ],
     complianceNote:
       'Intake collects name, contact, the service they need and a preferred time. No tax documents, Social Security numbers or financial details pass through it.',
-    primaryCTA: 'Get your free after-hours audit',
+    primaryCTA: 'Check if your area is open',
     secondaryCTA: 'See plans and pricing',
   },
 ];

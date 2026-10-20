@@ -126,7 +126,7 @@ function planOfferCatalog() {
       return {
         '@type': 'Offer',
         name: tier.name,
-        description: `${tier.focus ? `${tier.focus}. ` : ''}From ${display} on a 12-month agreement, implementation fee credited.`,
+        description: `${tier.focus ? `${tier.focus}. ` : ''}From ${display} on a 12-month agreement. $0 to start: the build is waived and nothing is due until it is working.`,
         url: `${SITE_URL}/pricing`,
         price,
         priceCurrency: 'USD',

@@ -121,16 +121,16 @@ export default function WorkPage() {
                 [ RUN A PRACTICE? ]
               </div>
               <h2 className="text-xl sm:text-2xl lg:text-[26px] font-bold text-neutral-950 font-display tracking-tight">
-                Start with a free after-hours audit of your practice.
+                Check if your specialty is still open in your area.
               </h2>
             </div>
             <Link
-              href="/audit"
+              href="/check-your-area"
               data-track="cta_click"
-              data-track-cta="audit_work"
+              data-track-cta="area_check_work"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white font-semibold text-sm tracking-tight transition-colors"
             >
-              Get your free audit
+              Check your area
               <ArrowUpRight className="w-4 h-4" />
             </Link>
           </div>

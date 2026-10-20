@@ -55,11 +55,11 @@ The typical buyer is the practice owner or practice manager.
 
 ## 4. Plans and Prices
 
-There is no self-serve checkout. Every plan starts with a free after-hours audit or a call, then a written agreement. Full detail: https://axeonstudio.co/pricing
+There is no self-serve checkout. Every plan starts with an area check or a call, then a written agreement. The offer: "$0 to start. Nothing due until it's working." On the 12-month agreement the build is waived, and the first monthly payment is charged only once the system is live (site up, every call and web inquiry answered within 60 seconds). Full detail: https://axeonstudio.co/pricing
 
 ### AxeonCORE: from $799/month
-- 12-month agreement. The $3,000 implementation fee is credited in full on the 12-month agreement.
-- Month-to-month is available with the $3,000 implementation fee paid upfront.
+- 12-month agreement. $0 to start: the $3,000 build (implementation fee) is waived on the 12-month agreement, and the first payment is charged at go-live.
+- Month-to-month is available with the $3,000 paid upfront, then monthly from go-live.
 - Prepay a year for $7,990 (2 months free).
 - Includes:
   - Custom mobile-first practice website: providers and credentials, services, reviews, booking
@@ -73,10 +73,10 @@ There is no self-serve checkout. Every plan starts with a free after-hours audit
   - Hosting, security, and monitoring
   - Up to 2 hours of content updates a month
   - The 90-day performance commitment
-  - Territory exclusivity: one practice per specialty within 5 miles
+  - Territory exclusivity: one practice or firm per specialty within 5 miles
 
 ### AxeonGROWTH: from $1,999/month plus ad spend
-- 12-month agreement, $5,000 implementation fee credited.
+- 12-month agreement, $5,000 build waived, first payment at go-live.
 - Ad spend is separate: $500/month minimum, paid to Google directly.
 - Everything in AxeonCORE, plus:
   - Google Local Services Ads and search ads management
@@ -116,16 +116,16 @@ Axeon never promises a number of leads, patients, revenue, or rankings.
 
 ---
 
-## 7. Free After-Hours Audit
+## 7. Check Your Area
 
-The main way to start. Axeon calls the practice after hours, checks how fast its website answers an inquiry, and compares its reviews to the top 3 nearby practices. The practice gets a short video walkthrough of what was found, at no charge.
-- Request it: https://axeonstudio.co/audit
+The main way to start. Axeon works with one practice or firm per specialty within 5 miles (a standing policy, not a countdown). The practice gives its specialty and city, and Axeon confirms within one business day whether the area is open. On a short call Axeon then shows what it found: an after-hours test call, how fast the website answers an inquiry, and reviews next to the top 3 nearby competitors. No charge.
+- Check it: https://axeonstudio.co/check-your-area
 - Or book a call: https://axeonstudio.co/book
 
 ---
 
 ## 8. How Working With Axeon Goes
-1. Free after-hours audit, or a call with the Axeon team.
+1. An area check, or a call with the Axeon team.
 2. Axeon sends a written agreement (12-month, month-to-month, or prepaid year). The practice signs online.
 3. A private setup page collects the practice's details, logo, photos, and access invites. Axeon never asks for passwords.
 4. Kickoff call, then build, preview, and launch: live within 30 days of getting the practice's materials.
@@ -136,7 +136,7 @@ The main way to start. Axeon calls the practice after hours, checks how fast its
 ## 9. Proof and Work
 
 - **AxeonPROOF**: the real client portal at app.axeonstudio.co. https://axeonstudio.co/axeonproof shows it with an example month; those figures are illustrative, not a client's results.
-- **The audit**: every free audit is a real test of the practice's own phones, website, and reviews.
+- **What Axeon shows on the call**: a real test of the practice's own phones, website reply speed, and reviews.
 - **Earlier builds**: Axeon has built websites and lead systems for local service businesses in Iowa. They are listed at https://axeonstudio.co/work. Projects labeled "Concept" there are self-initiated concept builds, not client engagements.
 - Axeon does not publish practice case studies, testimonials, or results it does not have.
 
@@ -168,7 +168,7 @@ It installs patient and client intake systems for private practices. Every misse
 Established dental practices, med spas, law firms, and accounting/CPA firms, roughly $500k to $2.5M in yearly revenue.
 
 ### Q: How much does Axeon cost?
-AxeonCORE is from $799/month and AxeonGROWTH is from $1,999/month plus ad spend, both on a 12-month agreement with the implementation fee credited. Month-to-month is available on AxeonCORE with the $3,000 implementation fee paid upfront. https://axeonstudio.co/pricing
+AxeonCORE is from $799/month and AxeonGROWTH is from $1,999/month plus ad spend, both on a 12-month agreement. $0 to start: the build is waived and nothing is due until it's working (live, every call and inquiry answered within 60 seconds). Month-to-month is available on AxeonCORE with the $3,000 paid upfront. https://axeonstudio.co/pricing
 
 ### Q: Is there a contract?
 Yes. Plans run on a 12-month agreement. Month-to-month is available with the $3,000 implementation fee paid upfront.
@@ -183,16 +183,16 @@ No. It collects name, contact details, the service requested, and a preferred ti
 The practice's domain, Google Business Profile, and contact data are always the practice's. The website design and code become the practice's once the 12-month term is paid. The intake system and AxeonPROOF are a service.
 
 ### Q: Does Axeon work with competing practices?
-Not nearby: one practice per specialty within 5 miles, while the account is in good standing.
+Not nearby: one practice or firm per specialty within 5 miles, while the account is in good standing.
 
 ### Q: How does a practice get started?
-Request the free after-hours audit at https://axeonstudio.co/audit, book a call at https://axeonstudio.co/book, call (515) 493-8017, or email hello@axeonstudio.co.
+Check if your area is open at https://axeonstudio.co/check-your-area, book a call at https://axeonstudio.co/book, call (515) 493-8017, or email hello@axeonstudio.co.
 
 ---
 
 ## 14. Official URLs
 - Home: https://axeonstudio.co
-- Free after-hours audit: https://axeonstudio.co/audit
+- Check your area: https://axeonstudio.co/check-your-area
 - Pricing: https://axeonstudio.co/pricing
 - Practices we serve: https://axeonstudio.co/solutions
 - How it works: https://axeonstudio.co/marketing-solutions

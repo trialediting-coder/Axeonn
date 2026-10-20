@@ -83,10 +83,10 @@ export default function AboutClient() {
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => router.push('/audit')}
+                  onClick={() => router.push('/check-your-area')}
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm tracking-tight shadow-sm transition-all duration-200 cursor-pointer"
                 >
-                  <span>Get your free after-hours audit</span>
+                  <span>Check if your area is open</span>
                   <ArrowRight size={16} />
                 </button>
                 <button
@@ -298,20 +298,20 @@ export default function AboutClient() {
         <div className="w-full max-w-4xl mx-auto text-center">
           <span className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ LET&apos;S TALK ]</span>
           <h2 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-neutral-950 font-display tracking-tight mt-3">
-            Find out what happens after hours.
+            Is your specialty still open in your area?
           </h2>
           <p className="text-base sm:text-lg text-neutral-600 mt-4 leading-relaxed max-w-2xl mx-auto">
-            We call your practice or firm after hours, check how fast your website answers an inquiry, and compare your reviews to
-            the top 3 nearby competitors. You get a short video walkthrough of what we found. No charge.
+            One practice or firm per specialty within 5 miles. When we&apos;re working with you, we don&apos;t work for the
+            competitor down the street. $0 to start. Nothing due until it&apos;s working.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
             <button
               type="button"
-              onClick={() => router.push('/audit')}
+              onClick={() => router.push('/check-your-area')}
               className="inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base tracking-tight shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer"
             >
               <Calendar size={18} />
-              <span>Get your free after-hours audit</span>
+              <span>Check if your area is open</span>
             </button>
             <a
               href="tel:5154938017"

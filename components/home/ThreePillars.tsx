@@ -157,10 +157,10 @@ export function ThreePillars() {
 
       <div className="max-w-[1720px] 2xl:max-w-[1880px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 py-12 sm:py-16 flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8">
         <Link
-          href="/audit"
+          href="/check-your-area"
           className="px-8 py-3.5 sm:px-10 sm:py-4 rounded-full bg-[#0080FF] hover:bg-[#0070EE] active:scale-95 text-white text-sm sm:text-base font-bold shadow-xl shadow-blue-500/25 transition-all inline-flex items-center justify-center gap-2.5 self-start"
         >
-          Get your free after-hours audit
+          Check if your area is open
           <ArrowUpRight size={18} />
         </Link>
         <p className="text-base sm:text-lg text-neutral-400">

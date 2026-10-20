@@ -105,4 +105,4 @@ Take these into any conversation with any web designer in Iowa, including us.
 
 A website for a practice or firm in Des Moines costs a few thousand dollars from a freelancer and several times that from a traditional agency. The bigger number is often the one that doesn't appear on any quote: the patients and clients who reached out when nobody could answer.
 
-If you want to see that number for your practice or firm, [get your free after-hours audit](/audit). We call your practice after hours, check how fast your website answers an inquiry, and compare your reviews to the top 3 nearby practices. You get a short video walkthrough of what we found, at no charge. If you'd rather talk first, [book a call](/book).
+If you want to see that number for your practice or firm, [check if your area is open](/check-your-area). One practice or firm per specialty within 5 miles. We confirm your area within one business day, then show you what we found on a short call: an after-hours test call, how fast your website answers an inquiry, and your reviews next to the top 3 nearby. $0 to start. Nothing due until it's working. If you'd rather talk first, [book a call](/book).

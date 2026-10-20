@@ -4,8 +4,8 @@
 // options, the plans it can recommend, and each plan's matching rules.
 // lib/getStarted.ts reads this; nothing here runs any logic.
 //
-// /get-started itself now redirects to /audit (2026-10-19): the free
-// after-hours audit is the primary way in. Plans mirror /pricing
+// /get-started itself now redirects to /check-your-area (2026-10-19): the
+// area check is the primary way in. Plans mirror /pricing
 // (data/pricingData.ts) and have no Stripe link on purpose: there is no
 // self-serve checkout, every result goes to a booked call (see isPaymentLinkReady).
 

@@ -106,7 +106,7 @@ const REVIEWS_STAT: SourcedStat = {
 };
 
 const CORE_PRICE = 'AxeonCORE · From $799/mo';
-const CORE_NOTE = '12-month agreement, $3,000 setup included';
+const CORE_NOTE = "$0 to start. Nothing due until it's working.";
 
 export const websitePage: ServicePage = {
   slug: 'website',
@@ -125,12 +125,12 @@ export const websitePage: ServicePage = {
     note: CORE_NOTE,
   },
   how: {
-    heading: 'From audit to a site that books',
+    heading: 'From first call to a site that books',
     intro: 'You send the materials. We write, design, build and run it.',
     steps: [
       {
-        title: 'Start with the audit',
-        body: 'We look at your current site, how fast it answers an inquiry, and how you compare with the top 3 practices or firms near you.',
+        title: 'Start with your area',
+        body: 'We confirm your area is open, then look at your current site, how fast it answers an inquiry, and how you compare with the top 3 practices or firms near you.',
       },
       {
         title: 'We write and design',

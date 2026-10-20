@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { X } from 'lucide-react';
 import { foundingOffer } from '@/data/foundingOfferData';
 
-const STORAGE_KEY = 'axeon-promo-audit-dismissed';
+const STORAGE_KEY = 'axeon-promo-area-dismissed';
 const BANNER_HEIGHT = '44px';
 
 export function PromoBanner() {
@@ -36,16 +36,14 @@ export function PromoBanner() {
     >
       <div className="flex items-center gap-1.5 sm:gap-3 text-[11px] sm:text-sm font-medium text-center min-w-0 pr-8 sm:pr-0">
         <span className="truncate sm:whitespace-normal">
-          <strong className="font-bold hidden sm:inline">{foundingOffer.eyebrow}: </strong>
-          <span className="hidden sm:inline">see what happens when a new patient or client calls after hours. No charge.</span>
-          <span className="sm:hidden">{foundingOffer.eyebrow}</span>
+          <strong className="font-bold">{foundingOffer.ctaHint}</strong>
+          <span className="hidden sm:inline"> One practice or firm per specialty within 5 miles.</span>
         </span>
         <Link
           href={foundingOffer.href}
           className="shrink-0 px-2.5 sm:px-3 py-1 rounded-full bg-white text-blue-700 font-semibold text-[10px] sm:text-xs hover:bg-blue-50 transition-colors"
         >
-          <span className="sm:hidden">Get it</span>
-          <span className="hidden sm:inline">Get your audit</span>
+          {foundingOffer.tabLabel}
         </Link>
       </div>
       <button

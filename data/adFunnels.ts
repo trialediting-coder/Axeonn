@@ -1,8 +1,8 @@
 // Copy for the /go/<slug> paid-ad landing pages. Slugs match data/nichesData.ts.
-// Rules (owner, 2026-10-19): the free after-hours audit is the hook, prices are
+// Rules (owner, 2026-10-19): the area check (/check-your-area) is the hook, prices are
 // "From $799/mo" only, and proof is real or a clearly marked placeholder (shown
 // on preview deploys only). No practice client results exist yet, so none are
-// claimed. Retired trade funnels 301 to /audit (next.config.mjs).
+// claimed. Retired trade funnels 301 to /check-your-area (next.config.mjs).
 
 export interface AdFunnel {
   slug: string;

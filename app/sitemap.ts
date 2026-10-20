@@ -13,7 +13,7 @@ export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://axeonstudio.co';
-  const staticRoutes = ['', '/audit', '/des-moines-web-design', '/nonprofits', '/partners', '/work', '/solutions', '/marketing-solutions', '/axeonproof', '/pricing', '/why-axeon', '/process', '/about', '/faq', '/book', '/privacy', '/terms', '/insights'];
+  const staticRoutes = ['', '/check-your-area', '/des-moines-web-design', '/nonprofits', '/partners', '/work', '/solutions', '/marketing-solutions', '/axeonproof', '/pricing', '/why-axeon', '/process', '/about', '/faq', '/book', '/privacy', '/terms', '/insights'];
   // Static routes carry a fixed content date (bumped in lib/seo.ts when copy
   // changes). Stamping `new Date()` on every request told Google that all 29
   // URLs changed every hour, which trains it to ignore <lastmod> entirely.

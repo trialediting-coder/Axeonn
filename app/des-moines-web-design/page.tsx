@@ -40,9 +40,9 @@ const LOCAL_REASONS = [
   },
   {
     icon: MapPin,
-    title: 'One practice per specialty within 5 miles',
+    title: 'One practice or firm per specialty within 5 miles',
     description:
-      'Territory exclusivity while your account is in good standing. We will not install the same system for the practice or firm down the street.',
+      'Territory exclusivity while your account is in good standing. When we are working with you, we do not work for the competitor down the street.',
   },
   {
     icon: ShieldCheck,
@@ -66,12 +66,12 @@ const LOCAL_FAQ = [
   {
     question: 'How much does Axeon cost for a Des Moines practice or firm?',
     answer:
-      'AxeonCORE is from $799/mo on a 12-month agreement, with the $3,000 setup included. Month-to-month is available if you pay the setup upfront. AxeonGROWTH is from $1,999/mo plus ad spend and adds Google Local Services Ads and search ads management, reactivation of past patients and clients, and an AI phone receptionist.',
+      'AxeonCORE is from $799/mo on a 12-month agreement: $0 to start, with the $3,000 build waived and nothing due until it is working. Month-to-month is available if you pay the $3,000 upfront. AxeonGROWTH is from $1,999/mo plus ad spend and adds Google Local Services Ads and search ads management, reactivation of past patients and clients, and an AI phone receptionist.',
   },
   {
     question: 'What kinds of practices and firms do you work with?',
     answer:
-      'Established private practices: dental practices, med spas and aesthetic clinics, law firms, and accounting and CPA firms. If your practice or firm books consultations or appointments, start with the free after-hours audit and we will tell you honestly whether it fits.',
+      'Established private practices: dental practices, med spas and aesthetic clinics, law firms, and accounting and CPA firms. If your practice or firm books consultations or appointments, check whether your area is open and we will tell you honestly whether it fits.',
   },
   {
     question: 'Does the intake collect any health or financial details?',
@@ -116,12 +116,12 @@ export default function DesMoinesWebDesignPage() {
           </p>
           <div className="flex flex-wrap items-center gap-4">
             <Link
-              href="/audit"
+              href="/check-your-area"
               data-track="cta_click"
-              data-track-cta="audit_des_moines"
+              data-track-cta="area_check_des_moines"
               className="inline-flex items-center gap-2 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
             >
-              Get your free after-hours audit <ArrowRight size={18} />
+              Check if your area is open <ArrowRight size={18} />
             </Link>
             <a
               href={TEL_HREF}
@@ -179,10 +179,10 @@ export default function DesMoinesWebDesignPage() {
                 <h3 className="text-lg sm:text-xl font-bold leading-snug">{LOCAL_REASONS[3].title}</h3>
                 <p className="mt-2 text-neutral-300 leading-relaxed">{LOCAL_REASONS[3].description}</p>
                 <Link
-                  href="/audit"
+                  href="/check-your-area"
                   className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-300 hover:text-white"
                 >
-                  Start with the free after-hours audit <ArrowRight size={14} />
+                  Check if your area is open <ArrowRight size={14} />
                 </Link>
               </div>
             </div>
@@ -336,7 +336,7 @@ export default function DesMoinesWebDesignPage() {
             [ 90-DAY PERFORMANCE COMMITMENT ]
           </p>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-tight mb-6">
-            Find out what happens after hours
+            $0 to start. Nothing due until it&apos;s working.
           </h2>
           <p className="text-lg text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-10">
             Live within 30 days of getting your materials. Every missed call and web inquiry gets a reply within 60 seconds.
@@ -345,12 +345,12 @@ export default function DesMoinesWebDesignPage() {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
-              href="/audit"
+              href="/check-your-area"
               data-track="cta_click"
-              data-track-cta="audit_des_moines"
+              data-track-cta="area_check_des_moines"
               className="inline-flex items-center gap-2 px-7 py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-colors shadow-lg shadow-blue-600/30"
             >
-              Get your free after-hours audit <ArrowRight size={18} />
+              Check if your area is open <ArrowRight size={18} />
             </Link>
             <a
               href={TEL_HREF}

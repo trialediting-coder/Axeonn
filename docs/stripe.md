@@ -204,7 +204,7 @@ production code. Confirm with a tax advisor before collecting.
   through sites Axeon builds; the planner path is SaaS platform with direct
   charges and Stripe-owned pricing.
 - A "Pay" button or self-serve checkout anywhere on the public site. Sales are
-  call-first: the free after-hours audit or a call, then a signed agreement and
+  call-first: an area check (/check-your-area) or a call, then a signed agreement and
   an admin-minted personalized link (`/pay/<token>`). The public `/pay` page was
   removed on 2026-10-03.
 - Content-Security-Policy headers. Nothing loads Stripe.js on the site; all

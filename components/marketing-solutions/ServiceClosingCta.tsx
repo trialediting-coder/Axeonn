@@ -22,17 +22,17 @@ export function ServiceClosingCta({ trackId }: { trackId?: string }) {
         <div className="relative">
           <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-5">[ 90-Day Performance Commitment ]</p>
           <h2 className="text-3xl sm:text-5xl font-black font-display tracking-tight leading-[1.1] text-balance">
-            Find out what happens to your after-hours calls.
+            Is your specialty still open in your area?
           </h2>
           <p className="mt-5 text-lg sm:text-xl text-neutral-300 leading-relaxed max-w-2xl mx-auto">{GUARANTEE_LINE}</p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
             <Link
-              href="/audit"
+              href="/check-your-area"
               data-track="cta_click"
               data-track-cta={trackId ? `${trackId}_closing` : undefined}
               className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors shadow-lg shadow-blue-600/30"
             >
-              Get your free after-hours audit <ArrowRight size={18} />
+              Check if your area is open <ArrowRight size={18} />
             </Link>
             <Link href="/book" className="py-2 inline-flex items-center gap-2 font-semibold text-white/80 hover:text-white transition-colors">
               Book a call <ArrowRight size={16} />

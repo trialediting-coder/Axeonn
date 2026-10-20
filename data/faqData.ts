@@ -37,7 +37,7 @@ export const faqItems: FaqItem[] = [
   {
     question: 'Is there a contract, and how long is it?',
     answer:
-      "Yes. AxeonCORE and AxeonGROWTH run on a 12-month agreement, and the setup fee is credited in full when you take it. After 12 months it continues month-to-month, and either side can stop with 30 days' notice. Prefer month-to-month from day one? Pay the $3,000 setup upfront instead.",
+      "Yes. AxeonCORE and AxeonGROWTH run on a 12-month agreement. On it, the build is waived and your first monthly payment is charged only once you're live. After 12 months it continues month-to-month, and either side can stop with 30 days' notice. Prefer month-to-month from day one? Pay the $3,000 build upfront instead.",
   },
   {
     question: 'Do I get access to my own analytics?',
@@ -47,17 +47,17 @@ export const faqItems: FaqItem[] = [
   {
     question: 'What if I already have a website?',
     answer:
-      "The free after-hours audit looks at it first. We'll tell you straight whether to rebuild it or keep it and add the intake system around it.",
+      "We look at it first, on the call after you check your area. We'll tell you straight whether to rebuild it or keep it and add the intake system around it.",
   },
   {
     question: 'How much does it cost to work with Axeon?',
     answer:
-      'AxeonCORE is from $799/mo and AxeonGROWTH from $1,999/mo plus ad spend, on a 12-month agreement with the setup included. Month-to-month is available with the $3,000 setup paid upfront, and prepaying a year gets you 2 months free.',
+      "$0 to start. Nothing due until it's working. AxeonCORE is from $799/mo and AxeonGROWTH from $1,999/mo plus ad spend, on a 12-month agreement: the build is waived and your first payment is charged once you're live and every call and inquiry is answered within 60 seconds. Month-to-month is available with the $3,000 build paid upfront, and prepaying a year gets you 2 months free.",
   },
   {
     question: 'Which plan should I pick?',
     answer:
-      'AxeonCORE (from $799/mo) if calls and web inquiries are slipping through: it answers every one within 60 seconds, books the consultation, and asks for a review after the visit. AxeonGROWTH (from $1,999/mo plus ad spend) adds Google Local Services and search ads, an AI phone receptionist, reactivation campaigns to past patients and clients, and quarterly photo and video. Start with the free audit and we’ll recommend one.',
+      'AxeonCORE (from $799/mo) if calls and web inquiries are slipping through: it answers every one within 60 seconds, books the consultation, and asks for a review after the visit. AxeonGROWTH (from $1,999/mo plus ad spend) adds Google Local Services and search ads, an AI phone receptionist, reactivation campaigns to past patients and clients, and quarterly photo and video. Check your area and we’ll recommend one on the call.',
   },
 ];
 

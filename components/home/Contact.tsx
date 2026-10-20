@@ -6,7 +6,7 @@ import { ArrowRight, ArrowUpRight, PhoneCall, Timer, Star } from 'lucide-react';
 import { motion, useInView } from 'motion/react';
 import { loopWhile, AT_REST } from '@/lib/loopWhile';
 
-// What the free after-hours audit checks, in the order we do it.
+// What we show on the call after an area check (the proof, not the hook), in the order we do it.
 const AUDIT_STEPS = [
   { icon: PhoneCall, title: 'We call your practice or firm after hours', body: 'The way a new patient or client would.' },
   { icon: Timer, title: 'We time your website’s reply', body: 'An inquiry through your site, clocked to the first answer.' },
@@ -297,7 +297,7 @@ export function Contact({ onBookAudit }: ContactProps) {
       {/* Content Container (Spans full screen without outer card radius) */}
       <div className="relative z-10 w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto px-4 sm:px-8 lg:px-14 xl:px-20 py-8 lg:py-12 select-text">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 xl:gap-16 items-start lg:items-center">
-          {/* Left Column: Clean White Card with the free audit offer */}
+          {/* Left Column: Clean White Card with the area check offer */}
           <motion.div
             id="contact-card-container"
             initial={{ opacity: 0, y: 25, scale: 0.98 }}
@@ -309,10 +309,11 @@ export function Contact({ onBookAudit }: ContactProps) {
             <div className="space-y-6">
               <div className="pb-1">
                 <h3 className="text-2xl sm:text-3xl font-bold font-display tracking-tight text-neutral-950 leading-tight">
-                  Get your free after-hours audit
+                  Check if your area is open
                 </h3>
                 <p className="text-sm sm:text-base text-neutral-600 mt-1.5">
-                  You get a short video walkthrough of what we found. No charge, and it is yours to keep.
+                  One practice or firm per specialty within 5 miles. $0 to start, nothing due until it&apos;s working.
+                  On a short call we show you what we found:
                 </p>
               </div>
 
@@ -331,12 +332,12 @@ export function Contact({ onBookAudit }: ContactProps) {
 
               <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5">
                 <Link
-                  href="/audit"
+                  href="/check-your-area"
                   data-track="cta_click"
-                  data-track-cta="audit_contact"
+                  data-track-cta="area_check_contact"
                   className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors shadow-lg shadow-blue-600/25"
                 >
-                  Get your free audit <ArrowUpRight size={16} />
+                  Check your area <ArrowUpRight size={16} />
                 </Link>
                 <Link href="/book" className="py-2 inline-flex items-center gap-1.5 font-semibold text-neutral-700 hover:text-blue-600">
                   or book a call <ArrowRight size={15} />

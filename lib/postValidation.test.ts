@@ -89,6 +89,15 @@ describe('validatePost', () => {
     assert.strictEqual(result.passed, true);
   });
 
+  it('accepts the front-door offer and the area check CTA', () => {
+    const result = compliant(
+      "$0 to start. Nothing due until it's working. The $3,000 build is waived on the 12-month agreement. " +
+        '[Check if your area is open](/check-your-area): one practice or firm per specialty within 5 miles.',
+    );
+    assert.deepStrictEqual(result.reasons, []);
+    assert.strictEqual(result.passed, true);
+  });
+
   for (const [label, text] of [
     ['retired $149 plan', 'Essentials is $149/month.'],
     ['retired $299 plan', 'AxeonCORE costs $299 a month.'],
@@ -96,6 +105,9 @@ describe('validatePost', () => {
     ['retired $99 to start', 'Every plan is $99 to start.'],
     ['retired $1,500 to start', 'AxeonGROWTH is $1,500 to start.'],
     ['first month free', 'Your first month free when you sign today.'],
+    ['the retired $0 setup ad offer', 'A free website with $0 setup.'],
+    ['the retired free audit CTA', 'Get your free after-hours audit today.'],
+    ['a link to the retired /audit page', 'Start [here](/audit).'],
     ['an unpublished monthly price', 'It costs $1,200/mo.'],
     ['an invented 24-month term', 'Plans run on a 24-month agreement.'],
     ['an invented 3-month minimum', 'There is a 3-month minimum.'],

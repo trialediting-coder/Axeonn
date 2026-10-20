@@ -2,7 +2,7 @@
 
 // components/get-started/GetStartedFlow.tsx
 // Plan finder embedded in the homepage contact section (/get-started itself now
-// redirects to /audit): a short multi-step form, a deterministic package recommendation
+// redirects to /check-your-area): a short multi-step form, a deterministic package recommendation
 // (lib/getStarted.ts), then a "book a call" hand-off. There is deliberately no
 // direct payment step: the lead has to land in Airtable (via /api/get-started/lead)
 // and go through a call first.
@@ -687,7 +687,7 @@ function ResultCard({
           <CalendarCheck size={22} className="text-blue-600" /> Pick a time for your free call
         </h3>
         <p className="mt-1.5 text-base text-neutral-600">
-          30 minutes. Your details are already filled in, and we start the call with your plan, not a questionnaire. Exact pricing is confirmed after a free after-hours audit of your practice or firm.
+          30 minutes. Your details are already filled in, and we start the call with your plan, not a questionnaire. Exact pricing is confirmed on the call, once we know your area is open. $0 to start.
         </p>
         <div className="mt-5">
           <BookingCalendar minHeight="640px" prefill={prefill} />
