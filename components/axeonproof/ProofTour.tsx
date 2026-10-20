@@ -8,16 +8,16 @@
 // has it, a Desktop/Phone toggle and prev/next. Arrow keys move between tabs;
 // the sidebar inside the frame is clickable too. Reduced motion: no autoplay.
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, Activity, Bot, CalendarCheck, CreditCard, LayoutGrid, Mail, Megaphone, Monitor, Pause, PhoneCall, Play, Smartphone, Star } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Activity, Bot, CalendarCheck, CreditCard, LayoutGrid, Mail, Megaphone, Monitor, Pause, PhoneCall, Play, Route, Smartphone, Star } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { PROOF_TABS, type ProofTabKey } from '@/lib/proofTabs';
-import { PLAN_CHIP, TAB_NOTES } from '@/data/proofPage';
+import { PLAN_CHIP, SHOWCASE_TABS, TAB_NOTES, type ShowcaseTabKey } from '@/data/proofPage';
 import { DashboardShell } from '@/components/axeonproof/DashboardShell';
 import { ScreenFor } from '@/components/axeonproof/screens';
 import { BEZEL, GLASS, LABEL } from '@/components/axeonproof/ui';
 
-const ICONS: Record<ProofTabKey, LucideIcon> = {
+const ICONS: Record<ShowcaseTabKey, LucideIcon> = {
   overview: LayoutGrid,
+  program: Route,
   leads: Activity,
   calls: PhoneCall,
   bookings: CalendarCheck,
@@ -45,8 +45,8 @@ export function ProofTour() {
   const stripRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLSpanElement>(null);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const tab = PROOF_TABS[index];
-  const n = PROOF_TABS.length;
+  const tab = SHOWCASE_TABS[index];
+  const n = SHOWCASE_TABS.length;
 
   // Autoplay starts on (unless reduced motion) and only runs while the tour is on screen.
   useEffect(() => {
@@ -94,7 +94,7 @@ export function ProofTour() {
     }
   };
 
-  const onTab = (k: ProofTabKey) => pick(PROOF_TABS.findIndex((t) => t.key === k));
+  const onTab = (k: ShowcaseTabKey) => pick(SHOWCASE_TABS.findIndex((t) => t.key === k));
   const stop = () => setPlaying(false);
   const Icon = ICONS[tab.key];
 
@@ -109,7 +109,7 @@ export function ProofTour() {
           onKeyDown={onKeyDown}
           className="flex gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          {PROOF_TABS.map((t, i) => {
+          {SHOWCASE_TABS.map((t, i) => {
             const TabIcon = ICONS[t.key];
             const active = i === index;
             return (

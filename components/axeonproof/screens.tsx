@@ -14,7 +14,8 @@ import type { LucideIcon } from 'lucide-react';
 import { AxeonLogo } from '@/components/brand/AxeonLogo';
 import { TIER_LABELS } from '@/data/onboardingItems';
 import { PROOF_TABS, TIER_PRICE, TIER_SHORT, tabLocked, type ProofTab, type ProofTabKey } from '@/lib/proofTabs';
-import { CARD_NOTES, EXAMPLE, type ExampleLead, type ExampleTile } from '@/data/proofPage';
+import { CARD_NOTES, EXAMPLE, EXAMPLE_SCHEDULE, type ExampleLead, type ExampleTile, type ShowcaseTabKey } from '@/data/proofPage';
+import { MilestoneTracker } from '@/components/proof/v2/MilestoneTracker';
 import { CountUp } from '@/components/axeonproof/motion';
 
 const delay = (ms: number) => ({ animationDelay: `${ms}ms` });
@@ -685,8 +686,19 @@ export function BillingScreen() {
   );
 }
 
+/** Program (AxeonPROOF v2): the app's own delivery-schedule card, for the demo practice on day 100. */
+export function ProgramScreen() {
+  return (
+    // In a phone-width frame the "Days 1-3" tag goes, as on a real phone, so phase names are not cut off.
+    <div className="mt-5 @3xl:mt-8 @max-3xl:[&_summary_p+span]:!hidden">
+      <MilestoneTracker milestones={EXAMPLE_SCHEDULE.milestones} day={EXAMPLE_SCHEDULE.day} startAt={EXAMPLE_SCHEDULE.startAt} />
+    </div>
+  );
+}
+
 /** The screen for a tab, as the tour and the hero use it. */
-export function ScreenFor({ tab, full = true }: { tab: ProofTabKey; full?: boolean }) {
+export function ScreenFor({ tab, full = true }: { tab: ShowcaseTabKey; full?: boolean }) {
+  if (tab === 'program') return <ProgramScreen />;
   const t = PROOF_TABS.find((x) => x.key === tab) ?? PROOF_TABS[0];
   switch (tab) {
     case 'overview':

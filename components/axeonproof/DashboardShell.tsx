@@ -8,14 +8,15 @@
 // container queries, so the same shell works inside the hero window, the tour
 // panel and a phone-width frame.
 import type { ReactNode } from 'react';
-import { Activity, Bot, CalendarCheck, ClipboardList, CreditCard, LayoutGrid, Mail, Megaphone, PhoneCall, Star } from 'lucide-react';
+import { Activity, Bot, CalendarCheck, ClipboardList, CreditCard, LayoutGrid, Mail, Megaphone, PhoneCall, Route, Star } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { AxeonLogo } from '@/components/brand/AxeonLogo';
-import { PROOF_TABS, TIER_SHORT, tabLocked, type ProofTabKey } from '@/lib/proofTabs';
-import { EXAMPLE } from '@/data/proofPage';
+import { TIER_SHORT, tabLocked, type ProofTab } from '@/lib/proofTabs';
+import { EXAMPLE, SHOWCASE_TABS, type ShowcaseTabKey } from '@/data/proofPage';
 
-const ICONS: Record<ProofTabKey, LucideIcon> = {
+const ICONS: Record<ShowcaseTabKey, LucideIcon> = {
   overview: LayoutGrid,
+  program: Route,
   leads: Activity,
   calls: PhoneCall,
   bookings: CalendarCheck,
@@ -26,8 +27,8 @@ const ICONS: Record<ProofTabKey, LucideIcon> = {
   billing: CreditCard,
 };
 
-export function DashboardShell({ tab, children, onTab }: { tab: ProofTabKey; children: ReactNode; onTab?: (key: ProofTabKey) => void }) {
-  const current = PROOF_TABS.find((t) => t.key === tab) ?? PROOF_TABS[0];
+export function DashboardShell({ tab, children, onTab }: { tab: ShowcaseTabKey; children: ReactNode; onTab?: (key: ShowcaseTabKey) => void }) {
+  const current = SHOWCASE_TABS.find((t) => t.key === tab) ?? SHOWCASE_TABS[0];
   return (
     <div className="@container min-h-full bg-[#f3f4f7] font-sans text-neutral-950 antialiased">
       <div className="flex min-h-full">
@@ -37,10 +38,10 @@ export function DashboardShell({ tab, children, onTab }: { tab: ProofTabKey; chi
               <AxeonLogo product="PROOF" size="sm" />
             </div>
             <nav aria-label="AxeonPROOF" className="flex flex-col gap-0.5">
-              {PROOF_TABS.map((t) => {
+              {SHOWCASE_TABS.map((t) => {
                 const Icon = ICONS[t.key];
                 const active = t.key === tab;
-                const locked = tabLocked(t, EXAMPLE.plan);
+                const locked = tabLocked(t as ProofTab, EXAMPLE.plan);
                 const cls = `flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] font-semibold ${
                   active ? 'bg-blue-600 text-white shadow-md shadow-blue-600/25' : 'text-neutral-700 hover:bg-neutral-50'
                 }`;
@@ -81,7 +82,7 @@ export function DashboardShell({ tab, children, onTab }: { tab: ProofTabKey; chi
         <div className="min-w-0 flex-1">
           {/* On a narrow frame the tabs are a strip, like the app on a phone. */}
           <div className="flex gap-1.5 overflow-x-auto px-4 pt-4 [scrollbar-width:none] @3xl:hidden [&::-webkit-scrollbar]:hidden">
-            {PROOF_TABS.map((t) => {
+            {SHOWCASE_TABS.map((t) => {
               const active = t.key === tab;
               const cls = `shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold ${active ? 'bg-blue-600 text-white' : 'bg-white text-neutral-700 ring-1 ring-neutral-200'}`;
               return onTab ? (

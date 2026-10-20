@@ -13,7 +13,9 @@
 // client sees after sign-in. Tabs outside the Overview reuse the app's own
 // example-month data from lib/proofTabs.ts.
 import type { OnboardingTier } from '@/data/onboardingItems';
-import type { ProofTabKey } from '@/lib/proofTabs';
+import { PROOF_TABS, type ProofTab, type ProofTabKey } from '@/lib/proofTabs';
+import { DELIVERY_SCHEDULE } from '@/data/deliverySchedule';
+import { dateOfDay, deriveMilestones, type MilestoneFacts } from '@/lib/proofV2Shared';
 
 export interface ExampleLead {
   kind: 'Call button' | 'Text button' | 'Form' | 'Booking' | 'Email link';
@@ -172,9 +174,53 @@ export const CARD_NOTES: Record<string, { title: string; body: string }> = {
 
 export const CARD_ORDER = ['sources', 'device', 'bring', 'cities', 'when'] as const;
 
+/**
+ * The showcase's tabs: the app's own (lib/proofTabs.ts) plus Program, the
+ * 180-day delivery schedule every AxeonCORE and AxeonGROWTH client gets with
+ * AxeonPROOF v2 (components/proof/ProofDashboard.tsx shows it after Overview).
+ */
+export type ShowcaseTabKey = ProofTabKey | 'program';
+export type ShowcaseTab = Omit<ProofTab, 'key'> & { key: ShowcaseTabKey };
+export const SHOWCASE_TABS: readonly ShowcaseTab[] = [
+  PROOF_TABS[0],
+  { key: 'program', label: 'Program', tier: 'axeoncore', promise: '', includes: [] },
+  ...PROOF_TABS.slice(1),
+];
+
+/**
+ * The demo practice's delivery schedule on day 100 of 180: live since day 14,
+ * the reactivation sprint, reviews and listings done, location pages being
+ * indexed. Fixed dates (never "today") so the server and browser render the
+ * same thing. Example figures, like everything else on the page.
+ */
+const SCHEDULE_START = '2026-07-07';
+const SCHEDULE_NOW = new Date('2026-10-14T15:00:00Z');
+const DONE_THROUGH_DAY = 92;
+const scheduleFacts: MilestoneFacts = {
+  startAt: SCHEDULE_START,
+  settings: {
+    steps: Object.fromEntries(
+      DELIVERY_SCHEDULE.flatMap((p) => p.steps)
+        .filter((s) => s.day <= DONE_THROUGH_DAY)
+        .map((s) => [s.key, { doneAt: `${dateOfDay(SCHEDULE_START, s.day)}T15:00:00Z` }]),
+    ),
+    goLiveAt: `${dateOfDay(SCHEDULE_START, 14)}T15:00:00Z`,
+  },
+  autoDone: {},
+  line: { number: '+15155550142', smsReady: true, textBackOn: true },
+  mcat: { missed: 41, textedBack: 41, under30: 41, medianSeconds: 9 },
+  dbr: { imported: 312, status: 'done', sent: 870, booked: 14, pipelineDollars: null },
+  reviewEngine: { enabled: true, sent: 118, newReviews: 37 },
+  nap: { synced: 38, total: 40 },
+  pages: { planned: 8, published: 8, indexed: 6 },
+  openPins: 0,
+};
+export const EXAMPLE_SCHEDULE = { startAt: SCHEDULE_START, day: 100, milestones: deriveMilestones(scheduleFacts, SCHEDULE_NOW) };
+
 /** One line under each tab in the tour: what the owner gets from it. */
-export const TAB_NOTES: Record<ProofTabKey, string> = {
+export const TAB_NOTES: Record<ShowcaseTabKey, string> = {
   overview: 'This month at a glance: who reached out, how many were recovered after hours, and where they came from.',
+  program: 'Your first 180 days, step by step, with a date on every step.',
   leads: 'Every call, text, form and booking, the day it happens. Tap Booked on the ones that turned into an appointment.',
   calls: 'Every call counted. A missed call gets a text back within 60 seconds, so the caller does not book with the next office.',
   bookings: 'New patients and clients book a consultation at 9 PM instead of calling whoever answers first. Reminders cut the no-shows.',
