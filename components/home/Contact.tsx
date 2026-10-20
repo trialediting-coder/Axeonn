@@ -8,9 +8,9 @@ import { loopWhile, AT_REST } from '@/lib/loopWhile';
 
 // What the free after-hours audit checks, in the order we do it.
 const AUDIT_STEPS = [
-  { icon: PhoneCall, title: 'We call your practice after hours', body: 'The way a new patient or client would.' },
+  { icon: PhoneCall, title: 'We call your practice or firm after hours', body: 'The way a new patient or client would.' },
   { icon: Timer, title: 'We time your website’s reply', body: 'An inquiry through your site, clocked to the first answer.' },
-  { icon: Star, title: 'We compare your reviews', body: 'Your Google reviews next to the top 3 nearby practices.' },
+  { icon: Star, title: 'We compare your reviews', body: 'Your Google reviews next to the top 3 nearby competitors.' },
 ];
 
 export interface ContactProps {
@@ -359,7 +359,7 @@ export function Contact({ onBookAudit }: ContactProps) {
             </h2>
 
             <p className="mt-6 sm:mt-8 text-base sm:text-lg lg:text-xl text-neutral-300 max-w-xl leading-relaxed font-normal">
-              Calls after hours and during busy mornings go to voicemail, and forms wait until tomorrow. Let us test your practice and show you exactly what a new patient or client experiences today.
+              Calls after hours and during busy mornings go to voicemail, and forms wait until tomorrow. Let us test your practice or firm and show you exactly what a new patient or client experiences today.
             </p>
 
             {/* Direct Contact Details */}

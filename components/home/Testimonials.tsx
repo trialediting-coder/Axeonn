@@ -22,7 +22,7 @@ export const SPEED_STAT: SourcedStat = {
 export const REVIEWS_STAT: SourcedStat = {
   value: '97%',
   title: 'read reviews before choosing',
-  body: 'Nearly everyone checks reviews before they call, so the practice with recent, visible reviews gets the call.',
+  body: 'Nearly everyone checks reviews before they call, so the practice or firm with recent, visible reviews gets the call.',
   source: 'BrightLocal Local Consumer Review Survey 2026',
   href: 'https://www.brightlocal.com/research/local-consumer-review-survey/',
 };
@@ -61,7 +61,7 @@ export function Testimonials() {
       <div className="w-full max-w-6xl mx-auto">
         <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ WHY SPEED WINS ]</p>
         <h2 className="mt-4 text-3xl sm:text-5xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.1] max-w-3xl">
-          The fastest answer wins the patient
+          The fastest answer wins the new patient or client
         </h2>
 
         <div className="mt-12 sm:mt-14 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-end">
@@ -73,8 +73,8 @@ export function Testimonials() {
               to the first reply, day or night
             </p>
             <p className="mt-3 text-base sm:text-lg text-neutral-600 leading-relaxed max-w-xl">
-              That is our commitment, not a statistic. A new patient who calls after hours or fills out a form at 9 PM hears
-              back from your practice within a minute, with a way to book.
+              That is our commitment, not a statistic. Someone looking for a new dentist, a med spa consult, an injury lawyer or a CPA in tax season who calls after
+              hours or fills out a form at 9 PM hears back from you within a minute, with a way to book.
             </p>
           </div>
 
@@ -94,7 +94,7 @@ export function Testimonials() {
 
         <div className="mt-16 rounded-3xl bg-neutral-950 text-white p-6 sm:p-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
           <div>
-            <p className="text-sm font-bold tracking-wide uppercase text-blue-300">How AxeonCORE makes sure your practice answers first</p>
+            <p className="text-sm font-bold tracking-wide uppercase text-blue-300">How AxeonCORE makes sure your practice or firm answers first</p>
             <ul className="mt-4 flex flex-col sm:flex-row sm:flex-wrap gap-x-8 gap-y-2 text-base sm:text-lg text-neutral-100">
               {FIXES.map((f) => (
                 <li key={f} className="flex items-center gap-2.5">

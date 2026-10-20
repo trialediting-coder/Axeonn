@@ -11,16 +11,16 @@ import { COMPLIANCE_LINE } from '@/data/pricingData';
 // packageId 'free-audit', then offers an optional call to walk through it.
 export const metadata: Metadata = buildMetadata({
   path: '/audit',
-  title: 'Free After-Hours Audit for Practices | Axeon Studio',
+  title: 'Free After-Hours Audit for Practices & Firms | Axeon Studio',
   description:
-    'We call your practice after hours, check how fast your website answers an inquiry, compare your reviews to the top 3 nearby practices, and test your mobile speed. You get a short video walkthrough. No charge, no obligation.',
+    'We call your practice or firm after hours, check how fast your website answers an inquiry, compare your reviews to the top 3 nearby competitors, and test your mobile speed. You get a short video walkthrough. No charge, no obligation.',
 });
 
 const CHECKS = [
   {
     icon: PhoneOff,
     title: 'After-hours call test',
-    body: 'We call your practice after hours and see what a new patient or client actually gets: voicemail, a full mailbox, or a reply.',
+    body: 'We call your practice or firm after hours and see what a new patient or client actually gets: voicemail, a full mailbox, or a reply.',
   },
   {
     icon: MessageSquareText,
@@ -30,7 +30,7 @@ const CHECKS = [
   {
     icon: Star,
     title: 'Reviews vs. the top 3 nearby',
-    body: 'Your Google rating and review count next to the three practices in your specialty that show up first near you.',
+    body: 'Your Google rating and review count next to the three practices or firms in your specialty that show up first near you.',
   },
   {
     icon: Gauge,
@@ -42,11 +42,11 @@ const CHECKS = [
 const FAQS = [
   {
     q: 'Is it really free?',
-    a: 'Yes. No charge and no obligation. If the audit shows your practice already answers every call and inquiry quickly, we will tell you that.',
+    a: 'Yes. No charge and no obligation. If the audit shows your practice or firm already answers every call and inquiry quickly, we will tell you that.',
   },
   {
     q: 'What do I get?',
-    a: 'A short video walkthrough of what we found: what happened when we called after hours, how long your website took to answer an inquiry, how your reviews compare to the top 3 nearby practices, and your mobile speed.',
+    a: 'A short video walkthrough of what we found: what happened when we called after hours, how long your website took to answer an inquiry, how your reviews compare to the top 3 nearby competitors, and your mobile speed.',
   },
   {
     q: 'What happens after?',
@@ -75,11 +75,11 @@ export default function AuditPage() {
               [ FREE AFTER-HOURS AUDIT ]
             </p>
             <h1 className="text-4xl sm:text-5xl xl:text-6xl font-extrabold font-display tracking-tight leading-[1.08]">
-              What happens when a patient calls after hours?
+              What happens when a new patient or client calls after hours?
             </h1>
             <p className="mt-5 text-lg sm:text-xl text-neutral-600 leading-relaxed max-w-xl">
-              We call your practice after hours, check how fast your website answers an inquiry, and compare your
-              reviews to the top 3 nearby practices. You get a short video walkthrough of what we found. No charge.
+              We call your practice or firm after hours, check how fast your website answers an inquiry, and compare your
+              reviews to the top 3 nearby competitors. You get a short video walkthrough of what we found. No charge.
             </p>
 
             <h2 className="mt-10 text-sm font-mono font-bold tracking-widest text-neutral-500 uppercase">
@@ -123,7 +123,7 @@ export default function AuditPage() {
               <AuditRequest source="audit" />
             </div>
             <p className="mt-4 text-sm text-neutral-500 leading-relaxed px-2">
-              For dental, med spa, law and accounting practices. {COMPLIANCE_LINE}
+              For dental practices, med spas, law firms and CPA firms. {COMPLIANCE_LINE}
             </p>
 
             <section className="mt-12" aria-labelledby="audit-faq">

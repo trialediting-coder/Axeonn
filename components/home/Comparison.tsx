@@ -24,7 +24,7 @@ const ROWS: ComparisonRow[] = [
   },
   {
     dimension: 'After hours',
-    typical: 'Calls go to voicemail and web forms wait until the front desk opens',
+    typical: 'Calls go to voicemail and web forms wait until the front desk or intake team is back',
     axeon: 'A text reply within 60 seconds and a link to book, any hour of the day',
   },
   {

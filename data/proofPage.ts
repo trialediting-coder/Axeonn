@@ -4,7 +4,9 @@
 // The dashboard on that page is rendered live from this file, for a FICTIONAL
 // demo practice ("Quillmont Family Dental") with an example month. Since the
 // 2026-10-19 practice repositioning the demo is a dental practice, labelled
-// "Demo" on screen (EXAMPLE.demoLabel). Nothing here is a client's result, and
+// "Demo" on screen (EXAMPLE.demoLabel). VERTICAL_DEMOS (below) shows the same
+// dashboard's events for a fictional med spa, law firm and CPA firm too, so the
+// page speaks to all four verticals. Nothing here is a client's result, and
 // the page says so (owner rule 2026-10-10: invented figures are never shown as
 // anyone's own numbers). Email addresses use the reserved .example domain. The screens copy
 // the real app's layout (components/proof/*) so what people see here is what a
@@ -155,15 +157,15 @@ export const CARD_NOTES: Record<string, { title: string; body: string }> = {
     body: 'Most visits are on a phone, where a tap on your number is a real call. That is why the call and book buttons are never buried.',
   },
   bring: {
-    title: 'Pages that bring patients',
+    title: 'Pages that bring new patients and clients',
     body: 'The first page each visitor saw, and how many of them reached out. The pages that bring inquiries get more attention.',
   },
   cities: {
     title: 'Where visitors are',
-    body: 'City and area only, never who. Enough to see where your patients come from.',
+    body: 'City and area only, never who. Enough to see where your patients or clients come from.',
   },
   when: {
-    title: 'When patients reach out',
+    title: 'When people reach out',
     body: 'By hour and by day of the week. Inquiries before 8 AM and after 5 PM are the ones the system answers for you.',
   },
 };
@@ -174,14 +176,75 @@ export const CARD_ORDER = ['sources', 'device', 'bring', 'cities', 'when'] as co
 export const TAB_NOTES: Record<ProofTabKey, string> = {
   overview: 'This month at a glance: who reached out, how many were recovered after hours, and where they came from.',
   leads: 'Every call, text, form and booking, the day it happens. Tap Booked on the ones that turned into an appointment.',
-  calls: 'Every call counted. A missed call gets a text back within 60 seconds, so the patient does not book with the next practice.',
-  bookings: 'Patients book a consultation at 9 PM instead of calling whoever answers first. Reminders cut the no-shows.',
+  calls: 'Every call counted. A missed call gets a text back within 60 seconds, so the caller does not book with the next office.',
+  bookings: 'New patients and clients book a consultation at 9 PM instead of calling whoever answers first. Reminders cut the no-shows.',
   reviews: 'A review request after every completed appointment, and your rating month by month.',
   ads: 'Every ad dollar next to the inquiries and booked appointments it brought in.',
-  receptionist: 'Every call answered, day and night, and either booked or taken as a message for the front desk.',
+  receptionist: 'Every call answered, day and night, and either booked or taken as a message for the front desk or intake team.',
   email: 'Your business email at your own domain, with spam checks that run by themselves.',
   billing: 'Your plan, your card and every invoice. Nothing to ask us for.',
 };
+
+/**
+ * The same dashboard for each vertical: a fictional demo business per vertical
+ * and three example events the recovered-inquiry counter would log. All demo,
+ * labelled on screen; never a client's results.
+ */
+export interface VerticalDemo {
+  key: 'dental' | 'med-spa' | 'law' | 'accounting';
+  label: string;
+  name: string;
+  /** What a booked first visit is called in this vertical. */
+  booking: string;
+  events: { when: string; what: string; result: string }[];
+}
+
+export const VERTICAL_DEMOS: VerticalDemo[] = [
+  {
+    key: 'dental',
+    label: 'Dental',
+    name: 'Quillmont Family Dental',
+    booking: 'new-patient exams',
+    events: [
+      { when: 'Tue, 7:48 PM', what: 'Missed call, texted back in 11s', result: 'New-patient exam booked' },
+      { when: 'Sat, 9:15 AM', what: 'Web inquiry from /dental-implants, reply in 14s', result: 'Implant consult booked' },
+      { when: 'Mon, 12:20 PM', what: 'Cleaning completed', result: 'Review request sent' },
+    ],
+  },
+  {
+    key: 'med-spa',
+    label: 'Med spa',
+    name: 'Verawood Aesthetics',
+    booking: 'consults',
+    events: [
+      { when: 'Wed, 8:32 PM', what: 'Web inquiry from /botox, reply in 9s', result: 'Consult booked' },
+      { when: 'Fri, 1:05 PM', what: 'Missed call during treatments, texted back in 12s', result: 'Filler consult booked' },
+      { when: 'Sat, 6:10 PM', what: 'Treatment completed', result: 'Review request sent' },
+    ],
+  },
+  {
+    key: 'law',
+    label: 'Law firm',
+    name: 'Harlan & Pike Law',
+    booking: 'intake calls and case reviews',
+    events: [
+      { when: 'Thu, 9:40 PM', what: 'Web inquiry from /car-accidents, reply in 13s', result: 'Intake call booked, conflict check first' },
+      { when: 'Mon, 11:55 AM', what: 'Missed call while attorneys were in court, texted back in 10s', result: 'Case review booked' },
+      { when: 'Wed, 3:00 PM', what: 'Matter closed', result: 'Review request sent' },
+    ],
+  },
+  {
+    key: 'accounting',
+    label: 'Accounting',
+    name: 'Ostrander Tax & Advisory',
+    booking: 'tax and advisory consults',
+    events: [
+      { when: 'Sun, 4:18 PM', what: 'Web inquiry from /small-business-tax, reply in 15s', result: 'Tax consult booked' },
+      { when: 'Tue, 5:42 PM', what: 'Missed call after hours, texted back in 12s', result: 'Advisory meeting booked' },
+      { when: 'Fri, 10:05 AM', what: 'Return filed', result: 'Review request sent' },
+    ],
+  },
+];
 
 /** The chip next to a tab: which plan switches it on. */
 export const PLAN_CHIP: Record<OnboardingTier, string> = {

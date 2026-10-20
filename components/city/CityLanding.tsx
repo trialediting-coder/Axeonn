@@ -22,8 +22,8 @@ export function CityLanding({ page }: { page: CityPage }) {
 
   const serviceLd = serviceJsonLd({
     path,
-    serviceType: 'Practice Websites & Patient Intake',
-    name: `Axeon Studio — ${page.city} Practice Websites & Patient Intake`,
+    serviceType: 'Patient & Client Intake for Practices and Firms',
+    name: `Axeon Studio — ${page.city} Patient & Client Intake for Practices and Firms`,
     description: page.description,
     areaServed: cityAreaServed(page.city),
   });
@@ -105,7 +105,7 @@ export function CityLanding({ page }: { page: CityPage }) {
               </span>
               <span className="block">
                 <span className="block text-lg sm:text-xl font-bold leading-snug">
-                  How fast does your practice answer after hours? We call, time your website&apos;s reply and compare your
+                  How fast does your practice or firm answer after hours? We call, time your website&apos;s reply and compare your
                   reviews to the top 3 nearby. Free.
                 </span>
                 <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-300 group-hover:text-white">
@@ -144,7 +144,7 @@ export function CityLanding({ page }: { page: CityPage }) {
             <div className="lg:w-72 shrink-0">
               <p className={EYEBROW}>[ THE SYSTEM ]</p>
               <h2 className="mt-2 text-2xl font-extrabold font-display tracking-tight leading-tight">
-                What Every {page.city} Practice Gets
+                What Every {page.city} Practice and Firm Gets
               </h2>
             </div>
             <ol className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -179,7 +179,7 @@ export function CityLanding({ page }: { page: CityPage }) {
         <div className="max-w-6xl mx-auto">
           <p className={`${EYEBROW} mb-3`}>[ WHO WE HELP ]</p>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight mb-4">
-            Practices We Serve in {page.city}
+            Practices and Firms We Serve in {page.city}
           </h2>
           <p className="text-lg text-neutral-600 max-w-3xl mb-10 leading-relaxed">
             Pick yours to see where new patients and clients slip away, and how we answer them within 60 seconds.
@@ -198,7 +198,7 @@ export function CityLanding({ page }: { page: CityPage }) {
             ))}
           </ul>
           <p className="mt-8 text-neutral-600">
-            A different kind of practice?{' '}
+            A different kind of practice or firm?{' '}
             <Link href="/solutions" className="text-blue-600 font-semibold hover:underline">
               See who we work with.
             </Link>
@@ -263,7 +263,7 @@ export function CityLanding({ page }: { page: CityPage }) {
         <div className="max-w-3xl mx-auto">
           <p className={`${EYEBROW} mb-3`}>[ FAQ ]</p>
           <h2 className="text-3xl sm:text-4xl font-extrabold font-display tracking-tight mb-10">
-            Questions {page.city} Practice Owners Ask
+            Questions {page.city} Practice and Firm Owners Ask
           </h2>
           <FAQAccordion items={faqs} defaultOpenCount={1} />
         </div>

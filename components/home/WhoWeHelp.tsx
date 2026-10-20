@@ -119,7 +119,7 @@ export function WhoWeHelp() {
           </p>
 
           <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-[68px] font-black font-display tracking-tight text-neutral-950 leading-[1.08] max-w-5xl">
-            Every practice loses new patients and clients in its own way.{' '}
+            Every practice and firm loses new patients and clients in its own way.{' '}
             <span className="text-blue-600">See yours.</span>
           </h2>
         </div>

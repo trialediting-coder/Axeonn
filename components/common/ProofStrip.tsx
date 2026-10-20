@@ -8,7 +8,7 @@ const PROOF = [
   { value: '60 sec', label: 'first reply to every missed call and web inquiry' },
   { value: '24/7', label: 'including nights, weekends and lunch hours' },
   { value: '30 days', label: 'to go live once we have your materials' },
-  { value: '5 miles', label: 'one practice per specialty, territory exclusivity' },
+  { value: '5 miles', label: 'one practice or firm per specialty, territory exclusivity' },
 ];
 
 export function ProofStrip({ tone = 'light' }: { tone?: 'light' | 'dark' }) {

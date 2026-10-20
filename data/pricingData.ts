@@ -60,7 +60,7 @@ export const TERRITORY_LINE = 'One practice per specialty within 5 miles.';
 export const OWNERSHIP_LINE =
   'Your domain, Google Business Profile, and patient and client contact data are always yours. The website design and code become yours once the 12-month term is paid. The intake system, phone and text numbers, and AxeonPROOF are a service and stop if you leave.';
 export const COMPLIANCE_LINE =
-  'Intake collects name, contact, service and preferred time only — never symptoms, insurance or health details.';
+  'Intake collects name, contact, service and preferred time only — never symptoms, insurance, case facts or tax details.';
 
 export const pricingTiers: PricingTier[] = [
   {
@@ -73,15 +73,15 @@ export const pricingTiers: PricingTier[] = [
     startFee: '12-month agreement · $3,000 setup included',
     startNote: 'Month-to-month available with the $3,000 setup paid upfront. Prepay a year and get 2 months free.',
     turnaround: 'Live within 30 days of getting your materials',
-    badge: 'Most practices start here',
+    badge: 'Most practices and firms start here',
     bestFor:
       'Right for you if calls and web inquiries go to voicemail or sit until morning. Every one gets a reply within 60 seconds, 24/7, and a way to book.',
     features: [
-      'Custom mobile-first practice website: providers & credentials, services, reviews, booking',
+      'Custom mobile-first website: providers or attorneys & credentials, services, reviews, booking',
       '24/7 missed-call text-back',
       'First reply to every web inquiry within 60 seconds',
       'Online consultation booking',
-      'Two-way text inbox for the front desk',
+      'Two-way text inbox for your front desk or intake team',
       'Call tracking',
       'Automated review requests after each appointment',
       'AxeonPROOF client portal: live recovered-inquiry counter, change requests, monthly reports',
@@ -112,7 +112,7 @@ export const pricingTiers: PricingTier[] = [
     startNote: 'Ad spend is separate: $500/mo minimum, paid to Google directly.',
     turnaround: 'Live within 30 days of getting your materials',
     bestFor:
-      'Right for you if your intake is solid and you want more new patients or clients coming in: we run your Google ads, answer your phones with AI, and work your past-patient list.',
+      'Right for you if your intake is solid and you want more new patients or clients coming in: we run your Google ads, answer your phones with AI, and work your list of past patients or clients.',
     inherits: 'Everything in AxeonCORE, plus:',
     features: [
       'Google Local Services Ads & search ads management',
@@ -159,7 +159,7 @@ export const pricingFaqs: PricingFaq[] = [
   },
   {
     q: 'Can I go month-to-month instead?',
-    a: 'Yes. Pay the $3,000 setup upfront and AxeonCORE runs month-to-month from the start. Most practices take the 12-month agreement because the setup is then credited in full.',
+    a: 'Yes. Pay the $3,000 setup upfront and AxeonCORE runs month-to-month from the start. Most practices and firms take the 12-month agreement because the setup is then credited in full.',
   },
   {
     q: 'What is the $3,000?',
@@ -167,7 +167,7 @@ export const pricingFaqs: PricingFaq[] = [
   },
   {
     q: 'What is the 90-day performance commitment?',
-    a: "Live within 30 days of getting your materials. Every missed call and web inquiry gets a reply within 60 seconds. Every completed appointment gets a review request. If we miss any of those in the first 90 days and don't fix it within 15 days, you can walk away and owe nothing for the rest of the term. We don't promise a number of new patients, revenue, or rankings. We promise the system does its job.",
+    a: "Live within 30 days of getting your materials. Every missed call and web inquiry gets a reply within 60 seconds. Every completed appointment gets a review request. If we miss any of those in the first 90 days and don't fix it within 15 days, you can walk away and owe nothing for the rest of the term. We don't promise a number of new patients, clients, cases, revenue, or rankings. We promise the system does its job.",
   },
   {
     q: 'Is ad spend included in AxeonGROWTH?',
@@ -175,11 +175,11 @@ export const pricingFaqs: PricingFaq[] = [
   },
   {
     q: 'What does territory exclusivity mean?',
-    a: "One practice per specialty within 5 miles. While your account is in good standing, we won't take on another practice in your specialty within 5 miles of you.",
+    a: "One practice per specialty within 5 miles. While your account is in good standing, we won't take on another dental practice, med spa, law firm or CPA firm in your specialty within 5 miles of you.",
   },
   {
-    q: 'Do you collect patient health information?',
-    a: 'No. Intake collects name, contact, service and preferred time only, never symptoms, insurance or health details. The forms and text replies are set up that way on purpose.',
+    q: 'Do you collect health, case or financial information?',
+    a: 'No. Intake collects name, contact, service and preferred time only. No symptoms, insurance or health details for dental practices and med spas; no case facts for law firms, so your conflict check comes first; no tax or account details for CPA firms. The forms and text replies are set up that way on purpose.',
   },
   {
     q: 'What do I own?',
@@ -191,7 +191,7 @@ export const pricingFaqs: PricingFaq[] = [
   },
   {
     q: 'Which plan should I pick?',
-    a: 'AxeonCORE if the problem is answering: calls going to voicemail, web inquiries waiting until morning, reviews that never get asked for. AxeonGROWTH if your intake is already solid and you want more new patients or clients coming in through Google ads, an AI receptionist, and past-patient campaigns. The free audit usually makes the answer obvious.',
+    a: 'AxeonCORE if the problem is answering: calls going to voicemail, web inquiries waiting until morning, reviews that never get asked for. AxeonGROWTH if your intake is already solid and you want more new patients or clients coming in through Google ads, an AI receptionist, and campaigns to past patients and clients. The free audit usually makes the answer obvious.',
   },
 ];
 

@@ -10,17 +10,17 @@ import { cityPages, METRO_SYSTEM as SYSTEM } from '@/data/cityPages';
 
 export const metadata = buildMetadata({
   path: '/des-moines-web-design',
-  title: 'Des Moines Practice Websites & Patient Intake | Axeon Studio',
+  title: 'Des Moines Practice & Firm Intake | Axeon Studio',
   description:
-    'Websites and 60-second patient and client intake for Des Moines dental, med spa, law and accounting practices, from one West Des Moines team. From $799/mo with a 90-day performance commitment.',
+    'Websites and 60-second patient and client intake for Des Moines dental practices, med spas, law firms and CPA firms, from one West Des Moines team. From $799/mo with a 90-day performance commitment.',
 });
 
 const webDesignServiceJsonLd = serviceJsonLd({
   path: '/des-moines-web-design',
-  serviceType: 'Practice Websites & Patient Intake',
-  name: 'Axeon Studio — Des Moines Practice Websites & Patient Intake',
+  serviceType: 'Patient & Client Intake for Practices and Firms',
+  name: 'Axeon Studio — Des Moines Patient & Client Intake for Practices and Firms',
   description:
-    'Practice websites, 24/7 missed-call text-back, 60-second replies to web inquiries, online consultation booking and automated review requests for practices across the Des Moines metro.',
+    'Practice websites, 24/7 missed-call text-back, 60-second replies to web inquiries, online consultation booking and automated review requests for dental practices, med spas, law firms and CPA firms across the Des Moines metro.',
 });
 
 const TEL_HREF = `tel:${BUSINESS.telephone.replace(/-/g, '')}`;
@@ -30,7 +30,7 @@ const LOCAL_REASONS = [
     icon: PhoneCall,
     title: 'You call the team that built it',
     description:
-      'Axeon is a West Des Moines studio, not a national agency with an Iowa landing page. The people who install your intake answer the phone and train your front desk. No call centers, no hand-offs.',
+      'Axeon is a West Des Moines studio, not a national agency with an Iowa landing page. The people who install your intake answer the phone and train your front desk or intake team. No call centers, no hand-offs.',
   },
   {
     icon: Users,
@@ -42,7 +42,7 @@ const LOCAL_REASONS = [
     icon: MapPin,
     title: 'One practice per specialty within 5 miles',
     description:
-      'Territory exclusivity while your account is in good standing. We will not install the same system for the practice down the street.',
+      'Territory exclusivity while your account is in good standing. We will not install the same system for the practice or firm down the street.',
   },
   {
     icon: ShieldCheck,
@@ -54,24 +54,24 @@ const LOCAL_REASONS = [
 
 const LOCAL_FAQ = [
   {
-    question: 'Do you only work with practices in Des Moines?',
+    question: 'Do you only work with practices and firms in Des Moines?',
     answer:
-      'No, but the metro is home base. We are located in West Des Moines and serve the whole Des Moines area in person, including Ankeny, Urbandale, Waukee, Clive, Johnston, Grimes, Altoona, and Norwalk. We also work with practices across Iowa remotely.',
+      'No, but the metro is home base. We are located in West Des Moines and serve the whole Des Moines area in person, including Ankeny, Urbandale, Waukee, Clive, Johnston, Grimes, Altoona, and Norwalk. We also work with practices and firms across Iowa remotely.',
   },
   {
     question: 'Can we meet in person?',
     answer:
-      'Yes. Most calls are video calls because it is faster for everyone, but if your practice is in the metro we are happy to meet at your office, and we usually do for kickoff and front-desk training.',
+      'Yes. Most calls are video calls because it is faster for everyone, but if your office is in the metro we are happy to meet at your office, and we usually do for kickoff and front-desk training.',
   },
   {
-    question: 'How much does Axeon cost for a Des Moines practice?',
+    question: 'How much does Axeon cost for a Des Moines practice or firm?',
     answer:
-      'AxeonCORE is from $799/mo on a 12-month agreement, with the $3,000 setup included. Month-to-month is available if you pay the setup upfront. AxeonGROWTH is from $1,999/mo plus ad spend and adds Google Local Services Ads and search ads management, past-patient reactivation and an AI phone receptionist.',
+      'AxeonCORE is from $799/mo on a 12-month agreement, with the $3,000 setup included. Month-to-month is available if you pay the setup upfront. AxeonGROWTH is from $1,999/mo plus ad spend and adds Google Local Services Ads and search ads management, reactivation of past patients and clients, and an AI phone receptionist.',
   },
   {
-    question: 'What kinds of practices do you work with?',
+    question: 'What kinds of practices and firms do you work with?',
     answer:
-      'Established private practices: dental practices, med spas and aesthetic clinics, law firms, and accounting and CPA firms. If your practice books consultations or appointments, start with the free after-hours audit and we will tell you honestly whether it fits.',
+      'Established private practices: dental practices, med spas and aesthetic clinics, law firms, and accounting and CPA firms. If your practice or firm books consultations or appointments, start with the free after-hours audit and we will tell you honestly whether it fits.',
   },
   {
     question: 'Does the intake collect any health or financial details?',
@@ -107,12 +107,12 @@ export default function DesMoinesWebDesignPage() {
             <MapPin size={15} /> West Des Moines, Iowa · Serving the Des Moines Metro
           </p>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight leading-[1.05] font-display mb-6">
-            Des Moines Practices: Every Inquiry Answered in 60 Seconds
+            Des Moines Practices and Firms: Every Inquiry Answered in 60 Seconds
           </h1>
           <p className="text-lg sm:text-xl text-neutral-300 leading-relaxed max-w-3xl mb-10">
-            Axeon Studio installs patient and client intake for dental, med spa, law and accounting practices across the
+            Axeon Studio installs patient and client intake for dental practices, med spas, law firms and CPA firms across the
             Des Moines metro. Every missed call and web inquiry gets a reply within 60 seconds, 24/7, the consultation gets
-            booked, and every patient gets asked for a review after the visit.
+            booked, and every patient and client gets asked for a review afterward.
           </p>
           <div className="flex flex-wrap items-center gap-4">
             <Link
@@ -197,7 +197,7 @@ export default function DesMoinesWebDesignPage() {
             <div className="lg:w-72 shrink-0">
               <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ THE SYSTEM ]</p>
               <h2 className="mt-2 text-2xl font-extrabold font-display tracking-tight leading-tight">
-                What Every Metro Practice Gets
+                What Every Metro Practice and Firm Gets
               </h2>
             </div>
             <ol className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -232,7 +232,7 @@ export default function DesMoinesWebDesignPage() {
         <div className="max-w-6xl mx-auto">
           <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ WHO WE HELP ]</p>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight mb-4">
-            Practices We Serve Across Des Moines
+            Practices and Firms We Serve Across Des Moines
           </h2>
           <p className="text-lg text-neutral-600 max-w-3xl mb-10 leading-relaxed">
             Pick yours to see where new patients and clients slip away, and how we answer them within 60 seconds.
@@ -251,7 +251,7 @@ export default function DesMoinesWebDesignPage() {
             ))}
           </ul>
           <p className="mt-8 text-neutral-600">
-            A different kind of practice?{' '}
+            A different kind of practice or firm?{' '}
             <Link href="/solutions#other-practices" className="text-blue-600 font-semibold hover:underline">
               See whether it fits.
             </Link>
@@ -266,7 +266,7 @@ export default function DesMoinesWebDesignPage() {
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">Service Area</h2>
             <p className="text-neutral-300 leading-relaxed">
               Based in West Des Moines, IA 50266. In-person kickoffs and front-desk training anywhere in the metro;
-              remote setup for practices across Iowa.
+              remote setup for practices and firms across Iowa.
             </p>
             <address className="not-italic mt-6 text-neutral-300 space-y-1">
               <div className="font-semibold text-white">{BUSINESS.name}</div>
@@ -309,7 +309,7 @@ export default function DesMoinesWebDesignPage() {
               })}
             </ul>
             <p className="mt-6 text-sm text-neutral-400">
-              Also serving Polk, Dallas, Warren, and Story counties, and practices statewide. {cityList} are simply
+              Also serving Polk, Dallas, Warren, and Story counties, and practices and firms statewide. {cityList} are simply
               where we can show up in person.
             </p>
           </div>
@@ -323,7 +323,7 @@ export default function DesMoinesWebDesignPage() {
         <div className="max-w-3xl mx-auto">
           <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ FAQ ]</p>
           <h2 className="text-3xl sm:text-4xl font-extrabold font-display tracking-tight mb-10">
-            Questions Des Moines Practice Owners Ask
+            Questions Des Moines Practice and Firm Owners Ask
           </h2>
           <FAQAccordion items={LOCAL_FAQ} defaultOpenCount={1} />
         </div>
@@ -360,7 +360,7 @@ export default function DesMoinesWebDesignPage() {
             </a>
           </div>
           <p className="mt-6 text-xs text-neutral-500 max-w-xl mx-auto leading-relaxed">
-            We commit to speed, replies and review requests, never to a number of patients, clients or rankings.
+            We commit to speed, replies and review requests, never to a number of patients, clients, cases or rankings.
           </p>
         </div>
       </section>

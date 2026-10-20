@@ -7,8 +7,8 @@ import { BreadcrumbJsonLd } from '@/components/common/JsonLd';
 
 export const metadata: Metadata = buildMetadata({
   path: '/faq',
-  title: 'FAQ: Questions Practice Owners Ask | Axeon Studio',
-  description: 'Answers to what dental, med spa, law and accounting practice owners ask before working with Axeon Studio: the performance commitment, ownership, agreements and cost.',
+  title: 'FAQ: Questions Practice & Firm Owners Ask | Axeon Studio',
+  description: 'Answers to what owners of dental practices, med spas, law firms and CPA firms ask before working with Axeon Studio: the performance commitment, ownership, agreements and cost.',
 });
 
 export default function FaqPage() {
@@ -35,7 +35,7 @@ export default function FaqPage() {
           Frequently Asked Questions
         </h1>
         <p className="text-lg text-neutral-600 mb-14">
-          Straight answers to what practice owners ask before working with us.
+          Straight answers to what dental, med spa, law firm and CPA firm owners ask before working with us.
         </p>
         <FAQAccordion items={faqItems} defaultOpenCount={1} />
 

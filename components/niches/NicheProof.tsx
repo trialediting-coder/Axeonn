@@ -21,8 +21,8 @@ export function NicheProof({ niche }: { niche: Niche }) {
             Find out what happens when {niche.customerNoun} reach you after hours.
           </h2>
           <p className="mt-4 max-w-xl text-base leading-relaxed text-blue-100">
-            We call your practice after hours, check how fast your website answers an inquiry, and compare your reviews to
-            the top 3 nearby practices. You get a short video walkthrough of what we found. No charge.
+            We call your practice or firm after hours, check how fast your website answers an inquiry, and compare your reviews to
+            the top 3 nearby competitors. You get a short video walkthrough of what we found. No charge.
           </p>
           <Link
             href="/audit"

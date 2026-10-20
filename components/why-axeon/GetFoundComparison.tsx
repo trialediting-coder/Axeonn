@@ -5,19 +5,19 @@ import { motion } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
 import { VersusRows } from './VersusSection';
 
-// Section 01 of /why-axeon, told through one example: a dental practice
-// website. Until 2026-10-19 this showed an HVAC template gallery next to our
+// Section 01 of /why-axeon, told through one example site that holds for all
+// four verticals (dental, med spa, law, CPA). Until 2026-10-19 this showed an HVAC template gallery next to our
 // trade builds; practice visitors now see their own kind of site instead. No
 // screenshots of other businesses, no client results.
 const EXAMPLE_TYPICAL = [
-  { label: 'Hero', value: 'A stock photo of a smiling patient and “Welcome to our practice”' },
-  { label: 'Providers', value: 'One paragraph, three clicks deep' },
-  { label: 'Next step', value: 'A contact form that emails the front desk' },
+  { label: 'Hero', value: 'A stock photo of a handshake or a smiling patient, and “Welcome”' },
+  { label: 'Your team', value: 'One paragraph, three clicks deep' },
+  { label: 'Next step', value: 'A contact form that emails the front desk or intake inbox' },
 ];
 
 const EXAMPLE_AXEON = [
-  { label: 'Hero', value: 'Your providers, your reviews, and “Book a new-patient exam” in the first screen' },
-  { label: 'Providers', value: 'Real photos, credentials and the services each one offers' },
+  { label: 'Hero', value: 'Your people, your reviews and one clear ask in the first screen: “Book a new-patient exam”, “Book a consult”, “Free case review” or “Schedule a tax consult”' },
+  { label: 'Your team', value: 'Real photos and credentials for each dentist, injector, attorney or CPA, and what each one handles' },
   { label: 'Next step', value: 'Online booking, plus a reply within 60 seconds to every inquiry' },
 ];
 
@@ -54,14 +54,14 @@ export default function GetFoundComparison() {
             [ 01 · GET FOUND ]
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-neutral-950 font-display leading-[1.08]">
-            A template gets you a website. A practice site gets you booked.
+            A template gets you a website. A site built for your practice or firm gets you booked.
           </h2>
-          <p className="mt-4 text-lg text-neutral-600 leading-relaxed">Example: the same dental practice, two ways.</p>
+          <p className="mt-4 text-lg text-neutral-600 leading-relaxed">Example: the same practice or firm, two ways.</p>
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-4 sm:gap-6 mb-6">
-          <ExampleCard title="Example · Typical practice site" rows={EXAMPLE_TYPICAL} />
-          <ExampleCard title="Example · Axeon practice site" rows={EXAMPLE_AXEON} dark />
+          <ExampleCard title="Example · Typical site" rows={EXAMPLE_TYPICAL} />
+          <ExampleCard title="Example · Axeon site" rows={EXAMPLE_AXEON} dark />
         </div>
 
         <VersusRows
@@ -70,7 +70,7 @@ export default function GetFoundComparison() {
             'Search setup treated as a separate project, if it happens at all.',
           ]}
           axeon={[
-            'Designed around how your practice books new patients and clients.',
+            'Designed around how your practice or firm books new patients, clients and cases.',
             'Set up to show up on Google, Maps and AI answers.',
           ]}
         />
