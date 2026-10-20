@@ -6,7 +6,7 @@ export function SetupPrice({ was = '$3,000', className = '' }: { was?: string; c
   return (
     <span className={`whitespace-nowrap ${className}`}>
       Setup{' '}
-      <s className="opacity-60 decoration-2" aria-label={`normally ${was}`}>
+      <s data-strike className="opacity-60 decoration-2" aria-label={`normally ${was}`}>
         {was}
       </s>{' '}
       <strong className="font-extrabold">$0</strong>

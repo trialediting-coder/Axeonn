@@ -7,7 +7,8 @@ export function NicheCard({ niche }: { niche: Niche }) {
   return (
     <Link
       href={`/solutions/${niche.slug}`}
-      className="group flex flex-col justify-between rounded-2xl border border-neutral-200 bg-white p-5 sm:p-7 transition-all hover:border-blue-400 hover:shadow-lg"
+      data-spot
+      className="group ix-card relative flex flex-col justify-between rounded-2xl border border-neutral-200 bg-white p-5 sm:p-7 transition-all hover:border-blue-400 hover:shadow-lg"
     >
       <div>
         <p className="mb-2.5 sm:mb-4 text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ {niche.name} ]</p>

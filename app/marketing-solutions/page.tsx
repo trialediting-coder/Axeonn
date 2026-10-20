@@ -306,7 +306,8 @@ export default function HowItWorksPage() {
             href="/check-your-area"
             data-track="cta_click"
             data-track-cta="how_it_works_area_check_card"
-            className="group rounded-3xl bg-blue-600 text-white p-6 sm:p-10 flex flex-col justify-between gap-5 sm:gap-8 hover:bg-blue-700 transition-colors"
+            data-spot="dark"
+            className="group ix-card relative rounded-3xl bg-blue-600 text-white p-6 sm:p-10 flex flex-col justify-between gap-5 sm:gap-8 hover:bg-blue-700 transition-colors"
           >
             <div>
               <p className="text-xs font-mono font-bold tracking-widest uppercase text-blue-100">[ SEE IT ON YOUR OWN PRACTICE ]</p>
@@ -324,7 +325,8 @@ export default function HowItWorksPage() {
           </Link>
           <Link
             href="/axeonproof"
-            className="group rounded-3xl border border-neutral-200 p-6 sm:p-10 flex flex-col justify-between gap-5 sm:gap-8 hover:border-blue-300 transition-colors"
+            data-spot
+            className="group ix-card relative rounded-3xl border border-neutral-200 p-6 sm:p-10 flex flex-col justify-between gap-5 sm:gap-8 hover:border-blue-300 transition-colors"
           >
             <div>
               <Eyebrow label="AxeonPROOF" />

@@ -517,3 +517,42 @@ html, #root {
 @media (hover: none) {
   .proof-window-scroller { overflow-y: hidden; }
 }
+
+/* ───────── Desktop interactions (components/common/InteractionLayer.tsx) ─────────
+   Mouse + motion only. html.ix-on is set by the layer on a fine pointer with no
+   reduced-motion preference, so touch screens and reduced motion get none of it. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  /* Link cards: a short lift. Uses `translate`, so a card's own transform stays. */
+  .ix-on .ix-card { transition: translate 350ms cubic-bezier(.2,.8,.2,1), border-color 300ms, box-shadow 300ms, background-color 300ms, color 200ms; }
+  .ix-on .ix-card:hover { translate: 0 -3px; }
+  /* A soft light inside the card under the pointer. The card must be positioned. */
+  .ix-on [data-spot]::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0;
+    transition: opacity 400ms ease;
+    background: radial-gradient(420px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgb(37 99 235 / 0.07), transparent 65%);
+  }
+  .ix-on [data-spot="dark"]::after {
+    background: radial-gradient(420px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgb(255 255 255 / 0.07), transparent 65%);
+  }
+  .ix-on [data-spot].is-spot::after { opacity: 1; }
+  /* Plans side by side: the one under the pointer stays bright, the other eases back. */
+  .ix-on .ix-plans > * { transition: opacity 300ms ease, translate 350ms cubic-bezier(.2,.8,.2,1); }
+  .ix-on .ix-plans:has(> :hover) > :not(:hover) { opacity: 0.86; }
+  /* Top nav: an underline slides in under the hovered or open item. */
+  .ix-on .ix-navline { background: linear-gradient(currentColor, currentColor) no-repeat 0 100% / 0 1.5px; transition: background-size 250ms ease, color 150ms; }
+  .ix-on .ix-navline:hover, .ix-on .ix-navline[aria-expanded="true"] { background-size: 100% 1.5px; }
+  /* Nav dropdowns ease in instead of popping. */
+  .ix-on .ix-drop { animation: ixDrop 180ms cubic-bezier(.2,.8,.2,1) both; }
+  /* Hero photo: drifts a few pixels against the pointer, smoothed here. */
+  .ix-on [data-parallax] { transition: transform 900ms cubic-bezier(.2,.8,.2,1); will-change: transform; }
+  /* A crossed-out price draws its line once it scrolls into view. */
+  .ix-on [data-strike].ix-wait {
+    text-decoration: none;
+    background: linear-gradient(currentColor, currentColor) no-repeat 0 55% / 0 2px;
+  }
+  .ix-on [data-strike].ix-wait.is-in { background-size: 100% 2px; transition: background-size 600ms cubic-bezier(.2,.8,.2,1) 150ms; }
+}
+@keyframes ixDrop {
+  from { opacity: 0; translate: 0 -6px; }
+  to { opacity: 1; translate: 0 0; }
+}

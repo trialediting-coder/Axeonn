@@ -147,7 +147,7 @@ export function Header() {
   }, [mobileMenuOpen]);
 
   const onDarkHero = (isNichePage || isHomePage || isOtherDarkHeroPage) && !isScrolled && !mobileMenuOpen;
-  const navHoverClass = onDarkHero ? 'hover:text-blue-400 text-white' : 'hover:text-blue-600 text-neutral-800';
+  const navHoverClass = `ix-navline ${onDarkHero ? 'hover:text-blue-400 text-white' : 'hover:text-blue-600 text-neutral-800'}`;
 
   const openAbout = () => {
     if (aboutTimeoutRef.current) clearTimeout(aboutTimeoutRef.current);
@@ -251,7 +251,7 @@ export function Header() {
                 onPointerEnter={mouseOnly(openSolutions)}
                 onPointerLeave={mouseOnly(closeSolutionsDelayed)}
               >
-                <div className="bg-white rounded-2xl border border-neutral-200/90 shadow-2xl shadow-neutral-900/10 p-6 sm:p-7 backdrop-blur-md">
+                <div className="ix-drop bg-white rounded-2xl border border-neutral-200/90 shadow-2xl shadow-neutral-900/10 p-6 sm:p-7 backdrop-blur-md">
                   <div className="flex flex-col lg:flex-row gap-6 lg:gap-7 items-stretch">
                     <div className="flex-1 flex flex-col gap-5 min-w-0">
                       {PRACTICE_GROUPS.map((group) => (
@@ -337,7 +337,7 @@ export function Header() {
                 onPointerEnter={mouseOnly(openServices)}
                 onPointerLeave={mouseOnly(closeServicesDelayed)}
               >
-                <div className="bg-white rounded-2xl border border-neutral-200/90 shadow-2xl shadow-neutral-900/10 p-5 sm:p-6">
+                <div className="ix-drop bg-white rounded-2xl border border-neutral-200/90 shadow-2xl shadow-neutral-900/10 p-5 sm:p-6">
                   <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
                     {services.map((service) => (
                       <Link
@@ -404,7 +404,7 @@ export function Header() {
                 onPointerEnter={mouseOnly(openAbout)}
                 onPointerLeave={mouseOnly(closeAboutDelayed)}
               >
-                <div className="w-60 bg-white rounded-2xl border border-neutral-200 shadow-2xl p-2.5">
+                <div className="ix-drop w-60 bg-white rounded-2xl border border-neutral-200 shadow-2xl p-2.5">
                   {ABOUT_LINKS.map((link) => (
                     <Link
                       key={link.href}

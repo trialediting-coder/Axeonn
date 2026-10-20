@@ -101,7 +101,8 @@ export function CityLanding({ page }: { page: CityPage }) {
               href="/check-your-area"
               data-track="cta_click"
               data-track-cta="area_check_city_card"
-              className="group mt-5 sm:mt-10 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 rounded-3xl bg-neutral-950 text-white p-5 sm:p-8"
+              data-spot="dark"
+              className="group ix-card relative mt-5 sm:mt-10 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 rounded-3xl bg-neutral-950 text-white p-5 sm:p-8"
             >
               <span className="text-4xl sm:text-6xl font-black font-display tracking-tighter text-blue-500 leading-none whitespace-nowrap">
                 60 sec
@@ -161,7 +162,8 @@ export function CityLanding({ page }: { page: CityPage }) {
                 <li key={item.step}>
                   <Link
                     href={item.href}
-                    className="group flex items-center justify-between gap-3 rounded-2xl bg-white border border-neutral-200 px-4 py-3 sm:px-5 sm:py-4 hover:border-blue-400 transition-colors"
+                    data-spot
+                    className="group ix-card relative flex items-center justify-between gap-3 rounded-2xl bg-white border border-neutral-200 px-4 py-3 sm:px-5 sm:py-4 hover:border-blue-400 transition-colors"
                   >
                     <span>
                       <span className="block text-xs font-mono font-bold text-neutral-400">0{idx + 1}</span>

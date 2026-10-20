@@ -55,6 +55,9 @@ export function Hero() {
       {/* The hero stops short of the viewport so the "what's included" strip below is in the first screen. */}
       <div className="relative w-full bg-neutral-950 text-white flex flex-col px-6 sm:px-10 lg:px-16 xl:px-20 pt-20 sm:pt-28 pb-6 sm:pb-10 overflow-hidden">
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+          {/* Desktop: the photos drift a few pixels against the pointer
+              (components/common/InteractionLayer.tsx); the 12px bleed hides the edges. */}
+          <div data-parallax className="absolute inset-0 lg:-inset-3">
           {/* All four photos are stacked and crossfade with the headline word.
               Only the first is fetched eagerly; the rest load while it shows. */}
           {SLIDES.map((s, i) =>
@@ -74,6 +77,7 @@ export function Hero() {
             />
             ),
           )}
+          </div>
           <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-neutral-950/95 via-neutral-950/60 to-neutral-950/20 sm:from-neutral-950/90 sm:via-neutral-950/60 sm:via-35% sm:to-transparent sm:to-70%" />
           <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/60 via-transparent to-neutral-950/40" />
           <div className="absolute -top-[13rem] -right-[13rem] w-[678px] h-[678px] rounded-full bg-[radial-gradient(closest-side,rgb(37_99_235/0.25)_62%,transparent)] pointer-events-none" />

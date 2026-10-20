@@ -218,7 +218,8 @@ export default function DesMoinesWebDesignPage() {
                 <li key={item.step}>
                   <Link
                     href={item.href}
-                    className="group flex items-center justify-between gap-3 rounded-2xl bg-white border border-neutral-200 px-4 py-3 sm:px-5 sm:py-4 hover:border-blue-400 transition-colors"
+                    data-spot
+                    className="group ix-card relative flex items-center justify-between gap-3 rounded-2xl bg-white border border-neutral-200 px-4 py-3 sm:px-5 sm:py-4 hover:border-blue-400 transition-colors"
                   >
                     <span>
                       <span className="block text-xs font-mono font-bold text-neutral-400">0{idx + 1}</span>
