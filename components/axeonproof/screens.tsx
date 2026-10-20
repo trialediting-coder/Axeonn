@@ -476,7 +476,13 @@ export function GhostScreen({ tab }: { tab: ProofTab }) {
       <Card className="mt-4 overflow-hidden" ms={100}>
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-100 px-4 py-3">
           <p className="flex flex-wrap items-center gap-x-2 text-sm font-semibold text-neutral-900">
-            {locked ? 'An example month on' : 'This month on'} <AxeonLogo product={TIER_SHORT[tab.tier]} size="sm" mark={false} />
+            {locked ? (
+              <>
+                An example month on <AxeonLogo product={TIER_SHORT[tab.tier]} size="sm" mark={false} />
+              </>
+            ) : (
+              'This month'
+            )}
             {locked ? <span className="font-normal text-neutral-500">· not your numbers yet</span> : null}
           </p>
           {locked ? (

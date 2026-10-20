@@ -360,6 +360,7 @@ export const VERTICAL_DEMOS: VerticalDemo[] = [
 export const PLAN_CHIP: Record<OnboardingTier, string> = {
   website: 'Every plan',
   essentials: 'Every plan',
-  axeoncore: 'AxeonCORE',
+  // Every client is on AxeonCORE at least, so CORE tabs read as included (owner, 2026-10-20).
+  axeoncore: 'Every plan',
   axeongrowth: 'AxeonGROWTH',
 };

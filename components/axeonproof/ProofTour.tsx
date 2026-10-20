@@ -30,7 +30,7 @@ const ICONS: Record<ShowcaseTabKey, LucideIcon> = {
 
 const CHIP_STYLE: Record<string, string> = {
   essentials: 'bg-white/10 text-neutral-200 ring-1 ring-white/15',
-  axeoncore: 'bg-blue-600 text-white',
+  axeoncore: 'bg-white/10 text-neutral-200 ring-1 ring-white/15',
   axeongrowth: 'bg-white text-neutral-950',
 };
 
