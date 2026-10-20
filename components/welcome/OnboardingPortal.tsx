@@ -7,6 +7,7 @@
 // /api/welcome/<token>/items; the server validates and recomputes completion.
 // Item definitions come from data/onboardingItems.ts via the page, never fetched.
 
+import LineIcon from '@/components/common/LineIcon';
 import { useMemo, useState, type FormEvent, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Check, CheckCircle2, ChevronDown, Clock, Loader2, Lock, Pencil, Phone, Sparkles } from 'lucide-react';
@@ -473,7 +474,9 @@ function AcceptCard({
         <ol className="space-y-2.5 mb-5">
           {item.steps.map((step, i) => (
             <li key={i} className="flex items-start gap-3 text-sm text-neutral-800 leading-relaxed">
-              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-[11px] font-bold text-neutral-700 font-mono">{i + 1}</span>
+              <LineIcon>
+                <span className="grid h-5 w-5 place-items-center rounded-full bg-neutral-100 text-[11px] leading-none font-bold text-neutral-700 font-mono">{i + 1}</span>
+              </LineIcon>
               <span>{step}</span>
             </li>
           ))}

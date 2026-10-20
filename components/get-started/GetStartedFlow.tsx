@@ -13,6 +13,7 @@
 // Progress is saved to localStorage on every change, so a visitor who leaves
 // and comes back (either page) picks up exactly where they stopped.
 
+import LineIcon from '@/components/common/LineIcon';
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { ArrowLeft, ArrowRight, CalendarCheck, Check, Loader2 } from 'lucide-react';
 import {
@@ -671,9 +672,11 @@ function ResultCard({
         <ul className="mt-6 space-y-3 border-t border-neutral-100 pt-6">
           {pkg.includes.map((item) => (
             <li key={item} className="flex items-start gap-3 text-base text-neutral-800">
-              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600">
-                <Check size={13} strokeWidth={3} />
-              </span>
+              <LineIcon>
+                <span className="grid h-5 w-5 place-items-center rounded-full bg-blue-50 text-blue-600">
+                  <Check size={13} strokeWidth={3} />
+                </span>
+              </LineIcon>
               {item}
             </li>
           ))}

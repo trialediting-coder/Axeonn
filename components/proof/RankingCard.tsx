@@ -6,6 +6,7 @@
 // latest 5×5 grid, and "Scan now" with this month's remaining scans. Client
 // scans never feed the official numbers; the copy says why the line matters
 // more than any single day.
+import LineIcon from '@/components/common/LineIcon';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MapPin } from 'lucide-react';
@@ -82,8 +83,13 @@ export function RankingCard({ data, api }: { data: RankingData; api: string | nu
     <section className="proof-rise mt-4 rounded-2xl bg-white p-5 shadow-[0_2px_12px_-2px_rgba(16,24,40,0.08),0_1px_2px_rgba(16,24,40,0.04)] sm:mt-6 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
-            <MapPin size={12} /> Google Maps · “{data.keyword}” in {data.city}
+          <p className="flex items-start gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
+            <LineIcon>
+              <MapPin size={12} />
+            </LineIcon>
+            <span>
+              Google Maps · “{data.keyword}” in {data.city}
+            </span>
           </p>
           <p className="mt-1 text-3xl font-bold text-neutral-950">
             {data.latest ? (data.latest.found && data.latest.rank !== null ? `#${data.latest.rank}` : 'Not in top 20') : 'Measured after kickoff'}

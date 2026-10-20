@@ -1,5 +1,6 @@
 'use client';
 
+import LineIcon from '@/components/common/LineIcon';
 import { useEffect, type MouseEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -127,7 +128,9 @@ export default function TermsClient() {
         {/* Ownership Guarantee Callout Card */}
         <div className="my-8 sm:my-10 p-5 sm:p-6 rounded-xl bg-gradient-to-br from-blue-50/80 via-slate-50 to-white border border-blue-100 shadow-xs">
           <div className="flex items-start gap-3.5">
-            <ShieldCheck size={22} className="text-[#2563EB] shrink-0 mt-0.5" />
+            <LineIcon className="text-sm">
+              <ShieldCheck size={22} className="text-[#2563EB]" />
+            </LineIcon>
             <div>
               <h2 className="text-sm font-bold uppercase tracking-wider text-gray-950">
                 What You Own, in Plain Terms

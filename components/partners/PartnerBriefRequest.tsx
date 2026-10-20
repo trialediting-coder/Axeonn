@@ -7,6 +7,7 @@
 // reaches Airtable and the owner's inbox. Same rule as every lead form: retry
 // once, and never show "sent" on a failed save.
 
+import LineIcon from '@/components/common/LineIcon';
 import { useState, type FormEvent } from 'react';
 import { AlertTriangle, ArrowRight, Check, Loader2, Mail, Phone } from 'lucide-react';
 import { OWNER_PHONE_DISPLAY, OWNER_PHONE_HREF, leadMailto, saveLead } from '@/lib/leadSubmit';
@@ -111,8 +112,10 @@ export function PartnerBriefRequest() {
       {state === 'failed' && (
         <div role="alert" className="mt-3 rounded-2xl border border-red-400/40 bg-red-500/10 p-4 text-sm text-red-100">
           <p className="flex items-start gap-2 font-semibold">
-            <AlertTriangle size={16} className="mt-0.5 shrink-0" /> Something went wrong on our side and your request
-            didn&apos;t reach us.
+            <LineIcon>
+              <AlertTriangle size={16} />
+            </LineIcon>
+            <span>Something went wrong on our side and your request didn&apos;t reach us.</span>
           </p>
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
             <a href={OWNER_PHONE_HREF} className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-white px-4 font-semibold text-neutral-950">

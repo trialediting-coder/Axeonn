@@ -1,5 +1,6 @@
 'use client';
 
+import LineIcon from '@/components/common/LineIcon';
 import { useState, type MouseEvent } from 'react';
 import Link from 'next/link';
 import {
@@ -60,7 +61,9 @@ export default function BookClient() {
                     'A clear plan and price: AxeonCORE from $799/mo, with our 90-day performance commitment',
                   ].map((item) => (
                     <li key={item} className="flex items-start gap-2.5 text-sm sm:text-base text-zinc-700 leading-snug sm:leading-relaxed">
-                      <span className="mt-1.5 sm:mt-2 w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0" />
+                      <LineIcon>
+                        <span className="sm:mt-2 w-1.5 h-1.5 rounded-full bg-blue-600" />
+                      </LineIcon>
                       <span>{item}</span>
                     </li>
                   ))}

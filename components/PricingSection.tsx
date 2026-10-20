@@ -1,5 +1,6 @@
 'use client';
 
+import LineIcon from '@/components/common/LineIcon';
 import { useState, type ReactNode } from 'react';
 import { SetupPrice } from '@/components/common/SetupPrice';
 import Link from 'next/link';
@@ -109,7 +110,7 @@ export function PricingSection({
           </p>
           <p className="mt-3 sm:mt-5 text-lg sm:text-2xl font-extrabold font-display tracking-tight text-blue-600">{OFFER_LINE}</p>
           <p className="mt-1.5 sm:mt-2 text-[13px] sm:text-base font-semibold text-neutral-700 text-balance">
-            <SetupPrice /> · {TERM_LINE}
+            <SetupPrice /> · <DotParts text={TERM_LINE} />
           </p>
         </div>
 
@@ -163,7 +164,9 @@ export function PricingSection({
 
         {showFaq && (
           // Purpose: straight answers to the pricing questions; collapsed so every question shows in one view.
-          <div className="mt-12 sm:mt-24 max-w-4xl mx-auto">
+          // id="pricing-faq": the commitment band's "See the terms" link lands here; the html
+          // scroll-padding-top in globals.css keeps it clear of the sticky header.
+          <div id="pricing-faq" className="mt-12 sm:mt-24 max-w-4xl mx-auto">
             <h2 className="text-2xl sm:text-3xl font-bold font-display text-neutral-950 mb-4 sm:mb-10 text-center">
               Common Questions About Pricing
             </h2>
@@ -180,16 +183,21 @@ export function PricingSection({
                       onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
                       aria-expanded={isOpen}
                       aria-controls={`pricing-faq-${idx}`}
-                      className="w-full min-h-[44px] py-2.5 sm:p-7 text-left flex items-center justify-between gap-4 cursor-pointer sm:hover:bg-neutral-50/50 transition-colors"
+                      className="w-full min-h-[44px] py-2.5 sm:p-7 text-left flex items-center cursor-pointer sm:hover:bg-neutral-50/50 transition-colors"
                     >
-                      <span className="font-bold text-[15px] sm:text-xl text-neutral-950 leading-snug">{faq.q}</span>
-                      <div
-                        className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center shrink-0 transition-colors ${
-                          isOpen ? 'bg-blue-600 text-white' : 'bg-neutral-100 text-neutral-600'
-                        }`}
-                      >
-                        {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                      </div>
+                      {/* Inner row: the toggle sits on the question's first line when it wraps. */}
+                      <span className="flex w-full items-start justify-between gap-4">
+                        <span className="font-bold text-[15px] sm:text-xl text-neutral-950 leading-snug">{faq.q}</span>
+                        <LineIcon className="text-[15px] sm:text-xl leading-snug">
+                          <span
+                            className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full grid place-items-center transition-colors ${
+                              isOpen ? 'bg-blue-600 text-white' : 'bg-neutral-100 text-neutral-600'
+                            }`}
+                          >
+                            {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                          </span>
+                        </LineIcon>
+                      </span>
                     </button>
 
                     {/* Always in the HTML (collapsed with `hidden`) so crawlers read the answers. */}
@@ -209,6 +217,21 @@ export function PricingSection({
   );
 }
 
+/** "a · b · c" with each part kept whole, so lines break at the dots, never mid-phrase. */
+function DotParts({ text }: { text: string }) {
+  const parts = text.split(' · ');
+  return (
+    <>
+      {parts.map((part, i) => (
+        <span key={part}>
+          <span className="whitespace-nowrap">{part}</span>
+          {i < parts.length - 1 && ' · '}
+        </span>
+      ))}
+    </>
+  );
+}
+
 type CardVariant = PricingTier['variant'];
 
 function FeatureItem({
@@ -225,23 +248,25 @@ function FeatureItem({
     const Icon = HIGHLIGHT_ICONS[highlight];
     return (
       <li
-        className={`flex gap-3 sm:gap-3.5 text-[15px] sm:text-base leading-snug sm:leading-relaxed rounded-xl sm:rounded-2xl px-3 py-2.5 sm:p-4 -mx-1 border ${
+        className={`flex items-start gap-3 sm:gap-3.5 text-[15px] sm:text-base leading-snug sm:leading-relaxed rounded-xl sm:rounded-2xl px-3 py-2.5 sm:p-4 -mx-1 border ${
           isPremium ? 'bg-white/5 border-white/10' : 'bg-blue-50 border-blue-100'
         }`}
       >
-        <Icon size={20} className={`shrink-0 sm:mt-0.5 ${isPremium ? 'text-blue-400' : 'text-blue-500'}`} />
+        <LineIcon>
+          <Icon size={20} className={isPremium ? 'text-blue-400' : 'text-blue-500'} />
+        </LineIcon>
         <span className="font-semibold">{feature}</span>
       </li>
     );
   }
   return (
-    <li className="flex gap-3 sm:gap-3.5 text-[15px] sm:text-base leading-snug sm:leading-relaxed">
-      <Check
-        size={18}
-        className={`shrink-0 mt-0.5 sm:mt-1 ${
-          variant === 'plain' ? 'text-neutral-400' : isPremium ? 'text-blue-400' : 'text-blue-600'
-        }`}
-      />
+    <li className="flex items-start gap-3 sm:gap-3.5 text-[15px] sm:text-base leading-snug sm:leading-relaxed">
+      <LineIcon>
+        <Check
+          size={18}
+          className={variant === 'plain' ? 'text-neutral-400' : isPremium ? 'text-blue-400' : 'text-blue-600'}
+        />
+      </LineIcon>
       <span>{feature}</span>
     </li>
   );
@@ -312,7 +337,7 @@ function PlanCard({ tier }: { tier: PricingTier }) {
       <p className={`mt-2 text-lg sm:text-2xl font-bold leading-snug ${isPremium ? 'text-white' : 'text-neutral-900'}`}>
         <SetupPrice was={tier.setupWas} />
       </p>
-      <p className={`mt-0.5 text-sm sm:text-base font-semibold text-balance ${muted}`}>{tier.startFee}</p>
+      <p className={`mt-0.5 text-sm sm:text-base font-semibold text-balance ${muted}`}><DotParts text={tier.startFee} /></p>
       {/* Phones: the start note and "right for you if" sit behind "See everything included". */}
       {tier.startNote ? (
         <p className={`hidden sm:block mt-1 text-sm sm:text-base leading-relaxed mb-8 ${muted}`}>{tier.startNote}</p>
@@ -411,13 +436,17 @@ function OfferStrip() {
         <ul className="mt-3 flex flex-col gap-y-2 text-sm sm:text-base text-neutral-600">
           {OFFER_POINTS.map((point) => (
             <li key={point} className="flex items-start gap-2">
-              <Check size={16} className="mt-1 shrink-0 text-blue-600" strokeWidth={3} />
+              <LineIcon>
+                <Check size={16} className="text-blue-600" strokeWidth={3} />
+              </LineIcon>
               {point}
             </li>
           ))}
         </ul>
         <p className="mt-3 flex items-start gap-2 text-sm sm:text-base text-neutral-600">
-          <MapPin size={16} className="mt-1 shrink-0 text-blue-600" />
+          <LineIcon>
+            <MapPin size={16} className="text-blue-600" />
+          </LineIcon>
           {EXCLUSIVITY_LINE}
         </p>
       </div>

@@ -1,3 +1,4 @@
+import LineIcon from '@/components/common/LineIcon';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -281,7 +282,9 @@ export default function NonprofitsPage() {
           <ul className="lg:col-span-7 divide-y divide-neutral-200 border-y border-neutral-200">
             {INCLUDED.map(({ icon: Icon, title, description, short }) => (
               <li key={title} className="flex gap-3 sm:gap-4 py-2.5 sm:py-5">
-                <Icon size={20} className="mt-0.5 sm:mt-1 shrink-0 text-blue-600" />
+                <LineIcon className="text-base sm:text-lg leading-snug sm:leading-normal">
+                  <Icon size={20} className="text-blue-600" />
+                </LineIcon>
                 <div>
                   <h3 className="text-base sm:text-lg font-bold leading-snug sm:leading-normal">{title}</h3>
                   <p className="sm:mt-1 text-sm sm:text-base text-neutral-600 leading-snug sm:leading-relaxed">

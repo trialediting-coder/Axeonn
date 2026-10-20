@@ -1,3 +1,4 @@
+import LineIcon from '@/components/common/LineIcon';
 import Link from 'next/link';
 import { Check, X } from 'lucide-react';
 
@@ -23,7 +24,7 @@ const ROWS: ComparisonRow[] = [
     dimension: 'Pricing',
     typical: 'A large build fee up front, plus separate software, phone and marketing bills every month.',
     axeon: 'AxeonCORE from $799/mo on a 12-month agreement. $0 setup (normally $3,000) and nothing is due until it is working.',
-    axeonShort: "From $799/mo, 12-month agreement. $0 setup (normally $3,000), nothing due until it's working.",
+    axeonShort: "From $799/mo, 12-month agreement. $0 setup, nothing due until it's working.",
   },
   {
     dimension: 'After hours',
@@ -100,11 +101,15 @@ export function Comparison() {
             >
               <dt className="text-[13px] sm:text-base font-bold text-neutral-950">{row.dimension}</dt>
               <dd className="hidden sm:flex items-start gap-2 text-neutral-500">
-                <X size={16} className="shrink-0 mt-0.5 sm:mt-1 text-neutral-400" aria-label="Typical agency" />
+                <LineIcon>
+                  <X size={16} className="text-neutral-400" aria-label="Typical agency" />
+                </LineIcon>
                 <span>{row.typical}</span>
               </dd>
               <dd className="flex items-start gap-2 text-neutral-900 font-medium leading-snug sm:leading-normal">
-                <Check size={16} className="hidden sm:block shrink-0 mt-0.5 sm:mt-1 text-blue-600" aria-label="Axeon Studio" />
+                <LineIcon className="hidden sm:flex">
+                  <Check size={16} className="text-blue-600" aria-label="Axeon Studio" />
+                </LineIcon>
                 <span>
                   <span className="sm:hidden">{row.axeonShort ?? row.axeon}</span>
                   <span className="hidden sm:inline">{row.axeon}</span>

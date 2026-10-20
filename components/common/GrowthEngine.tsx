@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight, ArrowUpRight, Clapperboard, Megaphone, PhoneCall, RefreshCw } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import LineIcon from '@/components/common/LineIcon';
 
 // What AxeonGROWTH adds on top of AxeonCORE's intake. All four come with
 // AxeonGROWTH; on AxeonCORE some are add-ons (prices live on /pricing, data/pricingData.ts).
@@ -98,16 +99,20 @@ export function GrowthEngine({ showBuilds = true, variant = 'section' }: GrowthE
         <ul className="lg:col-span-7 divide-y divide-white/10 border-y border-white/10">
           {engineModules.map((m) => (
             <li key={m.title}>
-              <Link href={m.href} className="group flex items-center gap-3 sm:gap-4 py-2.5 sm:py-5">
-                <m.icon aria-hidden="true" className="h-5 w-5 text-blue-400 shrink-0" />
+              <Link href={m.href} className="group flex items-start gap-3 sm:gap-4 py-2.5 sm:py-5">
+                <LineIcon className="text-base sm:text-lg">
+                  <m.icon aria-hidden="true" className="h-5 w-5 text-blue-400" />
+                </LineIcon>
                 <span className="min-w-0 flex-1 sm:flex sm:items-baseline sm:gap-4">
                   <span className="block sm:w-48 sm:shrink-0 font-bold text-base sm:text-lg">{m.title}</span>
                   <span className="block text-sm sm:text-base text-neutral-400 leading-snug sm:leading-relaxed">{m.body}</span>
                 </span>
-                <ArrowUpRight
-                  size={16}
-                  className="shrink-0 text-neutral-500 group-hover:text-blue-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition"
-                />
+                <LineIcon className="text-base sm:text-lg">
+                  <ArrowUpRight
+                    size={16}
+                    className="text-neutral-500 group-hover:text-blue-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition"
+                  />
+                </LineIcon>
               </Link>
             </li>
           ))}

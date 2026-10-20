@@ -6,6 +6,7 @@
 // All money strings are computed on the server (app/pay/[token]/page.tsx) so this
 // component never does arithmetic.
 
+import LineIcon from '@/components/common/LineIcon';
 import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'motion/react';
@@ -154,7 +155,9 @@ export function PersonalizedPayment(props: PersonalizedPaymentProps) {
 
         {props.state === 'paid' ? (
           <div className="mt-6 flex items-start gap-3 rounded-2xl border border-emerald-400/30 bg-emerald-400/10 p-5">
-            <CheckCircle2 size={22} className="text-emerald-300 shrink-0 mt-0.5" />
+            <LineIcon>
+              <CheckCircle2 size={22} className="text-emerald-300" />
+            </LineIcon>
             <div>
               <p className="font-bold text-emerald-200">Already paid. Thank you!</p>
               <p className="mt-1 text-sm text-emerald-100/80 leading-relaxed">

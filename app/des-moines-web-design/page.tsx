@@ -1,3 +1,4 @@
+import LineIcon from '@/components/common/LineIcon';
 import Link from 'next/link';
 import { ArrowRight, MapPin, PhoneCall, Users, ShieldCheck } from 'lucide-react';
 import { buildMetadata } from '@/lib/metadata';
@@ -104,8 +105,11 @@ export default function DesMoinesWebDesignPage() {
       <section className="relative w-full px-6 sm:px-10 lg:px-16 xl:px-24 pt-28 pb-12 sm:pt-44 sm:pb-28 bg-neutral-950 text-white overflow-hidden">
         <div className="absolute -top-40 -right-40 w-[520px] h-[520px] bg-blue-600/25 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 max-w-5xl mx-auto">
-          <p className="text-xs sm:text-sm font-mono uppercase tracking-wider text-blue-400 mb-3 sm:mb-4 inline-flex items-center gap-2">
-            <MapPin size={15} /> West Des Moines, Iowa · Serving the Des Moines Metro
+          <p className="text-xs sm:text-sm font-mono uppercase tracking-wider text-blue-400 mb-3 sm:mb-4 flex items-start gap-2">
+            <LineIcon>
+              <MapPin size={15} />
+            </LineIcon>
+            <span>West Des Moines, Iowa · Serving the Des Moines Metro</span>
           </p>
           <h1 className="text-[32px] sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight leading-[1.08] sm:leading-[1.05] font-display mb-4 sm:mb-6 text-balance">
             Des Moines practices and firms: every inquiry answered in 60 seconds
@@ -167,7 +171,9 @@ export default function DesMoinesWebDesignPage() {
             <ul className="mt-3 sm:mt-10 divide-y divide-neutral-200 border-y border-neutral-200">
               {LOCAL_REASONS.slice(1, 3).map(({ icon: Icon, title, description }) => (
                 <li key={title} className="flex gap-3 sm:gap-4 py-3.5 sm:py-5">
-                  <Icon size={20} className="mt-0.5 sm:mt-1 shrink-0 text-blue-600" />
+                  <LineIcon className="text-base sm:text-lg leading-snug">
+                    <Icon size={20} className="text-blue-600" />
+                  </LineIcon>
                   <div>
                     <h3 className="text-base sm:text-lg font-bold leading-snug">{title}</h3>
                     <p className="mt-1 text-[15px] sm:text-base text-neutral-600 leading-snug sm:leading-relaxed">{description}</p>
@@ -178,7 +184,9 @@ export default function DesMoinesWebDesignPage() {
 
             {/* The commitment card: tablet and up. On phones the same commitment closes the page, in full. */}
             <div className="hidden sm:flex mt-8 gap-4 rounded-3xl bg-neutral-950 text-white p-6 sm:p-8">
-              <ShieldCheck size={22} className="mt-1 shrink-0 text-blue-400" />
+              <LineIcon className="text-lg sm:text-xl leading-snug">
+                <ShieldCheck size={22} className="text-blue-400" />
+              </LineIcon>
               <div>
                 <h3 className="text-lg sm:text-xl font-bold leading-snug">{LOCAL_REASONS[3].title}</h3>
                 <p className="mt-2 text-neutral-300 leading-relaxed">{LOCAL_REASONS[3].description}</p>
@@ -217,7 +225,12 @@ export default function DesMoinesWebDesignPage() {
                       <span className="block text-lg font-extrabold font-display tracking-tight">{item.step}</span>
                       <span className="block text-sm text-neutral-500">{item.title}</span>
                     </span>
-                    <ArrowRight size={16} className="shrink-0 text-blue-600 group-hover:translate-x-0.5 transition-transform" />
+                    {/* Centered on the whole card on purpose (number + title + line). */}
+                    <ArrowRight
+                      size={16}
+                      data-icon-align="block"
+                      className="shrink-0 text-blue-600 group-hover:translate-x-0.5 transition-transform"
+                    />
                   </Link>
                 </li>
               ))}
@@ -248,10 +261,12 @@ export default function DesMoinesWebDesignPage() {
               <li key={niche.slug}>
                 <Link
                   href={`/solutions/${niche.slug}`}
-                  className="flex items-center justify-between rounded-xl border border-neutral-200 px-4 py-3 sm:px-5 sm:py-4 hover:border-blue-400 hover:bg-blue-50/40 transition-colors font-semibold"
+                  className="flex items-start justify-between gap-3 rounded-xl border border-neutral-200 px-4 py-3 sm:px-5 sm:py-4 hover:border-blue-400 hover:bg-blue-50/40 transition-colors font-semibold"
                 >
-                  {niche.name} in Des Moines
-                  <ArrowRight size={16} className="text-blue-600" />
+                  <span>{niche.name} in Des Moines</span>
+                  <LineIcon>
+                    <ArrowRight size={16} className="text-blue-600" />
+                  </LineIcon>
                 </Link>
               </li>
             ))}

@@ -1,3 +1,4 @@
+import LineIcon from '@/components/common/LineIcon';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -301,7 +302,9 @@ export default function PartnersPage() {
           <ul className="lg:col-span-8 grid grid-cols-2 gap-2 sm:gap-x-10 sm:gap-y-0 sm:border-t border-neutral-300">
             {FITS.map(({ icon: Icon, title, description }) => (
               <li key={title} className="flex flex-col sm:flex-row gap-2 sm:gap-4 p-3 sm:px-0 sm:py-6 rounded-xl sm:rounded-none bg-white sm:bg-transparent border border-neutral-200 sm:border-0 sm:border-b sm:border-neutral-300">
-                <Icon size={22} className="flex-none sm:mt-0.5 text-blue-600" />
+                <LineIcon className="text-[15px] leading-snug sm:text-lg sm:leading-normal">
+                  <Icon size={22} className="text-blue-600" />
+                </LineIcon>
                 <div>
                   <h3 className="font-bold text-[15px] leading-snug sm:text-lg sm:leading-normal sm:mb-1">{title}</h3>
                   <p className="hidden sm:block text-neutral-600 leading-relaxed">{description}</p>

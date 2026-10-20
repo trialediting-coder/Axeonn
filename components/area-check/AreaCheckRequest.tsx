@@ -14,6 +14,7 @@
 // Arriving with ?specialty=dental (or med-spa, law-firms, accounting) preselects
 // the specialty, so vertical pages can link straight in.
 
+import LineIcon from '@/components/common/LineIcon';
 import { cloneElement, isValidElement, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { AlertTriangle, ArrowRight, Check, Loader2, Lock, Mail, Phone } from 'lucide-react';
 import { BookingCalendar } from '@/components/booking/BookingCalendar';
@@ -176,9 +177,11 @@ export function AreaCheckRequest({ source = 'check_your_area' }: { source?: stri
     return (
       <div ref={boxRef} className="scroll-mt-28">
         <div className="flex items-start gap-3 rounded-2xl bg-blue-50 border border-blue-100 px-5 py-4">
-          <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white">
-            <Check size={14} strokeWidth={3} />
-          </span>
+          <LineIcon className="text-base leading-relaxed">
+            <span className="grid h-6 w-6 place-items-center rounded-full bg-blue-600 text-white">
+              <Check size={14} strokeWidth={3} />
+            </span>
+          </LineIcon>
           <p className="text-base text-blue-950 leading-relaxed">
             Got it, {form.contactName.trim().split(' ')[0] || 'thanks'}. We&apos;ll confirm your area within one
             business day: {form.specialty.toLowerCase()} in <span className="font-semibold">{form.city.trim()}</span>,
@@ -334,7 +337,9 @@ export function AreaCheckRequest({ source = 'check_your_area' }: { source?: stri
             className="mt-4 sm:mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3.5 text-sm sm:text-base text-red-900 outline-none"
           >
             <p className="flex items-start gap-2 font-semibold">
-              <AlertTriangle size={18} className="mt-0.5 shrink-0" />
+              <LineIcon>
+                <AlertTriangle size={18} />
+              </LineIcon>
               Something went wrong on our side and your request didn&apos;t reach us.
             </p>
             <p className="mt-1 text-red-800">

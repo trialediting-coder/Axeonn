@@ -1,5 +1,6 @@
 'use client';
 
+import LineIcon from '@/components/common/LineIcon';
 import { useEffect, type MouseEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -127,7 +128,9 @@ export default function PrivacyClient() {
         {/* Quick Highlights Summary Card */}
         <div className="my-8 sm:my-10 p-5 sm:p-6 rounded-xl bg-gradient-to-br from-blue-50/70 via-slate-50 to-white border border-blue-100 shadow-xs">
           <div className="flex items-start gap-3">
-            <CheckCircle2 size={20} className="text-[#2563EB] shrink-0 mt-0.5" />
+            <LineIcon className="text-sm">
+              <CheckCircle2 size={20} className="text-[#2563EB]" />
+            </LineIcon>
             <div>
               <h2 className="text-sm font-bold uppercase tracking-wider text-gray-900">
                 Key Principles &amp; Plain English Summary

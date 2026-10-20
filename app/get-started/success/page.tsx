@@ -1,3 +1,4 @@
+import LineIcon from '@/components/common/LineIcon';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { CheckCircle2, Mail } from 'lucide-react';
@@ -29,7 +30,9 @@ export default function GetStartedSuccessPage() {
           </p>
 
           <div className="mt-8 rounded-2xl bg-neutral-50 border border-neutral-200 p-5 text-left flex items-start gap-3">
-            <Mail size={19} className="mt-0.5 shrink-0 text-blue-600" />
+            <LineIcon className="text-base leading-relaxed">
+              <Mail size={19} className="text-blue-600" />
+            </LineIcon>
             <p className="text-base text-neutral-700 leading-relaxed">
               Nothing yet? Check spam or promotions, then email us at{' '}
               <a

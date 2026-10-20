@@ -1,5 +1,6 @@
 'use client';
 
+import LineIcon from '@/components/common/LineIcon';
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -66,7 +67,9 @@ export function PracticeExamples({ items }: { items: VerticalExample[] }) {
               <ul className="mt-3 sm:mt-4 space-y-2 sm:space-y-2.5">
                 {item.points.map((point) => (
                   <li key={point} className="flex items-start gap-2.5 text-sm sm:text-[15px] leading-snug sm:leading-relaxed text-neutral-600">
-                    <Check size={16} strokeWidth={2.6} className="shrink-0 mt-0.5 sm:mt-1 text-blue-600" />
+                    <LineIcon>
+                      <Check size={16} strokeWidth={2.6} className="text-blue-600" />
+                    </LineIcon>
                     <span>{point}</span>
                   </li>
                 ))}

@@ -7,6 +7,7 @@
 // utilities from globals.css: numbers count up, bars grow, the rank line
 // draws itself, rows slide in. The lead log is real UI: tapping Booked moves
 // the count.
+import LineIcon from '@/components/common/LineIcon';
 import { useState } from 'react';
 import { Check, Clock, FileText, Globe, Lock, Mail, MapPin, MousePointerClick, PhoneCall, ShieldCheck, Smartphone, Users, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -185,14 +186,27 @@ function ProjectCard({ ms }: { ms: number }) {
           <div className="h-1.5 animate-proof-width rounded-full bg-blue-600" style={{ width: `${(c.day / 90) * 100}%`, ...delay(ms + 300) }} />
         </div>
         <ul className="mt-2 space-y-1 text-xs text-blue-900">
-          <li className="flex items-center gap-1.5">
-            <Check size={12} className="shrink-0 text-emerald-700" /> Live within 30 days
+          <li className="flex items-start gap-1.5">
+            <LineIcon>
+              <Check size={12} className="text-emerald-700" />
+            </LineIcon>
+            <span>Live within 30 days</span>
           </li>
-          <li className="flex items-center gap-1.5">
-            <Check size={12} className="shrink-0 text-emerald-700" /> <b>{pct}%</b> of inquiries answered within 60 sec
+          <li className="flex items-start gap-1.5">
+            <LineIcon>
+              <Check size={12} className="text-emerald-700" />
+            </LineIcon>
+            <span>
+              <b>{pct}%</b> of inquiries answered within 60 sec
+            </span>
           </li>
-          <li className="flex items-center gap-1.5">
-            <Check size={12} className="shrink-0 text-emerald-700" /> Review request on <b>{c.reviewRequests}</b> of {c.visits} visits
+          <li className="flex items-start gap-1.5">
+            <LineIcon>
+              <Check size={12} className="text-emerald-700" />
+            </LineIcon>
+            <span>
+              Review request on <b>{c.reviewRequests}</b> of {c.visits} visits
+            </span>
           </li>
         </ul>
       </div>
@@ -221,8 +235,13 @@ function RankCard({ ms }: { ms: number }) {
     <Card className="mt-4 p-5" ms={ms}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
-            <MapPin size={12} /> Google Maps · “{EXAMPLE.keyword}” in {EXAMPLE.city}
+          <p className="flex items-start gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
+            <LineIcon>
+              <MapPin size={12} />
+            </LineIcon>
+            <span>
+              Google Maps · “{EXAMPLE.keyword}” in {EXAMPLE.city}
+            </span>
           </p>
           <p className="mt-1 text-3xl font-bold text-neutral-950">
             <span className="inline-block animate-proof-pop" style={delay(ms + 900)}>
@@ -522,7 +541,9 @@ export function GhostScreen({ tab }: { tab: ProofTab }) {
             <ul className="mt-3 space-y-2.5 text-sm text-neutral-700">
               {tab.includes.map((line) => (
                 <li key={line} className="flex gap-2">
-                  <Check size={16} className="mt-0.5 shrink-0 text-emerald-600" />
+                  <LineIcon>
+                    <Check size={16} className="text-emerald-600" />
+                  </LineIcon>
                   <span>{line}</span>
                 </li>
               ))}

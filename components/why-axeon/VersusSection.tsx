@@ -1,3 +1,4 @@
+import LineIcon from '@/components/common/LineIcon';
 import type { ReactNode } from 'react';
 import { Check, X } from 'lucide-react';
 
@@ -18,7 +19,9 @@ export function VersusRows({ typical, axeon }: { typical: string[]; axeon: strin
         <ul className="space-y-2 sm:space-y-4">
           {typical.map((item) => (
             <li key={item} className="flex gap-2.5 sm:gap-3 text-[15px] sm:text-base text-neutral-600 leading-snug sm:leading-relaxed">
-              <X size={18} className="mt-0.5 sm:mt-1 shrink-0 text-neutral-400" aria-hidden="true" />
+              <LineIcon>
+                <X size={18} className="text-neutral-400" aria-hidden="true" />
+              </LineIcon>
               <span>{item}</span>
             </li>
           ))}
@@ -31,7 +34,9 @@ export function VersusRows({ typical, axeon }: { typical: string[]; axeon: strin
         <ul className="space-y-2 sm:space-y-4">
           {axeon.map((item) => (
             <li key={item} className="flex gap-2.5 sm:gap-3 text-[15px] sm:text-base text-neutral-200 leading-snug sm:leading-relaxed">
-              <Check size={18} className="mt-0.5 sm:mt-1 shrink-0 text-blue-400" aria-hidden="true" />
+              <LineIcon>
+                <Check size={18} className="text-blue-400" aria-hidden="true" />
+              </LineIcon>
               <span>{item}</span>
             </li>
           ))}
@@ -50,7 +55,9 @@ function VersusLists({ typical, axeon }: { typical: string[]; axeon: string[] })
         <ul className="space-y-1.5 sm:space-y-3">
           {typical.map((item) => (
             <li key={item} className="flex gap-2.5 sm:gap-3 text-[15px] sm:text-base text-neutral-500 leading-snug sm:leading-relaxed">
-              <X size={18} className="mt-0.5 sm:mt-1 shrink-0 text-neutral-400" aria-hidden="true" />
+              <LineIcon>
+                <X size={18} className="text-neutral-400" aria-hidden="true" />
+              </LineIcon>
               <span>{item}</span>
             </li>
           ))}
@@ -61,7 +68,9 @@ function VersusLists({ typical, axeon }: { typical: string[]; axeon: string[] })
         <ul className="space-y-1.5 sm:space-y-3">
           {axeon.map((item) => (
             <li key={item} className="flex gap-2.5 sm:gap-3 text-[15px] sm:text-base text-neutral-900 font-medium leading-snug sm:leading-relaxed">
-              <Check size={18} className="mt-0.5 sm:mt-1 shrink-0 text-blue-600" aria-hidden="true" />
+              <LineIcon>
+                <Check size={18} className="text-blue-600" aria-hidden="true" />
+              </LineIcon>
               <span>{item}</span>
             </li>
           ))}

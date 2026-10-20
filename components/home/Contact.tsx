@@ -1,5 +1,6 @@
 'use client';
 
+import LineIcon from '@/components/common/LineIcon';
 import React, { useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowRight, ArrowUpRight, PhoneCall, Timer, Star } from 'lucide-react';
@@ -325,7 +326,9 @@ export function Contact({ onBookAudit }: ContactProps) {
                 {AUDIT_STEPS.map(({ icon: Icon, title, body }, i) => (
                   <li key={title} className="flex items-start gap-4 py-4">
                     <span className="font-mono text-xs font-bold text-neutral-400 pt-1">0{i + 1}</span>
-                    <Icon size={20} className="mt-0.5 shrink-0 text-blue-600" aria-hidden="true" />
+                    <LineIcon>
+                      <Icon size={20} className="text-blue-600" aria-hidden="true" />
+                    </LineIcon>
                     <div>
                       <p className="font-bold text-neutral-950">{title}</p>
                       <p className="mt-0.5 text-sm text-neutral-600">{body}</p>

@@ -1,3 +1,4 @@
+import LineIcon from '@/components/common/LineIcon';
 import Link from 'next/link';
 import { Check, X } from 'lucide-react';
 import { COMMITMENT_HEADLINE, COMMITMENT_TERMS_HREF } from '@/data/pricingData';
@@ -30,11 +31,15 @@ export function GuaranteeBand({ id = 'guarantee' }: { id?: string }) {
         </div>
         <div className="mt-5 sm:mt-12 grid sm:grid-cols-2 gap-2.5 sm:gap-4 border-t border-white/20 pt-4 sm:pt-8 text-[15px] leading-snug sm:leading-normal sm:text-lg">
           <p className="flex gap-3 text-blue-100">
-            <X size={20} className="mt-1 shrink-0" aria-hidden="true" />
+            <LineIcon>
+              <X size={20} aria-hidden="true" />
+            </LineIcon>
             <span>A typical agency gets paid the same whether your calls get answered or not.</span>
           </p>
           <p className="flex gap-3 font-semibold">
-            <Check size={20} className="mt-1 shrink-0" aria-hidden="true" />
+            <LineIcon>
+              <Check size={20} aria-hidden="true" />
+            </LineIcon>
             <span>If our system misses and we don&apos;t fix it, you can walk away.</span>
           </p>
         </div>

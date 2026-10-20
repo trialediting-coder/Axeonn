@@ -149,7 +149,9 @@ export default function GetFoundComparison() {
             <div className="hidden sm:block text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-2">[ SEE YOUR OWN ]</div>
             <p className="text-base sm:text-2xl font-extrabold tracking-tight text-neutral-950 font-display leading-snug">
               How does your site answer an inquiry at 9 PM? Check your area and we&apos;ll time it.
-              <ArrowRight size={16} className="sm:hidden inline ml-1.5 -mt-0.5 text-blue-600" aria-hidden="true" />
+              <span className="sm:hidden inline-flex h-[1lh] items-center align-top ml-1.5">
+                <ArrowRight size={16} className="text-blue-600" aria-hidden="true" />
+              </span>
             </p>
           </div>
           <span className="hidden sm:inline-flex items-center gap-2 text-sm font-semibold text-blue-600 shrink-0">

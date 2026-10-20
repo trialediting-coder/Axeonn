@@ -1,5 +1,6 @@
 'use client';
 
+import LineIcon from '@/components/common/LineIcon';
 import { useRef, useState } from 'react';
 import { AlertTriangle, ArrowRight, Loader2, Lock, Mail, Phone } from 'lucide-react';
 import { BookingCalendar } from '@/components/booking/BookingCalendar';
@@ -123,7 +124,9 @@ export function FunnelBooking({ slug, industryName }: FunnelBookingProps) {
               className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3.5 text-sm sm:text-base text-red-900 outline-none"
             >
               <p className="flex items-start gap-2 font-semibold">
-                <AlertTriangle size={18} className="mt-0.5 shrink-0" />
+                <LineIcon>
+                  <AlertTriangle size={18} />
+                </LineIcon>
                 Something went wrong on our side and your request didn&apos;t reach us.
               </p>
               <p className="mt-1 text-red-800">

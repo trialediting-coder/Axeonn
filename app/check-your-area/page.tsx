@@ -1,3 +1,4 @@
+import LineIcon from '@/components/common/LineIcon';
 import type { Metadata } from 'next';
 import { SetupPrice } from '@/components/common/SetupPrice';
 import Link from 'next/link';
@@ -95,7 +96,9 @@ export default function CheckYourAreaPage() {
               <ul className="mt-3 space-y-2">
                 {OFFER_POINTS.map((point) => (
                   <li key={point} className="flex items-start gap-2.5 text-sm sm:text-base text-blue-50 leading-relaxed">
-                    <Check size={16} className="mt-1 shrink-0" strokeWidth={3} />
+                    <LineIcon>
+                      <Check size={16} strokeWidth={3} />
+                    </LineIcon>
                     {point}
                   </li>
                 ))}
@@ -121,7 +124,9 @@ export default function CheckYourAreaPage() {
                 ))}
               </ul>
               <p className="mt-4 sm:mt-6 flex gap-2 text-[15px] sm:text-base text-neutral-600 leading-relaxed">
-                <MapPin size={18} className="mt-1 shrink-0 text-blue-600" />
+                <LineIcon>
+                  <MapPin size={18} className="text-blue-600" />
+                </LineIcon>
                 A local growth partner: one point of contact in West Des Moines for the whole partnership.
               </p>
             </div>

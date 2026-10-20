@@ -1,5 +1,6 @@
 'use client';
 
+import LineIcon from '@/components/common/LineIcon';
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import type { FaqItem } from '@/data/faqData';
@@ -40,17 +41,24 @@ export function FAQAccordion({ items, defaultOpenCount = 0, size = 'default' }: 
                 isLarge ? 'min-h-[52px] py-3.5 sm:py-8' : 'min-h-[48px] py-3 sm:py-5'
               }`}
             >
-              <span
-                className={`font-bold text-neutral-950 transition-colors ${
-                  isLarge ? 'text-[17px] leading-snug sm:text-2xl sm:leading-normal' : 'text-[15px] leading-snug sm:text-lg sm:leading-normal'
-                }`}
-              >
-                {item.question}
+              {/* Inner row: the chevron sits on the question's first line when it wraps. */}
+              <span className="flex w-full items-start justify-between gap-4">
+                <span
+                  className={`font-bold text-neutral-950 transition-colors ${
+                    isLarge ? 'text-[17px] leading-snug sm:text-2xl sm:leading-normal' : 'text-[15px] leading-snug sm:text-lg sm:leading-normal'
+                  }`}
+                >
+                  {item.question}
+                </span>
+                <LineIcon
+                  className={isLarge ? 'text-[17px] leading-snug sm:text-2xl sm:leading-normal' : 'text-[15px] leading-snug sm:text-lg sm:leading-normal'}
+                >
+                  <ChevronDown
+                    size={isLarge ? 24 : 20}
+                    className={`text-neutral-500 transition-transform duration-200 ${isOpen ? 'rotate-180 text-blue-600' : ''}`}
+                  />
+                </LineIcon>
               </span>
-              <ChevronDown
-                size={isLarge ? 24 : 20}
-                className={`shrink-0 text-neutral-500 transition-transform duration-200 ${isOpen ? 'rotate-180 text-blue-600' : ''}`}
-              />
             </button>
             {/* Always in the HTML (collapsed with `hidden`), so search engines and AI
                 crawlers read every answer, not just the questions. */}

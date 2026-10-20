@@ -1,3 +1,4 @@
+import LineIcon from '@/components/common/LineIcon';
 import Link from 'next/link';
 import { ArrowRight, ArrowUpRight, Check, MapPin, ShieldCheck, KeyRound } from 'lucide-react';
 import { marketingSolutions } from '@/data/marketingSolutionsData';
@@ -181,7 +182,9 @@ export default function HowItWorksPage() {
                 <ul className="divide-y divide-neutral-200 border-y border-neutral-200">
                   {layer.includes.map((item) => (
                     <li key={item} className="flex gap-2.5 sm:gap-3 py-2 sm:py-3.5 text-[15px] sm:text-base leading-snug sm:leading-normal text-neutral-800">
-                      <Check size={18} className="mt-0.5 shrink-0 text-blue-600" aria-hidden="true" />
+                      <LineIcon>
+                        <Check size={18} className="text-blue-600" aria-hidden="true" />
+                      </LineIcon>
                       <span>{item}</span>
                     </li>
                   ))}
@@ -230,7 +233,9 @@ export default function HowItWorksPage() {
           <ul className="lg:col-span-7 divide-y divide-white/10 border-y border-white/10">
             {growthLayer.includes.map((item) => (
               <li key={item} className="flex gap-2.5 sm:gap-3 py-2 sm:py-4 text-[15px] sm:text-base leading-snug sm:leading-normal text-neutral-100">
-                <Check size={18} className="mt-0.5 shrink-0 text-blue-400" aria-hidden="true" />
+                <LineIcon>
+                  <Check size={18} className="text-blue-400" aria-hidden="true" />
+                </LineIcon>
                 <span>{item}</span>
               </li>
             ))}

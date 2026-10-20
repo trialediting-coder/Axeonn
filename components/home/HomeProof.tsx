@@ -1,3 +1,4 @@
+import LineIcon from '@/components/common/LineIcon';
 import Link from 'next/link';
 import { ArrowRight, ArrowUpRight, PhoneCall, Timer, Star, Gauge, MessageSquareText, FileBarChart } from 'lucide-react';
 
@@ -58,7 +59,9 @@ export function HomeProof() {
             <ul className="mt-4 sm:mt-8 divide-y divide-white/10 border-y border-white/10">
               {AUDIT_STEPS.map(({ icon: Icon, title, body }) => (
                 <li key={title} className="flex gap-3 sm:gap-4 py-3 sm:py-4">
-                  <Icon size={20} className="mt-0.5 shrink-0 text-blue-400" aria-hidden="true" />
+                  <LineIcon>
+                    <Icon size={20} className="text-blue-400" aria-hidden="true" />
+                  </LineIcon>
                   <div>
                     <p className="font-bold">{title}</p>
                     <p className="mt-0.5 text-sm text-neutral-400 leading-snug sm:leading-relaxed">{body}</p>
@@ -90,7 +93,9 @@ export function HomeProof() {
             <ul className="mt-4 sm:mt-8 divide-y divide-neutral-200 border-y border-neutral-200">
               {PORTAL.map(({ icon: Icon, title, body }) => (
                 <li key={title} className="flex gap-3 sm:gap-4 py-3 sm:py-4">
-                  <Icon size={20} className="mt-0.5 shrink-0 text-blue-600" aria-hidden="true" />
+                  <LineIcon>
+                    <Icon size={20} className="text-blue-600" aria-hidden="true" />
+                  </LineIcon>
                   <div>
                     <p className="font-bold text-neutral-950">{title}</p>
                     <p className="mt-0.5 text-sm text-neutral-600 leading-snug sm:leading-relaxed">{body}</p>

@@ -1,3 +1,4 @@
+import LineIcon from '@/components/common/LineIcon';
 import { notFound } from 'next/navigation';
 import { SetupPrice } from '@/components/common/SetupPrice';
 import type { Metadata } from 'next';
@@ -149,11 +150,13 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
             <ul className="mt-5 sm:mt-8 flex flex-col gap-2.5 sm:gap-3 text-[15px] sm:text-lg">
               {[
                 'Every missed call and web inquiry answered within 60 seconds, 24/7',
-                'Consultations booked online, plus a two-way text inbox for your front desk or intake team',
+                'Consultations booked online, plus a two‑way text inbox for your front desk or intake team',
                 'A review request after every appointment',
               ].map((item) => (
                 <li key={item} className="flex items-start gap-3">
-                  <Check size={20} className="mt-0.5 shrink-0 text-blue-400" strokeWidth={2.6} />
+                  <LineIcon>
+                    <Check size={20} className="text-blue-400" strokeWidth={2.6} />
+                  </LineIcon>
                   <span>{item}</span>
                 </li>
               ))}
@@ -202,7 +205,9 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
             {CALL_FINDINGS.map(({ icon: Icon, t, d }, i) => (
               <li key={t} className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 rounded-2xl sm:rounded-3xl border border-neutral-200 bg-white p-4 sm:block sm:p-7">
                 <div className="flex items-start sm:items-center justify-between">
-                  <Icon size={22} className="mt-0.5 sm:mt-0 text-blue-600" />
+                  <LineIcon className="text-base sm:text-xl leading-snug">
+                    <Icon size={22} className="text-blue-600" />
+                  </LineIcon>
                   <span className="hidden sm:inline font-mono text-xs font-bold text-neutral-400">0{i + 1}</span>
                 </div>
                 <div>

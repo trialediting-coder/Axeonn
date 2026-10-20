@@ -1,3 +1,4 @@
+import LineIcon from '@/components/common/LineIcon';
 import Link from 'next/link';
 import { ArrowRight, Check, Clock } from 'lucide-react';
 import { COMMITMENT_HEADLINE } from '@/data/pricingData';
@@ -84,8 +85,11 @@ export function Process() {
                       <span className="block text-5xl sm:text-8xl lg:text-9xl font-black font-display tracking-tighter text-blue-500 leading-none">
                         {step.num}
                       </span>
-                      <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-mono text-neutral-400">
-                        <Clock size={13} /> {step.duration}
+                      <span className="mt-3 flex items-start gap-1.5 text-xs font-mono text-neutral-400">
+                        <LineIcon>
+                          <Clock size={13} />
+                        </LineIcon>
+                        <span>{step.duration}</span>
                       </span>
                     </div>
                     <div className="lg:col-span-9">
@@ -121,8 +125,11 @@ export function Process() {
                   <span className="block text-5xl sm:text-8xl lg:text-9xl font-black font-display tracking-tighter text-neutral-950 leading-none">
                     {step.num}
                   </span>
-                  <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-mono text-neutral-500">
-                    <Clock size={13} /> {step.duration}
+                  <span className="mt-3 flex items-start gap-1.5 text-xs font-mono text-neutral-500">
+                    <LineIcon>
+                      <Clock size={13} />
+                    </LineIcon>
+                    <span>{step.duration}</span>
                   </span>
                 </div>
                 <div className="lg:col-span-9">

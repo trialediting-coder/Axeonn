@@ -5,6 +5,7 @@
 // A bigger plan is set up for the business, not switched on with a click, so there
 // is no self-serve upgrade: the client asks, the owner walks them through it.
 // Server component; the button is the only client piece.
+import LineIcon from '@/components/common/LineIcon';
 import { Check, Lock } from 'lucide-react';
 import { AxeonLogo } from '@/components/brand/AxeonLogo';
 import { TIER_LABELS, type OnboardingTier } from '@/data/onboardingItems';
@@ -119,7 +120,9 @@ export function UpgradePanel({
           <ul className="mt-3 space-y-2.5 text-sm text-neutral-700">
             {tab.includes.map((line) => (
               <li key={line} className="flex gap-2">
-                <Check size={16} className="mt-0.5 shrink-0 text-emerald-600" />
+                <LineIcon>
+                  <Check size={16} className="text-emerald-600" />
+                </LineIcon>
                 <span>{line}</span>
               </li>
             ))}
