@@ -70,7 +70,7 @@ function LogoCard({ l }: { l: Logo }) {
         height={l.h}
         loading="lazy"
         decoding="async"
-        className={`${l.heightClass} w-auto max-w-[130px] sm:max-w-[210px] object-contain select-none pointer-events-none`}
+        className={`${l.heightClass} w-auto max-w-[130px] sm:max-w-[210px] object-contain select-none pointer-events-none [filter:grayscale(1)_brightness(0.55)]`}
       />
     </div>
   );
