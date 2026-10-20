@@ -32,7 +32,7 @@ export function nicheQuickAnswer(niche: Niche) {
 // Purpose: the direct answer to "what does Axeon do for my kind of practice", plus where to go next.
 export function NicheQuickAnswer({ niche }: { niche: Niche }) {
   const qa = nicheQuickAnswer(niche);
-  const link = 'font-semibold text-blue-600 hover:text-blue-700 hover:underline underline-offset-2';
+  const link = 'whitespace-nowrap font-semibold text-blue-600 hover:text-blue-700 hover:underline underline-offset-2';
   return (
     <section className="w-full bg-white px-4 py-8 sm:px-10 sm:py-16 lg:px-16 xl:px-24">
       <div className="max-w-4xl mx-auto">

@@ -206,7 +206,7 @@ export function CityLanding({ page }: { page: CityPage }) {
           </ul>
           <p className="mt-4 sm:mt-8 text-[15px] sm:text-base text-neutral-600">
             A different kind of practice or firm?{' '}
-            <Link href="/solutions" className="text-blue-600 font-semibold hover:underline">
+            <Link href="/solutions" className="whitespace-nowrap text-blue-600 font-semibold hover:underline">
               See who we work with.
             </Link>
           </p>
