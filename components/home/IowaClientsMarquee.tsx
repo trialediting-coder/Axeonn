@@ -2,9 +2,7 @@
 // (owner, 2026-10-19: frame Axeon as a partner in the client's growth, not a
 // vendor selling a service).
 //
-// Production scrolls real client logos only (CLIENT_LOGOS below). A row of
-// business logos reads as a client list, so only real, approved clients may
-// ever appear here in production.
+// Production scrolls CLIENT_LOGOS below.
 //
 // Preview deploys and local dev scroll a DESIGN MOCKUP instead (owner,
 // 2026-10-19: "find real businesses in our verticals to put there, not ones
@@ -25,14 +23,21 @@ type Logo = {
   h: number;
 };
 
-// Production: real clients only (owner, 2026-10-20: "why did you remove the
-// business pictures, put them back"). A-1 Auto Detailing and Patrick Finnegan are
-// clients; MSH Realty Group is the owner's own company. The old placeholder
-// businesses are not clients and stay out. Add new logos here once approved.
+// Production: the businesses the strip showed before the 2026-10-20 launch
+// (owner, 2026-10-20: "no put the businesses we had on there before").
+// A-1 Auto Detailing and Patrick Finnegan are clients and MSH Realty Group is the
+// owner's own company; the rest are Iowa businesses the owner chose to show.
 const CLIENT_LOGOS: Logo[] = [
   { name: 'A-1 Auto Detailing', logo: '/logos/iowa/a1-auto-detailing.webp', heightClass: 'h-12 sm:h-20', w: 154, h: 160 },
   { name: 'Patrick Finnegan', logo: '/logos/iowa/patrick-finnegan.webp', heightClass: 'h-8 sm:h-10', w: 1475, h: 160 },
+  { name: 'Obsidian Heating & Cooling', logo: '/logos/iowa/obsidian-heating-cooling.webp', heightClass: 'h-12 sm:h-20', w: 167, h: 160 },
+  { name: 'Mark Gray Law', logo: '/logos/iowa/mark-gray-law.webp', heightClass: 'h-9 sm:h-11', w: 643, h: 160 },
+  { name: "Andrew's Roofing Company", logo: '/logos/iowa/andrews-roofing.webp', heightClass: 'h-10 sm:h-12', w: 517, h: 160 },
+  { name: 'Hintz Family Dentistry', logo: '/logos/iowa/hintz-family-dentistry.webp', heightClass: 'h-12 sm:h-16', w: 195, h: 160 },
+  { name: 'Iowa Wealth Management', logo: '/logos/iowa/iowa-wealth-management.svg', heightClass: 'h-8 sm:h-10', w: 358, h: 74 },
+  { name: 'Outdoors by JK', logo: '/logos/iowa/outdoors-by-jk.webp', heightClass: 'h-10 sm:h-12', w: 345, h: 160 },
   { name: 'MSH Realty Group', logo: '/logos/iowa/msh-realty-group.webp', heightClass: 'h-12 sm:h-20', w: 165, h: 160 },
+  { name: 'Select Construction & Remodeling', logo: '/logos/iowa/select-construction.webp', heightClass: 'h-9 sm:h-12', w: 611, h: 160 },
 ];
 
 // Preview-only design mockup (see above). Not Axeon clients. Verticals interleaved:
