@@ -65,6 +65,8 @@ const nextConfig = {
       // bookmarks and notification emails still land in the right place.
       { source: '/insights/admin', destination: '/admin', permanent: true },
       { source: '/insights/admin/:path*', destination: '/admin/:path*', permanent: true },
+      // Retired 2026-10-19 with the practice repositioning; the build stays on /work.
+      { source: '/insights/a-1-auto-detailing-website-case-study', destination: '/work', permanent: true },
 
       // 2026-10-19 repositioning to private practices (dental, med spa, law,
       // accounting). Retired trade industry pages go to the practice hub.
