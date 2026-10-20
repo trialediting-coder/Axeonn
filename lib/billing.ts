@@ -516,8 +516,16 @@ export interface AgreementCheckoutInput {
   cancelUrl: string;
 }
 
-/** The longest a go-live-billed plan waits before its first charge (Agreement Sec. 4.1). */
-export const GO_LIVE_TRIAL_DAYS = 45;
+/**
+ * How long a go-live-billed plan trials in Stripe. It is a ceiling, not the
+ * billing date: the admin presses "Live: start billing" on go-live day (or on
+ * day 45 when the client is holding go-live up, Agreement Sec. 4.1). It is long
+ * so Stripe never charges on its own before the system is live, which would
+ * break "nothing due until it's working".
+ */
+export const GO_LIVE_TRIAL_DAYS = 120;
+/** The admin list flags a go-live-billed agreement still not billing after this many days. */
+export const GO_LIVE_NUDGE_DAYS = 35;
 
 const AGREEMENT_TIER_KEYS = { website: 'hosted-website', essentials: 'core-web-build', axeoncore: 'axeoncore', axeongrowth: 'axeongrowth' } as const;
 
@@ -595,6 +603,15 @@ export async function createAgreementCheckout(input: AgreementCheckoutInput): Pr
           : {}),
     },
     metadata,
+    ...(input.billFromGoLive && !prepaid
+      ? {
+          custom_text: {
+            submit: {
+              message: `Nothing is charged today. Your first month (${(input.monthlyCents / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })}) is charged the day your system goes live. Any trial shown here is just the time until go-live.`,
+            },
+          },
+        }
+      : {}),
   });
   if (!session.url) throw new Error('Stripe did not return a Checkout URL');
   return {

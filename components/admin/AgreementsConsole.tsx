@@ -4,6 +4,9 @@ import { useState } from 'react';
 import { Copy, ExternalLink, Send } from 'lucide-react';
 import { adminInput, adminLabel, btn } from '@/components/admin/ui';
 
+/** Mirrors lib/billing.ts GO_LIVE_NUDGE_DAYS (kept local: this is a client component). */
+const GO_LIVE_NUDGE_DAYS = 35;
+
 export interface AgreementRow {
   token: string;
   number: string;
@@ -310,14 +313,27 @@ export function AgreementsConsole({ initialRows, options, dbError }: { initialRo
                     </button>
                   )}
                   {r.status === 'paid' && r.billing !== 'annual' && r.version && r.version !== '2026-10-06' && (
-                    <button
-                      type="button"
-                      className={btn('secondary', 'sm')}
-                      title="Go-live day: charge the first month now (Sec. 4.1). Stripe charges it on day 45 if you never press this."
-                      onClick={() => act(r.token, 'startBilling')}
-                    >
-                      Live: start billing
-                    </button>
+                    <>
+                      {r.paidAt && (() => {
+                        const day = Math.floor((Date.now() - new Date(r.paidAt).getTime()) / 86_400_000);
+                        return (
+                          <span
+                            className={`self-center text-xs font-semibold ${day >= GO_LIVE_NUDGE_DAYS ? 'text-amber-700' : 'text-neutral-500'}`}
+                            title="Days since checkout. Start billing on go-live day, or on day 45 if the client is holding go-live up (Sec. 4.1)."
+                          >
+                            Day {day}
+                          </span>
+                        );
+                      })()}
+                      <button
+                        type="button"
+                        className={btn('secondary', 'sm')}
+                        title="Go-live day: charge the first month now (Sec. 4.1). If go-live is held up by the client, press it on day 45."
+                        onClick={() => act(r.token, 'startBilling')}
+                      >
+                        Live: start billing
+                      </button>
+                    </>
                   )}
                   {r.status === 'sent' && (
                     <button type="button" className={btn('danger', 'sm')} onClick={() => act(r.token, 'void')}>
