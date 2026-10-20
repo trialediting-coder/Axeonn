@@ -17,6 +17,8 @@ type Pillar = {
   name: string;
   promise: string;
   detail: string;
+  /** Phone copy: the same promise in fewer words, so all three steps fit one screen. */
+  short: string;
   href: string;
   cta: string;
   image: string;
@@ -32,6 +34,7 @@ const PILLARS: Pillar[] = [
     promise: 'Answered.',
     detail:
       'Every missed call gets a text back and every web inquiry gets a first reply within 60 seconds, 24/7, so the patient or client hears from you before they call the next practice.',
+    short: 'Every missed call gets a text back and every web inquiry a first reply within 60 seconds, 24/7.',
     href: '/marketing-solutions/lead-generation',
     cta: 'How every inquiry gets answered',
     image: '/philosophy/marketing.webp',
@@ -43,6 +46,7 @@ const PILLARS: Pillar[] = [
     promise: 'Booked.',
     detail:
       'Online consultation booking and a two-way text inbox for your front desk or intake team, so the conversation ends with a time on the calendar instead of a callback list.',
+    short: 'Online booking and a two-way text inbox for your front desk, so it ends with a time on the calendar.',
     href: '/marketing-solutions/ai-chat-scheduling',
     cta: 'How consultations get booked',
     image: '/philosophy/technology.webp',
@@ -54,6 +58,7 @@ const PILLARS: Pillar[] = [
     promise: 'Reviewed.',
     detail:
       'An automatic review request after every completed appointment, so your Google rating reflects the patients and clients you actually see.',
+    short: 'An automatic review request after every completed appointment, so your rating reflects who you see.',
     href: '/axeonproof',
     cta: 'How AxeonPROOF tracks it',
     image: '/philosophy/brand.webp',
@@ -68,7 +73,7 @@ function PillarPanel({ pillar }: { pillar: Pillar }) {
       href={pillar.href}
       aria-label={`${pillar.name}: ${pillar.promise} ${pillar.cta}`}
       style={{ '--pillar': pillar.color } as React.CSSProperties}
-      className="group relative block overflow-hidden bg-[#05070a] min-h-[440px] sm:min-h-[520px] lg:min-h-[640px] xl:min-h-[700px] outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-inset"
+      className="group relative block overflow-hidden bg-[#05070a] min-h-0 sm:min-h-[520px] lg:min-h-[640px] xl:min-h-[700px] outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-inset"
     >
       {/* Photo: grey and dim at rest, full color on hover / focus / touch */}
       <Image
@@ -98,7 +103,17 @@ function PillarPanel({ pillar }: { pillar: Pillar }) {
       />
 
       {/* Text block */}
-      <div className="absolute inset-x-0 bottom-0 p-7 sm:p-9 lg:p-11 flex flex-col">
+      {/* Phones: a compact row (step + promise on one line, the short copy under it). */}
+      <div className="relative sm:hidden px-5 py-4">
+        <h3 className="flex items-baseline gap-2 text-white leading-none">
+          <span className="text-2xl font-extrabold tracking-tight">{pillar.name}</span>
+          <span className="text-lg font-semibold text-white/85">{pillar.promise}</span>
+          <ArrowUpRight size={18} className="ml-auto self-center shrink-0 text-[var(--pillar)]" />
+        </h3>
+        <p className="mt-2 text-[15px] text-neutral-100 leading-snug">{pillar.short}</p>
+      </div>
+
+      <div className="hidden sm:flex absolute inset-x-0 bottom-0 p-7 sm:p-9 lg:p-11 flex-col">
         <h3 className="text-4xl sm:text-5xl lg:text-[56px] font-extrabold tracking-tight text-white leading-none">
           {pillar.name}
         </h3>
@@ -126,22 +141,23 @@ function PillarPanel({ pillar }: { pillar: Pillar }) {
   );
 }
 
+// Purpose: the visitor learns the three steps (answered, booked, reviewed) that turn an inquiry into a visit.
 export function ThreePillars() {
   return (
     <section
       id="philosophy"
-      className="w-full pt-24 sm:pt-32 lg:pt-40 pb-0 bg-black text-white"
+      className="w-full pt-10 sm:pt-32 lg:pt-40 pb-0 bg-black text-white"
     >
-      <div className="max-w-[1720px] 2xl:max-w-[1880px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 mb-12 sm:mb-16 lg:mb-20">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-end">
-          <h2 className="lg:col-span-7 text-5xl sm:text-6xl lg:text-7xl xl:text-[84px] font-black tracking-tight leading-[1.02]">
+      <div className="max-w-[1720px] 2xl:max-w-[1880px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 mb-5 sm:mb-16 lg:mb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-8 lg:gap-12 items-end">
+          <h2 className="lg:col-span-7 text-[32px] sm:text-6xl lg:text-7xl xl:text-[84px] font-black tracking-tight leading-[1.05] sm:leading-[1.02]">
             How intake should work.
           </h2>
           <div className="lg:col-span-5">
-            <p className="text-xl sm:text-2xl font-semibold text-white leading-snug">
+            <p className="hidden sm:block text-xl sm:text-2xl font-semibold text-white leading-snug">
               Answered. Booked. Reviewed.
             </p>
-            <p className="mt-3 text-lg sm:text-xl text-neutral-400 leading-relaxed max-w-xl">
+            <p className="sm:mt-3 text-[15px] sm:text-xl text-neutral-400 leading-relaxed max-w-xl">
               Most practices lose new patients and clients between the first call and the first appointment. We run all three steps as one system, so an inquiry at 9 PM ends up on your calendar.
             </p>
           </div>
@@ -155,15 +171,15 @@ export function ThreePillars() {
         ))}
       </div>
 
-      <div className="max-w-[1720px] 2xl:max-w-[1880px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 py-12 sm:py-16 flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8">
+      <div className="max-w-[1720px] 2xl:max-w-[1880px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-16 py-6 sm:py-16 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-8">
         <Link
           href="/check-your-area"
-          className="px-8 py-3.5 sm:px-10 sm:py-4 rounded-full bg-[#0080FF] hover:bg-[#0070EE] active:scale-95 text-white text-sm sm:text-base font-bold shadow-xl shadow-blue-500/25 transition-all inline-flex items-center justify-center gap-2.5 self-start"
+          className="w-full sm:w-auto px-8 py-3.5 sm:px-10 sm:py-4 rounded-full bg-[#0080FF] hover:bg-[#0070EE] active:scale-95 text-white text-base font-bold shadow-xl shadow-blue-500/25 transition-all inline-flex items-center justify-center gap-2.5 sm:self-start"
         >
           Check if your area is open
           <ArrowUpRight size={18} />
         </Link>
-        <p className="text-base sm:text-lg text-neutral-400">
+        <p className="text-sm sm:text-lg text-neutral-400 text-center sm:text-left">
           One growth partner for all three steps, backed by our 90-day performance commitment.
         </p>
       </div>

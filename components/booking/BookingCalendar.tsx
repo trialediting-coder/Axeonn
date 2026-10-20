@@ -118,7 +118,10 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({
     api('inline', { elementOrSelector: `#${targetId}`, calLink: CAL_LINK, config });
     api('ui', {
       theme,
-      hideEventTypeDetails: false,
+      // Phones: hide Cal's own event header (name, blurb, duration). Every page
+      // that embeds this already says what the call is, and the header pushed
+      // the calendar a full screen down (mobile-first pass, 2026-10-19).
+      hideEventTypeDetails: window.matchMedia('(max-width: 639px)').matches,
       layout: 'month_view',
       cssVarsPerTheme: { light: { 'cal-brand': BRAND }, dark: { 'cal-brand': BRAND } },
     });

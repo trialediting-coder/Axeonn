@@ -7,6 +7,7 @@ import { X, ArrowRight, Gauge } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLeadModal } from '@/components/common/LeadModalProvider';
 import { trackEvent, EVENTS } from '@/components/providers/AnalyticsTracker';
+import { useIsMobile } from '@/lib/useMediaQuery';
 
 // Site-wide corner card. Until 2026-10-19 it promoted the A-1 Auto Detailing
 // case study; after the practice repositioning it points to AxeonPROOF, the
@@ -52,6 +53,10 @@ function inCooldown(key: string, ms: number): boolean {
 export function CaseStudyBadge() {
   const pathname = usePathname();
   const { isOpen: isLeadModalOpen } = useLeadModal();
+  // Phones skip the card: at that width it spans the bottom of the screen and
+  // covers the copy (mobile-first pass, 2026-10-19). The homepage has its own
+  // AxeonPROOF block, and the menu links to /axeonproof.
+  const isMobile = useIsMobile();
   const [visible, setVisible] = useState(false);
   const shownRef = useRef(false);
 
@@ -60,7 +65,7 @@ export function CaseStudyBadge() {
   // aside whenever certain homepage sections were on screen, which made it
   // flicker in and out while scrolling. It already waits until the visitor is
   // 30% down the page, past the hero's logo strip.
-  const shown = visible && !hiddenHere && !isLeadModalOpen;
+  const shown = visible && !hiddenHere && !isLeadModalOpen && isMobile === false;
   const cardRef = useRef<HTMLElement>(null);
 
   // Publish the card's footprint (height plus a 12px gap) so other
@@ -84,7 +89,7 @@ export function CaseStudyBadge() {
   }, [shown]);
 
   useEffect(() => {
-    if (hiddenHere || shownRef.current) return;
+    if (hiddenHere || shownRef.current || isMobile !== false) return;
     if (inCooldown(CLICKED_KEY, CLICKED_COOLDOWN_MS) || inCooldown(DISMISS_KEY, DISMISS_COOLDOWN_MS)) return;
 
     const mountedAt = Date.now();
@@ -105,7 +110,7 @@ export function CaseStudyBadge() {
       window.removeEventListener('scroll', onScroll);
       window.clearTimeout(timeoutId);
     };
-  }, [hiddenHere]);
+  }, [hiddenHere, isMobile]);
 
   const dismiss = () => {
     setVisible(false);

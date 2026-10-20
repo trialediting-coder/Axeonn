@@ -60,26 +60,33 @@ const faqJsonLd = {
 
 export default function CheckYourAreaPage() {
   return (
-    <main className="min-h-screen bg-neutral-50 text-neutral-950 pt-28 sm:pt-32 pb-20 sm:pb-28">
+    <main className="min-h-screen bg-neutral-50 text-neutral-950 pt-20 sm:pt-32 pb-12 sm:pb-28">
       <BreadcrumbJsonLd items={[{ name: 'Check Your Area', path: '/check-your-area' }]} />
       <JsonLd data={faqJsonLd} />
 
       {/* Same container as the header so the edges line up */}
       <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-14">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 xl:gap-20 items-start">
+        {/* Phones: both columns use `contents`, so their blocks join one grid and
+            reorder (order-*): question, form, offer, what we show, FAQ. On lg+
+            the two columns are back, with the left one sticky. */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 xl:gap-20 items-start">
           {/* Left: the policy, the offer, and what we show on the call */}
-          <div className="lg:col-span-5 lg:sticky lg:top-32">
-            <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-4">
-              [ WEST DES MOINES · CENTRAL IOWA ]
-            </p>
-            <h1 className="text-4xl sm:text-5xl xl:text-6xl font-extrabold font-display tracking-tight leading-[1.08]">
-              Is your specialty still open in your area?
-            </h1>
-            <p className="mt-5 text-lg sm:text-xl text-neutral-600 leading-relaxed max-w-xl">
-              {EXCLUSIVITY_LINE} Tell us where you are and we&apos;ll confirm within one business day.
-            </p>
+          <div className="contents lg:block lg:col-span-5 lg:sticky lg:top-32">
+            {/* Purpose: the question this page answers, and the exclusivity policy behind it. */}
+            <div className="order-1 lg:order-none">
+              <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-2 sm:mb-4">
+                [ WEST DES MOINES · CENTRAL IOWA ]
+              </p>
+              <h1 className="text-[30px] sm:text-5xl xl:text-6xl font-extrabold font-display tracking-tight leading-[1.1] sm:leading-[1.08]">
+                Is your specialty still open in your area?
+              </h1>
+              <p className="mt-3 sm:mt-5 text-[15px] sm:text-xl text-neutral-600 leading-relaxed max-w-xl">
+                {EXCLUSIVITY_LINE} Tell us where you are and we&apos;ll confirm within one business day.
+              </p>
+            </div>
 
-            <div className="mt-8 rounded-2xl bg-blue-600 text-white p-5 sm:p-6 shadow-lg shadow-blue-600/20">
+            {/* Purpose: the offer, word for word. */}
+            <div className="order-3 lg:order-none lg:mt-8 rounded-2xl bg-blue-600 text-white p-5 sm:p-6 shadow-lg shadow-blue-600/20">
               <p className="text-xl sm:text-2xl font-extrabold font-display tracking-tight leading-snug">{OFFER_LINE}</p>
               <ul className="mt-3 space-y-2">
                 {OFFER_POINTS.map((point) => (
@@ -91,26 +98,29 @@ export default function CheckYourAreaPage() {
               </ul>
             </div>
 
-            <h2 className="mt-10 text-sm font-mono font-bold tracking-widest text-neutral-500 uppercase">
-              What we show you on the call
-            </h2>
-            <ul className="mt-4 space-y-5">
-              {PROOF.map(({ icon: Icon, title, body }) => (
-                <li key={title} className="flex gap-4">
-                  <div className="w-11 h-11 shrink-0 rounded-2xl bg-white border border-neutral-200 text-blue-600 flex items-center justify-center shadow-xs">
-                    <Icon size={20} className="stroke-[2.2]" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold tracking-tight">{title}</h3>
-                    <p className="text-base text-neutral-600 leading-relaxed">{body}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-6 flex gap-2 text-base text-neutral-600 leading-relaxed">
-              <MapPin size={18} className="mt-1 shrink-0 text-blue-600" />
-              A local growth partner: one point of contact in West Des Moines for the whole partnership.
-            </p>
+            {/* Purpose: the three things we test and show on the call. */}
+            <div className="order-4 lg:order-none lg:mt-10">
+              <h2 className="text-sm font-mono font-bold tracking-widest text-neutral-500 uppercase">
+                What we show you on the call
+              </h2>
+              <ul className="mt-3 sm:mt-4 space-y-4 sm:space-y-5">
+                {PROOF.map(({ icon: Icon, title, body }) => (
+                  <li key={title} className="flex gap-3 sm:gap-4">
+                    <div className="w-10 h-10 sm:w-11 sm:h-11 shrink-0 rounded-2xl bg-white border border-neutral-200 text-blue-600 flex items-center justify-center shadow-xs">
+                      <Icon size={20} className="stroke-[2.2]" />
+                    </div>
+                    <div>
+                      <h3 className="text-base sm:text-lg font-bold tracking-tight">{title}</h3>
+                      <p className="text-[15px] sm:text-base text-neutral-600 leading-snug sm:leading-relaxed">{body}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-4 sm:mt-6 flex gap-2 text-[15px] sm:text-base text-neutral-600 leading-relaxed">
+                <MapPin size={18} className="mt-1 shrink-0 text-blue-600" />
+                A local growth partner: one point of contact in West Des Moines for the whole partnership.
+              </p>
+            </div>
 
             <a
               href="tel:+15154938017"
@@ -121,27 +131,31 @@ export default function CheckYourAreaPage() {
           </div>
 
           {/* Right: the form */}
-          <div className="lg:col-span-7">
-            <div className="rounded-[32px] sm:rounded-[36px] bg-white border border-neutral-200 shadow-xl shadow-neutral-900/5 p-6 sm:p-8 lg:p-10 w-full">
-              <AreaCheckRequest source="check_your_area" />
+          <div className="contents lg:block lg:col-span-7">
+            {/* Purpose: the form itself, fields two to a row so it fits one phone screen. */}
+            <div className="order-2 lg:order-none">
+              <div className="rounded-[24px] sm:rounded-[36px] bg-white border border-neutral-200 shadow-xl shadow-neutral-900/5 p-4 sm:p-8 lg:p-10 w-full">
+                <AreaCheckRequest source="check_your_area" />
+              </div>
+              <p className="mt-3 sm:mt-4 text-xs sm:text-sm text-neutral-500 leading-relaxed px-2">
+                For dental practices, med spas, law firms and accounting and CPA firms. {COMPLIANCE_LINE}
+              </p>
             </div>
-            <p className="mt-4 text-sm text-neutral-500 leading-relaxed px-2">
-              For dental practices, med spas, law firms and accounting and CPA firms. {COMPLIANCE_LINE}
-            </p>
 
-            <section className="mt-12" aria-labelledby="area-faq">
+            {/* Purpose: the three questions people ask before they submit. */}
+            <section className="order-5 lg:order-none lg:mt-12" aria-labelledby="area-faq">
               <h2 id="area-faq" className="text-2xl font-bold font-display tracking-tight">
                 Questions before you check
               </h2>
-              <dl className="mt-5 divide-y divide-neutral-200 border-y border-neutral-200">
+              <dl className="mt-3 sm:mt-5 divide-y divide-neutral-200 border-y border-neutral-200">
                 {FAQS.map((f) => (
-                  <div key={f.q} className="py-5">
+                  <div key={f.q} className="py-3.5 sm:py-5">
                     <dt className="text-base sm:text-lg font-bold text-neutral-950">{f.q}</dt>
-                    <dd className="mt-1.5 text-base text-neutral-600 leading-relaxed">{f.a}</dd>
+                    <dd className="mt-1 sm:mt-1.5 text-[15px] sm:text-base text-neutral-600 leading-relaxed">{f.a}</dd>
                   </div>
                 ))}
               </dl>
-              <p className="mt-6 text-base text-neutral-600">
+              <p className="mt-4 sm:mt-6 text-[15px] sm:text-base text-neutral-600">
                 Already know you want to talk?{' '}
                 <Link href="/book" className="font-semibold text-blue-600 hover:text-blue-700 underline underline-offset-2">
                   Book a call
@@ -156,7 +170,7 @@ export default function CheckYourAreaPage() {
 
             <a
               href="tel:+15154938017"
-              className="mt-8 flex lg:hidden items-center justify-center gap-2 text-base font-semibold text-neutral-700"
+              className="order-6 min-h-[44px] flex lg:hidden items-center justify-center gap-2 text-base font-semibold text-neutral-700"
             >
               <Phone size={17} className="text-blue-600" /> Rather talk now? (515) 493-8017
             </a>

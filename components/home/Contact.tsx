@@ -17,6 +17,10 @@ export interface ContactProps {
   onBookAudit?: () => void;
 }
 
+// Purpose: the closing step: check your area, or reach us directly by phone or email.
+// Phones: headline first, then the area-check card and contact details. The
+// card's three test steps are hidden there because HomeProof (higher on the
+// same page) lists the same steps.
 export function Contact({ onBookAudit }: ContactProps) {
   const containerRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -236,7 +240,7 @@ export function Contact({ onBookAudit }: ContactProps) {
       id="contact-section"
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="w-full py-16 sm:py-20 lg:py-24 px-0 bg-[#07090E] relative flex flex-col justify-center overflow-hidden rounded-none border-y border-neutral-800/60 select-none"
+      className="w-full py-6 sm:py-20 lg:py-24 px-0 bg-[#07090E] relative flex flex-col justify-center overflow-hidden rounded-none border-y border-neutral-800/60 select-none"
     >
       {/* Dynamic Animated Canvas Layer */}
       <canvas
@@ -295,8 +299,8 @@ export function Contact({ onBookAudit }: ContactProps) {
       <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#07090E] to-transparent pointer-events-none z-0" />
 
       {/* Content Container (Spans full screen without outer card radius) */}
-      <div className="relative z-10 w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto px-4 sm:px-8 lg:px-14 xl:px-20 py-8 lg:py-12 select-text">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 xl:gap-16 items-start lg:items-center">
+      <div className="relative z-10 w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto px-4 sm:px-8 lg:px-14 xl:px-20 py-4 sm:py-8 lg:py-12 select-text">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-10 lg:gap-12 xl:gap-16 items-start lg:items-center">
           {/* Left Column: Clean White Card with the area check offer */}
           <motion.div
             id="contact-card-container"
@@ -304,20 +308,20 @@ export function Contact({ onBookAudit }: ContactProps) {
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:col-span-7 xl:col-span-7 bg-white text-neutral-950 rounded-[32px] sm:rounded-[36px] p-6 sm:p-8 lg:p-10 shadow-2xl border border-neutral-100 max-w-3xl w-full mx-auto lg:mx-0"
+            className="order-2 lg:order-none lg:col-span-7 xl:col-span-7 bg-white text-neutral-950 rounded-[24px] sm:rounded-[36px] p-5 sm:p-8 lg:p-10 shadow-2xl border border-neutral-100 max-w-3xl w-full mx-auto lg:mx-0"
           >
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               <div className="pb-1">
-                <h3 className="text-2xl sm:text-3xl font-bold font-display tracking-tight text-neutral-950 leading-tight">
+                <h3 className="text-xl sm:text-3xl font-bold font-display tracking-tight text-neutral-950 leading-tight">
                   Check if your area is open
                 </h3>
                 <p className="text-sm sm:text-base text-neutral-600 mt-1.5">
                   One practice or firm per specialty within 5 miles. $0 to start, nothing due until it&apos;s working.
-                  On a short call we show you what we found:
+                  <span className="hidden sm:inline"> On a short call we show you what we found:</span>
                 </p>
               </div>
 
-              <ol className="divide-y divide-neutral-200 border-y border-neutral-200">
+              <ol className="hidden sm:block divide-y divide-neutral-200 border-y border-neutral-200">
                 {AUDIT_STEPS.map(({ icon: Icon, title, body }, i) => (
                   <li key={title} className="flex items-start gap-4 py-4">
                     <span className="font-mono text-xs font-bold text-neutral-400 pt-1">0{i + 1}</span>
@@ -335,11 +339,11 @@ export function Contact({ onBookAudit }: ContactProps) {
                   href="/check-your-area"
                   data-track="cta_click"
                   data-track-cta="area_check_contact"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors shadow-lg shadow-blue-600/25"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-3.5 sm:py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors shadow-lg shadow-blue-600/25"
                 >
                   Check your area <ArrowUpRight size={16} />
                 </Link>
-                <Link href="/book" className="py-2 inline-flex items-center gap-1.5 font-semibold text-neutral-700 hover:text-blue-600">
+                <Link href="/book" className="py-2 inline-flex items-center justify-center sm:justify-start gap-1.5 font-semibold text-neutral-700 hover:text-blue-600">
                   or book a call <ArrowRight size={15} />
                 </Link>
               </div>
@@ -352,26 +356,26 @@ export function Contact({ onBookAudit }: ContactProps) {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: false, amount: 0.2 }}
             transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:col-span-5 xl:col-span-5 flex flex-col justify-center text-white"
+            className="order-1 lg:order-none lg:col-span-5 xl:col-span-5 flex flex-col justify-center text-white"
           >
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold font-display tracking-tight text-white leading-[1.08]">
+            <h2 className="text-[32px] sm:text-5xl lg:text-6xl xl:text-7xl font-bold font-display tracking-tight text-white leading-[1.08]">
               Who answers <br className="hidden sm:inline" />
               after hours?
             </h2>
 
-            <p className="mt-6 sm:mt-8 text-base sm:text-lg lg:text-xl text-neutral-300 max-w-xl leading-relaxed font-normal">
+            <p className="mt-3 sm:mt-8 text-[15px] sm:text-lg lg:text-xl text-neutral-300 max-w-xl leading-relaxed font-normal">
               Calls after hours and during busy mornings go to voicemail, and forms wait until tomorrow. Let us show you what a new patient or client experiences today. Every partnership with us starts here.
             </p>
 
             {/* Direct Contact Details */}
-            <div className="mt-10 sm:mt-12 space-y-6">
+            <div className="mt-5 sm:mt-12 grid grid-cols-1 gap-3 sm:block sm:space-y-6">
               <div>
                 <div className="text-xs sm:text-sm font-mono uppercase tracking-wider text-neutral-400 font-semibold">
                   Email:
                 </div>
                 <a
                   href="mailto:hello@axeonstudio.co"
-                  className="mt-1.5 inline-block text-xl sm:text-2xl font-medium text-white hover:text-blue-400 transition-colors"
+                  className="sm:mt-1.5 inline-block text-lg sm:text-2xl font-medium text-white hover:text-blue-400 transition-colors"
                 >
                   hello@axeonstudio.co
                 </a>
@@ -383,18 +387,18 @@ export function Contact({ onBookAudit }: ContactProps) {
                 </div>
                 <a
                   href="tel:+15154938017"
-                  className="mt-1.5 inline-block text-xl sm:text-2xl font-medium text-white hover:text-blue-400 transition-colors font-mono"
+                  className="sm:mt-1.5 inline-block text-lg sm:text-2xl font-medium text-white hover:text-blue-400 transition-colors font-mono"
                 >
                   +1 (515) 493-8017
                 </a>
-                <p className="text-sm text-neutral-400 mt-1.5">
+                <p className="text-sm text-neutral-400 sm:mt-1.5">
                   Typically responding within one business day.
                 </p>
               </div>
             </div>
 
             {/* Call pill button */}
-            <div className="mt-10">
+            <div className="hidden sm:block mt-10">
               <a
                 href="tel:+15154938017"
                 className="inline-flex items-center gap-3 px-9 py-4.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-base sm:text-lg transition-all cursor-pointer shadow-xl hover:shadow-blue-500/25 hover:scale-[1.03] active:scale-[0.98]"

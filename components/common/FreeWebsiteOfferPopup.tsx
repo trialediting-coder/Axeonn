@@ -126,6 +126,10 @@ export function FreeWebsiteOfferPopup() {
     if (!foundingOffer.active) return;
     // /check-your-area and /book are already conversion flows; the popup would only interrupt them.
     if (isExcluded(pathname)) return;
+    // Phones get neither the sheet nor the corner pill: both covered the page
+    // being read, and the sticky header's "Check your area" button is always on
+    // screen there (mobile-first pass, 2026-10-19).
+    if (window.matchMedia('(max-width: 639px)').matches) return;
     if (readStorage(CLAIMED_KEY) === '1') return; // already went to the area check once
     const dismissedAt = Number(readStorage(DISMISS_KEY));
     if (dismissedAt && Date.now() - dismissedAt < COOLDOWN_MS) return;

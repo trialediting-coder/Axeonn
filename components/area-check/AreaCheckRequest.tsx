@@ -55,8 +55,10 @@ function validate(f: AreaCheckForm): Errors {
   return e;
 }
 
+// Phones: fields sit two to a row (name/practice, specialty/city, website/phone),
+// so the whole form fits one screen. Inputs stay 16px so iOS doesn't zoom.
 const inputClass =
-  'w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3.5 text-base text-neutral-950 placeholder:text-neutral-400 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 transition-colors aria-[invalid=true]:border-red-500';
+  'w-full min-w-0 rounded-xl sm:rounded-2xl border border-neutral-200 bg-white px-3 sm:px-4 py-2.5 sm:py-3.5 text-base text-neutral-950 placeholder:text-neutral-400 focus:outline-none focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 transition-colors aria-[invalid=true]:border-red-500';
 
 export function AreaCheckRequest({ source = 'check_your_area' }: { source?: string }) {
   const [step, setStep] = useState<'form' | 'calendar'>('form');
@@ -155,10 +157,10 @@ export function AreaCheckRequest({ source = 'check_your_area' }: { source?: stri
   return (
     <div ref={boxRef} className="scroll-mt-28">
       <form onSubmit={submit} noValidate className="relative">
-        <h2 className="text-2xl sm:text-3xl font-extrabold font-display tracking-tight text-neutral-950 leading-tight">
+        <h2 className="text-[22px] sm:text-3xl font-extrabold font-display tracking-tight text-neutral-950 leading-tight">
           Check if your area is open
         </h2>
-        <p className="mt-2 text-base text-neutral-500">Takes 30 seconds. All fields are required.</p>
+        <p className="mt-1 sm:mt-2 text-sm sm:text-base text-neutral-500">Takes 30 seconds. All fields are required.</p>
 
         {/* Honeypot: hidden from people, filled by bots. */}
         <div aria-hidden="true" className="absolute -left-[10000px] top-auto h-px w-px overflow-hidden">
@@ -174,7 +176,7 @@ export function AreaCheckRequest({ source = 'check_your_area' }: { source?: stri
           />
         </div>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        <div className="mt-4 sm:mt-6 grid grid-cols-2 gap-x-3 gap-y-3 sm:gap-4">
           <Field id="contactName" label="Your name" error={errors.contactName}>
             <input
               id="area-contactName"
@@ -238,7 +240,7 @@ export function AreaCheckRequest({ source = 'check_your_area' }: { source?: stri
               type="text"
               inputMode="url"
               autoComplete="url"
-              placeholder="yourpractice.com or yourfirm.com"
+              placeholder="yourpractice.com"
               spellCheck={false}
               className={inputClass}
               aria-invalid={Boolean(errors.website)}
@@ -259,7 +261,7 @@ export function AreaCheckRequest({ source = 'check_your_area' }: { source?: stri
               onChange={set('phone')}
             />
           </Field>
-          <Field id="email" label="Email" error={errors.email}>
+          <Field id="email" label="Email" error={errors.email} wide>
             <input
               id="area-email"
               name="email"
@@ -280,7 +282,7 @@ export function AreaCheckRequest({ source = 'check_your_area' }: { source?: stri
           disabled={submitting}
           data-track="cta_click"
           data-track-cta="area_check_form"
-          className="group mt-6 w-full inline-flex min-h-[56px] items-center justify-center gap-2 rounded-full bg-blue-600 px-7 text-base sm:text-lg font-bold text-white shadow-lg shadow-blue-600/25 transition-all hover:bg-blue-700 cursor-pointer disabled:cursor-wait disabled:opacity-70"
+          className="group mt-4 sm:mt-6 w-full inline-flex min-h-[52px] sm:min-h-[56px] items-center justify-center gap-2 rounded-full bg-blue-600 px-7 text-base sm:text-lg font-bold text-white shadow-lg shadow-blue-600/25 transition-all hover:bg-blue-700 cursor-pointer disabled:cursor-wait disabled:opacity-70"
         >
           {submitting ? (
             <>
@@ -293,7 +295,7 @@ export function AreaCheckRequest({ source = 'check_your_area' }: { source?: stri
             </>
           )}
         </button>
-        <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-neutral-500 text-center">
+        <p className="mt-2.5 sm:mt-3 flex items-start sm:items-center justify-center gap-1.5 text-xs text-neutral-500 text-center">
           <Lock size={12} className="shrink-0" /> No charge, no obligation. We only use this to check your area and reach you about it.
         </p>
       </form>
@@ -305,21 +307,24 @@ function Field({
   id,
   label,
   error,
+  wide,
   children,
 }: {
   id: keyof AreaCheckForm;
   label: string;
   error?: string;
+  /** Full width on phones (the last, odd field). */
+  wide?: boolean;
   children: React.ReactNode;
 }) {
   return (
-    <div>
-      <label htmlFor={`area-${id}`} className="mb-1.5 block text-sm font-semibold text-neutral-800">
+    <div className={`min-w-0 ${wide ? 'col-span-2 sm:col-span-1' : ''}`}>
+      <label htmlFor={`area-${id}`} className="mb-1 sm:mb-1.5 block text-[13px] sm:text-sm font-semibold text-neutral-800">
         {label}
       </label>
       {children}
       {error && (
-        <p role="alert" className="mt-1.5 text-sm font-medium text-red-600">
+        <p role="alert" className="mt-1 sm:mt-1.5 text-xs sm:text-sm font-medium text-red-600">
           {error}
         </p>
       )}

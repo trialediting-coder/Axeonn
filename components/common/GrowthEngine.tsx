@@ -64,11 +64,12 @@ interface GrowthEngineProps {
  * Headline on the left, the four channels as a compact list on the right --
  * a single slab, not four competing cards.
  */
+// Purpose: what AxeonGROWTH adds once intake is answering every inquiry.
 export function GrowthEngine({ showBuilds = true, variant = 'section' }: GrowthEngineProps) {
   const card = (
     <div
       id={variant === 'section' ? 'axeoncore' : undefined}
-      className="relative overflow-hidden rounded-[28px] sm:rounded-[36px] bg-[#080b12] border border-neutral-800/80 px-6 py-10 sm:px-12 sm:py-14 text-white"
+      className="relative overflow-hidden rounded-[24px] sm:rounded-[36px] bg-[#080b12] border border-neutral-800/80 px-5 py-6 sm:px-12 sm:py-14 text-white"
     >
       <div
         aria-hidden="true"
@@ -76,19 +77,19 @@ export function GrowthEngine({ showBuilds = true, variant = 'section' }: GrowthE
         style={{ background: 'radial-gradient(circle at 0% 0%, rgba(0, 128, 255, 0.18) 0%, rgba(8, 11, 18, 0) 50%)' }}
       />
 
-      <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
+      <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-8 lg:gap-14 items-center">
         <div className="lg:col-span-5">
           <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">[ AFTER LAUNCH ]</p>
-          <h2 className="mt-3 text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.08]">
+          <h2 className="mt-2 sm:mt-3 text-[28px] sm:text-5xl font-extrabold font-display tracking-tight leading-[1.08]">
             Add more once intake is solid.
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-neutral-400 leading-relaxed">
+          <p className="mt-3 sm:mt-4 text-[15px] sm:text-lg text-neutral-400 leading-relaxed">
             AxeonCORE makes sure every call and inquiry gets answered. When you want more new patients or clients
             coming in, AxeonGROWTH adds these.
           </p>
           <Link
             href="/check-your-area"
-            className="py-2 mt-6 inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+            className="hidden lg:inline-flex py-2 mt-6 items-center gap-2 text-sm sm:text-base font-semibold text-blue-400 hover:text-blue-300 transition-colors"
           >
             Check if your area is open <ArrowRight size={16} />
           </Link>
@@ -97,11 +98,11 @@ export function GrowthEngine({ showBuilds = true, variant = 'section' }: GrowthE
         <ul className="lg:col-span-7 divide-y divide-white/10 border-y border-white/10">
           {engineModules.map((m) => (
             <li key={m.title}>
-              <Link href={m.href} className="group flex items-center gap-4 py-4 sm:py-5">
+              <Link href={m.href} className="group flex items-center gap-3 sm:gap-4 py-2.5 sm:py-5">
                 <m.icon aria-hidden="true" className="h-5 w-5 text-blue-400 shrink-0" />
                 <span className="min-w-0 flex-1 sm:flex sm:items-baseline sm:gap-4">
                   <span className="block sm:w-48 sm:shrink-0 font-bold text-base sm:text-lg">{m.title}</span>
-                  <span className="block text-sm sm:text-base text-neutral-400 leading-relaxed">{m.body}</span>
+                  <span className="block text-sm sm:text-base text-neutral-400 leading-snug sm:leading-relaxed">{m.body}</span>
                 </span>
                 <ArrowUpRight
                   size={16}
@@ -111,6 +112,13 @@ export function GrowthEngine({ showBuilds = true, variant = 'section' }: GrowthE
             </li>
           ))}
         </ul>
+        {/* Phones: the CTA after the list, so the section ends on the next step. */}
+        <Link
+          href="/check-your-area"
+          className="lg:hidden py-2 inline-flex items-center gap-2 text-base font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+        >
+          Check if your area is open <ArrowRight size={16} />
+        </Link>
       </div>
 
       {showBuilds && (
@@ -148,7 +156,7 @@ export function GrowthEngine({ showBuilds = true, variant = 'section' }: GrowthE
   if (variant === 'card') return card;
 
   return (
-    <section className="w-full px-4 sm:px-8 lg:px-14 xl:px-20 py-12 sm:py-16">
+    <section className="w-full px-4 sm:px-8 lg:px-14 xl:px-20 py-4 sm:py-16">
       <div className="w-full max-w-6xl mx-auto">{card}</div>
     </section>
   );

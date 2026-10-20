@@ -28,6 +28,13 @@ const NewPill = () => (
   </span>
 );
 
+/** The AxeonPROOF wordmark as one inline word (no flex gap can split it). Rename it here. */
+const ProofWordmark = ({ accent }: { accent: string }) => (
+  <span className="whitespace-nowrap">
+    Axeon<span className={`font-black ${accent}`}>PROOF</span>
+  </span>
+);
+
 type MobileSection = 'about' | 'help' | 'services';
 
 const MOBILE_EASE = [0.22, 1, 0.36, 1] as const;
@@ -185,8 +192,8 @@ export function Header() {
     <header
       className={`fixed top-0 z-50 w-full transition-all duration-300 ${
         isScrolled || mobileMenuOpen
-          ? 'bg-white/95 backdrop-blur-md border-b border-neutral-200 shadow-sm py-4'
-          : 'bg-transparent py-6'
+          ? 'bg-white/95 backdrop-blur-md border-b border-neutral-200 shadow-sm py-2.5 sm:py-4'
+          : 'bg-transparent py-2.5 sm:py-6'
       }`}
     >
       <div className="relative w-full max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-14 flex items-center justify-between">
@@ -363,7 +370,7 @@ export function Header() {
             Pricing
           </Link>
           <Link href="/axeonproof" className={`${navHoverClass} inline-flex items-center gap-1.5 transition-colors py-1`}>
-            Axeon<span className="font-black text-blue-500">PROOF</span>
+            <ProofWordmark accent="text-blue-500" />
           </Link>
           <Link href="/partners" className={`${navHoverClass} transition-colors py-1`}>
             Partners
@@ -441,13 +448,13 @@ export function Header() {
             href="/check-your-area"
             data-track="cta_click"
             data-track-cta="area_check_nav"
-            className="inline-flex items-center justify-center px-6 py-3.5 rounded-full bg-blue-600 text-white text-[15px] md:text-sm font-semibold"
+            className="inline-flex items-center justify-center min-h-[44px] px-5 sm:px-6 py-2.5 sm:py-3.5 rounded-full bg-blue-600 text-white text-[15px] md:text-sm font-semibold"
           >
             Check your area
           </Link>
           <button
             onClick={() => setMobileMenuOpen((v) => !v)}
-            className={`p-2.5 transition-colors ${onDarkHero ? 'text-white' : 'text-neutral-800'}`}
+            className={`min-h-[44px] min-w-[44px] inline-flex items-center justify-center transition-colors ${onDarkHero ? 'text-white' : 'text-neutral-800'}`}
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -467,7 +474,7 @@ export function Header() {
           >
             <nav
               aria-label="Mobile"
-              className="max-h-[calc(100dvh-80px)] overflow-y-auto overscroll-contain px-5 pt-1 pb-6 text-base font-medium"
+              className="max-h-[calc(100dvh-64px)] sm:max-h-[calc(100dvh-80px)] overflow-y-auto overscroll-contain px-5 pt-1 pb-6 text-base font-medium"
             >
               <MobileGroup
                 label="Who We Help"
@@ -548,9 +555,7 @@ export function Header() {
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-2 min-h-[52px] py-3 border-b border-neutral-100 text-[15px] font-semibold text-neutral-900"
               >
-                <span>
-                  Axeon<span className="font-black text-blue-600">PROOF</span>
-                </span>
+                <ProofWordmark accent="text-blue-600" />
               </Link>
               <Link
                 href="/partners"

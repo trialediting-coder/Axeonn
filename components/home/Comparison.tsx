@@ -5,6 +5,8 @@ interface ComparisonRow {
   dimension: string;
   typical: string;
   axeon: string;
+  /** Phone copy: same facts, fewer words. */
+  axeonShort?: string;
 }
 
 // The lead row, shown as a giant before/after.
@@ -21,6 +23,7 @@ const ROWS: ComparisonRow[] = [
     dimension: 'Pricing',
     typical: 'A large build fee up front, plus separate software, phone and marketing bills every month.',
     axeon: 'AxeonCORE from $799/mo on a 12-month agreement. $0 to start: the $3,000 build is waived and nothing is due until it is working.',
+    axeonShort: "From $799/mo, 12-month agreement. $0 to start: $3,000 build waived, nothing due until it's working.",
   },
   {
     dimension: 'After hours',
@@ -46,59 +49,72 @@ const ROWS: ComparisonRow[] = [
 
 // Server-rendered and visible by default: no scroll-triggered opacity, which
 // left this section blank in full-page captures.
+//
+// Phones: the lead before/after sits side by side, and the rows show only the
+// Axeon side next to a narrow label (the "typical" side is the struck-out lead
+// above), so the whole comparison reads in one screen.
+//
+// Purpose: the visitor sees that they pay for answered inquiries, not deliverables.
 export function Comparison() {
   return (
-    <section id="comparison" className="w-full py-20 sm:py-32 lg:py-40 px-4 sm:px-10 lg:px-16 xl:px-24">
+    <section id="comparison" className="w-full py-10 sm:py-32 lg:py-40 px-4 sm:px-10 lg:px-16 xl:px-24">
       <div className="max-w-6xl mx-auto">
         <div className="max-w-4xl">
-          <span className="block text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-4">
+          <span className="hidden sm:block text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-4">
             [ WHY PRACTICES SWITCH ]
           </span>
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.08]">
+          <h2 className="text-[28px] sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.1] sm:leading-[1.08]">
             You Pay for Every Inquiry Answered, Not Deliverables
           </h2>
         </div>
 
         {/* The one comparison that matters: what you actually pay for. */}
-        <div className="mt-10 sm:mt-14 grid grid-cols-1 md:grid-cols-2 rounded-[28px] sm:rounded-[36px] overflow-hidden border border-neutral-200">
-          <div className="bg-neutral-100 p-6 sm:p-10 lg:p-12">
+        <div className="mt-5 sm:mt-14 grid grid-cols-2 md:grid-rows-[auto_1fr] rounded-[20px] sm:rounded-[36px] overflow-hidden border border-neutral-200">
+          <div className="bg-neutral-100 p-4 sm:p-10 lg:p-12 md:row-span-2">
             <p className="text-xs font-mono font-bold tracking-widest text-neutral-500 uppercase">
-              Typical agency · you pay for
+              Typical agency<span className="hidden sm:inline"> · you pay for</span>
             </p>
-            <p className="mt-4 sm:mt-6 text-3xl sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-[1.08] text-neutral-400 line-through decoration-2 decoration-neutral-400">
+            <p className="mt-2 sm:mt-6 text-lg sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-[1.15] sm:leading-[1.08] text-neutral-400 line-through decoration-2 decoration-neutral-400">
               {LEAD.typical}
             </p>
           </div>
-          <div className="bg-blue-600 text-white p-6 sm:p-10 lg:p-12">
-            <p className="text-xs font-mono font-bold tracking-widest text-blue-100 uppercase">Axeon · you pay for</p>
-            <p className="mt-4 sm:mt-6 text-5xl sm:text-7xl lg:text-8xl font-black font-display tracking-tight leading-none">
+          <div className="bg-blue-600 text-white p-4 sm:p-10 lg:p-12 md:pb-0 lg:pb-0">
+            <p className="text-xs font-mono font-bold tracking-widest text-blue-100 uppercase">
+              Axeon<span className="hidden sm:inline"> · you pay for</span>
+            </p>
+            <p className="mt-2 sm:mt-6 text-[32px] sm:text-7xl lg:text-8xl font-black font-display tracking-tight leading-none">
               {LEAD.axeon}
             </p>
-            <p className="mt-4 sm:mt-6 text-base sm:text-xl text-blue-50 leading-relaxed max-w-md">{LEAD.axeonDetail}</p>
           </div>
+          <p className="hidden md:block bg-blue-600 text-white px-10 lg:px-12 pt-6 pb-10 lg:pb-12 text-xl text-blue-50 leading-relaxed">
+            <span className="block max-w-md">{LEAD.axeonDetail}</span>
+          </p>
         </div>
 
         {/* Everything else, in small type. */}
-        <dl className="mt-8 sm:mt-10 divide-y divide-neutral-200 border-y border-neutral-200">
+        <dl className="mt-4 sm:mt-10 divide-y divide-neutral-200 border-y border-neutral-200">
           {ROWS.map((row) => (
             <div
               key={row.dimension}
-              className="grid grid-cols-1 sm:grid-cols-[minmax(0,0.6fr)_minmax(0,1fr)_minmax(0,1fr)] gap-x-8 gap-y-1.5 py-4 sm:py-5 text-sm sm:text-base"
+              className="grid grid-cols-[100px_minmax(0,1fr)] sm:grid-cols-[minmax(0,0.6fr)_minmax(0,1fr)_minmax(0,1fr)] gap-x-3 sm:gap-x-8 gap-y-1.5 py-2.5 sm:py-5 text-sm sm:text-base"
             >
-              <dt className="font-bold text-neutral-950">{row.dimension}</dt>
-              <dd className="flex items-start gap-2 text-neutral-500">
+              <dt className="text-[13px] sm:text-base font-bold text-neutral-950">{row.dimension}</dt>
+              <dd className="hidden sm:flex items-start gap-2 text-neutral-500">
                 <X size={16} className="shrink-0 mt-0.5 sm:mt-1 text-neutral-400" aria-label="Typical agency" />
                 <span>{row.typical}</span>
               </dd>
-              <dd className="flex items-start gap-2 text-neutral-900 font-medium">
-                <Check size={16} className="shrink-0 mt-0.5 sm:mt-1 text-blue-600" aria-label="Axeon Studio" />
-                <span>{row.axeon}</span>
+              <dd className="flex items-start gap-2 text-neutral-900 font-medium leading-snug sm:leading-normal">
+                <Check size={16} className="hidden sm:block shrink-0 mt-0.5 sm:mt-1 text-blue-600" aria-label="Axeon Studio" />
+                <span>
+                  <span className="sm:hidden">{row.axeonShort ?? row.axeon}</span>
+                  <span className="hidden sm:inline">{row.axeon}</span>
+                </span>
               </dd>
             </div>
           ))}
         </dl>
 
-        <div className="mt-10 flex flex-col sm:flex-row items-center gap-4">
+        <div className="mt-5 sm:mt-10 flex flex-col sm:flex-row items-center gap-1 sm:gap-4">
           <Link
             href="/check-your-area"
             className="w-full sm:w-auto text-center px-8 py-3.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors"
@@ -107,7 +123,7 @@ export function Comparison() {
           </Link>
           <Link
             href="/why-axeon"
-            className="w-full sm:w-auto text-center px-8 py-3.5 rounded-full border border-neutral-300 text-neutral-900 font-semibold hover:bg-neutral-50 transition-colors"
+            className="w-full sm:w-auto text-center py-3 sm:px-8 sm:py-3.5 rounded-full sm:border sm:border-neutral-300 text-neutral-900 font-semibold underline underline-offset-4 decoration-neutral-300 sm:no-underline hover:bg-neutral-50 transition-colors"
           >
             See the full comparison
           </Link>

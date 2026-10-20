@@ -72,11 +72,6 @@ export function IowaClientsMarquee() {
     <section id="iowa-partners" aria-label="Partnering with Iowa businesses" className="w-full py-4 sm:py-9 bg-white border-b border-neutral-200">
       <p className="text-center text-[11px] sm:text-base font-bold tracking-[0.06em] sm:tracking-[0.22em] whitespace-nowrap sm:whitespace-normal text-[#3366ff] uppercase mb-2 sm:mb-5 px-4">
         Partnering with Iowa Businesses
-        {SHOW_PLACEHOLDERS && (
-          <span className="ml-2 inline-block rounded-full bg-amber-100 px-2 py-0.5 align-middle text-[10px] font-bold tracking-normal normal-case text-amber-800">
-            Preview placeholders
-          </span>
-        )}
       </p>
 
       <ul className="sr-only">

@@ -98,6 +98,7 @@ function NicheLinks({ entry, compact }: { entry: WhoWeHelpEntry; compact?: boole
   );
 }
 
+// Purpose: the visitor picks their practice type and jumps to the page written for it.
 export function WhoWeHelp() {
   // `null` until hydration so we never mount autoplay video on a phone.
   const isMobile = useIsMobile();
@@ -109,16 +110,16 @@ export function WhoWeHelp() {
   return (
     <section
       id="who-we-help"
-      className="w-full py-16 sm:py-32 px-4 sm:px-8 lg:px-12 xl:px-16 bg-transparent text-neutral-950"
+      className="w-full py-10 sm:py-32 px-4 sm:px-8 lg:px-12 xl:px-16 bg-transparent text-neutral-950"
     >
       <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
         {/* Top Eyebrow & Headlines */}
-        <div className="mb-8 sm:mb-16">
-          <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-4 sm:mb-5">
+        <div className="mb-5 sm:mb-16">
+          <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3 sm:mb-5">
             [ PICK YOUR PRACTICE ]
           </p>
 
-          <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-[68px] font-black font-display tracking-tight text-neutral-950 leading-[1.08] max-w-5xl">
+          <h2 className="text-[28px] sm:text-5xl md:text-6xl lg:text-[68px] font-black font-display tracking-tight text-neutral-950 leading-[1.08] max-w-5xl">
             Every practice and firm loses new patients and clients in its own way.{' '}
             <span className="text-blue-600">See yours.</span>
           </h2>
@@ -182,7 +183,7 @@ export function WhoWeHelp() {
               a single accordion column on phones */}
           <div className="relative z-10 p-5 sm:p-12 lg:p-18 xl:p-22 w-full flex flex-col justify-center my-auto">
             {/* Small uppercase label */}
-            <div className="mb-4 sm:mb-6 pl-1">
+            <div className="mb-3 sm:mb-6 pl-1">
               <span className="text-xs sm:text-base font-extrabold tracking-[0.25em] text-white/90 uppercase">
                 WHO WE HELP
               </span>
@@ -235,7 +236,7 @@ export function WhoWeHelp() {
                     </>
                   );
 
-                  const commonClasses = `group w-full flex items-center justify-between px-5 py-4 sm:px-8 sm:py-6.5 rounded-2xl transition-all duration-200 cursor-pointer border text-left backdrop-blur-md ${
+                  const commonClasses = `group w-full flex items-center justify-between px-5 py-3.5 sm:px-8 sm:py-6.5 rounded-2xl transition-all duration-200 cursor-pointer border text-left backdrop-blur-md ${
                     isActive
                       ? 'bg-gradient-to-r from-[#2c40a5] via-[#374cb8] to-[#425ec8] border-blue-300/60 shadow-2xl shadow-blue-950/70 ring-2 ring-blue-300/40'
                       : 'bg-white/[0.09] hover:bg-white/[0.16] active:bg-white/[0.16] border-white/20 hover:border-white/35 shadow-lg shadow-black/25'

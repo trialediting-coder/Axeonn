@@ -23,23 +23,27 @@ export default function FaqPage() {
   };
 
   return (
-    <main className="w-full pt-32 pb-24 px-6 sm:px-10 lg:px-16 xl:px-24">
+    <main className="w-full pt-20 sm:pt-32 pb-12 sm:pb-24 px-4 sm:px-10 lg:px-16 xl:px-24">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       <BreadcrumbJsonLd items={[{ name: 'FAQ', path: '/faq' }]} />
       <div className="max-w-3xl mx-auto">
-        <span className="block mb-4 text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ FAQ ]</span>
-        <h1 className="text-4xl sm:text-5xl font-extrabold font-display tracking-tight text-neutral-950 mb-4">
-          Frequently Asked Questions
-        </h1>
-        <p className="text-lg text-neutral-600 mb-14">
-          Straight answers to what dental, med spa, law firm and CPA firm owners ask before working with us.
-        </p>
-        <FAQAccordion items={faqItems} defaultOpenCount={1} />
+        {/* Purpose: every question an owner asks, collapsed so all of them show in one view. */}
+        <section aria-labelledby="faq-heading">
+          <span className="block mb-2 sm:mb-4 text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ FAQ ]</span>
+          <h1 id="faq-heading" className="text-[30px] leading-tight sm:text-5xl font-extrabold font-display tracking-tight text-neutral-950 mb-2 sm:mb-4">
+            Frequently Asked Questions
+          </h1>
+          <p className="text-[15px] sm:text-lg text-neutral-600 mb-4 sm:mb-14">
+            Straight answers to what dental, med spa, law firm and CPA firm owners ask before working with us.
+          </p>
+          <FAQAccordion items={faqItems} defaultOpenCount={0} />
+        </section>
 
-        <div className="mt-16 rounded-[28px] bg-neutral-950 text-white p-7 sm:p-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        {/* Purpose: the next step for anyone whose question isn't answered above. */}
+        <div className="mt-10 sm:mt-16 rounded-[24px] sm:rounded-[28px] bg-neutral-950 text-white p-6 sm:p-10 flex flex-col sm:flex-row sm:items-center justify-between gap-5 sm:gap-6">
           <div>
             <h2 className="text-2xl sm:text-3xl font-extrabold font-display tracking-tight">Still have a question?</h2>
             <p className="mt-2 text-neutral-300 text-base sm:text-lg">

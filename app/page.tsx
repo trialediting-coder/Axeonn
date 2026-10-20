@@ -17,12 +17,16 @@ export default function HomePage() {
 
   return (
     <main>
+      {/* Purpose: the result we sell, for all four verticals, and the one next step. */}
       <Hero />
+      {/* Purpose: who we partner with (or, in production, what every plan includes). */}
       <IowaClientsMarquee />
       <WhoWeHelp />
       <HomeProof />
       <ThreePillars />
-      <PricingSection />
+      {/* The homepage FAQ below already answers cost, the commitment and which plan
+          to pick, so the pricing block skips its own FAQ here (it stays on /pricing). */}
+      <PricingSection showFaq={false} />
       <GrowthEngine showBuilds={false} />
       <Comparison />
       <FAQ />

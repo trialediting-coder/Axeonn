@@ -37,12 +37,12 @@ export function FAQAccordion({ items, defaultOpenCount = 0, size = 'default' }: 
               aria-expanded={isOpen}
               aria-controls={`faq-answer-${index}`}
               className={`w-full flex items-center justify-between gap-4 text-left cursor-pointer transition-colors hover:text-blue-600 ${
-                isLarge ? 'py-6 sm:py-8' : 'py-5'
+                isLarge ? 'min-h-[52px] py-3.5 sm:py-8' : 'min-h-[48px] py-3 sm:py-5'
               }`}
             >
               <span
                 className={`font-bold text-neutral-950 transition-colors ${
-                  isLarge ? 'text-lg sm:text-2xl' : 'text-base sm:text-lg'
+                  isLarge ? 'text-[17px] leading-snug sm:text-2xl sm:leading-normal' : 'text-[15px] leading-snug sm:text-lg sm:leading-normal'
                 }`}
               >
                 {item.question}
@@ -59,8 +59,8 @@ export function FAQAccordion({ items, defaultOpenCount = 0, size = 'default' }: 
               hidden={!isOpen}
               className={`text-neutral-600 leading-relaxed font-normal ${
                 isLarge
-                  ? 'pb-7 sm:pb-8 text-base sm:text-lg lg:text-xl'
-                  : 'pb-5 text-sm sm:text-base'
+                  ? 'pb-5 sm:pb-8 text-[15px] sm:text-lg lg:text-xl'
+                  : 'pb-4 sm:pb-5 text-sm sm:text-base'
               }`}
             >
               {item.answer}
