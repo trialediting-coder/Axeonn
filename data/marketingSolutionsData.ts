@@ -67,7 +67,7 @@ export interface MarketingSolution {
 export const marketingSolutions: MarketingSolution[] = [
   {
     id: 'website',
-    title: 'Practice website',
+    title: 'Practice or firm website',
     description:
       'A custom, mobile-first site with providers and credentials, services, reviews and online booking.',
     included: 'AxeonCORE',
@@ -92,7 +92,7 @@ export const marketingSolutions: MarketingSolution[] = [
     id: 'growth',
     title: 'Acquisition layer',
     description:
-      'Google Local Services Ads and search ads, past-patient reactivation, an AI phone receptionist and quarterly photo and video.',
+      'Google Local Services Ads and search ads, reactivation of past patients and clients, an AI phone receptionist and quarterly photo and video.',
     included: 'AxeonGROWTH',
     href: '/marketing-solutions#growth',
   },

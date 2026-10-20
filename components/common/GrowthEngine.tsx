@@ -21,12 +21,12 @@ const engineModules: EngineModule[] = [
   {
     icon: PhoneCall,
     title: 'AI Receptionist',
-    body: 'Answers the calls your front desk can’t get to, takes the details, and books the consultation.',
+    body: 'Answers the calls your front desk or intake team can’t get to, takes the details, and books the consultation.',
     href: '/marketing-solutions/ai-chat-scheduling',
   },
   {
     icon: RefreshCw,
-    title: 'Past-Patient Reactivation',
+    title: 'Past Patient & Client Reactivation',
     body: 'A campaign each quarter to past patients and clients who are due to come back.',
     href: '/marketing-solutions/lead-generation',
   },
@@ -48,7 +48,7 @@ const builds = [
   {
     name: 'AxeonGROWTH',
     price: 'From $1,999/mo',
-    line: 'Everything in CORE, plus Google ads and LSA, an AI receptionist, past-patient reactivation, and quarterly photo & video.',
+    line: 'Everything in CORE, plus Google ads and LSA, an AI receptionist, reactivation of past patients and clients, and quarterly photo & video.',
   },
 ];
 

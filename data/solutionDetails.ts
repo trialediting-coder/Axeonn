@@ -27,7 +27,7 @@ export const coreLayers: SolutionLayer[] = [
   {
     id: 'website',
     step: 'Layer 1',
-    title: 'Practice website',
+    title: 'Practice or firm website',
     promise: 'The site a new patient or client checks before they call.',
     problem:
       'Many practice sites were built years ago. They are slow on a phone, bury the providers, and end in a contact form that emails a shared inbox.',
@@ -47,12 +47,12 @@ export const coreLayers: SolutionLayer[] = [
     title: '60-second intake & booking',
     promise: 'Every missed call and web inquiry gets a reply within 60 seconds, 24/7.',
     problem:
-      'Calls after hours or during a busy morning go to voicemail. Forms wait until tomorrow. The patient books with whoever answered first.',
+      'Calls after hours or during a busy morning go to voicemail. Forms wait until tomorrow. The new patient or client books with whoever answered first.',
     includes: [
       '24/7 missed-call text-back',
       'First reply to every web inquiry within 60 seconds',
       'Online consultation booking',
-      'A two-way text inbox for your front desk',
+      'A two-way text inbox for your front desk or intake team',
       'Call tracking, so you see which calls came from where',
     ],
     note: 'Intake collects name, contact, service and preferred time only. Never symptoms, insurance or health details.',

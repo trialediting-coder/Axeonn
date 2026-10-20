@@ -29,7 +29,7 @@ const COMPANY_LINKS: FooterLink[] = [
 const WHO_WE_HELP_LINKS: FooterLink[] = [
   ...niches.map((niche) => ({ label: niche.name, href: `/solutions/${niche.slug}` })),
   { label: 'All Practice Types', href: '/solutions' },
-  { label: 'Des Moines Practices', href: '/des-moines-web-design' },
+  { label: 'Des Moines Practices & Firms', href: '/des-moines-web-design' },
   ...cityPages.map((city) => ({ label: city.linkLabel, href: `/${city.slug}` })),
   { label: 'Iowa Nonprofits', href: '/nonprofits' },
 ];
@@ -98,7 +98,7 @@ export function Footer({ year }: FooterProps) {
           <div>
             <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">What happens when someone calls after hours?</h3>
             <p className="mt-2 text-neutral-300 text-base sm:text-lg max-w-2xl">
-              We call your practice after hours, check how fast your website answers an inquiry, and compare your reviews to the top 3 nearby practices. You get a short video walkthrough. No charge.
+              We call your practice or firm after hours, check how fast your website answers an inquiry, and compare your reviews to the top 3 nearby competitors. You get a short video walkthrough. No charge.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 shrink-0">

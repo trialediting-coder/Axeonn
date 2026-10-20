@@ -12,7 +12,7 @@ export const metadata = buildMetadata({
   path: '/marketing-solutions',
   title: 'How It Works: Patient & Client Intake | Axeon Studio',
   description:
-    'Three layers for private practices: a practice website, 60-second intake and booking, and a review engine. Every missed call and web inquiry answered within 60 seconds, 24/7. From $799/mo.',
+    'Three layers for dental practices, med spas, law firms and CPA firms: a website, 60-second intake and booking, and a review engine. Every missed call and web inquiry answered within 60 seconds, 24/7. From $799/mo.',
 });
 
 const howItWorksJsonLd = {
@@ -36,14 +36,14 @@ const howItWorksJsonLd = {
 // An example evening, clearly labeled as one. No statistics, no client data.
 const EVENING = {
   without: [
-    { when: '7:12 PM', what: 'A new patient calls. The office is closed, so the call goes to voicemail.' },
+    { when: '7:12 PM', what: 'A new patient or client calls. The office is closed, so the call goes to voicemail.' },
     { when: '7:20 PM', what: 'They fill out the contact form. It lands in a shared inbox.' },
-    { when: '8:05 AM', what: 'The front desk calls back between check-ins. The patient already booked somewhere else.' },
+    { when: '8:05 AM', what: 'The front desk or intake team calls back between appointments. They already booked somewhere else.' },
   ],
   with: [
-    { when: '7:12 PM', what: 'A new patient calls. Nobody can pick up.' },
+    { when: '7:12 PM', what: 'A new patient or client calls. Nobody can pick up.' },
     { when: '7:13 PM', what: 'They get a text from your practice with a link to book a consultation.' },
-    { when: '7:16 PM', what: 'The consultation is on the calendar. The front desk sees the whole thread in the morning.' },
+    { when: '7:16 PM', what: 'The consultation is on the calendar. The front desk or intake team sees the whole thread in the morning.' },
   ],
 };
 
@@ -51,7 +51,7 @@ const EVENING = {
 const TIMELINE = [
   { when: 'Second 0', what: 'Someone calls, texts, or sends a form through your website.' },
   { when: 'Within 60 seconds', what: 'Nobody could pick up? They get a reply from your practice’s number with a way to book.' },
-  { when: 'Same day', what: 'The consultation is booked online, or your front desk picks up the thread in the two-way text inbox.' },
+  { when: 'Same day', what: 'The consultation is booked online, or your front desk or intake team picks up the thread in the two-way text inbox.' },
   { when: 'After the visit', what: 'An automatic text asks for a review.' },
   { when: 'Every month', what: 'AxeonPROOF shows every recovered inquiry and booking, with a monthly report.' },
 ];
@@ -74,7 +74,7 @@ export default function HowItWorksPage() {
           </h1>
           <p className="mt-6 text-lg sm:text-xl text-neutral-300 leading-relaxed max-w-2xl mx-auto">
             Calls after hours and during busy mornings go to voicemail. Forms wait until tomorrow. Axeon answers every missed
-            call and web inquiry within 60 seconds, 24/7, books the consultation, and asks every patient for a review after the
+            call and web inquiry within 60 seconds, 24/7, books the consultation, and asks every patient and client for a review after the
             visit.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-5">
@@ -112,10 +112,10 @@ export default function HowItWorksPage() {
           <div className="max-w-3xl">
             <Eyebrow label="The problem" />
             <h2 className="mt-4 text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1] text-balance">
-              The patient books with whoever answers first.
+              The new patient or client books with whoever answers first.
             </h2>
             <p className="mt-5 text-lg text-neutral-600 leading-relaxed">
-              Most practices do not need more traffic first. They need every call and inquiry they already get answered before
+              Most practices and firms do not need more traffic first. They need every call and inquiry they already get answered before
               the person moves on. Here is one example evening.
             </p>
           </div>
@@ -296,7 +296,7 @@ export default function HowItWorksPage() {
               </h2>
               <p className="mt-3 text-blue-50 leading-relaxed">
                 We call your practice after hours, check how fast your website answers an inquiry, and compare your reviews to
-                the top 3 nearby practices. You get a short video walkthrough of what we found. No charge.
+                the top 3 nearby competitors. You get a short video walkthrough of what we found. No charge.
               </p>
             </div>
             <span className="inline-flex items-center gap-2 font-semibold">

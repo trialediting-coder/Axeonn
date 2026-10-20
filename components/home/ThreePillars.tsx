@@ -42,7 +42,7 @@ const PILLARS: Pillar[] = [
     name: 'Step 2',
     promise: 'Booked.',
     detail:
-      'Online consultation booking and a two-way text inbox for your front desk, so the conversation ends with a time on the calendar instead of a callback list.',
+      'Online consultation booking and a two-way text inbox for your front desk or intake team, so the conversation ends with a time on the calendar instead of a callback list.',
     href: '/marketing-solutions/ai-chat-scheduling',
     cta: 'How consultations get booked',
     image: '/philosophy/technology.webp',

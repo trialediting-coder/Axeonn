@@ -273,7 +273,7 @@ export function Header() {
                         onClick={() => setSolutionsOpen(false)}
                         className="px-1 py-1 text-[13px] font-semibold text-blue-600 hover:text-blue-700"
                       >
-                        All practice types →
+                        All practices & firms →
                       </Link>
                     </div>
 
