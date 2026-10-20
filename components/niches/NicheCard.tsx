@@ -7,16 +7,16 @@ export function NicheCard({ niche }: { niche: Niche }) {
   return (
     <Link
       href={`/solutions/${niche.slug}`}
-      className="group flex flex-col justify-between rounded-2xl border border-neutral-200 bg-white p-7 transition-all hover:border-blue-400 hover:shadow-lg"
+      className="group flex flex-col justify-between rounded-2xl border border-neutral-200 bg-white p-5 sm:p-7 transition-all hover:border-blue-400 hover:shadow-lg"
     >
       <div>
-        <p className="mb-4 text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ {niche.name} ]</p>
-        <h3 className="text-2xl font-extrabold font-display tracking-tight leading-[1.15] text-balance text-neutral-950 sm:text-[26px]">
+        <p className="mb-2.5 sm:mb-4 text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ {niche.name} ]</p>
+        <h3 className="text-[22px] font-extrabold font-display tracking-tight leading-[1.15] text-balance text-neutral-950 sm:text-[26px]">
           {niche.leakHeadline}
         </h3>
-        <p className="mt-4 text-sm leading-relaxed text-neutral-600">{niche.cardLine}</p>
+        <p className="mt-2.5 sm:mt-4 text-sm leading-snug sm:leading-relaxed text-neutral-600">{niche.cardLine}</p>
       </div>
-      <span className="mt-8 text-sm font-semibold text-blue-600">
+      <span className="mt-4 sm:mt-8 text-sm font-semibold text-blue-600">
         See {niche.name}{' '}
         <span aria-hidden="true" className="inline-block transition-transform group-hover:translate-x-1">
           &rarr;

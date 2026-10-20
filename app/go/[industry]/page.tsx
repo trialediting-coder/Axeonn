@@ -128,45 +128,46 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
       </div>
 
       {/* 1. The offer + the form */}
-      <section className="relative bg-neutral-950 text-white pt-28 sm:pt-32 pb-16 sm:pb-24 px-4 sm:px-8 overflow-hidden">
+      {/* Purpose: the offer (result, price, $0 to start) and the form, in the first screen. */}
+      <section className="relative bg-neutral-950 text-white pt-24 sm:pt-32 pb-12 sm:pb-24 px-4 sm:px-8 overflow-hidden">
         <div aria-hidden="true" className="absolute -top-40 -right-40 w-[700px] h-[700px] rounded-full bg-[radial-gradient(closest-side,rgb(37_99_235/0.28),transparent)]" />
         <div className="relative max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
           <div className="lg:col-span-7 lg:pt-6">
             <p className="text-sm font-bold tracking-[0.18em] uppercase text-blue-400">For {funnel.audience}</p>
-            <h1 className="mt-4 text-4xl sm:text-5xl lg:text-6xl font-black font-display tracking-tight leading-[1.05] text-balance">
+            <h1 className="mt-3 sm:mt-4 text-[34px] sm:text-5xl lg:text-6xl font-black font-display tracking-tight leading-[1.05] text-balance">
               Get More {funnel.customers.replace(/\b\w/g, (c) => c.toUpperCase())}. Every One Answered in 60 Seconds.
             </h1>
             <p className="mt-4 text-base sm:text-lg font-semibold text-white">
               From $799/mo. $0 to start. Nothing due until it&apos;s working.
             </p>
-            <p className="mt-4 text-lg sm:text-xl text-neutral-300 leading-relaxed max-w-xl">
+            <p className="mt-3 sm:mt-4 text-base sm:text-xl text-neutral-300 leading-relaxed max-w-xl">
               {funnel.result}
             </p>
-            <ul className="mt-8 flex flex-col gap-3 text-base sm:text-lg">
+            <ul className="mt-5 sm:mt-8 flex flex-col gap-2.5 sm:gap-3 text-[15px] sm:text-lg">
               {[
                 'Every missed call and web inquiry answered within 60 seconds, 24/7',
                 'Consultations booked online, plus a two-way text inbox for your front desk or intake team',
                 'A review request after every appointment',
               ].map((item) => (
                 <li key={item} className="flex items-start gap-3">
-                  <Check size={22} className="mt-0.5 shrink-0 text-blue-400" strokeWidth={2.6} />
+                  <Check size={20} className="mt-0.5 shrink-0 text-blue-400" strokeWidth={2.6} />
                   <span>{item}</span>
                 </li>
               ))}
             </ul>
-            <div className="mt-8 grid grid-cols-3 max-w-lg rounded-2xl border border-white/15 divide-x divide-white/15 text-center">
+            <div className="mt-5 sm:mt-8 grid grid-cols-3 max-w-lg rounded-2xl border border-white/15 divide-x divide-white/15 text-center">
               {[
                 { v: '60 sec', l: 'first reply, 24/7' },
                 { v: 'from $799', l: 'per month' },
                 { v: '90-day', l: 'performance commitment' },
               ].map((o) => (
-                <div key={o.l} className="px-3 py-4">
-                  <p className="text-2xl sm:text-3xl font-black font-display tracking-tight">{o.v}</p>
-                  <p className="mt-1 text-xs sm:text-sm text-neutral-400 leading-snug">{o.l}</p>
+                <div key={o.l} className="px-2 py-3 sm:px-3 sm:py-4">
+                  <p className="text-xl sm:text-3xl font-black font-display tracking-tight">{o.v}</p>
+                  <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-neutral-400 leading-snug">{o.l}</p>
                 </div>
               ))}
             </div>
-            <div className="mt-6">
+            <div className="mt-5 sm:mt-6">
               <TrustBadges variant="dark" size="lg" />
             </div>
           </div>
@@ -181,35 +182,38 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
       <NichePainPoints niche={niche} variant="compact" closerHref="#book" closerLabel="Check if your area is open" closerArrow="up" />
 
       {/* 3. Proof we can honestly offer: what we find on their own practice, shown on the call */}
-      <section className="px-4 sm:px-8 py-20 sm:py-24 border-b border-neutral-200">
+      {/* Purpose: what we test on their own practice and show them on the call. */}
+      <section className="px-4 sm:px-8 py-10 sm:py-24 border-b border-neutral-200">
         <div className="max-w-5xl mx-auto">
           <div className="max-w-3xl">
             <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ WHAT WE SHOW YOU ON THE CALL ]</p>
-            <h2 className="mt-4 text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1] text-balance">
+            <h2 className="mt-3 sm:mt-4 text-[26px] sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1] text-balance">
               See what happens when {funnel.customers} reach your {funnel.business} after hours
             </h2>
-            <p className="mt-5 text-lg text-neutral-600 leading-relaxed">
+            <p className="mt-3 sm:mt-5 text-[15px] sm:text-lg text-neutral-600 leading-snug sm:leading-relaxed">
               Once you check your area, we test your own {funnel.business} and go over what we found with you, whether or
               not you work with us.
             </p>
           </div>
-          <ol className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-5">
+          <ol className="mt-5 sm:mt-12 grid grid-cols-1 md:grid-cols-3 gap-2.5 sm:gap-5">
             {CALL_FINDINGS.map(({ icon: Icon, t, d }, i) => (
-              <li key={t} className="rounded-3xl border border-neutral-200 bg-white p-6 sm:p-7">
-                <div className="flex items-center justify-between">
-                  <Icon size={24} className="text-blue-600" />
-                  <span className="font-mono text-xs font-bold text-neutral-400">0{i + 1}</span>
+              <li key={t} className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 rounded-2xl sm:rounded-3xl border border-neutral-200 bg-white p-4 sm:block sm:p-7">
+                <div className="flex items-start sm:items-center justify-between">
+                  <Icon size={22} className="mt-0.5 sm:mt-0 text-blue-600" />
+                  <span className="hidden sm:inline font-mono text-xs font-bold text-neutral-400">0{i + 1}</span>
                 </div>
-                <p className="mt-5 text-xl font-bold">{t}</p>
-                <p className="mt-2 text-neutral-600 leading-relaxed">{d}</p>
+                <div>
+                  <p className="sm:mt-5 text-base sm:text-xl font-bold leading-snug">{t}</p>
+                  <p className="mt-1 sm:mt-2 text-sm sm:text-base text-neutral-600 leading-snug sm:leading-relaxed">{d}</p>
+                </div>
               </li>
             ))}
           </ol>
-          <p className="mt-8 text-neutral-600">
+          <p className="mt-4 sm:mt-8 text-sm sm:text-base text-neutral-600 leading-snug sm:leading-normal">
             Clients then see every reply and booking in AxeonPROOF, their live client portal: a recovered-inquiry counter,
             change requests and a monthly report.
           </p>
-          <div className="mt-10 text-left flex flex-col gap-4">
+          <div className="mt-6 sm:mt-10 text-left flex flex-col gap-4 empty:hidden">
             <Placeholder label={funnel.proofPlaceholder} />
             <Placeholder label={`Client testimonial from this practice type (${niche.name})`} />
           </div>
@@ -217,18 +221,19 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
       </section>
 
       {/* 4. Show what they get: a real site we designed, in a browser frame */}
+      {/* Purpose: what their website could look like (a labeled concept build in their specialty). */}
       {example && showExample && (
-        <section className="px-4 sm:px-8 py-20 sm:py-24 bg-neutral-50">
+        <section className="px-4 sm:px-8 py-10 sm:py-24 bg-neutral-50">
           <div className="max-w-5xl mx-auto">
             <div className="max-w-2xl">
-              <h2 className="text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1]">
+              <h2 className="text-[26px] sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1]">
                 What your website could look like
               </h2>
-              <p className="mt-4 text-lg text-neutral-600 leading-relaxed">
+              <p className="mt-3 sm:mt-4 text-[15px] sm:text-lg text-neutral-600 leading-snug sm:leading-relaxed">
                 Custom-designed, fast on phones, with providers, services, reviews and booking up front.
               </p>
             </div>
-            <div className="mt-10 rounded-[20px] overflow-hidden bg-neutral-900 shadow-2xl ring-1 ring-black/10">
+            <div className="mt-5 sm:mt-10 rounded-[20px] overflow-hidden bg-neutral-900 shadow-2xl ring-1 ring-black/10">
               <div className="flex items-center gap-1.5 px-4 h-9 bg-neutral-900 border-b border-white/10">
                 <span className="w-2.5 h-2.5 rounded-full bg-white/20" />
                 <span className="w-2.5 h-2.5 rounded-full bg-white/20" />
@@ -253,37 +258,39 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
       )}
 
       {/* 6. What happens on the call (lowers the fear of booking) */}
-      <section className="px-4 sm:px-8 py-20 sm:py-24 bg-neutral-950 text-white">
+      {/* Purpose: the three steps after the form, so booking feels safe. */}
+      <section className="px-4 sm:px-8 py-12 sm:py-24 bg-neutral-950 text-white">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1]">
+          <h2 className="text-[28px] sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1]">
             What happens after you check your area
           </h2>
-          <ol className="mt-12 border-l border-white/15 ml-2">
+          <ol className="mt-6 sm:mt-12 border-l border-white/15 ml-2">
             {[
               { t: 'We confirm your area', d: 'Within one business day: one practice or firm per specialty within 5 miles.' },
               { t: 'We test your practice', d: 'An after-hours call, a timed web inquiry, and a review comparison with the top 3 nearby competitors.' },
               { t: 'If it fits, we partner', d: '$0 to start. Nothing due until it’s working. No pressure either way.' },
             ].map((s) => (
-              <li key={s.t} className="relative pl-8 sm:pl-10 pb-10 last:pb-0">
+              <li key={s.t} className="relative pl-7 sm:pl-10 pb-6 sm:pb-10 last:pb-0">
                 <span className="absolute -left-[7px] top-1.5 w-3.5 h-3.5 rounded-full bg-blue-500 ring-4 ring-neutral-950" />
-                <p className="text-xl font-bold">{s.t}</p>
-                <p className="mt-1.5 text-lg text-neutral-300 leading-relaxed">{s.d}</p>
+                <p className="text-lg sm:text-xl font-bold">{s.t}</p>
+                <p className="mt-1 sm:mt-1.5 text-[15px] sm:text-lg text-neutral-300 leading-snug sm:leading-relaxed">{s.d}</p>
               </li>
             ))}
           </ol>
-          <div className="mt-12">
+          <div className="mt-7 sm:mt-12">
             <CTA dark />
           </div>
         </div>
       </section>
 
       {/* 7. Performance commitment */}
-      <section className="px-4 sm:px-8 py-20 sm:py-24">
+      {/* Purpose: the 90-day commitment, in full. */}
+      <section className="px-4 sm:px-8 py-10 sm:py-24">
         <div className="max-w-3xl mx-auto">
-          <div className="rounded-3xl border-2 border-emerald-500 p-7 sm:p-9">
-            <ShieldCheck size={32} className="text-emerald-600" />
-            <h2 className="mt-4 text-2xl sm:text-3xl font-extrabold font-display tracking-tight">90-day performance commitment</h2>
-            <p className="mt-3 text-lg text-neutral-700 leading-relaxed">{COMMITMENT}</p>
+          <div className="rounded-3xl border-2 border-emerald-500 p-5 sm:p-9">
+            <ShieldCheck size={28} className="text-emerald-600" />
+            <h2 className="mt-3 sm:mt-4 text-2xl sm:text-3xl font-extrabold font-display tracking-tight">90-day performance commitment</h2>
+            <p className="mt-3 text-base sm:text-lg text-neutral-700 leading-relaxed">{COMMITMENT}</p>
             <p className="mt-3 text-sm text-neutral-500 leading-relaxed">
               We commit to what we control: speed, replies and review requests. We never promise a number of patients,
               clients or rankings.
@@ -293,20 +300,22 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
       </section>
 
       {/* 9. FAQ */}
-      <section className="px-4 sm:px-8 py-20 sm:py-24 bg-neutral-50">
+      {/* Purpose: the last objections; every question in view, answers one tap away. */}
+      <section className="px-4 sm:px-8 py-6 sm:py-24 bg-neutral-50">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl font-extrabold font-display tracking-tight mb-10">Questions before you check your area</h2>
+          <h2 className="text-2xl sm:text-4xl font-extrabold font-display tracking-tight leading-tight mb-2 sm:mb-10">Questions before you check your area</h2>
           <FAQAccordion items={faqs} />
         </div>
       </section>
 
       {/* 10. Final CTA */}
-      <section className="px-4 sm:px-8 py-20 sm:py-28 text-center">
-        <h2 className="text-3xl sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1] max-w-3xl mx-auto text-balance">
+      {/* Purpose: one last, low-pressure ask. */}
+      <section className="px-4 sm:px-8 py-12 sm:py-28 text-center">
+        <h2 className="text-[28px] sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1] max-w-3xl mx-auto text-balance">
           Is your specialty still open in your area?
         </h2>
         <p className="mt-5 text-lg text-neutral-600">$0 to start. Nothing due until it&apos;s working. AxeonCORE from $799/mo.</p>
-        <div className="mt-10">
+        <div className="mt-7 sm:mt-10">
           <CTA />
         </div>
         <p className="mt-6 text-sm text-neutral-500">

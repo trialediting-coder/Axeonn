@@ -78,19 +78,21 @@ export default async function NichePage({
       <JsonLd data={faqJsonLd} />
       <NicheHero niche={niche} />
       <NichePainPoints niche={niche} />
+      {/* Purpose: why answering first matters (sourced stats; shared with the home page) */}
       <Testimonials />
       <NicheWorkflow niche={niche} />
       <NicheWork niche={niche} />
       <NicheProof niche={niche} />
-      <section className="w-full py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50">
+      {/* Purpose: answer the last objections; every question visible, answers one tap away */}
+      <section className="w-full py-10 sm:py-20 px-4 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50">
         <div className="max-w-3xl mx-auto">
-          <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ FAQ ]</p>
-          <h2 className="text-3xl sm:text-4xl font-extrabold font-display tracking-tight text-neutral-950 mb-10">
+          <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-2 sm:mb-3">[ FAQ ]</p>
+          <h2 className="text-[28px] sm:text-4xl font-extrabold font-display tracking-tight text-neutral-950 mb-4 sm:mb-10">
             Common Questions
           </h2>
           <FAQAccordion items={faqs} />
-          <p className="mt-8 text-neutral-600">
-            <Link href="/faq" className="font-semibold text-blue-600 hover:text-blue-700 underline-offset-4 hover:underline">
+          <p className="mt-3 sm:mt-8 text-neutral-600">
+            <Link href="/faq" className="min-h-11 inline-flex items-center font-semibold text-blue-600 hover:text-blue-700 underline-offset-4 hover:underline">
               More questions &rarr;
             </Link>
           </p>
