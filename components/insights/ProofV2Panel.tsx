@@ -8,13 +8,14 @@
 // 48-hour review), the DBR sprint, citations, the page program with its
 // uniqueness gate, search numbers, the six-month review and summary recipients.
 // Every change posts to /api/admin/onboarding/<token>/v2 and gets the fresh view back.
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { adminInput, adminLabel, btn } from '@/components/admin/ui';
 import type { ProofV2View, ProgramPage } from '@/lib/proofV2';
 import { DELIVERY_SCHEDULE } from '@/data/deliverySchedule';
 import { DASHBOARD_VERSIONS, type ProofVersion } from '@/data/dashboardVersions';
-import { FILING_STATUSES, NAP_DIRECTORIES, NAP_STATUSES, PHASE_STATUSES, pageGate, shortDate, wordCount, type DbrStep } from '@/lib/proofV2Shared';
+import { FILING_STATUSES, NAP_DIRECTORIES, NAP_STATUSES, PHASE_STATUSES, dbrStartBlock, pageGate, shortDate, wordCount, type DbrStep } from '@/lib/proofV2Shared';
+import { INDUSTRIES, INDUSTRY_LABELS, isIndustry, type Industry } from '@/data/industryWords';
 
 type Post = (body: Record<string, unknown>) => Promise<boolean>;
 
@@ -32,8 +33,23 @@ function Box({ title, children, sub }: { title: string; sub?: string; children: 
 
 const STATUS_LABEL: Record<string, string> = { completed: 'Completed', in_progress: 'In progress', pending: 'Pending', scheduled: 'Scheduled' };
 
-export function ProofV2Panel({ token, initialVersion, initial }: { token: string; initialVersion: ProofVersion; initial: ProofV2View | null }) {
+export function ProofV2Panel({
+  token,
+  initialVersion,
+  initial,
+  initialIndustry = null,
+  industryConfirmed = false,
+}: {
+  token: string;
+  initialVersion: ProofVersion;
+  initial: ProofV2View | null;
+  /** Type of practice or firm (onboardings.industry): the words in the client's portal and dashboard. */
+  initialIndustry?: Industry | null;
+  /** The client picked it in the portal's first question (not only the agreement prefill). */
+  industryConfirmed?: boolean;
+}) {
   const [version, setVersion] = useState<ProofVersion>(initialVersion);
+  const [industry, setIndustry] = useState<Industry | null>(initialIndustry);
   const [v, setV] = useState<ProofV2View | null>(initial);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
@@ -43,13 +59,14 @@ export function ProofV2Panel({ token, initialVersion, initial }: { token: string
     setMsg(null);
     try {
       const res = await fetch(`/api/admin/onboarding/${token}/v2`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-      const data = (await res.json().catch(() => ({}))) as { error?: string; message?: string | null; proofVersion?: ProofVersion; view?: ProofV2View | null; link?: string };
+      const data = (await res.json().catch(() => ({}))) as { error?: string; message?: string | null; proofVersion?: ProofVersion; industry?: string | null; view?: ProofV2View | null; link?: string };
       if (!res.ok) throw new Error(data.error ?? `Request failed (${res.status})`);
       if (data.link) {
         window.open(data.link, '_blank', 'noopener');
         return true;
       }
       if (data.proofVersion) setVersion(data.proofVersion);
+      if (data.industry !== undefined) setIndustry(isIndustry(data.industry) ? data.industry : null);
       setV(data.view ?? null);
       if (data.message) setMsg({ ok: true, text: data.message });
       return true;
@@ -80,8 +97,25 @@ export function ProofV2Panel({ token, initialVersion, initial }: { token: string
           </a>
         </div>
       </div>
+      <label className="mt-3 flex flex-wrap items-center gap-2 text-sm text-neutral-700">
+        <span className="font-semibold">Type of practice</span>
+        <select
+          disabled={busy}
+          value={industry ?? ''}
+          onChange={(e) => post({ action: 'industry', industry: e.target.value || null })}
+          className="rounded-md border border-neutral-300 px-2 py-1 text-sm"
+        >
+          <option value="">Not set (neutral words)</option>
+          {INDUSTRIES.map((i) => (
+            <option key={i} value={i}>
+              {INDUSTRY_LABELS[i]}
+            </option>
+          ))}
+        </select>
+        <span className="text-xs text-neutral-500">{industryConfirmed ? 'Confirmed by the client in setup' : industry ? 'From the agreement or set here; the client confirms it in setup' : 'The client picks it in setup'}</span>
+      </label>
       {msg ? <p role="status" className={`mt-3 rounded-lg px-3 py-2 text-sm ${msg.ok ? 'bg-emerald-50 text-emerald-900' : 'bg-red-50 text-red-800'}`}>{msg.text}</p> : null}
-      {version === 2 && v ? <V2Admin v={v} post={post} busy={busy} /> : version === 2 ? <p className="mt-3 text-sm text-neutral-500">Reload to see the v2 program.</p> : null}
+      {version === 2 && v ? <V2Admin v={{ ...v, industry }} post={post} busy={busy} /> : version === 2 ? <p className="mt-3 text-sm text-neutral-500">Reload to see the v2 program.</p> : null}
     </section>
   );
 }
@@ -334,6 +368,14 @@ function PinList({ pins, post, busy }: { pins: ProofV2View['pins']; post: Post; 
 
 function Phase3({ v, post, busy }: { v: ProofV2View; post: Post; busy: boolean }) {
   const [steps, setSteps] = useState<DbrStep[]>(v.dbr.steps);
+  const [reviewer, setReviewer] = useState(v.settings.dbrReview?.reviewedBy ?? '');
+  const law = v.industry === 'law';
+  const review = v.settings.dbrReview;
+  // Recording the review saves the texts as the server will send them (with the attorney-advertising line); show those.
+  useEffect(() => {
+    if (review?.steps?.length) setSteps(review.steps);
+  }, [review?.reviewedAt]); // eslint-disable-line react-hooks/exhaustive-deps
+  const lawBlock = law ? dbrStartBlock('law', steps, review) : null;
   return (
     <Box title="Phase 3 · Reactivation sprint + pipeline" sub={`${v.dbr.imported} imported (${v.dbr.consented} consented) · ${v.dbr.status} · ${v.dbr.sent} sent · ${v.pipeline.totals.dbr} DBR + ${v.pipeline.totals.web} web booked`}>
       <p className="text-xs text-neutral-500">Import the list with the Past customers upload in the Sequences panel (consent required). The sprint texts each consented person 3 times; a reply stops their remaining texts; texts wait for 8 AM to 8 PM local.</p>
@@ -349,9 +391,27 @@ function Phase3({ v, post, busy }: { v: ProofV2View; post: Post; busy: boolean }
           </label>
         </div>
       ))}
+      {law && v.dbr.status === 'none' ? (
+        <div className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-950">
+          <p>Law firm: every text carries &ldquo;Attorney advertising.&rdquo; and the firm reviews the wording before the sprint can start. We do not judge the wording; the firm does.</p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <input value={reviewer} onChange={(e) => setReviewer(e.target.value)} placeholder="Reviewed by (name)" className="rounded-md border border-neutral-300 px-2 py-1 text-sm" />
+            <label className="inline-flex items-center gap-1.5">
+              <input
+                type="checkbox"
+                disabled={busy}
+                checked={!!review && !lawBlock}
+                onChange={(e) => post(e.target.checked ? { action: 'dbrReviewed', steps, by: reviewer } : { action: 'dbrReviewed', on: false })}
+              />
+              The firm reviewed these texts
+            </label>
+          </div>
+          {review ? <p className="mt-1 text-xs">{lawBlock ? lawBlock : `Reviewed by ${review.reviewedBy} on ${shortDate(review.reviewedAt)}.`}</p> : null}
+        </div>
+      ) : null}
       <div className="mt-3 flex gap-2">
         {v.dbr.status === 'none' ? (
-          <button type="button" disabled={busy} onClick={() => confirm(`Start texting ${v.dbr.consented} past customers?`) && post({ action: 'dbrStart', steps })} className={btn('primary', 'sm')}>
+          <button type="button" disabled={busy || !!lawBlock} onClick={() => confirm(`Start texting ${v.dbr.consented} past customers?`) && post({ action: 'dbrStart', steps })} className={btn('primary', 'sm')}>
             Start the sprint
           </button>
         ) : v.dbr.status === 'running' ? (

@@ -19,6 +19,8 @@ import { APP_ORIGIN } from '@/lib/hostRouting';
 import {
   CALL_INSTEAD_KEY,
   ONBOARDING_ITEMS,
+  PRACTICE_TYPE_ITEM,
+  itemForIndustry,
   TIER_RANK,
   getItem,
   isOnboardingTier,
@@ -28,6 +30,7 @@ import {
   type OnboardingTier,
 } from '@/data/onboardingItems';
 import type { ProofVersion } from '@/data/dashboardVersions';
+import { INDUSTRY_LABELS, industryFromLabel, isIndustry, type Industry } from '@/data/industryWords';
 
 export type OnboardingStatus = 'active' | 'complete' | 'closed';
 export type ItemStatus = 'pending' | 'done';
@@ -52,6 +55,12 @@ export interface Onboarding {
   updatedAt: string;
   /** Which AxeonPROOF dashboard the client sees (data/dashboardVersions.ts). Existing clients stay 1; see lib/proofVersion.ts. */
   proofVersion: ProofVersion;
+  /** Type of practice or firm (data/industryWords.ts); null = not known yet (neutral words). */
+  industry: Industry | null;
+  /** When the client confirmed it in the portal's first question; a prefill from the agreement leaves this null. */
+  industryConfirmedAt: string | null;
+  /** When the AxeonPROOF dashboard invite went out (automatic or the admin button); null = never. */
+  dashboardInviteSentAt: string | null;
 }
 
 export interface ItemState {
@@ -87,6 +96,8 @@ export interface OnboardingInput {
   checkoutSessionId?: string | null;
   /** Set by the caller from lib/proofVersion.ts proofVersionFor; missing = 1 (the current dashboard). */
   proofVersion?: ProofVersion;
+  /** Prefill from the signed agreement's specialty (industryFromSpecialty); the client confirms it. */
+  industry?: Industry | null;
 }
 
 interface OnboardingRow {
@@ -112,6 +123,9 @@ interface OnboardingRow {
   created_at: string;
   updated_at: string;
   proof_version?: number | null;
+  industry?: string | null;
+  industry_confirmed_at?: string | null;
+  dashboard_invite_sent_at?: string | null;
 }
 
 interface ItemRow {
@@ -318,12 +332,12 @@ export function validateItemData(item: OnboardingItem, raw: unknown): Record<str
   return out;
 }
 
-/** Prefill values for a fresh confirm card from what Stripe already told us. */
-export function prefillFor(item: OnboardingItem, onboarding: Pick<Onboarding, 'businessName' | 'clientName' | 'clientEmail' | 'phone'>) {
+/** Prefill values for a fresh confirm card from what Stripe (or the signed agreement) already told us. */
+export function prefillFor(item: OnboardingItem, onboarding: Pick<Onboarding, 'businessName' | 'clientName' | 'clientEmail' | 'phone'> & { industry?: Industry | null }) {
   const out: Record<string, string> = {};
   for (const field of item.fields ?? []) {
     if (!field.prefill) continue;
-    const v = onboarding[field.prefill];
+    const v = field.prefill === 'industry' ? (onboarding.industry ? INDUSTRY_LABELS[onboarding.industry] : null) : onboarding[field.prefill];
     if (v) out[field.key] = v;
   }
   return out;
@@ -421,9 +435,12 @@ export function isEditable(onboarding: Pick<Onboarding, 'status' | 'completedAt'
   return now - new Date(onboarding.completedAt).getTime() < READ_ONLY_AFTER_DAYS * 86_400_000;
 }
 
-/** Items in the client's view: things to do first (pending before done), then Axeon's list. */
-export function orderedItems(tier: OnboardingTier): { client: OnboardingItem[]; axeon: OnboardingItem[] } {
-  const items = itemsForTier(tier);
+/**
+ * Items in the client's view: things to do first (pending before done), then Axeon's
+ * list, worded for their type of practice or firm (missing = neutral words).
+ */
+export function orderedItems(tier: OnboardingTier, industry: Industry | null = null): { client: OnboardingItem[]; axeon: OnboardingItem[] } {
+  const items = itemsForTier(tier).map((i) => itemForIndustry(i, industry));
   return {
     client: items.filter((i) => i.kind !== 'axeon'),
     axeon: items.filter((i) => i.kind === 'axeon'),
@@ -482,6 +499,9 @@ function rowToOnboarding(row: OnboardingRow): Onboarding {
     createdAt: new Date(row.created_at).toISOString(),
     updatedAt: new Date(row.updated_at).toISOString(),
     proofVersion: row.proof_version === 2 ? 2 : 1,
+    industry: isIndustry(row.industry) ? row.industry : null,
+    industryConfirmedAt: iso(row.industry_confirmed_at ?? null),
+    dashboardInviteSentAt: iso(row.dashboard_invite_sent_at ?? null),
   };
 }
 
@@ -503,11 +523,12 @@ export async function createOnboarding(input: OnboardingInput): Promise<Onboardi
     const token = generateOnboardingToken();
     const res = await sql<OnboardingRow>`
       INSERT INTO onboardings (
-        token, tier, client_email, client_name, business_name, phone, stripe_customer_id, checkout_session_id, proof_version
+        token, tier, client_email, client_name, business_name, phone, stripe_customer_id, checkout_session_id, proof_version, industry
       )
       VALUES (
         ${token}, ${input.tier}, ${input.clientEmail}, ${input.clientName ?? null}, ${input.businessName ?? null},
-        ${input.phone ?? null}, ${input.stripeCustomerId ?? null}, ${input.checkoutSessionId ?? null}, ${input.proofVersion === 2 ? 2 : 1}
+        ${input.phone ?? null}, ${input.stripeCustomerId ?? null}, ${input.checkoutSessionId ?? null}, ${input.proofVersion === 2 ? 2 : 1},
+        ${isIndustry(input.industry) ? input.industry : null}
       )
       ON CONFLICT (token) DO NOTHING
       RETURNING *;
@@ -522,6 +543,35 @@ export async function setProofVersion(id: number, version: ProofVersion): Promis
   requireDatabase();
   await ensureSchema();
   await sql`UPDATE onboardings SET proof_version = ${version}, updated_at = now() WHERE id = ${id};`;
+}
+
+/** Admin: set (or clear) the type of practice or firm. Does not count as the client's confirmation. */
+export async function setIndustry(id: number, industry: Industry | null): Promise<void> {
+  requireDatabase();
+  await ensureSchema();
+  await sql`UPDATE onboardings SET industry = ${industry}, updated_at = now() WHERE id = ${id};`;
+}
+
+/**
+ * Claims the one dashboard invite. Returns true exactly once per onboarding, even if
+ * two saves race, because the UPDATE only matches while the column is still empty.
+ */
+export async function claimDashboardInvite(id: number): Promise<boolean> {
+  await ensureSchema();
+  const res = await sql<{ id: number }>`
+    UPDATE onboardings SET dashboard_invite_sent_at = now() WHERE id = ${id} AND dashboard_invite_sent_at IS NULL RETURNING id;
+  `;
+  return res.rows.length > 0;
+}
+
+/** The claimed send failed: free the claim so the next save can try again. */
+export async function releaseDashboardInvite(id: number): Promise<void> {
+  await sql`UPDATE onboardings SET dashboard_invite_sent_at = NULL WHERE id = ${id};`;
+}
+
+/** The admin's button sent one: record it so the automatic invite never repeats it. */
+export async function markDashboardInviteSent(id: number): Promise<void> {
+  await sql`UPDATE onboardings SET dashboard_invite_sent_at = COALESCE(dashboard_invite_sent_at, now()), updated_at = now() WHERE id = ${id};`;
 }
 
 export async function getOnboardingByToken(rawToken: string): Promise<Onboarding | null> {
@@ -638,6 +688,18 @@ export async function saveClientItem(
     RETURNING onboarding_id, item_key, status, data, completed_by, completed_at, updated_at;
   `;
   await sql`UPDATE onboardings SET last_client_activity_at = now(), updated_at = now() WHERE id = ${onboarding.id};`;
+  // The first question: the client's answer is the industry, and confirms it (lib/onboardingFulfillment.ts maybeAutoInvite).
+  if (itemKey === PRACTICE_TYPE_ITEM && status === 'done') {
+    const industry = industryFromLabel(data.industry);
+    if (industry) {
+      await sql`
+        UPDATE onboardings SET industry = ${industry}, industry_confirmed_at = COALESCE(industry_confirmed_at, now()), updated_at = now()
+        WHERE id = ${onboarding.id};
+      `;
+      onboarding.industry = industry;
+      onboarding.industryConfirmedAt = onboarding.industryConfirmedAt ?? new Date().toISOString();
+    }
+  }
   await recomputeStatus(onboarding);
   return rowToState(res.rows[0]);
 }

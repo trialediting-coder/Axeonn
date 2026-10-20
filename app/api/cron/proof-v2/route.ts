@@ -53,7 +53,7 @@ export async function GET(req: Request) {
         ];
         for (const r of recipients) {
           const url = summaryUrl(signSummaryToken({ onboardingId: o.id, month, recipient: r.recipient }));
-          if (await sendExecSummaryEmail({ ...sum, to: r.to, businessName: o.businessName, monthLabel: monthLabel(month), url })) sent += 1;
+          if (await sendExecSummaryEmail({ ...sum, to: r.to, businessName: o.businessName, monthLabel: monthLabel(month), url, industry: o.industry })) sent += 1;
         }
         // The owner's cell gets the link by text from their own tracked line (owner alerts never enter the leads inbox).
         const line = await getLine(o.id);
@@ -72,7 +72,7 @@ export async function GET(req: Request) {
       if (week) {
         const view = await loadV2View(o, { now });
         const to = s.manager?.email || o.clientEmail;
-        const ok = await sendWeeklySummaryEmail({ to, businessName: o.businessName, managerName: s.manager?.name ?? null, waiting: view.frontDesk.waiting, ...view.frontDesk.week, url: `${APP_ORIGIN}/?tab=leads` });
+        const ok = await sendWeeklySummaryEmail({ to, businessName: o.businessName, managerName: s.manager?.name ?? null, waiting: view.frontDesk.waiting, ...view.frontDesk.week, url: `${APP_ORIGIN}/?tab=leads`, industry: o.industry });
         if (ok) {
           const latest = await getV2Settings(o.id);
           await patchV2(o.id, { summaries: { ...(latest.summaries ?? {}), lastWeek: week } });

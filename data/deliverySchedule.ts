@@ -16,6 +16,9 @@
 //   'immediate' Something the client did or a live event (an approval, go-live):
 //               shown the moment it happens.
 // auto: a real event that completes the step by itself (lib/proofV2.ts autoDone).
+//
+// Client wording holds tokens like {people} and {pages} (data/industryWords.ts);
+// lib/proofV2Shared.ts deriveMilestones fills them with the client's words.
 
 export type ScheduleAuto =
   | 'line_provisioned'
@@ -71,7 +74,7 @@ export const DELIVERY_SCHEDULE: readonly SchedulePhase[] = [
     days: 'Days 1–3',
     summary: 'Your tracked number, the missed-call auto-text, and carrier approval for texting.',
     steps: [
-      { key: 'p1-number', day: 1, title: 'Tracked phone number set up', client: 'Your new tracked number is set up and forwards to your front desk.', release: 'schedule', auto: 'line_provisioned' },
+      { key: 'p1-number', day: 1, title: 'Tracked phone number set up', client: 'Your new tracked number is set up and forwards to your {frontDesk}.', release: 'schedule', auto: 'line_provisioned' },
       { key: 'p1-a2p-filed', day: 2, title: 'Texting registration filed', client: 'We register your business with the phone carriers so your texts are delivered, not filtered.', release: 'schedule', auto: 'a2p_filed' },
       { key: 'p1-a2p-approved', day: 3, title: 'Texting approved by carriers', client: 'The carriers approve your texting campaign. Their review time is outside our control; the date moves if they take longer.', release: 'immediate', auto: 'a2p_approved' },
       { key: 'p1-autotext', day: 3, title: 'Missed-call auto-text live', client: 'Anyone whose call you miss gets a text from your number within 30 seconds.', release: 'immediate', auto: 'text_back_live' },
@@ -100,12 +103,12 @@ export const DELIVERY_SCHEDULE: readonly SchedulePhase[] = [
     from: 15,
     to: 30,
     days: 'Days 15–30',
-    summary: 'Win-back texts to past patients and clients: three texts over 7 days, and every booking they bring is counted.',
+    summary: 'Win-back texts to past {people}: three texts over 7 days, and every {booking} they book is counted.',
     steps: [
-      { key: 'p3-import', day: 15, title: 'Past-customer list imported', client: 'Your list of past patients or customers (usually 200 to 500) is loaded, with consent confirmed.', release: 'immediate', auto: 'dbr_imported' },
+      { key: 'p3-import', day: 15, title: 'Past-{person} list imported', client: 'Your list of past {people} (usually 200 to 500) is loaded, with consent confirmed.', release: 'immediate', auto: 'dbr_imported' },
       { key: 'p3-sprint', day: 16, title: 'Win-back texts start', client: 'Three friendly texts over 7 days from your number. Anyone who replies stops getting them.', release: 'immediate', auto: 'dbr_started' },
       { key: 'p3-replies', day: 23, title: 'Win-back texts finished, replies in your inbox', client: 'Every reply lands in your Leads inbox to book.', release: 'immediate', auto: 'dbr_done' },
-      { key: 'p3-tracker', day: 30, title: 'Win-back bookings tallied', client: 'Bookings from the win-back texts go into your Pipeline Revenue Tracker.', release: 'schedule' },
+      { key: 'p3-tracker', day: 30, title: 'Win-back bookings tallied', client: '{Bookings} from the win-back texts go into your Pipeline Revenue Tracker.', release: 'schedule' },
     ],
   },
   {
@@ -114,9 +117,9 @@ export const DELIVERY_SCHEDULE: readonly SchedulePhase[] = [
     from: 45,
     to: 60,
     days: 'Days 45–60',
-    summary: 'A review request 2 hours after each completed visit, and your name, address and phone matched on 40 directories.',
+    summary: 'A review request 2 hours after each completed {visit}, and your name, address and phone matched on 40 directories.',
     steps: [
-      { key: 'p4-reviews', day: 45, title: 'Review requests on', client: 'Two hours after you mark a visit completed, the customer gets a text asking for a Google review.', release: 'immediate', auto: 'reviews_live' },
+      { key: 'p4-reviews', day: 45, title: 'Review requests on', client: 'Two hours after you mark a {visit} completed, the {person} gets a text asking for a Google review.', release: 'immediate', auto: 'reviews_live' },
       { key: 'p4-citations', day: 50, title: 'Directory listings started', client: 'We correct your listing on each directory so every one matches.', release: 'schedule', auto: 'citations_started' },
       { key: 'p4-citations-done', day: 60, title: 'Listings consistent everywhere', client: 'Every directory shows the same name, address and phone.', release: 'schedule', auto: 'citations_done' },
     ],
@@ -127,9 +130,9 @@ export const DELIVERY_SCHEDULE: readonly SchedulePhase[] = [
     from: 61,
     to: 150,
     days: 'Months 3–5',
-    summary: 'Pages for your locations and services, written one by one, then your search report in month 5.',
+    summary: 'Pages for your areas and {pages}, written one by one, then your search report in month 5.',
     steps: [
-      { key: 'p5-plan', day: 61, title: 'Page plan', client: 'The areas and procedures that deserve their own page, each written for its own visitors.', release: 'schedule', auto: 'pages_planned' },
+      { key: 'p5-plan', day: 61, title: 'Page plan', client: 'The areas and {pages} that deserve their own page, each written for its own visitors.', release: 'schedule', auto: 'pages_planned' },
       { key: 'p5-publish', day: 90, title: 'First pages published', client: 'Pages go live once each one passes our uniqueness check.', release: 'schedule', auto: 'pages_published' },
       { key: 'p5-sitemap', day: 92, title: 'Sitemap submitted to Google', client: 'Google is told about every new page.', release: 'schedule', auto: 'sitemap_submitted' },
       { key: 'p5-indexing', day: 120, title: 'Indexing checked', client: 'We check which pages Google has indexed; the count is on your dashboard.', release: 'schedule' },

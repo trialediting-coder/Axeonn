@@ -7,7 +7,7 @@
 import type { ReactNode } from 'react';
 import { ArrowRight, Award, CalendarCheck, Check, ChevronDown, ExternalLink, Inbox, MapPin, PhoneCall, Search, Star, TrendingUp } from 'lucide-react';
 import type { ProofV2View } from '@/lib/proofV2';
-import { FRONT_DESK_ROUTINE, GROWTH_UPGRADE_PRICE, NAP_DIRECTORIES, scheduleStatus, shortDate, type FilingStatus, type Milestone, type ScheduleTone } from '@/lib/proofV2Shared';
+import { frontDeskRoutine, GROWTH_UPGRADE_PRICE, NAP_DIRECTORIES, scheduleStatus, shortDate, type FilingStatus, type Milestone, type ScheduleTone } from '@/lib/proofV2Shared';
 import type { OnboardingTier } from '@/data/onboardingItems';
 import type { RankingData } from '@/components/proof/RankingCard';
 import { MilestoneTracker, StatusPill, StepRow } from '@/components/proof/v2/MilestoneTracker';
@@ -16,6 +16,9 @@ import { FrontDeskSignoff, ManagerForm, PinBoard, ReviewApproval, StagingActions
 import { UpgradeButton } from '@/components/proof/UpgradeButton';
 import { formatPhone } from '@/lib/phoneShared';
 import { monthLabel } from '@/lib/projectsShared';
+import { wordsFor } from '@/data/industryWords';
+
+const cap = (t: string) => t[0].toUpperCase() + t.slice(1);
 
 const money = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
 const longDate = (iso: string) => new Date(iso.length === 10 ? `${iso}T12:00:00Z` : iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
@@ -85,15 +88,16 @@ export function LaunchCertificate({ v, businessName }: { v: ProofV2View; busines
 
 export function FrontDeskCard({ v }: { v: ProofV2View }) {
   const f = v.frontDesk;
+  const w = wordsFor(v.industry);
   return (
     <Card>
-      <Head icon={Inbox} title="Front desk" sub="Inbox zero by 8:30 AM, every day" right={<a href="?tab=leads" className="shrink-0 text-xs font-semibold text-blue-600">Open inbox</a>} />
+      <Head icon={Inbox} title={cap(w.frontDesk)} sub="Inbox zero by 8:30 AM, every day" right={<a href="?tab=leads" className="shrink-0 text-xs font-semibold text-blue-600">Open inbox</a>} />
       <div className="mt-3 grid grid-cols-2 gap-2">
         <Stat label="Missed-call threads waiting" value={String(f.waiting)} sub={f.waiting ? 'Reply or call back today' : v.line ? 'Inbox zero' : 'Starts when your number is live'} />
         <Stat label="This week" value={`${f.week.booked} booked`} sub={`${f.week.archived} marked not a fit · ${f.week.missed} missed calls, ${f.week.staffReplied} answered by your team`} />
       </div>
       <p className="mt-2 text-[11px] text-neutral-500">
-        {f.access.length ? `Monthly summary last opened ${shortDate(f.access[0].at)} (${f.access[0].recipient === 'owner' ? 'owner' : 'practice manager'})` : 'Your monthly summary link arrives on the 1st.'}
+        {f.access.length ? `Monthly summary last opened ${shortDate(f.access[0].at)} (${f.access[0].recipient === 'owner' ? 'owner' : w.manager})` : 'Your monthly summary link arrives on the 1st.'}
       </p>
     </Card>
   );
@@ -101,6 +105,7 @@ export function FrontDeskCard({ v }: { v: ProofV2View }) {
 
 export function PipelineCard({ v, full = false }: { v: ProofV2View; full?: boolean }) {
   const { rows, totals, average } = v.pipeline;
+  const w = wordsFor(v.industry);
   const total = totals.anyValue ? (totals.dbrDollars ?? 0) + (totals.webDollars ?? 0) : null;
   return (
     <Card>
@@ -110,7 +115,7 @@ export function PipelineCard({ v, full = false }: { v: ProofV2View; full?: boole
         <Stat label="From your website" value={String(totals.web)} sub={totals.webDollars != null ? money(totals.webDollars) : 'booked'} />
       </div>
       <p className="mt-2 text-[11px] leading-snug text-neutral-500">
-        {average ? `Estimate: each booking × your average of ${money(average)}, or the value entered for that booking.` : 'Add your average appointment value and we show the dollar figure; until then it counts bookings.'}
+        {average ? `Estimate: each booked ${w.person} × your average of ${money(average)}, or the value entered for that booking.` : `Add what a new ${w.person} is worth on average and we show the dollar figure; until then it counts bookings.`}
       </p>
       {full && rows.length ? (
         <ul className="mt-3 max-h-64 divide-y divide-neutral-100 overflow-y-auto text-sm">
@@ -143,7 +148,7 @@ function clientAction(v: ProofV2View): { label: string; href: string; external?:
   if (s.reviews?.wireframe?.sharedAt && !s.reviews.wireframe.approvedAt) return { label: 'Approve your layout', href: '?tab=program#phase-p2' };
   if (s.reviews?.copy?.sharedAt && !s.reviews.copy.approvedAt) return { label: 'Approve your words', href: '?tab=program#phase-p2' };
   if (v.staging.phase === 'in_review') return { label: 'Review your new site', href: '?tab=program#phase-p2' };
-  if (s.goLiveAt && !v.frontDesk.signedOffAt) return { label: 'Sign off your front-desk routine', href: '?tab=program#front-desk' };
+  if (s.goLiveAt && !v.frontDesk.signedOffAt) return { label: `Sign off your ${wordsFor(v.industry).frontDesk} routine`, href: '?tab=program#front-desk' };
   if (current === 'p6' && !s.sabr?.scheduledAt && !s.sabr?.completedAt) return { label: 'Book your six-month review', href: v.bookUrl, external: true };
   return null;
 }
@@ -314,13 +319,14 @@ export function ProgramTab({
   const pipelineTotal = v.pipeline.totals.anyValue ? (v.pipeline.totals.dbrDollars ?? 0) + (v.pipeline.totals.webDollars ?? 0) : null;
   const rankPoints = (ranking?.points ?? []).filter((p) => p.rank != null);
   const status = scheduleStatus(v.milestones);
+  const w = wordsFor(v.industry);
 
   const cards: Record<Milestone['key'], ReactNode> = {
     p1: (
       <Card>
         <Head icon={PhoneCall} title={v.line ? `Your tracked number: ${formatPhone(v.line.number)}` : 'Your tracked number'} sub="Missed calls get a text within 30 seconds" />
         <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          <Stat label="Number" value={v.line ? 'Live' : 'Coming'} sub={v.line ? 'forwards to your front desk' : startsLine('p1', v)} />
+          <Stat label="Number" value={v.line ? 'Live' : 'Coming'} sub={v.line ? `forwards to your ${w.frontDesk}` : startsLine('p1', v)} />
           <Stat label="Business registered" value={v.line?.smsReady ? 'Approved' : FILING[s.a2p?.brand ?? 'not_filed']} />
           <Stat label="Texting approved by carriers" value={v.line?.smsReady ? 'Approved' : FILING[s.a2p?.campaign ?? 'not_filed']} />
           <Stat
@@ -393,7 +399,7 @@ export function ProgramTab({
     p3: (
       <>
         <Card>
-          <Head icon={CalendarCheck} title="Win-back texts to past patients and clients" sub="3 texts over 7 days from your number; replies land in your Leads inbox" />
+          <Head icon={CalendarCheck} title={`Win-back texts to past ${w.people}`} sub="3 texts over 7 days from your number; replies land in your Leads inbox" />
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
             <Stat label="People on the list" value={String(v.dbr.imported)} sub={v.dbr.imported ? `${v.dbr.consented} with consent confirmed` : startsLine('p3', v)} />
             <Stat label="Status" value={v.dbr.status === 'none' ? 'Not started' : v.dbr.status === 'running' ? 'Sending' : v.dbr.status === 'done' ? 'Finished' : 'Stopped'} sub={v.dbr.startedAt ? `started ${shortDate(v.dbr.startedAt)}` : undefined} />
@@ -407,7 +413,7 @@ export function ProgramTab({
     p4: (
       <div className="grid gap-4 lg:grid-cols-2 lg:gap-5">
         <Card>
-          <Head icon={Star} title="Review requests" sub="A text 2 hours after you mark a visit completed" />
+          <Head icon={Star} title="Review requests" sub={`A text 2 hours after you mark a ${w.visit} completed`} />
           <div className="mt-3 grid grid-cols-2 gap-2">
             <Stat label="Requests sent" value={String(v.reviews.sent)} sub={v.reviews.enabled ? 'on' : startsLine('p4', v)} />
             <Stat label="New Google reviews" value={v.reviews.newReviews != null ? `${v.reviews.newReviews >= 0 ? '+' : ''}${v.reviews.newReviews}` : '—'} sub={v.reviews.reviews != null ? `${v.reviews.reviews} total${v.reviews.rating ? ` · ${v.reviews.rating}★` : ''}` : 'counted from our review scans'} />
@@ -440,7 +446,7 @@ export function ProgramTab({
         <Card>
           <Head
             icon={Search}
-            title={pagesTotal ? `${pagesIndexed} of ${pagesTotal} pages on Google` : 'Pages for your locations and services'}
+            title={pagesTotal ? `${pagesIndexed} of ${pagesTotal} pages on Google` : `Pages for your areas and ${w.pages}`}
             sub={pagesTotal ? `${published} published · ${s.sitemapSubmittedAt ? `Google told ${shortDate(s.sitemapSubmittedAt)}` : 'Google not told yet'}` : startsLine('p5', v)}
           />
           {v.pages.length ? (
@@ -517,7 +523,7 @@ export function ProgramTab({
         {tier === 'axeoncore' ? (
           <div className="mt-4 rounded-xl bg-blue-50 p-4">
             <p className="text-sm font-semibold text-blue-950">Next: AxeonGROWTH, ${GROWTH_UPGRADE_PRICE.toLocaleString('en-US')}/mo</p>
-            <p className="mt-1 text-sm text-blue-900">Ads with every dollar next to the patients it brought in, an AI receptionist on every call, and a monthly strategy call. We walk through it at your review.</p>
+            <p className="mt-1 text-sm text-blue-900">Ads with every dollar next to the {w.people} it brought in, an AI receptionist on every call, and a monthly strategy call. We walk through it at your review.</p>
             <div className="mt-3">
               <UpgradeButton tier="axeongrowth" label="Ask about AxeonGROWTH" requestedAt={upgradeRequestedAt} preview={preview} />
             </div>
@@ -529,9 +535,9 @@ export function ProgramTab({
 
   const frontDesk = (
     <>
-      <Head icon={Inbox} title="Your front-desk routine" sub={`${v.frontDesk.waiting} missed-call thread${v.frontDesk.waiting === 1 ? '' : 's'} waiting · ${v.frontDesk.week.booked} booked this week`} />
+      <Head icon={Inbox} title={`Your ${w.frontDesk} routine`} sub={`${v.frontDesk.waiting} missed-call thread${v.frontDesk.waiting === 1 ? '' : 's'} waiting · ${v.frontDesk.week.booked} booked this week`} />
       <ol className="mt-3 space-y-2">
-        {FRONT_DESK_ROUTINE.map((r) => (
+        {frontDeskRoutine(v.industry).map((r) => (
           <li key={r.key} className="flex flex-col gap-0.5 text-sm sm:flex-row sm:gap-3">
             <span className="shrink-0 text-xs font-semibold text-neutral-500 sm:w-36">{r.when}</span>
             <span className="text-neutral-800">{r.what}</span>
@@ -542,8 +548,8 @@ export function ProgramTab({
         <FrontDeskSignoff api={api} signedOffAt={v.frontDesk.signedOffAt} signedOffBy={v.frontDesk.signedOffBy} />
       </div>
       <div className="mt-4 border-t border-neutral-100 pt-4">
-        <p className="mb-2 text-xs font-semibold text-neutral-600">Practice manager (weekly summary + the monthly link)</p>
-        <ManagerForm api={api} manager={s.manager} />
+        <p className="mb-2 text-xs font-semibold text-neutral-600">{cap(w.manager)} (weekly summary + the monthly link)</p>
+        <ManagerForm api={api} manager={s.manager} title={w.manager} />
       </div>
       {v.frontDesk.access.length ? (
         <div className="mt-4 border-t border-neutral-100 pt-3">
@@ -551,7 +557,7 @@ export function ProgramTab({
           <ul className="mt-1 space-y-0.5 text-xs text-neutral-500">
             {v.frontDesk.access.map((a, i) => (
               <li key={i}>
-                {monthLabel(a.month)} summary · {a.recipient === 'owner' ? 'owner' : 'practice manager'} · {when(a.at)}
+                {monthLabel(a.month)} summary · {a.recipient === 'owner' ? 'owner' : w.manager} · {when(a.at)}
               </li>
             ))}
           </ul>
@@ -575,7 +581,7 @@ export function ProgramTab({
 
       {s.goLiveAt ? (
         <section id="front-desk" className="scroll-mt-6">
-          <p className="mb-2 mt-8 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">Every day · front desk</p>
+          <p className="mb-2 mt-8 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">Every day · {w.frontDesk}</p>
           <Card>{frontDesk}</Card>
         </section>
       ) : (
@@ -585,7 +591,7 @@ export function ProgramTab({
               <Inbox size={14} />
             </span>
             <p className="min-w-0 flex-1 truncate text-sm font-semibold text-neutral-950">
-              Your front-desk routine<span className="font-normal text-neutral-500">, starts at launch</span>
+              Your {w.frontDesk} routine<span className="font-normal text-neutral-500">, starts at launch</span>
             </p>
             <ChevronDown size={14} className="shrink-0 text-neutral-400 transition-transform group-open:rotate-180" />
           </summary>

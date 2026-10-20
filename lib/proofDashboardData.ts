@@ -137,7 +137,7 @@ export async function loadDashboardData(onboarding: Onboarding, tab: ProofTabKey
     onboarding,
     progress: computeProgress(onboarding.tier, states),
     planLabel: TIER_LABELS[onboarding.tier],
-    axeonItems: orderedItems(onboarding.tier).axeon,
+    axeonItems: orderedItems(onboarding.tier, onboarding.industry).axeon,
     states,
     setupUrl: welcomeUrl(onboarding.token),
     details,

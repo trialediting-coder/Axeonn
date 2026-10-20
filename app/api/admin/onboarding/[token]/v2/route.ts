@@ -28,7 +28,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
     const message = await runAdminAction(onboarding, body);
     const fresh = await getOnboardingByToken(token);
     const view = fresh && fresh.proofVersion === 2 ? await loadV2View(fresh) : null;
-    return NextResponse.json({ ok: true, message, proofVersion: fresh?.proofVersion ?? 1, view });
+    return NextResponse.json({ ok: true, message, proofVersion: fresh?.proofVersion ?? 1, industry: fresh?.industry ?? null, view });
   } catch (err) {
     return jsonError(err);
   }

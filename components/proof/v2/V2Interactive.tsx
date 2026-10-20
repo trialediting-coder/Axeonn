@@ -216,14 +216,14 @@ export function FrontDeskSignoff({ api, signedOffAt, signedOffBy }: { api: strin
 }
 
 /** Who gets the weekly summary and the monthly link besides the owner. */
-export function ManagerForm({ api, manager }: { api: string | null; manager: { name?: string; email?: string; phone?: string } | undefined }) {
+export function ManagerForm({ api, manager, title = 'practice manager' }: { api: string | null; manager: { name?: string; email?: string; phone?: string } | undefined; title?: string }) {
   const { post, busy, error } = usePost(api);
   const [m, setM] = useState({ name: manager?.name ?? '', email: manager?.email ?? '', phone: manager?.phone ?? '' });
   const [saved, setSaved] = useState(false);
-  if (!api) return <p className="text-sm text-neutral-600">{manager?.email ? `${manager.name ?? 'Practice manager'} · ${manager.email}` : 'No practice manager added yet.'}</p>;
+  if (!api) return <p className="text-sm text-neutral-600">{manager?.email ? `${manager.name ?? title[0].toUpperCase() + title.slice(1)} · ${manager.email}` : `No ${title} added yet.`}</p>;
   return (
     <div className="grid gap-2 sm:grid-cols-[1fr_1fr_1fr_auto]">
-      <input value={m.name} onChange={(e) => setM({ ...m, name: e.target.value })} placeholder="Practice manager's name" className="h-10 rounded-lg border border-neutral-300 px-3 text-sm" />
+      <input value={m.name} onChange={(e) => setM({ ...m, name: e.target.value })} placeholder={`${title[0].toUpperCase() + title.slice(1)}'s name`} className="h-10 rounded-lg border border-neutral-300 px-3 text-sm" />
       <input value={m.email} onChange={(e) => setM({ ...m, email: e.target.value })} placeholder="Their email" type="email" className="h-10 rounded-lg border border-neutral-300 px-3 text-sm" />
       <input value={m.phone} onChange={(e) => setM({ ...m, phone: e.target.value })} placeholder="Their cell (optional)" className="h-10 rounded-lg border border-neutral-300 px-3 text-sm" />
       <button type="button" disabled={busy} onClick={async () => setSaved(await post({ action: 'manager', ...m }))} className={`${BTN} bg-neutral-900 text-white`}>

@@ -1,6 +1,7 @@
 import { FOUND_OPTIONS } from '@/lib/feedbackShared';
 import { MAILBOX_HINT } from '@/lib/businessEmailShared';
 import { META_CONNECT_ITEM } from '@/lib/metaShared';
+import { INDUSTRY_OPTIONS, fillWords, wordsFor, type Industry } from '@/data/industryWords';
 // data/onboardingItems.ts
 // Single source of truth for the client onboarding portal (/welcome/<token>):
 // every checklist item, which plan it belongs to, who does it, and the fields
@@ -17,6 +18,12 @@ import { META_CONNECT_ITEM } from '@/lib/metaShared';
 // Hard rule: no field may ever be a password or login. Access always goes
 // through the platform's own invite flow. assertNoCredentialFields() in
 // lib/onboarding.ts enforces this at test time.
+//
+// Wording per type of practice or firm (2026-10-19): copy may hold tokens like
+// {people} or {Pages} (data/industryWords.ts). orderedItems() in lib/onboarding.ts
+// fills them with the client's words (neutral 'other' words until they answer
+// the first question). Never put a token in a select option: options are what
+// the server validates against.
 
 // 'website' (2026-10-16): the Hosted Website agreement, a site and its hosting only.
 export const ONBOARDING_TIERS = ['website', 'essentials', 'axeoncore', 'axeongrowth'] as const;
@@ -47,8 +54,8 @@ export interface ItemField {
   required?: boolean;
   /** For select / multi. */
   options?: readonly string[];
-  /** Which onboarding column prefills this field. */
-  prefill?: 'businessName' | 'clientName' | 'clientEmail' | 'phone';
+  /** Which onboarding column prefills this field ('industry': the label of onboardings.industry). */
+  prefill?: 'businessName' | 'clientName' | 'clientEmail' | 'phone' | 'industry';
   /** Shown masked (last 4) once saved, since links get forwarded. */
   sensitive?: boolean;
   /** Longest answer kept, when tighter than the type's default (a text message is 320). */
@@ -99,11 +106,13 @@ export interface OnboardingItem {
 /** Saved on a callable item when the client chose to answer it on a call. */
 export const CALL_INSTEAD_KEY = 'callInstead';
 
+// Housecall Pro (a trade tool) left the list on 2026-10-19: Axeon sells to practices
+// and firms. Jobber stays while its dashboard connection is live. A saved answer
+// naming Housecall Pro still shows in the admin.
 const INVOICING_OPTIONS = [
   'Practice management software (Dentrix, Open Dental, Clio, Karbon, etc.)',
   'QuickBooks Online',
   'Jobber',
-  'Housecall Pro',
   'Square or Clover',
   'Paper, cash or check',
   'Other',
@@ -111,7 +120,22 @@ const INVOICING_OPTIONS = [
 
 const SERVICES_HINT = 'The ones you want more of, most important first.';
 
+/** The first question for AxeonCORE / AxeonGROWTH: saving it sets onboardings.industry (lib/onboarding.ts saveClientItem). */
+export const PRACTICE_TYPE_ITEM = 'practice-type';
+
 export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
+  // First in the array so it is the first card on CORE and GROWTH. Prefilled from the
+  // signed agreement's specialty when that maps clearly; the client still confirms it,
+  // and that confirmation sends the dashboard invite (lib/onboardingFulfillment.ts).
+  {
+    key: PRACTICE_TYPE_ITEM,
+    kind: 'confirm',
+    tier: 'axeoncore',
+    title: 'What type of practice or firm are you?',
+    description: 'Your dashboard, texts and pages use the right words for it.',
+    minutes: 1,
+    fields: [{ key: 'industry', label: 'Type of practice or firm', type: 'select', required: true, options: INDUSTRY_OPTIONS, prefill: 'industry' }],
+  },
   // ───────────────────────── Essentials: the client's part ─────────────────────────
   {
     key: 'business-basics',
@@ -128,7 +152,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
         type: 'tel',
         required: true,
         placeholder: '(515) 555-0134',
-        hint: 'The number patients and clients should call.',
+        hint: 'The number {people} should call.',
         sensitive: true,
         prefill: 'phone',
       },
@@ -175,24 +199,24 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     key: 'services',
     kind: 'confirm',
     tier: 'website',
-    title: 'The services you want more of',
+    title: 'The {pages} you want more of',
     description: 'We build the pages and the Google work around these.',
     minutes: 1,
     fields: [
       {
         key: 'services',
-        label: 'Services, most important first',
+        label: '{Pages}, most important first',
         type: 'textarea',
         required: true,
-        placeholder: 'New-patient exams, implants, Invisalign consults',
+        placeholder: '{pageExamples}',
         hint: SERVICES_HINT,
       },
       {
         key: 'priceRange',
         label: 'Typical price range (optional)',
         type: 'text',
-        placeholder: '$200 to $5,000 per patient or case',
-        hint: 'Helps us write pages that attract the right patients and clients.',
+        placeholder: '$200 to $5,000 per {person}',
+        hint: 'Helps us write pages that attract the right {people}.',
       },
     ],
   },
@@ -356,7 +380,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     tier: 'essentials',
     later: true,
     title: 'How you invoice and get paid',
-    description: 'So new inquiries and paying patients or clients can line up in one place.',
+    description: 'So new inquiries and paying {people} can line up in one place.',
     minutes: 1,
     fields: [
       {
@@ -370,7 +394,6 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
             'Tell us which one on your kickoff call. Your patient and client records stay in it: we never connect to them or copy them.',
           'QuickBooks Online': 'Connect it in one tap from your AxeonPROOF dashboard. You never share a login.',
           Jobber: 'Connect it in one tap from your AxeonPROOF dashboard. You never share a login.',
-          'Housecall Pro': 'In Housecall Pro, add hello@axeonstudio.co as an admin user so we can connect your jobs. No password needed.',
           'Square or Clover': 'Nothing changes for you. Leads come to your phone and inbox, and you keep billing the way you do now.',
           Other: 'Nothing changes for you. Leads come to your phone and inbox, and you keep billing the way you do now.',
           'Paper, cash or check':
@@ -422,7 +445,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     kind: 'axeon',
     tier: 'website',
     title: 'Hosting and security',
-    description: 'Fast hosting, SSL, backups, and uptime monitoring, so we know before your patients or clients do if the site ever goes down.',
+    description: 'Fast hosting, SSL, backups, and uptime monitoring, so we know before your {people} do if the site ever goes down.',
   },
   {
     key: 'business-email',
@@ -504,7 +527,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     kind: 'accept',
     tier: 'axeoncore',
     title: 'Share your calendar for online booking',
-    description: 'New patients and clients book themselves 24/7 without double-booking you.',
+    description: 'New {people} book themselves 24/7 without double-booking you.',
     minutes: 2,
     steps: [
       'Look for a calendar sharing invite from Axeon Studio in your email.',
@@ -545,7 +568,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
         label: 'What happens today when a lead comes in?',
         type: 'textarea',
         required: true,
-        placeholder: 'The front desk calls back between patients, usually within a few hours. If they do not pick up we leave one voicemail.',
+        placeholder: 'The {frontDesk} calls back between {people}, usually within a few hours. If they do not pick up we leave one voicemail.',
       },
       {
         key: 'pitch',
@@ -567,17 +590,17 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     later: true,
     kind: 'confirm',
     tier: 'axeoncore',
-    title: 'Review requests after every appointment',
-    description: 'We generate your Google review link ourselves. We just need to know when an appointment is finished so the request goes out.',
+    title: 'Review requests after every {visit}',
+    description: 'We generate your Google review link ourselves. We just need to know when a {visit} is finished so the request goes out.',
     minutes: 1,
     fields: [
       {
         key: 'jobDoneSignal',
-        label: 'How should we know an appointment is finished?',
+        label: 'How should we know a {visit} is finished?',
         type: 'select',
         required: true,
         options: [
-          'I will text a number when a visit or job is done',
+          'I will text a number when one is done',
           'Mark it completed in my lead list',
           'When the booking time passes',
           'Not sure, recommend something',
@@ -613,14 +636,14 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     kind: 'axeon',
     tier: 'axeoncore',
     title: 'AxeonPROOF dashboard',
-    description: 'Every call, inquiry and booked appointment, and where each came from. Live once the site is.',
+    description: 'Every call, inquiry and booked {booking}, and where each new {person} came from. Live once the site is.',
   },
   {
     key: 'core-pages',
     kind: 'axeon',
     tier: 'axeoncore',
     title: '5 to 7 pages written to turn visitors into calls',
-    description: 'Built around the services you want more of.',
+    description: 'Built around the {pages} you want more of.',
   },
   {
     key: 'tracked-numbers',
@@ -634,7 +657,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     kind: 'axeon',
     tier: 'axeoncore',
     title: 'Missed-call text-back',
-    description: 'Anyone who calls and cannot reach you gets a text within 60 seconds, so they do not move on to the next practice or firm.',
+    description: 'Anyone who calls and cannot reach you gets a text within 60 seconds, so they do not move on to the next {office}.',
   },
   {
     key: 'instant-callback',
@@ -669,8 +692,8 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     key: 'quote-followup',
     kind: 'axeon',
     tier: 'axeoncore',
-    title: 'Quote follow-up',
-    description: 'Consultations and estimates that have not turned into a booking get 3 automatic follow-ups, so fewer slip away.',
+    title: 'Follow-up for {people} who have not booked',
+    description: '{People} who asked about a {page} but have not booked get 3 automatic follow-ups, so fewer slip away.',
   },
   {
     key: 'appointment-reminders',
@@ -683,22 +706,22 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     key: 'past-customers',
     kind: 'axeon',
     tier: 'axeoncore',
-    title: 'A text to past patients and clients every quarter',
-    description: 'Brings people who have not been back in a while back in.',
+    title: 'A check-in text to past {people} every quarter',
+    description: 'After the win-back texts, {people} who have not been back in a while hear from you once a quarter.',
   },
   {
     key: 'review-requests',
     kind: 'axeon',
     tier: 'axeoncore',
     title: 'Review requests switched on',
-    description: 'A request goes out after every appointment, so your Google rating keeps climbing.',
+    description: 'A request goes out after every {visit}, so your Google rating keeps climbing.',
   },
   {
     key: 'last-chance-offer',
     kind: 'axeon',
     tier: 'axeoncore',
     title: 'Last-chance offer on your site',
-    description: 'If you picked an offer, visitors about to leave see it, tied to the service they were looking at.',
+    description: 'If you picked an offer, visitors about to leave see it, tied to the {page} they were looking at.',
   },
 
   // ───────────────────────── AxeonGROWTH: the client's part ─────────────────────────
@@ -751,7 +774,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
       },
       {
         key: 'adServices',
-        label: 'Services to push with ads',
+        label: '{Pages} to push with ads',
         type: 'textarea',
         required: true,
         placeholder: 'Implant consults and Invisalign',
@@ -780,7 +803,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     kind: 'confirm',
     tier: 'axeongrowth',
     title: 'What your AI receptionist should know',
-    description: 'It answers every call 24/7 and books the appointment. This is its training sheet.',
+    description: 'It answers every call 24/7 and books the {booking}. This is its training sheet.',
     minutes: 5,
     fields: [
       {
@@ -859,7 +882,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     kind: 'axeon',
     tier: 'axeongrowth',
     title: 'Google and Meta ads run for you',
-    description: 'On the services you want more of, in your own ad account, tracked to the booked appointment.',
+    description: 'On the {pages} you want more of, in your own ad account, tracked to the booked {booking}.',
   },
   {
     key: 'local-services-ads',
@@ -873,7 +896,7 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     kind: 'axeon',
     tier: 'axeongrowth',
     title: 'AI phone receptionist',
-    description: 'Trained on the answers you gave us. Picks up every call 24/7, answers questions, and books the appointment.',
+    description: 'Trained on the answers you gave us. Picks up every call 24/7, answers questions, and books the {booking}.',
   },
   {
     key: 'video-edit',
@@ -894,14 +917,14 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     kind: 'axeon',
     tier: 'axeongrowth',
     title: 'Ad reporting in AxeonPROOF',
-    description: 'Every ad dollar shown next to the calls and appointments it brought in.',
+    description: 'Every ad dollar shown next to the calls and {bookings} it brought in.',
   },
   {
     key: 'monthly-page',
     kind: 'axeon',
     tier: 'axeongrowth',
-    title: 'New service page every month',
-    description: 'Starts the month after launch, from your services list.',
+    title: 'A new {page} page every month',
+    description: 'Starts the month after launch, from your list of {pages}.',
   },
   {
     key: 'review-campaigns',
@@ -918,6 +941,29 @@ export function itemsForTier(tier: OnboardingTier, metaLive: boolean = process.e
   return ONBOARDING_ITEMS.filter(
     (item) => (item.onlyFor ? item.onlyFor.includes(tier) : TIER_RANK[item.tier] <= rank) && (item.connect !== 'meta' || metaLive)
   );
+}
+
+/** Fills the copy tokens ({people}, {Pages}...) with the client's words (data/industryWords.ts). Options are never filled. */
+export function itemForIndustry(item: OnboardingItem, industry: Industry | string | null | undefined): OnboardingItem {
+  const w = wordsFor(industry);
+  const f = (t: string) => fillWords(t, w);
+  return {
+    ...item,
+    title: f(item.title),
+    description: f(item.description),
+    ...(item.steps ? { steps: item.steps.map(f) } : {}),
+    ...(item.fields
+      ? {
+          fields: item.fields.map((field) => ({
+            ...field,
+            label: f(field.label),
+            ...(field.hint ? { hint: f(field.hint) } : {}),
+            ...(field.placeholder ? { placeholder: f(field.placeholder) } : {}),
+            ...(field.optionHints ? { optionHints: Object.fromEntries(Object.entries(field.optionHints).map(([k, v]) => [k, f(v)])) } : {}),
+          })),
+        }
+      : {}),
+  };
 }
 
 export function getItem(key: string): OnboardingItem | undefined {

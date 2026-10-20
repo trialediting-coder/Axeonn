@@ -94,9 +94,9 @@ export default async function OnboardingDetailPage({ params, searchParams }: { p
             states,
             progress: computeProgress(onboarding.tier, states),
           }}
-          items={orderedItems(onboarding.tier)}
+          items={orderedItems(onboarding.tier, onboarding.industry)}
         />
-        <ProofV2Panel token={onboarding.token} initialVersion={onboarding.proofVersion} initial={v2View} />
+        <ProofV2Panel token={onboarding.token} initialVersion={onboarding.proofVersion} initialIndustry={onboarding.industry} industryConfirmed={!!onboarding.industryConfirmedAt} initial={v2View} />
         <BusinessEmailPanel
           token={onboarding.token}
           tier={onboarding.tier}
