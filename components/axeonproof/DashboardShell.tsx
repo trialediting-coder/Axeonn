@@ -49,7 +49,7 @@ export function DashboardShell({ tab, children, onTab }: { tab: ShowcaseTabKey; 
                   <>
                     <Icon size={15} className={active ? 'text-white' : 'text-neutral-400'} />
                     <span className="truncate">{t.label}</span>
-                    {t.tier !== 'essentials' ? (
+                    {t.tier === 'axeoncore' || t.tier === 'axeongrowth' ? (
                       <span className={`ml-auto text-[9px] font-bold uppercase tracking-wider ${active ? 'text-white/80' : locked ? 'text-blue-600' : 'text-neutral-400'}`}>
                         {TIER_SHORT[t.tier]}
                       </span>
