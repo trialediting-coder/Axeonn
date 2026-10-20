@@ -13,7 +13,7 @@ export const WEBSITE_ID = `${SITE_URL}/#website`;
 // Bump when static page content materially changes. Used as the sitemap
 // <lastmod> for static routes so we don't tell Google "everything changed"
 // on every request.
-export const CONTENT_LAST_UPDATED = new Date('2026-10-19T00:00:00Z');
+export const CONTENT_LAST_UPDATED = new Date('2026-10-20T00:00:00Z');
 
 export const BUSINESS = {
   name: 'Axeon Studio',
@@ -59,6 +59,10 @@ export const METRO_CITIES = [
   'Norwalk',
 ] as const;
 
+// Iowa cities outside the metro that have a landing page. Kept apart from
+// METRO_CITIES, which means "we meet you in person".
+export const IOWA_CITIES = ['Cedar Rapids', 'Iowa City', 'Davenport', 'Bettendorf'] as const;
+
 export const OPENING_HOURS = [
   {
     '@type': 'OpeningHoursSpecification',
@@ -73,6 +77,14 @@ export const OPENING_HOURS = [
 // primary target).
 export const SERVICE_AREA = [
   ...METRO_CITIES.map((city) => ({
+    '@type': 'City',
+    name: city,
+    containedInPlace: { '@type': 'State', name: 'Iowa' },
+  })),
+  // Iowa cities outside the metro with their own page (served by phone and
+  // video, no office there): /cedar-rapids-web-design, /iowa-city-web-design,
+  // /quad-cities-web-design. Davenport is the Iowa anchor of the Quad Cities.
+  ...IOWA_CITIES.map((city) => ({
     '@type': 'City',
     name: city,
     containedInPlace: { '@type': 'State', name: 'Iowa' },
@@ -198,8 +210,38 @@ export function siteGraphJsonLd() {
 }
 
 /** areaServed for a single-city landing page (e.g. /ankeny-web-design): just that city. */
-export function cityAreaServed(city: string) {
+export function cityAreaServed(city: string): AreaServedNode[] {
   return [{ '@type': 'City', name: city, containedInPlace: { '@type': 'State', name: 'Iowa' } }];
+}
+
+export interface AreaServedNode {
+  '@type': string;
+  name: string;
+  containedInPlace?: { '@type': string; name: string };
+}
+
+const STATE_NAMES: Record<string, string> = { IA: 'Iowa', IL: 'Illinois' };
+
+/**
+ * areaServed for a page outside the metro, from its town list: "Moline, IL"
+ * becomes a City in Illinois, "Linn County" an AdministrativeArea in Iowa,
+ * a bare name a City in Iowa.
+ */
+export function townsAreaServed(towns: readonly string[]): AreaServedNode[] {
+  return towns.map((town) => {
+    const [name, abbr] = town.split(',').map((part) => part.trim());
+    const state = STATE_NAMES[abbr ?? 'IA'] ?? 'Iowa';
+    const type = /county$/i.test(name) ? 'AdministrativeArea' : 'City';
+    return { '@type': type, name, containedInPlace: { '@type': 'State', name: state } };
+  });
+}
+
+/** areaServed for the statewide Iowa page: the cities with their own page, then the state. */
+export function iowaAreaServed(cities: readonly string[]): AreaServedNode[] {
+  return [
+    ...cities.map((name) => ({ '@type': 'City', name, containedInPlace: { '@type': 'State', name: 'Iowa' } })),
+    { '@type': 'State', name: 'Iowa' },
+  ];
 }
 
 /** The four practice types every service page is written for. */
@@ -238,7 +280,7 @@ interface ServiceArgs {
   description: string;
   category?: string;
   /** Defaults to the full metro SERVICE_AREA. */
-  areaServed?: ReturnType<typeof cityAreaServed>;
+  areaServed?: AreaServedNode[];
   /** Who the service is for. Defaults to all four practice types. */
   audience?: readonly string[];
   /** The plan the service is sold in. Defaults to AxeonCORE. */

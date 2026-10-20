@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { funnelPages, funnelPath } from '@/data/serviceFunnels';
 import { niches } from '@/data/nichesData';
-import { cityPages } from '@/data/cityPages';
+import { allCityPages } from '@/data/cityPages';
 import { services } from '@/data/marketingSolutionsData';
 import { listPosts } from '@/lib/posts';
 import { CONTENT_LAST_UPDATED } from '@/lib/seo';
@@ -14,7 +14,7 @@ export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://axeonstudio.co';
-  const staticRoutes = ['', '/check-your-area', '/des-moines-web-design', '/des-moines-seo', '/nonprofits', '/partners', '/work', '/solutions', '/marketing-solutions', '/axeonproof', '/pricing', '/why-axeon', '/process', '/about', '/faq', '/book', '/privacy', '/terms', '/insights'];
+  const staticRoutes = ['', '/check-your-area', '/des-moines-web-design', '/des-moines-seo', '/iowa-digital-marketing', '/nonprofits', '/partners', '/work', '/solutions', '/marketing-solutions', '/axeonproof', '/pricing', '/why-axeon', '/process', '/about', '/faq', '/book', '/privacy', '/terms', '/insights'];
   // Static routes carry a fixed content date (bumped in lib/seo.ts when copy
   // changes). Stamping `new Date()` on every request told Google that all 29
   // URLs changed every hour, which trains it to ignore <lastmod> entirely.
@@ -37,11 +37,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority:
         route === ''
           ? 1.0
-          : route === '/why-axeon' || route === '/des-moines-web-design' || route === '/des-moines-seo' || route === '/pricing'
+          : route === '/why-axeon' || route === '/des-moines-web-design' || route === '/des-moines-seo' || route === '/iowa-digital-marketing' || route === '/pricing'
             ? 0.9
             : 0.8,
     })),
-    ...cityPages.map((city) => ({
+    ...allCityPages.map((city) => ({
       url: `${baseUrl}/${city.slug}`,
       lastModified: staticLastModified,
       changeFrequency: 'monthly' as const,

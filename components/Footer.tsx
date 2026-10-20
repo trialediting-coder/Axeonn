@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { marketingSolutions, services } from '@/data/marketingSolutionsData';
-import { cityPages } from '@/data/cityPages';
+import { allCityPages, cityPages, iowaCityPages, IOWA_PAGE } from '@/data/cityPages';
 import { niches } from '@/data/nichesData';
 
 export interface FooterProps {
@@ -30,10 +30,16 @@ const COMPANY_LINKS: FooterLink[] = [
 const WHO_WE_HELP_LINKS: FooterLink[] = [
   ...niches.map((niche) => ({ label: niche.name, href: `/solutions/${niche.slug}` })),
   { label: 'All Practices & Firms', href: '/solutions' },
+  { label: 'Iowa Nonprofits', href: '/nonprofits' },
+];
+
+// Local pages in their own column: the metro first, then the rest of Iowa.
+const AREA_LINKS: FooterLink[] = [
   { label: 'Des Moines Practices & Firms', href: '/des-moines-web-design' },
   { label: 'Des Moines SEO', href: '/des-moines-seo' },
   ...cityPages.map((city) => ({ label: city.linkLabel, href: `/${city.slug}` })),
-  { label: 'Iowa Nonprofits', href: '/nonprofits' },
+  { label: IOWA_PAGE.label, href: IOWA_PAGE.href },
+  ...iowaCityPages.map((city) => ({ label: city.linkLabel, href: `/${city.slug}` })),
 ];
 
 const SERVICE_LINKS: FooterLink[] = services.map((service) => ({ label: service.title, href: service.href }));
@@ -91,6 +97,7 @@ function FooterAccordion({ title, links }: { title: string; links: FooterLink[] 
 const COLUMNS: { title: string; links: FooterLink[] }[] = [
   { title: 'Company', links: COMPANY_LINKS },
   { title: 'Who We Help', links: WHO_WE_HELP_LINKS },
+  { title: 'Areas', links: AREA_LINKS },
   { title: 'Services', links: SERVICE_LINKS },
   { title: 'How It Works', links: SOLUTION_LINKS },
 ];
@@ -102,8 +109,8 @@ export function Footer({ year }: FooterProps) {
   // Pages that already end with their own closing CTA skip the footer card, so
   // the page never ends with two calls to action back to back.
   const pageHasCloser =
-    ['/', '/pricing', '/process', '/why-axeon', '/des-moines-web-design', '/des-moines-seo', '/about', '/marketing-solutions', '/axeonproof', '/partners', '/nonprofits', '/book', '/faq', '/insights', '/check-your-area'].includes(pathname) ||
-    cityPages.some((city) => pathname === `/${city.slug}`) ||
+    ['/', '/pricing', '/process', '/why-axeon', '/des-moines-web-design', '/des-moines-seo', IOWA_PAGE.href, '/about', '/marketing-solutions', '/axeonproof', '/partners', '/nonprofits', '/book', '/faq', '/insights', '/check-your-area'].includes(pathname) ||
+    allCityPages.some((city) => pathname === `/${city.slug}`) ||
     pathname.startsWith('/solutions/') ||
     pathname.startsWith('/marketing-solutions/');
 
@@ -177,7 +184,7 @@ export function Footer({ year }: FooterProps) {
               <FooterAccordion key={col.title} title={col.title} links={col.links} />
             ))}
           </div>
-          <div className="hidden md:grid lg:col-span-8 grid-cols-4 gap-10">
+          <div className="hidden md:grid lg:col-span-8 grid-cols-5 gap-6 lg:gap-8">
             {COLUMNS.map((col) => (
               <FooterColumn key={col.title} title={col.title} links={col.links} />
             ))}

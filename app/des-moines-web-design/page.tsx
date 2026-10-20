@@ -242,6 +242,9 @@ export default function DesMoinesWebDesignPage() {
             </Link>{' '}
             <Link href="/des-moines-seo" className="font-semibold text-blue-600 hover:underline">
               Des Moines SEO &rarr;
+            </Link>{' '}
+            <Link href="/iowa-digital-marketing" className="font-semibold text-blue-600 hover:underline">
+              Iowa digital marketing &rarr;
             </Link>
           </p>
         </div>

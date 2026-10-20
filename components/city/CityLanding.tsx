@@ -2,32 +2,39 @@ import LineIcon from '@/components/common/LineIcon';
 import Link from 'next/link';
 import { ArrowRight, MapPin, PhoneCall, Check } from 'lucide-react';
 import { niches } from '@/data/nichesData';
-import { cityPages, cityPricingFaq, METRO_SYSTEM, type CityPage } from '@/data/cityPages';
+import { cityPages, iowaCityPages, cityPricingFaq, IOWA_PAGE, METRO_SYSTEM, type CityPage } from '@/data/cityPages';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
 import { Testimonials } from '@/components/home/Testimonials';
 import { JsonLd, BreadcrumbJsonLd } from '@/components/common/JsonLd';
-import { BUSINESS, cityAreaServed, serviceJsonLd } from '@/lib/seo';
+import { BUSINESS, cityAreaServed, serviceJsonLd, townsAreaServed } from '@/lib/seo';
 import { COMMITMENT_HEADLINE } from '@/data/pricingData';
 
 const TEL_HREF = `tel:${BUSINESS.telephone.replace(/-/g, '')}`;
 const EYEBROW = 'eyebrow';
+const CHIP =
+  'min-h-11 inline-flex items-center px-4 rounded-full border border-neutral-700 hover:border-blue-400 text-sm font-medium text-neutral-200';
 
-// One suburb landing page. Same look and building blocks as /des-moines-web-design,
+// One city landing page. Same look and building blocks as /des-moines-web-design,
 // with the copy, FAQ and featured practice types coming from data/cityPages.ts.
+// Metro suburbs say "we meet you in person"; Iowa cities outside the metro
+// (page.remote) say plainly that we work by phone and video from West Des Moines.
 export function CityLanding({ page }: { page: CityPage }) {
   const path = `/${page.slug}`;
+  const remote = page.remote;
   const faqs = [...page.faq, cityPricingFaq(page.city)];
   const featured = page.featuredNiches
     .map((slug) => niches.find((n) => n.slug === slug))
     .filter((n): n is (typeof niches)[number] => Boolean(n));
-  const otherCities = cityPages.filter((c) => c.slug !== page.slug);
+  const otherCities = (remote ? iowaCityPages : cityPages).filter((c) => c.slug !== page.slug);
 
   const serviceLd = serviceJsonLd({
     path,
-    serviceType: 'Patient & Client Intake for Practices and Firms',
-    name: `Axeon Studio — ${page.city} Patient & Client Intake for Practices and Firms`,
+    serviceType: remote ? 'Website Design and Local Marketing' : 'Patient & Client Intake for Practices and Firms',
+    name: remote
+      ? `Axeon Studio — ${page.city} Web Design & Marketing`
+      : `Axeon Studio — ${page.city} Patient & Client Intake for Practices and Firms`,
     description: page.description,
-    areaServed: cityAreaServed(page.city),
+    areaServed: remote ? townsAreaServed(remote.towns) : cityAreaServed(page.city),
   });
 
   const faqLd = {
@@ -46,7 +53,9 @@ export function CityLanding({ page }: { page: CityPage }) {
       <JsonLd data={faqLd} />
       <BreadcrumbJsonLd
         items={[
-          { name: 'Des Moines Web Design', path: '/des-moines-web-design' },
+          remote
+            ? { name: IOWA_PAGE.label, path: IOWA_PAGE.href }
+            : { name: 'Des Moines Web Design', path: '/des-moines-web-design' },
           { name: page.linkLabel, path },
         ]}
       />
@@ -220,10 +229,25 @@ export function CityLanding({ page }: { page: CityPage }) {
       <section className="w-full py-10 sm:py-16 px-4 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
         <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-5 sm:gap-10 items-start">
           <div className="lg:col-span-5">
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2 sm:mb-4">Serving the metro</h2>
-            <p className="text-neutral-300 leading-relaxed">
-              In person anywhere in the metro, including {page.city}.
-            </p>
+            {remote ? (
+              <>
+                <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2 sm:mb-4">
+                  How we work with {page.city}
+                </h2>
+                <ul className="space-y-1.5 text-neutral-300 leading-snug">
+                  <li>Based in West Des Moines, {remote.driveTime} away. No office in {page.city}.</li>
+                  <li>Phone and video for the weekly work.</li>
+                  <li>We travel for kickoff or a photo shoot when it helps.</li>
+                </ul>
+              </>
+            ) : (
+              <>
+                <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2 sm:mb-4">Serving the metro</h2>
+                <p className="text-neutral-300 leading-relaxed">
+                  In person anywhere in the metro, including {page.city}.
+                </p>
+              </>
+            )}
             <address className="not-italic mt-3 sm:mt-6 text-[15px] sm:text-base text-neutral-300 space-y-0.5 sm:space-y-1">
               <div className="font-semibold text-white">{BUSINESS.name}</div>
               <div>West Des Moines, Iowa 50266</div>
@@ -240,26 +264,41 @@ export function CityLanding({ page }: { page: CityPage }) {
             </address>
           </div>
           <div className="lg:col-span-7">
-            <h3 className="text-xs sm:text-sm font-mono uppercase tracking-wider text-blue-400 mb-2.5 sm:mb-4">Nearby</h3>
+            {remote && (
+              <>
+                <h3 className="text-xs sm:text-sm font-mono uppercase tracking-wider text-blue-400 mb-2.5 sm:mb-4">
+                  Towns this page covers
+                </h3>
+                <ul className="flex flex-wrap gap-2 sm:gap-2.5 mb-6 sm:mb-8">
+                  {remote.towns.map((town) => (
+                    <li key={town} className="min-h-11 inline-flex items-center px-4 rounded-full bg-white/5 text-sm font-medium text-neutral-200">
+                      {town}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+            <h3 className="text-xs sm:text-sm font-mono uppercase tracking-wider text-blue-400 mb-2.5 sm:mb-4">
+              {remote ? 'More of Iowa' : 'Nearby'}
+            </h3>
             <ul className="flex flex-wrap gap-2 sm:gap-2.5">
               <li>
-                <Link
-                  href="/des-moines-web-design"
-                  className="min-h-11 inline-flex items-center px-4 rounded-full border border-neutral-700 hover:border-blue-400 text-sm font-medium text-neutral-200"
-                >
+                <Link href="/des-moines-web-design" className={CHIP}>
                   Des Moines Web Design
                 </Link>
               </li>
               {otherCities.map((c) => (
                 <li key={c.slug}>
-                  <Link
-                    href={`/${c.slug}`}
-                    className="min-h-11 inline-flex items-center px-4 rounded-full border border-neutral-700 hover:border-blue-400 text-sm font-medium text-neutral-200"
-                  >
+                  <Link href={`/${c.slug}`} className={CHIP}>
                     {c.linkLabel}
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link href={IOWA_PAGE.href} className={CHIP}>
+                  {IOWA_PAGE.label}
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

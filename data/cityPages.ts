@@ -32,6 +32,16 @@ export interface CityPage {
   /** Practice slugs (data/nichesData.ts), in the order this city shows them. */
   featuredNiches: string[];
   faq: CityFaq[];
+  /**
+   * Iowa cities outside the Des Moines metro (/cedar-rapids-web-design, ...).
+   * We have no office there: these pages say so and list the towns covered.
+   */
+  remote?: {
+    /** Honest drive time from West Des Moines, e.g. "about 2 hours". */
+    driveTime: string;
+    /** Towns the page covers, with the state where it is not obvious. */
+    towns: string[];
+  };
 }
 
 /** The three AxeonCORE layers: shared by /des-moines-web-design and the suburb pages. */
@@ -267,4 +277,162 @@ export const cityPages: CityPage[] = [
   },
 ];
 
-export const cityPageBySlug = (slug: string) => cityPages.find((c) => c.slug === slug);
+// Iowa cities outside the metro (Semrush 2026-10-20: "cedar rapids web design"
+// 480/KD 44, "web design iowa city" 260/KD 36, "quad cities web design" 210/KD 8).
+// Axeon is based in West Des Moines and has no office in these cities: the work
+// runs by phone and video, with travel for setup or photo shoots where it helps.
+// Local facts are geography only (towns, counties, states), checked 2026-10-20.
+export const iowaCityPages: CityPage[] = [
+  {
+    slug: 'cedar-rapids-web-design',
+    city: 'Cedar Rapids',
+    linkLabel: 'Cedar Rapids Web Design',
+    title: 'Cedar Rapids Web Design & Marketing Agency | Axeon Studio',
+    description:
+      'Cedar Rapids web design and marketing for dental practices, med spas, law firms and CPA firms in Linn County. Sites, SEO, 60-second replies.',
+    eyebrow: 'Cedar Rapids web design & marketing · Linn County',
+    h1: 'Cedar Rapids web design and marketing that answers every inquiry',
+    intro: 'A site, local SEO and a 60-second reply, for practices and firms across Linn County.',
+    localHeading: 'Cedar Rapids, Marion and Hiawatha search as one market.',
+    localBody: ['Someone in Marion searching "near me" sees Cedar Rapids offices too. Be the one that answers.'],
+    focusPoints: [
+      {
+        title: 'Show up across Linn County',
+        description: 'Pages for Cedar Rapids, Marion and Hiawatha, plus your Google profile.',
+      },
+      {
+        title: 'Answer while your team is busy',
+        description: 'Missed calls get a text back in 60 seconds, 24/7.',
+      },
+      {
+        title: 'Run by phone and video',
+        description: 'Weekly work happens remotely. We travel for kickoff or photos.',
+      },
+    ],
+    featuredNiches: ['dental', 'law-firms', 'accounting', 'med-spa'],
+    faq: [
+      {
+        question: 'Do you have an office in Cedar Rapids?',
+        answer:
+          'No. We are based in West Des Moines, about 2 hours away. We work by phone and video and travel for setup or photo shoots.',
+      },
+      {
+        question: 'Can you help us show up in Marion and Hiawatha too?',
+        answer: 'Yes. A page for each town you serve and a Google profile kept current. Nobody honest guarantees rankings.',
+      },
+      {
+        question: 'Will you also work with a competitor of ours in Cedar Rapids?',
+        answer: 'Not nearby. One practice or firm per specialty within 5 miles, while your account is in good standing.',
+      },
+    ],
+    remote: {
+      driveTime: 'about 2 hours',
+      towns: ['Cedar Rapids', 'Marion', 'Hiawatha', 'Linn County'],
+    },
+  },
+  {
+    slug: 'iowa-city-web-design',
+    city: 'Iowa City',
+    linkLabel: 'Iowa City Web Design',
+    title: 'Iowa City Web Design & Marketing | Axeon Studio',
+    description:
+      'Iowa City web design and marketing for dental practices, med spas, law firms and CPA firms in Iowa City, Coralville and North Liberty.',
+    eyebrow: 'Iowa City web design & marketing · Johnson County',
+    h1: 'Iowa City web design for a town with new arrivals every fall',
+    intro: 'A site, local SEO and 60-second replies, for Iowa City, Coralville and North Liberty.',
+    localHeading: 'New people arrive every August. They choose from a search.',
+    localBody: ['Students, new staff and families moving in look you up before they ask anyone.'],
+    focusPoints: [
+      {
+        title: 'Pages for Coralville and North Liberty',
+        description: 'A page for each town you serve, plus your Google profile.',
+      },
+      {
+        title: 'Book from a phone in a few taps',
+        description: 'Online booking on every page, built for phones first.',
+      },
+      {
+        title: 'Every after-hours inquiry answered',
+        description: 'A text back in 60 seconds, nights and weekends.',
+      },
+    ],
+    featuredNiches: ['dental', 'med-spa', 'law-firms', 'accounting'],
+    faq: [
+      {
+        question: 'Do you have an office in Iowa City?',
+        answer:
+          'No. We are based in West Des Moines, about 2 hours away. Weekly work is by phone and video; we travel for setup when it helps.',
+      },
+      {
+        question: 'Can you help us show up in Coralville and North Liberty?',
+        answer: 'Yes. We build a page for each town you serve and keep your Google profile current.',
+      },
+      {
+        question: 'What happens when inquiries pile up at the start of a semester?',
+        answer: 'Each one still gets a reply within 60 seconds, however many come in at once.',
+      },
+    ],
+    remote: {
+      driveTime: 'about 2 hours',
+      towns: ['Iowa City', 'Coralville', 'North Liberty', 'Johnson County'],
+    },
+  },
+  {
+    slug: 'quad-cities-web-design',
+    city: 'Quad Cities',
+    linkLabel: 'Quad Cities Web Design',
+    title: 'Quad Cities & Davenport Web Design | Axeon Studio',
+    description:
+      'Quad Cities web design and marketing for practices and firms in Davenport, Bettendorf, Moline and Rock Island. Sites, SEO, 60-second replies.',
+    eyebrow: 'Quad Cities web design · Davenport, Iowa',
+    h1: 'Quad Cities web design for practices and firms on both sides of the river',
+    intro: 'Davenport, Bettendorf, Moline and Rock Island: one market, two states.',
+    localHeading: 'One metro, two states.',
+    localBody: [
+      'Davenport and Bettendorf are in Iowa. Moline, East Moline and Rock Island are in Illinois.',
+      'Your site should say plainly which side you serve and where you are licensed.',
+    ],
+    focusPoints: [
+      {
+        title: 'Pages for each side of the river',
+        description: 'Separate pages for the Iowa and Illinois towns you serve.',
+      },
+      {
+        title: 'Clear about where you practice',
+        description: 'Locations and state licensing stated plainly, page by page.',
+      },
+      {
+        title: 'Every call answered in 60 seconds',
+        description: 'Missed calls and web inquiries get a text back, 24/7.',
+      },
+    ],
+    featuredNiches: ['law-firms', 'dental', 'accounting', 'med-spa'],
+    faq: [
+      {
+        question: 'Do you have an office in the Quad Cities?',
+        answer:
+          'No. We are based in West Des Moines, about 2.5 hours away. We work by phone and video and travel for setup when it helps.',
+      },
+      {
+        question: 'We have clients in Illinois too. Can the site cover both states?',
+        answer: 'Yes. Pages for the Iowa and Illinois towns you serve, worded for where you are licensed.',
+      },
+      {
+        question: 'Will you work with a competitor across the river?',
+        answer: 'Not within 5 miles of you. One practice or firm per specialty, while your account is in good standing.',
+      },
+    ],
+    remote: {
+      driveTime: 'about 2.5 hours',
+      towns: ['Davenport, IA', 'Bettendorf, IA', 'Moline, IL', 'East Moline, IL', 'Rock Island, IL'],
+    },
+  },
+];
+
+/** Every city landing page: the metro suburbs, then the Iowa cities outside it. */
+export const allCityPages: CityPage[] = [...cityPages, ...iowaCityPages];
+
+/** The statewide page that every city page links to, and that links back to them. */
+export const IOWA_PAGE = { label: 'Iowa Digital Marketing', href: '/iowa-digital-marketing' } as const;
+
+export const cityPageBySlug = (slug: string) => allCityPages.find((c) => c.slug === slug);
