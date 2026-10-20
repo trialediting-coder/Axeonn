@@ -100,9 +100,9 @@ export function Hero() {
             className="hero-rise hidden sm:block mt-6 text-lg lg:text-xl text-neutral-300 font-normal leading-relaxed max-w-xl"
           >
             {/* Desktop only: on phones the hero is eyebrow, headline, CTAs and badges (owner, 2026-10-10). */}
-            A website, SEO and ads that bring patients and clients in, and a system that answers every
-            call and inquiry within 60 seconds, 24/7, and books them. For dental practices, med spas,
-            law firms and accounting firms.
+            Your growth partner for dental practices, med spas, law firms and accounting firms: a website,
+            SEO and ads that bring patients and clients in, and a system that answers every call and
+            inquiry within 60 seconds, 24/7, and books them.
           </p>
 
           <div

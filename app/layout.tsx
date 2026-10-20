@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     path: '/',
     title: 'More Patients and Clients for Practices and Firms | Axeon Studio',
     description:
-      'We get dental practices, med spas, law firms and CPA firms more new patients and clients: websites, SEO and ads that bring them in, and every call and inquiry answered in 60 seconds and booked.',
+      'Your growth partner for more new patients and clients at dental practices, med spas, law firms and CPA firms: websites, SEO and ads that bring them in, and every call and inquiry answered in 60 seconds and booked.',
   }),
   other: {
     'geo.region': 'US-IA',

@@ -35,8 +35,8 @@ export default function WhyAxeonClient() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="text-lg text-neutral-600 leading-relaxed"
           >
-            A typical agency builds your practice or firm a website and hands it over. Axeon installs what happens after
-            someone finds you: the reply, the booking and the review.
+            A typical agency builds your practice or firm a website and hands it over. Axeon stays on as your growth
+            partner and runs what happens after someone finds you: the reply, the booking and the review.
           </motion.p>
         </div>
       </section>

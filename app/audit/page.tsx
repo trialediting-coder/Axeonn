@@ -50,7 +50,7 @@ const FAQS = [
   },
   {
     q: 'What happens after?',
-    a: 'You watch the video. If you want to talk it through, pick a time for a 30-minute call. If not, that is the end of it.',
+    a: 'You watch the video. If you want to talk it through, pick a time for a 30-minute call, and we can talk about a growth partnership. If not, that is the end of it.',
   },
 ];
 

@@ -39,7 +39,7 @@ const steps: ProcessStep[] = [
   {
     num: '04',
     title: 'Run & Prove It',
-    desc: 'AxeonPROOF shows every recovered call and inquiry as it happens. We keep tuning the replies, booking and review requests from there.',
+    desc: 'AxeonPROOF shows every recovered call and inquiry as it happens. From there we stay on as your growth partner, tuning replies, booking and review requests.',
     duration: 'Your first 90 days, and every month after',
     deliverables: ['Live recovered-inquiry counter', 'Change requests in AxeonPROOF', 'Monthly report'],
     outcome: guaranteeSentence,
@@ -65,7 +65,7 @@ export function Process() {
             Four steps. The first one is free.
           </h2>
           <p className="mt-5 text-base sm:text-xl text-neutral-600 leading-relaxed max-w-2xl">
-            One goal: no patient or client waits until tomorrow for an answer. You always know what we&apos;re doing and why.
+            One goal: no patient or client waits until tomorrow for an answer. We work as your partner, so you always know what we&apos;re doing and why.
           </p>
         </div>
 

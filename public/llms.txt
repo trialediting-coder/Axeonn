@@ -1,5 +1,5 @@
 # Axeon Studio
-> Axeon Studio installs patient and client intake systems for established private practices: dental offices, med spas, law firms, and accounting/CPA firms. Every missed call and web inquiry gets a reply within 60 seconds, 24/7, the consultation is booked online, and every patient or client is asked for a review after the visit. Based in West Des Moines, Iowa.
+> Axeon Studio is a growth partner that installs patient and client intake systems for established private practices: dental offices, med spas, law firms, and accounting/CPA firms. Every missed call and web inquiry gets a reply within 60 seconds, 24/7, the consultation is booked online, and every patient or client is asked for a review after the visit. Based in West Des Moines, Iowa.
 
 The problem Axeon fixes: calls and web inquiries that come in after hours or while the front desk is busy go to voicemail or to a form nobody answers until the next day, and the patient books with whichever practice answered first. Axeon answers first.
 

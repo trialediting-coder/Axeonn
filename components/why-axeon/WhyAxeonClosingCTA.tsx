@@ -11,7 +11,7 @@ export default function WhyAxeonClosingCTA() {
         </h2>
         <p className="text-lg text-neutral-600 max-w-2xl mx-auto leading-relaxed mb-10">
           We call your practice or firm after hours, check how fast your website answers an inquiry, and compare your reviews to
-          the top 3 nearby competitors. You get a short video walkthrough. No charge.
+          the top 3 nearby competitors. You get a short video walkthrough, free. Every partnership with us starts here.
         </p>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4">
           <Link

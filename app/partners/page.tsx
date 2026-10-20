@@ -115,7 +115,7 @@ const STEPS = [
 ];
 
 const PROMISES = [
-  'We only take partners whose clients we are confident we can help.',
+  'We only take partners whose clients we are confident we can help, then stay on as their growth partner.',
   'Every introduction gets a fast, personal reply from our team.',
   'The advisory share is always disclosed to your client in writing.',
 ];

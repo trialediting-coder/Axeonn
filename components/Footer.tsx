@@ -124,7 +124,7 @@ export function Footer({ year }: FooterProps) {
           <div className="lg:col-span-4">
             <div>
               <div className="text-base font-extrabold text-neutral-950 font-display">Axeon Studio</div>
-              <div className="text-sm text-neutral-500">West Des Moines, Iowa</div>
+              <div className="text-sm text-neutral-500">Your growth partner · West Des Moines, Iowa</div>
             </div>
             <div className="mt-4">
               <a

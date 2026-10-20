@@ -359,7 +359,7 @@ export function Contact({ onBookAudit }: ContactProps) {
             </h2>
 
             <p className="mt-6 sm:mt-8 text-base sm:text-lg lg:text-xl text-neutral-300 max-w-xl leading-relaxed font-normal">
-              Calls after hours and during busy mornings go to voicemail, and forms wait until tomorrow. Let us test your practice or firm and show you exactly what a new patient or client experiences today.
+              Calls after hours and during busy mornings go to voicemail, and forms wait until tomorrow. Let us show you what a new patient or client experiences today. Every partnership with us starts here.
             </p>
 
             {/* Direct Contact Details */}

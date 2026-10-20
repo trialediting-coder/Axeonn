@@ -155,7 +155,7 @@ export const pricingFaqs: PricingFaq[] = [
   },
   {
     q: 'Why a 12-month agreement?',
-    a: "Setting up your website, phone and text numbers, booking, and review requests is a few weeks of work up front. The 12-month term is how we credit that $3,000 setup instead of billing it. After 12 months it continues month-to-month, and either side can stop with 30 days' notice.",
+    a: "We work as a 12-month growth partnership, not a one-off build. Setting up your website, phone and text numbers, booking, and review requests is a few weeks of work up front, and the 12-month term is how we credit that $3,000 setup instead of billing it. After 12 months it continues month-to-month, and either side can stop with 30 days' notice.",
   },
   {
     q: 'Can I go month-to-month instead?',

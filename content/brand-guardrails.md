@@ -181,6 +181,15 @@ local-only. Last updated 2026-10-19 (practice repositioning).
 ## Voice
 - Plain, confident, short sentences, specific. Talk to a practice owner or
   manager. No em-dash-heavy AI tone.
+- Partnership, not vendor (owner, 2026-10-19): present Axeon as the
+  practice's growth partner with a shared goal, their growth, while staying
+  clear about the service (website, SEO, ads, 60-second intake, reviews).
+  Back it only with real things: one point of contact, AxeonPROOF, monthly
+  reports, quarterly business reviews (AxeonGROWTH), territory exclusivity,
+  the 90-day performance commitment, local Iowa. Use it once or twice per
+  post, not in every paragraph. Say "growth partner" or "partnership" so it is
+  not confused with the referral Partner Program, and state terms precisely
+  as the "12-month agreement".
 - Iowa-based, West Des Moines. Present Axeon as a company: never name the
   founder or use a personal "I" voice in public copy (owner, 2026-10-14).
 - Never publish a street address.

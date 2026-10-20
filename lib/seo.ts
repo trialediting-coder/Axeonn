@@ -171,7 +171,7 @@ export function localBusinessJsonLd() {
     areaServed: SERVICE_AREA,
     slogan: 'We Get You Patients and Clients, Not Clicks.',
     description:
-      'Axeon Studio gets dental practices, med spas, law firms and accounting firms more new patients and clients: a practice website, SEO and ads that bring them in, and an intake system that answers every one. Every missed call and web inquiry gets a reply within 60 seconds, 24/7, consultations are booked online, and every patient or client is asked for a review after the visit. Based in West Des Moines, Iowa, with a 90-day performance commitment: live in 30 days, 60-second replies, review requests on every visit, or walk away.',
+      'Axeon Studio is a growth partner that gets dental practices, med spas, law firms and accounting firms more new patients and clients: a practice website, SEO and ads that bring them in, and an intake system that answers every one. Every missed call and web inquiry gets a reply within 60 seconds, 24/7, consultations are booked online, and every patient or client is asked for a review after the visit. Based in West Des Moines, Iowa, with a 90-day performance commitment: live in 30 days, 60-second replies, review requests on every visit, or walk away.',
     knowsAbout: KNOWS_ABOUT,
     hasOfferCatalog: planOfferCatalog(),
     sameAs: BUSINESS.sameAs,

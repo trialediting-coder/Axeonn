@@ -7,7 +7,7 @@ export const metadata = buildMetadata({
   path: '/about',
   title: 'About Axeon Studio | Patient & Client Intake, West Des Moines',
   description:
-    'Axeon Studio installs patient and client intake for dental practices, med spas, law firms and CPA firms. Based in West Des Moines. Work directly with the team building your system.',
+    'Axeon Studio is the growth partner that installs patient and client intake for dental practices, med spas, law firms and CPA firms. Based in West Des Moines, with one point of contact.',
 });
 
 // The Organization node is defined once in the root layout graph;

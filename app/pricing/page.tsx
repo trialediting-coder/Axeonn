@@ -9,7 +9,7 @@ export const metadata = buildMetadata({
   path: '/pricing',
   title: 'Pricing for Practices & Firms: AxeonCORE & AxeonGROWTH | Axeon Studio',
   description:
-    'Patient and client intake for dental practices, med spas, law firms and CPA firms. AxeonCORE from $799/mo, AxeonGROWTH from $1,999/mo. 12-month agreement, $3,000 setup included, month-to-month available. Start with a free after-hours audit.',
+    'Your growth partner for patient and client intake at dental practices, med spas, law firms and CPA firms. AxeonCORE from $799/mo, AxeonGROWTH from $1,999/mo. 12-month agreement, $3,000 setup included, month-to-month available. Start with a free after-hours audit.',
 });
 
 // Order: commitment + plans -> 21x band (why AxeonCORE) -> add-ons + engine -> FAQ -> CTA.

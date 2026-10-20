@@ -8,7 +8,7 @@ import { guaranteeSentence } from '@/data/pricingData';
 
 export const GUARANTEE_LINE = guaranteeSentence;
 export const GUARANTEE_TERMS =
-  'Included with AxeonCORE and AxeonGROWTH and written into your agreement. We don’t promise a number of new patients, clients, cases, revenue, or rankings. We promise the system does its job.';
+  'Included with AxeonCORE and AxeonGROWTH and written into your agreement. We don’t promise a number of new patients, clients, cases, revenue, or rankings. We promise the system does its job, and we stay on as your growth partner.';
 
 export function ServiceClosingCta({ trackId }: { trackId?: string }) {
   return (

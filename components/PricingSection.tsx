@@ -89,7 +89,7 @@ export function PricingSection({
             Two plans. Every inquiry answered.
           </h2>
           <p className="text-lg sm:text-2xl text-neutral-600 leading-relaxed max-w-3xl mx-auto">
-            AxeonCORE from $799/mo. AxeonGROWTH from $1,999/mo.
+            AxeonCORE from $799/mo. AxeonGROWTH from $1,999/mo. One growth partner either way.
           </p>
           <p className="mt-4 text-sm sm:text-base font-semibold text-neutral-700">{TERM_LINE}</p>
         </div>

@@ -164,7 +164,7 @@ export function ThreePillars() {
           <ArrowUpRight size={18} />
         </Link>
         <p className="text-base sm:text-lg text-neutral-400">
-          One team for all three steps, backed by our 90-day performance commitment.
+          One growth partner for all three steps, backed by our 90-day performance commitment.
         </p>
       </div>
     </section>

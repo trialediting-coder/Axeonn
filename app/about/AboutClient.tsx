@@ -76,9 +76,9 @@ export default function AboutClient() {
 
             <div className="lg:col-span-5 flex flex-col justify-end hero-rise">
               <p className="text-base sm:text-lg text-neutral-600 leading-relaxed">
-                Axeon was built in West Des Moines to fix that. We install patient and client intake for dental practices, med
-                spas, law firms and CPA firms, so every call and inquiry gets an answer within 60 seconds. You work
-                directly with the team doing the work.
+                Axeon was built in West Des Moines to fix that. We are a growth partner for dental practices, med spas, law
+                firms and CPA firms: we install the intake that answers every call and inquiry within 60 seconds, then stay
+                on it with you.
               </p>
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <button
@@ -274,8 +274,8 @@ export default function AboutClient() {
               You&apos;ll never talk to an account manager.
             </h2>
             <p className="mt-5 text-base sm:text-lg text-neutral-400 leading-relaxed max-w-md">
-              Out here you earn trust by doing what you said you would. No big-city office overhead, so your money goes
-              into the system that answers your patients and clients.
+              Out here you earn trust by doing what you said you would. One point of contact, and we never work for the
+              competitor down the street. We grow when you grow.
             </p>
           </div>
           <ol className="lg:col-span-7 divide-y divide-white/10 border-y border-white/10">
