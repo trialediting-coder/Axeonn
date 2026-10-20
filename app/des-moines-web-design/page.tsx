@@ -67,31 +67,38 @@ const LOCAL_REASONS = [
   },
 ];
 
+// Six real questions people ask about web design in Des Moines, answered in one
+// or two lines (owner, 2026-10-20: collapsed FAQ instead of longer page copy).
 const LOCAL_FAQ = [
   {
-    question: 'Do you only work with practices and firms in Des Moines?',
+    question: 'How much does a website cost in Des Moines?',
     answer:
-      'No. The metro is home base, in person, and we work with practices and firms across Iowa remotely.',
+      'Freelancers typically charge $2,000 to $8,000 and agencies $10,000 to $35,000 or more. With us, the website is part of AxeonCORE: from $799/mo with $0 setup (normally $3,000), including hosting, updates and 60-second replies to every inquiry.',
+  },
+  {
+    question: 'How long does it take to build a website?',
+    answer:
+      'Live within 30 days of getting your logo, photos and access to your domain and Google profile. We write the pages; you approve every word.',
+  },
+  {
+    question: 'Do I own my website?',
+    answer:
+      'Your domain, Google Business Profile and contact data are always yours. The website design and code become yours once the 12-month term is paid.',
+  },
+  {
+    question: 'Will my new website rank on Google?',
+    answer:
+      'Nobody can honestly promise rankings. We build every page for local search: a page per service and town, fast on phones, and your Google profile kept current. Local SEO usually takes 3 to 6 months to show movement.',
+  },
+  {
+    question: 'Can you redesign the website I already have?',
+    answer:
+      'Yes. We rebuild it, move your content over and redirect your old pages, so the search traffic you already have is not lost.',
   },
   {
     question: 'Can we meet in person?',
     answer:
-      'Yes. We usually meet at your office for kickoff and front-desk training.',
-  },
-  {
-    question: 'How much does Axeon cost for a Des Moines practice or firm?',
-    answer:
-      'AxeonCORE is from $799/mo, with $0 setup (normally $3,000) and nothing due until it is working. AxeonGROWTH is from $1,999/mo plus ad spend.',
-  },
-  {
-    question: 'What kinds of practices and firms do you work with?',
-    answer:
-      'Dental practices, med spas, law firms and CPA firms. If you book consults, we will tell you honestly whether it fits.',
-  },
-  {
-    question: 'Does the intake collect any health or financial details?',
-    answer:
-      'No. Intake collects name, contact, service and preferred time only. Never symptoms, insurance, health or financial details.',
+      'Yes. We are in West Des Moines and meet at your office for kickoff and front-desk training anywhere in the metro.',
   },
 ];
 
@@ -383,7 +390,7 @@ export default function DesMoinesWebDesignPage() {
         <div className="max-w-3xl mx-auto">
           <p className="eyebrow mb-3">FAQ</p>
           <h2 className="text-2xl sm:text-4xl font-extrabold font-display tracking-tight leading-tight mb-3 sm:mb-10 text-balance">
-            Questions Des Moines practice and firm owners ask
+            Questions about web design in Des Moines
           </h2>
           <FAQAccordion items={LOCAL_FAQ} />
         </div>
