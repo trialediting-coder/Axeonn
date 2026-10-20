@@ -20,6 +20,7 @@ import {
   CALL_INSTEAD_KEY,
   ONBOARDING_ITEMS,
   PRACTICE_TYPE_ITEM,
+  SUMMARY_CONTACTS_ITEM,
   itemForIndustry,
   TIER_RANK,
   getItem,
@@ -31,6 +32,7 @@ import {
 } from '@/data/onboardingItems';
 import type { ProofVersion } from '@/data/dashboardVersions';
 import { INDUSTRY_LABELS, industryFromLabel, isIndustry, type Industry } from '@/data/industryWords';
+import { normalizePhone } from '@/lib/phoneShared';
 
 export type OnboardingStatus = 'active' | 'complete' | 'closed';
 export type ItemStatus = 'pending' | 'done';
@@ -330,6 +332,21 @@ export function validateItemData(item: OnboardingItem, raw: unknown): Record<str
     out[field.key] = str;
   }
   return out;
+}
+
+/**
+ * The summary-contacts card as AxeonPROOF v2 settings (lib/proofV2Shared.ts ProofV2Settings):
+ * ownerMobile for the monthly text, and the manager for the weekly email. Numbers are
+ * stored E.164; a manager with nothing filled in is cleared (null).
+ */
+export function summaryContactsPatch(data: Record<string, unknown>): { ownerMobile: string | null; manager: { name?: string; email?: string; phone?: string } | null } {
+  const str = (k: string) => (typeof data[k] === 'string' ? (data[k] as string).trim() : '');
+  const manager = {
+    ...(str('managerName') ? { name: str('managerName') } : {}),
+    ...(str('managerEmail') ? { email: str('managerEmail').toLowerCase() } : {}),
+    ...(normalizePhone(str('managerMobile')) ? { phone: normalizePhone(str('managerMobile'))! } : {}),
+  };
+  return { ownerMobile: normalizePhone(str('ownerMobile')), manager: Object.keys(manager).length ? manager : null };
 }
 
 /** Prefill values for a fresh confirm card from what Stripe (or the signed agreement) already told us. */
@@ -699,6 +716,16 @@ export async function saveClientItem(
       onboarding.industry = industry;
       onboarding.industryConfirmedAt = onboarding.industryConfirmedAt ?? new Date().toISOString();
     }
+  }
+  // Who gets the summaries: straight into the v2 settings the cron and the dashboard read.
+  if (itemKey === SUMMARY_CONTACTS_ITEM && status === 'done') {
+    const p = summaryContactsPatch(data);
+    const set = { ...(p.ownerMobile ? { ownerMobile: p.ownerMobile } : {}), ...(p.manager ? { manager: p.manager } : {}) };
+    const drop = p.manager ? [] : ['manager'];
+    await sql`
+      UPDATE onboardings SET proof_v2 = (COALESCE(proof_v2, '{}'::jsonb) || ${JSON.stringify(set)}::jsonb) - ${drop as unknown as string}::text[], updated_at = now()
+      WHERE id = ${onboarding.id};
+    `;
   }
   await recomputeStatus(onboarding);
   return rowToState(res.rows[0]);

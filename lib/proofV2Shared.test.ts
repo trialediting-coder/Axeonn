@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  ownerSummaryNumber,
+  averageValueInput,
   canGoLive,
   dateOfDay,
   deriveMilestones,
@@ -270,4 +272,20 @@ test('the schedule and the routine are worded for the client', () => {
   for (const m of [...dental, ...law, ...neutral]) for (const t of [m.summary, m.metric, ...m.steps.flatMap((x) => [x.title, x.client])]) assert.doesNotMatch(t, /\{[A-Za-z]+\}/, t);
   assert.match(frontDeskRoutine('law').find((r) => r.key === 'weekly')!.what, /office manager/);
   assert.match(frontDeskRoutine('dental').find((r) => r.key === 'weekly')!.what, /practice manager/);
+});
+
+test('the average value typed on the pipeline card: dollars only, blank goes back to the estimate', () => {
+  assert.equal(averageValueInput('$1,250'), 1250);
+  assert.equal(averageValueInput(299.6), 300);
+  assert.equal(averageValueInput(''), null);
+  assert.equal(averageValueInput(null), null);
+  assert.throws(() => averageValueInput('0'), /dollar amount/);
+  assert.throws(() => averageValueInput('lots'), /dollar amount/);
+  assert.throws(() => averageValueInput(2_000_000), /dollar amount/);
+});
+
+test('the monthly summary text goes to the owner mobile from setup, else the forward-to number', () => {
+  assert.equal(ownerSummaryNumber({ ownerMobile: '+15155550142' }, '+15155550100'), '+15155550142');
+  assert.equal(ownerSummaryNumber({}, '+15155550100'), '+15155550100');
+  assert.equal(ownerSummaryNumber({ ownerMobile: '' }, '+15155550100'), '+15155550100');
 });

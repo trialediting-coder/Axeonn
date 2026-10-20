@@ -11,6 +11,7 @@ import {
   dueAtSigning,
   getAgreement,
   listAgreements,
+  pilotEndsAt,
   setAgreementStatus,
   validateAgreementInput,
   type Agreement,
@@ -23,7 +24,7 @@ export const runtime = 'nodejs';
 
 const unauthorized = () => NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-const withUrl = (a: Agreement) => ({ ...a, url: agreementUrl(a.token) });
+const withUrl = (a: Agreement) => ({ ...a, url: agreementUrl(a.token), pilotEndsAt: pilotEndsAt(a) });
 
 async function emailAgreement(a: Agreement): Promise<string | null> {
   try {
@@ -78,7 +79,7 @@ export async function PATCH(req: Request) {
     if (body.action === 'startBilling') {
       if (agreement.status !== 'paid') throw new Error('The client has not finished checkout yet.');
       if (!billsFromGoLive(agreement)) throw new Error('This agreement already billed its first month at signing.');
-      return NextResponse.json({ ok: true, message: await startAgreementBilling(agreement.token) });
+      return NextResponse.json({ ok: true, message: await startAgreementBilling(agreement.token, { pilotEndsAt: pilotEndsAt(agreement), confirmPilot: body.confirmPilot === true }) });
     }
     if (body.action === 'resend') {
       if (agreement.status === 'void') throw new Error('This agreement was voided.');

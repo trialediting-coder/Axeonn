@@ -17,7 +17,7 @@ import { listAuditsForOnboarding } from '@/lib/audits';
 import { section } from '@/lib/auditShared';
 import { getTrackingSettings } from '@/lib/siteStats';
 import type { ScheduleAuto } from '@/data/deliverySchedule';
-import type { Industry } from '@/data/industryWords';
+import { defaultValueFor, type Industry } from '@/data/industryWords';
 import {
   canGoLive,
   defaultDbrSteps,
@@ -64,6 +64,12 @@ export async function patchV2(onboardingId: number, patch: Partial<Record<keyof 
     UPDATE onboardings SET proof_v2 = (COALESCE(proof_v2, '{}'::jsonb) || ${JSON.stringify(set)}::jsonb) - ${drop as unknown as string}::text[], updated_at = now()
     WHERE id = ${onboardingId};
   `;
+}
+
+/** What one new patient or client is worth (onboardings.avg_job_value); null = back to the industry estimate. */
+export async function setAverageValue(onboardingId: number, value: number | null): Promise<void> {
+  await ensureSchema();
+  await sql`UPDATE onboardings SET avg_job_value = ${value}, updated_at = now() WHERE id = ${onboardingId};`;
 }
 
 /** Set one entry of a map-shaped key (steps, phases, nap, organic, bookingValues, reviews); merge=true merges into an object entry. */
@@ -504,7 +510,14 @@ export interface ProofV2View {
   line: { number: string; smsReady: boolean; textBackOn: boolean } | null;
   mcat: PhoneFacts;
   dbr: DbrState;
-  pipeline: { rows: PipelineRow[]; totals: ReturnType<typeof pipelineTotals>; average: number | null };
+  /**
+   * average: what one new patient or client is worth. 'own' = the client (or admin) set it
+   * (onboardings.avg_job_value); 'estimate' = the industry default (data/industryWords.ts),
+   * shown as "estimated" until they change it.
+   */
+  pipeline: { rows: PipelineRow[]; totals: ReturnType<typeof pipelineTotals>; average: number | null; averageBasis?: 'own' | 'estimate' };
+  /** From the signed agreement, for the admin's carrier texting registration: the EIN is masked (lib/ein.ts). */
+  signing?: { legalName: string; signerName: string; signerTitle: string; einMasked: string | null } | null;
   reviews: Awaited<ReturnType<typeof reviewFacts>>;
   nap: ReturnType<typeof napProgress>;
   pages: ProgramPage[];
@@ -521,6 +534,8 @@ export async function loadV2View(onboarding: Onboarding, opts: { now?: Date } = 
     getTrackingSettings(onboarding.id),
   ]);
   const startAt = startDateFor(onboarding, settings, agreement);
+  const ownAverage = tracking.avgJobValue != null && tracking.avgJobValue > 0 ? tracking.avgJobValue : null;
+  const average = ownAverage ?? defaultValueFor(onboarding.industry);
   const [mcat, dbr, reviews, pages, pins, desk, pipeline, { rows: pageDates }] = await Promise.all([
     phoneFacts(onboarding.id, startAt),
     dbrState(onboarding.id, onboarding.industry),
@@ -528,7 +543,7 @@ export async function loadV2View(onboarding: Onboarding, opts: { now?: Date } = 
     listPages(onboarding.id),
     listPins(onboarding.id),
     frontDesk(onboarding.id, settings),
-    pipelineRows(onboarding.id, startAt, settings, tracking.avgJobValue),
+    pipelineRows(onboarding.id, startAt, settings, average),
     sql<{ planned: DbTime | null; published: DbTime | null }>`SELECT min(created_at) AS planned, min(published_at) AS published FROM proof_pages WHERE onboarding_id = ${onboarding.id};`,
   ]);
   const totals = pipelineTotals(pipeline);
@@ -561,7 +576,10 @@ export async function loadV2View(onboarding: Onboarding, opts: { now?: Date } = 
     line: lineView,
     mcat,
     dbr,
-    pipeline: { rows: pipeline, totals, average: tracking.avgJobValue },
+    pipeline: { rows: pipeline, totals, average, averageBasis: ownAverage ? 'own' : 'estimate' },
+    signing: agreement
+      ? { legalName: agreement.legalName, signerName: agreement.signedName ?? agreement.signerName, signerTitle: agreement.signedTitle ?? agreement.signerTitle, einMasked: agreement.einMasked }
+      : null,
     reviews,
     nap,
     pages,

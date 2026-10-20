@@ -13,12 +13,12 @@ import { NextResponse } from 'next/server';
 import { isDatabaseConfigured } from '@/lib/db';
 import { getOnboardingById } from '@/lib/onboarding';
 import { sendExecSummaryEmail, sendWeeklySummaryEmail } from '@/lib/email';
-import { getLine, sendOwnerAlert } from '@/lib/phoneLines';
+import { getLine, sendClientSms } from '@/lib/phoneLines';
 import { APP_ORIGIN } from '@/lib/hostRouting';
 import { monthLabel } from '@/lib/projectsShared';
 import { signSummaryToken, summaryUrl } from '@/lib/proofSummaryLink';
 import { loadV2View, monthSummary, patchV2, processDbrSends, timeZoneFor, v2Onboardings, v2SendsEnabled, getV2Settings } from '@/lib/proofV2';
-import { monthlySummaryDue, weeklySummaryDue } from '@/lib/proofV2Shared';
+import { monthlySummaryDue, ownerSummaryNumber, weeklySummaryDue } from '@/lib/proofV2Shared';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -59,7 +59,9 @@ export async function GET(req: Request) {
         const line = await getLine(o.id);
         if (line && line.smsStatus === 'ready') {
           const url = summaryUrl(signSummaryToken({ onboardingId: o.id, month, recipient: 'owner' }));
-          const r = await sendOwnerAlert(line, `Your ${monthLabel(month)} summary from Axeon is ready (no password): ${url}`).catch(() => ({ sent: false }));
+          const body = `Your ${monthLabel(month)} summary from Axeon is ready (no password): ${url}`;
+          // The owner's own mobile from setup when given, else the line's forward-to number (the old behavior).
+          const r = await sendClientSms(line, ownerSummaryNumber(s, line.forwardTo), body, 'alert').catch(() => ({ sent: false }));
           if (r.sent) sent += 1;
         }
         if (sent) {

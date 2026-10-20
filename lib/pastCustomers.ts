@@ -3,13 +3,19 @@
 // parsed by lib/pastCustomersShared.ts; every row stores when Axeon attested
 // that the client has consent to text these people. Server-only.
 import { ensureSchema, sql } from '@/lib/db';
-import { parsePastCustomers, type ParsedCustomers } from '@/lib/pastCustomersShared';
+import { parseClientList, parsePastCustomers, type ParsedCustomers } from '@/lib/pastCustomersShared';
 
 const CHUNK = 500;
 
-export async function importCsv(onboardingId: number, csvText: string, attestedAt: Date): Promise<{ imported: number; skipped: ParsedCustomers['skipped'] }> {
+export async function importCsv(
+  onboardingId: number,
+  csvText: string,
+  attestedAt: Date,
+  opts: { nameAndPhoneOnly?: boolean; source?: 'csv' | 'client' } = {}
+): Promise<{ imported: number; skipped: ParsedCustomers['skipped'] }> {
   if (csvText.length > 1_000_000) throw new Error('That file is too big. Keep it under 2,000 customers.');
-  const parsed = parsePastCustomers(csvText);
+  // The client's own upload keeps names and numbers only (parseClientList).
+  const parsed = opts.nameAndPhoneOnly ? parseClientList(csvText) : parsePastCustomers(csvText);
   if (!parsed.rows.length) throw new Error('No rows with a US cell number were found. The file needs a phone column.');
   await ensureSchema();
   for (let i = 0; i < parsed.rows.length; i += CHUNK) {
@@ -20,7 +26,7 @@ export async function importCsv(onboardingId: number, csvText: string, attestedA
     const dates = chunk.map((r) => r.lastJobAt);
     await sql`
       INSERT INTO past_customers (onboarding_id, name, phone, email, last_job_at, consent_attested_at, source)
-      SELECT ${onboardingId}::int, u.name, u.phone, u.email, u.last_job_at, ${attestedAt.toISOString()}::timestamptz, 'csv'
+      SELECT ${onboardingId}::int, u.name, u.phone, u.email, u.last_job_at, ${attestedAt.toISOString()}::timestamptz, ${opts.source ?? 'csv'}
       FROM unnest(
         ${names as unknown as string}::text[],
         ${phones as unknown as string}::text[],

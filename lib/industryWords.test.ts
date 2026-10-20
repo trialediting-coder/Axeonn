@@ -3,9 +3,9 @@
 // specialty mapping, the portal's first question and the one-time dashboard invite.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { INDUSTRIES, INDUSTRY_LABELS, INDUSTRY_OPTIONS, INDUSTRY_WORDS, fillWords, industryFromLabel, industryFromSpecialty, wordsFor } from '../data/industryWords';
-import { ONBOARDING_ITEMS, PRACTICE_TYPE_ITEM, getItem, itemForIndustry } from '../data/onboardingItems';
-import { orderedItems, prefillFor, validateItemData } from './onboarding';
+import { DEFAULT_NEW_PERSON_VALUE, EXIT_OFFER_SUGGESTIONS, INDUSTRIES, INDUSTRY_LABELS, INDUSTRY_OPTIONS, INDUSTRY_WORDS, defaultValueFor, fillWords, industryFromLabel, industryFromSpecialty, wordsFor } from '../data/industryWords';
+import { ONBOARDING_ITEMS, PRACTICE_TYPE_ITEM, SUMMARY_CONTACTS_ITEM, getItem, itemForIndustry } from '../data/onboardingItems';
+import { orderedItems, prefillFor, summaryContactsPatch, validateItemData } from './onboarding';
 import { autoInviteBlock } from './onboardingFulfillment';
 import { dashboardInviteLine, renderExecSummaryEmail, renderLaunchCertificateEmail, renderWeeklySummaryEmail } from './email';
 
@@ -120,4 +120,45 @@ test('the invite and the v2 emails use the client words', () => {
   const week = { businessName: null, managerName: null, waiting: 0, missed: 0, autoTexted: 0, staffReplied: 0, booked: 0, archived: 0, url: 'https://x' };
   assert.match(renderWeeklySummaryEmail({ ...week, industry: 'accounting' }).html, /front office/);
   assert.match(renderWeeklySummaryEmail({ ...week, industry: 'accounting' }).html, /the firm/);
+});
+
+// ───────────────── Lean setup (2026-10-19) ─────────────────
+
+test('estimated value of a new patient or client, per industry, and neutral for unknown', () => {
+  assert.deepEqual(INDUSTRIES.map((i) => DEFAULT_NEW_PERSON_VALUE[i]), [300, 350, 3000, 1000, 500]);
+  assert.equal(defaultValueFor('law'), 3000);
+  assert.equal(defaultValueFor(null), 500);
+  assert.equal(defaultValueFor('bakery'), 500);
+});
+
+test('exit offer: one-tap suggestions per industry, nothing promising results, nothing "expert" for law', () => {
+  const raw = getItem('exit-offer')!;
+  for (const industry of INDUSTRIES) {
+    const field = itemForIndustry(raw, industry).fields![0];
+    assert.deepEqual(field.suggestions, EXIT_OFFER_SUGGESTIONS[industry]);
+    assert.ok(field.suggestions!.length >= 2 && field.suggestions!.length <= 3);
+    for (const s of field.suggestions!) assert.doesNotMatch(s, /guarantee|results|win your case|best/i, s);
+  }
+  for (const s of EXIT_OFFER_SUGGESTIONS.law) assert.doesNotMatch(s, /specialist|expert|specializ/i, s);
+  assert.equal(itemForIndustry(raw, null).fields![0].suggestions, EXIT_OFFER_SUGGESTIONS.other);
+  assert.doesNotMatch(raw.description, /Law and CPA firms usually skip/);
+  // Optional: blank saves, and any edited text saves (suggestions are never validated against).
+  assert.deepEqual(validateItemData(raw, { offer: '' }), { offer: '' });
+  assert.deepEqual(validateItemData(raw, { offer: 'New patient exam for $79' }), { offer: 'New patient exam for $79' });
+});
+
+test('summary contacts: lean card in round 2, owner mobile prefilled, manager optional and worded per industry', () => {
+  const raw = getItem(SUMMARY_CONTACTS_ITEM)!;
+  assert.equal(raw.later, true);
+  assert.equal(raw.tier, 'axeoncore');
+  assert.deepEqual(prefillFor(raw, { businessName: null, clientName: null, clientEmail: 'a@b.co', phone: '(515) 555-0142' }), { ownerMobile: '(515) 555-0142' });
+  assert.equal(itemForIndustry(raw, 'dental').fields![1].label, 'Practice manager (optional)');
+  assert.equal(itemForIndustry(raw, 'law').fields![1].label, 'Office manager (optional)');
+  assert.deepEqual(validateItemData(raw, { ownerMobile: '515-555-0142' }), { ownerMobile: '515-555-0142', managerName: '', managerEmail: '', managerMobile: '' });
+  assert.throws(() => validateItemData(raw, {}), /required/);
+  assert.deepEqual(summaryContactsPatch({ ownerMobile: '515-555-0142', managerName: 'Sam', managerEmail: 'Sam@Practice.com', managerMobile: '(515) 555-0198' }), {
+    ownerMobile: '+15155550142',
+    manager: { name: 'Sam', email: 'sam@practice.com', phone: '+15155550198' },
+  });
+  assert.deepEqual(summaryContactsPatch({ ownerMobile: '515-555-0142', managerName: '', managerEmail: '', managerMobile: '' }), { ownerMobile: '+15155550142', manager: null });
 });

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { CheckCircle2, Lock } from 'lucide-react';
+import { EIN_HINT, normalizeEin } from '@/lib/ein';
 
 const input =
   'w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-base text-neutral-950 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-600';
@@ -33,10 +34,16 @@ export function SignPanel(props: {
   dueCents: number;
   /** First-round setup minutes for this plan (setupMinutes), quoted after signing. */
   setupMinutes?: number;
+  /** CORE/GROWTH on the 2026-10-19 template: the carriers need the EIN to approve texting (lib/ein.ts). */
+  askEin?: boolean;
+  /** Sec. 2.5, one plain line under the price. */
+  pilotLine?: string | null;
 }) {
   const noChargeToday = props.dueCents === 0;
   const [name, setName] = useState(props.signerName);
   const [title, setTitle] = useState(props.signerTitle);
+  const [ein, setEin] = useState('');
+  const einOk = !props.askEin || !!normalizeEin(ein);
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +55,7 @@ export function SignPanel(props: {
     const res = await fetch(`/api/sign/${props.token}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ name, title, consent }),
+      body: JSON.stringify({ name, title, consent, ...(props.askEin ? { ein } : {}) }),
     });
     const data = (await res.json().catch(() => ({}))) as { error?: string };
     if (!res.ok) {
@@ -70,6 +77,7 @@ export function SignPanel(props: {
         Type your full name to sign. Next you {props.fees}, and we start.
         {props.setupMinutes ? ` Then your setup page takes about ${props.setupMinutes} minutes.` : ''}
       </p>
+      {props.pilotLine ? <p className="mt-2 text-sm font-semibold text-neutral-900">{props.pilotLine}</p> : null}
       {noChargeToday && <p className="mt-2 text-sm text-neutral-600">{CARD_ON_FILE_NOTE}</p>}
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <label className="block">
@@ -81,6 +89,22 @@ export function SignPanel(props: {
           <input className={input} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Owner" />
         </label>
       </div>
+      {props.askEin && (
+        <label className="mt-4 block">
+          <span className="block text-sm font-semibold text-neutral-700 mb-1.5">EIN (business tax ID)</span>
+          <input
+            className={input}
+            value={ein}
+            onChange={(e) => setEin(e.target.value)}
+            inputMode="numeric"
+            autoComplete="off"
+            placeholder="12-3456789"
+            maxLength={11}
+            required
+          />
+          <span className="mt-1 block text-xs text-neutral-500">{EIN_HINT}</span>
+        </label>
+      )}
       {name.trim().length >= 3 && (
         <p className="mt-4 text-3xl italic text-blue-900" style={{ fontFamily: '"Brush Script MT", "Segoe Script", cursive' }}>
           {name}
@@ -96,7 +120,7 @@ export function SignPanel(props: {
       {error && <p className="mt-4 text-sm font-semibold text-red-600">{error}</p>}
       <button
         type="submit"
-        disabled={busy || !consent || name.trim().length < 3}
+        disabled={busy || !consent || name.trim().length < 3 || !einOk}
         className="mt-6 w-full sm:w-auto px-7 py-3.5 rounded-full bg-blue-600 hover:bg-blue-500 disabled:bg-neutral-300 text-white font-bold text-base transition-colors"
       >
         {busy ? 'Signing…' : noChargeToday ? 'Sign and add a payment method' : 'Sign and continue to payment'}
@@ -109,7 +133,7 @@ export function SignPanel(props: {
 }
 
 /** Shown on a signed agreement that has not been paid yet. */
-export function PayPanel({ token, headline, breakdown, dueCents }: { token: string; headline: string; breakdown: string; dueCents: number }) {
+export function PayPanel({ token, headline, breakdown, dueCents, pilotLine }: { token: string; headline: string; breakdown: string; dueCents: number; pilotLine?: string | null }) {
   const noChargeToday = dueCents === 0;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -120,6 +144,7 @@ export function PayPanel({ token, headline, breakdown, dueCents }: { token: stri
       </p>
       <h2 className="mt-2 text-xl font-extrabold tracking-tight font-display text-neutral-950">{headline}</h2>
       <p className="mt-1 text-sm text-neutral-700">{breakdown}.</p>
+      {pilotLine ? <p className="mt-1 text-sm font-semibold text-neutral-900">{pilotLine}</p> : null}
       {noChargeToday && <p className="mt-1 text-sm text-neutral-600">{CARD_ON_FILE_NOTE}</p>}
       <p className="mt-1 text-sm text-neutral-600">
         Secure checkout by Stripe, card or bank. Your setup page arrives by email as soon as {noChargeToday ? 'your card is added' : 'it goes through'}.

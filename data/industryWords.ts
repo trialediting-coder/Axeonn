@@ -142,6 +142,37 @@ export const INDUSTRY_WORDS: Record<Industry, IndustryWords> = {
   },
 };
 
+/**
+ * What one new patient or client is worth, when the client has not said (lean setup,
+ * 2026-10-19): the Pipeline Revenue Tracker shows dollars from day one, labelled
+ * "estimated", and the client changes it with one tap. Conservative first-visit /
+ * first-engagement values, not lifetime value. Editable estimates, not research.
+ */
+export const DEFAULT_NEW_PERSON_VALUE: Record<Industry, number> = {
+  dental: 300,
+  med_spa: 350,
+  law: 3000,
+  accounting: 1000,
+  other: 500,
+};
+
+export function defaultValueFor(industry: Industry | string | null | undefined): number {
+  return DEFAULT_NEW_PERSON_VALUE[isIndustry(industry) ? industry : 'other'];
+}
+
+/**
+ * One-tap offers for the optional exit offer (setup card 'exit-offer'). The client
+ * picks one and edits it, writes their own, or saves it blank for no offer. No
+ * promised outcomes; nothing for law that reads as "specialist" or "expert".
+ */
+export const EXIT_OFFER_SUGGESTIONS: Record<Industry, readonly string[]> = {
+  dental: ['$99 new patient exam and X-rays', 'Free whitening with a new patient exam', 'Free second-opinion consult'],
+  med_spa: ['$50 off your first treatment', 'Free skin consultation', '$100 off your first injectables visit'],
+  law: ['Free 15-minute case review', 'Free consultation, no obligation'],
+  accounting: ['Free 20-minute tax-situation review', 'Free second look at last year’s return'],
+  other: ['Free 15-minute consultation', '10% off your first visit'],
+};
+
 export function wordsFor(industry: Industry | string | null | undefined): IndustryWords {
   return INDUSTRY_WORDS[isIndustry(industry) ? industry : 'other'];
 }

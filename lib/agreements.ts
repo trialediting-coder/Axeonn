@@ -21,6 +21,7 @@ import {
 } from '@/data/agreementTemplate';
 import { TIER_LABELS, isOnboardingTier, type OnboardingTier } from '@/data/onboardingItems';
 import { APP_ORIGIN } from '@/lib/hostRouting';
+import { agreementNeedsEin, maskEin, normalizeEin } from '@/lib/ein';
 
 export const agreementUrl = (token: string) => `${APP_ORIGIN}/sign/${token}`;
 
@@ -54,6 +55,13 @@ export interface AgreementFields {
   billing?: 'monthly' | 'annual';
   /** 2026-10-19+: primary specialty for territory exclusivity (Sec. 6.8). Missing = none. */
   specialty?: string;
+  /**
+   * 2026-10-19+: a pilot for founding clients (owner, 2026-10-19). The client may end the
+   * agreement by email within this many days of signing and owes nothing (Sec. 2.5). Only
+   * with nothing charged at signing; billing never starts inside it without the admin's
+   * confirmation (lib/billing.ts startAgreementBilling). Missing = no pilot.
+   */
+  pilotDays?: number;
 }
 
 /** Which template an agreement uses: its stored version, or the current one before it is saved. */
@@ -78,6 +86,7 @@ export const agreementTerms = (a: AgreementFields): AgreementTerms => ({
   setupCreditCents: a.setupCreditCents ?? 0,
   billing: a.billing ?? 'monthly',
   specialty: a.specialty ?? '',
+  pilotDays: a.pilotDays ?? 0,
 });
 
 /** Schedule A for this agreement: the plan's column, or the Hosted Website list. */
@@ -141,6 +150,8 @@ export interface Agreement extends AgreementFields {
   signedIp: string | null;
   paidAt: string | null;
   createdAt: string;
+  /** Last 4 of the EIN typed at signing (lib/ein.ts), e.g. "••-•••6789". The full number never leaves the server. */
+  einMasked: string | null;
 }
 
 // ───────────────────────────── Pure helpers ─────────────────────────────
@@ -253,6 +264,7 @@ export function validateAgreementInput(raw: Record<string, unknown>): AgreementF
     setupCreditCents,
     billing,
     specialty: s('specialty', 80),
+    ...(raw.pilot === true || raw.pilot === 'true' ? { pilotDays: PILOT_DAYS } : {}),
     effectiveDate: /^\d{4}-\d{2}-\d{2}$/.test(s('effectiveDate')) ? s('effectiveDate') : new Date().toISOString().slice(0, 10),
   };
   for (const [key, label] of [
@@ -268,7 +280,32 @@ export function validateAgreementInput(raw: Record<string, unknown>): AgreementF
     if (!fields[key]) throw new Error(`${label} is required`);
   }
   if (fields.monthlyCents <= 0) throw new Error('Monthly fee must be more than $0');
+  if (fields.pilotDays) {
+    if (tier !== 'axeoncore' && tier !== 'axeongrowth') throw new Error('The 30-day pilot is for AxeonCORE and AxeonGROWTH agreements');
+    // Nothing may be charged inside the pilot: no annual prepay, no implementation fee at signing.
+    if (billing === 'annual' || setupCents > 0) throw new Error('A pilot charges nothing at signing: use monthly billing with a $0 implementation fee');
+  }
   return fields;
+}
+
+/** Founding-client pilot length (Sec. 2.5). */
+export const PILOT_DAYS = 30;
+
+/** The last day of the pilot (signing + pilotDays), or null without a pilot or before signing. */
+export function pilotEndsAt(a: Pick<AgreementFields, 'pilotDays'> & { signedAt: string | null }): string | null {
+  if (!a.pilotDays || !a.signedAt) return null;
+  return new Date(Date.parse(a.signedAt) + a.pilotDays * 86_400_000).toISOString();
+}
+
+/** The one plain line the signing page shows under the price, or null without a pilot. */
+export function pilotLineFor(a: Pick<AgreementFields, 'pilotDays'>): string | null {
+  return a.pilotDays ? `Pilot: cancel within ${a.pilotDays} days of signing and you owe nothing.` : null;
+}
+
+/** True while the client can still end the agreement under the pilot (no charge may be made). */
+export function pilotOpen(a: Pick<AgreementFields, 'pilotDays'> & { signedAt: string | null }, now: Date = new Date()): boolean {
+  const end = pilotEndsAt(a);
+  return !!end && now.getTime() < Date.parse(end);
 }
 
 // ───────────────────────────── Database ─────────────────────────────
@@ -287,6 +324,7 @@ interface Row {
   signed_ip: string | null;
   paid_at: string | null;
   created_at: string;
+  ein?: string | null;
 }
 
 const iso = (v: string | null) => (v ? new Date(v).toISOString() : null);
@@ -304,6 +342,7 @@ const toAgreement = (r: Row): Agreement => ({
   signedIp: r.signed_ip,
   paidAt: iso(r.paid_at),
   createdAt: new Date(r.created_at).toISOString(),
+  einMasked: maskEin(r.ein ?? null),
 });
 
 function requireDb() {
@@ -352,23 +391,37 @@ export async function latestSignedAgreementFor(email: string): Promise<Agreement
 /** Records the client's signature. Throws a message safe to show. */
 export async function signAgreement(
   a: Agreement,
-  input: { name: unknown; title: unknown; consent: unknown; ip: string; userAgent: string }
+  input: { name: unknown; title: unknown; consent: unknown; ein?: unknown; ip: string; userAgent: string }
 ): Promise<Agreement> {
   if (a.status !== 'sent') throw new Error(a.status === 'void' ? 'This agreement was withdrawn.' : 'This agreement is already signed.');
   const name = typeof input.name === 'string' ? input.name.trim().slice(0, 120) : '';
   const title = typeof input.title === 'string' ? input.title.trim().slice(0, 80) : '';
   if (name.length < 3) throw new Error('Type your full name to sign.');
+  // Not part of the signed text: the carriers need it to approve texting (lib/ein.ts).
+  const ein = agreementNeedsEin(a) ? normalizeEin(input.ein) : null;
+  if (agreementNeedsEin(a) && !ein) throw new Error('Enter your EIN as 9 digits, like 12-3456789.');
   if (input.consent !== true) throw new Error('Check the box to agree to sign electronically.');
   const textHash = hashAgreementText(agreementText(a));
   const res = await sql<Row>`
     UPDATE agreements SET status = 'signed', text_hash = ${textHash}, signed_name = ${name},
       signed_title = ${title || a.signerTitle}, signed_at = now(), signed_ip = ${input.ip.slice(0, 64)},
-      signed_ua = ${input.userAgent.slice(0, 300)}, updated_at = now()
+      signed_ua = ${input.userAgent.slice(0, 300)}, ein = ${ein}, updated_at = now()
     WHERE id = ${a.id} AND status = 'sent'
     RETURNING *;
   `;
   if (!res.rows[0]) throw new Error('This agreement is already signed.');
   return toAgreement(res.rows[0]);
+}
+
+/** The full EIN, for the admin filing the carrier texting registration. Never rendered by default. */
+export async function agreementEinFor(email: string): Promise<string | null> {
+  if (!isDatabaseConfigured()) return null;
+  await ensureSchema();
+  const res = await sql<{ ein: string | null }>`
+    SELECT ein FROM agreements WHERE client_email = ${email.toLowerCase()} AND status IN ('signed', 'paid') AND ein IS NOT NULL
+    ORDER BY signed_at DESC LIMIT 1;
+  `;
+  return res.rows[0]?.ein ?? null;
 }
 
 export async function setAgreementStatus(token: string, status: 'paid' | 'void'): Promise<void> {

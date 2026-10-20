@@ -746,9 +746,11 @@ export async function projectMessage(messageSid: string, opts: { replay?: boolea
     from_owner: boolean;
   }>`
     SELECT m.id, m.onboarding_id, m.message_sid, m.direction, m.from_number, m.to_number, m.body, m.kind, m.created_at,
-           (m.direction = 'inbound' AND EXISTS (
+           (m.direction = 'inbound' AND (EXISTS (
              SELECT 1 FROM phone_lines l WHERE l.onboarding_id = m.onboarding_id AND l.forward_to = m.from_number
-           )) AS from_owner
+           ) OR EXISTS (
+             SELECT 1 FROM onboardings ob WHERE ob.id = m.onboarding_id AND ob.proof_v2 ->> 'ownerMobile' = m.from_number
+           ))) AS from_owner
     FROM phone_messages m WHERE m.message_sid = ${messageSid} LIMIT 1;`;
   const r = rows[0];
   if (!r || r.from_owner) return null;
@@ -1128,9 +1130,11 @@ export async function backfill(onboardingId: number, opts: { deadline?: number }
       UNION ALL
       SELECT 'message', m.message_sid, NULL::bigint, m.created_at FROM phone_messages m
       WHERE m.onboarding_id = ${onboardingId} AND m.kind <> 'alert'
-        AND NOT (m.direction = 'inbound' AND EXISTS (
+        AND NOT (m.direction = 'inbound' AND (EXISTS (
           SELECT 1 FROM phone_lines l WHERE l.onboarding_id = m.onboarding_id AND l.forward_to = m.from_number
-        ))
+        ) OR EXISTS (
+          SELECT 1 FROM onboardings ob WHERE ob.id = m.onboarding_id AND ob.proof_v2 ->> 'ownerMobile' = m.from_number
+        )))
         AND NOT EXISTS (
           SELECT 1 FROM contact_events e WHERE e.ref_table = 'phone_messages' AND e.ref_id = m.id
             AND e.kind = CASE WHEN m.direction = 'inbound' THEN 'text_in' WHEN m.kind = 'sequence' THEN 'sequence'

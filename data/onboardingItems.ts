@@ -1,7 +1,7 @@
 import { FOUND_OPTIONS } from '@/lib/feedbackShared';
 import { MAILBOX_HINT } from '@/lib/businessEmailShared';
 import { META_CONNECT_ITEM } from '@/lib/metaShared';
-import { INDUSTRY_OPTIONS, fillWords, wordsFor, type Industry } from '@/data/industryWords';
+import { EXIT_OFFER_SUGGESTIONS, INDUSTRY_OPTIONS, fillWords, isIndustry, wordsFor, type Industry } from '@/data/industryWords';
 // data/onboardingItems.ts
 // Single source of truth for the client onboarding portal (/welcome/<token>):
 // every checklist item, which plan it belongs to, who does it, and the fields
@@ -62,6 +62,13 @@ export interface ItemField {
   max?: number;
   /** For select: a line shown under the field once that option is picked. */
   optionHints?: Readonly<Record<string, string>>;
+  /**
+   * For text: one-tap answers per type of practice (the exit offer). A tap fills the
+   * field and the client edits it; they are never validated against, so any text saves.
+   * itemForIndustry() resolves them into `suggestions`.
+   */
+  suggestionsByIndustry?: Readonly<Record<Industry, readonly string[]>>;
+  suggestions?: readonly string[];
 }
 
 export interface OnboardingItem {
@@ -123,6 +130,13 @@ const SERVICES_HINT = 'The ones you want more of, most important first.';
 /** The first question for AxeonCORE / AxeonGROWTH: saving it sets onboardings.industry (lib/onboarding.ts saveClientItem). */
 export const PRACTICE_TYPE_ITEM = 'practice-type';
 
+/**
+ * Who gets the AxeonPROOF summaries (lean setup, 2026-10-19): the owner's mobile for the
+ * monthly text, prefilled, and an optional manager for the weekly email. Saving it writes
+ * the v2 settings (lib/onboarding.ts saveClientItem), so the admin never retypes it.
+ */
+export const SUMMARY_CONTACTS_ITEM = 'summary-contacts';
+
 export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
   // First in the array so it is the first card on CORE and GROWTH. Prefilled from the
   // signed agreement's specialty when that maps clearly; the client still confirms it,
@@ -135,6 +149,31 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     description: 'Your dashboard, texts and pages use the right words for it.',
     minutes: 1,
     fields: [{ key: 'industry', label: 'Pick one', type: 'select', required: true, options: INDUSTRY_OPTIONS, prefill: 'industry' }],
+  },
+  {
+    key: SUMMARY_CONTACTS_ITEM,
+    // Round 2: the first summary goes out after launch, so it never lengthens the first visit.
+    later: true,
+    kind: 'confirm',
+    tier: 'axeoncore',
+    title: 'Who gets your monthly results',
+    description: 'A text on the 1st with the month in one link. Add your {manager} if they should get the weekly email.',
+    minutes: 1,
+    fields: [
+      {
+        key: 'ownerMobile',
+        label: 'Your mobile',
+        type: 'tel',
+        required: true,
+        placeholder: '(515) 555-0134',
+        hint: 'Only for your monthly summary. Never shared.',
+        sensitive: true,
+        prefill: 'phone',
+      },
+      { key: 'managerName', label: '{Manager} (optional)', type: 'text', placeholder: 'Name', max: 80 },
+      { key: 'managerEmail', label: '{Manager} email', type: 'email', placeholder: 'name@yourpractice.com' },
+      { key: 'managerMobile', label: '{Manager} mobile', type: 'tel', placeholder: '(515) 555-0198', sensitive: true },
+    ],
   },
   // ───────────────────────── Essentials: the client's part ─────────────────────────
   {
@@ -615,17 +654,18 @@ export const ONBOARDING_ITEMS: readonly OnboardingItem[] = [
     later: true,
     kind: 'confirm',
     tier: 'axeoncore',
-    title: 'Optional: one offer for visitors about to leave',
-    description:
-      'Only if you are comfortable making one and your profession allows it. It shows only to people about to close the tab. Law and CPA firms usually skip this: leave it blank and tap save.',
+    title: 'Optional: an offer for visitors about to leave',
+    description: 'It shows only to people about to close the tab. Tap one to start from it, write your own, or save it blank for no offer.',
     minutes: 1,
     fields: [
       {
         key: 'offer',
-        label: 'The offer (optional)',
+        label: 'Your offer',
         type: 'text',
-        placeholder: 'Free 15-minute consultation',
-        hint: 'Examples: “Free 15-minute consultation”, or a “New-patient exam special” where your state board allows it.',
+        placeholder: 'Write your own, or leave blank',
+        hint: 'Only what your profession’s advertising rules allow. No promised results.',
+        max: 120,
+        suggestionsByIndustry: EXIT_OFFER_SUGGESTIONS,
       },
     ],
   },
@@ -960,6 +1000,7 @@ export function itemForIndustry(item: OnboardingItem, industry: Industry | strin
             ...(field.hint ? { hint: f(field.hint) } : {}),
             ...(field.placeholder ? { placeholder: f(field.placeholder) } : {}),
             ...(field.optionHints ? { optionHints: Object.fromEntries(Object.entries(field.optionHints).map(([k, v]) => [k, f(v)])) } : {}),
+            ...(field.suggestionsByIndustry ? { suggestions: field.suggestionsByIndustry[isIndustry(industry) ? industry : 'other'] } : {}),
           })),
         }
       : {}),

@@ -2,7 +2,9 @@
 // Run with: npm run test:onboarding   (pure helpers; no database)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { agreementText, agreementValues, dueAtSigning, hashAgreementText, isAgreementToken, money, newAgreementToken, validateAgreementInput } from './agreements';
+import { PILOT_DAYS, agreementText, agreementValues, dueAtSigning, hashAgreementText, isAgreementToken, money, newAgreementToken, pilotEndsAt, pilotLineFor, pilotOpen, validateAgreementInput } from './agreements';
+import { agreementNeedsEin, maskEin, normalizeEin } from './ein';
+import { pilotBillingBlock } from './billing';
 
 const RAW = {
   clientEmail: 'Office@HintzDental.com',
@@ -183,4 +185,70 @@ test('Hosted Website agreement lists only the site and hosting', () => {
   }
   const full = agreementText({ ...validateAgreementInput({ ...RAW, tier: 'essentials' }), number: 'AX-2026-002' });
   assert.ok(full.includes('Monthly calls & leads report by email'), 'full plans keep their Schedule A');
+});
+
+// ───────────────── EIN at signing and the founding-client pilot (lean setup, 2026-10-19) ─────────────────
+
+test('EIN: 9 digits in any common form, stored NN-NNNNNNN, shown as the last 4', () => {
+  assert.equal(normalizeEin('12-3456789'), '12-3456789');
+  assert.equal(normalizeEin('123456789'), '12-3456789');
+  assert.equal(normalizeEin(' 12 3456789 '), '12-3456789');
+  for (const bad of ['', '12-345678', '1234567890', 'AB-CDEFGHI', '00-0000000', null, 123456789]) assert.equal(normalizeEin(bad), null, String(bad));
+  assert.equal(maskEin('12-3456789'), '••-•••6789');
+  assert.equal(maskEin(null), null);
+});
+
+test('EIN is asked only on AxeonCORE / AxeonGROWTH agreements on the 2026-10-19 template', () => {
+  assert.equal(agreementNeedsEin({ tier: 'axeoncore', version: '2026-10-19' }), true);
+  assert.equal(agreementNeedsEin({ tier: 'axeongrowth' }), true);
+  assert.equal(agreementNeedsEin({ tier: 'axeoncore', version: OLD }), false);
+  assert.equal(agreementNeedsEin({ tier: 'essentials', version: '2026-10-19' }), false);
+  assert.equal(agreementNeedsEin({ tier: 'axeoncore', scope: 'website' }), false);
+});
+
+test('the EIN is never part of the signed text', () => {
+  const a = { ...validateAgreementInput(RAW), number: 'AX-2026-001', version: '2026-10-19' };
+  assert.doesNotMatch(agreementText(a), /EIN|tax ID/i);
+});
+
+test('pilot: only CORE / GROWTH, only when nothing is charged at signing', () => {
+  const a = validateAgreementInput({ ...RAW, pilot: true });
+  assert.equal(a.pilotDays, PILOT_DAYS);
+  assert.equal(validateAgreementInput(RAW).pilotDays, undefined);
+  assert.throws(() => validateAgreementInput({ ...RAW, pilot: true, billing: 'annual', minimumMonths: 12 }), /pilot/i);
+  assert.throws(() => validateAgreementInput({ ...RAW, pilot: true, setup: '3000', minimumMonths: 0 }), /pilot/i);
+  assert.throws(() => validateAgreementInput({ ...RAW, tier: 'essentials', pilot: true }), /pilot/i);
+});
+
+test('pilot: Sec. 2.5 appears only on a pilot agreement; other agreements read exactly as before', () => {
+  const plain = { ...validateAgreementInput(RAW), number: 'AX-2026-001', version: '2026-10-19' };
+  const pilot = { ...validateAgreementInput({ ...RAW, pilot: true }), number: 'AX-2026-001', version: '2026-10-19' };
+  const text = agreementText(pilot);
+  assert.match(text, /2\.5 Pilot period\. Client may end this Agreement for any reason by email to Axeon sent within thirty \(30\) days after Client signs it/);
+  assert.match(text, /owes nothing/);
+  assert.match(text, /remove the call forwarding on any tracking number/);
+  assert.match(text, /keeps its own business phone numbers/);
+  assert.match(text, /except under Sections 2\.5 and 5\.2/);
+  assert.match(text, /30-day pilot \(Sec\. 2\.5\)/);
+  assert.doesNotMatch(agreementText(plain), /Pilot|2\.5/);
+  assert.notEqual(hashAgreementText(text), hashAgreementText(agreementText(plain)));
+});
+
+test('pilot: the window runs from signing, and the sign page line', () => {
+  const signedAt = '2026-10-20T15:00:00.000Z';
+  assert.equal(pilotEndsAt({ pilotDays: 30, signedAt }), '2026-11-19T15:00:00.000Z');
+  assert.equal(pilotEndsAt({ pilotDays: 30, signedAt: null }), null);
+  assert.equal(pilotEndsAt({ signedAt }), null);
+  assert.equal(pilotOpen({ pilotDays: 30, signedAt }, new Date('2026-11-01T00:00:00Z')), true);
+  assert.equal(pilotOpen({ pilotDays: 30, signedAt }, new Date('2026-11-20T00:00:00Z')), false);
+  assert.equal(pilotLineFor({ pilotDays: 30 }), 'Pilot: cancel within 30 days of signing and you owe nothing.');
+  assert.equal(pilotLineFor({}), null);
+});
+
+test('pilot: billing is refused inside the window unless the admin confirms', () => {
+  const end = '2026-11-19T15:00:00.000Z';
+  assert.match(pilotBillingBlock(end, false, new Date('2026-11-01T00:00:00Z')) ?? '', /pilot until Nov 19/);
+  assert.equal(pilotBillingBlock(end, true, new Date('2026-11-01T00:00:00Z')), null);
+  assert.equal(pilotBillingBlock(end, false, new Date('2026-11-20T00:00:00Z')), null);
+  assert.equal(pilotBillingBlock(null, false), null);
 });

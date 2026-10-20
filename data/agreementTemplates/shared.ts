@@ -29,6 +29,8 @@ export interface AgreementTerms {
   billing: 'monthly' | 'annual';
   /** The client's primary specialty, for territory exclusivity ('' = none). */
   specialty: string;
+  /** 2026-10-19+: days after signing the client may end the agreement owing nothing (0 = no pilot). Sec. 2.5. */
+  pilotDays?: number;
 }
 
 export interface AgreementTemplate {

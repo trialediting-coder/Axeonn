@@ -12,7 +12,7 @@ import type { OnboardingTier } from '@/data/onboardingItems';
 import type { RankingData } from '@/components/proof/RankingCard';
 import { MilestoneTracker, StatusPill, StepRow } from '@/components/proof/v2/MilestoneTracker';
 import LineIcon from '@/components/common/LineIcon';
-import { FrontDeskSignoff, ManagerForm, PinBoard, ReviewApproval, StagingActions } from '@/components/proof/v2/V2Interactive';
+import { AverageValueEdit, FrontDeskSignoff, ListUpload, ManagerForm, PinBoard, ReviewApproval, StagingActions } from '@/components/proof/v2/V2Interactive';
 import { UpgradeButton } from '@/components/proof/UpgradeButton';
 import { formatPhone } from '@/lib/phoneShared';
 import { monthLabel } from '@/lib/projectsShared';
@@ -103,20 +103,23 @@ export function FrontDeskCard({ v }: { v: ProofV2View }) {
   );
 }
 
-export function PipelineCard({ v, full = false }: { v: ProofV2View; full?: boolean }) {
+export function PipelineCard({ v, full = false, api = null }: { v: ProofV2View; full?: boolean; api?: string | null }) {
   const { rows, totals, average } = v.pipeline;
   const w = wordsFor(v.industry);
+  const estimated = v.pipeline.averageBasis === 'estimate';
   const total = totals.anyValue ? (totals.dbrDollars ?? 0) + (totals.webDollars ?? 0) : null;
   return (
     <Card>
-      <Head icon={TrendingUp} title="Pipeline Revenue Tracker" sub={total != null ? `${money(total)} estimated from your own values` : 'Bookings from win-back texts and your website'} />
+      <Head icon={TrendingUp} title="Pipeline Revenue Tracker" sub={total != null ? `${money(total)} ${estimated ? 'estimated' : 'from your own values'}` : 'Bookings from win-back texts and your website'} />
       <div className="mt-3 grid grid-cols-2 gap-2">
         <Stat label="From win-back texts" value={String(totals.dbr)} sub={totals.dbrDollars != null ? money(totals.dbrDollars) : v.dbr.status === 'none' ? startsLine('p3', v) : 'booked'} />
         <Stat label="From your website" value={String(totals.web)} sub={totals.webDollars != null ? money(totals.webDollars) : 'booked'} />
       </div>
-      <p className="mt-2 text-[11px] leading-snug text-neutral-500">
-        {average ? `Estimate: each booked ${w.person} × your average of ${money(average)}, or the value entered for that booking.` : `Add what a new ${w.person} is worth on average and we show the dollar figure; until then it counts bookings.`}
-      </p>
+      {average ? (
+        <AverageValueEdit api={api} average={average} estimated={estimated} person={w.person} />
+      ) : (
+        <p className="mt-2 text-[11px] leading-snug text-neutral-500">Add what a new {w.person} is worth on average and we show the dollar figure; until then it counts bookings.</p>
+      )}
       {full && rows.length ? (
         <ul className="mt-3 max-h-64 divide-y divide-neutral-100 overflow-y-auto text-sm">
           {rows.slice(0, 50).map((r) => (
@@ -135,7 +138,8 @@ export function PipelineCard({ v, full = false }: { v: ProofV2View; full?: boole
 
 const TONE: Record<ScheduleTone, { label: string; cls: string }> = {
   on_track: { label: 'On track', cls: 'bg-emerald-50 text-emerald-700 ring-emerald-200' },
-  waiting_client: { label: 'Waiting on your approval', cls: 'bg-amber-50 text-amber-800 ring-amber-200' },
+  // Short enough to sit beside "day N of 180" on a phone; covers approvals and the list upload alike.
+  waiting_client: { label: 'Waiting on you', cls: 'bg-amber-50 text-amber-800 ring-amber-200' },
   waiting_carrier: { label: 'Waiting on the phone carriers', cls: 'bg-amber-50 text-amber-800 ring-amber-200' },
   behind: { label: 'Running behind', cls: 'bg-amber-50 text-amber-800 ring-amber-200' },
   done: { label: 'All six phases done', cls: 'bg-emerald-50 text-emerald-700 ring-emerald-200' },
@@ -150,6 +154,9 @@ function clientAction(v: ProofV2View): { label: string; href: string; external?:
   if (v.staging.phase === 'in_review') return { label: 'Review your new site', href: '?tab=program#phase-p2' };
   if (s.goLiveAt && !v.frontDesk.signedOffAt) return { label: `Sign off your ${wordsFor(v.industry).frontDesk} routine`, href: '?tab=program#front-desk' };
   if (current === 'p6' && !s.sabr?.scheduledAt && !s.sabr?.completedAt) return { label: 'Book your six-month review', href: v.bookUrl, external: true };
+  // Phase 3 has started (about day 15) and no list is in yet: the one ask is the past-patient list.
+  const p3 = v.milestones.find((m) => m.key === 'p3');
+  if (p3 && p3.from <= today() && !v.dbr.imported && v.dbr.status === 'none') return { label: `Upload your past ${wordsFor(v.industry).people} list`, href: '?tab=program#upload-list' };
   return null;
 }
 
@@ -210,7 +217,7 @@ const CERTIFICATE_DAYS = 30;
  * and the Launch Certificate shows for its first month only (it stays on the
  * Program tab).
  */
-export function V2Overview({ v, businessName }: { v: ProofV2View; businessName: string }) {
+export function V2Overview({ v, businessName, api = null }: { v: ProofV2View; businessName: string; api?: string | null }) {
   const live = !!v.settings.goLiveAt;
   const freshLaunch = live && Date.now() - new Date(v.settings.goLiveAt!).getTime() < CERTIFICATE_DAYS * 86_400_000;
   return (
@@ -219,7 +226,7 @@ export function V2Overview({ v, businessName }: { v: ProofV2View; businessName: 
       {freshLaunch ? <LaunchCertificate v={v} businessName={businessName} /> : null}
       <div className="grid gap-4 lg:grid-cols-2 lg:gap-5">
         <FrontDeskCard v={v} />
-        <PipelineCard v={v} />
+        <PipelineCard v={v} api={api} />
       </div>
     </div>
   );
@@ -403,13 +410,25 @@ export function ProgramTab({
         <Card>
           <Head icon={CalendarCheck} title={`Win-back texts to past ${w.people}`} sub="3 texts over 7 days from your number; replies land in your Leads inbox" />
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-            <Stat label="People on the list" value={String(v.dbr.imported)} sub={v.dbr.imported ? `${v.dbr.consented} with consent confirmed` : startsLine('p3', v)} />
+            <Stat
+              label="People on the list"
+              value={String(v.dbr.imported)}
+              sub={v.dbr.imported ? `${v.dbr.consented} with consent confirmed` : v.milestones.find((m) => m.key === 'p3')!.from <= today() ? 'Waiting for your list' : startsLine('p3', v)}
+            />
             <Stat label="Status" value={v.dbr.status === 'none' ? 'Not started' : v.dbr.status === 'running' ? 'Sending' : v.dbr.status === 'done' ? 'Finished' : 'Stopped'} sub={v.dbr.startedAt ? `started ${shortDate(v.dbr.startedAt)}` : undefined} />
             <Stat label="Texts sent" value={String(v.dbr.sent)} sub={v.dbr.pending ? `${v.dbr.pending} still scheduled` : undefined} />
             <Stat label="Replied (texts stopped)" value={String(v.dbr.replied)} />
           </div>
+          {!v.dbr.imported && v.dbr.status === 'none' ? (
+            <div id="upload-list" className="mt-4 scroll-mt-24 border-t border-neutral-100 pt-4">
+              <h3 className="text-sm font-semibold text-neutral-950">Upload your past {w.people} list</h3>
+              <div className="mt-2">
+                <ListUpload api={api} people={w.people} privateDetails={w.privateDetails} software={w.software} />
+              </div>
+            </div>
+          ) : null}
         </Card>
-        <PipelineCard v={v} full />
+        <PipelineCard v={v} full api={api} />
       </>
     ),
     p4: (

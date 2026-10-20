@@ -11,6 +11,8 @@ import { useState, type MouseEvent } from 'react';
 import { Check, ExternalLink, MapPin } from 'lucide-react';
 import type { Pin } from '@/lib/proofV2';
 import { shortDate, type PinStage, type ReviewItem } from '@/lib/proofV2Shared';
+import { CLIENT_LIST_MAX_BYTES, parseClientList } from '@/lib/pastCustomersShared';
+import { xlsxToCsv } from '@/lib/xlsxToCsv';
 
 function usePost(api: string | null) {
   const router = useRouter();
@@ -230,6 +232,108 @@ export function ManagerForm({ api, manager, title = 'practice manager' }: { api:
         {saved ? 'Saved' : 'Save'}
       </button>
       {error ? <p className="text-sm text-red-600 sm:col-span-4">{error}</p> : null}
+    </div>
+  );
+}
+
+/**
+ * The value of one new patient or client, on the pipeline card: shows the industry
+ * estimate (or their own number) with one tap to change it. Read-only in the admin
+ * preview (`api` null).
+ */
+export function AverageValueEdit({ api, average, estimated, person }: { api: string | null; average: number; estimated: boolean; person: string }) {
+  const { post, busy, error } = usePost(api);
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(String(average));
+  const label = `$${Math.round(average).toLocaleString('en-US')}`;
+  if (!open) {
+    return (
+      <p className="mt-2 text-[11px] leading-snug text-neutral-500">
+        Each booked {person} counted at {label}
+        {estimated ? <span className="font-semibold text-amber-700"> (estimated)</span> : null}.{' '}
+        {api ? (
+          <button type="button" onClick={() => setOpen(true)} className="font-semibold text-blue-600 underline underline-offset-2">
+            {estimated ? 'Use your own number' : 'Change'}
+          </button>
+        ) : null}
+      </p>
+    );
+  }
+  return (
+    <div className="mt-2">
+      <label className="block text-[11px] font-medium text-neutral-600" htmlFor="avg-value">
+        What a new {person} is worth to you, on average
+      </label>
+      <div className="mt-1 flex gap-2">
+        <input id="avg-value" inputMode="numeric" value={value} onChange={(e) => setValue(e.target.value)} className="h-10 w-32 rounded-lg border border-neutral-300 px-3 text-sm" />
+        <button type="button" disabled={busy} onClick={async () => (await post({ action: 'averageValue', value })) && setOpen(false)} className={`${BTN} bg-blue-600 text-white`}>
+          Save
+        </button>
+        <button type="button" onClick={() => setOpen(false)} className={`${BTN} text-neutral-600`}>
+          Cancel
+        </button>
+      </div>
+      {error ? <p className="mt-1 text-sm text-red-600">{error}</p> : null}
+    </div>
+  );
+}
+
+/**
+ * The client's past-patient / past-client list for the win-back texts (phase 3):
+ * a CSV or Excel file, names and mobile numbers only, with the consent box. Other
+ * columns are dropped in the browser (parseClientList) and again on the server.
+ */
+export function ListUpload({ api, people, privateDetails, software }: { api: string | null; people: string; privateDetails: string; software: string }) {
+  const { post, busy, error } = usePost(api);
+  const [csv, setCsv] = useState<{ name: string; text: string } | null>(null);
+  const [readError, setReadError] = useState<string | null>(null);
+  const [consent, setConsent] = useState(false);
+  const preview = csv ? parseClientList(csv.text) : null;
+
+  async function pick(file: File | undefined) {
+    setReadError(null);
+    setCsv(null);
+    if (!file) return;
+    if (file.size > CLIENT_LIST_MAX_BYTES * 2) return setReadError('That file is too big. Keep it under 2,000 people.');
+    try {
+      const text = /\.xlsx$/i.test(file.name) ? await xlsxToCsv(file) : await file.text();
+      setCsv({ name: file.name, text });
+    } catch {
+      setReadError('We could not read that file. Save it as CSV and try again.');
+    }
+  }
+
+  // Only the kept columns leave the browser.
+  const upload = () => preview && post({ action: 'uploadList', consent, csv: ['name,phone', ...preview.rows.map((r) => `"${r.name.replace(/"/g, '""')}",${r.phone}`)].join('\n') });
+
+  if (!api) return <p className="text-sm text-neutral-500">The client uploads their list here.</p>;
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-neutral-700">
+        A CSV or Excel export from your {software} works. We keep names and mobile numbers only, never {privateDetails}.
+      </p>
+      <input
+        type="file"
+        accept=".csv,.xlsx,text/csv"
+        onChange={(e) => pick(e.target.files?.[0])}
+        className="block w-full text-sm text-neutral-700 file:mr-3 file:h-10 file:rounded-lg file:border-0 file:bg-neutral-900 file:px-4 file:text-sm file:font-semibold file:text-white"
+      />
+      {readError ? <p className="text-sm text-red-600">{readError}</p> : null}
+      {preview ? (
+        <p className="text-sm text-neutral-700">
+          {preview.rows.length.toLocaleString('en-US')} {people} with a mobile number
+          {preview.skipped.length ? ` · ${preview.skipped.length} rows skipped` : ''}
+          {preview.ignored.length ? ` · ignored: ${preview.ignored.slice(0, 3).join(', ')}${preview.ignored.length > 3 ? '…' : ''}` : ''}
+        </p>
+      ) : null}
+      <label className="flex items-start gap-2.5 text-sm text-neutral-800">
+        <input type="checkbox" className="mt-0.5 h-4 w-4 accent-blue-600" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
+        <span>These people agreed to hear from us.</span>
+      </label>
+      <button type="button" disabled={busy || !preview?.rows.length || !consent} onClick={upload} className={`${BTN} w-full bg-blue-600 text-white sm:w-auto`}>
+        Upload the list
+      </button>
+      {error ? <p className="text-sm text-red-600">{error}</p> : null}
     </div>
   );
 }

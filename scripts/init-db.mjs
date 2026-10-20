@@ -163,6 +163,7 @@ async function main() {
     );
   `;
   await sql`CREATE INDEX IF NOT EXISTS agreements_email_idx ON agreements (client_email);`;
+  await sql`ALTER TABLE agreements ADD COLUMN IF NOT EXISTS ein TEXT;`;
   await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS kickoff_at DATE;`;
   await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS target_launch_at DATE;`;
   await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS baseline_calls INTEGER;`;

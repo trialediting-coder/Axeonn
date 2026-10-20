@@ -11,6 +11,9 @@ import { isStepKey } from '@/data/deliverySchedule';
 import { sendLaunchCertificateEmail } from '@/lib/email';
 import { APP_ORIGIN } from '@/lib/hostRouting';
 import { normalizePhone } from '@/lib/phoneShared';
+import { agreementEinFor } from '@/lib/agreements';
+import { importCsv } from '@/lib/pastCustomers';
+import { CLIENT_LIST_MAX_BYTES } from '@/lib/pastCustomersShared';
 import {
   addPin,
   deletePage,
@@ -18,6 +21,7 @@ import {
   patchV2,
   publishPage,
   savePage,
+  setAverageValue,
   setPageIndexed,
   setPinStatus,
   setV2Entry,
@@ -36,6 +40,7 @@ import {
   dbrStartBlock,
   isNapKey,
   napProgress,
+  averageValueInput,
   stagingState,
   validateDbrSteps,
   type FilingStatus,
@@ -137,6 +142,19 @@ export async function runClientAction(o: Onboarding, body: Body): Promise<void> 
     case 'manager':
       await patchV2(o.id, { manager: managerInput(body) });
       return;
+    case 'averageValue':
+      // One tap on the pipeline card: their own value replaces the industry estimate.
+      await setAverageValue(o.id, averageValueInput(body.value));
+      return;
+    case 'uploadList': {
+      // Past patients / clients for the win-back texts: names and mobiles only (parseClientList).
+      if (body.consent !== true) throw new Error('Tick the box to confirm these people agreed to hear from you.');
+      const csv = typeof body.csv === 'string' ? body.csv : '';
+      if (!csv.trim()) throw new Error('Choose a file first.');
+      if (csv.length > CLIENT_LIST_MAX_BYTES) throw new Error('That file is too big. Keep it under 2,000 people.');
+      await importCsv(o.id, csv, new Date(), { nameAndPhoneOnly: true, source: 'client' });
+      return;
+    }
     default:
       throw new Error('Unknown action');
   }
@@ -374,6 +392,15 @@ export async function runAdminAction(o: Onboarding, body: Body): Promise<string 
     case 'dbrStop':
       await stopDbrSprint(o.id);
       return 'Sprint stopped. Nothing else will be sent.';
+    case 'averageValue':
+      await setAverageValue(o.id, averageValueInput(body.value));
+      return null;
+    case 'revealEin': {
+      // Only on a tap, for filing the carrier texting registration; never rendered on the page by default.
+      const ein = await agreementEinFor(o.clientEmail);
+      if (!ein) throw new Error('No EIN on their signed agreement. Ask the client for it.');
+      return `EIN: ${ein}`;
+    }
     default:
       throw new Error('Unknown action');
   }

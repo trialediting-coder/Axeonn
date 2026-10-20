@@ -193,6 +193,8 @@ export function ensureSchema(): Promise<void> {
         );
       `;
       await sql`CREATE INDEX IF NOT EXISTS agreements_email_idx ON agreements (client_email);`;
+      // The EIN typed at signing, for the carrier texting registration (lib/ein.ts). Never in the signed text or emails.
+      await sql`ALTER TABLE agreements ADD COLUMN IF NOT EXISTS ein TEXT;`;
 
       // Project details, updates and monthly reports (lib/projects.ts).
       await sql`ALTER TABLE onboardings ADD COLUMN IF NOT EXISTS kickoff_at DATE;`;

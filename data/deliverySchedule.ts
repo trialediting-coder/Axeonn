@@ -132,7 +132,7 @@ export const DELIVERY_SCHEDULE: readonly SchedulePhase[] = [
     days: 'Months 3–5',
     summary: 'Pages for your areas and {pages}, written one by one, then your search report in month 5.',
     steps: [
-      { key: 'p5-plan', day: 61, title: 'Page plan', client: 'The areas and {pages} that deserve their own page, each written for its own visitors.', release: 'schedule', auto: 'pages_planned' },
+      { key: 'p5-plan', day: 61, title: 'Page plan', client: 'We draft the areas and {pages} that deserve their own page; you approve the list.', release: 'schedule', auto: 'pages_planned' },
       { key: 'p5-publish', day: 90, title: 'First pages published', client: 'Pages go live once each one passes our uniqueness check.', release: 'schedule', auto: 'pages_published' },
       { key: 'p5-sitemap', day: 92, title: 'Sitemap submitted to Google', client: 'Google is told about every new page.', release: 'schedule', auto: 'sitemap_submitted' },
       { key: 'p5-indexing', day: 120, title: 'Indexing checked', client: 'We check which pages Google has indexed; the count is on your dashboard.', release: 'schedule' },

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { CheckCircle2 } from 'lucide-react';
-import { dueAtSigning, getAgreement, money } from '@/lib/agreements';
+import { dueAtSigning, getAgreement, money, pilotLineFor } from '@/lib/agreements';
+import { agreementNeedsEin } from '@/lib/ein';
 import { setupMinutes } from '@/data/onboardingItems';
 import { DocPaper } from '@/components/docs/DocPaper';
 import { AgreementDocument } from '@/components/sign/AgreementDocument';
@@ -50,6 +51,8 @@ export default async function SignPage({ params }: { params: Promise<{ token: st
         fees={fees}
         dueCents={due.cents}
         setupMinutes={setupMinutes(agreement.tier).firstRound}
+        askEin={agreementNeedsEin(agreement)}
+        pilotLine={pilotLineFor(agreement)}
       />
     );
   } else if (agreement.status === 'signed') {
@@ -59,6 +62,7 @@ export default async function SignPage({ params }: { params: Promise<{ token: st
         headline={due.cents === 0 ? 'Add a payment method. $0 today.' : `Pay ${dueToday} today`}
         breakdown={breakdown}
         dueCents={due.cents}
+        pilotLine={pilotLineFor(agreement)}
       />
     );
   } else {

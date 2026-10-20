@@ -20,6 +20,9 @@ export interface AgreementRow {
   minimumMonths?: number;
   billing?: 'monthly' | 'annual';
   version?: string;
+  /** Sec. 2.5: the client may end it owing nothing until this date (lib/agreements.ts pilotEndsAt). */
+  pilotDays?: number;
+  pilotEndsAt?: string | null;
   signedName: string | null;
   signedAt: string | null;
   paidAt: string | null;
@@ -78,7 +81,10 @@ export function AgreementsConsole({ initialRows, options, dbError }: { initialRo
   });
   const [minimumMonths, setMinimumMonths] = useState(String(plan.minimumMonths));
   const [deal, setDeal] = useState<Deal>('term');
+  // Founding-client pilot (Sec. 2.5): only on deal A, where nothing is charged at signing.
+  const [pilot, setPilot] = useState(false);
   const practice = tier === 'axeoncore' || tier === 'axeongrowth';
+  const pilotAllowed = practice && deal === 'term';
 
   /** Fill the term and implementation fee for a plan + deal. */
   function applyDeal(nextTier: AgreementRow['tier'], nextDeal: Deal) {
@@ -110,7 +116,7 @@ export function AgreementsConsole({ initialRows, options, dbError }: { initialRo
     const res = await fetch('/api/admin/agreements', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ ...form, tier, minimumMonths, billing: practice && deal === 'annual' ? 'annual' : 'monthly' }),
+      body: JSON.stringify({ ...form, tier, minimumMonths, billing: practice && deal === 'annual' ? 'annual' : 'monthly', pilot: pilotAllowed && pilot }),
     });
     const data = (await res.json().catch(() => ({}))) as { error?: string; emailed?: boolean; emailError?: string; agreement?: AgreementRow };
     setBusy(false);
@@ -128,11 +134,11 @@ export function AgreementsConsole({ initialRows, options, dbError }: { initialRo
     await refresh();
   }
 
-  async function act(token: string, action: 'void' | 'resend' | 'startBilling') {
+  async function act(token: string, action: 'void' | 'resend' | 'startBilling', extra: { confirmPilot?: boolean } = {}) {
     const res = await fetch('/api/admin/agreements', {
       method: 'PATCH',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ token, action }),
+      body: JSON.stringify({ token, action, ...extra }),
     });
     const data = (await res.json().catch(() => ({}))) as { error?: string; message?: string };
     const done = { void: 'Agreement voided.', resend: 'Email sent again.', startBilling: data.message ?? 'Billing started.' }[action];
@@ -195,6 +201,14 @@ export function AgreementsConsole({ initialRows, options, dbError }: { initialRo
               {deal === 'term' && `$0 today. ${dollars(plan.monthly)}/mo starts at go-live; the ${dollars(plan.setupCredit)} build is credited for the 12 months (Sec. 2.4).`}
               {deal === 'monthToMonth' && `${dollars(plan.setupCredit)} today, then ${dollars(plan.monthly)}/mo from go-live; cancel any month with 30 days' notice.`}
               {deal === 'annual' && `${dollars(plan.monthly * 10)} due today for 12 months, then ${dollars(plan.monthly)}/mo.`}
+            </span>
+          </label>
+        )}
+        {pilotAllowed && (
+          <label className="flex items-start gap-2.5 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm text-neutral-800">
+            <input type="checkbox" className="mt-0.5 h-4 w-4 accent-blue-600" checked={pilot} onChange={(e) => setPilot(e.target.checked)} />
+            <span>
+              <span className="font-semibold">30-day pilot</span> (founding clients). They can cancel by email within 30 days of signing and owe nothing (Sec. 2.5).
             </span>
           </label>
         )}
@@ -298,6 +312,11 @@ export function AgreementsConsole({ initialRows, options, dbError }: { initialRo
                     })()}
                     {r.signedAt ? ` · signed by ${r.signedName} ${new Date(r.signedAt).toLocaleDateString()}` : ''}
                   </p>
+                  {r.pilotDays ? (
+                    <p className={`text-xs font-semibold ${r.pilotEndsAt && Date.parse(r.pilotEndsAt) > Date.now() ? 'text-amber-700' : 'text-neutral-500'}`}>
+                      {r.pilotEndsAt ? `Pilot ends ${new Date(r.pilotEndsAt).toLocaleDateString()}` : '30-day pilot, starts at signing'}
+                    </p>
+                  ) : null}
                 </div>
                 <span className={`text-xs font-semibold px-2 py-1 rounded-full border ${STATUS[r.status].cls}`}>{STATUS[r.status].label}</span>
                 <div className="flex gap-1">
@@ -329,7 +348,12 @@ export function AgreementsConsole({ initialRows, options, dbError }: { initialRo
                         type="button"
                         className={btn('secondary', 'sm')}
                         title="Go-live day: charge the first month now (Sec. 4.1). If go-live is held up by the client, press it on day 45."
-                        onClick={() => act(r.token, 'startBilling')}
+                        onClick={() => {
+                          const open = !!r.pilotEndsAt && Date.parse(r.pilotEndsAt) > Date.now();
+                          if (!open) return act(r.token, 'startBilling');
+                          // Sec. 2.5: no charge inside the pilot unless the admin means it.
+                          if (window.confirm(`This client is in their pilot until ${new Date(r.pilotEndsAt!).toLocaleDateString()}. Start billing anyway?`)) act(r.token, 'startBilling', { confirmPilot: true });
+                        }}
                       >
                         Live: start billing
                       </button>

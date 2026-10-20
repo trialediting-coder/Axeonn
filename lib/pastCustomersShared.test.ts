@@ -2,7 +2,7 @@
 // Run with: npm run test:sequences
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { PAST_CUSTOMERS_MAX_ROWS, columnsFor, parseCsv, parseJobDate, parsePastCustomers } from './pastCustomersShared';
+import { PAST_CUSTOMERS_MAX_ROWS, columnsFor, parseClientList, parseCsv, parseJobDate, parsePastCustomers } from './pastCustomersShared';
 
 test('parseCsv handles quotes, doubled quotes, CRLF, a BOM and blank lines', () => {
   const text = '﻿name,phone\r\n"Smith, Mike","(515) 555-0134"\r\n\r\n"Said ""hi""",5155550135';
@@ -114,4 +114,17 @@ test('a quoted field may hold a line break', () => {
   assert.deepEqual(parsePastCustomers('name,phone\n"Smith\nJones","(515) 555-0134"').rows, [
     { name: 'Smith\nJones', phone: '+15155550134', email: null, lastJobAt: null },
   ]);
+});
+
+test('the client upload keeps names and mobile numbers only, and says which columns it ignored', () => {
+  const text = 'Patient Name,Cell Phone,Email,Last Visit,Diagnosis,Balance\nAna Ruiz,(515) 555-0134,ana@x.com,2026-01-02,Caries,120.00\nBo Li,515-555-0135,,,,';
+  const r = parseClientList(text);
+  assert.deepEqual(r.rows, [
+    { name: 'Ana Ruiz', phone: '+15155550134', email: null, lastJobAt: null },
+    { name: 'Bo Li', phone: '+15155550135', email: null, lastJobAt: null },
+  ]);
+  assert.deepEqual(r.ignored, ['Email', 'Last Visit', 'Diagnosis', 'Balance']);
+  assert.doesNotMatch(JSON.stringify(r.rows), /Caries|120|ana@x\.com|2026-01-02/);
+  // No header: first two columns are name and phone; nothing else is kept.
+  assert.deepEqual(parseClientList('Cy Ho,5155550136,cy@x.com').rows, [{ name: 'Cy Ho', phone: '+15155550136', email: null, lastJobAt: null }]);
 });

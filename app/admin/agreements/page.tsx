@@ -4,7 +4,7 @@ import { AgreementsConsole, type AgreementRow } from '@/components/admin/Agreeme
 import { AGREEMENT_ADD_ONS, AXEON_ENTITY_OPTIONS, ENTITY_TYPES, PLAN_DEFAULTS } from '@/data/agreementTemplate';
 import { ONBOARDING_TIERS, TIER_LABELS } from '@/data/onboardingItems';
 import { auth } from '@/lib/auth';
-import { agreementUrl, listAgreements } from '@/lib/agreements';
+import { agreementUrl, listAgreements, pilotEndsAt } from '@/lib/agreements';
 import { isDatabaseConfigured } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
@@ -17,7 +17,7 @@ export default async function AgreementsAdminPage() {
   let dbError: string | null = isDatabaseConfigured() ? null : 'Agreements need the database (POSTGRES_URL).';
   if (!dbError) {
     try {
-      rows = (await listAgreements()).map((a) => ({ ...a, url: agreementUrl(a.token) }));
+      rows = (await listAgreements()).map((a) => ({ ...a, url: agreementUrl(a.token), pilotEndsAt: pilotEndsAt(a) }));
     } catch (err) {
       dbError = err instanceof Error ? err.message : String(err);
     }

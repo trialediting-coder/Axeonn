@@ -259,6 +259,22 @@ function Phase1({ v, post, busy }: { v: ProofV2View; post: Post; busy: boolean }
         </button>
       </div>
       <p className="mt-2 text-xs text-neutral-500">Texting itself only starts when the line is switched to ready in the Phone panel.</p>
+      {/* For the carrier registration, from the signed agreement: nothing to retype. The EIN shows only on a tap. */}
+      <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 rounded-lg bg-neutral-50 p-3 text-xs">
+        <dt className="text-neutral-500">Legal name</dt>
+        <dd className="font-medium text-neutral-900">{v.signing?.legalName || '—'}</dd>
+        <dt className="text-neutral-500">Authorized contact</dt>
+        <dd className="font-medium text-neutral-900">{v.signing ? `${v.signing.signerName}, ${v.signing.signerTitle}` : '—'}</dd>
+        <dt className="text-neutral-500">EIN</dt>
+        <dd className="flex items-center gap-2 font-medium text-neutral-900">
+          {v.signing?.einMasked ?? 'not on the agreement'}
+          {v.signing?.einMasked ? (
+            <button type="button" disabled={busy} onClick={() => post({ action: 'revealEin' })} className="font-semibold text-blue-600 underline underline-offset-2">
+              Show for filing
+            </button>
+          ) : null}
+        </dd>
+      </dl>
     </Box>
   );
 }
@@ -368,7 +384,8 @@ function PinList({ pins, post, busy }: { pins: ProofV2View['pins']; post: Post; 
 
 function Phase3({ v, post, busy }: { v: ProofV2View; post: Post; busy: boolean }) {
   const [steps, setSteps] = useState<DbrStep[]>(v.dbr.steps);
-  const [reviewer, setReviewer] = useState(v.settings.dbrReview?.reviewedBy ?? '');
+  // Law: the signing attorney by default; whoever actually reviewed can be typed over it.
+  const [reviewer, setReviewer] = useState(v.settings.dbrReview?.reviewedBy ?? (v.industry === 'law' ? (v.signing?.signerName ?? '') : ''));
   const law = v.industry === 'law';
   const review = v.settings.dbrReview;
   // Recording the review saves the texts as the server will send them (with the attorney-advertising line); show those.

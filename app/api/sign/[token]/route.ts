@@ -16,12 +16,13 @@ export async function POST(req: Request, ctx: { params: Promise<{ token: string 
   }
   const agreement = await getAgreement(token).catch(() => null);
   if (!agreement) return notFound();
-  const body = (await req.json().catch(() => ({}))) as { name?: unknown; title?: unknown; consent?: unknown };
+  const body = (await req.json().catch(() => ({}))) as { name?: unknown; title?: unknown; consent?: unknown; ein?: unknown };
   try {
     const signed = await signAgreement(agreement, {
       name: body.name,
       title: body.title,
       consent: body.consent,
+      ein: body.ein,
       ip,
       userAgent: req.headers.get('user-agent') ?? '',
     });

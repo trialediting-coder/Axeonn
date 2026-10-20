@@ -13,12 +13,12 @@ import { isIndustry } from '@/data/industryWords';
 
 export const dynamic = 'force-dynamic';
 
-export default async function DevFixture({ searchParams }: { searchParams: Promise<{ v?: string; tab?: string; view?: string; stage?: string; industry?: string }> }) {
+export default async function DevFixture({ searchParams }: { searchParams: Promise<{ v?: string; tab?: string; view?: string; stage?: string; industry?: string; interactive?: string }> }) {
   if (process.env.NODE_ENV !== 'development') notFound();
-  const { v, tab, view, stage, industry } = await searchParams;
+  const { v, tab, view, stage, industry, interactive } = await searchParams;
   const version = v === '1' ? 1 : 2;
   const kind = isIndustry(industry) ? industry : 'dental';
-  const data = fixtureDashboard(version, new Date(), stage === 'live' ? 'live' : 'setup', kind);
+  const data = fixtureDashboard(version, new Date(), stage === 'live' ? 'live' : stage === 'list' ? 'list' : 'setup', kind);
   if (view === 'admin') {
     return (
       <main className="mx-auto min-h-screen max-w-5xl bg-[#F3F5F8] p-4 sm:p-8">
@@ -33,7 +33,8 @@ export default async function DevFixture({ searchParams }: { searchParams: Promi
       email="owner@example.com"
       {...data}
       programTab={program}
-      preview={{ label: `Dev fixture: made-up practice, AxeonPROOF v${version}`, backHref: '/proof/dev-fixture' }}
+      // &interactive=1: the client's own buttons (value edit, list upload) as a signed-in client sees them; saving 401s here.
+      {...(interactive === '1' ? { v2Api: '/api/proof/v2' } : { preview: { label: `Dev fixture: made-up practice, AxeonPROOF v${version}`, backHref: '/proof/dev-fixture' } })}
       tab={key}
     />
   );

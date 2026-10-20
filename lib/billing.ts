@@ -626,7 +626,19 @@ export async function createAgreementCheckout(input: AgreementCheckoutInput): Pr
  * monthly Fee is charged now (Agreement Sec. 4.1). Returns what happened, in
  * words the admin can show.
  */
-export async function startAgreementBilling(token: string): Promise<string> {
+/**
+ * A 30-day pilot (lib/agreements.ts pilotOpen) means no charge may be made inside the
+ * window: starting billing is refused until it ends, unless the admin confirms. Pure.
+ */
+export function pilotBillingBlock(pilotEndsAt: string | null | undefined, confirmPilot: boolean, now: Date = new Date()): string | null {
+  if (!pilotEndsAt || confirmPilot || now.getTime() >= Date.parse(pilotEndsAt)) return null;
+  const end = new Date(pilotEndsAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/Chicago' });
+  return `This client is in their 30-day pilot until ${end}; no charge may be made before then. Confirm to start billing anyway.`;
+}
+
+export async function startAgreementBilling(token: string, opts: { pilotEndsAt?: string | null; confirmPilot?: boolean } = {}): Promise<string> {
+  const block = pilotBillingBlock(opts.pilotEndsAt, opts.confirmPilot === true);
+  if (block) throw new Error(block);
   const stripe = getStripe();
   const found = await stripe.subscriptions.search({ query: `metadata['agreement']:'${token.replace(/[^A-Z0-9]/gi, '')}'`, limit: 5 });
   const sub = found.data.find((s) => s.status === 'trialing') ?? found.data[0];

@@ -148,6 +148,24 @@ export function parseJobDate(raw: string): string | null {
   return `${y}-${pad(m)}-${pad(d)}`;
 }
 
+/**
+ * The client's own upload from the AxeonPROOF dashboard (lean setup, 2026-10-19): names
+ * and mobile numbers only. Every other column (email, visit dates, anything with
+ * health, case or financial details) is dropped before it leaves the browser and again
+ * on the server; `ignored` names the dropped header columns so the client sees it.
+ */
+export const CLIENT_LIST_MAX_BYTES = 1_000_000;
+
+export function parseClientList(text: string): ParsedCustomers & { ignored: string[] } {
+  const parsed = parsePastCustomers(text);
+  const header = scanCsv(text).find((r) => !r.blankLine);
+  const cols = header ? columnsFor(header.cells) : {};
+  const kept = new Set([cols.name, cols.phone].filter((i): i is number => i !== undefined));
+  const hasHeader = !!header && !header.cells.some((c) => normalizePhone(c));
+  const ignored = hasHeader ? header!.cells.map((c, i) => (kept.has(i) ? '' : c.trim())).filter(Boolean) : [];
+  return { rows: parsed.rows.map((r) => ({ name: r.name, phone: r.phone, email: null, lastJobAt: null })), skipped: parsed.skipped, ignored };
+}
+
 export function parsePastCustomers(text: string): ParsedCustomers {
   const all = scanCsv(text).filter((r) => !r.blankLine);
   if (!all.length) return { rows: [], skipped: [] };

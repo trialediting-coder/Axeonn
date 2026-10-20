@@ -649,7 +649,7 @@ export function ProofDashboard({
 
         {tab === 'overview' && !programTab ? (<>
         {/* v2: before launch the schedule leads; once live, the numbers lead and the schedule follows them. */}
-        {v2 && !v2.settings.goLiveAt ? <V2Overview v={v2} businessName={name} /> : null}
+        {v2 && !v2.settings.goLiveAt ? <V2Overview v={v2} businessName={name} api={preview ? null : v2Api} /> : null}
         {traffic ? <p className="mt-6 text-[11px] font-semibold uppercase tracking-wide text-neutral-400 sm:hidden">{trafficLabel}</p> : null}
         {traffic ? (
           <div className="mt-2 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-x-4 sm:gap-y-8 lg:gap-x-5 xl:grid-cols-4">
@@ -690,7 +690,7 @@ export function ProofDashboard({
           })}
         </div>
 
-        {v2?.settings.goLiveAt ? <V2Overview v={v2} businessName={name} /> : null}
+        {v2?.settings.goLiveAt ? <V2Overview v={v2} businessName={name} api={preview ? null : v2Api} /> : null}
         {ranking ? <RankingCard data={ranking} api={scanApi} /> : null}
 
         <div className="mt-4 sm:mt-9 grid grid-cols-1 gap-4 lg:gap-5 lg:grid-cols-3">

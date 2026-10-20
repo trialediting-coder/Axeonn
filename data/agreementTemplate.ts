@@ -45,8 +45,16 @@ function termParagraphs(t: AgreementTerms): string[] {
       `2.4 Implementation fee credit. Axeon's standard implementation fee for the Plan is ${money(t.setupCreditCents)}. In consideration of Client's commitment to the full Initial Term, Axeon credits that fee in full and no implementation fee is due at signing. Client's obligations if this Agreement ends before the Initial Term is complete are stated in Section 10.1; the credited fee is never charged in addition to them.`
     );
   }
+  if ((t.pilotDays ?? 0) > 0) {
+    const days = `${NUMBER_WORDS_PILOT[t.pilotDays!] ?? t.pilotDays} (${t.pilotDays})`;
+    out.push(
+      `2.5 Pilot period. Client may end this Agreement for any reason by email to Axeon sent within ${days} days after Client signs it (the “Pilot Period”). On termination under this Section, Client owes nothing: no Fees are charged during the Pilot Period, any implementation fee credited under Section 2.4 is not charged, and Sections 2.1, 10.1, and 10.4(a) do not apply. Axeon will remove the call forwarding on any tracking number it provided, and Client keeps its own business phone numbers, domain, and Google Business Profile listing.`
+    );
+  }
   return out;
 }
+
+const NUMBER_WORDS_PILOT: Record<number, string> = { 14: 'fourteen', 30: 'thirty', 45: 'forty-five', 60: 'sixty' };
 
 const PERFORMANCE_SECTION: AgreementSection = {
   heading: '5. 90-Day Performance Commitment',
@@ -136,7 +144,7 @@ function agreementSections(t: AgreementTerms): AgreementSection[] {
       paragraphs: [
         t.minimumMonths === 0
           ? '10.1 By Client for convenience. Client may terminate this Agreement for any reason by giving written notice under Section 2.2, effective at the end of the then-current term. If Client stops payment or abandons the Services, all Fees for the then-current term become immediately due.'
-          : `10.1 By Client for convenience. Client may terminate this Agreement effective at the end of the Initial Term or any Renewal Term by giving written notice under Section 2.2. Client may not terminate for convenience during the Initial Term${practice ? ', except under Section 5.2' : ''}. If Client terminates, stops payment, or abandons the Services during the Initial Term${practice ? ' other than under Section 5.2' : ''}, all remaining Fees for the Initial Term become immediately due.`,
+          : `10.1 By Client for convenience. Client may terminate this Agreement effective at the end of the Initial Term or any Renewal Term by giving written notice under Section 2.2. Client may not terminate for convenience during the Initial Term${practice ? ((t.pilotDays ?? 0) > 0 ? ', except under Sections 2.5 and 5.2' : ', except under Section 5.2') : ''}. If Client terminates, stops payment, or abandons the Services during the Initial Term${practice ? ' other than under Section 5.2' : ''}, all remaining Fees for the Initial Term become immediately due.`,
         "10.2 By either Party for cause. Either Party may terminate on written notice if the other materially breaches this Agreement and fails to cure within fifteen (15) days of written notice (five (5) days for non-payment). Axeon may terminate immediately if Client's account is more than thirty (30) days past due, if Client initiates a chargeback on a valid charge, if Client's business ceases operating, or if Client directs Axeon to do anything unlawful or in violation of platform policies or professional rules. If Axeon terminates for Client's breach, Section 10.1 applies as if Client had terminated.",
         "10.3 By Axeon for convenience. Axeon may terminate this Agreement for any reason on thirty (30) days' written notice, in which case Axeon will refund any prepaid Fees for periods after the termination date and no remaining Initial Term Fees are due.",
         `10.4 Effect of termination. On termination: (a) all unpaid Fees through the end of the then-current term become due, except as stated in ${practice ? 'Sections 5.2 and 10.3' : 'Section 10.3'}; (b) Subscription Systems, hosting, AxeonPROOF, and Axeon access end on the termination date, and Client is responsible for arranging its own hosting; (c) if the account is paid in full, Axeon will provide Client's website files, design files, and Customer Data export within fifteen (15) business days of request, and will keep the site live for a transition period of up to thirty (30) days at Client's request; (d) if the account is not paid in full, Axeon may take the website offline and withhold Deliverables until payment; and (e) Axeon has no obligation to transfer Axeon Tools or Subscription Systems. Refunds are not owed except as stated in ${practice ? 'Sections 5.2 and 10.3' : 'Section 10.3'}.`,
@@ -274,7 +282,7 @@ export const TEMPLATE_2026_10_19: AgreementTemplate = {
   termSummary: (t) =>
     t.minimumMonths === 0
       ? 'Month-to-month, no minimum'
-      : `${t.minimumMonths} month${t.minimumMonths === 1 ? '' : 's'}${t.billing === 'annual' ? ', prepaid' : ''}, then month-to-month`,
+      : `${t.minimumMonths} month${t.minimumMonths === 1 ? '' : 's'}${t.billing === 'annual' ? ', prepaid' : ''}, then month-to-month${(t.pilotDays ?? 0) > 0 ? `; ${t.pilotDays}-day pilot (Sec. 2.5)` : ''}`,
   fees: (t) => {
     if (t.billing === 'annual') {
       return `${money(annualCents(t.monthlyCents))} for the ${monthsInWords(t.minimumMonths || 12)} Initial Term, paid in full at signing (twelve months at the price of ten; ${money(t.monthlyCents)} / month thereafter)`;

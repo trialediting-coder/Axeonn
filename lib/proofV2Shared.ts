@@ -92,6 +92,8 @@ export interface ProofV2Settings {
   /** scheduledAt = the review's date; bookedAt = when it was booked. */
   sabr?: { scheduledAt?: string; bookedAt?: string; completedAt?: string };
   manager?: { name?: string; email?: string; phone?: string };
+  /** The owner's mobile (E.164) for the monthly summary text, from the setup card 'summary-contacts'. Missing = the line's forward-to number. */
+  ownerMobile?: string;
   frontDesk?: { signedOffAt?: string; signedOffBy?: string };
   /** Dollar value of one booked appointment, by pipeline key ("contact:12", "booking:40"). */
   bookingValues?: Record<string, number>;
@@ -622,6 +624,19 @@ export function pipelineTotals(rows: readonly PipelineRow[]): { dbr: number; web
   const d = sum('dbr');
   const w = sum('web');
   return { dbr: d.count, web: w.count, dbrDollars: d.dollars, webDollars: w.dollars, anyValue: d.dollars != null || w.dollars != null };
+}
+
+/** Where the monthly summary text goes: the owner's mobile from setup, else the line's forward-to number (as before). */
+export function ownerSummaryNumber(settings: Pick<ProofV2Settings, 'ownerMobile'>, forwardTo: string): string {
+  return settings.ownerMobile || forwardTo;
+}
+
+/** A dollar value typed on the pipeline card; '' or null clears it (back to the industry estimate). */
+export function averageValueInput(v: unknown): number | null {
+  if (v === null || v === undefined || v === '') return null;
+  const n = Number(typeof v === 'string' ? v.replace(/[$,\s]/g, '') : v);
+  if (!Number.isFinite(n) || n < 1 || n > 1_000_000) throw new Error('Enter a dollar amount between $1 and $1,000,000.');
+  return Math.round(n);
 }
 
 export function valueFor(key: string, entered: Record<string, number> | undefined, average: number | null): { value: number | null; basis: 'entered' | 'average' | null } {

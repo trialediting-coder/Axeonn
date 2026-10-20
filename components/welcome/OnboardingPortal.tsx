@@ -358,8 +358,9 @@ function ConfirmCard({
   const status: Status = state?.status === 'done' ? 'done' : 'pending';
   const onCall = state?.data?.[CALL_INSTEAD_KEY] === 'yes';
   // Optional fields stay tucked away unless they already hold an answer.
-  const required = fields.filter((f) => f.required);
-  const optional = fields.filter((f) => !f.required);
+  // Shown up front: required fields, and an optional one with one-tap suggestions (the exit offer), since the taps are the point.
+  const required = fields.filter((f) => f.required || f.suggestions?.length);
+  const optional = fields.filter((f) => !f.required && !f.suggestions?.length);
   const [showOptional, setShowOptional] = useState(() => optional.some((f) => display(f, values[f.key]) !== ''));
 
   const summary = onCall ? 'We will cover this on a call.' : fields
@@ -654,6 +655,27 @@ function Field({
         className={`${inputClass} mt-1.5`}
       />
       {hint}
+      {field.suggestions?.length ? (
+        // One-tap starting points (the exit offer): fills the field, the client edits from there.
+        <div className="mt-2.5 flex flex-wrap gap-2">
+          {field.suggestions.map((s) => (
+            <button
+              key={s}
+              type="button"
+              disabled={disabled}
+              onClick={() => onChange(s)}
+              className={`rounded-full border px-3 py-1.5 text-left text-sm font-medium transition-colors ${str === s ? 'border-blue-600 bg-blue-50/60 text-neutral-950' : 'border-neutral-200 text-neutral-800 hover:border-neutral-300'}`}
+            >
+              {s}
+            </button>
+          ))}
+          {str ? (
+            <button type="button" disabled={disabled} onClick={() => onChange('')} className="rounded-full px-3 py-1.5 text-sm font-medium text-neutral-500 hover:text-neutral-800">
+              No offer
+            </button>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }
