@@ -124,7 +124,7 @@ export default function HowItWorksPage() {
           </div>
           <div className="mt-5 sm:mt-12 grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-5">
             <div className="rounded-2xl sm:rounded-3xl border border-neutral-200 p-4 sm:p-8">
-              <p className="text-xs font-mono font-bold tracking-widest text-neutral-400 uppercase">Example: without Axeon</p>
+              <p className="eyebrow text-neutral-400">Example: without Axeon</p>
               <ol className="mt-3 sm:mt-6 space-y-2 sm:space-y-5">
                 {EVENING.without.map((e) => (
                   <li key={e.when} className="grid grid-cols-[4.25rem_minmax(0,1fr)] sm:grid-cols-[5.5rem_minmax(0,1fr)] gap-2 sm:gap-3">
@@ -135,7 +135,7 @@ export default function HowItWorksPage() {
               </ol>
             </div>
             <div className="rounded-2xl sm:rounded-3xl bg-neutral-950 text-white p-4 sm:p-8">
-              <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">Example: with Axeon</p>
+              <p className="eyebrow eyebrow-dark">Example: with Axeon</p>
               <ol className="mt-3 sm:mt-6 space-y-2 sm:space-y-5">
                 {EVENING.with.map((e) => (
                   <li key={e.when} className="grid grid-cols-[4.25rem_minmax(0,1fr)] sm:grid-cols-[5.5rem_minmax(0,1fr)] gap-2 sm:gap-3">
@@ -310,7 +310,7 @@ export default function HowItWorksPage() {
             className="group ix-card relative rounded-3xl bg-blue-600 text-white p-6 sm:p-10 flex flex-col justify-between gap-5 sm:gap-8 hover:bg-blue-700 transition-colors"
           >
             <div>
-              <p className="text-xs font-mono font-bold tracking-widest uppercase text-blue-100">[ SEE IT ON YOUR OWN PRACTICE ]</p>
+              <p className="eyebrow eyebrow-onblue">SEE IT ON YOUR OWN PRACTICE</p>
               <h2 className="mt-3 sm:mt-4 text-2xl sm:text-3xl font-extrabold font-display tracking-tight leading-snug">
                 Is your area open?
               </h2>

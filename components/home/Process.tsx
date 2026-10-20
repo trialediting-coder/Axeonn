@@ -63,8 +63,8 @@ export function Process() {
     <section id="clear-process" className="w-full py-10 sm:py-16 lg:py-24 px-4 sm:px-8 lg:px-14 xl:px-20">
       <div className="w-full max-w-6xl mx-auto">
         <div className="max-w-4xl mb-6 sm:mb-16">
-          <div className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-4">
-            [ FROM AREA CHECK TO EVERY INQUIRY ANSWERED ]
+          <div className="eyebrow mb-4">
+            FROM AREA CHECK TO EVERY INQUIRY ANSWERED
           </div>
           <h2 className="text-3xl sm:text-5xl lg:text-7xl font-extrabold text-neutral-950 font-display tracking-tight leading-[1.05]">
             Four steps. $0 to start.
@@ -104,8 +104,8 @@ export function Process() {
                         ))}
                       </ul>
                       <div className="mt-4 sm:mt-8 rounded-2xl bg-blue-600 p-4 sm:p-7">
-                        <p className="text-xs font-mono font-bold tracking-widest uppercase text-blue-100">
-                          [ THE 90-DAY PERFORMANCE COMMITMENT ]
+                        <p className="eyebrow eyebrow-onblue">
+                          THE 90-DAY PERFORMANCE COMMITMENT
                         </p>
                         <p className="mt-2 text-base sm:text-2xl font-extrabold font-display tracking-tight leading-snug">
                           {step.outcome}

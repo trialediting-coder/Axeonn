@@ -13,7 +13,7 @@ export function VersusRows({ typical, axeon }: { typical: string[]; axeon: strin
   return (
     <div className="grid md:grid-cols-2 gap-3 sm:gap-6">
       <div className="rounded-2xl sm:rounded-3xl border border-neutral-200 bg-white px-4 py-4 sm:p-8">
-        <div className="text-xs font-mono font-bold tracking-widest text-neutral-400 uppercase mb-2.5 sm:mb-5">
+        <div className="eyebrow text-neutral-400 mb-2.5 sm:mb-5">
           Typical agency
         </div>
         <ul className="space-y-2 sm:space-y-4">
@@ -28,7 +28,7 @@ export function VersusRows({ typical, axeon }: { typical: string[]; axeon: strin
         </ul>
       </div>
       <div className="rounded-2xl sm:rounded-3xl bg-neutral-950 text-white px-4 py-4 sm:p-8">
-        <div className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-2.5 sm:mb-5">
+        <div className="eyebrow eyebrow-dark mb-2.5 sm:mb-5">
           Axeon
         </div>
         <ul className="space-y-2 sm:space-y-4">
@@ -51,7 +51,7 @@ function VersusLists({ typical, axeon }: { typical: string[]; axeon: string[] })
   return (
     <div className="grid sm:grid-cols-2 gap-4 sm:gap-8 border-t border-neutral-200 pt-4 sm:pt-8">
       <div>
-        <div className="text-xs font-mono font-bold tracking-widest text-neutral-400 uppercase mb-2 sm:mb-4">Typical agency</div>
+        <div className="eyebrow text-neutral-400 mb-2 sm:mb-4">Typical agency</div>
         <ul className="space-y-1.5 sm:space-y-3">
           {typical.map((item) => (
             <li key={item} className="flex gap-2.5 sm:gap-3 text-[15px] sm:text-base text-neutral-500 leading-snug sm:leading-relaxed">
@@ -64,7 +64,7 @@ function VersusLists({ typical, axeon }: { typical: string[]; axeon: string[] })
         </ul>
       </div>
       <div>
-        <div className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-2 sm:mb-4">Axeon</div>
+        <div className="eyebrow mb-2 sm:mb-4">Axeon</div>
         <ul className="space-y-1.5 sm:space-y-3">
           {axeon.map((item) => (
             <li key={item} className="flex gap-2.5 sm:gap-3 text-[15px] sm:text-base text-neutral-900 font-medium leading-snug sm:leading-relaxed">
@@ -114,7 +114,7 @@ export function VersusSection({
       // Purpose: one stat that proves the point, the claim, then typical-vs-Axeon in plain lists.
       <section id={id} className={`w-full py-10 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24 ${bg}`}>
         <div className="max-w-6xl mx-auto">
-          <div className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3 sm:mb-6">[ {eyebrow} ]</div>
+          <div className="eyebrow mb-3 sm:mb-6">{eyebrow}</div>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-6 lg:gap-12 items-end mb-5 sm:mb-12">
             <a
               href={stat.href}
@@ -146,7 +146,7 @@ export function VersusSection({
     <section id={id} className={`w-full py-10 sm:py-24 px-4 sm:px-10 lg:px-16 xl:px-24 ${bg}`}>
       <div className="max-w-5xl mx-auto">
         <div className="max-w-3xl mb-4 sm:mb-10">
-          <div className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3 sm:mb-4">[ {eyebrow} ]</div>
+          <div className="eyebrow mb-3 sm:mb-4">{eyebrow}</div>
           <h2 className="text-[26px] sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-neutral-950 font-display leading-[1.1] sm:leading-[1.08]">
             {heading}
           </h2>

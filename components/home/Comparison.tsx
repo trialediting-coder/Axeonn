@@ -61,8 +61,8 @@ export function Comparison() {
     <section id="comparison" className="w-full py-10 sm:py-32 lg:py-40 px-4 sm:px-10 lg:px-16 xl:px-24">
       <div className="max-w-6xl mx-auto">
         <div className="max-w-4xl">
-          <span className="hidden sm:block text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-4">
-            [ WHY PRACTICES SWITCH ]
+          <span className="eyebrow hidden sm:block mb-4">
+            WHY PRACTICES SWITCH
           </span>
           <h2 className="text-[28px] sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.1] sm:leading-[1.08]">
             You Pay for Every Inquiry Answered, Not Deliverables
@@ -72,7 +72,7 @@ export function Comparison() {
         {/* The one comparison that matters: what you actually pay for. */}
         <div className="mt-5 sm:mt-14 grid grid-cols-2 md:grid-rows-[auto_1fr] rounded-[20px] sm:rounded-[36px] overflow-hidden border border-neutral-200">
           <div className="bg-neutral-100 p-4 sm:p-10 lg:p-12 md:row-span-2">
-            <p className="text-xs font-mono font-bold tracking-widest text-neutral-500 uppercase">
+            <p className="eyebrow text-neutral-500">
               Typical agency<span className="hidden sm:inline"> · you pay for</span>
             </p>
             <p className="mt-2 sm:mt-6 text-lg sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-[1.15] sm:leading-[1.08] text-neutral-400 line-through decoration-2 decoration-neutral-400">
@@ -80,7 +80,7 @@ export function Comparison() {
             </p>
           </div>
           <div className="bg-blue-600 text-white p-4 sm:p-10 lg:p-12 md:pb-0 lg:pb-0">
-            <p className="text-xs font-mono font-bold tracking-widest text-blue-100 uppercase">
+            <p className="eyebrow eyebrow-onblue">
               Axeon<span className="hidden sm:inline"> · you pay for</span>
             </p>
             <p className="mt-2 sm:mt-6 text-[32px] sm:text-7xl lg:text-8xl font-black font-display tracking-tight leading-none">

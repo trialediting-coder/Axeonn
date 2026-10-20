@@ -12,11 +12,11 @@ export const metadata = buildMetadata({
 });
 
 const GROUPS: { category: NicheCategory; label: string }[] = [
-  { category: 'Healthcare', label: '[ HEALTHCARE ]' },
-  { category: 'Professional Services', label: '[ PROFESSIONAL SERVICES ]' },
+  { category: 'Healthcare', label: 'HEALTHCARE' },
+  { category: 'Professional Services', label: 'PROFESSIONAL SERVICES' },
 ];
 
-const EYEBROW = 'text-xs font-mono font-bold tracking-widest text-blue-600 uppercase';
+const EYEBROW = 'eyebrow';
 
 export default function SolutionsHubPage() {
   return (
@@ -24,7 +24,7 @@ export default function SolutionsHubPage() {
       <BreadcrumbJsonLd items={[{ name: 'Who we help', path: '/solutions' }]} />
       <div className="max-w-6xl mx-auto">
         {/* Purpose: who this is for, and the one problem all four share. */}
-        <p className={`${EYEBROW} mb-3`}>[ WHO WE HELP ]</p>
+        <p className={`${EYEBROW} mb-3`}>WHO WE HELP</p>
         <h1 className="text-[32px] sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-[1.08] sm:leading-[1.05] text-balance text-neutral-950 mb-4 sm:mb-5 max-w-4xl">
           Built for established practices and professional firms.
         </h1>

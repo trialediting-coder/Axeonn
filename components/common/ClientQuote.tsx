@@ -45,8 +45,8 @@ export function ClientQuote({ variant = 'section' }: ClientQuoteProps) {
       aria-label="What our client says"
       className="w-full px-4 sm:px-8 lg:px-14 xl:px-20 py-16 sm:py-24"
     >
-      <p className="mb-6 text-center text-xs font-mono font-semibold tracking-widest text-neutral-400 uppercase">
-        [ From a client ]
+      <p className="eyebrow mb-6 text-center font-semibold text-neutral-400">
+        From a client
       </p>
       {card}
     </section>

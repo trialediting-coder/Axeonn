@@ -105,7 +105,7 @@ export default function DesMoinesWebDesignPage() {
       <section className="relative w-full px-6 sm:px-10 lg:px-16 xl:px-24 pt-28 pb-12 sm:pt-44 sm:pb-28 bg-neutral-950 text-white overflow-hidden">
         <div className="absolute -top-40 -right-40 w-[520px] h-[520px] bg-blue-600/25 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 max-w-5xl mx-auto">
-          <p className="text-xs sm:text-sm font-mono uppercase tracking-wider text-blue-400 mb-3 sm:mb-4 flex items-start gap-2">
+          <p className="eyebrow eyebrow-dark mb-3 sm:mb-4 flex items-start gap-2">
             <LineIcon>
               <MapPin size={15} />
             </LineIcon>
@@ -145,7 +145,7 @@ export default function DesMoinesWebDesignPage() {
           {/* Decorative name card: tablet and up (the heading says the same thing on phones). */}
           <div className="hidden sm:block lg:col-span-5">
             <div className="relative w-full max-w-sm mx-auto lg:max-w-none rounded-3xl overflow-hidden bg-neutral-950 text-white border border-neutral-800 shadow-xl p-8 sm:p-10">
-              <div className="text-xs font-mono font-bold tracking-widest text-blue-300 uppercase">[ WEST DES MOINES, IOWA ]</div>
+              <div className="eyebrow eyebrow-dark">WEST DES MOINES, IOWA</div>
               <div className="mt-3 text-3xl sm:text-4xl font-extrabold font-display leading-tight">Axeon Studio</div>
               <p className="mt-3 text-sm text-neutral-400 leading-relaxed">
                 Built in the metro, answering the phone in the metro.
@@ -154,8 +154,8 @@ export default function DesMoinesWebDesignPage() {
           </div>
 
           <div className="lg:col-span-7">
-            <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">
-              [ WHY A LOCAL TEAM ]
+            <p className="eyebrow mb-3">
+              WHY A LOCAL TEAM
             </p>
             <h2 className="text-[28px] sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-[1.1] sm:leading-[1.05]">
               The team that builds it answers the phone.
@@ -208,7 +208,7 @@ export default function DesMoinesWebDesignPage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col lg:flex-row lg:items-center gap-5 lg:gap-10">
             <div className="lg:w-72 shrink-0">
-              <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ THE SYSTEM ]</p>
+              <p className="eyebrow">THE SYSTEM</p>
               <h2 className="mt-2 text-2xl font-extrabold font-display tracking-tight leading-tight">
                 What every metro practice and firm gets
               </h2>
@@ -250,7 +250,7 @@ export default function DesMoinesWebDesignPage() {
       {/* Purpose: route each practice type to its own page. */}
       <section className="w-full py-10 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-6xl mx-auto">
-          <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ WHO WE HELP ]</p>
+          <p className="eyebrow mb-3">WHO WE HELP</p>
           <h2 className="text-[28px] sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-[1.1] mb-3 sm:mb-4 text-balance">
             Practices and firms we serve across Des Moines
           </h2>
@@ -308,7 +308,7 @@ export default function DesMoinesWebDesignPage() {
             </address>
           </div>
           <div className="lg:col-span-7">
-            <h3 className="text-xs sm:text-sm font-mono uppercase tracking-wider text-blue-400 mb-2.5 sm:mb-4">Serving the Metro</h3>
+            <h3 className="eyebrow eyebrow-dark mb-2.5 sm:mb-4">Serving the Metro</h3>
             <ul className="flex flex-wrap gap-2 sm:gap-2.5">
               {METRO_CITIES.map((city) => {
                 const cityPage = cityPages.find((c) => c.city === city);
@@ -346,7 +346,7 @@ export default function DesMoinesWebDesignPage() {
       {/* Purpose: the local questions; every question in view, answers one tap away. */}
       <section className="w-full py-10 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-3xl mx-auto">
-          <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3">[ FAQ ]</p>
+          <p className="eyebrow mb-3">FAQ</p>
           <h2 className="text-2xl sm:text-4xl font-extrabold font-display tracking-tight leading-tight mb-3 sm:mb-10 text-balance">
             Questions Des Moines practice and firm owners ask
           </h2>
@@ -358,8 +358,8 @@ export default function DesMoinesWebDesignPage() {
       {/* Purpose: the offer and the commitment, with the two ways to start. */}
       <section className="w-full py-12 sm:py-20 px-5 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-3 sm:mb-4">
-            [ 90-DAY PERFORMANCE COMMITMENT ]
+          <p className="eyebrow eyebrow-dark mb-3 sm:mb-4">
+            90-DAY PERFORMANCE COMMITMENT
           </p>
           <h2 className="text-[28px] sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-[1.1] sm:leading-tight mb-4 sm:mb-6 text-balance">
             $0 to start. Nothing due until it&apos;s working.

@@ -165,7 +165,7 @@ function ReferralLoop() {
   return (
     <section aria-labelledby="referral-loop-heading" className="w-full py-10 sm:py-20 px-4 sm:px-10 lg:px-16 xl:px-24 bg-[#F7F6F3] border-b border-neutral-200">
       <div className="max-w-6xl mx-auto">
-        <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-2 sm:mb-3">[ HOW A REFERRAL WORKS ]</p>
+        <p className="eyebrow mb-2 sm:mb-3">HOW A REFERRAL WORKS</p>
         <h2 id="referral-loop-heading" className="text-[28px] sm:text-5xl font-extrabold font-display tracking-tight leading-[1.08] max-w-3xl">
           One introduction. It comes back to you.
         </h2>
@@ -244,7 +244,7 @@ export default function PartnersPage() {
 
         <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           <div className="lg:col-span-10">
-            <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-3 sm:mb-5">[ The Axeon Partner Program ]</p>
+            <p className="eyebrow eyebrow-dark mb-3 sm:mb-5">The Axeon Partner Program</p>
             <h1 className="text-[36px] sm:text-5xl lg:text-6xl font-black tracking-[-0.03em] [word-spacing:0.06em] leading-[1.05] font-display mb-4 sm:mb-7">
               Send us a practice or&nbsp;firm.
               <span className="block text-blue-400">We&apos;ll start by checking their&nbsp;area.</span>
@@ -342,7 +342,7 @@ export default function PartnersPage() {
       <section className="w-full py-10 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
         <div className="max-w-6xl mx-auto grid lg:grid-cols-12 gap-6 sm:gap-12 items-end">
           <div className="lg:col-span-7">
-            <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-3 sm:mb-5">[ Our promise to partners ]</p>
+            <p className="eyebrow eyebrow-dark mb-3 sm:mb-5">Our promise to partners</p>
             <p className="text-[30px] sm:text-5xl lg:text-6xl font-black tracking-[-0.04em] leading-[1.05] sm:leading-[1.02] font-display">
               We never go around you to sell to your clients.
             </p>

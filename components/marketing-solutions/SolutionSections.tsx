@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Eyebrow as SiteEyebrow } from '@/components/common/Eyebrow';
 import { ArrowLeft, ArrowRight, Check, ExternalLink, ShieldCheck } from 'lucide-react';
 import { JsonLd } from '@/components/common/JsonLd';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
@@ -18,14 +19,12 @@ import type { ServicePage, SourcedStat } from '@/data/servicePages';
 
 const SECTION_PAD = 'w-full py-10 sm:py-24 px-4 sm:px-8 lg:px-16';
 
-/** Site-wide eyebrow: mono, bracketed, blue. `onDark` lifts the blue for dark backgrounds. */
+/** Section label for the service pages: the shared components/common/Eyebrow. */
 export function Eyebrow({ label, onDark = false, className = '' }: { label: string; onDark?: boolean; className?: string }) {
   return (
-    <p
-      className={`text-xs font-mono font-bold tracking-widest uppercase ${onDark ? 'text-blue-400' : 'text-blue-600'} ${className}`}
-    >
-      [ {label} ]
-    </p>
+    <SiteEyebrow tone={onDark ? 'dark' : 'light'} className={className}>
+      {label}
+    </SiteEyebrow>
   );
 }
 

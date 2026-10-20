@@ -33,7 +33,7 @@ export default function FaqPage() {
       <div className="max-w-3xl mx-auto">
         {/* Purpose: every question an owner asks, collapsed so all of them show in one view. */}
         <section aria-labelledby="faq-heading">
-          <span className="block mb-2 sm:mb-4 text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ FAQ ]</span>
+          <span className="eyebrow block mb-2 sm:mb-4">FAQ</span>
           <h1 id="faq-heading" className="text-[30px] leading-tight sm:text-5xl font-extrabold font-display tracking-tight text-neutral-950 mb-2 sm:mb-4">
             Frequently Asked Questions
           </h1>

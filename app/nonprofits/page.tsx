@@ -182,8 +182,8 @@ export default function NonprofitsPage() {
           Video: Food Bank of Iowa
         </a>
         <div className="relative z-10 max-w-5xl mx-auto w-full">
-          <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-4">
-            [ {PROGRAM_NAME} ]
+          <p className="eyebrow eyebrow-dark mb-4">
+            {PROGRAM_NAME}
           </p>
           <h1 className="text-[34px] sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight leading-[1.05] font-display mb-4 sm:mb-6">
             A Free Digital Presence for Iowa Nonprofits
@@ -218,7 +218,7 @@ export default function NonprofitsPage() {
         <dl className="max-w-6xl mx-auto grid grid-cols-2 lg:grid-cols-4 divide-neutral-200 lg:divide-x">
           {GLANCE.map(({ label, value }) => (
             <div key={label} className="py-4 sm:py-7 lg:px-8 first:lg:pl-0">
-              <dt className="text-xs font-mono uppercase tracking-wider text-neutral-500 mb-1">{label}</dt>
+              <dt className="eyebrow eyebrow-muted mb-1">{label}</dt>
               <dd className="text-lg sm:text-xl font-bold text-neutral-950">{value}</dd>
             </div>
           ))}
@@ -230,7 +230,7 @@ export default function NonprofitsPage() {
       <section className="w-full lg:min-h-[100dvh] flex items-center py-10 sm:py-28 px-6 sm:px-10 lg:px-16 xl:px-24">
         <figure className="max-w-6xl mx-auto w-full grid lg:grid-cols-12 gap-10 lg:gap-16 items-center">
           <div className="lg:col-span-10 lg:col-start-2">
-            <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3 sm:mb-6">[ WHY WE DO THIS ]</p>
+            <p className="eyebrow mb-3 sm:mb-6">WHY WE DO THIS</p>
             <span aria-hidden="true" className="hidden sm:block font-display text-8xl leading-none text-blue-600/25 -mb-6">
               &ldquo;
             </span>
@@ -270,7 +270,7 @@ export default function NonprofitsPage() {
       <section className="w-full py-10 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24 bg-neutral-50 border-y border-neutral-200">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-10 lg:gap-16">
           <div className="lg:col-span-5">
-            <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-2 sm:mb-3">[ WHAT YOU GET ]</p>
+            <p className="eyebrow mb-2 sm:mb-3">WHAT YOU GET</p>
             <h2 className="text-[28px] sm:text-5xl lg:text-6xl font-extrabold tracking-tight font-display leading-[1.08] sm:leading-[1.05]">
               The same build paying clients get, free.
             </h2>
@@ -330,8 +330,8 @@ export default function NonprofitsPage() {
       <section className="w-full py-12 sm:py-16 px-4 sm:px-10 lg:px-16 xl:px-24 bg-blue-600 text-white">
         <div className="max-w-6xl mx-auto flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div>
-            <p className="text-xs font-mono font-bold tracking-widest text-blue-100 uppercase">
-              [ {GROUP_NAME.toUpperCase()} GROUP ]
+            <p className="eyebrow eyebrow-onblue">
+              {GROUP_NAME.toUpperCase()} GROUP
             </p>
             <p className="mt-2 text-3xl sm:text-5xl font-black font-display tracking-tight leading-tight">
               Applications close {GROUP_DEADLINE}.
@@ -368,7 +368,7 @@ export default function NonprofitsPage() {
           </div>
           <div className="lg:col-span-5">
             <div className="rounded-2xl sm:rounded-3xl border border-neutral-700 p-4 sm:p-8">
-              <h3 className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-2.5 sm:mb-5">[ WHO QUALIFIES ]</h3>
+              <h3 className="eyebrow eyebrow-dark mb-2.5 sm:mb-5">WHO QUALIFIES</h3>
               <ul className="space-y-1.5 sm:space-y-4">
                 {REQUIREMENTS.map((item) => (
                   <li key={item} className="flex gap-3 text-sm sm:text-base text-neutral-200 leading-snug sm:leading-relaxed">
@@ -395,7 +395,7 @@ export default function NonprofitsPage() {
       {/* Purpose: the closing ask: reach out by the deadline (email or fit call). */}
       <section className="w-full py-12 sm:py-20 px-6 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-4">[ BUILT FOR IOWA ]</p>
+          <p className="eyebrow eyebrow-dark mb-4">BUILT FOR IOWA</p>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight mb-6">
             Help the People You Serve Find You
           </h2>

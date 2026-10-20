@@ -32,8 +32,8 @@ export default function WorkPage() {
       <main className="pt-28 sm:pt-32 pb-20 lg:pb-28 px-4 sm:px-8 lg:px-14">
         <div className="w-full max-w-[1720px] mx-auto">
           {/* Purpose: what this page is (real builds plus labeled concepts); each card below links to a live build. */}
-          <div className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase mb-3 sm:mb-4">
-            [ RECENT BUILDS ]
+          <div className="eyebrow mb-3 sm:mb-4">
+            RECENT BUILDS
           </div>
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10 sm:mb-14">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-neutral-950 font-display tracking-tight leading-[1.08]">
@@ -45,8 +45,8 @@ export default function WorkPage() {
             </p>
           </div>
 
-          <div className="mb-8 sm:mb-10 text-xs font-mono font-bold tracking-widest text-neutral-500 uppercase">
-            [ ALL PROJECTS ]
+          <div className="eyebrow mb-8 sm:mb-10 text-neutral-500">
+            ALL PROJECTS
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12 lg:gap-x-8">
             {rest.map((project) => (
@@ -76,8 +76,8 @@ export default function WorkPage() {
                 />
               </a>
               <div className="lg:col-span-5 p-5 sm:p-10 lg:p-12 flex flex-col">
-                <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">
-                  [ CLIENT BUILD · {featured.location} ]
+                <p className="eyebrow eyebrow-dark">
+                  CLIENT BUILD · {featured.location}
                 </p>
                 <p className="mt-3 sm:mt-5 text-[72px] sm:text-[130px] leading-[0.85] font-black font-display tracking-tighter text-white">
                   #1
@@ -114,7 +114,7 @@ export default function WorkPage() {
           <div className="mt-12 sm:mt-20 pt-8 sm:pt-10 border-t border-neutral-200/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="max-w-2xl">
               <div className="text-xs font-mono font-semibold tracking-wider text-neutral-500 uppercase mb-1.5">
-                [ RUN A PRACTICE? ]
+                RUN A PRACTICE?
               </div>
               <h2 className="text-xl sm:text-2xl lg:text-[26px] font-bold text-neutral-950 font-display tracking-tight">
                 Check if your specialty is still open in your area.

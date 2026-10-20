@@ -62,7 +62,7 @@ export function PracticeExamples({ items }: { items: VerticalExample[] }) {
               </Link>
             </div>
             <div className="p-5 sm:p-7 flex-1">
-              <p className="text-xs font-mono font-bold tracking-widest uppercase text-neutral-400">Example</p>
+              <p className="eyebrow text-neutral-400">Example</p>
               <p className="mt-1.5 sm:mt-2 text-base sm:text-lg font-semibold leading-snug">{item.scenario}</p>
               <ul className="mt-3 sm:mt-4 space-y-2 sm:space-y-2.5">
                 {item.points.map((point) => (

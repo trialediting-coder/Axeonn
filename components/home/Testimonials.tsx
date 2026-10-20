@@ -60,7 +60,7 @@ export function Testimonials() {
   return (
     <section id="testimonials-section" className="w-full py-10 sm:py-32 px-4 sm:px-8 lg:px-14 xl:px-20">
       <div className="w-full max-w-6xl mx-auto">
-        <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ WHY SPEED WINS ]</p>
+        <p className="eyebrow">WHY SPEED WINS</p>
         <h2 className="mt-2 sm:mt-4 text-[28px] sm:text-5xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.1] max-w-3xl">
           The fastest answer wins the new patient or client
         </h2>
@@ -135,7 +135,7 @@ export function SpeedToLeadBand() {
         <p className="mt-3 text-lg sm:text-xl font-bold text-neutral-200">{SPEED_STAT.title}</p>
       </div>
       <div className="lg:col-span-7">
-        <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">[ WHY AXEONCORE ]</p>
+        <p className="eyebrow eyebrow-dark">WHY AXEONCORE</p>
         <h3 className="mt-2 sm:mt-3 text-[22px] sm:text-4xl font-extrabold font-display tracking-tight leading-[1.12]">
           Answering first wins. That&apos;s what AxeonCORE adds.
         </h3>

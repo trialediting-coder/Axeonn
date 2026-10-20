@@ -31,7 +31,7 @@ export default function PricingPage() {
       />
       <section className="w-full py-20 sm:py-24 px-4 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
         <div className="max-w-4xl mx-auto text-center">
-          <span className="block mb-4 text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">[ GET STARTED ]</span>
+          <span className="eyebrow eyebrow-dark block mb-4">GET STARTED</span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-tight mb-6">
             Is your specialty still open in your area?
           </h2>

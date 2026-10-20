@@ -9,7 +9,7 @@ import { JsonLd, BreadcrumbJsonLd } from '@/components/common/JsonLd';
 import { BUSINESS, cityAreaServed, serviceJsonLd } from '@/lib/seo';
 
 const TEL_HREF = `tel:${BUSINESS.telephone.replace(/-/g, '')}`;
-const EYEBROW = 'text-xs font-mono font-bold tracking-widest text-blue-600 uppercase';
+const EYEBROW = 'eyebrow';
 
 // One suburb landing page. Same look and building blocks as /des-moines-web-design,
 // with the copy, FAQ and featured practice types coming from data/cityPages.ts.
@@ -86,7 +86,7 @@ export function CityLanding({ page }: { page: CityPage }) {
       <section className="w-full py-10 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           <div className="lg:col-span-7">
-            <p className={`${EYEBROW} mb-3`}>[ {page.city.toUpperCase()} ]</p>
+            <p className={`${EYEBROW} mb-3`}>{page.city.toUpperCase()}</p>
             <h2 className="text-[28px] sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1] sm:leading-[1.05] text-balance">
               {page.localHeading}
             </h2>
@@ -120,7 +120,7 @@ export function CityLanding({ page }: { page: CityPage }) {
           </div>
 
           <div className="lg:col-span-5">
-            <p className={`${EYEBROW} mb-2 sm:mb-3`}>[ WHAT WE DO FOR YOU ]</p>
+            <p className={`${EYEBROW} mb-2 sm:mb-3`}>WHAT WE DO FOR YOU</p>
             <h2 className="mb-4 text-2xl sm:text-3xl font-extrabold font-display tracking-tight leading-tight text-balance">
               Answered first, in {page.city}.
             </h2>
@@ -152,7 +152,7 @@ export function CityLanding({ page }: { page: CityPage }) {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col lg:flex-row lg:items-center gap-5 lg:gap-10">
             <div className="lg:w-72 shrink-0">
-              <p className={EYEBROW}>[ THE SYSTEM ]</p>
+              <p className={EYEBROW}>THE SYSTEM</p>
               <h2 className="mt-2 text-2xl font-extrabold font-display tracking-tight leading-tight">
                 What every {page.city} practice and firm gets
               </h2>
@@ -189,7 +189,7 @@ export function CityLanding({ page }: { page: CityPage }) {
       {/* Purpose: route each practice type to its own page. */}
       <section className="w-full py-10 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-6xl mx-auto">
-          <p className={`${EYEBROW} mb-3`}>[ WHO WE HELP ]</p>
+          <p className={`${EYEBROW} mb-3`}>WHO WE HELP</p>
           <h2 className="text-[28px] sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-[1.1] mb-3 sm:mb-4 text-balance">
             Practices and firms we serve in {page.city}
           </h2>
@@ -276,7 +276,7 @@ export function CityLanding({ page }: { page: CityPage }) {
       {/* Purpose: the local questions; every question in view, answers one tap away. */}
       <section className="w-full py-10 sm:py-28 px-4 sm:px-10 lg:px-16 xl:px-24">
         <div className="max-w-3xl mx-auto">
-          <p className={`${EYEBROW} mb-3`}>[ FAQ ]</p>
+          <p className={`${EYEBROW} mb-3`}>FAQ</p>
           <h2 className="text-2xl sm:text-4xl font-extrabold font-display tracking-tight leading-tight mb-3 sm:mb-10 text-balance">
             Questions {page.city} practice and firm owners ask
           </h2>
@@ -288,8 +288,8 @@ export function CityLanding({ page }: { page: CityPage }) {
       {/* Purpose: the offer and the commitment, with the two ways to start. */}
       <section className="w-full py-12 sm:py-20 px-5 sm:px-10 lg:px-16 xl:px-24 bg-neutral-950 text-white">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-3 sm:mb-4">
-            [ 90-DAY PERFORMANCE COMMITMENT ]
+          <p className="eyebrow eyebrow-dark mb-3 sm:mb-4">
+            90-DAY PERFORMANCE COMMITMENT
           </p>
           <h2 className="text-[28px] sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-[1.1] sm:leading-tight mb-4 sm:mb-6 text-balance">
             $0 to start. Nothing due until it&apos;s working.

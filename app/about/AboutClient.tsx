@@ -64,10 +64,10 @@ export default function AboutClient() {
       {/* Purpose: what Axeon fixes (missed calls) and the three commitments, with the first CTA. */}
       <section className="sm:min-h-[70vh] flex flex-col justify-center px-4 sm:px-8 lg:px-14 xl:px-20 border-b border-neutral-200/80 relative pt-24 sm:pt-28 pb-8 sm:pb-12">
         <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
-          <div className="flex flex-wrap items-center gap-2 text-xs font-mono font-semibold tracking-widest text-neutral-500 uppercase mb-3 sm:mb-4">
+          <div className="eyebrow flex flex-wrap items-center gap-2 font-semibold text-neutral-500 mb-3 sm:mb-4">
             <span>AXEON STUDIO</span>
             <span>/</span>
-            <span className="text-blue-600">[ WEST DES MOINES, IOWA ]</span>
+            <span className="text-blue-600">WEST DES MOINES, IOWA</span>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-8 lg:gap-12 items-end">
@@ -107,8 +107,8 @@ export default function AboutClient() {
 
           {/* What we commit to (replaces the stock team photo) */}
           <div className="mt-6 sm:mt-16 rounded-2xl sm:rounded-3xl bg-neutral-950 text-white border border-neutral-800 shadow-xl p-4 sm:p-10">
-            <div className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase mb-3 sm:mb-6">
-              [ WHAT WE COMMIT TO ]
+            <div className="eyebrow eyebrow-dark mb-3 sm:mb-6">
+              WHAT WE COMMIT TO
             </div>
             <div className="grid grid-cols-3 gap-3 sm:gap-10">
               {HERO_FACTS.map((p) => (
@@ -137,8 +137,8 @@ export default function AboutClient() {
         <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-1 sm:gap-3 mb-3 sm:mb-10">
             <div>
-              <span className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">
-                [ FROM FIRST CALL TO BOOKED CONSULT ]
+              <span className="eyebrow">
+                FROM FIRST CALL TO BOOKED CONSULT
               </span>
               <h2 className="text-[26px] leading-tight sm:text-4xl lg:text-5xl font-extrabold text-neutral-950 font-display tracking-tight mt-2">
                 Answered. Booked. Reviewed. Committed.
@@ -180,7 +180,7 @@ export default function AboutClient() {
               href="/pricing"
               className="group p-4 sm:p-8 bg-blue-600 text-white flex flex-col justify-between gap-2 sm:gap-4 hover:bg-blue-700 transition-colors"
             >
-              <div className="flex items-center gap-2 text-xs font-mono font-bold tracking-widest uppercase text-blue-100">
+              <div className="eyebrow eyebrow-onblue flex items-center gap-2">
                 <ShieldCheck size={16} />
                 <span>Performance commitment</span>
               </div>
@@ -205,7 +205,7 @@ export default function AboutClient() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
             <div className="hidden sm:block lg:col-span-5">
               <div className="relative w-full max-w-md mx-auto lg:max-w-none rounded-3xl overflow-hidden shadow-xl border border-neutral-800 bg-neutral-950 text-white p-8 sm:p-10">
-                <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-blue-300 font-semibold mb-3">
+                <div className="eyebrow eyebrow-dark flex items-center gap-2 mb-3">
                   <MapPin size={13} />
                   <span>West Des Moines, Iowa</span>
                 </div>
@@ -216,7 +216,7 @@ export default function AboutClient() {
               </div>
 
               <div className="mt-5 p-5 rounded-2xl bg-white border border-neutral-200/80 shadow-xs max-w-md mx-auto lg:max-w-none">
-                <div className="text-xs font-mono font-semibold uppercase tracking-wider text-neutral-400 mb-1">
+                <div className="eyebrow eyebrow-muted mb-1">
                   Direct Contact
                 </div>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm font-bold text-neutral-900 font-mono">
@@ -239,8 +239,8 @@ export default function AboutClient() {
 
             <div className="lg:col-span-7 space-y-5 sm:space-y-6">
               <div>
-                <span className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">
-                  [ WHY AXEON EXISTS ]
+                <span className="eyebrow">
+                  WHY AXEON EXISTS
                 </span>
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-neutral-950 font-display tracking-tight mt-2">
                   Why Axeon exists.
@@ -260,7 +260,7 @@ export default function AboutClient() {
               </div>
 
               <div className="p-5 sm:p-7 rounded-2xl bg-neutral-900 text-white border border-neutral-800 shadow-md">
-                <div className="text-xs font-mono font-bold uppercase tracking-wider text-blue-400">Who we work with</div>
+                <div className="eyebrow eyebrow-dark">Who we work with</div>
                 <p className="mt-2 sm:mt-3 text-base sm:text-xl font-bold font-display text-neutral-100 leading-snug">
                   Established private practices and firms: dental offices, med spas, law firms and accounting and CPA firms.
                 </p>
@@ -281,7 +281,7 @@ export default function AboutClient() {
       <section className="px-4 sm:px-8 lg:px-14 xl:px-20 py-10 sm:py-24 lg:py-28 bg-neutral-950 text-white">
         <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-10 lg:gap-16">
           <div className="lg:col-span-5">
-            <span className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">[ HOW WE WORK ]</span>
+            <span className="eyebrow eyebrow-dark">HOW WE WORK</span>
             <h2 className="text-[28px] sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight leading-[1.08] sm:leading-[1.05] mt-2 sm:mt-3">
               You&apos;ll never talk to an account manager.
             </h2>
@@ -309,7 +309,7 @@ export default function AboutClient() {
       {/* Purpose: check if your area is open, or call; exclusivity and the $0-to-start offer. */}
       <section className="px-4 sm:px-8 lg:px-14 xl:px-20 py-12 sm:py-24">
         <div className="w-full max-w-4xl mx-auto text-center">
-          <span className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ LET&apos;S TALK ]</span>
+          <span className="eyebrow">LET&apos;S TALK</span>
           <h2 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-neutral-950 font-display tracking-tight mt-3">
             Is your specialty still open in your area?
           </h2>

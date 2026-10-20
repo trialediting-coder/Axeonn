@@ -45,7 +45,7 @@ export default function BookClient() {
             {/* Purpose: what the 30-minute call covers, and the area check for anyone not ready to talk. */}
             <div className="lg:col-start-1 lg:row-start-1 lg:self-end max-w-xl lg:max-w-md xl:max-w-lg lg:pr-6 xl:pr-10">
               <div className="space-y-3 sm:space-y-5">
-                <span className="block text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ BOOK A CALL ]</span>
+                <span className="eyebrow block">BOOK A CALL</span>
                 <h1 className="text-[28px] sm:text-4xl lg:text-[42px] font-black text-zinc-950 tracking-tight leading-[1.12] font-display">
                   Talk through your practice or firm&apos;s intake in 30 minutes.
                 </h1>
@@ -94,7 +94,7 @@ export default function BookClient() {
             {/* Purpose: reach us directly instead of booking. */}
             <div className="lg:col-start-1 lg:row-start-2 lg:self-start max-w-xl lg:max-w-md xl:max-w-lg lg:pr-6 xl:pr-10 space-y-5 sm:space-y-9 pt-6 sm:pt-10 border-t border-zinc-100 lg:pt-0 lg:border-t-0 order-3 lg:order-none">
               <div className="space-y-4 sm:space-y-5">
-                <h2 className="lg:sr-only text-xs font-mono font-bold tracking-widest text-zinc-700 uppercase">Or reach us directly</h2>
+                <h2 className="eyebrow lg:sr-only text-zinc-700">Or reach us directly</h2>
                 <div className="space-y-4 sm:space-y-5">
                   {/* Phone Item */}
                   <div className="group flex items-start gap-3.5 transition-all">
@@ -193,7 +193,7 @@ export default function BookClient() {
             {/* Purpose: pick a time for the call. */}
             <div id="booking-calendar-container" className="lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:self-start w-full order-2 lg:order-none">
               <div className="mb-3 sm:mb-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs text-zinc-500 px-1">
-                <h2 className="text-xs font-mono uppercase tracking-wider font-semibold text-zinc-700">
+                <h2 className="eyebrow eyebrow-muted">
                   Select Date &amp; Time
                 </h2>
                 {/* No hardcoded time zone: the calendar shows times in the visitor's own zone. */}

@@ -61,7 +61,7 @@ export function PartnerTracks({
       <div className={`${show('advisor', 'grid')} rounded-3xl lg:rounded-[32px] bg-blue-600 text-white p-5 sm:p-12 lg:grid-cols-2 gap-3 sm:gap-10`}>
         <div className="flex flex-col">
           <FileText size={28} className="hidden sm:block mb-8 text-blue-200" />
-          <p className="text-xs font-mono font-bold tracking-widest text-blue-100 uppercase mb-1 sm:mb-2">[ For CPAs, consultants &amp; billing firms ]</p>
+          <p className="eyebrow eyebrow-onblue mb-1 sm:mb-2">For CPAs, consultants &amp; billing firms</p>
           <h3 className="text-2xl sm:text-4xl font-black tracking-tight font-display sm:mb-3">Practice Advisor</h3>
           <p className="hidden sm:block text-blue-100 text-lg leading-relaxed">
             You advise practice and firm owners on their numbers and operations. When a client is losing new patients or clients

@@ -99,8 +99,8 @@ export function PricingSection({
       <div className="max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
         {/* Purpose: the two plans and the offer in one line each, before any detail. */}
         <div className={`text-center max-w-4xl mx-auto ${tightTop ? 'mb-8 sm:mb-12' : 'mb-8 sm:mb-16'}`}>
-          <span className="block mb-3 sm:mb-4 text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">
-            [ PRICING ]
+          <span className="eyebrow block mb-3 sm:mb-4">
+            PRICING
           </span>
           <h2 className="text-[32px] sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold font-display tracking-tight text-neutral-950 mb-3 sm:mb-6 leading-[1.08]">
             Two plans. Every inquiry answered.
@@ -116,9 +116,9 @@ export function PricingSection({
 
         {/* Purpose: the 90-day performance commitment in one line; the full terms are in the pricing FAQ. */}
         <div className="max-w-[1240px] mx-auto rounded-[24px] sm:rounded-[36px] bg-blue-600 text-white px-5 py-7 sm:px-12 sm:py-14 lg:px-16 shadow-xl shadow-blue-600/20">
-          <h2 className="flex items-center gap-2.5 text-xs sm:text-sm font-mono font-bold tracking-widest uppercase text-blue-100">
+          <h2 className="eyebrow eyebrow-onblue flex items-center gap-2.5 sm:text-sm">
             <ShieldCheck size={18} className="shrink-0" />
-            <span>[ 90-DAY PERFORMANCE COMMITMENT ]</span>
+            <span>90-DAY PERFORMANCE COMMITMENT</span>
           </h2>
           <p className="mt-3 sm:mt-5 text-xl sm:text-4xl lg:text-5xl font-extrabold font-display tracking-tight leading-[1.2] sm:leading-[1.1] max-w-4xl">
             {COMMITMENT_HEADLINE}
@@ -431,7 +431,7 @@ function OfferStrip() {
   return (
     <div className="mt-10 sm:mt-8 max-w-[1240px] mx-auto rounded-3xl border border-neutral-200 bg-[#F7F6F3] px-5 py-5 sm:px-8 sm:py-7 flex flex-col lg:flex-row lg:items-center gap-5 lg:gap-10">
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ HOW IT STARTS ]</p>
+        <p className="eyebrow">HOW IT STARTS</p>
         <p className="mt-2 text-lg sm:text-xl font-bold font-display text-neutral-950 leading-snug">{OFFER_LINE}</p>
         <p className="mt-1 text-base sm:text-lg text-neutral-800">
           <SetupPrice />

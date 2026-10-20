@@ -192,7 +192,7 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
       <section className="px-4 sm:px-8 py-10 sm:py-24 border-b border-neutral-200">
         <div className="max-w-5xl mx-auto">
           <div className="max-w-3xl">
-            <p className="text-xs font-mono font-bold tracking-widest text-blue-600 uppercase">[ WHAT WE SHOW YOU ON THE CALL ]</p>
+            <p className="eyebrow">WHAT WE SHOW YOU ON THE CALL</p>
             <h2 className="mt-3 sm:mt-4 text-[26px] sm:text-5xl font-extrabold font-display tracking-tight leading-[1.1] text-balance">
               See what happens when {funnel.customers} reach your {funnel.business} after hours
             </h2>

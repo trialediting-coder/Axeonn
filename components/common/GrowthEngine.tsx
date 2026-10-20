@@ -80,7 +80,7 @@ export function GrowthEngine({ showBuilds = true, variant = 'section' }: GrowthE
 
       <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-8 lg:gap-14 items-center">
         <div className="lg:col-span-5">
-          <p className="text-xs font-mono font-bold tracking-widest text-blue-400 uppercase">[ AFTER LAUNCH ]</p>
+          <p className="eyebrow eyebrow-dark">AFTER LAUNCH</p>
           <h2 className="mt-2 sm:mt-3 text-[28px] sm:text-5xl font-extrabold font-display tracking-tight leading-[1.08]">
             Add more once intake is solid.
           </h2>
@@ -128,7 +128,7 @@ export function GrowthEngine({ showBuilds = true, variant = 'section' }: GrowthE
 
       {showBuilds && (
         <div className="relative mt-10 pt-8 border-t border-white/10">
-          <p className="text-xs font-mono font-semibold tracking-widest text-neutral-400 uppercase mb-4">
+          <p className="eyebrow font-semibold text-neutral-400 mb-4">
             Start with a plan
           </p>
           <div className="grid gap-4 sm:grid-cols-2">
