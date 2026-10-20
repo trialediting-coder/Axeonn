@@ -31,6 +31,14 @@ Axeon installs patient and client intake infrastructure. It is not "a website" o
 
 **Health information policy**: intake collects name, contact details, the service requested, and a preferred time only. It never asks for symptoms, insurance, or health details.
 
+**Services, one page each** (all written for dental practices, med spas, law firms and CPA firms, and all sold inside the two plans rather than on their own):
+- Websites (AxeonCORE; extra pages $450): https://axeonstudio.co/marketing-solutions/website
+- Local SEO and Google Business Profile upkeep (AxeonCORE; no ranking promises): https://axeonstudio.co/marketing-solutions/seo
+- Lead generation and intake: missed-call text-back, 60-second first reply, two-way text inbox, call tracking (AxeonCORE); reactivation campaigns (AxeonGROWTH, or $100 per showed appointment): https://axeonstudio.co/marketing-solutions/lead-generation
+- AI chat and online consultation booking (AxeonCORE); AI phone receptionist (AxeonGROWTH, or +$199/month): https://axeonstudio.co/marketing-solutions/ai-chat-scheduling
+- Google Local Services Ads and search ads (AxeonGROWTH, or +$750/month on AxeonCORE; ad spend $500/month minimum, paid to Google directly): https://axeonstudio.co/marketing-solutions/advertising
+- Photo and video (quarterly in AxeonGROWTH, or a $1,500 on-site shoot): https://axeonstudio.co/marketing-solutions/video-photography
+
 ---
 
 ## 3. Who Axeon Serves
@@ -187,6 +195,14 @@ Request the free after-hours audit at https://axeonstudio.co/audit, book a call 
 - Free after-hours audit: https://axeonstudio.co/audit
 - Pricing: https://axeonstudio.co/pricing
 - Practices we serve: https://axeonstudio.co/solutions
+- How it works: https://axeonstudio.co/marketing-solutions
+- Services:
+  - Websites: https://axeonstudio.co/marketing-solutions/website
+  - Local SEO: https://axeonstudio.co/marketing-solutions/seo
+  - Lead generation & intake: https://axeonstudio.co/marketing-solutions/lead-generation
+  - AI chat & online booking: https://axeonstudio.co/marketing-solutions/ai-chat-scheduling
+  - Google Ads & Local Services Ads: https://axeonstudio.co/marketing-solutions/advertising
+  - Photo & video: https://axeonstudio.co/marketing-solutions/video-photography
 - AxeonPROOF: https://axeonstudio.co/axeonproof
 - Partners: https://axeonstudio.co/partners
 - Work: https://axeonstudio.co/work

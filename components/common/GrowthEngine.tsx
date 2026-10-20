@@ -16,25 +16,25 @@ const engineModules: EngineModule[] = [
     icon: Megaphone,
     title: 'Google Ads & LSA',
     body: 'Local Services Ads and search ads on the services you want more of, reported in AxeonPROOF.',
-    href: '/marketing-solutions#growth',
+    href: '/marketing-solutions/advertising',
   },
   {
     icon: PhoneCall,
     title: 'AI Receptionist',
     body: 'Answers the calls your front desk can’t get to, takes the details, and books the consultation.',
-    href: '/pricing',
+    href: '/marketing-solutions/ai-chat-scheduling',
   },
   {
     icon: RefreshCw,
     title: 'Past-Patient Reactivation',
     body: 'A campaign each quarter to past patients and clients who are due to come back.',
-    href: '/pricing',
+    href: '/marketing-solutions/lead-generation',
   },
   {
     icon: Clapperboard,
     title: 'Photo & Video',
     body: 'Quarterly shoots for review videos and reels, so people see your practice before they book.',
-    href: '/pricing',
+    href: '/marketing-solutions/video-photography',
   },
 ];
 

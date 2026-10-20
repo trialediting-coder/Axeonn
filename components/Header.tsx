@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { Menu, X, ChevronDown, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { niches } from '@/data/nichesData';
+import { services } from '@/data/marketingSolutionsData';
 
 // The four practice types, grouped the way practice owners think of themselves.
 const PRACTICE_GROUPS = [
@@ -27,7 +28,7 @@ const NewPill = () => (
   </span>
 );
 
-type MobileSection = 'about' | 'help';
+type MobileSection = 'about' | 'help' | 'services';
 
 const MOBILE_EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -82,7 +83,10 @@ export function Header() {
   const isHomePage = pathname === '/';
   const isNichePage = pathname.startsWith('/solutions/');
   // Standalone pages that open on a full-bleed dark hero.
-  const isOtherDarkHeroPage = ['/nonprofits', '/partners', '/des-moines-web-design', '/marketing-solutions', '/axeonproof'].includes(pathname);
+  const isOtherDarkHeroPage =
+    ['/nonprofits', '/partners', '/des-moines-web-design', '/axeonproof'].includes(pathname) ||
+    pathname === '/marketing-solutions' ||
+    pathname.startsWith('/marketing-solutions/');
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -90,6 +94,8 @@ export function Header() {
   const aboutTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [solutionsOpen, setSolutionsOpen] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [servicesOpen, setServicesOpen] = useState(false);
+  const servicesTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [mobileSection, setMobileSection] = useState<MobileSection | null>(null);
   const toggleMobileSection = (section: MobileSection) =>
@@ -103,15 +109,16 @@ export function Header() {
 
   // Escape closes whichever desktop panel is open.
   useEffect(() => {
-    if (!aboutOpen && !solutionsOpen) return;
+    if (!aboutOpen && !solutionsOpen && !servicesOpen) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return;
       setAboutOpen(false);
       setSolutionsOpen(false);
+      setServicesOpen(false);
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [aboutOpen, solutionsOpen]);
+  }, [aboutOpen, solutionsOpen, servicesOpen]);
 
   // Any navigation closes the phone menu (covers back/forward and hash links).
   useEffect(() => {
@@ -145,6 +152,14 @@ export function Header() {
   };
   const closeSolutionsDelayed = () => {
     timeoutRef.current = setTimeout(() => setSolutionsOpen(false), 200);
+  };
+
+  const openServices = () => {
+    if (servicesTimeoutRef.current) clearTimeout(servicesTimeoutRef.current);
+    setServicesOpen(true);
+  };
+  const closeServicesDelayed = () => {
+    servicesTimeoutRef.current = setTimeout(() => setServicesOpen(false), 200);
   };
 
   // Hover opens the desktop panels, so a mouse click on an already-open trigger
@@ -196,6 +211,7 @@ export function Header() {
             if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
               setAboutOpen(false);
               setSolutionsOpen(false);
+              setServicesOpen(false);
             }
           }}
           className={`hidden xl:flex items-center gap-7 2xl:gap-8 text-base whitespace-nowrap font-semibold transition-colors ${
@@ -288,9 +304,61 @@ export function Header() {
             )}
           </div>
 
-          <Link href="/marketing-solutions" className={`${navHoverClass} transition-colors py-1`}>
-            How it works
-          </Link>
+          {/* Services: the six service pages, each led by its result */}
+          <div
+            className="relative"
+            onPointerEnter={mouseOnly(openServices)}
+            onPointerLeave={mouseOnly(closeServicesDelayed)}
+          >
+            <button
+              type="button"
+              {...triggerProps(openServices, setServicesOpen)}
+              className={`flex items-center gap-1.5 ${navHoverClass} transition-colors cursor-pointer py-1`}
+              aria-haspopup="true"
+              aria-expanded={servicesOpen}
+            >
+              <span>Services</span>
+              <ChevronDown size={16} className={`transition-transform ${servicesOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {servicesOpen && (
+              <div
+                className="absolute top-full whitespace-normal left-1/2 -translate-x-1/2 pt-4 z-50 w-[min(640px,calc(100vw-2rem))]"
+                onPointerEnter={mouseOnly(openServices)}
+                onPointerLeave={mouseOnly(closeServicesDelayed)}
+              >
+                <div className="bg-white rounded-2xl border border-neutral-200/90 shadow-2xl shadow-neutral-900/10 p-5 sm:p-6">
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+                    {services.map((service) => (
+                      <Link
+                        key={service.slug}
+                        href={service.href}
+                        onClick={() => setServicesOpen(false)}
+                        className="group flex flex-col p-2.5 sm:p-3 rounded-xl hover:bg-neutral-50 transition-colors border border-transparent hover:border-neutral-200/60 text-left"
+                      >
+                        <span className="font-bold text-[14px] text-neutral-900 group-hover:text-blue-600 transition-colors">
+                          {service.title}
+                        </span>
+                        <span className="text-[11.5px] text-neutral-500 group-hover:text-neutral-700 mt-1 leading-snug">
+                          {service.outcome}
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                  <Link
+                    href="/marketing-solutions"
+                    onClick={() => setServicesOpen(false)}
+                    className="mt-3 flex items-center justify-between gap-3 rounded-xl bg-neutral-950 px-4 py-3 text-white hover:bg-neutral-900 transition-colors"
+                  >
+                    <span>
+                      <span className="block text-[13.5px] font-bold">How it works</span>
+                      <span className="block text-[11.5px] text-neutral-400 mt-0.5">How the pieces fit together for your practice or firm</span>
+                    </span>
+                    <ArrowRight size={15} className="shrink-0 text-blue-400" />
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
           <Link href="/pricing" className={`${navHoverClass} transition-colors py-1`}>
             Pricing
           </Link>
@@ -438,10 +506,34 @@ export function Header() {
                 </div>
               </MobileGroup>
 
-              {[
-                { href: '/marketing-solutions', label: 'How it works' },
-                { href: '/pricing', label: 'Pricing' },
-              ].map((link) => (
+              <MobileGroup
+                label="Services"
+                isOpen={mobileSection === 'services'}
+                onToggle={() => toggleMobileSection('services')}
+              >
+                <div className="flex flex-col">
+                  {services.map((service) => (
+                    <Link
+                      key={service.slug}
+                      href={service.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="px-3 py-2.5 rounded-xl active:bg-neutral-100 transition-colors block text-left"
+                    >
+                      <div className="text-sm font-semibold text-neutral-900">{service.title}</div>
+                      <div className="text-xs text-neutral-500 mt-0.5 leading-snug">{service.outcome}</div>
+                    </Link>
+                  ))}
+                  <Link
+                    href="/marketing-solutions"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="mt-1 px-3 py-2.5 rounded-xl active:bg-neutral-100 text-sm font-semibold text-blue-600"
+                  >
+                    How it works →
+                  </Link>
+                </div>
+              </MobileGroup>
+
+              {[{ href: '/pricing', label: 'Pricing' }].map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}

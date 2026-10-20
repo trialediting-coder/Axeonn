@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { marketingSolutions } from '@/data/marketingSolutionsData';
+import { marketingSolutions, services } from '@/data/marketingSolutionsData';
 import { cityPages } from '@/data/cityPages';
 import { niches } from '@/data/nichesData';
 
@@ -33,6 +33,8 @@ const WHO_WE_HELP_LINKS: FooterLink[] = [
   ...cityPages.map((city) => ({ label: city.linkLabel, href: `/${city.slug}` })),
   { label: 'Iowa Nonprofits', href: '/nonprofits' },
 ];
+
+const SERVICE_LINKS: FooterLink[] = services.map((service) => ({ label: service.title, href: service.href }));
 
 const SOLUTION_LINKS: FooterLink[] = [
   { label: 'How It Works', href: '/marketing-solutions' },
@@ -72,7 +74,8 @@ export function Footer({ year }: FooterProps) {
   const pageHasCloser =
     ['/', '/pricing', '/process', '/why-axeon', '/des-moines-web-design', '/about', '/marketing-solutions', '/axeonproof', '/partners', '/nonprofits', '/book', '/faq', '/insights'].includes(pathname) ||
     cityPages.some((city) => pathname === `/${city.slug}`) ||
-    pathname.startsWith('/solutions/');
+    pathname.startsWith('/solutions/') ||
+    pathname.startsWith('/marketing-solutions/');
 
   const handleHomeClick = () => {
     if (!isHomePage) {
@@ -139,9 +142,10 @@ export function Footer({ year }: FooterProps) {
             </div>
           </div>
 
-          <div className="lg:col-span-8 grid grid-cols-2 sm:grid-cols-3 gap-8 sm:gap-10">
+          <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-8 sm:gap-10">
             <FooterColumn title="Company" links={COMPANY_LINKS} />
             <FooterColumn title="Who We Help" links={WHO_WE_HELP_LINKS} />
+            <FooterColumn title="Services" links={SERVICE_LINKS} />
             <FooterColumn title="How It Works" links={SOLUTION_LINKS} />
           </div>
         </div>
