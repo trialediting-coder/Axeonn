@@ -14,7 +14,8 @@ export function HeroBackdrop({ photo }: { photo?: HeroPhoto }) {
             fill
             priority
             sizes="100vw"
-            className="object-cover pointer-events-none"
+            // A light blur keeps any text inside the photo (a screen, a sign) from competing with the headline.
+            className="object-cover pointer-events-none blur-[2px] scale-105"
             style={{ objectPosition: photo.position }}
           />
           <div aria-hidden="true" className="absolute inset-0 pointer-events-none bg-neutral-950/50" />

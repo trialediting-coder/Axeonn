@@ -5,10 +5,10 @@
 export type HeroPhoto = { src: string; position: string };
 
 export const serviceHeroImages: Record<string, HeroPhoto> = {
-  website: { src: '/services/website.webp', position: '60% 50%' },
-  seo: { src: '/services/seo.webp', position: '55% 40%' },
-  'lead-generation': { src: '/services/lead-generation.webp', position: '62% 35%' },
-  'ai-chat-scheduling': { src: '/services/ai-chat-scheduling.webp', position: '50% 40%' },
-  advertising: { src: '/services/advertising-feed.webp', position: '50% 30%' },
+  website: { src: '/services/website-devices.webp', position: '45% 60%' },
+  seo: { src: '/services/seo-maps.webp', position: '50% 50%' },
+  'lead-generation': { src: '/services/lead-generation-call.webp', position: '58% 35%' },
+  'ai-chat-scheduling': { src: '/services/ai-chat-window.webp', position: '25% 40%' },
+  advertising: { src: '/services/advertising-dashboard.webp', position: '50% 40%' },
   'video-photography': { src: '/services/video-photography.webp', position: '65% 50%' },
 };
