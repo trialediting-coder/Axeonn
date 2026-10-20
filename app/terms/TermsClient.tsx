@@ -191,16 +191,16 @@ export default function TermsClient() {
             </h2>
             <div className="mt-3.5 space-y-3 text-gray-700 text-[15px] sm:text-base">
               <p>
-                <strong>Initial term:</strong> AxeonCORE and AxeonGROWTH are provided on a twelve (12) month initial term that begins when the services go live or thirty (30) days after the Agreement&apos;s effective date, whichever comes first. You are responsible for the fees for the full initial term, except as described under the 90-Day Performance Commitment below. A month-to-month option is available where stated in your Agreement.
+                <strong>Initial term:</strong> AxeonCORE and AxeonGROWTH are provided on a twelve (12) month initial term that begins when the services go live or forty-five (45) days after the Agreement&apos;s effective date, whichever comes first. You are responsible for the fees for the full initial term, except as described under the 90-Day Performance Commitment below. A month-to-month option is available where stated in your Agreement.
               </p>
               <p>
                 <strong>Renewal:</strong> After the initial term, the Agreement renews month-to-month until either party gives written notice of non-renewal at least thirty (30) days before the end of the then-current term.
               </p>
               <p>
-                <strong>Implementation fee:</strong> When you commit to the full 12-month initial term, the plan&apos;s standard implementation fee (for example, $3,000 on AxeonCORE) is credited in full and is not due at signing. On the month-to-month option, the implementation fee is paid upfront. If you prepay a year, the initial term is billed at the annual price stated in your Agreement.
+                <strong>Implementation fee:</strong> When you commit to the full 12-month initial term, the plan&apos;s standard implementation fee (for example, $3,000 on AxeonCORE) is waived, so there is nothing to pay at signing. On the month-to-month option, the implementation fee is paid upfront. If you prepay a year, the initial term is billed at the annual price stated in your Agreement.
               </p>
               <p>
-                <strong>Billing:</strong> Fees are charged automatically to the payment method on file, with the first month due at signing. Late payments, suspension of services for past-due accounts, and taxes are handled as stated in your Agreement.
+                <strong>Billing:</strong> Fees are charged automatically to the payment method on file. The first monthly fee is charged when your services go live (your site is up and every call and inquiry gets a reply within 60 seconds), or forty-five (45) days after signing if go-live is held up waiting on materials or access from you. A prepaid year is charged at signing. Late payments, suspension of services for past-due accounts, and taxes are handled as stated in your Agreement.
               </p>
               <p>
                 <strong>Ad spend:</strong> Advertising costs are separate from our fees, are paid by you directly to the advertising platform (for example, Google), and are not refundable by Axeon. Ads management requires a minimum ad spend of $500 per month.

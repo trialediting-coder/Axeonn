@@ -28,11 +28,11 @@ function briefMailto(p: Pick<Partner, 'name' | 'email'>, briefUrl: string) {
   const body = [
     `Hi ${first},`,
     '',
-    'Here is the partner brief I mentioned. It covers what we install for practices, the free after-hours audit you can offer your clients, and how the advisory share works.',
+    'Here is the partner brief I mentioned. It covers what we install for practices and firms, the after-hours check we can run for your clients at no cost, and how the advisory share works.',
     '',
     briefUrl,
     '',
-    'If two or three of your clients come to mind, send me their names and I will run the audits this week at no cost to anyone.',
+    'If two or three of your clients come to mind, send me their names and I will run the checks this week at no cost to anyone.',
     '',
     'Hayder Hatem',
     'Axeon Studio · (515) 493-8017',

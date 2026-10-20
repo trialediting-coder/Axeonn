@@ -30,7 +30,7 @@ function termParagraphs(t: AgreementTerms): string[] {
           '2.1 Initial Term. This Agreement begins on the Effective Date and continues for an initial term of one (1) month beginning on the date the Services go live or thirty (30) days after the Effective Date, whichever comes first (the “Initial Term”). There is no minimum commitment beyond the Initial Term.',
         ]
       : [
-          `2.1 Initial Term. This Agreement begins on the Effective Date and continues for an initial term of ${monthsInWords(t.minimumMonths)} beginning on the date the Services go live or thirty (30) days after the Effective Date, whichever comes first (the “Initial Term”). Client is responsible for all Fees for the full Initial Term, whether or not Client uses the Services${isPractice(t) ? ', except as provided in Section 5' : ''}.`,
+          `2.1 Initial Term. This Agreement begins on the Effective Date and continues for an initial term of ${monthsInWords(t.minimumMonths)} beginning on the date the Services go live or forty-five (45) days after the Effective Date, whichever comes first (the “Initial Term”). Client is responsible for all Fees for the full Initial Term, whether or not Client uses the Services${isPractice(t) ? ', except as provided in Section 5' : ''}.`,
         ];
   out.push(
     '2.2 Renewal. After the Initial Term, this Agreement renews automatically month-to-month (each a “Renewal Term”) until either Party gives written notice of non-renewal at least thirty (30) days before the end of the then-current term. Fees are not prorated for a partial final month.'
