@@ -11,6 +11,7 @@ import { FunnelBooking } from '@/components/funnel/FunnelBooking';
 import { NichePainPoints } from '@/components/niches/NichePainPoints';
 import { FAQAccordion } from '@/components/common/FAQAccordion';
 import { WORK_PROJECTS } from '@/data/workProjects';
+import { TrustBadges } from '@/components/common/TrustBadges';
 
 // Paid-ad landing pages. Not linked from the site, not in the sitemap, noindexed.
 export const dynamicParams = false;
@@ -172,6 +173,9 @@ export default async function AdFunnelPage({ params }: { params: Promise<{ indus
                   <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-neutral-400 leading-snug">{o.l}</p>
                 </div>
               ))}
+            </div>
+            <div className="mt-5 sm:mt-6">
+              <TrustBadges variant="dark" size="lg" />
             </div>
           </div>
           <div className="lg:col-span-5">
