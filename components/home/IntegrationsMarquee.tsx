@@ -3,7 +3,7 @@
 // now that Axeon is an approved integration partner).
 //
 // Only list platforms Axeon is approved with or already connects to. Clio,
-// NexHealth and QuickBooks were approved 2026-10-21; Jobber's dashboard
+// NexHealth and QuickBooks were approved 2026-10-21 (Dentrix via NexHealth); Jobber's dashboard
 // connection is live (see data/onboardingItems.ts).
 
 type Integration = {
@@ -20,6 +20,8 @@ const INTEGRATIONS: Integration[] = [
   { name: 'Clio', logo: '/logos/clio.png', heightClass: 'h-8 sm:h-11', w: 562, h: 177 },
   // TODO: add the official NexHealth logo at /logos/nexhealth.svg and set `logo`.
   { name: 'NexHealth', heightClass: 'h-8 sm:h-11', w: 0, h: 0 },
+  // Reached through NexHealth (owner, 2026-10-21).
+  { name: 'Dentrix', logo: '/logos/dentrix.svg', heightClass: 'h-5 sm:h-7', w: 142, h: 22 },
   { name: 'QuickBooks', logo: '/logos/quickbooks.svg', heightClass: 'h-8 sm:h-11', w: 270, h: 69 },
   { name: 'Jobber', logo: '/logos/jobber.svg', heightClass: 'h-6 sm:h-8', w: 367, h: 66 },
 ];
