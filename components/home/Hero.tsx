@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { TrustBadges } from '@/components/common/TrustBadges';
 
 // The headline is "Get More ___": the result a practice or firm buys, not the
 // service (owner, 2026-10-19: sell the outcome). Each result belongs to one of
@@ -167,12 +166,6 @@ export function Hero() {
             >
               or book a call
             </Link>
-          </div>
-
-          <div aria-hidden="true" className="flex-1 min-h-6 sm:hidden" />
-
-          <div style={{ animationDelay: '0.35s' }} className="hero-rise sm:mt-8">
-            <TrustBadges variant="dark" size="lg" />
           </div>
         </div>
       </div>
