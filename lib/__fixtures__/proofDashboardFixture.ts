@@ -7,7 +7,8 @@
 // phases 1-4 done, search growth on now, numbers in.
 // industry: dental (default) | med_spa | law | accounting | other, for the
 // per-industry wording (data/industryWords.ts).
-// Never imported by a production route; nothing here is shown to a client.
+// Also powers the public sales demo (app/proof/demo, stage 'live'). Never shown
+// as a real client's data.
 import { TIER_LABELS } from '@/data/onboardingItems';
 import { computeProgress, orderedItems, type ItemState, type Onboarding } from '@/lib/onboarding';
 import type { DashboardData } from '@/lib/proofDashboardData';

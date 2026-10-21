@@ -336,7 +336,7 @@ export function ProofDashboard({
   guaranteeDay: number | null;
   agreementUrl: string | null;
   /** Set when an admin is looking at this client's dashboard (app/admin/onboarding/[token]/preview). */
-  preview?: { label: string; backHref: string } | null;
+  preview?: { label: string; backHref: string; bar?: boolean } | null;
   /** What an average customer is worth in dollars, when the client has told us; turns estimated customers into a dollar figure. */
   avgJobValue?: number | null;
   /** This month's and last month's leads (lib/siteStats.ts leadRows), newest first. */
@@ -430,10 +430,12 @@ export function ProofDashboard({
     ...(latest ? [{ traffic: reportTraffic, period: `in ${monthLabel(latest.month).split(' ')[0]}` }] : []),
   ]);
   const firstName = onboarding.clientName?.split(' ')[0];
+  // The amber "admin preview" bar; the public demo (app/proof/demo) is read-only like a preview but shows no bar.
+  const bar = !!preview && preview.bar !== false;
 
   return (
-    <div className={`min-h-screen bg-[#F3F5F8] lg:pl-72 ${preview ? 'pt-10' : ''}`}>
-      {preview ? (
+    <div className={`min-h-screen bg-[#F3F5F8] lg:pl-72 ${bar ? 'pt-10' : ''}`}>
+      {preview && bar ? (
         <div className="fixed inset-x-0 top-0 z-50 flex h-10 items-center justify-center gap-3 bg-amber-400 px-4 text-xs font-semibold text-amber-950">
           <span className="truncate">{preview.label}. This is exactly what the client sees; nothing has been sent to them.</span>
           <a href={preview.backHref} className="shrink-0 rounded-md bg-amber-950/10 px-2 py-0.5 hover:bg-amber-950/20">
@@ -443,7 +445,7 @@ export function ProofDashboard({
       ) : null}
       {/* Sidebar (desktop) */}
       <aside
-        className={`fixed bottom-4 left-4 hidden w-64 flex-col rounded-2xl bg-white shadow-[0_10px_40px_-12px_rgba(16,24,40,0.2)] lg:flex ${preview ? 'top-14' : 'top-4'}`}
+        className={`fixed bottom-4 left-4 hidden w-64 flex-col rounded-2xl bg-white shadow-[0_10px_40px_-12px_rgba(16,24,40,0.2)] lg:flex ${bar ? 'top-14' : 'top-4'}`}
       >
         <div className="px-6 pb-4 pt-6">
           <AxeonLogo product="PROOF" />
@@ -508,7 +510,7 @@ export function ProofDashboard({
       </aside>
 
       {/* Top bar (phones and tablets) */}
-      <header className={`sticky z-30 flex h-14 items-center border-b border-neutral-200 bg-white/90 px-4 backdrop-blur lg:hidden ${preview ? 'top-10' : 'top-0'}`}>
+      <header className={`sticky z-30 flex h-14 items-center border-b border-neutral-200 bg-white/90 px-4 backdrop-blur lg:hidden ${bar ? 'top-10' : 'top-0'}`}>
         <AxeonLogo product="PROOF" size="sm" />
         {!preview ? (
           <div className="ml-auto">
@@ -516,7 +518,7 @@ export function ProofDashboard({
           </div>
         ) : null}
       </header>
-      <nav aria-label="AxeonPROOF sections" className={`sticky z-20 flex gap-1.5 overflow-x-auto border-b border-neutral-200 bg-white px-3 py-2 lg:hidden ${preview ? 'top-24' : 'top-14'}`}>
+      <nav aria-label="AxeonPROOF sections" className={`sticky z-20 flex gap-1.5 overflow-x-auto border-b border-neutral-200 bg-white px-3 py-2 lg:hidden ${bar ? 'top-24' : 'top-14'}`}>
         {PROOF_TABS.map((t) => {
           const locked = tabLocked(t, onboarding.tier);
           const active = t.key === tab && !programTab;
