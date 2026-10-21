@@ -8,8 +8,7 @@
 
 type Integration = {
   name: string;
-  /** Omit to show the name as a plain text label until the official logo file is added. */
-  logo?: string;
+  logo: string;
   heightClass: string;
   /** Intrinsic size, so the browser reserves the width before the logo loads. */
   w: number;
@@ -18,8 +17,7 @@ type Integration = {
 
 const INTEGRATIONS: Integration[] = [
   { name: 'Clio', logo: '/logos/clio.png', heightClass: 'h-8 sm:h-11', w: 562, h: 177 },
-  // TODO: add the official NexHealth logo at /logos/nexhealth.svg and set `logo`.
-  { name: 'NexHealth', heightClass: 'h-8 sm:h-11', w: 0, h: 0 },
+  { name: 'NexHealth', logo: '/logos/nexhealth.png', heightClass: 'h-9 sm:h-12', w: 994, h: 263 },
   // Dentrix and Open Dental are reached through NexHealth (owner, 2026-10-21).
   { name: 'Dentrix', logo: '/logos/dentrix.svg', heightClass: 'h-5 sm:h-7', w: 142, h: 22 },
   { name: 'Open Dental', logo: '/logos/open-dental.png', heightClass: 'h-9 sm:h-12', w: 500, h: 180 },
@@ -29,20 +27,16 @@ const INTEGRATIONS: Integration[] = [
 function LogoCard({ l }: { l: Integration }) {
   return (
     <div className="shrink-0 h-14 sm:h-20 flex items-center justify-center">
-      {l.logo ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={l.logo}
-          alt={l.name}
-          width={l.w}
-          height={l.h}
-          loading="lazy"
-          decoding="async"
-          className={`${l.heightClass} w-auto max-w-[130px] sm:max-w-[210px] object-contain select-none pointer-events-none`}
-        />
-      ) : (
-        <span className="text-2xl sm:text-4xl font-bold tracking-tight text-neutral-800 select-none whitespace-nowrap">{l.name}</span>
-      )}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={l.logo}
+        alt={l.name}
+        width={l.w}
+        height={l.h}
+        loading="lazy"
+        decoding="async"
+        className={`${l.heightClass} w-auto max-w-[130px] sm:max-w-[210px] object-contain select-none pointer-events-none`}
+      />
     </div>
   );
 }
