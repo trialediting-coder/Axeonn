@@ -49,7 +49,7 @@ export function Hero() {
   return (
     <section
       id="hero-section"
-      className="relative z-10 w-full flex-1 flex items-stretch justify-center"
+      className="relative z-10 w-full min-h-[calc(100svh-7.5rem)] sm:min-h-[calc(100dvh-12.5rem)] flex items-stretch justify-center"
     >
       {/* The hero stops short of the viewport so the "what's included" strip below is in the first screen. */}
       <div className="relative w-full bg-neutral-950 text-white flex flex-col px-6 sm:px-10 lg:px-16 xl:px-20 pt-20 sm:pt-28 pb-6 sm:pb-10 overflow-hidden">
