@@ -38,7 +38,7 @@ function LogoCard({ l }: { l: Integration }) {
           height={l.h}
           loading="lazy"
           decoding="async"
-          className={`${l.heightClass} w-auto max-w-[130px] sm:max-w-[210px] object-contain select-none pointer-events-none [filter:grayscale(1)_brightness(0.55)]`}
+          className={`${l.heightClass} w-auto max-w-[130px] sm:max-w-[210px] object-contain select-none pointer-events-none`}
         />
       ) : (
         <span className="text-2xl sm:text-4xl font-bold tracking-tight text-neutral-800 select-none whitespace-nowrap">{l.name}</span>
