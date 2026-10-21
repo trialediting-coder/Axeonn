@@ -1,5 +1,5 @@
 import { Hero } from '@/components/home/Hero';
-import { IowaClientsMarquee } from '@/components/home/IowaClientsMarquee';
+import { IntegrationsMarquee } from '@/components/home/IntegrationsMarquee';
 import { WhoWeHelp } from '@/components/home/WhoWeHelp';
 import { ThreePillars } from '@/components/home/ThreePillars';
 import { HomeProof } from '@/components/home/HomeProof';
@@ -17,8 +17,8 @@ export default function HomePage() {
     <main>
       {/* Purpose: the result we sell, for all four verticals, and the one next step. */}
       <Hero />
-      {/* Purpose: who we partner with (or, in production, what every plan includes). */}
-      <IowaClientsMarquee />
+      {/* Purpose: the platforms Axeon is integrated with. */}
+      <IntegrationsMarquee />
       <WhoWeHelp />
       <HomeProof />
       <ThreePillars />
