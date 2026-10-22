@@ -7,6 +7,7 @@ import {
   Calculator,
   Sparkles,
   Smile,
+  HeartHandshake,
   ArrowRight,
   ChevronDown,
   type LucideIcon,
@@ -325,6 +326,21 @@ export function WhoWeHelp() {
                     </div>
                   );
                 })}
+
+                {/* The free program sits under the paid practice types, lighter on purpose */}
+                <Link
+                  href="/nonprofits"
+                  className="group w-full flex items-center justify-between px-5 py-4 sm:px-8 sm:py-5 rounded-2xl border border-dashed border-white/30 hover:border-white/50 hover:bg-white/[0.06] transition-colors text-left"
+                >
+                  <span className="flex items-center gap-3.5 sm:gap-5 min-w-0">
+                    <HeartHandshake className="w-6 h-6 sm:w-[26px] sm:h-[26px] text-blue-300 shrink-0" strokeWidth={2.2} />
+                    <span className="min-w-0">
+                      <span className="block font-bold text-white text-base sm:text-xl tracking-tight">Iowa Nonprofits</span>
+                      <span className="block text-white/65 text-xs sm:text-sm mt-0.5">Free website and search setup</span>
+                    </span>
+                  </span>
+                  <ArrowRight size={20} strokeWidth={2.5} className="text-white shrink-0 ml-4 group-hover:translate-x-1.5 transition-transform" />
+                </Link>
               </div>
 
               {/* Right Column (sm+): Flyout Niche Card for categories with multiple sub-niches */}

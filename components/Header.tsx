@@ -279,6 +279,17 @@ export function Header() {
                         </div>
                       ))}
                       <Link
+                        href="/nonprofits"
+                        onClick={() => setSolutionsOpen(false)}
+                        className="group flex items-center justify-between gap-4 rounded-xl bg-blue-50/60 hover:bg-blue-50 px-4 py-3 border border-blue-100 hover:border-blue-200 transition-colors text-left"
+                      >
+                        <span>
+                          <span className="block font-bold text-[14px] text-neutral-900 group-hover:text-blue-600 transition-colors">Iowa Nonprofits</span>
+                          <span className="block text-[11.5px] text-neutral-500 mt-0.5">A free website and search setup. You only cover basic hosting.</span>
+                        </span>
+                        <span className="text-xs font-semibold text-blue-600 shrink-0">Free →</span>
+                      </Link>
+                      <Link
                         href="/solutions"
                         onClick={() => setSolutionsOpen(false)}
                         className="px-1 py-1 text-[13px] font-semibold text-blue-600 hover:text-blue-700"
@@ -499,6 +510,17 @@ export function Header() {
                       </div>
                     </div>
                   ))}
+                  <Link
+                    href="/nonprofits"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="p-3.5 rounded-xl bg-blue-50/60 active:bg-blue-50 border border-blue-100 block text-left transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm font-bold text-neutral-900">Iowa Nonprofits</div>
+                      <span className="text-xs font-semibold text-blue-600">Free →</span>
+                    </div>
+                    <div className="text-xs text-neutral-500 mt-1 leading-snug">A free website and search setup. You only cover basic hosting.</div>
+                  </Link>
                   <Link
                     href="/check-your-area"
                     onClick={() => setMobileMenuOpen(false)}
