@@ -58,6 +58,7 @@ import type { OnboardingItem } from '@/data/onboardingItems';
 import { TIER_RANK } from '@/data/onboardingItems';
 import type { ItemState, Onboarding, Progress } from '@/lib/onboarding';
 import type { MonthlyReport, ProjectDetails, ProjectUpdate } from '@/lib/projects';
+import { wordsFor } from '@/data/industryWords';
 import { DEVICE_LABELS, WEEKDAY_LABELS, buttonLabel, campaignLabel, hourLabel, monthLabel, sourceLabel, type TrafficSummary } from '@/lib/projectsShared';
 
 type Icon = ComponentType<{ size?: number; className?: string }>;
@@ -430,6 +431,8 @@ export function ProofDashboard({
     ...(latest ? [{ traffic: reportTraffic, period: `in ${monthLabel(latest.month).split(' ')[0]}` }] : []),
   ]);
   const firstName = onboarding.clientName?.split(' ')[0];
+  // Patients for dental, clients for med spa, law and CPA, customers otherwise (data/industryWords.ts).
+  const words = wordsFor(onboarding.industry);
   // The amber "admin preview" bar; the public demo (app/proof/demo) is read-only like a preview but shows no bar.
   const bar = !!preview && preview.bar !== false;
 
@@ -612,7 +615,7 @@ export function ProofDashboard({
                   <div className="mt-10">
                     <h3 className="text-base font-semibold text-neutral-950">Website taps we could not match to a caller</h3>
                     <p className="mt-1 max-w-2xl text-sm text-neutral-600">
-                      Someone tapped a button on your site, but no call or text from a new number followed within 10 minutes. Mark the ones that became customers.
+                      Someone tapped a button on your site, but no call or text from a new number followed within 10 minutes. Mark the ones that became {words.people}.
                     </p>
                     <LeadLog months={leads} api={leadApi} />
                   </div>
@@ -622,7 +625,7 @@ export function ProofDashboard({
             <div className="mt-6">
               <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Included in your plan</p>
               <h2 className="mt-3 text-2xl font-bold tracking-tight text-neutral-950">Leads</h2>
-              <p className="mt-2 max-w-2xl text-sm text-neutral-600">Every call, text, email, form and booking from your site, the day it happens. Tap Booked on the ones that turned into a customer and your numbers get more exact every month.</p>
+              <p className="mt-2 max-w-2xl text-sm text-neutral-600">Every call, text, email, form and booking from your site, the day it happens. Tap Booked on the ones that turned into a {words.person} and your numbers get more exact every month.</p>
               {forms.some((m) => m.rows.length > 0) ? <FormLeads months={forms} stageApi={preview ? null : stageApi} /> : null}
               {leads.some((m) => m.rows.length > 0) ? (
                 <LeadLog months={leads} api={leadApi} />
@@ -657,12 +660,12 @@ export function ProofDashboard({
           <div className="mt-2 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-x-4 sm:gap-y-8 lg:gap-x-5 xl:grid-cols-4">
             {WEB_METRICS.map(({ key, label, icon, hint }, i) => {
               const m = webMetric(key, traffic, prevTraffic, avgJobValue, prevLabel);
-              return <StatCard key={label} label={label} value={m.value} sub={m.sub ?? hint} tone={m.tone} footer={trafficLabel} icon={icon} delay={i * 70} />;
+              return <StatCard key={label} label={label.replace('customers', words.people)} value={m.value} sub={m.sub ?? hint} tone={m.tone} footer={trafficLabel} icon={icon} delay={i * 70} />;
             })}
           </div>
         ) : null}
         {traffic && ownVisitsUrl ? <OwnVisitsLine url={ownVisitsUrl} className="mt-3" /> : null}
-        {referral ? <ReferralCard headline={referral} href={referralMailto(ownerEmail, name)} /> : null}
+        {referral ? <ReferralCard headline={referral.replace('customers', words.people)} href={referralMailto(ownerEmail, name)} /> : null}
 
         {leads.some((m) => m.rows.length > 0) ? <LeadLog months={leads} api={leadApi} /> : null}
 
@@ -881,7 +884,7 @@ export function ProofDashboard({
                       </div>
                       <p className="mt-1.5 text-sm font-semibold text-neutral-950">
                         {f.r.traffic && (f.r.traffic.views > 0 || f.r.traffic.clicks > 0)
-                          ? `${f.r.traffic.views} visits · ${f.r.traffic.clicks} button clicks · ~${f.r.traffic.estimatedCustomers} new customers (est.)`
+                          ? `${f.r.traffic.views} visits · ${f.r.traffic.clicks} button clicks · ~${f.r.traffic.estimatedCustomers} new ${words.people} (est.)`
                           : `${f.r.calls ?? '—'} calls · ${f.r.leads ?? '—'} leads · ${f.r.booked ?? '—'} bookings`}
                         {f.r.rank != null ? ` · #${f.r.rank} on Google` : ''}
                       </p>
@@ -994,7 +997,7 @@ export function ProofDashboard({
                 {estimate ? (
                   <div className="mt-4 rounded-lg bg-neutral-50 p-3">
                     <p className="text-xs font-semibold text-neutral-700">
-                      How we estimate customers: {estimate.low}% to {estimate.high}% of people who reach out
+                      How we estimate {words.people}: {estimate.low}% to {estimate.high}% of people who reach out
                     </p>
                     {traffic?.observedCloseRate ? (
                       <p className="mt-1 text-xs text-neutral-600">
@@ -1014,7 +1017,7 @@ export function ProofDashboard({
                 ) : null}
               </Card>
               <Card className="p-5 sm:p-6">
-                <h2 className="text-base font-semibold text-neutral-950">Pages that bring customers</h2>
+                <h2 className="text-base font-semibold text-neutral-950">Pages that bring {words.people}</h2>
                 <p className="mt-0.5 text-xs text-neutral-500">First page of the visit, and how many reached out</p>
                 <ul className="mt-4 space-y-2 text-sm">
                   {detail.landing.slice(0, 6).map((l) => (
@@ -1061,7 +1064,7 @@ export function ProofDashboard({
 
             {traffic && traffic.conversions > 0 ? (
               <Card className="mt-4 p-5 sm:p-6">
-                <h2 className="text-base font-semibold text-neutral-950">When customers reach out</h2>
+                <h2 className="text-base font-semibold text-neutral-950">When {words.people} reach out</h2>
                 <p className="mt-0.5 text-xs text-neutral-500">Calls, texts, emails, forms and bookings by time of day and day of week</p>
                 <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr]">
                   <div>

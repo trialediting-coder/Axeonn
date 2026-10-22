@@ -18,6 +18,8 @@ import { defaultValueFor, type Industry } from '@/data/industryWords';
 import type { ProofVersion } from '@/data/dashboardVersions';
 import type { MonthlyReport } from '@/lib/projects';
 import type { TrafficSummary } from '@/lib/projectsShared';
+import { callerLabel } from '@/lib/phoneShared';
+import type { DashboardPhone } from '@/lib/proofDashboardData';
 
 const DAY = 86_400_000;
 
@@ -259,7 +261,7 @@ export function fixtureDashboard(version: ProofVersion, now: Date = new Date(), 
     billing: null,
     businessEmail: null,
     ownerEmail: 'hello@axeonstudio.co',
-    phone: null,
+    phone: live ? fixturePhone(now) : null,
     inbox: null,
     pushKey: null,
     bookings: null,
@@ -268,5 +270,42 @@ export function fixtureDashboard(version: ProofVersion, now: Date = new Date(), 
     v2,
     programTab: false,
     live: null,
+  };
+}
+
+/** A believable month of calls for the live demo (app/proof/demo): made-up numbers, masked like real ones. */
+function fixturePhone(now: Date): DashboardPhone {
+  const month = now.toISOString().slice(0, 7);
+  const prev = new Date(now.getFullYear(), now.getMonth() - 1, 15).toISOString().slice(0, 7);
+  const at = (daysAgo: number, hour: number, minute: number) => {
+    const d = new Date(now.getTime() - daysAgo * DAY);
+    d.setHours(hour, minute, 0, 0);
+    return d.toISOString();
+  };
+  const calls: [number, number, number, number | null, 'answered' | 'missed', boolean, string][] = [
+    [0, 19, 42, null, 'missed', true, '+15155550142'],
+    [0, 10, 15, 214, 'answered', true, '+15155550178'],
+    [1, 12, 20, null, 'missed', true, '+15155550113'],
+    [1, 9, 5, 167, 'answered', true, '+15155550164'],
+    [2, 18, 5, null, 'missed', true, '+15155550127'],
+    [2, 14, 30, 302, 'answered', true, '+15155550190'],
+    [3, 8, 51, 95, 'answered', true, '+15155550151'],
+    [4, 11, 40, 241, 'answered', true, '+15155550136'],
+  ];
+  return {
+    number: '+15155550100',
+    textBack: true,
+    thisMonth: { month, calls: 64, answered: 51, missed: 13, textedBack: 13, avgSeconds: 186 },
+    lastMonth: { month: prev, calls: 51, answered: 38, missed: 13, textedBack: 0, avgSeconds: 174 },
+    recent: calls.map(([d, h, m, secs, outcome, rec, from], i) => ({
+      id: i + 1,
+      callSid: `CAdemo${i + 1}`,
+      startedAt: at(d, h, m),
+      durationSeconds: secs,
+      outcome,
+      textBackSentAt: outcome === 'missed' ? at(d, h, m) : null,
+      hasRecording: rec && outcome === 'answered',
+      caller: callerLabel(from),
+    })),
   };
 }
