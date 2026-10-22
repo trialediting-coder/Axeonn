@@ -58,6 +58,15 @@ export const whoWeHelpEntries: WhoWeHelpEntry[] = [
     video: '/videos/industries/financial.mp4',
     href: '/solutions/accounting',
   },
+  {
+    // The free Groundwork Grant program. Still frame from Food Bank of Iowa's
+    // public b-roll (used with permission), the same one /nonprofits shows.
+    id: 'nonprofits',
+    label: 'Iowa Nonprofits',
+    tag: 'Free Website & Search Setup',
+    image: 'https://i.ytimg.com/vi/HiscjGeuNxc/maxresdefault.jpg',
+    href: '/nonprofits',
+  },
 ];
 
 // Default idle reel shown before any item is hovered
