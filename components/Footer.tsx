@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { useSitePathname } from '@/lib/useSitePathname';
 import { marketingSolutions, services } from '@/data/marketingSolutionsData';
 import { allCityPages, cityPages, iowaCityPages, IOWA_PAGE } from '@/data/cityPages';
 import { niches } from '@/data/nichesData';
@@ -104,7 +105,7 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
 
 export function Footer({ year }: FooterProps) {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = useSitePathname();
   const isHomePage = pathname === '/';
   // Pages that already end with their own closing CTA skip the footer card, so
   // the page never ends with two calls to action back to back.

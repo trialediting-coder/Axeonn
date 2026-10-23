@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, type PointerEvent as ReactPointerEvent } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useSitePathname } from '@/lib/useSitePathname';
 import { Menu, X, ChevronDown, ArrowRight, Phone } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { niches } from '@/data/nichesData';
@@ -86,7 +86,7 @@ function MobileGroup({
   );
 }
 export function Header() {
-  const pathname = usePathname();
+  const pathname = useSitePathname();
   const isHomePage = pathname === '/';
   const isNichePage = pathname.startsWith('/solutions/');
   // Standalone pages that open on a full-bleed dark hero.

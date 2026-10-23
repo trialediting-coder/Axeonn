@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { usePathname } from 'next/navigation';
+import { useSitePathname } from '@/lib/useSitePathname';
 import posthog from 'posthog-js';
 
 declare global {
@@ -120,7 +120,7 @@ const VIEW_SECTIONS: Record<string, string> = {
  * event from the Cal.com calendar (components/booking/BookingCalendar.tsx).
  */
 export function AnalyticsTracker() {
-  const pathname = usePathname();
+  const pathname = useSitePathname();
   const bookedRef = useRef(false);
 
   // Page views on every client-side navigation.

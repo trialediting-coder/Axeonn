@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { useSitePathname } from '@/lib/useSitePathname';
 import { X, ArrowRight, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLeadModal } from '@/components/common/LeadModalProvider';
@@ -114,7 +115,7 @@ export function FreeWebsiteOfferPopup() {
   const triggerRef = useRef<HTMLElement | null>(null);
   const tabRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
-  const pathname = usePathname();
+  const pathname = useSitePathname();
 
   useEffect(() => {
     leadModalOpenRef.current = isLeadModalOpen;

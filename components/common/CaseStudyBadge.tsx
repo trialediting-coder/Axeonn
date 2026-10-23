@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useSitePathname } from '@/lib/useSitePathname';
 import { X, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLeadModal } from '@/components/common/LeadModalProvider';
@@ -54,7 +54,7 @@ function inCooldown(key: string, ms: number): boolean {
 }
 
 export function CaseStudyBadge() {
-  const pathname = usePathname();
+  const pathname = useSitePathname();
   const { isOpen: isLeadModalOpen } = useLeadModal();
   // Phones skip the card: at that width it spans the bottom of the screen and
   // covers the copy (mobile-first pass, 2026-10-19). The homepage has its own

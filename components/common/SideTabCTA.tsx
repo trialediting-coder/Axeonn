@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useSitePathname } from '@/lib/useSitePathname';
 import { trackEvent } from '@/components/providers/AnalyticsTracker';
 import { foundingOffer } from '@/data/foundingOfferData';
 
 /** The "Check your area" edge tab (desktop), linking to /check-your-area. Hidden on the first
  *  screen (the hero has its own buttons); it slides in once the visitor scrolls past it. */
 export function SideTabCTA() {
-  const pathname = usePathname();
+  const pathname = useSitePathname();
   const [pastHero, setPastHero] = useState(false);
 
   useEffect(() => {
