@@ -99,25 +99,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             }
           `}
         </Script>
-        {/*
-          Rendered as a raw script tag (dangerouslySetInnerHTML), not via
-          next/script — even next/script's beforeInteractive strategy routes
-          through Next's internal __next_s script queue rather than emitting
-          a literal <script>...</script> tag, which Apollo's install checker
-          didn't recognize as installed. This is the same technique already
-          used for the JSON-LD tag above, and produces byte-for-byte the exact
-          markup Apollo's own instructions ask for: the script pasted directly
-          into the HTML.
-        */}
-        <script
-          id="apollo-tracker"
-          dangerouslySetInnerHTML={{
-            __html: `function initApollo(){var n=Math.random().toString(36).substring(7),o=document.createElement("script");
-o.src="https://assets.apollo.io/micro/website-tracker/tracker.iife.js?nocache="+n,o.async=!0,o.defer=!0,
-o.onload=function(){window.trackingFunctions.onLoad({appId:"6aa40b35866f41001c1c9ae4"})},
-document.head.appendChild(o)}if(navigator.globalPrivacyControl!==true){if(document.readyState==="complete"){initApollo();}else{window.addEventListener("load",initApollo);}}`,
-          }}
-        />
         <LeadModalProvider>
           <SmoothScrollProvider>
             <AnalyticsTracker />

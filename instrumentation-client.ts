@@ -6,7 +6,7 @@
 //                       every input there: the dashboard shows their customers'
 //                       names and phone numbers, and those never leave the browser.
 // Never: /admin (our own use and "view as client" previews), browsers sending
-// Global Privacy Control (same rule as GA4, Clarity and Apollo in app/layout.tsx),
+// Global Privacy Control (same rule as GA4 and Clarity in app/layout.tsx),
 // localhost and *.vercel.app previews.
 import posthog from 'posthog-js';
 

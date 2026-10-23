@@ -137,13 +137,13 @@ export default function PrivacyClient() {
               </h2>
               <ul className="mt-2.5 space-y-2 text-xs sm:text-sm text-gray-700 leading-relaxed list-disc list-inside">
                 <li>
-                  <strong>We do not sell your personal data for money.</strong> Your contact details are never brokered, rented, or traded. Our business visitor-identification tool (Section 3) may be considered &ldquo;sharing&rdquo; under some state privacy laws, and you can opt out of it at any time (Section 4).
+                  <strong>We do not sell or share your personal data.</strong> Your contact details are never brokered, rented, or traded.
                 </li>
                 <li>
                   <strong>Direct inquiry usage only:</strong> Booking and scheduling details (name, email, phone) submitted through our booking calendar are processed solely to communicate with you regarding design and engineering projects.
                 </li>
                 <li>
-                  <strong>Analytics &amp; tracking, disclosed in full:</strong> We use Google Analytics (GA4) for traffic patterns, our own cookie-free first-party measurement script, Microsoft Clarity for heatmaps and session replay, PostHog for product analytics and session replay on this site and the AxeonPROOF client dashboard, an Apollo.io script that identifies the business a visitor is browsing from, and an embedded booking widget (provided by a third-party CRM and scheduling platform) for appointment scheduling. Each is described in Section 3, and Section 4 explains how to opt out, including our support for the Global Privacy Control signal.
+                  <strong>Analytics &amp; tracking, disclosed in full:</strong> We use Google Analytics (GA4) for traffic patterns, our own cookie-free first-party measurement script, Microsoft Clarity for heatmaps and session replay, PostHog for product analytics and session replay on this site and the AxeonPROOF client dashboard, and an embedded booking widget (provided by a third-party CRM and scheduling platform) for appointment scheduling. Each is described in Section 3, and Section 4 explains how to opt out, including our support for the Global Privacy Control signal.
                 </li>
                 <li>
                   <strong>Full user control:</strong> You may request access to, correction of, or complete deletion of your data at any time by emailing us directly.
@@ -330,28 +330,6 @@ export default function PrivacyClient() {
                   <div>
                     <div className="font-bold text-gray-950 text-sm flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-[#2563EB]" />
-                      <span>Apollo.io (Business Visitor Identification)</span>
-                    </div>
-                    <p className="mt-1 text-xs sm:text-sm text-gray-600">
-                      We use a script from Apollo.io that attempts to identify the <em>business or organization</em> a visitor is browsing from (for example, by matching a company network or a business profile), so our team can follow up with companies that appear interested in our services. This may involve sharing your IP address and browsing activity on our site with Apollo, which may combine it with its own business-contact database. Some U.S. state privacy laws may treat this as a &ldquo;sale&rdquo; or &ldquo;sharing&rdquo; of personal information. You can opt out at any time using the methods in Section 4, and you can ask Apollo to remove your information through the{' '}
-                      <a
-                        href="https://www.apollo.io/privacy-policy/remove"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[#2563EB] font-semibold hover:underline"
-                      >
-                        Apollo Privacy Center
-                      </a>
-                      .
-                    </p>
-                  </div>
-                  <span className="text-xs font-mono text-gray-400 shrink-0">Visitor ID</span>
-                </div>
-
-                <div className="p-4 rounded-lg bg-white border border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div>
-                    <div className="font-bold text-gray-950 text-sm flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-[#2563EB]" />
                       <span>Third-Party CRM &amp; Scheduling Platform</span>
                     </div>
                     <p className="mt-1 text-xs sm:text-sm text-gray-600">
@@ -385,9 +363,6 @@ export default function PrivacyClient() {
                   <strong>Microsoft Clarity:</strong> Clarity sets cookies such as <code className="px-1.5 py-0.5 rounded bg-gray-100 text-xs font-mono text-gray-900">_clck</code> and <code className="px-1.5 py-0.5 rounded bg-gray-100 text-xs font-mono text-gray-900">_clsk</code> to recognize a returning browser and to group page views into a single session for heatmaps and session replay. Clarity may also set a Microsoft <code className="px-1.5 py-0.5 rounded bg-gray-100 text-xs font-mono text-gray-900">MUID</code> cookie.
                 </li>
                 <li>
-                  <strong>Apollo.io Visitor Identification:</strong> The Apollo script uses cookies and similar identifiers to recognize a returning browser and associate visits with a business profile.
-                </li>
-                <li>
                   <strong>Booking Calendar Session Cookies:</strong> Our embedded booking widget, provided by our third-party CRM and scheduling platform, sets its own session cookies to manage appointment selection and confirm bookings when you use the calendar.
                 </li>
               </ul>
@@ -397,7 +372,7 @@ export default function PrivacyClient() {
                   <span>How to Opt Out of Tracking &amp; Analytics</span>
                 </div>
                 <p>
-                  <strong>Global Privacy Control (GPC):</strong> We honor the Global Privacy Control browser signal. When your browser sends a GPC signal, we do not load Microsoft Clarity or the Apollo.io visitor-identification script, and Google Analytics runs without analytics cookies. GPC is built into browsers such as Brave, Firefox, and DuckDuckGo, and is available as an extension for Chrome and Edge.
+                  <strong>Global Privacy Control (GPC):</strong> We honor the Global Privacy Control browser signal. When your browser sends a GPC signal, we do not load Microsoft Clarity, and Google Analytics runs without analytics cookies. GPC is built into browsers such as Brave, Firefox, and DuckDuckGo, and is available as an extension for Chrome and Edge.
                 </p>
                 <p>
                   <strong>Google Analytics:</strong> You can also prevent Google Analytics from logging visits by disabling third-party cookies, using browser tracking protection, or installing the official{' '}
@@ -422,9 +397,6 @@ export default function PrivacyClient() {
                     <span>Microsoft Privacy Dashboard</span>
                     <ExternalLink size={11} />
                   </a>.
-                </p>
-                <p>
-                  <strong>Apollo.io:</strong> Enable GPC as described above, or email us at the address in Section 10 with the subject &ldquo;Do Not Sell or Share&rdquo; and we will suppress visitor identification for you. You can also submit a removal request directly through the Apollo Privacy Center linked in Section 3.
                 </p>
               </div>
             </div>
@@ -476,9 +448,6 @@ export default function PrivacyClient() {
                 </li>
                 <li>
                   <strong>Right to Deletion:</strong> You may request that we permanently delete your contact information and submitted project inquiries from our active databases.
-                </li>
-                <li>
-                  <strong>Right to Opt Out of Sale or Sharing:</strong> You may opt out of the business visitor-identification tool described in Section 3 by enabling the Global Privacy Control signal in your browser or by emailing us with the subject line &ldquo;Do Not Sell or Share&rdquo; (see Section 4).
                 </li>
                 <li>
                   <strong>Right to Non-Discrimination:</strong> We will never deny services, charge varying rates, or alter project delivery because you exercised your privacy rights.
