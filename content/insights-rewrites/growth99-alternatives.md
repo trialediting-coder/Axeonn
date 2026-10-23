@@ -134,13 +134,14 @@ That's what Axeon is built around.
 - A custom website
 - Local SEO: Google Business Profile, treatment pages, a review request after every appointment
 - 24/7 [missed-call text-back](/insights/missed-call-text-back)
+- An AI phone receptionist for calls your team can't get to
 - A 60-second first reply to every web inquiry
 - [Online booking and a two-way text inbox](/marketing-solutions/ai-chat-scheduling/med-spa)
 - Call tracking and [AxeonPROOF](/axeonproof): calls, inquiries and reviews in one monthly dashboard
 
 **Ads without a markup.** AxeonGROWTH is $1,999/mo plus ad spend ($500/mo minimum, paid to Google directly, no markup), on a 12-month agreement.
 
-- It adds ads management, an AI phone receptionist and quarterly photo and video.
+- It adds ads management, quarterly photo and video, and campaigns to past patients and clients.
 - Or add ads to AxeonCORE for +$750/mo plus ad spend.
 
 **A team you can meet.** We're in West Des Moines. You can sit down with the people doing the work.

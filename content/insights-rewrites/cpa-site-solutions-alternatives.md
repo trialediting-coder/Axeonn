@@ -150,11 +150,12 @@ Because it covers the site and what happens after someone finds you, at a price 
 - Custom [website for accounting firms](/marketing-solutions/website/accounting)
 - [Local SEO](/marketing-solutions/seo/accounting): Google Business Profile, service pages, a review request after every appointment
 - 24/7 missed-call text-back, for the tax-season rush
+- An AI phone receptionist for calls your team can't get to
 - 60-second first reply to every web inquiry
 - [Online booking](/marketing-solutions/ai-chat-scheduling/accounting) and a two-way text inbox
 - Call tracking and [AxeonPROOF](/axeonproof): calls, inquiries and reviews in one monthly dashboard
 
-**AxeonGROWTH** is $1,999/mo plus ad spend ($500/mo minimum, paid to Google directly, no markup). 12-month agreement. It adds [ads management](/marketing-solutions/advertising/accounting), an AI phone receptionist, and quarterly photo and video. Ads can be added to AxeonCORE for +$750/mo plus ad spend.
+**AxeonGROWTH** is $1,999/mo plus ad spend ($500/mo minimum, paid to Google directly, no markup). 12-month agreement. It adds [ads management](/marketing-solutions/advertising/accounting), quarterly photo and video, and campaigns to past clients. Ads can be added to AxeonCORE for +$750/mo plus ad spend.
 
 **Local team.** We're in West Des Moines. You can meet us.
 

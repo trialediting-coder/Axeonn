@@ -131,13 +131,14 @@ For a 1-10 attorney firm in Iowa or the Midwest, these are the things we can sho
 
 AxeonCORE includes a custom website, local SEO (Google Business Profile, practice-area pages, a review request after every consultation), call tracking and AxeonPROOF.
 
-AxeonGROWTH is $1,999/mo plus ad spend ($500/mo minimum, paid to Google directly, no markup), also on a 12-month agreement. It adds ads management, an AI phone receptionist and quarterly photo and video.
+AxeonGROWTH is $1,999/mo plus ad spend ($500/mo minimum, paid to Google directly, no markup), also on a 12-month agreement. It adds ads management, quarterly photo and video, and campaigns to past clients.
 
 Want ads on AxeonCORE? Add them for +$750/mo plus ad spend. Full details on our [pricing page](/pricing).
 
 ### Every inquiry gets an answer, day or night
 
 - 24/7 missed-call text-back
+- An AI phone receptionist for calls your team can't get to
 - A first reply to every web inquiry within 60 seconds
 - Online consultation booking
 - A two-way text inbox for your office

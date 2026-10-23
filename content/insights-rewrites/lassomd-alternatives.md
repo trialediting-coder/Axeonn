@@ -106,11 +106,12 @@ It includes:
 - A custom website
 - Local SEO: Google Business Profile, service pages and a review request after every appointment
 - 24/7 missed-call text-back
+- An AI phone receptionist for calls your team can't get to
 - A 60-second first reply to every web inquiry
 - Online booking and a two-way text inbox
 - Call tracking and [AxeonPROOF](/axeonproof): calls, inquiries and reviews in one monthly dashboard
 
-**No ad markup.** [AxeonGROWTH](/marketing-solutions/advertising/dental) is $1,999/mo plus ad spend ($500/mo minimum), paid to Google directly with no markup. It adds ads management, an AI phone receptionist and quarterly photo and video. Ads can also be added to AxeonCORE for +$750/mo plus ad spend.
+**No ad markup.** [AxeonGROWTH](/marketing-solutions/advertising/dental) is $1,999/mo plus ad spend ($500/mo minimum), paid to Google directly with no markup. It adds ads management, quarterly photo and video, and campaigns to past patients. Ads can also be added to AxeonCORE for +$750/mo plus ad spend.
 
 **A team you can meet.** We're in West Des Moines. You can sit across the table from the people doing the work.
 

@@ -142,11 +142,12 @@ Because it's built for one office that needs every call answered and a price it 
 - Custom [website](/marketing-solutions/website)
 - [Local SEO](/marketing-solutions/seo): Google Business Profile, service pages, a review request after every appointment
 - 24/7 [missed-call text-back](/insights/missed-call-text-back)
+- An AI phone receptionist for calls your team can't get to
 - 60-second first reply to every web inquiry
 - [Online booking](/marketing-solutions/ai-chat-scheduling) and a two-way text inbox
 - Call tracking and [AxeonPROOF](/axeonproof): calls, inquiries and reviews in one monthly dashboard
 
-**AxeonGROWTH** is $1,999/mo plus ad spend ($500/mo minimum, paid to Google directly, no markup). 12-month agreement. It adds [ads management](/marketing-solutions/advertising), an AI phone receptionist, and quarterly photo and video.
+**AxeonGROWTH** is $1,999/mo plus ad spend ($500/mo minimum, paid to Google directly, no markup). 12-month agreement. It adds [ads management](/marketing-solutions/advertising), quarterly photo and video, and campaigns to past patients and clients.
 
 Ads can be added to AxeonCORE for +$750/mo plus ad spend.
 
