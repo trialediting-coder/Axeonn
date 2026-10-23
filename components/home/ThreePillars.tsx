@@ -42,13 +42,17 @@ function offsetFrom(index: number, active: number, count: number) {
   return d;
 }
 
-function cardStyle(offset: number): CSSProperties {
+// `jumped` is true when a card wraps from one end of the ring to the other.
+// It moves there without a transition (it's hidden at both ends), otherwise
+// it would fly across the stage behind the front card.
+function cardStyle(offset: number, jumped: boolean): CSSProperties {
   const depth = Math.abs(offset);
   return {
     transform: `translateX(${offset * 58}%) translateZ(${-depth * 260}px) rotateY(${offset * -16}deg)`,
     opacity: depth > 2 ? 0 : 1,
     zIndex: 10 - depth,
     pointerEvents: depth > 2 ? 'none' : 'auto',
+    transition: jumped ? 'none' : undefined,
   };
 }
 
@@ -59,8 +63,13 @@ export function ThreePillars() {
   const sectionRef = useRef<HTMLElement>(null);
   const inView = useInView(sectionRef, { amount: 0.4 });
   const reduce = useReducedMotion();
-  const touchX = useRef<number | null>(null);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
   const count = cards.length;
+  // Each card's offset on the previous render, to spot ring wrap-arounds.
+  const prevOffsets = useRef<number[]>(cards.map((_, i) => offsetFrom(i, 0, count)));
+  useEffect(() => {
+    prevOffsets.current = cards.map((_, i) => offsetFrom(i, active, count));
+  }, [active, count]);
 
   const go = useCallback((dir: 1 | -1) => setActive((a) => (a + dir + count) % count), [count]);
 
@@ -98,16 +107,19 @@ export function ThreePillars() {
         onFocusCapture={() => setPaused(true)}
         onBlurCapture={() => setPaused(false)}
         onTouchStart={(e) => {
-          touchX.current = e.touches[0].clientX;
+          touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
           setPaused(true);
         }}
         onTouchEnd={(e) => {
-          const start = touchX.current;
-          touchX.current = null;
+          const start = touchStart.current;
+          touchStart.current = null;
           setPaused(false);
           if (start === null) return;
-          const dx = e.changedTouches[0].clientX - start;
-          if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
+          const dx = e.changedTouches[0].clientX - start.x;
+          const dy = e.changedTouches[0].clientY - start.y;
+          // Only a mostly sideways swipe changes cards, so scrolling the page
+          // past the section doesn't flip it.
+          if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1);
         }}
       >
         <ul className="col-start-1 row-start-1 grid w-full place-items-center [perspective:1800px]">
@@ -146,27 +158,26 @@ export function ThreePillars() {
               <li
                 key={service.slug}
                 aria-hidden={!isActive}
-                style={cardStyle(offset)}
-                className="col-start-1 row-start-1 w-[86vw] sm:w-[620px] lg:w-[720px] motion-safe:transition-[transform,opacity] motion-safe:duration-700 motion-safe:ease-[cubic-bezier(0.16,1,0.3,1)]"
+                style={cardStyle(offset, Math.abs(offset - (prevOffsets.current[i] ?? offset)) > count / 2)}
+                className="col-start-1 row-start-1 w-[86vw] sm:w-[620px] lg:w-[720px] will-change-transform motion-safe:transition-[transform,opacity] motion-safe:duration-700 motion-safe:ease-[cubic-bezier(0.16,1,0.3,1)]"
               >
-                {isActive ? (
-                  <Link
-                    href={service.href}
-                    className="block overflow-hidden rounded-[24px] sm:rounded-[32px] border border-white/15 bg-neutral-950 shadow-2xl shadow-blue-900/30 outline-none focus-visible:ring-2 focus-visible:ring-white"
-                  >
-                    {inner}
-                  </Link>
-                ) : (
-                  // A card in the back brings itself to the front instead of navigating.
-                  <button
-                    type="button"
-                    tabIndex={-1}
-                    onClick={() => setActive(i)}
-                    className="block w-full overflow-hidden rounded-[24px] sm:rounded-[32px] border border-white/10 bg-neutral-950 cursor-pointer"
-                  >
-                    {inner}
-                  </button>
-                )}
+                {/* Always the same element, so a card coming to the front isn't
+                    remounted (that reloaded its photo and made it blink). A card
+                    in the back brings itself to the front instead of navigating. */}
+                <Link
+                  href={service.href}
+                  tabIndex={isActive ? 0 : -1}
+                  onClick={(e) => {
+                    if (isActive) return;
+                    e.preventDefault();
+                    setActive(i);
+                  }}
+                  className={`block overflow-hidden rounded-[24px] sm:rounded-[32px] border bg-neutral-950 outline-none focus-visible:ring-2 focus-visible:ring-white transition-[border-color,box-shadow] duration-700 ${
+                    isActive ? 'border-white/15 shadow-2xl shadow-blue-900/30' : 'border-white/10'
+                  }`}
+                >
+                  {inner}
+                </Link>
               </li>
             );
           })}
