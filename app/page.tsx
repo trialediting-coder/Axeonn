@@ -3,11 +3,15 @@ import { IntegrationsMarquee } from '@/components/home/IntegrationsMarquee';
 import { WhoWeHelp } from '@/components/home/WhoWeHelp';
 import { ThreePillars } from '@/components/home/ThreePillars';
 import { HomeProof } from '@/components/home/HomeProof';
-import { GrowthEngine } from '@/components/common/GrowthEngine';
-import { Comparison } from '@/components/home/Comparison';
+import { OfficeTest } from '@/components/home/OfficeTest';
+import { HomeGuides } from '@/components/home/HomeGuides';
 import { PricingSection } from '@/components/PricingSection';
+import { HomePricing } from '@/components/home/HomePricing';
 import { FAQ } from '@/components/home/FAQ';
 import { Contact } from '@/components/home/Contact';
+
+// The guides strip reads the posts table; refresh it hourly like /insights.
+export const revalidate = 3600;
 
 export default function HomePage() {
   // No preload() for the hero photo: the hint rode in this route's RSC payload,
@@ -21,16 +25,24 @@ export default function HomePage() {
       <Hero />
       {/* Purpose: the platforms Axeon is integrated with. */}
       <IntegrationsMarquee />
-      <WhoWeHelp />
-      <HomeProof />
+      {/* Layout 2026-10-22 (owner): what we do, then AxeonPROOF as the trust signal
+          (no practice results yet), the free office test, who we help, pricing. */}
       <ThreePillars />
-      {/* The homepage FAQ below already answers cost, the commitment and which plan
-          to pick, so the pricing block skips its own FAQ here (it stays on /pricing). */}
-      <PricingSection showFaq={false} />
-      <GrowthEngine showBuilds={false} />
-      <Comparison />
+      <HomeProof />
+      <OfficeTest />
+      <WhoWeHelp />
+      {/* Pricing: the full block on desktop (owner, 2026-10-22: "desktop is fine"),
+          the compact two-card version on phones. The FAQ below already answers
+          cost and the commitment, so the full block skips its own FAQ here. */}
+      <div className="hidden sm:block">
+        <PricingSection showFaq={false} />
+      </div>
+      <div className="sm:hidden">
+        <HomePricing />
+      </div>
       <FAQ />
       <Contact />
+      <HomeGuides />
     </main>
   );
 }

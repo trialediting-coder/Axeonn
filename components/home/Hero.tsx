@@ -52,7 +52,7 @@ export function Hero() {
       className="relative z-10 w-full min-h-[calc(100svh-7.5rem)] sm:min-h-[calc(100dvh-12.5rem)] flex items-stretch justify-center"
     >
       {/* The hero stops short of the viewport so the "what's included" strip below is in the first screen. */}
-      <div className="relative w-full bg-neutral-950 text-white flex flex-col px-6 sm:px-10 lg:px-16 xl:px-20 pt-20 sm:pt-28 pb-6 sm:pb-10 overflow-hidden">
+      <div className="relative w-full bg-neutral-950 text-white flex flex-col px-6 sm:px-10 lg:px-16 xl:px-20 pt-16 sm:pt-24 pb-0 sm:pb-4 overflow-hidden">
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* Desktop: the photos drift a few pixels against the pointer
               (components/common/InteractionLayer.tsx); the 12px bleed hides the edges. */}
@@ -74,8 +74,9 @@ export function Hero() {
               height={1067}
               fetchPriority={i === 0 ? 'high' : 'low'}
               loading={i === 0 ? 'eager' : 'lazy'}
-              className={`absolute inset-0 w-full h-full object-cover ${s.position} transition-[opacity,transform] duration-[1400ms] ease-out ${
-                s === slide ? 'opacity-100 scale-105' : 'opacity-0 scale-100'
+              className={`absolute inset-0 w-full h-full object-cover ${s.position} transition-opacity duration-[1400ms] ease-out ${
+                // Crossfade only: the old scale-up read as a bounce on every switch (owner, 2026-10-22).
+                s === slide ? 'opacity-100' : 'opacity-0'
               }`}
             />
             ),
@@ -87,9 +88,6 @@ export function Hero() {
         </div>
 
         <div className="relative z-10 w-full max-w-3xl flex-1 flex flex-col justify-center sm:ml-16 lg:ml-24 xl:ml-32">
-          {/* Phones: the two flex-1 spacers center the headline + CTAs and pin the
-              badges to the bottom of the hero, right above the "what's included" band. */}
-          <div aria-hidden="true" className="flex-1 sm:hidden" />
           <p className="hero-rise text-center sm:text-left text-xs sm:text-sm font-bold tracking-[0.18em] uppercase text-blue-300">
             Des Moines digital marketing agency
           </p>

@@ -50,6 +50,7 @@ export const coreLayers: SolutionLayer[] = [
       'Calls after hours or during a busy morning go to voicemail. Forms wait until tomorrow. The new patient or client books with whoever answered first.',
     includes: [
       '24/7 missed-call text-back',
+      'An AI phone receptionist for calls your team can’t get to',
       'First reply to every web inquiry within 60 seconds',
       'Online consultation booking',
       'A two-way text inbox for your front desk or intake team',
@@ -87,7 +88,6 @@ export const growthLayer = {
   includes: [
     'Google Local Services Ads and search ads management',
     'A quarterly reactivation campaign to past patients and clients',
-    'An AI phone receptionist',
     'Multi-provider calendars and intake routing',
     'Quarterly photo and video: review videos and reels',
     'A monthly strategy call and a quarterly business review',
@@ -95,7 +95,6 @@ export const growthLayer = {
   ],
   links: [
     { label: 'Google Ads & Local Services Ads', href: '/marketing-solutions/advertising' },
-    { label: 'AI phone receptionist', href: '/marketing-solutions/ai-chat-scheduling' },
     { label: 'Photo & video', href: '/marketing-solutions/video-photography' },
   ],
 };

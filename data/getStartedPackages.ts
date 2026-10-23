@@ -84,7 +84,7 @@ export const PACKAGES: Package[] = [
     tagline: 'Patient & client intake: every missed call and web inquiry answered within 60 seconds, 24/7.',
     includes: [
       'A custom website with online consultation booking',
-      '24/7 missed-call text-back and a first reply to every web inquiry within 60 seconds',
+      '24/7 missed-call text-back, an AI phone receptionist, and a first reply to every web inquiry within 60 seconds',
       'Review requests after every appointment, AxeonPROOF, and the 90-day performance commitment',
     ],
     services: ['Website', 'SEO', 'Content', 'AI Automation'],
@@ -99,10 +99,10 @@ export const PACKAGES: Package[] = [
     name: 'AxeonGROWTH',
     price: 1999,
     priceLabel: 'From $1,999/mo + ad spend',
-    tagline: 'Intake infrastructure plus active acquisition: ads, an AI receptionist, and reactivation.',
+    tagline: 'Intake infrastructure plus active acquisition: ads, photo and video, and reactivation.',
     includes: [
       'Everything in AxeonCORE, plus Google Local Services Ads & search ads management',
-      'An AI phone receptionist and a quarterly reactivation campaign to past patients and clients',
+      'A quarterly reactivation campaign to past patients and clients',
       'Quarterly photo & video, and a monthly strategy call',
     ],
     services: ['Website', 'SEO', 'Content', 'AI Automation', 'Google Ads', 'Meta Ads'],

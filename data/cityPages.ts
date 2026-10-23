@@ -73,7 +73,7 @@ export function cityPricingFaq(city: string): CityFaq {
   return {
     question: `How much does Axeon cost for a ${city} practice or firm?`,
     answer:
-      'AxeonCORE is from $799/mo on a 12-month agreement, with $0 setup (normally $3,000) and nothing due until it is working. AxeonGROWTH, from $1,999/mo plus ad spend, adds ads and an AI receptionist.',
+      'AxeonCORE is from $799/mo on a 12-month agreement, with $0 setup (normally $3,000) and nothing due until it is working. It includes an AI phone receptionist. AxeonGROWTH, from $1,999/mo plus ad spend, adds ads, reactivation and quarterly photo and video.',
   };
 }
 

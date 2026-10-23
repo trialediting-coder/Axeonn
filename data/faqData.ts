@@ -67,7 +67,7 @@ export const faqItems: FaqItem[] = [
   {
     question: 'Which plan should I pick?',
     answer:
-      'AxeonCORE if calls and inquiries slip through. AxeonGROWTH adds ads, an AI receptionist and campaigns to past patients and clients. We recommend one on the call.',
+      'AxeonCORE if calls and inquiries slip through. AxeonGROWTH adds ads, quarterly photo and video, and campaigns to past patients and clients. We recommend one on the call.',
   },
 ];
 

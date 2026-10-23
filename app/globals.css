@@ -12,17 +12,17 @@
 /* Homepage: every section is at least one screen tall, content centered, so each
    screen reads as one purpose (owner, 2026-10-21). svh, not dvh: dvh changes while
    the phone's address bar slides away, re-laying out every section mid-scroll and
-   making the page lag. The hero and the integrations strip keep their own sizes.
+   making the page lag. The hero, the integrations strip and the guides strip keep their own sizes.
    Base layer, so a section's own utility classes still win. Children get full
    width back, since flex items with mx-auto would otherwise shrink to their content. */
 @layer base {
-  .home-screens > section:not(#hero-section):not(#integrations) {
+  .home-screens > section:not(#hero-section):not(#integrations):not(#guides) {
     min-height: 100svh;
     display: flex;
     flex-direction: column;
     justify-content: center;
   }
-  .home-screens > section:not(#hero-section):not(#integrations) > * { width: 100%; }
+  .home-screens > section:not(#hero-section):not(#integrations):not(#guides) > * { width: 100%; }
 }
 
 html {

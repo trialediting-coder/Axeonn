@@ -1,27 +1,17 @@
 'use client';
 
-import LineIcon from '@/components/common/LineIcon';
 import React, { useRef, useEffect } from 'react';
-import Link from 'next/link';
-import { ArrowRight, ArrowUpRight, PhoneCall, Timer, Star } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import { AreaCheckRequest } from '@/components/area-check/AreaCheckRequest';
 import { motion, useInView } from 'motion/react';
 import { loopWhile, AT_REST } from '@/lib/loopWhile';
-
-// What we show on the call after an area check (the proof, not the hook), in the order we do it.
-const AUDIT_STEPS = [
-  { icon: PhoneCall, title: 'We call your practice or firm after hours', body: 'The way a new patient or client would.' },
-  { icon: Timer, title: 'We time your website’s reply', body: 'An inquiry through your site, clocked to the first answer.' },
-  { icon: Star, title: 'We compare your reviews', body: 'Your Google reviews next to the top 3 nearby competitors.' },
-];
 
 export interface ContactProps {
   onBookAudit?: () => void;
 }
 
-// Purpose: the closing step: check your area, or reach us directly by phone or email.
-// Phones: headline first, then the area-check card and contact details. The
-// card's three test steps are hidden there because HomeProof (higher on the
-// same page) lists the same steps.
+// Purpose: the closing step: the area check form itself, or reach us directly by phone or email.
+// Phones: headline and contact details first, then the form card.
 export function Contact({ onBookAudit }: ContactProps) {
   const containerRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -311,45 +301,9 @@ export function Contact({ onBookAudit }: ContactProps) {
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="order-2 lg:order-none lg:col-span-7 xl:col-span-7 bg-white text-neutral-950 rounded-[24px] sm:rounded-[36px] p-5 sm:p-8 lg:p-10 shadow-2xl border border-neutral-100 max-w-3xl w-full mx-auto lg:mx-0"
           >
-            <div className="space-y-4 sm:space-y-6">
-              <div className="pb-1">
-                <h3 className="text-xl sm:text-3xl font-bold font-display tracking-tight text-neutral-950 leading-tight">
-                  Check if your area is open
-                </h3>
-                <p className="text-sm sm:text-base text-neutral-600 mt-1.5">
-                  One practice or firm per specialty within 5 miles.
-                </p>
-              </div>
-
-              <ol className="hidden divide-y divide-neutral-200 border-y border-neutral-200">
-                {AUDIT_STEPS.map(({ icon: Icon, title, body }, i) => (
-                  <li key={title} className="flex items-start gap-4 py-4">
-                    <span className="font-mono text-xs font-bold text-neutral-400 pt-1">0{i + 1}</span>
-                    <LineIcon>
-                      <Icon size={20} className="text-blue-600" aria-hidden="true" />
-                    </LineIcon>
-                    <div>
-                      <p className="font-bold text-neutral-950">{title}</p>
-                      <p className="mt-0.5 text-sm text-neutral-600">{body}</p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
-
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5">
-                <Link
-                  href="/check-your-area"
-                  data-track="cta_click"
-                  data-track-cta="area_check_contact"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-3.5 sm:py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors shadow-lg shadow-blue-600/25"
-                >
-                  Check your area <ArrowUpRight size={16} />
-                </Link>
-                <Link href="/book" className="py-2 inline-flex items-center justify-center sm:justify-start gap-1.5 font-semibold text-neutral-700 hover:text-blue-600">
-                  or book a call <ArrowRight size={15} />
-                </Link>
-              </div>
-            </div>
+            {/* The area check form itself, so the page ends with the lead
+                instead of a link to /check-your-area (owner, 2026-10-22). */}
+            <AreaCheckRequest source="home_contact" />
           </motion.div>
 
           {/* Right Column: High-Impact Typography & Direct Contact Details */}
@@ -393,9 +347,6 @@ export function Contact({ onBookAudit }: ContactProps) {
                 >
                   +1 (515) 493-8017
                 </a>
-                <p className="text-sm text-neutral-400 sm:mt-1.5">
-                  Typically responding within one business day.
-                </p>
               </div>
             </div>
 

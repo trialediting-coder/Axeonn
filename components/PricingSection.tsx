@@ -90,7 +90,7 @@ export function PricingSection({
   return (
     <section
       id="pricing"
-      className={`w-full ${tightTop ? 'pt-6 sm:pt-10 lg:pt-14' : 'pt-10 sm:pt-36 lg:pt-44'} pb-10 sm:pb-36 lg:pb-44 px-4 sm:px-10 lg:px-10 xl:px-12 2xl:px-16`}
+      className={`w-full ${tightTop ? 'pt-6 sm:pt-10 lg:pt-14' : 'pt-14 sm:pt-24'} pb-14 sm:pb-24 px-4 sm:px-10 lg:px-10 xl:px-12 2xl:px-16`}
     >
       {includeFaqSchema && (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(pricingFaqJsonLd) }} />

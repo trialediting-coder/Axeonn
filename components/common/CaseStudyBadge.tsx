@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { X, ArrowRight, Gauge } from 'lucide-react';
+import { X, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLeadModal } from '@/components/common/LeadModalProvider';
 import { trackEvent, EVENTS } from '@/components/providers/AnalyticsTracker';
@@ -25,6 +25,9 @@ const CLICKED_COOLDOWN_MS = 60 * 24 * 60 * 60 * 1000; // already read it
 const MIN_DWELL_MS = 6_000;
 const SCROLL_DEPTH = 0.3;
 const FALLBACK_DELAY_MS = 20_000;
+
+// The thumbnail's line: a few dips, but up and to the right overall.
+const CHART_LINE = 'M8 80 L24 72 L40 75 L56 58 L72 52 L88 34 L104 16';
 
 // Pages where a promo card would be noise or would sit on top of a flow.
 const HIDDEN_PREFIXES = [STORY_PATH, '/admin', '/book', '/check-your-area', '/go', '/pay', '/billing'];
@@ -151,11 +154,53 @@ export function CaseStudyBadge() {
             </button>
 
             <Link href={STORY_PATH} onClick={open} className="group flex items-stretch gap-3 sm:gap-4 p-3 sm:p-4 pr-9 sm:pr-10">
+              {/* A small chart that draws itself climbing as the card slides in
+                  (owner, 2026-10-22). No numbers on it, so nothing to invent. */}
               <span
                 aria-hidden="true"
-                className="w-16 sm:w-24 shrink-0 rounded-xl bg-neutral-950 text-blue-400 flex items-center justify-center"
+                className="relative w-20 sm:w-28 shrink-0 rounded-xl overflow-hidden bg-blue-50 ring-1 ring-blue-100"
               >
-                <Gauge className="w-7 h-7 sm:w-9 sm:h-9" />
+                <svg viewBox="0 0 112 96" className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice">
+                  <defs>
+                    <linearGradient id="proof-badge-fill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#2563eb" stopOpacity="0.28" />
+                      <stop offset="100%" stopColor="#2563eb" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+                  {[28, 52, 76].map((y) => (
+                    <line key={y} x1="0" x2="112" y1={y} y2={y} stroke="#bfdbfe" strokeWidth="1" strokeDasharray="3 4" />
+                  ))}
+                  <motion.path
+                    d={`${CHART_LINE} L104 96 L8 96 Z`}
+                    fill="url(#proof-badge-fill)"
+                    initial={prefersReducedMotion ? false : { opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.8, delay: 1.1 }}
+                  />
+                  <motion.path
+                    d={CHART_LINE}
+                    fill="none"
+                    stroke="#2563eb"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    initial={prefersReducedMotion ? false : { pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 1.6, delay: 0.35, ease: [0.65, 0, 0.35, 1] }}
+                  />
+                  <motion.circle
+                    cx="104"
+                    cy="16"
+                    r="5"
+                    fill="#2563eb"
+                    stroke="#fff"
+                    strokeWidth="2"
+                    initial={prefersReducedMotion ? false : { scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 18, delay: 1.9 }}
+                    style={{ transformOrigin: '104px 16px' }}
+                  />
+                </svg>
               </span>
               <span className="flex flex-col justify-center min-w-0">
                 <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.18em] uppercase text-blue-600">

@@ -28,14 +28,14 @@ export function FAQ() {
 
   // Purpose: answers to the three questions owners ask before checking their area.
   return (
-    <section id="faq" className="w-full py-10 sm:py-36 lg:py-44 px-4 sm:px-10 lg:px-16 xl:px-24">
+    <section id="faq" className="w-full py-14 sm:py-24 px-4 sm:px-10 lg:px-16 xl:px-24">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       <div className="max-w-5xl mx-auto">
         <h2 className="text-[28px] leading-[1.15] sm:leading-tight sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-neutral-950 mb-5 sm:mb-16 text-center">
-          Questions Practice and Firm Owners Ask
+          Questions practice and firm owners ask
         </h2>
         <FAQAccordion items={condensed} defaultOpenCount={0} size="large" />
         <div className="mt-6 sm:mt-14 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-6">

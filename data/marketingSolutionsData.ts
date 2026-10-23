@@ -92,7 +92,7 @@ export const marketingSolutions: MarketingSolution[] = [
     id: 'growth',
     title: 'Acquisition layer',
     description:
-      'Google Local Services Ads and search ads, reactivation of past patients and clients, an AI phone receptionist and quarterly photo and video.',
+      'Google Local Services Ads and search ads, reactivation of past patients and clients, and quarterly photo and video.',
     included: 'AxeonGROWTH',
     href: '/marketing-solutions#growth',
   },

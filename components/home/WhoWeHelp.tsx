@@ -137,7 +137,7 @@ export function WhoWeHelp() {
     <section
       ref={sectionRef}
       id="who-we-help"
-      className="w-full py-10 sm:py-32 px-4 sm:px-8 lg:px-12 xl:px-16 bg-transparent text-neutral-950"
+      className="w-full py-14 sm:py-24 px-4 sm:px-8 lg:px-12 xl:px-16 bg-transparent text-neutral-950"
     >
       <div className="w-full max-w-[1720px] 2xl:max-w-[1880px] mx-auto">
         {/* No headline above the card (owner, 2026-10-20): this section only routes
@@ -145,7 +145,7 @@ export function WhoWeHelp() {
         {/* Grand Video Canvas Card. On phones the card hugs its content and uses a
             static still instead of autoplay video: the video is almost entirely
             hidden behind the scrim at that width, so it was pure bandwidth. */}
-        <div className="relative rounded-[28px] sm:rounded-[48px] overflow-hidden min-h-[620px] sm:min-h-[1000px] lg:min-h-[1140px] shadow-2xl bg-neutral-950 flex flex-col justify-center border border-black/5">
+        <div className="relative rounded-[28px] sm:rounded-[48px] overflow-hidden min-h-[620px] sm:min-h-[820px] lg:min-h-[860px] shadow-2xl bg-neutral-950 flex flex-col justify-center border border-black/5">
           {/* Base / Idle Background: still image everywhere, video on sm+ only */}
           <div
             aria-hidden="true"

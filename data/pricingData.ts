@@ -44,6 +44,7 @@ export interface AddOn {
 // it's working." = the $3,000 build is waived on the 12-month partnership and
 // the first monthly payment is charged at go-live (site up, every call and
 // inquiry answered within 60 seconds). OFFER_* below are the only wording.
+// AI phone receptionist moved into AxeonCORE (owner, 2026-10-20; site copy 2026-10-22).
 // AxeonCORE: 12-month agreement, $3,000 implementation (the build) waived;
 // month-to-month available with the $3,000 paid upfront; prepay a year = 2
 // months free. AxeonGROWTH: 12-month agreement, $5,000 implementation waived,
@@ -102,6 +103,7 @@ export const pricingTiers: PricingTier[] = [
     features: [
       'Custom mobile-first website: providers or attorneys & credentials, services, reviews, booking',
       '24/7 missed-call text-back',
+      'AI phone receptionist for calls your team can’t get to',
       'First reply to every web inquiry within 60 seconds',
       'Online consultation booking',
       'Two-way text inbox for your front desk or intake team',
@@ -136,12 +138,11 @@ export const pricingTiers: PricingTier[] = [
     startNote: "First payment once you're live. Ad spend is separate: $500/mo minimum, paid to Google directly.",
     turnaround: 'Live within 30 days of getting your materials',
     bestFor:
-      'Right for you if your intake is solid and you want more new patients or clients coming in: we run your Google ads, answer your phones with AI, and work your list of past patients or clients.',
+      'Right for you if your intake is solid and you want more new patients or clients coming in: we run your Google ads, film your practice or firm every quarter, and work your list of past patients or clients.',
     inherits: 'Everything in AxeonCORE, plus:',
     features: [
       'Google Local Services Ads & search ads management',
       'Quarterly database reactivation campaign to past patients and clients',
-      'AI phone receptionist',
       'Multi-provider calendar & intake routing',
       'Quarterly photo & video: review videos and reels',
       'Monthly strategy call + quarterly business review',
@@ -150,7 +151,6 @@ export const pricingTiers: PricingTier[] = [
     ],
     highlightFeatures: [
       { feature: 'Google Local Services Ads & search ads management', icon: 'ads' },
-      { feature: 'AI phone receptionist', icon: 'phone' },
       { feature: 'Quarterly photo & video: review videos and reels', icon: 'video' },
     ],
     cta: 'Check if your area is open',
@@ -161,7 +161,6 @@ export const pricingTiers: PricingTier[] = [
 export const addOns: AddOn[] = [
   { name: 'Google Local Services Ads management on AxeonCORE', price: '+$750 / mo' },
   { name: 'Database reactivation campaign', price: '$100 / showed appointment' },
-  { name: 'AI phone receptionist', price: '+$199 / mo' },
   { name: 'Extra page', price: '+$450 / page' },
   { name: 'On-site videography', price: '+$1,500' },
   { name: 'Extra business email mailbox', price: '+$10 / mo' },

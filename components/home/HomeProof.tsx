@@ -1,87 +1,94 @@
-import LineIcon from '@/components/common/LineIcon';
 import Link from 'next/link';
-import { ArrowRight, ArrowUpRight, PhoneCall, Timer, Star } from 'lucide-react';
+import { ArrowDown, ArrowRight } from 'lucide-react';
+import { ProofScrollFrame } from '@/components/home/ProofScrollFrame';
 
-// Homepage proof section (repositioning 2026-10-19, simplified 2026-10-20 after
-// the owner found the two text-heavy cards "cluttered" and "a little tacky").
-// Axeon has no practice clients yet, so this never shows a client result: the
-// left card is what we test on the visitor's own practice, the right card is an
-// example AxeonPROOF screen (made-up practice, labelled). Real past builds live
-// on /work as "Recent builds".
-const AUDIT_STEPS = [
-  { icon: PhoneCall, title: 'We call after hours, like a new patient or client would' },
-  { icon: Timer, title: 'We time the reply to your website form' },
-  { icon: Star, title: 'We put your reviews next to the top 3 nearby' },
-];
+// Homepage AxeonPROOF section (layout 2026-10-22: what we do -> PROOF -> office
+// test). Axeon has no practice results to show yet, so the software that will
+// show them is the trust signal: a large, readable screen of the public demo
+// (made-up practice, labelled), a tour link and a jump to the form below.
+// Real pilot results go here once a practice has a month of numbers (owner OK
+// per practice). Empty means the row doesn't render. Never invent one.
+const PILOT_RESULTS: { practice: string; result: string }[] = [];
 
-// Purpose: the visitor sees what we test on their own practice or firm, and what they get to watch after.
+// Purpose: the visitor sees the dashboard they will watch, instead of taking our word for it.
 export function HomeProof() {
   return (
     <section
       id="proof"
       aria-labelledby="home-proof-heading"
       data-track-location="home_proof"
-      className="w-full py-10 sm:py-28 px-4 sm:px-8 lg:px-14 xl:px-20"
+      className="w-full py-14 sm:py-24 px-4 sm:px-8 lg:px-14 xl:px-20 bg-neutral-50"
     >
-      <div className="w-full max-w-[1180px] mx-auto">
-        <h2
-          id="home-proof-heading"
-          className="text-center text-[28px] sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.08]"
-        >
-          Don&apos;t take our word for&nbsp;it.
-        </h2>
+      <div className="w-full max-w-[1280px] mx-auto">
+        <div className="text-center max-w-3xl mx-auto">
+          <p className="text-xs sm:text-sm font-bold tracking-[0.18em] uppercase text-blue-600">AxeonPROOF · ROI software</p>
+          <h2
+            id="home-proof-heading"
+            className="mt-3 text-[28px] sm:text-5xl lg:text-6xl font-extrabold font-display tracking-tight text-neutral-950 leading-[1.08]"
+          >
+            {/* Two fixed lines: the promise, then the answer in blue. */}
+            <span className="block">Don&apos;t take our word for&nbsp;it.</span>
+            <span className="block text-blue-600">Watch the&nbsp;number.</span>
+          </h2>
+          <p className="mt-4 sm:mt-6 text-base sm:text-xl text-neutral-600 max-w-2xl mx-auto">
+            AxeonPROOF is the ROI software every client gets. Every call, inquiry and booking we handle
+            shows up on your own dashboard, live, with the revenue it&nbsp;brought&nbsp;in.
+          </p>
+        </div>
 
-        <div className="mt-6 sm:mt-14 grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-          {/* Before: we test their practice */}
-          <div className="rounded-[24px] sm:rounded-[28px] bg-neutral-950 text-white p-6 sm:p-10 flex flex-col">
-            <h3 className="text-xl sm:text-3xl font-extrabold font-display tracking-tight">First, we test your&nbsp;office.</h3>
-            <ul className="mt-5 sm:mt-8 space-y-3.5 sm:space-y-5">
-              {AUDIT_STEPS.map(({ icon: Icon, title }) => (
-                <li key={title} className="flex gap-3 text-[15px] sm:text-lg text-neutral-200">
-                  <LineIcon>
-                    <Icon size={20} className="text-blue-400" aria-hidden="true" />
-                  </LineIcon>
-                  {title}
-                </li>
-              ))}
-            </ul>
-            <div className="mt-6 sm:mt-auto sm:pt-10">
-              <Link
-                href="/check-your-area"
-                data-track="cta_click"
-                data-track-cta="home_proof_area_check"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 sm:py-4 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-bold transition-colors"
-              >
-                Check if your area is open <ArrowUpRight size={16} />
-              </Link>
-            </div>
-          </div>
+        <figure className="mt-8 sm:mt-14">
+          <ProofScrollFrame>
+          <Link href="/axeonproof" className="group block max-sm:max-w-[320px] max-sm:mx-auto rounded-2xl sm:rounded-[28px] overflow-hidden border border-neutral-200 bg-white shadow-2xl shadow-neutral-900/10">
+            {/* Phones get the phone layout of the dashboard, so the numbers stay readable. */}
+            <picture>
+            <source media="(max-width: 639px)" srcSet="/home/proof-demo-phone.webp" width={780} height={1192} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/home/proof-demo.webp"
+              alt="AxeonPROOF dashboard for an example dental practice: calls, leads, bookings, estimated new patients, map rank and the current phase of the delivery schedule"
+              width={2160}
+              height={1320}
+              loading="lazy"
+              decoding="async"
+              className="w-full h-auto group-hover:scale-[1.01] motion-safe:transition-transform motion-safe:duration-500"
+            />
+            </picture>
+          </Link>
+          </ProofScrollFrame>
+          <figcaption className="mt-4 text-center text-xs sm:text-sm text-neutral-500">
+            AxeonPROOF, shown with an example practice and made-up numbers.
+          </figcaption>
+        </figure>
 
-          {/* After: they watch it work */}
-          <div className="rounded-[24px] sm:rounded-[28px] border border-neutral-200 bg-white p-6 sm:p-10 flex flex-col">
-            <h3 className="text-xl sm:text-3xl font-extrabold font-display tracking-tight text-neutral-950">Then you watch it&nbsp;work.</h3>
-            <figure className="mt-5 sm:mt-8">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/home/proof-example.webp"
-                alt="AxeonPROOF dashboard for an example dental practice: inquiries, estimated new patients, visits and the current phase of the delivery schedule"
-                width={1600}
-                height={778}
-                loading="lazy"
-                decoding="async"
-                className="w-full h-auto rounded-2xl border border-neutral-200"
-              />
-              <figcaption className="mt-2 text-xs text-neutral-500">AxeonPROOF, shown with an example practice.</figcaption>
-            </figure>
-            <div className="mt-6 sm:mt-auto sm:pt-8">
-              <Link
-                href="/axeonproof"
-                className="inline-flex items-center gap-2 font-bold text-neutral-950 hover:text-blue-600 transition-colors"
-              >
-                Tour AxeonPROOF <ArrowRight size={16} />
-              </Link>
-            </div>
-          </div>
+        {PILOT_RESULTS.length > 0 && (
+          <ul className="mt-8 sm:mt-12 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6">
+            {PILOT_RESULTS.map(({ practice, result }) => (
+              <li key={practice} className="rounded-2xl bg-white border border-neutral-200 p-5 sm:p-6">
+                <p className="text-lg sm:text-xl font-bold text-neutral-950">{result}</p>
+                <p className="mt-1 text-sm text-neutral-500">{practice}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {/* Two next steps: see the software, or go straight to the form at the bottom of the page. */}
+        <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4">
+          <Link
+            href="/axeonproof"
+            data-track="cta_click"
+            data-track-cta="home_proof_tour"
+            className="inline-flex items-center justify-center gap-2 px-8 py-3.5 sm:py-4 rounded-full bg-neutral-950 hover:bg-neutral-800 text-white font-bold transition-colors"
+          >
+            Tour AxeonPROOF <ArrowRight size={16} />
+          </Link>
+          <a
+            href="#contact-section"
+            data-track="cta_click"
+            data-track-cta="home_proof_form"
+            className="inline-flex items-center justify-center gap-2 px-8 py-3.5 sm:py-4 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors shadow-lg shadow-blue-600/20"
+          >
+            Get this for your practice <ArrowDown size={16} />
+          </a>
         </div>
       </div>
     </section>
