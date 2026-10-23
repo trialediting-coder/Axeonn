@@ -98,7 +98,7 @@ export const PACKAGES: Package[] = [
     id: 'axeongrowth',
     name: 'AxeonGROWTH',
     price: 1999,
-    priceLabel: 'From $1,999/mo + ad spend',
+    priceLabel: 'From $1,999/mo + ad spend',
     tagline: 'Intake infrastructure plus active acquisition: ads, photo and video, and reactivation.',
     includes: [
       'Everything in AxeonCORE, plus Google Local Services Ads & search ads management',

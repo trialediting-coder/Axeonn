@@ -125,7 +125,7 @@ export default function BookClient() {
                         </button>
                       </div>
                       <a
-                        href="tel:515-493-8017"
+                        href="tel:+15154938017"
                         className="text-lg sm:text-xl font-bold text-zinc-950 hover:text-blue-600 transition-colors tracking-tight block mt-0.5"
                       >
                         (515) 493-8017

@@ -7,6 +7,7 @@ import { Menu, X, ChevronDown, ArrowRight, Phone } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { niches } from '@/data/nichesData';
 import { services } from '@/data/marketingSolutionsData';
+import { allCityPages } from '@/data/cityPages';
 
 // The four practice types, grouped the way practice owners think of themselves.
 const PRACTICE_GROUPS = [
@@ -93,7 +94,8 @@ export function Header() {
   const isOtherDarkHeroPage =
     ['/nonprofits', '/partners', '/des-moines-web-design', '/des-moines-seo', '/iowa-digital-marketing', '/axeonproof', '/check-your-area'].includes(pathname) ||
     pathname === '/marketing-solutions' ||
-    pathname.startsWith('/marketing-solutions/');
+    pathname.startsWith('/marketing-solutions/') ||
+    allCityPages.some((city) => pathname === `/${city.slug}`);
 
   // On the area-check page the header button scrolls to the form instead of
   // reloading the page it is already on (friction audit E12).

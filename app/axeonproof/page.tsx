@@ -54,7 +54,7 @@ const GUARANTEE_STEPS = [
 
 const PLANS = [
   { name: 'AxeonCORE', price: 'From $799/mo', note: 'Where most practices and firms start.', items: ['Overview with the live recovered-inquiry counter', 'Program: your 180-day delivery schedule, every step dated', 'Always the phase you are in and what is next', 'Leads: every call, text, form and booking', 'Calls: tracked numbers, missed-call text-back', 'Bookings: online consultation booking', 'Reviews: a request after every appointment', 'Pipeline: bookings from win-back texts and your site, in dollars', '90-day performance commitment tracking', 'Change requests, and a monthly summary link with no password'], chips: ['Overview + live counter', '180-day schedule', 'Leads', 'Calls + missed-call text-back', 'Bookings', 'Reviews', 'Bookings in dollars', '90-day commitment tracking', 'Change requests', 'Monthly summary link'], featured: true },
-  { name: 'AxeonGROWTH', price: 'From $1,999/mo + ad spend', note: 'Intake plus active acquisition.', items: ['Everything in AxeonCORE', 'Ads: every dollar next to the inquiries it brought in', 'AI receptionist: every call answered, 24/7', 'Monthly strategy call and quarterly review'], chips: ['Everything in CORE', 'Ads + the inquiries they bring', 'AI receptionist, 24/7', 'Monthly strategy call', 'Quarterly review'], featured: false },
+  { name: 'AxeonGROWTH', price: 'From $1,999/mo + ad spend', note: 'Intake plus active acquisition.', items: ['Everything in AxeonCORE', 'Ads: every dollar next to the inquiries it brought in', 'AI receptionist: every call answered, 24/7', 'Monthly strategy call and quarterly review'], chips: ['Everything in CORE', 'Ads + the inquiries they bring', 'AI receptionist, 24/7', 'Monthly strategy call', 'Quarterly review'], featured: false },
 ];
 
 /** Section header in the hero's language: pill, headline with an accent word, intro to the right. */
@@ -85,7 +85,7 @@ function SectionHead({ pill, title, intro, introShort, pillOnPhones = true }: { 
 
 export default function AxeonProofPage() {
   return (
-    <main className="relative isolate w-full bg-neutral-950 text-white">
+    <main className="relative isolate w-full overflow-x-clip bg-neutral-950 text-white">
       <JsonLd data={jsonLd} />
       <BreadcrumbJsonLd items={[{ name: 'AxeonPROOF', path: '/axeonproof' }]} />
       <PageIntro />

@@ -244,7 +244,7 @@ export const seoPage: ServicePage = {
   serviceType: 'Local SEO for Dentists, Med Spas, Law Firms and CPA Firms',
   metaTitle: 'SEO for Dentists, Med Spas, Law Firms & CPAs | Axeon Studio',
   metaDescription:
-    'Local SEO for dentists, med spas, law firms and CPA firms in Des Moines and Iowa: Google Business Profile upkeep, local service pages and reviews after every appointment.',
+    'Local SEO for Iowa dentists, med spas, law firms and CPA firms: Google Business Profile upkeep, local service pages and reviews after every visit.',
   quickAnswer: {
     question: "What does Axeon's local SEO do?",
     answer:
@@ -633,7 +633,7 @@ export const advertisingPage: ServicePage = {
     title: 'Ads that fill your schedule, tracked to the booked consult',
     subtitle:
       'Local Services and search ads for the work you want more of. Every ad call answered.',
-    priceLine: 'AxeonGROWTH · From $1,999/mo + ad spend',
+    priceLine: 'AxeonGROWTH · From $1,999/mo + ad spend',
     note: 'or +$750/mo on AxeonCORE',
   },
   how: {
@@ -709,7 +709,7 @@ export const advertisingPage: ServicePage = {
   buying: {
     heading: 'How it’s bought',
     options: [
-      { plan: 'AxeonGROWTH', price: 'From $1,999/mo + ad spend', detail: 'Ads management with everything in AxeonCORE, reactivation and quarterly photo and video.' },
+      { plan: 'AxeonGROWTH', price: 'From $1,999/mo + ad spend', detail: 'Ads management with everything in AxeonCORE, reactivation and quarterly photo and video.' },
       { plan: 'Ads on AxeonCORE', price: '+$750/mo', detail: 'Local Services Ads and search ads management added to AxeonCORE.' },
       { plan: 'Ad spend', price: '$500/mo minimum', detail: 'Paid to Google directly. No markup.' },
     ],

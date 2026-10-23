@@ -56,7 +56,7 @@ export const SERVICE_PRICE: Record<FunnelService, { line: string; note: string }
   seo: { line: 'Included in AxeonCORE · From $799/mo', note: "$0 to start. Nothing due until it's working." },
   'lead-generation': { line: 'Included in AxeonCORE · From $799/mo', note: "$0 to start. Nothing due until it's working." },
   'ai-chat-scheduling': { line: 'Included in AxeonCORE · From $799/mo', note: "$0 to start. Nothing due until it's working." },
-  advertising: { line: 'AxeonGROWTH · From $1,999/mo + ad spend', note: 'or +$750/mo on AxeonCORE' },
+  advertising: { line: 'AxeonGROWTH · From $1,999/mo + ad spend', note: 'or +$750/mo on AxeonCORE' },
   'video-photography': { line: 'Quarterly in AxeonGROWTH · From $1,999/mo', note: 'or a single on-site shoot for $1,500' },
 };
 

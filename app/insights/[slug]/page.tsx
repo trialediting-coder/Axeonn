@@ -136,6 +136,13 @@ export default async function InsightPostPage({
         </a>
       );
     },
+    // Comparison tables are wider than a phone: they scroll inside their own
+    // box instead of widening the whole page (site audit, 2026-10-23).
+    table: ({ node: _node, ...props }: { node?: unknown } & React.TableHTMLAttributes<HTMLTableElement>) => (
+      <div className="overflow-x-auto">
+        <table {...props} />
+      </div>
+    ),
   };
 
   return (

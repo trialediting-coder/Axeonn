@@ -132,7 +132,7 @@ export const pricingTiers: PricingTier[] = [
     focus: 'Intake infrastructure + active acquisition',
     pricePrefix: 'From',
     price: '$1,999',
-    billingNote: '/mo + ad spend',
+    billingNote: '/mo + ad spend',
     startFee: "12-month agreement · first payment when you're live",
     setupWas: '$5,000',
     startNote: "First payment once you're live. Ad spend is separate: $500/mo minimum, paid to Google directly.",

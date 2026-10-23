@@ -201,11 +201,11 @@ export default function IowaDigitalMarketingPage() {
           </h2>
           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
             {niches.map((niche) => (
-              <li key={niche.slug}>
+              <li key={niche.slug} className="flex">
                 <Link
                   href={`/solutions/${niche.slug}`}
                   data-spot
-                  className="group ix-card relative flex items-center justify-between gap-3 rounded-2xl bg-white border border-neutral-200 px-5 py-4 font-bold hover:border-blue-400 transition-colors"
+                  className="group ix-card relative flex w-full items-center justify-between gap-3 rounded-2xl bg-white border border-neutral-200 px-5 py-4 font-bold hover:border-blue-400 transition-colors"
                 >
                   {niche.name}
                   <ArrowRight size={16} className="shrink-0 text-blue-600 group-hover:translate-x-0.5 transition-transform" />

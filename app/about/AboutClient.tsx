@@ -218,7 +218,7 @@ export default function AboutClient() {
                   Direct Contact
                 </div>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm font-bold text-neutral-900 font-mono">
-                  <a href="tel:5154938017" className="hover:text-blue-600 transition-colors">
+                  <a href="tel:+15154938017" className="hover:text-blue-600 transition-colors">
                     (515) 493-8017
                   </a>
                   <span className="text-neutral-300">•</span>
@@ -314,7 +314,7 @@ export default function AboutClient() {
               <span>Check if your area is open</span>
             </button>
             <a
-              href="tel:5154938017"
+              href="tel:+15154938017"
               className="inline-flex items-center justify-center px-8 py-4 rounded-full border border-neutral-300 hover:bg-white text-neutral-900 font-semibold text-base transition-colors"
             >
               Call (515) 493-8017

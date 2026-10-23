@@ -201,7 +201,7 @@ export function ThreePillars() {
               onClick={() => setActive(i)}
               aria-label={`Show ${service.title}`}
               aria-current={i === active}
-              className={`h-2 rounded-full transition-all duration-500 ${i === active ? 'w-8 bg-blue-500' : 'w-2 bg-white/30 hover:bg-white/60'}`}
+              className={`relative h-2 rounded-full transition-all duration-500 after:absolute after:-inset-x-1 after:-inset-y-4 after:content-[''] ${i === active ? 'w-8 bg-blue-500' : 'w-2 bg-white/30 hover:bg-white/60'}`}
             />
           ))}
         </div>
