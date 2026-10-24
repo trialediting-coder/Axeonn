@@ -60,8 +60,9 @@ export async function generateMetadata({
     path: `/insights/${post.slug}`,
     // Keep the <title> within ~60 characters: the longest brand suffix that fits.
     // A title identical to the H1 gets flagged as duplicate content by Semrush.
+    // A stored metaTitle that just repeats the H1 counts as unset.
     title:
-      post.metaTitle ??
+      (post.metaTitle && post.metaTitle !== post.title ? post.metaTitle : null) ??
       (post.title.length <= 45
         ? `${post.title} | Axeon Studio`
         : post.title.length <= 52
