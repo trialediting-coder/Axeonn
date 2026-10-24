@@ -58,8 +58,15 @@ export async function generateMetadata({
   if (!post || post.status !== 'published') return {};
   return buildMetadata({
     path: `/insights/${post.slug}`,
-    // Keep the <title> within ~60 characters: the brand suffix only when it fits.
-    title: post.metaTitle ?? (post.title.length <= 45 ? `${post.title} | Axeon Studio` : post.title),
+    // Keep the <title> within ~60 characters: the longest brand suffix that fits.
+    // A title identical to the H1 gets flagged as duplicate content by Semrush.
+    title:
+      post.metaTitle ??
+      (post.title.length <= 45
+        ? `${post.title} | Axeon Studio`
+        : post.title.length <= 52
+          ? `${post.title} | Axeon`
+          : post.title),
     description: post.metaDescription ?? post.excerpt,
   });
 }

@@ -61,6 +61,27 @@ export async function generateMetadata({
 
 // The top question search for each practice type (Semrush, 2026-10-20), answered
 // first in the FAQ and in the FAQPage schema.
+// Two insight posts per practice page, so each post gets a link from the page
+// that ranks for its topic (Semrush flagged posts with a single incoming link).
+const FURTHER_READING: Record<string, { slug: string; title: string }[]> = {
+  dental: [
+    { slug: 'how-to-get-more-dental-patients', title: 'How to get more dental patients' },
+    { slug: 'dental-marketing-ideas', title: '15 dental marketing ideas' },
+  ],
+  'med-spa': [
+    { slug: 'med-spa-marketing-ideas', title: '14 med spa marketing ideas' },
+    { slug: 'med-spa-seo', title: 'Med spa SEO: what it costs and what works' },
+  ],
+  'law-firms': [
+    { slug: 'law-firm-intake', title: 'A simple law firm intake process' },
+    { slug: 'how-much-does-a-law-firm-website-cost', title: 'What a law firm website costs' },
+  ],
+  accounting: [
+    { slug: 'how-to-get-more-tax-clients', title: 'How to get more tax clients' },
+    { slug: 'marketing-ideas-for-accountants', title: '12 marketing ideas for accountants' },
+  ],
+};
+
 const AEO_FAQ: Record<string, { question: string; answer: string }> = {
   dental: {
     question: 'How do you market a dental practice?',
@@ -131,6 +152,17 @@ export default async function NichePage({
               More questions &rarr;
             </Link>
           </p>
+          {FURTHER_READING[niche.slug] && (
+            <ul className="mt-2 sm:mt-4">
+              {FURTHER_READING[niche.slug].map((post) => (
+                <li key={post.slug}>
+                  <Link href={`/insights/${post.slug}`} className="min-h-11 inline-flex items-center font-semibold text-blue-600 hover:text-blue-700 underline-offset-4 hover:underline">
+                    {post.title} &rarr;
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </section>
       <SpecialtiesForVertical vertical={niche.slug} />
